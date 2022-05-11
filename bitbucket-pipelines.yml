@@ -1,0 +1,37 @@
+image: node:16.13.1
+
+definitions:
+  steps:
+    - step: &lint-and-test
+        name: Lint and test
+        script:
+          # First install the latest version of Google Chrome (including all of its apt package dependencies)
+          - wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+          - echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google.list
+          # Then update apt package cache so we can install dependencies (including Google Chrome)
+          - apt update
+          # Install Google Chrome
+          - apt install -y google-chrome-stable
+          # Set CHROME_BIN environment variable to point to Chrome install location.
+          # This is used by karma as part of the ng test script.
+          - export CHROME_BIN='/usr/bin/google-chrome-stable'
+          # Install NPM dependencies
+          - npm ci
+          # Set up playwright for e2e tests
+          - npx playwright install
+          # Run linter
+          - npm run lint
+          # Run unit tests
+          - npm run test
+          # Run e2e tests
+          - npm run test:e2e
+
+pipelines:
+  branches:
+    # Always run on master
+    master:
+      - step: *lint-and-test
+  pull-requests:
+    # Run for any branch that has an open pull request
+    '**':
+      - step: *lint-and-test

@@ -4,9 +4,16 @@ import {
   BrowserRouter, Navigate, Route, Routes,
 } from 'react-router-dom';
 import './index.css';
+import { CssBaseline } from '@mui/material';
 import reportWebVitals from './reportWebVitals';
 import Home from './routes/home/Home';
 import Registration from './routes/registration/Registration';
+
+// Import font (with various weights)
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -14,6 +21,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+      <CssBaseline />
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home/*" element={<Home />} />

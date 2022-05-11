@@ -1,0 +1,17 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { createMemoryHistory } from 'history'; // TODO: remove temporary eslint ignore above
+import { Router } from 'react-router-dom';
+import Home from './Home';
+
+test('renders learn react link', () => {
+  const history = createMemoryHistory();
+  render(
+    <Router location={history.location} navigator={history}>
+      <Home />
+    </Router>,
+  );
+  const linkElement = screen.getByText(/Go to the registration page/i);
+  expect(linkElement).toBeInTheDocument();
+});

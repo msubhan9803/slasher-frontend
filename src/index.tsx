@@ -1,15 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import {
+  BrowserRouter, Navigate, Route, Routes,
+} from 'react-router-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import Home from './routes/home/Home';
+import Registration from './routes/registration/Registration';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/home/*" element={<Home />} />
+        <Route path="/registration/*" element={<Registration />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>,
 );
 

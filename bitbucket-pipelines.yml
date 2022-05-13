@@ -1,9 +1,13 @@
 image: node:16.13.1
 
 definitions:
+  caches:
+    node: node_modules
   steps:
     - step: &lint-and-test
         name: Lint and test
+        caches:
+          - node
         script:
           # First install the latest version of Google Chrome (including all of its apt package dependencies)
           - wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
@@ -25,12 +29,47 @@ definitions:
           - npm run test
           # Run e2e tests
           - npm run test:e2e
+    - step: &deploy
+        name: Deploy the app to web
+        caches:
+          - node
+        script:
+          # Load environment variables from appropriate deployment env file
+          - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
+          # Latest release name will be based on current date and time
+          - LATEST_RELEASE_DIR_NAME="$(date +%Y%m%d_%H%M%S)"
+          # Full path to release is derived from loaded environment variables
+          - FULL_PATH_TO_LATEST_RELEASE_DIR="$REMOTE_RELEASES_DIR/$LATEST_RELEASE_DIR_NAME"
+          # Install NPM dependencies
+          - npm ci
+          # Run build
+          - npm run build
+          # Copy any relevant .htaccess file into the build (if it exists)
+          - |
+            [ -f "./deploy/.htaccess.${BITBUCKET_BRANCH}" ] && echo 'Adding .htaccess file to build' && cp ./deploy/.htaccess.${BITBUCKET_BRANCH} ./build/.htaccess
+          # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
+          - |
+            [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
+          # Rename build dir to intended release dir name
+          - mv ./build ./$LATEST_RELEASE_DIR_NAME
+          # Deploy to siteground by scp-ing files.  This only works because we added the correct
+          # SSH key via the BitBucket repository settings "SSH keys" page.
+          - scp -r -P 18765 ./$LATEST_RELEASE_DIR_NAME u664-oora98pjoccl@slasher.tv:$REMOTE_RELEASES_DIR
+          # Update remote public_html symlink to point to latest release
+          - ssh -p 18765 u664-oora98pjoccl@slasher.tv "ln -nsf $FULL_PATH_TO_LATEST_RELEASE_DIR $REMOTE_PUBLIC_HTML_DIR"
+          # TODO: Eventually add code here to clean up old releases.  We'll just delete them manually for now.
 
 pipelines:
   branches:
     # Always run on master
     master:
       - step: *lint-and-test
+    deploy/production:
+      - step: *lint-and-test
+      - step: *deploy
+    deploy/staging:
+      - step: *lint-and-test
+      - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request
     '**':

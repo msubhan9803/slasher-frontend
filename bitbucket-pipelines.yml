@@ -52,9 +52,11 @@ definitions:
             [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
           # Rename build dir to intended release dir name
           - mv ./build ./$LATEST_RELEASE_DIR_NAME
+          # Create remote releases dir if it doesn't exist
+          - ssh -p 18765 u664-oora98pjoccl@slasher.tv "mkdir -p $REMOTE_RELEASES_DIR"
           # Deploy to siteground by scp-ing files.  This only works because we added the correct
           # SSH key via the BitBucket repository settings "SSH keys" page.
-          - scp -r -P 18765 ./$LATEST_RELEASE_DIR_NAME u664-oora98pjoccl@slasher.tv:$REMOTE_RELEASES_DIR
+          - scp -r -P 18765 ./$LATEST_RELEASE_DIR_NAME u664-oora98pjoccl@slasher.tv:$REMOTE_RELEASES_DIR/
           # Update remote public_html symlink to point to latest release
           - ssh -p 18765 u664-oora98pjoccl@slasher.tv "ln -nsf $FULL_PATH_TO_LATEST_RELEASE_DIR $REMOTE_PUBLIC_HTML_DIR"
           # TODO: Eventually add code here to clean up old releases.  We'll just delete them manually for now.

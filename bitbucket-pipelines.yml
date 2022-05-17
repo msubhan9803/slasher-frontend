@@ -63,8 +63,8 @@ definitions:
 
 pipelines:
   branches:
-    # Always run on master
-    master:
+    # Always run on main
+    main:
       - step: *lint-and-test
     deploy/production:
       - step: *lint-and-test

@@ -1,19 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {
-  BrowserRouter, Navigate, Route, Routes,
-} from 'react-router-dom';
-import './index.css';
-import { CssBaseline } from '@mui/material';
+import { BrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
-import Home from './routes/home/Home';
-import Registration from './routes/registration/Registration';
 
-// Import font (with various weights)
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
+import './styles/global.scss';
+
+import App from './App';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
@@ -21,12 +13,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <CssBaseline />
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home/*" element={<Home />} />
-        <Route path="/registration/*" element={<Registration />} />
-      </Routes>
+      <App />
     </BrowserRouter>
   </React.StrictMode>,
 );

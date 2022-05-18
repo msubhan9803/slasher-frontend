@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 function Home() {
   return (
     <div className="home">
-      <h1>Home</h1>
-      <p>This is a placeholder home page!</p>
+      <h1>Not Found</h1>
+      <p>This Page could not be found.</p>
       <p>
-        <Link to="/registration">Go to the registration page</Link>
+        <Link to="/">Go back to the home page.</Link>
       </p>
     </div>
   );

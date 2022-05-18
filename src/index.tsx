@@ -4,7 +4,6 @@ import {
   BrowserRouter, Navigate, Route, Routes,
 } from 'react-router-dom';
 import './index.css';
-import { CssBaseline } from '@mui/material';
 import reportWebVitals from './reportWebVitals';
 import Home from './routes/home/Home';
 import Registration from './routes/registration/Registration';
@@ -21,7 +20,6 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <CssBaseline />
       <Routes>
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home/*" element={<Home />} />

@@ -72,6 +72,9 @@ pipelines:
     deploy/staging:
       - step: *lint-and-test
       - step: *deploy
+    deploy/dev:
+      - step: *lint-and-test
+      - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request
     '**':

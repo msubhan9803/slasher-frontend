@@ -5,13 +5,11 @@ import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrappe
 function SignIn() {
   return (
     <UnauthenticatedSiteWrapper>
-      <div className="home">
-        <h1>Sign In</h1>
-        <p>This is a placeholder sign in page!</p>
-        <p>
-          <Link to="/">Go back to the home page</Link>
-        </p>
-      </div>
+      <h1>Sign In</h1>
+      <p>This is a placeholder sign in page!</p>
+      <p>
+        <Link to="/">Go back to the home page</Link>
+      </p>
     </UnauthenticatedSiteWrapper>
   );
 }

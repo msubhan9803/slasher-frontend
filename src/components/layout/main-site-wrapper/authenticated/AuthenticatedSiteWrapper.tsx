@@ -48,7 +48,7 @@ function AuthenticatedSiteWrapper({ children }: Props) {
         onHide={hideOffcanvasSidebar}
       >
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Offcanvas</Offcanvas.Title>
+          <Offcanvas.Title>Menu</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
           <SidebarNavContent />

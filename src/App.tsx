@@ -17,6 +17,7 @@ function App() {
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />
+      {/* May be authenticated or unauthenticated */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

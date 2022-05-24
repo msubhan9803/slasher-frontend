@@ -7,15 +7,27 @@ html {
 
 body {
   color: #fff;
-  background-color: #080808;
-  background-image: linear-gradient(#161618 0px, #080808 1000px);
-  background-repeat: no-repeat;
+  // background-color: #080808;
+  // background: linear-gradient(#161618 0%, #080808 100%);
+  // background-repeat: no-repeat;
+  background: linear-gradient(180deg, #171718 0%, #000000 100%);
+  // backdrop-filter: blur(10px);
 }
 
 input.form-control {
-  border-radius: $btn-border-radius;
+  background: #1F1F1F;
+  border: 1px solid #3A3B46;
+  border-radius: 10px;
 }
 
 .btn {
   color: #ffffff;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+a {
+  text-decoration: none;
 }

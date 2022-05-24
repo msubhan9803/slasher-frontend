@@ -14,7 +14,7 @@ const StyledFooterContainer = styled(Container)`
 
 function UnauthenticatedSiteFooter() {
   return (
-    <StyledFooterContainer className="py-5">
+    <StyledFooterContainer className="pt-3">
       <div className="w-100 d-flex justify-content-between">
         <Link to="/">About</Link>
         <Link to="/">Help</Link>

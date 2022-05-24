@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/AuthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 
 function Home() {
   return (

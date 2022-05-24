@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/UnauthenticatedSiteWrapper';
+import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 
 function SignIn() {
   return (

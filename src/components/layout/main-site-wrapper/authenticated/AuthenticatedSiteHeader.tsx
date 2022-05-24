@@ -6,9 +6,9 @@ import {
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import slasherLogoSmall from '../../../images/slasher-logo-small.png';
-import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
-import TopNavLink from './TopNavLink';
+import slasherLogoSmall from '../../../../images/slasher-logo-small.png';
+import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
+import AuthenticatedSiteTopNavLink from './AuthenticatedSiteTopNavLink';
 
 const NavbarLogoImage = styled.img`
   height: 75px;
@@ -27,7 +27,9 @@ interface Props {
   ariaToggleTargetId: string;
 }
 
-function Header({ onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props) {
+function AuthenticatedSiteHeader(
+  { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
+) {
   return (
     <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="mb-3">
       <Container className="justify-content-start">
@@ -44,10 +46,10 @@ function Header({ onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTar
           />
         </Form>
         <Nav className="me-auto flex-row">
-          <TopNavLink label="Home" icon={solid('home')} to="/" />
-          <TopNavLink label="Friends" icon={solid('users')} to="/friends" />
-          <TopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
-          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
+          <AuthenticatedSiteTopNavLink label="Home" icon={solid('home')} to="/" />
+          <AuthenticatedSiteTopNavLink label="Friends" icon={solid('users')} to="/friends" />
+          <AuthenticatedSiteTopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
+          <AuthenticatedSiteTopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
         </Nav>
         <Nav className="mw-auto">
           <Navbar.Text>
@@ -59,4 +61,4 @@ function Header({ onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTar
     </Navbar>
   );
 }
-export default Header;
+export default AuthenticatedSiteHeader;

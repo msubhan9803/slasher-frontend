@@ -4,8 +4,8 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
-import Header from '../header/Header';
-import SidebarNavContent from '../sidebar-nav/SidebarNavContent';
+import AuthenticatedSiteHeader from './AuthenticatedSiteHeader';
+import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 
 interface Props {
   children: React.ReactNode;
@@ -29,8 +29,8 @@ function AuthenticatedSiteWrapper({ children }: Props) {
 
   return (
     <>
-      <Header onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
-      <Container className="py-2">
+      <AuthenticatedSiteHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
+      <Container className="py-3">
         <Row>
           <Col xs={3} className="d-none d-md-block">
             <SidebarNavContent />

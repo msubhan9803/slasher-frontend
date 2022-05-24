@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/AuthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import RegistrationIdentity from './RegistrationIdentity';
 import RegistrationSecurity from './RegistrationSecurity';
 

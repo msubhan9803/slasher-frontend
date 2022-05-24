@@ -12,7 +12,7 @@ interface Props {
   to: string;
 }
 
-function TopNavLink({ label, icon, to }: Props) {
+function AuthenticatedSiteTopNavLink({ label, icon, to }: Props) {
   return (
     <Nav.Link as={Link} to={to} className="text-center px-2">
       <FontAwesomeIcon icon={icon} size="lg" />
@@ -21,4 +21,4 @@ function TopNavLink({ label, icon, to }: Props) {
     </Nav.Link>
   );
 }
-export default TopNavLink;
+export default AuthenticatedSiteTopNavLink;

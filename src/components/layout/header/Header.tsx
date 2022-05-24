@@ -1,10 +1,11 @@
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+// import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import React from 'react';
 import {
-  Navbar, Container, Nav, Form, FormControl,
+  Navbar, Container, Form, FormControl, Nav,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogoSmall from '../../../images/slasher-logo-small.png';
 import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
 import TopNavLink from './TopNavLink';
@@ -20,10 +21,17 @@ const UserCircleImage = styled.img`
   border: 1px solid #fff;
 `;
 
-function Header() {
+interface Props {
+  onToggleClick: () => void;
+  offcanvasSidebarExpandBreakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  ariaToggleTargetId: string;
+}
+
+function Header({ onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props) {
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="text-white">
-      <Container>
+    <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="mb-3">
+      <Container className="justify-content-start">
+        <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} className="me-3" />
         <Navbar.Brand as={Link} to="/">
           <NavbarLogoImage src={slasherLogoSmall} alt="Slasher logo" />
         </Navbar.Brand>
@@ -35,7 +43,7 @@ function Header() {
             aria-label="Find people, hashtags, movies..."
           />
         </Form>
-        <Nav className="flex-row">
+        <Nav className="me-auto flex-row">
           <TopNavLink label="Home" icon={solid('home')} to="/" />
           <TopNavLink label="Friends" icon={solid('users')} to="/friends" />
           <TopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />

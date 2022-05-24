@@ -3,10 +3,6 @@ import React from 'react';
 import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
 
-// const NavbarLogoImage = styled.img`
-//   height: 75px;
-// `;
-
 function SidebarNavContent() {
   return (
     <Nav className="flex-column">

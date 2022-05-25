@@ -9,11 +9,11 @@ interface Props {
 function UnauthenticatedSiteWrapper({ children }: Props) {
   return (
     <>
-      <div className="pt-5 pb-4">
+      <Container className="pt-5">
         <main>
           {children}
         </main>
-      </div>
+      </Container>
       <UnauthenticatedSiteFooter />
     </>
   );

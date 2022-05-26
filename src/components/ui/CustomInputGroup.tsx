@@ -11,6 +11,10 @@ const StyledInputGroup = styled(InputGroup)`
     border-color: #3a3b46;
     border-radius: 10px;
   }
+  svg {
+    color: var(--bs-primary);
+    min-width: 30px;
+  }
 `;
 
 interface Props {
@@ -22,7 +26,7 @@ interface Props {
 function CustomInputGroup({ addonContent, label, inputType = 'text' }: Props) {
   return (
     <StyledInputGroup className="mb-3">
-      <InputGroup.Text id="addon-label">{addonContent}</InputGroup.Text>
+      <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>
       <FormControl
         placeholder={label}
         aria-label={label}

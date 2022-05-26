@@ -48,7 +48,7 @@ function ForgotPassword() {
           <p>That’s ok - we’re here to help!</p>
           <p className="mt-4">
             Enter the email address associated with your Slasher account below and
-            we’ll send you a link to reset your password.Be sure to check your spam
+            we’ll send you a link to reset your<br/>password.Be sure to check your spam
             folder if you don’t see the email within 15 minutes.
           </p>
           <p>
@@ -56,9 +56,9 @@ function ForgotPassword() {
               NOTE:&nbsp;
             </span>
             If you just created an account and you are
-            not able to login, be sure you activated your account by clicking the button
+            not able to login, be sure you activated your account by clicking<br/>the button
             in the email we sent when you created your account. Your account will not be
-            activated until you click the button in that email.
+            activated until you click the<br/>button in that email.
           </p>
           <p>
             Please check your spam folder for the email. If you have not received it,
@@ -82,7 +82,7 @@ function ForgotPassword() {
                 help@slasher.tv
               </span>
             </Link>
-            &nbsp;and let us know.
+            &nbsp;and let us know.<br/>
             Be sure to include your username in the email too.
           </p>
         </div>

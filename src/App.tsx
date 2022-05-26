@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
 import NotFound from './routes/NotFound';
 import Registration from './routes/registration/Registration';
@@ -18,6 +19,8 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />
       {/* May be authenticated or unauthenticated */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      {/* Unauthenticated routes */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

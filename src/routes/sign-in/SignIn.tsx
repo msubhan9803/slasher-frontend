@@ -4,9 +4,9 @@ import {
   Col, Container, Form, Image, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signIn from '../../images/sign-in.svg';
-import user from '../../images/user.svg';
-import lock from '../../images/lock.svg';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 
@@ -25,8 +25,8 @@ function SignIn() {
               <div>
                 <h1 className="h2 text-center mb-4">Sign In</h1>
                 <Form>
-                  <CustomInputGroup addonContent={<Image src={user} />} label="Username or email" />
-                  <CustomInputGroup addonContent={<Image src={lock} />} label="Password" inputType="password" />
+                  <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
+                  <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
 
                   <p className="text-center">
                     <small>

@@ -14,7 +14,6 @@ const ForgotPasswordContainer = styled(Container)`
   padding-bottom: 3.35rem;
 
   form{
-    margin-top:2rem;
     input {
       border-radius: 10px;
       background-color: #1F1F1F;
@@ -25,11 +24,6 @@ const ForgotPasswordContainer = styled(Container)`
       }
     }
   }
-
-  .lastParagraph {
-    margin-top:2rem
-  }
-  
 `;
 
 function ForgotPassword() {
@@ -69,14 +63,14 @@ function ForgotPassword() {
             </Link>
             .
           </p>
-          <Form className="row d-flex flex-column align-items-center">
+          <Form className="row d-flex flex-column align-items-center mt-4">
             <div className="col-lg-4 col-md-6 col-sm-8 col-10">
               <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
               <Button className="mt-3 w-100">Send</Button>
             </div>
           </Form>
 
-          <p className="lastParagraph">
+          <p className="mt-4">
             If you haven’t gotten an email, please send an email to&nbsp;
             <Link to="/" className="text-decoration-none text-primary">
               <span>

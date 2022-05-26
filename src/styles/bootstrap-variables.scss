@@ -5,9 +5,24 @@ $warning: #e64d03;
 $danger: #9d0059;
 $success: #009900;
 $light: #eeeeee;
-$dark: #101010;
+$dark: #131313;
+
+$font-family-base: 'Roboto';
 
 $btn-border-radius: 50rem !default;
-$link-color: #ffffff;
+$btn-border-radius-sm: 50rem !default;
+$btn-border-radius-lg: 50rem !default;
+
+$body-color: #ffffff;
+$link-color: $body-color;
 
 $offcanvas-bg-color: $dark;
+
+$input-padding-y: 1rem;
+$input-border-radius: 10px;
+$input-btn-padding-y-lg: 1rem;
+
+$input-bg: #1F1F1F;
+$input-border-color: #3A3B46;
+$input-box-shadow: none;
+$input-focus-border-color: tint-color($input-border-color, 50%);

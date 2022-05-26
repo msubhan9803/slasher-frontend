@@ -8,7 +8,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-import slasherLogo from '../../images/slasher-logo.png';
+import slasherLogo from '../../images/slasher-logo.svg';
 
 const ForgotPasswordContainer = styled(Container)`
   padding-bottom: 3.35rem;

@@ -6,16 +6,28 @@ html {
 }
 
 body {
-  color: #fff;
   background-color: #080808;
   background-image: linear-gradient(#161618 0px, #080808 1000px);
   background-repeat: no-repeat;
 }
 
-input.form-control {
-  border-radius: $btn-border-radius;
+a {
+  text-decoration: none;
+}
+
+input:hover {
+  outline: none;
+  box-shadow: none;
+}
+
+.form-control:focus {
+  box-shadow: none;
 }
 
 .btn {
-  color: #ffffff;
+  color: var(--bs-body-color);
+}
+
+.btn-lg {
+  font-weight: 500;
 }

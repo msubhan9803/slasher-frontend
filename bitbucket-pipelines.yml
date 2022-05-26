@@ -4,8 +4,8 @@ definitions:
   caches:
     node: node_modules
   steps:
-    - step: &lint-and-test
-        name: Lint and test
+    - step: &lint-build-test
+        name: Lint, build, and test
         caches:
           - node
         script:
@@ -25,6 +25,8 @@ definitions:
           - npx playwright install
           # Run linter
           - npm run lint
+          # Run build
+          - npm run build
           # Run unit tests
           - npm run test
           # Run e2e tests
@@ -65,17 +67,17 @@ pipelines:
   branches:
     # Always run on main
     main:
-      - step: *lint-and-test
+      - step: *lint-build-test
     deploy/production:
-      - step: *lint-and-test
+      - step: *lint-build-test
       - step: *deploy
     deploy/staging:
-      - step: *lint-and-test
+      - step: *lint-build-test
       - step: *deploy
     deploy/dev:
-      - step: *lint-and-test
+      - step: *lint-build-test
       - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request
     '**':
-      - step: *lint-and-test
+      - step: *lint-build-test

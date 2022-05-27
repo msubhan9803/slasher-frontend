@@ -24,5 +24,5 @@ $input-btn-padding-y-lg: .75rem;
 
 $input-bg: #1F1F1F;
 $input-border-color: #3A3B46;
+$input-focus-border-color: $input-border-color;
 $input-box-shadow: none;
-$input-focus-border-color: tint-color($input-border-color, 50%);

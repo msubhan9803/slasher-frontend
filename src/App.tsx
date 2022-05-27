@@ -6,6 +6,7 @@ import Home from './routes/home/Home';
 import NotFound from './routes/NotFound';
 import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
+import RegistrationFinal from './routes/registration/RegistrationFinal';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -18,6 +19,7 @@ function App() {
       <Route path="/sign-in" element={<SignIn />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/email-verification-not-received" element={<EmailVerificationNotReceived />} />
+      <Route path="/registration/final" element={<RegistrationFinal />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />

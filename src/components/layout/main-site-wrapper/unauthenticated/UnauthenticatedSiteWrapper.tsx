@@ -17,8 +17,8 @@ const StyledMain = styled.main`
 function UnauthenticatedSiteWrapper({ children, hideTopLogo }: Props) {
   return (
     <>
-      <header className="text-center text-md-start">
-        <Container className={`py-3 ${hideTopLogo ? 'd-none' : ''}`}>
+      <header className="text-center text-md-start py-4">
+        <Container className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
             <Image src={slasherLogo} />
           </Link>

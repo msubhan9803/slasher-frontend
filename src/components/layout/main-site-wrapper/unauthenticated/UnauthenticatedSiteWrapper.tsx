@@ -1,19 +1,33 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Image } from 'react-bootstrap';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import UnauthenticatedSiteFooter from './UnauthenticatedSiteFooter';
+import slasherLogo from '../../../../images/slasher-logo.svg';
 
 interface Props {
   children: React.ReactNode;
 }
 
+const StyledMain = styled.main`
+  flex: 1;
+`;
+
 function UnauthenticatedSiteWrapper({ children }: Props) {
   return (
     <>
-      <Container className="pt-5">
-        <main>
+      <header className="text-center text-md-start">
+        <Container className="py-3">
+          <Link to="/">
+            <Image src={slasherLogo} />
+          </Link>
+        </Container>
+      </header>
+      <StyledMain className="d-flex align-items-center">
+        <Container>
           {children}
-        </main>
-      </Container>
+        </Container>
+      </StyledMain>
       <UnauthenticatedSiteFooter />
     </>
   );

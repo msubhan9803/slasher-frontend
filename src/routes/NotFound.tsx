@@ -9,11 +9,13 @@ import UnauthenticatedSiteWrapper from '../components/layout/main-site-wrapper/u
 function NotFound() {
   return (
     <UnauthenticatedSiteWrapper>
-      <h1>Not Found</h1>
-      <p>This Page could not be found.</p>
-      <p>
-        <Link to="/">Go back to the home page.</Link>
-      </p>
+      <div className="text-center">
+        <h1>Not Found</h1>
+        <p>This Page could not be found.</p>
+        <p>
+          <Link to="/">Go back to the home page.</Link>
+        </p>
+      </div>
     </UnauthenticatedSiteWrapper>
   );
 }

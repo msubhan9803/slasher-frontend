@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import EmailVerificationNotReceived from './routes/email-verification/EmailVerificationNotReceived';
+import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
 import NotFound from './routes/NotFound';
@@ -18,7 +18,7 @@ function App() {
       {/* Unauthenticated routes */}
       <Route path="/sign-in" element={<SignIn />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/email-verification-not-received" element={<EmailVerificationNotReceived />} />
+      <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
       <Route path="/registration/final" element={<RegistrationFinal />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />

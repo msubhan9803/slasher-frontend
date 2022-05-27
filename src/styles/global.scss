@@ -6,9 +6,16 @@ html {
 }
 
 body {
-  background-color: #080808;
-  background-image: linear-gradient(#161618 0px, #080808 1000px);
-  background-repeat: no-repeat;
+  background: -webkit-gradient(linear, top, bottom, color-stop(0%, #161618), color-stop(300px, transparent)) no-repeat #080808; /* Chrome, Safari4+ */
+  background: -webkit-linear-gradient(top, #161618 0%, transparent 300px) no-repeat #080808; /* Chrome10+, Safari5.1+ */
+  background: -moz-linear-gradient(top, #161618 0%, transparent 300px) no-repeat #080808;    /* FF3.6+ */
+  background: linear-gradient(to bottom, #161618 0%, transparent 300px) no-repeat #080808;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 a {

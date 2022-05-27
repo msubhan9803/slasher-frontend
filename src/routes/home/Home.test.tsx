@@ -12,6 +12,6 @@ test('renders learn react link', () => {
       <Home />
     </Router>,
   );
-  const linkElement = screen.getByText(/Go to the registration page/i);
+  const linkElement = screen.getByText(/This is a placeholder home page/i);
   expect(linkElement).toBeInTheDocument();
 });

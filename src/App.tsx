@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import EmailVerificationNotReceived from './routes/email-verification/EmailVerificationNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
 import NotFound from './routes/NotFound';
@@ -16,13 +17,13 @@ function App() {
       <Route path="/" element={<Navigate to={topLevelRedirectPath} replace />} />
       {/* Unauthenticated routes */}
       <Route path="/sign-in" element={<SignIn />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/email-verification-not-received" element={<EmailVerificationNotReceived />} />
       <Route path="/registration/final" element={<RegistrationFinal />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />
       {/* May be authenticated or unauthenticated */}
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      {/* Unauthenticated routes */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

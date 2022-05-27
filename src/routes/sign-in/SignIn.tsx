@@ -12,7 +12,7 @@ import CustomInputGroup from '../../components/ui/CustomInputGroup';
 
 function SignIn() {
   return (
-    <UnauthenticatedSiteWrapper>
+    <UnauthenticatedSiteWrapper hideTopLogo>
       <Row className="align-items-center">
         <Col sm={12} md={7} lg={7}>
           <div className="login-img text-center pb-4">

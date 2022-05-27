@@ -6,6 +6,7 @@ import UnauthenticatedSiteFooter from './UnauthenticatedSiteFooter';
 import slasherLogo from '../../../../images/slasher-logo.svg';
 
 interface Props {
+  hideTopLogo?: boolean,
   children: React.ReactNode;
 }
 
@@ -13,11 +14,11 @@ const StyledMain = styled.main`
   flex: 1;
 `;
 
-function UnauthenticatedSiteWrapper({ children }: Props) {
+function UnauthenticatedSiteWrapper({ children, hideTopLogo }: Props) {
   return (
     <>
       <header className="text-center text-md-start">
-        <Container className="py-3">
+        <Container className={`py-3 ${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
             <Image src={slasherLogo} />
           </Link>
@@ -32,4 +33,9 @@ function UnauthenticatedSiteWrapper({ children }: Props) {
     </>
   );
 }
+
+UnauthenticatedSiteWrapper.defaultProps = {
+  hideTopLogo: false,
+};
+
 export default UnauthenticatedSiteWrapper;

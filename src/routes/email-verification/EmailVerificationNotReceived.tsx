@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Button,
+  Col,
   Container,
   Form,
   Image,
@@ -36,13 +37,13 @@ export default function EmailVerificationNotReceived() {
   const handleShow = () => setShow(true);
   return (
     <UnauthenticatedSiteWrapper>
-      <Container className="pb-4">
-        <div className="d-flex d-sm-block justify-content-center">
+      <Container>
+        <div className="text-center text-md-start mb-5">
           <Image src={slasherLogo} />
         </div>
         <Row className="justify-content-center">
-          <div className="mt-3 mt-lg-2 col-lg-8 align-self-center text-center">
-            <h2>Verification Email Not Received</h2>
+          <Col lg="8" className="mt-3 mt-lg-2 align-self-center text-center">
+            <h1 className="h2">Verification Email Not Received</h1>
             <p className="mt-4">
               If you created a Slasher account and never received the
               verification email to activate your account, please
@@ -51,14 +52,16 @@ export default function EmailVerificationNotReceived() {
               and be sure to check your spam folder if you do not see it within 30 minutes.
             </p>
 
-            <Form className="row d-flex flex-column align-items-center mt-4">
-              <div className="col-10 col-sm-8 col-lg-6">
-                <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
-                <Button size="lg" className="mt-4 w-100" onClick={handleShow}>Send</Button>
-              </div>
+            <Form className="my-5">
+              <Row className="flex-column align-items-center">
+                <Col xs="10" sm="8" lg="6">
+                  <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
+                  <Button size="lg" className="mt-4 w-100" onClick={handleShow}>Send</Button>
+                </Col>
+              </Row>
             </Form>
 
-            <p className="mt-5">
+            <p>
               If you have already done this and never received the email,
               please let us know by emailing us at&nbsp;
               <Link to="/email-verification-not-received" className="text-decoration-none text-primary">
@@ -73,8 +76,6 @@ export default function EmailVerificationNotReceived() {
               centered
               onHide={handleClose}
               backdrop="static"
-              keyboard={false}
-              className="my-modal"
             >
               <Modal.Header className="border-0 shadow-none" closeButton />
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
@@ -93,7 +94,7 @@ export default function EmailVerificationNotReceived() {
                 </p>
               </Modal.Body>
             </ModalContainer>
-          </div>
+          </Col>
         </Row>
       </Container>
     </UnauthenticatedSiteWrapper>

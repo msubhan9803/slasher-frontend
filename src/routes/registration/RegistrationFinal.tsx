@@ -4,19 +4,19 @@ import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrappe
 import send from '../../images/send.svg';
 import slasherLogo from '../../images/slasher-logo.svg';
 
-function Final() {
+function RegistrationFinal() {
   return (
     <UnauthenticatedSiteWrapper>
       <Container>
-        <div className="d-flex d-sm-block justify-content-center">
+        <div className="text-center text-md-start mb-5">
           <Image src={slasherLogo} />
         </div>
-        <div className="d-flex flex-column align-items-center text-center">
+        <div className="text-center">
           <Image src={send} />
-          <h2 className="mt-4 fw-bold">One more step!</h2>
-          <h2 className="fw-bold">Verify your email</h2>
-          <p className="mt-3 fs-6">We have sent an email to</p>
-          <h3 className=" text-primary fw-bold">jzb@upwork.com</h3>
+          <h2 className="mt-4">One more step!</h2>
+          <h3 className="mb-4">Verify your email</h3>
+          <p>We have sent an email to</p>
+          <p className="fs-3 text-primary fw-bold my-3">jzb@upwork.com</p>
           <p>
             Click or tap the button in the email to activate your
             Slasher account.
@@ -28,7 +28,7 @@ function Final() {
           <p>
             We look forward to seeing you and hope you have a great time with us!
           </p>
-          <div className="d-flex flex-sm-row justify-content-center flex-column">
+          <div className="d-flex flex-md-row justify-content-center flex-column mt-5">
             <p className="fs-4">Need help?</p>
             <p className="fs-4">&nbsp;Please email help@slasher.tv for assistance.</p>
           </div>
@@ -37,4 +37,4 @@ function Final() {
     </UnauthenticatedSiteWrapper>
   );
 }
-export default Final;
+export default RegistrationFinal;

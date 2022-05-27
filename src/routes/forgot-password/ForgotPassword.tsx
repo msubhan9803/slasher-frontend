@@ -14,7 +14,7 @@ function ForgotPassword() {
   return (
     <UnauthenticatedSiteWrapper>
       <Container>
-        <div className="d-flex d-sm-block justify-content-center">
+        <div className="text-center text-md-start mb-5">
           <Image src={slasherLogo} />
         </div>
         <Row className="justify-content-center">

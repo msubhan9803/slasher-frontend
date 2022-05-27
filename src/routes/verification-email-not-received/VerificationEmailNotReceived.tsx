@@ -69,7 +69,6 @@ export default function VerificationEmailNotReceived() {
             show={show}
             centered
             onHide={handleClose}
-            backdrop="static"
           >
             <Modal.Header className="border-0 shadow-none" closeButton />
             <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">

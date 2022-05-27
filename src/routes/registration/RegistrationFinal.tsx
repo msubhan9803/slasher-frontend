@@ -2,15 +2,11 @@ import React from 'react';
 import { Container, Image } from 'react-bootstrap';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import send from '../../images/send.svg';
-import slasherLogo from '../../images/slasher-logo.svg';
 
 function RegistrationFinal() {
   return (
     <UnauthenticatedSiteWrapper>
       <Container>
-        <div className="text-center text-md-start mb-5">
-          <Image src={slasherLogo} />
-        </div>
         <div className="text-center">
           <Image src={send} />
           <h2 className="mt-4">One more step!</h2>

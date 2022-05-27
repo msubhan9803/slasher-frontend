@@ -8,17 +8,13 @@ import {
   Row,
 } from 'react-bootstrap';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-import slasherLogo from '../../images/slasher-logo.svg';
 
 function ForgotPassword() {
   return (
     <UnauthenticatedSiteWrapper>
       <Container>
-        <div className="text-center text-md-start mb-5">
-          <Image src={slasherLogo} />
-        </div>
         <Row className="justify-content-center">
-          <div className="mt-3 mt-lg-2 col-lg-8 align-self-center text-center">
+          <div className="col-lg-8 align-self-center text-center">
             <h2>Forgot your password?</h2>
             <p>That’s ok - we’re here to help!</p>
             <p className="mt-4">

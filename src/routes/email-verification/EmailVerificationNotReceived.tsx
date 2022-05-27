@@ -38,9 +38,6 @@ export default function EmailVerificationNotReceived() {
   return (
     <UnauthenticatedSiteWrapper>
       <Container>
-        <div className="text-center text-md-start mb-5">
-          <Image src={slasherLogo} />
-        </div>
         <Row className="justify-content-center">
           <Col lg="8" className="mt-3 mt-lg-2 align-self-center text-center">
             <h1 className="h2">Verification Email Not Received</h1>

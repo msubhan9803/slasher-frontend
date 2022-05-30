@@ -7,13 +7,12 @@ import {
   Row,
 } from 'react-bootstrap';
 
-function RegistrationIdentity({ onClick }: any) {
+function RegistrationIdentity({ changeStep }: any) {
   const navigate = useNavigate();
 
-  const handleStep = (e: any) => {
+  const handleStep = () => {
     navigate('/registration/security');
-    e.preventDefault();
-    onClick();
+    changeStep(1);
   };
 
   return (

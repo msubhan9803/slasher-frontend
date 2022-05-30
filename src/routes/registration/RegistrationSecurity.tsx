@@ -6,18 +6,18 @@ import {
 
 function RegistrationSecurity() {
   const monthList = [
-    { label: 'January', value: 'January' },
-    { label: 'Febuary', value: 'Febuary' },
-    { label: 'March', value: 'March' },
-    { label: 'April', value: 'April' },
-    { label: 'May', value: 'May' },
-    { label: 'June', value: 'June' },
-    { label: 'July', value: 'July' },
-    { label: 'August', value: 'August' },
-    { label: 'September', value: 'September' },
-    { label: 'October', value: 'October' },
-    { label: 'November', value: 'November' },
-    { label: 'December', value: 'December' },
+    { label: 'January', value: 'January', days: 31 },
+    { label: 'Febuary', value: 'Febuary', days: 28 },
+    { label: 'March', value: 'March', days: 31 },
+    { label: 'April', value: 'April', days: 30 },
+    { label: 'May', value: 'May', days: 31 },
+    { label: 'June', value: 'June', days: 30 },
+    { label: 'July', value: 'July', days: 31 },
+    { label: 'August', value: 'August', days: 31 },
+    { label: 'September', value: 'September', days: 30 },
+    { label: 'October', value: 'October', days: 31 },
+    { label: 'November', value: 'November', days: 30 },
+    { label: 'December', value: 'December', days: 31 },
   ];
 
   const generateDayOptions = () => {
@@ -26,6 +26,17 @@ function RegistrationSecurity() {
       dayList.push(<option value={day}>{day}</option>);
     }
     return dayList;
+  };
+
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const endYear = currentYear - 18;
+    const startYear = endYear - 29;
+    const yearList = [];
+    for (let year = startYear; year <= endYear; year += 1) {
+      yearList.push(<option value={year}>{year}</option>);
+    }
+    return yearList;
   };
 
   return (
@@ -96,10 +107,7 @@ function RegistrationSecurity() {
             <Col sm={12} md={4} className="my-2">
               <Form.Select aria-label="Default select example">
                 <option value="" disabled selected>Year</option>
-                <option>2004</option>
-                <option>2003</option>
-                <option>2002</option>
-                <option>2001</option>
+                {generateYearOptions()}
               </Form.Select>
             </Col>
             <p className="mt-3">Your age will not be shown in your profile.</p>

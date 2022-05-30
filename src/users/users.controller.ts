@@ -28,6 +28,8 @@ export class UsersController {
     @Query('page') page: number,
     @Query('perPage') perPage: number,
   ): Promise<User[]> {
+    page ||= 0;
+    perPage ||= 10;
     return this.usersService.findAll(page, perPage);
   }
 

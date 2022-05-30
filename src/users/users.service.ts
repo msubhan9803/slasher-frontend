@@ -10,7 +10,7 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   // TODO: Remove this if not used
-  async findAll(page = 0, perPage = 10): Promise<UserDocument[]> {
+  async findAll(page: number, perPage: number): Promise<UserDocument[]> {
     console.log(`page: ${page}, perPage: ${perPage}`);
     return this.userModel
       .find({}, null, { skip: page * perPage, limit: perPage })

@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Step, Stepper } from 'react-form-stepper';
-import { ConnectorStyleProps } from 'react-form-stepper/dist/components/Connector/ConnectorTypes';
-import { StepStyleDTO } from 'react-form-stepper/dist/components/Step/StepTypes';
 import {
   Routes,
   Route,
@@ -9,34 +6,13 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom';
-import styled from 'styled-components';
+import { Step, StepLabel } from '@mui/material';
+import { Col, Container, Row } from 'react-bootstrap';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import RegistrationIdentity from './RegistrationIdentity';
 import RegistrationSecurity from './RegistrationSecurity';
-import RegistrationTerms from './RegistrationTerms';
-
-const connectorsStyle: ConnectorStyleProps = {
-  disabledColor: '#bdbdbd',
-  activeColor: '#ed1d24',
-  completedColor: '#a10308',
-  size: 1,
-  stepSize: '2em',
-  style: 'solid',
-};
-
-const stepsStyle: StepStyleDTO = {
-  activeBgColor: '#ed1d24',
-  activeTextColor: '#ffffff',
-  completedBgColor: '#a10308',
-  completedTextColor: '#ffffff',
-  inactiveBgColor: '#e0e0e0',
-  inactiveTextColor: '#ffffff',
-  size: '2em',
-  circleFontSize: '1rem',
-  labelFontSize: '0.875rem',
-  borderRadius: '50%',
-  fontWeight: 500,
-};
+import CustomStepper from '../../components/ui/CustomStepper';
+// import RegistrationTerms from './RegistrationTerms';
 
 function Registration() {
   const navigate = useNavigate();
@@ -57,25 +33,27 @@ function Registration() {
     }
   }, []);
 
-  const StepperStyled = styled(Stepper)`
-  
-  `;
-
   return (
     <UnauthenticatedSiteWrapper>
       <div className="registration">
         <h1 className="h3">Create account</h1>
-        <div>
-          <StepperStyled
-            activeStep={goSteps}
-            // styleConfig={stepsStyle}
-            // connectorStyleConfig={connectorsStyle}
-            stepClassName="py-2 px-3 rounded-circle border-0"
-          >
-            <Step onClick={() => { setGoSteps(0); navigate('/registration/identity'); }} label="Step 1" />
-            <Step onClick={() => { setGoSteps(1); navigate('/registration/security'); }} label="Step 2" />
-          </StepperStyled>
-        </div>
+        <Container className="my-3 my-md-4">
+          <Row className="justify-content-center">
+            <Col xs={12} md={10}>
+              <CustomStepper activeStep={1}>
+                <Step>
+                  <StepLabel />
+                </Step>
+                <Step>
+                  <StepLabel />
+                </Step>
+                <Step>
+                  <StepLabel />
+                </Step>
+              </CustomStepper>
+            </Col>
+          </Row>
+        </Container>
         <Routes>
           <Route path="/" element={<Navigate to="identity" replace />} />
           <Route path="identity" element={<RegistrationIdentity changeStep={nextStep} step={goSteps} />} />

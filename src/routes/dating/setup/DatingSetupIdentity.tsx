@@ -1,49 +1,41 @@
+/* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
+import { Info } from 'luxon';
 import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import RoundButton from '../../../components/ui/RoundButton';
+import { generateRange } from '../../../utils/array-utils';
 
-const StyledButton = styled(Button)`
-  background-color: #1f1f1f;
-  border-radius: 10px;
-  border: 1px solid #3a3b46; 
-`;
+const generateMonthOptions = () => {
+  const monthNumbers = Info.months('numeric').map((monthNumber) => parseInt(monthNumber, 10));
+  const monthNames = Info.months('long'); // Using luxon for eventual month name locale awareness
+  const monthOptions: { value: number, label: string }[] = [];
+  monthNumbers.forEach((monthNumber, i) => {
+    monthOptions.push({ value: monthNumber, label: monthNames[i] });
+  });
+  return monthOptions;
+};
+const generateDayOptions = () => generateRange(1, 31).map(
+  (day) => <option key={day} value={day}>{day}</option>,
+);
+const generateYearOptions = () => {
+  const currentYear = new Date().getFullYear();
+  const earliestYear = currentYear - 100;
+  return generateRange(currentYear, earliestYear).map(
+    (day) => <option key={day} value={day}>{day}</option>,
+  );
+};
+
+const yearOptions = generateYearOptions();
+const monthOptions = generateMonthOptions();
+const dayOptions = generateDayOptions();
+
 function DatingSetupIdentity() {
   const [gender, setGender] = useState('male');
   const [selectGender, setSelectGender] = useState('');
-  const monthList = [
-    { label: 'January', value: 'January', days: 31 },
-    { label: 'Febuary', value: 'Febuary', days: 28 },
-    { label: 'March', value: 'March', days: 31 },
-    { label: 'April', value: 'April', days: 30 },
-    { label: 'May', value: 'May', days: 31 },
-    { label: 'June', value: 'June', days: 30 },
-    { label: 'July', value: 'July', days: 31 },
-    { label: 'August', value: 'August', days: 31 },
-    { label: 'September', value: 'September', days: 30 },
-    { label: 'October', value: 'October', days: 31 },
-    { label: 'November', value: 'November', days: 30 },
-    { label: 'December', value: 'December', days: 31 },
-  ];
-  const generateDayOptions = () => {
-    const dayList = [];
-    for (let day = 1; day <= 31; day += 1) {
-      dayList.push(<option value={day}>{day}</option>);
-    }
-    return dayList;
-  };
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const endYear = currentYear - 18;
-    const startYear = endYear - 29;
-    const yearList = [];
-    for (let year = startYear; year <= endYear; year += 1) {
-      yearList.push(<option value={year}>{year}</option>);
-    }
-    return yearList;
-  };
+
   return (
     <UnauthenticatedSiteWrapper>
       <Row>
@@ -63,29 +55,29 @@ function DatingSetupIdentity() {
           <Row>
             <p>Date of birth</p>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>
+              <Form.Select aria-label="Month selection" defaultValue="">
+                <option value="" disabled>
                   Month
                 </option>
-                {monthList.map((month) => (
-                  <option value={month.label}>{month.value}</option>
+                {monthOptions.map((month) => (
+                  <option key={month.value} value={month.value}>{month.label}</option>
                 ))}
               </Form.Select>
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>
+              <Form.Select aria-label="Day selection" defaultValue="">
+                <option value="" disabled>
                   Day
                 </option>
-                {generateDayOptions()}
+                {dayOptions}
               </Form.Select>
             </Col>
             <Col sm={12} md={4} className="mb-3">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>
+              <Form.Select aria-label="Year selection" defaultValue="">
+                <option value="" disabled>
                   Year
                 </option>
-                {generateYearOptions()}
+                {yearOptions}
               </Form.Select>
             </Col>
           </Row>
@@ -98,26 +90,28 @@ function DatingSetupIdentity() {
             <h3>I am a</h3>
             <Row>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <StyledButton
+                <Button
+                  variant="form"
                   size="lg"
-                  className="w-100 text-light"
+                  className="w-100"
                   name="male"
                   active={gender === 'male'}
                   onClick={(e: any) => setGender(e.target.name)}
                 >
                   Male
-                </StyledButton>
+                </Button>
               </Col>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <StyledButton
+                <Button
+                  variant="form"
                   size="lg"
-                  className="w-100 text-light"
+                  className="w-100"
                   name="female"
                   active={gender === 'female'}
                   onClick={(e: any) => setGender(e.target.name)}
                 >
                   Female
-                </StyledButton>
+                </Button>
               </Col>
             </Row>
           </Row>
@@ -129,37 +123,40 @@ function DatingSetupIdentity() {
             <h3> I am looking for</h3>
             <Row>
               <Col xs={4}>
-                <StyledButton
+                <Button
+                  variant="form"
                   size="lg"
-                  className="w-100 text-light"
+                  className="w-100"
                   name="men"
                   active={selectGender === 'men'}
                   onClick={(e: any) => setSelectGender(e.target.name)}
                 >
                   Men
-                </StyledButton>
+                </Button>
               </Col>
               <Col xs={4}>
-                <StyledButton
+                <Button
+                  variant="form"
                   size="lg"
-                  className="w-100 text-light"
+                  className="w-100"
                   name="women"
                   active={selectGender === 'women'}
                   onClick={(e: any) => setSelectGender(e.target.name)}
                 >
                   Women
-                </StyledButton>
+                </Button>
               </Col>
               <Col xs={4}>
-                <StyledButton
+                <Button
+                  variant="form"
                   size="lg"
-                  className="w-100 text-light"
+                  className="w-100"
                   name="both"
                   active={selectGender === 'both'}
                   onClick={(e: any) => setSelectGender(e.target.name)}
                 >
                   Both
-                </StyledButton>
+                </Button>
               </Col>
             </Row>
           </Row>
@@ -168,8 +165,8 @@ function DatingSetupIdentity() {
       <Row className="mt-3">
         <p>My sexual orientation is</p>
         <Col sm={12} md={4} className="">
-          <Form.Select aria-label="Default select example">
-            <option value="" disabled selected>Select One</option>
+          <Form.Select aria-label="Sexual orientation selection" defaultValue="">
+            <option value="" disabled>Select One</option>
             <option value="Straight">Straight</option>
             <option value="Gay">Gay</option>
             <option value="Lesbian">Lesbian</option>
@@ -189,9 +186,14 @@ function DatingSetupIdentity() {
       </Row>
       <Row>
         <Col md={4} className="mt-3">
-          <Button variant="primary" type="submit" className="w-100 px-5">
+          <RoundButton
+            variant="primary"
+            type="submit"
+            className="w-100 px-5"
+            size="lg"
+          >
             Next Step
-          </Button>
+          </RoundButton>
         </Col>
       </Row>
     </UnauthenticatedSiteWrapper>

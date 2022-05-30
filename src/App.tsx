@@ -27,7 +27,7 @@ function App() {
         element={<VerificationEmailNotReceived />}
       />
       <Route path="/registration/final" element={<RegistrationFinal />} />
-      <Route path="/dating/identity" element={<DatingSetupIdentity />} />
+      <Route path="/dating/setup/identity" element={<DatingSetupIdentity />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />

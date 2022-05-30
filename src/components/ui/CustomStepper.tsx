@@ -9,44 +9,44 @@ interface Props {
   children: React.ReactNode;
 }
 
-function CustomStepper({ activeStep, children }: Props) {
-  const StyledStepper = styled(Stepper)`
-    .MuiStepConnector-root {
+const StyledStepper = styled(Stepper)`
+  .MuiStepConnector-root {
+    .MuiStepConnector-line {
+      border-color: var(--bs-gray-dark);
+    }
+    &.Mui-active {
       .MuiStepConnector-line {
-        border-color: var(--bs-gray-dark);
-      }
-      &.Mui-active {
-        .MuiStepConnector-line {
-          border-color: var(--bs-primary);
-        }
+        border-color: var(--bs-primary);
       }
     }
+  }
 
-    .MuiStepConnector-horizontal {
-      top: 1.4em;
-      left: calc(-50% + 25px);
-      right: calc(50% + 25px);
-      color: red;
+  .MuiStepConnector-horizontal {
+    top: 1.4em;
+    left: calc(-50% + 25px);
+    right: calc(50% + 25px);
+    color: red;
+  }
+  .MuiStepLabel-root {
+    .MuiStepLabel-label {
+      color: var(--bs-body-color);
     }
-    .MuiStepLabel-root {
-      .MuiStepLabel-label {
-        color: var(--bs-body-color);
-      }
-      svg {
-        width: 1.75em;
-        height: 1.75em;
-        color: var(--bs-primary);
+    svg {
+      width: 1.75em;
+      height: 1.75em;
+      color: var(--bs-primary);
 
-        text {
-          font-size: 0.6rem;
-        }
-      }
-      &.Mui-disabled svg {
-        color: var(--bs-gray-dark);
+      text {
+        font-size: 0.6rem;
       }
     }
-  `;
+    &.Mui-disabled svg {
+      color: var(--bs-gray-dark);
+    }
+  }
+`;
 
+function CustomStepper({ activeStep, children }: Props) {
   return (
     <ThemeProvider theme={materialUiTheme}>
       <StyledStepper activeStep={activeStep}>

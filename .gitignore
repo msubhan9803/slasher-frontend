@@ -33,3 +33,10 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Ignore all env files other than one called .env.template
+.env*
+!.env.template
+
+# VS Code
+.vscode/

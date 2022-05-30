@@ -1,4 +1,4 @@
-# slasher-backend
+# slasher-web-backend
 
 ## Installation
 

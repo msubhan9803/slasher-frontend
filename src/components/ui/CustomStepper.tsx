@@ -1,7 +1,8 @@
 import React from 'react';
 
 import Stepper from '@mui/material/Stepper';
-import { styled, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import styled from 'styled-components';
 import materialUiTheme from '../../styles/materialUiTheme';
 
 interface Props {

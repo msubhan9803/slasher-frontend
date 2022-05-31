@@ -17,6 +17,8 @@ function Home() {
           <Link to="/verification-email-not-received">Verification Email Not Received</Link>
           <br />
           <Link to="/registration">Registration</Link>
+          <br />
+          <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
         </p>
       </div>
     </AuthenticatedSiteWrapper>

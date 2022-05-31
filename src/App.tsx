@@ -8,6 +8,7 @@ import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import RegistrationFinal from './routes/registration/RegistrationFinal';
 import DatingSetupIdentity from './routes/dating/setup/DatingSetupIdentity';
+import DatingSetupAddPhotos from './routes/dating/setup/DatingSetupAddPhotos';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -28,6 +29,7 @@ function App() {
       />
       <Route path="/registration/final" element={<RegistrationFinal />} />
       <Route path="/dating/setup/identity" element={<DatingSetupIdentity />} />
+      <Route path="/dating/setup/add-photos" element={<DatingSetupAddPhotos />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />

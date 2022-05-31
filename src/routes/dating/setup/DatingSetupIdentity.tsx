@@ -21,9 +21,10 @@ const generateDayOptions = () => generateRange(1, 31).map(
   (day) => <option key={day} value={day}>{day}</option>,
 );
 const generateYearOptions = () => {
-  const currentYear = new Date().getFullYear() - 18;
-  const earliestYear = new Date().getFullYear() - 100;
-  return generateRange(currentYear, earliestYear).map(
+  const currentYear = new Date().getFullYear();
+  const endYear = currentYear - 18;
+  const startYear = currentYear - 100;
+  return generateRange(endYear, startYear).map(
     (year) => <option key={year} value={year}>{year}</option>,
   );
 };

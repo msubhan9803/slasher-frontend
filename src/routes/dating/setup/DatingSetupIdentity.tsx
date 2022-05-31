@@ -9,10 +9,10 @@ import RoundButton from '../../../components/ui/RoundButton';
 import { generateRange } from '../../../utils/array-utils';
 
 const generateMonthOptions = () => {
-  const monthNumbers = Info.months('numeric').map((monthNumber) => parseInt(monthNumber, 10));
+  const monthNumbers = Info.months('numeric').map((monthNumber: string) => parseInt(monthNumber, 10));
   const monthNames = Info.months('long'); // Using luxon for eventual month name locale awareness
   const monthOptions: { value: number, label: string }[] = [];
-  monthNumbers.forEach((monthNumber, i) => {
+  monthNumbers.forEach((monthNumber: number, i: number) => {
     monthOptions.push({ value: monthNumber, label: monthNames[i] });
   });
   return monthOptions;
@@ -21,10 +21,10 @@ const generateDayOptions = () => generateRange(1, 31).map(
   (day) => <option key={day} value={day}>{day}</option>,
 );
 const generateYearOptions = () => {
-  const currentYear = new Date().getFullYear();
-  const earliestYear = currentYear - 100;
+  const currentYear = new Date().getFullYear() - 18;
+  const earliestYear = new Date().getFullYear() - 100;
   return generateRange(currentYear, earliestYear).map(
-    (day) => <option key={day} value={day}>{day}</option>,
+    (year) => <option key={year} value={year}>{year}</option>,
   );
 };
 

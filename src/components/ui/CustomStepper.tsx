@@ -19,6 +19,11 @@ const StyledStepper = styled(Stepper)`
         border-color: var(--bs-primary);
       }
     }
+    &.Mui-completed {
+      .MuiStepConnector-line {
+        border-color: var(--bs-primary);
+      }
+    }
   }
 
   .MuiStepConnector-horizontal {

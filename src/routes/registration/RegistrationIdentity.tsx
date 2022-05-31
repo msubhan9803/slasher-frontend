@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Button,
   Container,
   Form,
   Row,
 } from 'react-bootstrap';
+import RoundButton from '../../components/ui/RoundButton';
 
 function RegistrationIdentity({ changeStep }: any) {
   const navigate = useNavigate();
@@ -51,9 +51,9 @@ function RegistrationIdentity({ changeStep }: any) {
           </Form.Group>
 
           <div className="col-md-4 mt-5">
-            <Button onClick={handleStep} className="w-100" variant="primary" type="submit">
+            <RoundButton onClick={handleStep} className="w-100" variant="primary" type="submit">
               Next step
-            </Button>
+            </RoundButton>
           </div>
         </Row>
       </Form>

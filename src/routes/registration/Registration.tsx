@@ -3,7 +3,6 @@ import {
   Routes,
   Route,
   Navigate,
-  useNavigate,
   useLocation,
 } from 'react-router-dom';
 import { Step, StepLabel } from '@mui/material';
@@ -12,10 +11,8 @@ import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrappe
 import RegistrationIdentity from './RegistrationIdentity';
 import RegistrationSecurity from './RegistrationSecurity';
 import CustomStepper from '../../components/ui/CustomStepper';
-// import RegistrationTerms from './RegistrationTerms';
 
 function Registration() {
-  const navigate = useNavigate();
   const [goSteps, setGoSteps] = useState<any>(0);
   const location: any = useLocation();
 
@@ -40,7 +37,7 @@ function Registration() {
         <Container className="my-3 my-md-4">
           <Row className="justify-content-center">
             <Col xs={12} md={10}>
-              <CustomStepper activeStep={1}>
+              <CustomStepper activeStep={goSteps}>
                 <Step>
                   <StepLabel />
                 </Step>

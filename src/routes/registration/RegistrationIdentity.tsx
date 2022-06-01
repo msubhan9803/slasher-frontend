@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Container,
   Form,
@@ -50,10 +50,17 @@ function RegistrationIdentity({ changeStep }: any) {
             </p>
           </Form.Group>
 
-          <div className="col-md-4 mt-5">
+          <div className="col-md-4 my-5">
             <RoundButton onClick={handleStep} className="w-100" variant="primary" type="submit">
               Next step
             </RoundButton>
+          </div>
+          <div className="fs-5">
+            Already have an account?
+            {' '}
+            <Link to="/sign-in" className="text-primary">Click here</Link>
+            {' '}
+            to go to the sign in screen.
           </div>
         </Row>
       </Form>

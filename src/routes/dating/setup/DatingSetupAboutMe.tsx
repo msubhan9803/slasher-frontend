@@ -2,48 +2,40 @@ import React, { useState } from 'react';
 import {
   Col,
   Form,
-  FormControl,
-  InputGroup,
   Row,
 } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
+
+const maxLength = 1000;
 
 function DatingSetupAboutMe() {
   const [message, setMessage] = useState('');
-  const [char, setChar] = useState(0);
+  const [charCount, setCharCount] = useState(0);
 
   const handleMessageChange = (e: any) => {
-    const charCount = e.target.value.length;
-    setChar(charCount);
+    setCharCount(e.target.value.length);
     setMessage(e.target.value);
   };
   return (
-    <UnauthenticatedSiteWrapper>
+    <AuthenticatedSiteWrapper>
       <Form>
+        <Form.Group className="mb-3" controlId="about-me">
+          <Form.Label>Tell people about yourself</Form.Label>
+          <Form.Control
+            maxLength={maxLength}
+            rows={10}
+            as="textarea"
+            value={message}
+            onChange={handleMessageChange}
+            placeholder="Type here..."
+          />
+          <Form.Text className="float-end">
+            {`${charCount}/${maxLength} characters`}
+          </Form.Text>
+          <div className="clearfix" />
+        </Form.Group>
         <Row>
-          <Col xs={12}>
-            <Form.Label>Tell people about yourself</Form.Label>
-          </Col>
-          <Col xs={12}>
-            <InputGroup>
-              <FormControl
-                maxLength={1000}
-                rows={8}
-                as="textarea"
-                aria-label="With textarea"
-                value={message}
-                onChange={handleMessageChange}
-                placeholder="Type here..."
-              />
-            </InputGroup>
-          </Col>
-          <Col xs={12}>
-            <Form.Text className="mt-2 d-sm-flex justify-content-end">
-              {char}
-              /1000 characters
-            </Form.Text>
-          </Col>
           <Col sm={5} md={4} className="mt-5">
             <RoundButton className="w-100" type="submit">
               Next step
@@ -51,7 +43,7 @@ function DatingSetupAboutMe() {
           </Col>
         </Row>
       </Form>
-    </UnauthenticatedSiteWrapper>
+    </AuthenticatedSiteWrapper>
   );
 }
 

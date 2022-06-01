@@ -3,8 +3,15 @@ import {
   Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import RoundButton from '../../components/ui/RoundButton';
 
-function RegistrationSecurity() {
+function RegistrationSecurity({ changeStep }: any) {
+  const navigate = useNavigate();
+  const handleStep = () => {
+    navigate('/registration/terms');
+    changeStep(2);
+  };
   const monthList = [
     { label: 'January', value: 'January', days: 31 },
     { label: 'Febuary', value: 'Febuary', days: 28 },
@@ -111,17 +118,31 @@ function RegistrationSecurity() {
               </Form.Select>
             </Col>
             <p className="mt-3">Your age will not be shown in your profile.</p>
-            <Col sm={12} md={9} className="mt-3">
+            {/* <Col sm={12} md={9} className="mt-3">
               <Button variant="primary" type="submit" className="w-50 px-5">
                 Next Step
               </Button>
-            </Col>
+            </Col> */}
+            <Row>
+              <Col sm={4}>
+                <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
+                  Previous step
+                </RoundButton>
+              </Col>
+              <Col sm={4}>
+                <RoundButton onClick={handleStep} className="w-100" type="submit">
+                  Next step
+                </RoundButton>
+              </Col>
+            </Row>
+
           </Row>
         </Col>
         <Col />
-      </Row>
+      </Row >
 
-    </Container>
+
+    </Container >
   );
 }
 export default RegistrationSecurity;

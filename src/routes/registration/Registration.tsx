@@ -13,7 +13,7 @@ import RegistrationSecurity from './RegistrationSecurity';
 import CustomStepper from '../../components/ui/CustomStepper';
 
 function Registration() {
-  const [goSteps, setGoSteps] = useState<any>(0);
+  const [goSteps, setGoSteps] = useState(0);
   const location: any = useLocation();
 
   const nextStep = (st: any) => {

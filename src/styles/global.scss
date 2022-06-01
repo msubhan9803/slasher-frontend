@@ -12,6 +12,17 @@
   );
 }
 
+.btn-secondary {
+  // See: https://getbootstrap.com/docs/5.0/components/buttons/#mixins
+  @include button-variant(
+    $background: $secondary,
+    $border: #333333,
+    $color: #ffffff,
+    $hover-color: #ffffff,
+    $active-color: #ffffff
+  );
+}
+
 .btn-form {
   // See: https://getbootstrap.com/docs/5.0/components/buttons/#mixins
   @include button-variant(

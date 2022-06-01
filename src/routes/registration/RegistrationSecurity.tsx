@@ -15,7 +15,7 @@ function RegistrationSecurity({ changeStep }: any) {
       <p>This is the registration security page!</p>
       <Row>
         <Col sm={2}>
-          <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="info" type="submit">
+          <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
             Previous step
           </RoundButton>
         </Col>

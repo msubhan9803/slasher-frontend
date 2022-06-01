@@ -63,7 +63,7 @@ function RegistrationSecurity({ changeStep }: any) {
           </Row>
         </Col>
         <Col sm={12} md={9} className="mt-3">
-          <Form.Select aria-label="Security question selection">
+          <Form.Select aria-label="Security question selection" defaultValue="">
             <option value="" disabled>Select a security question</option>
             <option value="1">The number of the first house you lived in</option>
             <option value="2">Your favorite color</option>

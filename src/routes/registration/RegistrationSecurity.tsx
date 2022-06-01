@@ -1,49 +1,42 @@
 import React from 'react';
 import {
-  Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
+import { Info } from 'luxon';
 import { useNavigate } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
+import { generateRange } from '../../utils/array-utils';
+
+const generateMonthOptions = () => {
+  const monthNumbers = Info.months('numeric').map((monthNumber: string) => parseInt(monthNumber, 10));
+  const monthNames = Info.months('long'); // Using luxon for eventual month name locale awareness
+  const monthOptions: { value: number, label: string }[] = [];
+  monthNumbers.forEach((monthNumber: number, i: number) => {
+    monthOptions.push({ value: monthNumber, label: monthNames[i] });
+  });
+  return monthOptions;
+};
+const generateDayOptions = () => generateRange(1, 31).map(
+  (day) => <option key={day} value={day}>{day}</option>,
+);
+const generateYearOptions = () => {
+  const currentYear = new Date().getFullYear();
+  const endYear = currentYear - 18;
+  const startYear = currentYear - 100;
+  return generateRange(endYear, startYear).map(
+    (year) => <option key={year} value={year}>{year}</option>,
+  );
+};
+
+const yearOptions = generateYearOptions();
+const monthOptions = generateMonthOptions();
+const dayOptions = generateDayOptions();
 
 function RegistrationSecurity({ changeStep }: any) {
   const navigate = useNavigate();
   const handleStep = () => {
     navigate('/registration/terms');
     changeStep(2);
-  };
-  const monthList = [
-    { label: 'January', value: 'January', days: 31 },
-    { label: 'Febuary', value: 'Febuary', days: 28 },
-    { label: 'March', value: 'March', days: 31 },
-    { label: 'April', value: 'April', days: 30 },
-    { label: 'May', value: 'May', days: 31 },
-    { label: 'June', value: 'June', days: 30 },
-    { label: 'July', value: 'July', days: 31 },
-    { label: 'August', value: 'August', days: 31 },
-    { label: 'September', value: 'September', days: 30 },
-    { label: 'October', value: 'October', days: 31 },
-    { label: 'November', value: 'November', days: 30 },
-    { label: 'December', value: 'December', days: 31 },
-  ];
-
-  const generateDayOptions = () => {
-    const dayList = [];
-    for (let day = 1; day <= 31; day += 1) {
-      dayList.push(<option value={day}>{day}</option>);
-    }
-    return dayList;
-  };
-
-  const generateYearOptions = () => {
-    const currentYear = new Date().getFullYear();
-    const endYear = currentYear - 18;
-    const startYear = endYear - 29;
-    const yearList = [];
-    for (let year = startYear; year <= endYear; year += 1) {
-      yearList.push(<option value={year}>{year}</option>);
-    }
-    return yearList;
   };
 
   return (
@@ -70,8 +63,8 @@ function RegistrationSecurity({ changeStep }: any) {
           </Row>
         </Col>
         <Col sm={12} md={9} className="mt-3">
-          <Form.Select aria-label="Default select example">
-            <option value="" disabled selected hidden>Select a security question</option>
+          <Form.Select aria-label="Security question selection">
+            <option value="" disabled>Select a security question</option>
             <option value="1">The number of the first house you lived in</option>
             <option value="2">Your favorite color</option>
             <option value="4">The brand of the first car you owned</option>
@@ -100,29 +93,26 @@ function RegistrationSecurity({ changeStep }: any) {
           <Row>
             <p>Date of birth</p>
             <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>Month</option>
-                {monthList.map((month) => <option value={month.label}>{month.value}</option>)}
+              <Form.Select aria-label="Month selection" defaultValue="">
+                <option value="" disabled>Month</option>
+                {monthOptions.map((month) => (
+                  <option key={month.value} value={month.value}>{month.label}</option>
+                ))}
               </Form.Select>
             </Col>
             <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>Day</option>
-                {generateDayOptions()}
+              <Form.Select aria-label="Day selection" defaultValue="">
+                <option value="" disabled>Day</option>
+                {dayOptions}
               </Form.Select>
             </Col>
             <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Default select example">
-                <option value="" disabled selected>Year</option>
-                {generateYearOptions()}
+              <Form.Select aria-label="Year selection" defaultValue="">
+                <option value="" disabled>Year</option>
+                {yearOptions}
               </Form.Select>
             </Col>
             <p className="mt-3">Your age will not be shown in your profile.</p>
-            {/* <Col sm={12} md={9} className="mt-3">
-              <Button variant="primary" type="submit" className="w-50 px-5">
-                Next Step
-              </Button>
-            </Col> */}
             <Row>
               <Col sm={4}>
                 <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
@@ -135,14 +125,11 @@ function RegistrationSecurity({ changeStep }: any) {
                 </RoundButton>
               </Col>
             </Row>
-
           </Row>
         </Col>
         <Col />
-      </Row >
-
-
-    </Container >
+      </Row>
+    </Container>
   );
 }
 export default RegistrationSecurity;

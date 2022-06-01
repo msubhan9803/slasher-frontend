@@ -6,8 +6,8 @@ import RoundButton from '../../components/ui/RoundButton';
 function RegistrationSecurity({ changeStep }: any) {
   const navigate = useNavigate();
   const handleStep = () => {
-    // navigate('/registration/terms');
-    // changeStep(2);
+    navigate('/registration/terms');
+    changeStep(2);
   };
   return (
     <div className="registration-security">

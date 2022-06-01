@@ -11,12 +11,13 @@ import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrappe
 import RegistrationIdentity from './RegistrationIdentity';
 import RegistrationSecurity from './RegistrationSecurity';
 import CustomStepper from '../../components/ui/CustomStepper';
+import RegistrationTerms from './RegistrationTerms';
 
 function Registration() {
   const [goSteps, setGoSteps] = useState(0);
-  const location: any = useLocation();
+  const location = useLocation();
 
-  const nextStep = (st: any) => {
+  const nextStep = (st: number) => {
     setGoSteps(st);
   };
 
@@ -53,8 +54,9 @@ function Registration() {
         </Container>
         <Routes>
           <Route path="/" element={<Navigate to="identity" replace />} />
-          <Route path="identity" element={<RegistrationIdentity changeStep={nextStep} step={goSteps} />} />
-          <Route path="security" element={<RegistrationSecurity changeStep={nextStep} step={goSteps} />} />
+          <Route path="identity" element={<RegistrationIdentity changeStep={nextStep} />} />
+          <Route path="security" element={<RegistrationSecurity changeStep={nextStep} />} />
+          <Route path="terms" element={<RegistrationTerms changeStep={nextStep} />} />
         </Routes>
       </div>
     </UnauthenticatedSiteWrapper>

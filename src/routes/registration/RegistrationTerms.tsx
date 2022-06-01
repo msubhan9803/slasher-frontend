@@ -1,13 +1,18 @@
 import React from 'react';
 import {
-  Button,
   Col,
   Container,
   Row,
 } from 'react-bootstrap';
-import RoundButtton from '../../components/ui/RoundButton';
+import { useNavigate } from 'react-router-dom';
+import RoundButton from '../../components/ui/RoundButton';
 
-function RegistrationTerms() {
+function RegistrationTerms({ changeStep }: any) {
+  const navigate = useNavigate();
+  const handleStep = () => {
+    navigate('/registration/final');
+    changeStep(3);
+  };
   return (
     <Container className="">
       <h1 className="h3">
@@ -41,14 +46,14 @@ function RegistrationTerms() {
       </p>
       <Row className="mt-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3">
-          <RoundButtton className="w-100" variant="info" type="submit">
+          <RoundButton onClick={() => { changeStep(1); navigate('/registration/security'); }} className="w-100" variant="secondary" type="submit">
             Previous step
-          </RoundButtton>
+          </RoundButton>
         </Col>
         <Col sm={4} md={3}>
-          <RoundButtton className="w-100" type="submit">
+          <RoundButton onClick={handleStep} className="w-100" type="submit">
             Sign up
-          </RoundButtton>
+          </RoundButton>
         </Col>
       </Row>
     </Container>

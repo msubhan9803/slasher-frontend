@@ -6,6 +6,7 @@ $danger: #9d0059;
 $success: #009900;
 $light: #eeeeee;
 $dark: #131313;
+$gray-dark: #1F1F1F;
 
 $font-family-base: 'Roboto';
 
@@ -18,7 +19,7 @@ $input-padding-y: 1rem;
 $input-border-radius: 10px;
 $input-btn-padding-y-lg: .75rem;
 
-$input-bg: #1F1F1F;
+$input-bg: $gray-dark;
 $input-border-color: #3A3B46;
 $input-focus-border-color: $input-border-color;
 $input-box-shadow: none;

@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, Form, Row,
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -12,6 +13,12 @@ interface Image {
   image: string;
   id: number
 }
+const ImageContainer = styled('div')`
+  height: 200px; 
+  background-color: #1F1F1F;
+  border: 2px solid #3A3B46
+`;
+
 function DatingSetupAddPhotos() {
   const [imageUpload, setImageUpload] = useState<Image[]>([
     { title: '', image: '', id: 1 },
@@ -39,6 +46,7 @@ function DatingSetupAddPhotos() {
           <h3>Add Photos</h3>
           <p className="fw-normal">
             You must add at least one photo to your dating profile, otherwise
+            <br />
             your profile will not be shown to others and you will not be able to see
             other profiles.
           </p>
@@ -64,32 +72,35 @@ function DatingSetupAddPhotos() {
           <Row className="h-100">
             {imageUpload.map((image, imageIndex) => (
               <Col key={image.id} xs={4} className="my-3">
-
-                <div className="d-flex justify-content-center align-items-center w-auto " style={{ height: '196px', backgroundColor: '#1F1F1F', border: '2px solid #3A3B46' }}>
-                  <label htmlFor={`file-upload-${imageIndex}`}>
-                    {image.image === ''
-                      ? <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
-                      : (
+                <label htmlFor={`file-upload-${imageIndex}`} className="d-inline">
+                  {image.image === ''
+                    ? (
+                      <ImageContainer className="d-flex justify-content-center align-items-center w-100 rounded">
+                        <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
+                      </ImageContainer>
+                    )
+                    : (
+                      <ImageContainer className="d-flex justify-content-center align-items-center w-100 rounded border-0">
                         <img
                           src={image.image}
                           alt="UploadImage.."
-                          style={{ height: '196px', width: '226px' }}
+                          className="w-100 h-100 img-fluid rounded"
                           onChange={(e: any) => handleFileChange(e, imageIndex)}
                         />
-                      )}
-                    <input
-                      key={image.id}
-                      id={`file-upload-${imageIndex}`}
-                      type="file"
-                      name="file"
-                      className="d-none"
-                      accept="image/*"
-                      onChange={(e) => {
-                        handleFileChange(e, imageIndex);
-                      }}
-                    />
-                  </label>
-                </div>
+                      </ImageContainer>
+                    )}
+                  <input
+                    key={image.id}
+                    id={`file-upload-${imageIndex}`}
+                    type="file"
+                    name="file"
+                    className="d-none"
+                    accept="image/*"
+                    onChange={(e) => {
+                      handleFileChange(e, imageIndex);
+                    }}
+                  />
+                </label>
                 <Form.Check
                   inline
                   label="Make primary photo"

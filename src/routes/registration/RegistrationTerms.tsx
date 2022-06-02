@@ -11,7 +11,11 @@ import PrivacyPolicy from '../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../components/terms-and-policies/TermsAndConditions';
 import RoundButton from '../../components/ui/RoundButton';
 
-function RegistrationTerms({ changeStep }: any) {
+interface Props {
+  changeStep: (step: number) => void;
+}
+
+function RegistrationTerms({ changeStep }: Props) {
   const navigate = useNavigate();
   const handleStep = () => {
     navigate('/registration/final');

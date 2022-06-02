@@ -14,7 +14,7 @@ interface Image {
   id: number
 }
 const ImageContainer = styled('div')`
-  height: 200px; 
+  height: 200px;
   background-color: #1F1F1F;
   border: 2px solid #3A3B46
 `;
@@ -106,7 +106,7 @@ function DatingSetupAddPhotos() {
                   label="Make primary photo"
                   name="radio"
                   type="radio"
-                  id="inline-radio"
+                  id={`primary-photo-radio-${imageIndex}`}
                   className="p-sm-0 text-start mt-2"
                 />
               </Col>

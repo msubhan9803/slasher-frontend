@@ -67,53 +67,60 @@ function RegistrationSecurity({ changeStep }: Props) {
           <Form.Group className="mb-3" controlId="formBasicAnswer">
             <Form.Control type="text" placeholder="Security answer" />
           </Form.Group>
-          <p>Not case sensitive. </p>
+          <p>Not case sensitive.</p>
         </Col>
       </Row>
       <Row>
-        <Col sm={12} md={9} className="mt-3">
+        <Col className="mt-3">
           <Row>
-            <p>Date of birth</p>
-            <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Month selection" defaultValue="">
-                <option value="" disabled>Month</option>
-                {monthOptions.map((month) => (
-                  <option key={month.value} value={month.value}>{month.label}</option>
-                ))}
-              </Form.Select>
+            <Col sm={12} lg={9} className="order-xs-1">
+              <p>Date of birth</p>
             </Col>
-            <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Day selection" defaultValue="">
-                <option value="" disabled>Day</option>
-                {dayOptions.map((day) => (
-                  <option key={day} value={day}>{day}</option>
-                ))}
-              </Form.Select>
+            <Col sm={12} lg={9} className="order-3">
+              <Row>
+                <Col sm={12} md={4} className="my-2">
+                  <Form.Select aria-label="Month selection" defaultValue="">
+                    <option value="" disabled>Month</option>
+                    {monthOptions.map((month) => (
+                      <option key={month.value} value={month.value}>{month.label}</option>
+                    ))}
+                  </Form.Select>
+                </Col>
+                <Col sm={12} md={4} className="my-2">
+                  <Form.Select aria-label="Day selection" defaultValue="">
+                    <option value="" disabled>Day</option>
+                    {dayOptions.map((day) => (
+                      <option key={day} value={day}>{day}</option>
+                    ))}
+                  </Form.Select>
+                </Col>
+                <Col sm={12} md={4} className="my-2">
+                  <Form.Select aria-label="Year selection" defaultValue="">
+                    <option value="" disabled>Year</option>
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </Form.Select>
+                </Col>
+              </Row>
             </Col>
-            <Col sm={12} md={4} className="my-2">
-              <Form.Select aria-label="Year selection" defaultValue="">
-                <option value="" disabled>Year</option>
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </Form.Select>
+            <Col sm={12} lg={9} className="order-md-3">
+              <p className="mt-3">Your age will not be shown in your profile.</p>
             </Col>
-            <p className="mt-3">Your age will not be shown in your profile.</p>
-            <Row>
-              <Col sm={4}>
-                <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
-                  Previous step
-                </RoundButton>
-              </Col>
-              <Col sm={4}>
-                <RoundButton onClick={handleStep} className="w-100" type="submit">
-                  Next step
-                </RoundButton>
-              </Col>
-            </Row>
           </Row>
         </Col>
-        <Col />
+      </Row>
+      <Row>
+        <Col sm={4} className="mb-2">
+          <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
+            Previous step
+          </RoundButton>
+        </Col>
+        <Col sm={4}>
+          <RoundButton onClick={handleStep} className="w-100" type="submit">
+            Next step
+          </RoundButton>
+        </Col>
       </Row>
     </Container>
   );

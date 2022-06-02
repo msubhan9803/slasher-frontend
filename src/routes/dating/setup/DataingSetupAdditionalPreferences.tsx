@@ -5,7 +5,9 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import { Slider } from '@mui/material';
+import { Slider, SliderThumb } from '@mui/material';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -30,15 +32,46 @@ const SliderComponent = styled(Slider)`
 
 const CustomSelect = styled(Form)`
 .form-select {
-  width: 35%;
+  width: auto;
   margin-left: -4px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 `;
 
+function DistanceThumbComponent(props: any) {
+  const { children, ...other } = props;
+  return (
+    <SliderThumb {...other}>
+      {children}
+      <FontAwesomeIcon icon={solid('chevron-right')} size="lg" color="white " />
+    </SliderThumb>
+  );
+}
+
+function AgeThumbComponent(props: any) {
+  const { children, ...other } = props;
+  const extraClassName = other['data-index'] === 0 ? 'first-thumb' : 'second-thumb';
+  if (extraClassName === 'first-thumb') {
+    return (
+      <SliderThumb {...other}>
+        {children}
+        <FontAwesomeIcon icon={solid('chevron-left')} size="lg" color="white " />
+      </SliderThumb>
+    );
+  }
+  return (
+    <SliderThumb {...other}>
+      {children}
+      <FontAwesomeIcon icon={solid('chevron-right')} size="lg" color="white " />
+    </SliderThumb>
+  );
+}
+
 function DataingSetupAdditionalPreferences() {
+  const [genderValues] = useState(['Men', 'Women', 'Both']);
   const [gender, setGender] = useState('');
+  const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
 
@@ -51,6 +84,26 @@ function DataingSetupAdditionalPreferences() {
             You will be able to change these later on the dating preferences screen.
           </h1>
         </Col>
+
+        <Col md={8} className="mt-5">
+          <h2 className="h4">I am looking for</h2>
+          <Row className="mt-4">
+            {genderValues.map((gen: string) => (
+              <Col xs={4} md={3} key={gen}>
+                <Button
+                  variant="form"
+                  size="lg"
+                  className="w-100"
+                  name={gen}
+                  active={gender === gen}
+                  onClick={(e: any) => setGender(e.target.name)}
+                >
+                  {gen}
+                </Button>
+              </Col>
+            ))}
+          </Row>
+        </Col>
         <Col md={8} className="mt-5">
           <Row className="px-2 align-items-center">
             <Col md={5} className="text-start">
@@ -58,12 +111,18 @@ function DataingSetupAdditionalPreferences() {
             </Col>
             <Col md={7} className="mt-3 mt-md-0">
               <CustomSelect className="d-flex justify-content-md-end">
-                <Button variant="primary" className="pe-none mw-25 w-25 rounded-3" style={{ zIndex: 1 }}>
+                <Button variant="primary" className="pe-none w-25 rounded-3" style={{ zIndex: 1 }}>
                   {distance}
-                  mi.
+                  {distType}
+                  .
                 </Button>
-                <Form.Select className="shadow-none border-start-0 ps-4">
-                  <option>mi (miles)</option>
+                <Form.Select
+                  className="shadow-none border-start-0 ps-4"
+                  value={distType}
+                  onChange={(e) => setDistType(e.target.value)}
+                >
+                  <option value="mi">mi (miles)</option>
+                  <option value="km">km (kilometers)</option>
                 </Form.Select>
               </CustomSelect>
             </Col>
@@ -75,6 +134,7 @@ function DataingSetupAdditionalPreferences() {
                 aria-labelledby="input-slider"
                 min={1}
                 max={200}
+                components={{ Thumb: DistanceThumbComponent }}
               />
               <p className="mb-0 ms-4">200</p>
             </Col>
@@ -102,49 +162,9 @@ function DataingSetupAdditionalPreferences() {
                 max={55}
                 onChange={(e: any) => setAge(e.target.value)}
                 aria-labelledby="input-slider"
+                components={{ Thumb: AgeThumbComponent }}
               />
               <p className="mb-0 ms-4">55+</p>
-            </Col>
-          </Row>
-        </Col>
-        <Col md={8} className="mt-5">
-          <h2 className="h4">I am looking for</h2>
-          <Row className="mt-4">
-            <Col xs={4} md={3}>
-              <Button
-                variant="form"
-                size="lg"
-                className="w-100"
-                name="men"
-                active={gender === 'men'}
-                onClick={(e: any) => setGender(e.target.name)}
-              >
-                Men
-              </Button>
-            </Col>
-            <Col xs={4} md={3}>
-              <Button
-                variant="form"
-                size="lg"
-                className="w-100"
-                name="women"
-                active={gender === 'women'}
-                onClick={(e: any) => setGender(e.target.name)}
-              >
-                Women
-              </Button>
-            </Col>
-            <Col xs={4} md={3}>
-              <Button
-                variant="form"
-                size="lg"
-                className="w-100"
-                name="both"
-                active={gender === 'both'}
-                onClick={(e: any) => setGender(e.target.name)}
-              >
-                Both
-              </Button>
             </Col>
           </Row>
         </Col>

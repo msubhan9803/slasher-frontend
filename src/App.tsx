@@ -9,6 +9,7 @@ import SignIn from './routes/sign-in/SignIn';
 import RegistrationFinal from './routes/registration/RegistrationFinal';
 import DatingSetupIdentity from './routes/dating/setup/DatingSetupIdentity';
 import DatingSetupAboutMe from './routes/dating/setup/DatingSetupAboutMe';
+import DatingWelcomeScreen from './routes/dating/DatingWelcomeScreen';
 import DataingSetupAdditionalPreferences from './routes/dating/setup/DataingSetupAdditionalPreferences';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
       <Route path="/registration/final" element={<RegistrationFinal />} />
       <Route path="/dating/setup/identity" element={<DatingSetupIdentity />} />
       <Route path="/dating/setup/about-me" element={<DatingSetupAboutMe />} />
+      <Route path="/dating/welcome" element={<DatingWelcomeScreen />} />
       <Route path="/dating/setup/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />

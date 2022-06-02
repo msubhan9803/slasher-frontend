@@ -68,8 +68,9 @@ function AgeThumbComponent(props: any) {
   );
 }
 
+const availableGenderValues = ['Men', 'Women', 'Both'];
+
 function DataingSetupAdditionalPreferences() {
-  const [genderValues] = useState(['Men', 'Women', 'Both']);
   const [gender, setGender] = useState('');
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
@@ -88,7 +89,7 @@ function DataingSetupAdditionalPreferences() {
         <Col md={8} className="mt-5">
           <h2 className="h4">I am looking for</h2>
           <Row className="mt-4">
-            {genderValues.map((gen: string) => (
+            {availableGenderValues.map((gen: string) => (
               <Col xs={4} md={3} key={gen}>
                 <Button
                   variant="form"
@@ -107,7 +108,7 @@ function DataingSetupAdditionalPreferences() {
         <Col md={8} className="mt-5">
           <Row className="px-2 align-items-center">
             <Col md={5} className="text-start">
-              <h2 className="h4">Maximum Distance</h2>
+              <h2 className="h4 mb-sm-0">Maximum Distance</h2>
             </Col>
             <Col md={7} className="mt-3 mt-md-0">
               <CustomSelect className="d-flex justify-content-md-end">
@@ -143,7 +144,7 @@ function DataingSetupAdditionalPreferences() {
         <Col md={8} className="mt-5">
           <Row className="px-2 align-items-center">
             <Col md={5} className="text-start">
-              <h2 className="h4">Age range </h2>
+              <h2 className="h4 mb-sm-0">Age range </h2>
             </Col>
             <Col md={7} className="mt-3 mt-md-0 text-md-end">
               <Button variant="primary" className="pe-none" size="lg">

@@ -7,7 +7,11 @@ import {
 } from 'react-bootstrap';
 import RoundButton from '../../components/ui/RoundButton';
 
-function RegistrationIdentity({ changeStep }: any) {
+interface Props {
+  changeStep: (step: number) => void;
+}
+
+function RegistrationIdentity({ changeStep }: Props) {
   const navigate = useNavigate();
 
   const handleStep = () => {

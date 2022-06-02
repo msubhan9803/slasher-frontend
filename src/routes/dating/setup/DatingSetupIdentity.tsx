@@ -3,35 +3,13 @@ import React, { useState } from 'react';
 import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
-import { Info } from 'luxon';
 import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-import { generateRange } from '../../../utils/array-utils';
+import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 
-const generateMonthOptions = () => {
-  const monthNumbers = Info.months('numeric').map((monthNumber: string) => parseInt(monthNumber, 10));
-  const monthNames = Info.months('long'); // Using luxon for eventual month name locale awareness
-  const monthOptions: { value: number, label: string }[] = [];
-  monthNumbers.forEach((monthNumber: number, i: number) => {
-    monthOptions.push({ value: monthNumber, label: monthNames[i] });
-  });
-  return monthOptions;
-};
-const generateDayOptions = () => generateRange(1, 31).map(
-  (day) => <option key={day} value={day}>{day}</option>,
-);
-const generateYearOptions = () => {
-  const currentYear = new Date().getFullYear();
-  const endYear = currentYear - 18;
-  const startYear = currentYear - 100;
-  return generateRange(endYear, startYear).map(
-    (year) => <option key={year} value={year}>{year}</option>,
-  );
-};
-
-const yearOptions = generateYearOptions();
+const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
-const dayOptions = generateDayOptions();
+const dayOptions = generateDayOptions(1, 31);
 
 function DatingSetupIdentity() {
   const [gender, setGender] = useState('male');
@@ -70,7 +48,9 @@ function DatingSetupIdentity() {
                 <option value="" disabled>
                   Day
                 </option>
-                {dayOptions}
+                {dayOptions.map((day) => (
+                  <option key={day} value={day}>{day}</option>
+                ))}
               </Form.Select>
             </Col>
             <Col sm={12} md={4} className="mb-3">
@@ -78,7 +58,9 @@ function DatingSetupIdentity() {
                 <option value="" disabled>
                   Year
                 </option>
-                {yearOptions}
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
               </Form.Select>
             </Col>
           </Row>

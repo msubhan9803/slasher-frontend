@@ -5,7 +5,7 @@ import { createMemoryHistory } from 'history'; // TODO: remove temporary eslint 
 import { Router } from 'react-router-dom';
 import Home from './Home';
 
-test('renders learn react link', () => {
+test('renders the expected text', () => {
   const history = createMemoryHistory();
   render(
     <Router location={history.location} navigator={history}>

@@ -1,33 +1,11 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Button, Col, Container, Form, Row,
+  Button, Col, Form, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-
-const ToggleButton = styled.div`
-  float: left;
-  background: #1F1F1F;
-  border: #3A3B46;
-  border-radius: 3px;
-
-  input {
-    position: absolute;
-    opacity: 0;
-  }
-  input+label {
-    padding: 5px 22px;
-    float: left;
-    color: #fff;
-    cursor: pointer;
-  }
-  input:checked+.primary {
-    background: var(--bs-primary);
-    border-radius: 75px;
-  }
-`;
+import SwitchButtonGroup from '../../../components/ui/SwitchButtonGroup';
 
 const interestsList = [
   'Art',
@@ -127,8 +105,15 @@ const smokingOptions = [
   { label: 'Smoker', value: 'smoker' },
 ];
 
+const newToAreaOptions = [
+  { label: 'Yes', value: 'yes' },
+  { label: 'No', value: 'no' },
+];
+
 function DatingSetupAdditionalIdentifier() {
   const [interest, setInterest] = useState('');
+  const [newToArea, setNewToArea] = useState(newToAreaOptions[0].value);
+
   return (
     <UnauthenticatedSiteWrapper>
       <Row>
@@ -296,13 +281,12 @@ function DatingSetupAdditionalIdentifier() {
       <h4 className="mt-5">New to area</h4>
       <Row>
         <Col lg={2}>
-          <ToggleButton className=" rounded-pill ">
-            <input id="yes" name="state-toggle" className="primary" type="radio" defaultChecked />
-            <label htmlFor="yes" className="primary">Yes</label>
-
-            <input id="no" name="state-toggle" className="primary" type="radio" />
-            <label htmlFor="no" className="primary">No</label>
-          </ToggleButton>
+          <SwitchButtonGroup
+            value={newToArea}
+            onChange={(val) => setNewToArea(val)}
+            firstOption={newToAreaOptions[0]}
+            secondOption={newToAreaOptions[1]}
+          />
         </Col>
       </Row>
 

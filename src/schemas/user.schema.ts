@@ -63,9 +63,6 @@ export class User {
   @Prop({ required: true, default: null })
   token: string;
 
-  @Prop({ trim: true, default: '' })
-  aboutMe: string;
-
   generateNewJwtToken(jwtSecretKey: string) {
     const jwtPayload = {
       id: this._id.toString(),

@@ -15,7 +15,7 @@ function CustomToggleButton({
   id, label, value, checked, type, variant, className, onChange,
 }: Props) {
   return (
-    <div className="d-block">
+    <div>
       <input type={type} checked={checked} className="btn-check" id={id} value={value} onChange={onChange} />
       <label className={`btn btn-${variant} ${className}`} htmlFor={id}>
         {label}

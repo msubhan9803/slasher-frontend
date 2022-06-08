@@ -5,23 +5,23 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
-import SliderComponent from '../../../components/ui/SliderComponent';
-import CustomSelect from '../../../components/ui/CustomSelect';
-import DistanceThumbComponent from '../../../components/ui/DistanceThumbComponent';
-import AgeThumbComponent from '../../../components/ui/AgeThumbComponent';
+import RoundButton from '../../components/ui/RoundButton';
+import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import SliderComponent from '../../components/ui/SliderComponent';
+import CustomSelect from '../../components/ui/CustomSelect';
+import DistanceThumbComponent from '../../components/ui/DistanceThumbComponent';
+import AgeThumbComponent from '../../components/ui/AgeThumbComponent';
 
 const availableGenderValues = ['Men', 'Women', 'Both'];
 
-function DataingSetupAdditionalPreferences() {
+function DatingPreferences() {
   const [gender, setGender] = useState('');
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
 
   return (
-    <UnauthenticatedSiteWrapper>
+    <AuthenticatedSiteWrapper>
       <Row className="justify-content-center">
         <Col md={8} className="text-center">
           <h1 className="h3">
@@ -94,9 +94,9 @@ function DataingSetupAdditionalPreferences() {
               <Button variant="primary" className="pe-none" size="lg">
                 Between:&nbsp;
                 {age[0]}
-                &nbsp;to&nbsp;
+                                &nbsp;to&nbsp;
                 {age[1]}
-                &nbsp;years
+                                &nbsp;years
               </Button>
             </Col>
             <Col className="d-flex align-items-center px-1 mt-4">
@@ -119,8 +119,8 @@ function DataingSetupAdditionalPreferences() {
           </RoundButton>
         </Col>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </AuthenticatedSiteWrapper>
   );
 }
 
-export default DataingSetupAdditionalPreferences;
+export default DatingPreferences;

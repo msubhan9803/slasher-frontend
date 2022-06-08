@@ -2,7 +2,7 @@
 @import "~bootstrap/scss/bootstrap";
 
 .btn-primary {
-  // See: https://getbootstrap.com/docs/5.0/components/buttons/#mixins
+  // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(
     $background: $primary,
     $border: #FF1700,
@@ -13,7 +13,7 @@
 }
 
 .btn-secondary {
-  // See: https://getbootstrap.com/docs/5.0/components/buttons/#mixins
+  // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(
     $background: $secondary,
     $border: #333333,
@@ -24,12 +24,12 @@
 }
 
 .btn-form {
-  // See: https://getbootstrap.com/docs/5.0/components/buttons/#mixins
+  // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(
     $background: #1f1f1f,
     $border: #3A3B46,
     $color: #ffffff,
-    $hover-background: $primary,
+    $hover-background: #1f1f1f,
     $hover-color: #ffffff,
     $active-background: $primary,
     $active-color: #ffffff

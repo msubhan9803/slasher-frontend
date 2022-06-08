@@ -3,6 +3,7 @@ import {
   Col, Form, Row,
 } from 'react-bootstrap';
 import UnauthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import CustomToggleButton from '../../../../components/ui/CustomToggleButton';
 import RoundButton from '../../../../components/ui/RoundButton';
 import SwitchButtonGroup from '../../../../components/ui/SwitchButtonGroup';
 import {
@@ -23,7 +24,15 @@ import {
 import DatingIdentifierSelect from './DatingIdentifierSelect';
 
 function DatingSetupAdditionalIdentifiers() {
+  const [interests, setInterests] = useState<Set<string>>(new Set<string>());
   const [newToArea, setNewToArea] = useState(newToAreaOptions[0].value);
+
+  const interestsChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked, value } = e.target;
+    const newSet = new Set<string>(interests);
+    if (checked) { newSet.add(value); } else { newSet.delete(value); }
+    setInterests(newSet);
+  };
 
   return (
     <UnauthenticatedSiteWrapper>
@@ -117,24 +126,33 @@ function DatingSetupAdditionalIdentifiers() {
           </Col>
         </Row>
         <h4 className="mt-5">Interests</h4>
-        <Row className="mt-3">
-          {interestsList.map((interests: string) => (
-            <Col xs={4} md={2} key={interests} className="d-md-block d-none">
-              <input type="checkbox" className="btn-check" id={interests} />
-              <label className="btn btn-form btn-lg fs-6 my-1 w-100" htmlFor={interests}>
-                {interests}
-              </label>
+        <Row className="mt-3 d-none d-md-flex">
+          {interestsList.map((interest: string, index: number) => (
+            <Col xs={4} md={2} key={interest}>
+              <CustomToggleButton
+                id={`interest-${index}`}
+                label={interest}
+                value={interest}
+                checked={interests.has(interest)}
+                type="checkbox"
+                variant="form"
+                className="btn-lg fs-6 my-1 w-100"
+                onChange={interestsChangeHandler}
+              />
             </Col>
           ))}
         </Row>
+
         <Row>
-          {interestsList.map((check: any, index: any) => (
-            <Col xs={6} className="d-block d-md-none" key={check}>
+          {interestsList.map((interest: string, index: number) => (
+            <Col xs={6} className="d-block d-md-none" key={interest}>
               <Form.Check
                 type="checkbox"
-                id={`${check} - ${index}`}
+                id={`interest-${index}`}
+                checked={interests.has(interest)}
                 className="mb-2"
-                label={check}
+                label={interest}
+                onChange={interestsChangeHandler}
               />
             </Col>
           ))}

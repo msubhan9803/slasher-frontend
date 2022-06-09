@@ -9,8 +9,8 @@ import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wra
 import RoundButton from '../../../components/ui/RoundButton';
 import SliderComponent from '../../../components/ui/SliderComponent';
 import CustomSelect from '../../../components/ui/CustomSelect';
-import DistanceThumbComponent from '../../../components/ui/DistanceThumbComponent';
-import AgeThumbComponent from '../../../components/ui/AgeThumbComponent';
+import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
+import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
 
 const availableGenderValues = ['Men', 'Women', 'Both'];
 
@@ -79,7 +79,7 @@ function DataingSetupAdditionalPreferences() {
                 aria-labelledby="input-slider"
                 min={1}
                 max={200}
-                components={{ Thumb: DistanceThumbComponent }}
+                components={{ Thumb: SliderThumbComponent }}
               />
               <p className="mb-0 ms-4">200</p>
             </Col>
@@ -107,7 +107,7 @@ function DataingSetupAdditionalPreferences() {
                 max={55}
                 onChange={(e: any) => setAge(e.target.value)}
                 aria-labelledby="input-slider"
-                components={{ Thumb: AgeThumbComponent }}
+                components={{ Thumb: RangeSliderThumbComponent }}
               />
               <p className="mb-0 ms-4">55+</p>
             </Col>

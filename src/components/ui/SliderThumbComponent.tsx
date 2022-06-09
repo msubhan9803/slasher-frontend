@@ -3,8 +3,10 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SliderThumb } from '@mui/material';
 
-export default function DistanceThumbComponent(props: any) {
-  const { children, ...other } = props;
+interface Props {
+  children: React.ReactNode,
+}
+export default function SliderThumbComponent({ children, ...other }: Props) {
   return (
     <SliderThumb {...other}>
       {children}

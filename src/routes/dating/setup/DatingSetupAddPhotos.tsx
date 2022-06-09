@@ -5,7 +5,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 
 interface Image {
@@ -40,7 +40,7 @@ function DatingSetupAddPhotos() {
     }
   };
   return (
-    <UnauthenticatedSiteWrapper>
+    <AuthenticatedSiteWrapper>
       <Row className="justify-content-center text-center">
         <Col lg={8}>
           <h3>Add Photos</h3>
@@ -127,7 +127,7 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </AuthenticatedSiteWrapper>
   );
 }
 

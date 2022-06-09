@@ -124,19 +124,18 @@ function DatingPreferences() {
             </Col>
             <Row>
               <Col md={6}>
-                <span className='position'>Push notifications</span>
-                <label className="switch mx-2">
+                <span className="position">Push notifications</span>
+                <label className="switch mx-2" htmlFor="togBtn">
                   <input type="checkbox" id="togBtn" />
-                  <div className="slider round"></div>
+                  <div className="slider round" />
                 </label>
               </Col>
 
-
               <Col md={6}>
-                <span className='position'>Email notifications</span>
-                <label className="switch mx-2">
+                <span className="position">Email notifications</span>
+                <label className="switch mx-2" htmlFor="togBtn">
                   <input type="checkbox" id="togBtn" />
-                  <div className="slider round"></div>
+                  <div className="slider round" />
                 </label>
 
               </Col>

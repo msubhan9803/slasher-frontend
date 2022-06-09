@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Col, Form, Row,
 } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import CustomToggleButton from '../../../../components/ui/CustomToggleButton';
 import RoundButton from '../../../../components/ui/RoundButton';
 import SwitchButtonGroup from '../../../../components/ui/SwitchButtonGroup';
@@ -35,7 +35,7 @@ function DatingSetupAdditionalInfo() {
   };
 
   return (
-    <UnauthenticatedSiteWrapper>
+    <AuthenticatedSiteWrapper>
       <Form>
         <Row>
           <Col sm={12} md={3}>
@@ -181,7 +181,7 @@ function DatingSetupAdditionalInfo() {
           </Col>
         </Row>
       </Form>
-    </UnauthenticatedSiteWrapper>
+    </AuthenticatedSiteWrapper>
   );
 }
 export default DatingSetupAdditionalInfo;

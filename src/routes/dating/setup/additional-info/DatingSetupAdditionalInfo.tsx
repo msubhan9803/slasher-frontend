@@ -20,10 +20,10 @@ import {
   tatoosOptions,
   bodyTypeOptions,
   interestsList,
-} from './additional-identifiers-form-options';
-import DatingIdentifierSelect from './DatingIdentifierSelect';
+} from './additional-info-form-options';
+import DatingInfoSelect from './DatingInfoSelect';
 
-function DatingSetupAdditionalIdentifiers() {
+function DatingSetupAdditionalInfo() {
   const [interests, setInterests] = useState<Set<string>>(new Set<string>());
   const [newToArea, setNewToArea] = useState(newToAreaOptions[0].value);
 
@@ -39,28 +39,28 @@ function DatingSetupAdditionalIdentifiers() {
       <Form>
         <Row>
           <Col sm={12} md={3}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="relationship"
               options={relationshipStatusOptions}
               label="Relationship Status"
             />
           </Col>
           <Col sm={12} md={3}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="bodyType"
               options={bodyTypeOptions}
               label="Body Type"
             />
           </Col>
           <Col sm={12} md={3}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="tattoos"
               options={tatoosOptions}
               label="Tattoos"
             />
           </Col>
           <Col sm={12} md={3}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="ethnicity"
               options={ethnicityOptions}
               label="Ethnicity"
@@ -70,14 +70,14 @@ function DatingSetupAdditionalIdentifiers() {
 
         <Row className="mt-4">
           <Col sm={12} md={6}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="parentalStatus"
               options={parentalStatusOptions}
               label="Parental Status"
             />
           </Col>
           <Col sm={12} md={6}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="Religion"
               options={religionOptions}
               label="Religion"
@@ -87,14 +87,14 @@ function DatingSetupAdditionalIdentifiers() {
 
         <Row className="mt-4">
           <Col sm={12} md={6}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="educationLevel"
               options={educationLevelOptions}
               label="Education Level"
             />
           </Col>
           <Col sm={12} md={6}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="employment"
               options={employmentOptions}
               label="Employment"
@@ -104,21 +104,21 @@ function DatingSetupAdditionalIdentifiers() {
 
         <Row className="mt-4">
           <Col sm={12} md={4}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="pets"
               options={petOptions}
               label="Pets"
             />
           </Col>
           <Col sm={12} md={4}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="drinking"
               options={drinkingOptions}
               label="Drinking"
             />
           </Col>
           <Col sm={12} md={4}>
-            <DatingIdentifierSelect
+            <DatingInfoSelect
               name="smoking"
               options={smokingOptions}
               label="Smoking"
@@ -184,4 +184,4 @@ function DatingSetupAdditionalIdentifiers() {
     </UnauthenticatedSiteWrapper>
   );
 }
-export default DatingSetupAdditionalIdentifiers;
+export default DatingSetupAdditionalInfo;

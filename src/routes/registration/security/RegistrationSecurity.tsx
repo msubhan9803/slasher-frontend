@@ -3,27 +3,27 @@ import {
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import RoundButton from '../../components/ui/RoundButton';
-import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../utils/date-utils';
-
-interface Props {
-  changeStep: (step: number) => void;
-}
+import RoundButton from '../../../components/ui/RoundButton';
+import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
+import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
 
-function RegistrationSecurity({ changeStep }: Props) {
+interface Props {
+  activeStep: number;
+}
+
+function RegistrationSecurity({ activeStep }: Props) {
   const navigate = useNavigate();
   const handleStep = () => {
     navigate('/registration/terms');
-    changeStep(2);
   };
 
   return (
-    <Container>
-      <Row>
+    <RegistrationPageWrapper activeStep={activeStep}>
+      <Row className="justify-content-center">
         <Col sm={12} md={9}>
           <Row>
             <Col sm={12} md={6} className="order-first">
@@ -70,49 +70,45 @@ function RegistrationSecurity({ changeStep }: Props) {
           <p>Not case sensitive.</p>
         </Col>
       </Row>
-      <Row>
-        <Col className="mt-3">
+      <Row className="justify-content-center">
+        <Col sm={12} lg={9} className="order-xs-1">
+          <p>Date of birth</p>
+        </Col>
+        <Col sm={12} lg={9} className="order-3">
           <Row>
-            <Col sm={12} lg={9} className="order-xs-1">
-              <p>Date of birth</p>
+            <Col sm={12} md={4} className="my-2">
+              <Form.Select aria-label="Month selection" defaultValue="">
+                <option value="" disabled>Month</option>
+                {monthOptions.map((month) => (
+                  <option key={month.value} value={month.value}>{month.label}</option>
+                ))}
+              </Form.Select>
             </Col>
-            <Col sm={12} lg={9} className="order-3">
-              <Row>
-                <Col sm={12} md={4} className="my-2">
-                  <Form.Select aria-label="Month selection" defaultValue="">
-                    <option value="" disabled>Month</option>
-                    {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>{month.label}</option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col sm={12} md={4} className="my-2">
-                  <Form.Select aria-label="Day selection" defaultValue="">
-                    <option value="" disabled>Day</option>
-                    {dayOptions.map((day) => (
-                      <option key={day} value={day}>{day}</option>
-                    ))}
-                  </Form.Select>
-                </Col>
-                <Col sm={12} md={4} className="my-2">
-                  <Form.Select aria-label="Year selection" defaultValue="">
-                    <option value="" disabled>Year</option>
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
-                  </Form.Select>
-                </Col>
-              </Row>
+            <Col sm={12} md={4} className="my-2">
+              <Form.Select aria-label="Day selection" defaultValue="">
+                <option value="" disabled>Day</option>
+                {dayOptions.map((day) => (
+                  <option key={day} value={day}>{day}</option>
+                ))}
+              </Form.Select>
             </Col>
-            <Col sm={12} lg={9} className="order-md-3">
-              <p className="mt-3">Your age will not be shown in your profile.</p>
+            <Col sm={12} md={4} className="my-2">
+              <Form.Select aria-label="Year selection" defaultValue="">
+                <option value="" disabled>Year</option>
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </Form.Select>
             </Col>
           </Row>
         </Col>
+        <Col sm={12} lg={9} className="order-md-3">
+          <p className="mt-3 mb-0">Your age will not be shown in your profile.</p>
+        </Col>
       </Row>
-      <Row>
+      <Row className="justify-content-center my-5">
         <Col sm={4} className="mb-2">
-          <RoundButton onClick={() => { changeStep(0); navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
+          <RoundButton onClick={() => { navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
             Previous step
           </RoundButton>
         </Col>
@@ -122,7 +118,7 @@ function RegistrationSecurity({ changeStep }: Props) {
           </RoundButton>
         </Col>
       </Row>
-    </Container>
+    </RegistrationPageWrapper>
   );
 }
 export default RegistrationSecurity;

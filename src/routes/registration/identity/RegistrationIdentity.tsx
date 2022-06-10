@@ -5,23 +5,22 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import RoundButton from '../../components/ui/RoundButton';
+import RoundButton from '../../../components/ui/RoundButton';
+import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
 interface Props {
-  changeStep: (step: number) => void;
+  activeStep: number;
 }
 
-function RegistrationIdentity({ changeStep }: Props) {
+function RegistrationIdentity({ activeStep }: Props) {
   const navigate = useNavigate();
 
   const handleStep = () => {
     navigate('/registration/security');
-    changeStep(1);
   };
 
   return (
-    <Container className="mt-4 align-self-center text-center">
-
+    <RegistrationPageWrapper activeStep={activeStep}>
       <Form>
         <Row className="justify-content-center">
           <Form.Group className="col-md-4 mb-3 text-start">
@@ -59,7 +58,7 @@ function RegistrationIdentity({ changeStep }: Props) {
               Next step
             </RoundButton>
           </div>
-          <div className="fs-5">
+          <div className="text-center fs-5">
             Already have an account?
             {' '}
             <Link to="/sign-in" className="text-primary">Click here</Link>
@@ -69,7 +68,7 @@ function RegistrationIdentity({ changeStep }: Props) {
         </Row>
       </Form>
 
-    </Container>
+    </RegistrationPageWrapper>
   );
 }
 

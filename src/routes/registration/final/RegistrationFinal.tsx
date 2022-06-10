@@ -1,13 +1,13 @@
+import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Image } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-import send from '../../images/send.svg';
+import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
 
 function RegistrationFinal() {
   return (
     <UnauthenticatedSiteWrapper>
       <div className="text-center">
-        <Image src={send} />
+        <FontAwesomeIcon icon={regular('paper-plane')} size="6x" className="text-primary" />
         <h2 className="mt-4">One more step!</h2>
         <h3 className="mb-4">Verify your email</h3>
         <p>We have sent an email to</p>

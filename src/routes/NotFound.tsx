@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import UnauthenticatedSiteWrapper from '../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import NotFoundInnerContent from '../components/NotFoundPageContent';
 
 // TODO: Might want to make this component aware of user login state
 // so that the correct site wrapper is used. Right now it's always
@@ -9,13 +9,7 @@ import UnauthenticatedSiteWrapper from '../components/layout/main-site-wrapper/u
 function NotFound() {
   return (
     <UnauthenticatedSiteWrapper>
-      <div className="text-center">
-        <h1>Not Found</h1>
-        <p>This Page could not be found.</p>
-        <p>
-          <Link to="/">Go back to the home page.</Link>
-        </p>
-      </div>
+      <NotFoundInnerContent />
     </UnauthenticatedSiteWrapper>
   );
 }

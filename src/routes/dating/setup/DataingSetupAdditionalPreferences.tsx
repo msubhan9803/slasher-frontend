@@ -3,6 +3,7 @@ import {
   Button,
   Col,
   Form,
+  InputGroup,
   Row,
 } from 'react-bootstrap';
 import { Slider, SliderThumb } from '@mui/material';
@@ -30,13 +31,12 @@ const SliderComponent = styled(Slider)`
 }
 `;
 
-const CustomSelect = styled(Form)`
-.form-select {
-  width: auto;
-  margin-left: -4px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
+const DistanceInputGroup = styled(InputGroup)`
+  .input-group-text {
+    margin-right: -.5rem;
+    z-index: 100;
+    width: 33%;
+  }
 `;
 
 function DistanceThumbComponent(props: any) {
@@ -79,14 +79,14 @@ function DataingSetupAdditionalPreferences() {
   return (
     <AuthenticatedSiteWrapper>
       <Row className="justify-content-center">
-        <Col md={8} className="text-center">
+        <Col md={10} className="text-center">
           <h1 className="h3">
             One this screen, you can set your filters.
             You will be able to change these later on the dating preferences screen.
           </h1>
         </Col>
 
-        <Col md={8} className="mt-5">
+        <Col md={10} className="mt-5">
           <h2 className="h4">I am looking for</h2>
           <Row className="mt-4">
             {availableGenderValues.map((gen: string) => (
@@ -105,27 +105,26 @@ function DataingSetupAdditionalPreferences() {
             ))}
           </Row>
         </Col>
-        <Col md={8} className="mt-5">
+        <Col md={10} className="mt-5">
           <Row className="px-2 align-items-center">
-            <Col md={5} className="text-start">
+            <Col sm={4} lg={6} xl={7} className="text-start">
               <h2 className="h4 mb-sm-0">Maximum Distance</h2>
             </Col>
-            <Col md={7} className="mt-3 mt-md-0">
-              <CustomSelect className="d-flex justify-content-md-end">
-                <Button variant="primary" className="pe-none w-25 rounded-3" style={{ zIndex: 1 }}>
+            <Col sm={8} lg={6} xl={5} className="mt-3 mt-sm-0">
+              <DistanceInputGroup>
+                <InputGroup.Text className="rounded-3 bg-primary d-inline-block text-center fs-5">
                   {distance}
-                  {distType}
-                  .
-                </Button>
+                </InputGroup.Text>
                 <Form.Select
-                  className="shadow-none border-start-0 ps-4"
+                  aria-label="Distance unit"
+                  className="shadow-none border-start-0 ps-4 w-50"
                   value={distType}
                   onChange={(e) => setDistType(e.target.value)}
                 >
                   <option value="mi">mi (miles)</option>
                   <option value="km">km (kilometers)</option>
                 </Form.Select>
-              </CustomSelect>
+              </DistanceInputGroup>
             </Col>
             <Col className="d-flex align-items-center px-1 mt-4">
               <p className="mb-0 me-4">01</p>
@@ -141,19 +140,19 @@ function DataingSetupAdditionalPreferences() {
             </Col>
           </Row>
         </Col>
-        <Col md={8} className="mt-5">
+        <Col md={10} className="mt-5">
           <Row className="px-2 align-items-center">
             <Col md={5} className="text-start">
               <h2 className="h4 mb-sm-0">Age range </h2>
             </Col>
             <Col md={7} className="mt-3 mt-md-0 text-md-end">
-              <Button variant="primary" className="pe-none" size="lg">
+              <span className="d-inline-block bg-primary p-3 rounded-3 fs-5">
                 Between:&nbsp;
                 {age[0]}
                 &nbsp;to&nbsp;
                 {age[1]}
                 &nbsp;years
-              </Button>
+              </span>
             </Col>
             <Col className="d-flex align-items-center px-1 mt-4">
               <p className="mb-0 me-4">18</p>

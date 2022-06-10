@@ -9,12 +9,12 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
-import RoundButton from '../../components/ui/RoundButton';
+import AuthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import RoundButton from '../../../../components/ui/RoundButton';
 import RemoveProfileDialog from './RemoveProfileDialog';
-import DatingAdditionalInfo from './DatingAdditionalInfo';
-import DatingInfoSelect from './setup/additional-info/DatingInfoSelect';
-import { sexualOrientationOptions } from './setup/additional-info/additional-info-form-options';
+import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
+import CustomSelect from '../../../../components/ui/CustomSelect';
+import { sexualOrientationOptions } from '../../components/DatingAdditionalInfo/additional-info-form-options';
 
 interface Images {
   title: string;
@@ -170,7 +170,7 @@ function DatingEditProfile() {
             </Row>
           </Col>
           <Col md={6}>
-            <DatingInfoSelect
+            <CustomSelect
               name="sexualOrientation"
               options={sexualOrientationOptions}
               label="My sexual orientation is"

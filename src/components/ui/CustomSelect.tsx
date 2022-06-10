@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 
-function DatingInfoSelect({
+function CustomSelect({
   options,
   label,
   name,
@@ -26,4 +26,4 @@ function DatingInfoSelect({
   );
 }
 
-export default DatingInfoSelect;
+export default CustomSelect;

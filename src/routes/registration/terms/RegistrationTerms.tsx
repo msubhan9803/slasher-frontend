@@ -5,24 +5,25 @@ import {
   Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import CommunityStandardsAndRules from '../../components/terms-and-policies/CommunityStandardsAndRules';
-import EndUserLicenseAgreement from '../../components/terms-and-policies/EndUserLicenseAgreement';
-import PrivacyPolicy from '../../components/terms-and-policies/PrivacyPolicy';
-import TermsAndConditions from '../../components/terms-and-policies/TermsAndConditions';
-import RoundButton from '../../components/ui/RoundButton';
+import CommunityStandardsAndRules from '../../../components/terms-and-policies/CommunityStandardsAndRules';
+import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
+import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
+import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
+import RoundButton from '../../../components/ui/RoundButton';
+import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
 interface Props {
-  changeStep: (step: number) => void;
+  activeStep: number;
 }
 
-function RegistrationTerms({ changeStep }: Props) {
+function RegistrationTerms({ activeStep }: Props) {
   const navigate = useNavigate();
   const handleStep = () => {
     navigate('/registration/final');
-    changeStep(3);
   };
+
   return (
-    <Container>
+    <RegistrationPageWrapper activeStep={activeStep}>
       <h1 className="h3">
         Please scroll down to review our Terms and Conditions,
         Privacy Policy, End User License Agreement, and Community Standards
@@ -37,9 +38,9 @@ function RegistrationTerms({ changeStep }: Props) {
         with our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      <Row className="mt-5">
+      <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3">
-          <RoundButton onClick={() => { changeStep(1); navigate('/registration/security'); }} className="w-100" variant="secondary" type="submit">
+          <RoundButton onClick={() => { navigate('/registration/security'); }} className="w-100" variant="secondary" type="submit">
             Previous step
           </RoundButton>
         </Col>
@@ -49,7 +50,7 @@ function RegistrationTerms({ changeStep }: Props) {
           </RoundButton>
         </Col>
       </Row>
-    </Container>
+    </RegistrationPageWrapper>
   );
 }
 

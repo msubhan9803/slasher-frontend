@@ -7,7 +7,7 @@ import {
   Col,
   Button,
 } from 'react-bootstrap';
-import ModalContainer from '../../components/ui/CustomModal';
+import ModalContainer from '../../../../components/ui/CustomModal';
 
 interface Props {
   show: boolean;

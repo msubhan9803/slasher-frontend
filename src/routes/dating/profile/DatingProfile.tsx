@@ -8,7 +8,7 @@ import NotFound from '../../../components/NotFound';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import DatingEditProfile from './edit/DatingEditProfile';
 
-function Dating() {
+function DatingProfile() {
   return (
     <Routes>
       {/* TODO: Update redirect below when we have profile view page */}
@@ -21,4 +21,4 @@ function Dating() {
   );
 }
 
-export default Dating;
+export default DatingProfile;

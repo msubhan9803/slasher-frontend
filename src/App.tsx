@@ -13,6 +13,7 @@ import DatingSetupAboutMe from './routes/dating/setup/DatingSetupAboutMe';
 import DatingWelcomeScreen from './routes/dating/DatingWelcomeScreen';
 import DataingSetupAdditionalPreferences from './routes/dating/setup/DataingSetupAdditionalPreferences';
 import DatingPreferences from './routes/dating/DatingPreferences';
+import DatingSetupAdditionalInfo from './routes/dating/setup/additional-info/DatingSetupAdditionalInfo';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -38,6 +39,7 @@ function App() {
       <Route path="/dating/welcome" element={<DatingWelcomeScreen />} />
       <Route path="/dating/setup/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       <Route path="/dating/preferences" element={<DatingPreferences />} />
+      <Route path="/dating/setup/additional-info" element={<DatingSetupAdditionalInfo />} />
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
       <Route path="/registration/*" element={<Registration />} />

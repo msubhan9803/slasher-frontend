@@ -5,6 +5,7 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import SliderComponent from '../../components/ui/SliderComponent';
@@ -19,6 +20,11 @@ function DatingPreferences() {
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
+
+  const Paragraph = styled('p')`
+  color:#CCCCCC;
+  line-height:20px;
+  `;
 
   return (
     <AuthenticatedSiteWrapper>
@@ -120,24 +126,23 @@ function DatingPreferences() {
               <h2 className="h4 mb-sm-0">Notifications</h2>
             </Col>
             <Col md={10}>
-              <p>When you receive likes or messages, we will notify you by:</p>
+              <Paragraph>When you receive likes or messages, we will notify you by:</Paragraph>
             </Col>
             <Row>
               <Col md={6}>
                 <span className="position">Push notifications</span>
-                <label className="switch mx-2" htmlFor="togBtn">
-                  <input type="checkbox" id="togBtn" />
+                <label className="switch ms-3" htmlFor="pushNotificationsSwitch">
+                  <input type="checkbox" id="pushNotificationsSwitch" />
                   <div className="slider round" />
                 </label>
               </Col>
 
               <Col md={6}>
                 <span className="position">Email notifications</span>
-                <label className="switch mx-2" htmlFor="togBtn">
-                  <input type="checkbox" id="togBtn" />
+                <label className="switch ms-3" htmlFor="emailNotificationsSwitch">
+                  <input type="checkbox" id="emailNotificationsSwitch" />
                   <div className="slider round" />
                 </label>
-
               </Col>
             </Row>
 

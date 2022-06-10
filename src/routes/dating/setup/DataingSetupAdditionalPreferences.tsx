@@ -5,7 +5,7 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import SliderComponent from '../../../components/ui/SliderComponent';
 import CustomSelect from '../../../components/ui/CustomSelect';
@@ -21,7 +21,7 @@ function DataingSetupAdditionalPreferences() {
   const [age, setAge] = useState([20, 26]);
 
   return (
-    <UnauthenticatedSiteWrapper>
+    <AuthenticatedSiteWrapper>
       <Row className="justify-content-center">
         <Col md={8} className="text-center">
           <h1 className="h3">
@@ -119,7 +119,7 @@ function DataingSetupAdditionalPreferences() {
           </RoundButton>
         </Col>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </AuthenticatedSiteWrapper>
   );
 }
 

@@ -95,8 +95,19 @@ export const smokingOptions = [
   { label: 'Non-smoker', value: 'non-smoker' },
   { label: 'Smoker', value: 'smoker' },
 ];
-
 export const newToAreaOptions = [
   { label: 'Yes', value: 'yes' },
   { label: 'No', value: 'no' },
+];
+export const sexualOrientationOptions = [
+  { label: 'Straight', value: 'straight' },
+  { label: 'Gay', value: 'gay' },
+  { label: 'Lesbian', value: 'lesbian' },
+  { label: 'Bisexual', value: 'bisexual' },
+  { label: 'Asexual', value: 'asexual' },
+  { label: 'Demisexual', value: 'demisexual' },
+  { label: 'Pansexual', value: 'pansexual' },
+  { label: 'Queer', value: 'queer' },
+  { label: 'Questioning', value: 'questioning' },
+  { label: 'Prefer not to say', value: 'prefer-not-to-say' },
 ];

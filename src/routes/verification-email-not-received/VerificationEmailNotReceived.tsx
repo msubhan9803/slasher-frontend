@@ -8,25 +8,9 @@ import {
   Modal,
   Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import verificationEmail from '../../images/email.svg';
-import closeIcon from '../../images/x-circle.svg';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-
-const ModalContainer = styled(Modal)`
-
- .modal-content {
-    background-color: #000000;
-  }
-
- .btn-close {
-    background: url("${closeIcon}") center/4em auto no-repeat;
-    opacity: 1;
-    &:focus {
-      box-shadow:none;
-    }
-  }
-`;
+import ModalContainer from '../../components/ui/CustomModal';
 
 export default function VerificationEmailNotReceived() {
   const [show, setShow] = useState(false);

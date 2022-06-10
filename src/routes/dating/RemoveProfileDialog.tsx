@@ -7,7 +7,7 @@ import {
   Col,
   Button,
 } from 'react-bootstrap';
-import ModalContainer from '../../components/ui/ModalContainer';
+import ModalContainer from '../../components/ui/CustomModal';
 
 interface Props {
   show: boolean;
@@ -25,7 +25,7 @@ function RemoveProfileDialog({ show, setShow, handleRemoveFile }: Props) {
         <FontAwesomeIcon
           icon={solid('xmark')}
           size="3x"
-          className="px-3 py-1 mb-4 rounded-circle border border-primary text-primary"
+          className="px-3 py-2 mb-4 rounded-circle border border-primary text-primary"
         />
         <h2 className="h3">
           Are you sure

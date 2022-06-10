@@ -2,7 +2,7 @@ import { Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import closeIcon from '../../images/x-circle.svg';
 
-const ModalContainer = styled(Modal)`
+const CustomModal = styled(Modal)`
 
 .modal-content {
    background-color: #000000;
@@ -17,4 +17,4 @@ const ModalContainer = styled(Modal)`
  }
 `;
 
-export default ModalContainer;
+export default CustomModal;

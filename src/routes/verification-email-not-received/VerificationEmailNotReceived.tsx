@@ -10,7 +10,7 @@ import {
 } from 'react-bootstrap';
 import verificationEmail from '../../images/email.svg';
 import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
-import ModalContainer from '../../components/ui/ModalContainer';
+import ModalContainer from '../../components/ui/CustomModal';
 
 export default function VerificationEmailNotReceived() {
   const [show, setShow] = useState(false);

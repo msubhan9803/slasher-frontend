@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
-import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 
@@ -16,7 +16,7 @@ function DatingSetupIdentity() {
   const [selectGender, setSelectGender] = useState('');
 
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <Row>
         <Col md={5}>
           <Form.Group className="mb-3" controlId="formBasicName">
@@ -179,7 +179,7 @@ function DatingSetupIdentity() {
           </RoundButton>
         </Col>
       </Row>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 export default DatingSetupIdentity;

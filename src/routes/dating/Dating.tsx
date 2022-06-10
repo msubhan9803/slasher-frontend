@@ -7,7 +7,7 @@ import {
 import DatingSetup from './setup/DatingSetup';
 import DatingProfile from './profile/DatingProfile';
 import DatingWelcome from './welcome/DatingWelcome';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 
 function Dating() {
@@ -18,7 +18,7 @@ function Dating() {
       <Route path="/setup/*" element={<DatingSetup />} />
       <Route path="/profile/*" element={<DatingProfile />} />
 
-      <Route path="*" element={<AuthenticatedSiteWrapper><NotFound /></AuthenticatedSiteWrapper>} />
+      <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
     </Routes>
   );
 }

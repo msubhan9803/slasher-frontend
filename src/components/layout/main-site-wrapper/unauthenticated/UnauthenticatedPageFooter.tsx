@@ -14,7 +14,7 @@ const StyledFooter = styled.footer`
   }
 `;
 
-function UnauthenticatedSiteFooter() {
+function UnauthenticatedPageFooter() {
   return (
     <StyledFooter className="pt-5">
       <Container className="py-5">
@@ -39,4 +39,4 @@ function UnauthenticatedSiteFooter() {
     </StyledFooter>
   );
 }
-export default UnauthenticatedSiteFooter;
+export default UnauthenticatedPageFooter;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Image } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import UnauthenticatedSiteFooter from './UnauthenticatedSiteFooter';
+import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import slasherLogo from '../../../../images/slasher-logo.svg';
 
 interface Props {
@@ -14,7 +14,7 @@ const StyledMain = styled.main`
   flex: 1;
 `;
 
-function UnauthenticatedSiteWrapper({ children, hideTopLogo }: Props) {
+function UnauthenticatedPageWrapper({ children, hideTopLogo }: Props) {
   return (
     <>
       <header className="text-center text-md-start py-4">
@@ -29,13 +29,13 @@ function UnauthenticatedSiteWrapper({ children, hideTopLogo }: Props) {
           {children}
         </Container>
       </StyledMain>
-      <UnauthenticatedSiteFooter />
+      <UnauthenticatedPageFooter />
     </>
   );
 }
 
-UnauthenticatedSiteWrapper.defaultProps = {
+UnauthenticatedPageWrapper.defaultProps = {
   hideTopLogo: false,
 };
 
-export default UnauthenticatedSiteWrapper;
+export default UnauthenticatedPageWrapper;

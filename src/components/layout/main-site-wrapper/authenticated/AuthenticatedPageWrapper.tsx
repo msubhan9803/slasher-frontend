@@ -4,8 +4,8 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
-import AuthenticatedSiteHeader from './AuthenticatedSiteHeader';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
+import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 
 interface Props {
   children: React.ReactNode;
@@ -20,7 +20,7 @@ const StyledOffcanvas = styled(Offcanvas)`
 // This id links the offcanvas to the top navar toggle for accessibility.
 const offcanvasId = 'offcanvas-sidebar-nav';
 
-function AuthenticatedSiteWrapper({ children }: Props) {
+function AuthenticatedPageWrapper({ children }: Props) {
   const [show, setShow] = useState(false);
   const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 768px)' });
 
@@ -29,7 +29,7 @@ function AuthenticatedSiteWrapper({ children }: Props) {
 
   return (
     <>
-      <AuthenticatedSiteHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
+      <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
       <Container className="py-3">
         <Row>
           <Col xs={3} className="d-none d-md-block">
@@ -57,4 +57,4 @@ function AuthenticatedSiteWrapper({ children }: Props) {
     </>
   );
 }
-export default AuthenticatedSiteWrapper;
+export default AuthenticatedPageWrapper;

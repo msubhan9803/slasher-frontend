@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 interface Props {
   children: React.ReactNode;
@@ -7,10 +7,10 @@ interface Props {
 
 function DatingPageWrapper({ children }: Props) {
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       {/* TODO: Add dating sidebar */}
       {children}
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

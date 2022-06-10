@@ -10,7 +10,7 @@ import { Slider, SliderThumb } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 
 const SliderComponent = styled(Slider)`
@@ -77,7 +77,7 @@ function DataingSetupAdditionalPreferences() {
   const [age, setAge] = useState([20, 26]);
 
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <Row className="justify-content-center">
         <Col md={10} className="text-center">
           <h1 className="h3">
@@ -174,7 +174,7 @@ function DataingSetupAdditionalPreferences() {
           </RoundButton>
         </Col>
       </Row>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

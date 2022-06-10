@@ -8,11 +8,11 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import RoundButton from '../../../components/ui/RoundButton';
-import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 function DatingWelcome() {
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <Row className="text-center pt-5 justify-content-center">
         <Col md={8}>
           <h1>Welcome!</h1>
@@ -59,7 +59,7 @@ function DatingWelcome() {
           <RoundButton className="w-100">Agree</RoundButton>
         </Col>
       </Row>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

@@ -1,11 +1,11 @@
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import UnauthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 
 function RegistrationFinal() {
   return (
-    <UnauthenticatedSiteWrapper>
+    <UnauthenticatedPageWrapper>
       <div className="text-center">
         <FontAwesomeIcon icon={regular('paper-plane')} size="6x" className="text-primary" />
         <h2 className="mt-4">One more step!</h2>
@@ -28,7 +28,7 @@ function RegistrationFinal() {
           <p className="fs-4">&nbsp;Please email help@slasher.tv for assistance.</p>
         </div>
       </div>
-    </UnauthenticatedSiteWrapper>
+    </UnauthenticatedPageWrapper>
   );
 }
 export default RegistrationFinal;

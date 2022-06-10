@@ -5,11 +5,11 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 
 function ForgotPassword() {
   return (
-    <UnauthenticatedSiteWrapper>
+    <UnauthenticatedPageWrapper>
       <Row className="justify-content-center">
         <div className="col-lg-8 align-self-center text-center">
           <h2>Forgot your password?</h2>
@@ -57,7 +57,7 @@ function ForgotPassword() {
           </p>
         </div>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </UnauthenticatedPageWrapper>
   );
 }
 

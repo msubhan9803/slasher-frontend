@@ -4,7 +4,7 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 
 const maxLength = 1000;
@@ -18,7 +18,7 @@ function DatingSetupAboutMe() {
     setMessage(e.target.value);
   };
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <Form>
         <Form.Group className="mb-3" controlId="about-me">
           <Form.Label>Tell people about yourself</Form.Label>
@@ -43,7 +43,7 @@ function DatingSetupAboutMe() {
           </Col>
         </Row>
       </Form>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

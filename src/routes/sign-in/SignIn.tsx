@@ -7,12 +7,12 @@ import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signIn from '../../images/sign-in.svg';
-import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 
 function SignIn() {
   return (
-    <UnauthenticatedSiteWrapper hideTopLogo>
+    <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
         <Col sm={12} md={7} lg={7}>
           <div className="login-img text-center pb-4">
@@ -68,7 +68,7 @@ function SignIn() {
           </Row>
         </Col>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </UnauthenticatedPageWrapper>
   );
 }
 

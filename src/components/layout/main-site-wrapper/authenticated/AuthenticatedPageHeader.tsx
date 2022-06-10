@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogoSmall from '../../../../images/slasher-logo-small.png';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
-import AuthenticatedSiteTopNavLink from './AuthenticatedSiteTopNavLink';
+import TopNavLink from './TopNavLink';
 
 const NavbarLogoImage = styled.img`
   height: 75px;
@@ -27,7 +27,7 @@ interface Props {
   ariaToggleTargetId: string;
 }
 
-function AuthenticatedSiteHeader(
+function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
   return (
@@ -46,10 +46,10 @@ function AuthenticatedSiteHeader(
           />
         </Form>
         <Nav className="me-auto flex-row">
-          <AuthenticatedSiteTopNavLink label="Home" icon={solid('home')} to="/" />
-          <AuthenticatedSiteTopNavLink label="Friends" icon={solid('users')} to="/friends" />
-          <AuthenticatedSiteTopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
-          <AuthenticatedSiteTopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
+          <TopNavLink label="Home" icon={solid('home')} to="/" />
+          <TopNavLink label="Friends" icon={solid('users')} to="/friends" />
+          <TopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
+          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
         </Nav>
         <Nav className="mw-auto">
           <Navbar.Text>
@@ -61,4 +61,4 @@ function AuthenticatedSiteHeader(
     </Navbar>
   );
 }
-export default AuthenticatedSiteHeader;
+export default AuthenticatedPageHeader;

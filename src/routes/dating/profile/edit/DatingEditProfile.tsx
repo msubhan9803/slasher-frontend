@@ -9,12 +9,12 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import RemoveProfileDialog from './RemoveProfileDialog';
 import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
 import CustomSelect from '../../../../components/ui/CustomSelect';
 import { sexualOrientationOptions } from '../../components/DatingAdditionalInfo/additional-info-form-options';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 interface Images {
   title: string;
@@ -65,7 +65,7 @@ function DatingEditProfile() {
   };
 
   return (
-    <AuthenticatedSiteWrapper>
+    <DatingPageWrapper>
       <h1 className="h3 mb-5">Edit Dating Profile</h1>
       <Form>
         <Row className="mx-0 mb-5">
@@ -191,7 +191,7 @@ function DatingEditProfile() {
         </Row>
         <RemoveProfileDialog show={show} setShow={setShow} handleRemoveFile={handleRemoveFile} />
       </Form>
-    </AuthenticatedSiteWrapper>
+    </DatingPageWrapper>
   );
 }
 export default DatingEditProfile;

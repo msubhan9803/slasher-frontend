@@ -3,10 +3,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
-import NotFound from './routes/NotFound';
 import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
+import UnauthenticatedSiteWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import NotFound from './components/NotFound';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -27,7 +28,7 @@ function App() {
       <Route path="/dating/*" element={<Dating />} />
 
       {/* Fallback */}
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<UnauthenticatedSiteWrapper><NotFound /></UnauthenticatedSiteWrapper>} />
     </Routes>
   );
 }

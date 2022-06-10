@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Col, Container, Form, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';

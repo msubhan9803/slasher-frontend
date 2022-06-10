@@ -4,7 +4,8 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import NotFound from '../../NotFound';
+import NotFound from '../../../components/NotFound';
+import DatingPageWrapper from '../components/DatingPageWrapper';
 import DatingEditProfile from './edit/DatingEditProfile';
 
 function Dating() {
@@ -15,7 +16,7 @@ function Dating() {
 
       <Route path="/edit" element={<DatingEditProfile />} />
 
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<DatingPageWrapper><NotFound /></DatingPageWrapper>} />
     </Routes>
   );
 }

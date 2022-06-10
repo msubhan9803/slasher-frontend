@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 // so that the correct site wrapper is used. Right now it's always
 // using the UnauthenticatedSiteWrapper component.
 
-function NotFoundPageContent() {
+function NotFound() {
   return (
     <div className="text-center">
       <h1>Not Found</h1>
@@ -17,4 +17,4 @@ function NotFoundPageContent() {
   );
 }
 
-export default NotFoundPageContent;
+export default NotFound;

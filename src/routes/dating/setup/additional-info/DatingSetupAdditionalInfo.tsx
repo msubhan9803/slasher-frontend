@@ -2,13 +2,13 @@ import React from 'react';
 import {
   Col, Form, Row,
 } from 'react-bootstrap';
-import AuthenticatedSiteWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
 import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
 import RoundButton from '../../../../components/ui/RoundButton';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 function DatingSetupAdditionalInfo() {
   return (
-    <AuthenticatedSiteWrapper>
+    <DatingPageWrapper>
       <Form>
         <DatingAdditionalInfo />
         <Row className="d-flex justify-content-center mt-5">
@@ -19,7 +19,7 @@ function DatingSetupAdditionalInfo() {
           </Col>
         </Row>
       </Form>
-    </AuthenticatedSiteWrapper>
+    </DatingPageWrapper>
   );
 }
 export default DatingSetupAdditionalInfo;

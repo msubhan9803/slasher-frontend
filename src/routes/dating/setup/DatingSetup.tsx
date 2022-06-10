@@ -4,7 +4,8 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import NotFound from '../../NotFound';
+import AuthenticatedSiteWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import NotFound from '../../../components/NotFound';
 import DatingSetupAdditionalInfo from './additional-info/DatingSetupAdditionalInfo';
 import DataingSetupAdditionalPreferences from './DataingSetupAdditionalPreferences';
 import DatingSetupAboutMe from './DatingSetupAboutMe';
@@ -22,7 +23,7 @@ function DatingSetup() {
       <Route path="/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       <Route path="/additional-info" element={<DatingSetupAdditionalInfo />} />
 
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<AuthenticatedSiteWrapper><NotFound /></AuthenticatedSiteWrapper>} />
     </Routes>
   );
 }

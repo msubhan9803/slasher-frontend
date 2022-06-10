@@ -6,8 +6,9 @@ import {
 } from 'react-router-dom';
 import DatingSetup from './setup/DatingSetup';
 import DatingProfile from './profile/DatingProfile';
-import NotFound from '../NotFound';
 import DatingWelcome from './welcome/DatingWelcome';
+import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import NotFound from '../../components/NotFound';
 
 function Dating() {
   return (
@@ -17,7 +18,7 @@ function Dating() {
       <Route path="/setup/*" element={<DatingSetup />} />
       <Route path="/profile/*" element={<DatingProfile />} />
 
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<AuthenticatedSiteWrapper><NotFound /></AuthenticatedSiteWrapper>} />
     </Routes>
   );
 }

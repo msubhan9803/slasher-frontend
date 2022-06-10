@@ -70,11 +70,10 @@ input:hover {
   font-weight: 500;
 }
 
-
 .switch {
   position: relative;
   display: inline-block;
-  width: 90px;
+  width: 70px;
   height: 34px;
 }
 
@@ -114,10 +113,6 @@ input:checked+.slider {
   background-color: #FF1700;
 }
 
-input:focus+.slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
 input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
@@ -141,9 +136,4 @@ input:checked+.slider:before {
 input:checked+.slider:after {
   content: 'ON';
   left: 25%;
-}
-
-.position {
-  position: relative;
-  bottom: 12px;
 }

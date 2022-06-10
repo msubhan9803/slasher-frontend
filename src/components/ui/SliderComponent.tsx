@@ -5,12 +5,12 @@ const SliderComponent = styled(Slider)`
 .css-14pt78w-MuiSlider-rail   {
   color: #3A3B46;
   border-radius: 0;
-  height: 8px;
+  height: 5px;
 }
 .css-1gv0vcd-MuiSlider-track {
   color: var(--bs-primary);
   border-radius: 0;
-  height: 8px;
+  height: 5px;
 }
 .css-eg0mwd-MuiSlider-thumb {
   color: var(--bs-primary);

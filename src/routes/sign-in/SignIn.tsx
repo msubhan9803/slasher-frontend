@@ -14,7 +14,7 @@ function SignIn() {
   return (
     <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
-        <Col sm={12} md={7} lg={7}>
+        <Col sm={12} md={7}>
           <div className="login-img text-center pb-4">
             <Image src={signIn} className="w-75" />
           </div>

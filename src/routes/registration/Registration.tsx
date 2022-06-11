@@ -15,9 +15,9 @@ function Registration() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="identity" replace />} />
-      <Route path="/identity" element={<RegistrationIdentity activeStep={1} />} />
-      <Route path="/security" element={<RegistrationSecurity activeStep={2} />} />
-      <Route path="/terms" element={<RegistrationTerms activeStep={3} />} />
+      <Route path="/identity" element={<RegistrationIdentity activeStep={0} />} />
+      <Route path="/security" element={<RegistrationSecurity activeStep={1} />} />
+      <Route path="/terms" element={<RegistrationTerms activeStep={2} />} />
       <Route path="/final" element={<RegistrationFinal />} />
 
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

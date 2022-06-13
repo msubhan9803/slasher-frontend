@@ -11,6 +11,7 @@ import DataingSetupAdditionalPreferences from './additional-preferences/DataingS
 import DatingSetupAboutMe from './about-me/DatingSetupAboutMe';
 import DatingSetupAddPhotos from './add-photos/DatingSetupAddPhotos';
 import DatingSetupIdentity from './identity/DatingSetupIdentity';
+import DatingPreferences from '../DatingPreferences';
 
 function DatingSetup() {
   return (
@@ -22,7 +23,7 @@ function DatingSetup() {
       <Route path="/about-me" element={<DatingSetupAboutMe />} />
       <Route path="/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       <Route path="/additional-info" element={<DatingSetupAdditionalInfo />} />
-
+      <Route path="/dating-preferences" element={<DatingPreferences />} />
       <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
     </Routes>
   );

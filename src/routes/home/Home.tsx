@@ -20,7 +20,7 @@ function Home() {
           <br />
           <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
           <br />
-          <Link to="/dating/preferences">Dating Preferences</Link>
+          <Link to="/dating/setup/dating-preferences">Dating Preferences</Link>
         </p>
       </div>
     </AuthenticatedPageWrapper>

@@ -3,10 +3,10 @@ import {
   Button,
   Col,
   Form,
+  InputGroup,
   Row,
 } from 'react-bootstrap';
 import SliderComponent from '../../components/ui/SliderComponent';
-import CustomSelect from '../../components/ui/CustomSelect';
 import SliderThumbComponent from '../../components/ui/SliderThumbComponent';
 import RangeSliderThumbComponent from '../../components/ui/RangeSliderThumbComponent';
 
@@ -43,22 +43,22 @@ function DatingAdditionalPreferences() {
         <Col md={6}>
           <h2 className="h4">Maximum Distance</h2>
         </Col>
-        <Col md={6}>
-          <CustomSelect className="d-flex justify-content-md-end">
-            <Button variant="primary" className="pe-none w-25 rounded-3" style={{ zIndex: 1 }}>
-              {distance}
-              {distType}
-              .
-            </Button>
-            <Form.Select
-              className="shadow-none border-start-0 ps-4"
-              value={distType}
-              onChange={(e) => setDistType(e.target.value)}
-            >
-              <option value="mi">mi (miles)</option>
-              <option value="km">km (kilometers)</option>
-            </Form.Select>
-          </CustomSelect>
+        <Col xs={11} md={6} className="d-flex pe-0">
+          <InputGroup.Text className="rounded-3 bg-primary d-inline-block text-center fs-5" style={{ zIndex: '1' }}>
+            {distance}
+            {distType}
+            .
+          </InputGroup.Text>
+          <Form.Select
+            aria-label="Distance unit"
+            className="shadow-none border-start-0 w-75 ps-4 position-relative"
+            value={distType}
+            onChange={(e) => setDistType(e.target.value)}
+            style={{ right: '11px' }}
+          >
+            <option value="mi">mi (miles)</option>
+            <option value="km">km (kilometers)</option>
+          </Form.Select>
         </Col>
       </Row>
 
@@ -85,9 +85,9 @@ function DatingAdditionalPreferences() {
           <Button variant="primary" className="pe-none" size="lg">
             Between:&nbsp;
             {age[0]}
-                        &nbsp;to&nbsp;
+                  &nbsp;to&nbsp;
             {age[1]}
-                        &nbsp;years
+                  &nbsp;years
           </Button>
         </Col>
       </Row>

@@ -73,8 +73,8 @@ input:hover {
 .switch {
   position: relative;
   display: inline-block;
-  width: 70px;
-  height: 34px;
+  width: 60px;
+  height: 30px;
 }
 
 .switch input {
@@ -92,17 +92,17 @@ input:hover {
     #1F1F1F;
   -webkit-transition: .4s;
   transition: .4s;
-  border-radius: 34px;
-  width: 67px;
+  border-radius: 100px;
+  width: 60px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
+  height: 20px;
+  width: 20px;
+  left: 5px;
+  bottom: 5px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -110,13 +110,13 @@ input:hover {
 }
 
 input:checked+.slider {
-  background-color: #FF1700;
+  background-color: #32D74B;
 }
 
 input:checked+.slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
-  transform: translateX(33px);
+  transform: translateX(30px);
 }
 
 /*------ ADDED CSS ---------*/
@@ -127,7 +127,7 @@ input:checked+.slider:before {
   position: absolute;
   transform: translate(-50%, -50%);
   top: 50%;
-  left: 70%;
+  left: 68%;
   font-size: 14px;
   font-weight: 700;
   font-family: roboto;
@@ -135,5 +135,5 @@ input:checked+.slider:before {
 
 input:checked+.slider:after {
   content: 'ON';
-  left: 25%;
+  left: 30%;
 }

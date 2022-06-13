@@ -31,6 +31,12 @@
         "max-lines": [
             "error",
             200
+        ],
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": true
+            }
         ]
     }
 }

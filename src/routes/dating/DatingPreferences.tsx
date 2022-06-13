@@ -7,7 +7,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import SliderComponent from '../../components/ui/SliderComponent';
 import CustomSelect from '../../components/ui/CustomSelect';
 import SliderThumbComponent from '../../components/ui/SliderThumbComponent';
@@ -26,7 +26,7 @@ function DatingPreferences() {
   `;
 
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <Row>
         <Col md={8}>
           <Row>
@@ -175,7 +175,7 @@ function DatingPreferences() {
 
         </Col>
       </Row>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

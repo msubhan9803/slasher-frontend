@@ -46,7 +46,7 @@ export default function VerificationEmailNotReceived() {
               help@slasher.tv
             </Link>
             &nbsp;from the email address you used when you created your
-            account and include yourSlasher username as well. We will
+            account and include your Slasher username as well. We will
             be happy to help you!
           </p>
           <ModalContainer

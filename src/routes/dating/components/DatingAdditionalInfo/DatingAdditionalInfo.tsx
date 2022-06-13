@@ -63,7 +63,7 @@ function DatingAdditionalInfo() {
         </Col>
       </Row>
       <Row className="mx-0 mb-5">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Baisc Info</h2>
+        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Basic Info</h2>
         <Col xs={12}>
           <Row className="mb-4">
             <Col md={6}>

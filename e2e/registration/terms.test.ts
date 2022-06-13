@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/home';
+const pagePath = '/registration/terms';
 
 test.describe(pagePath, () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('.home')).toHaveText(/This is a placeholder home page!/);
+    await expect(page.locator('main')).toHaveText(/Please scroll down to review our Terms and Conditions/);
   });
 });

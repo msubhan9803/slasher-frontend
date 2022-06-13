@@ -5,8 +5,8 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
+import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../../components/ui/RoundButton';
 
 interface Image {
   title: string;

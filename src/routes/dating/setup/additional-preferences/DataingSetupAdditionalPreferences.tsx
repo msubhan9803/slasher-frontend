@@ -10,8 +10,8 @@ import { Slider, SliderThumb } from '@mui/material';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
+import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../../components/ui/RoundButton';
 
 const SliderComponent = styled(Slider)`
 .css-14pt78w-MuiSlider-rail   {

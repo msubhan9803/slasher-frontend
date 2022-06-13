@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
-import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
+import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../../components/ui/RoundButton';
+import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();

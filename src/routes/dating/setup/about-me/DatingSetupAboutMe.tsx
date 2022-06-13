@@ -4,8 +4,8 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
+import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../../components/ui/RoundButton';
 
 const maxLength = 1000;
 

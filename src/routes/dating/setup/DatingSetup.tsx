@@ -7,10 +7,10 @@ import {
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../../components/NotFound';
 import DatingSetupAdditionalInfo from './additional-info/DatingSetupAdditionalInfo';
-import DataingSetupAdditionalPreferences from './DataingSetupAdditionalPreferences';
-import DatingSetupAboutMe from './DatingSetupAboutMe';
-import DatingSetupAddPhotos from './DatingSetupAddPhotos';
-import DatingSetupIdentity from './DatingSetupIdentity';
+import DataingSetupAdditionalPreferences from './additional-preferences/DataingSetupAdditionalPreferences';
+import DatingSetupAboutMe from './about-me/DatingSetupAboutMe';
+import DatingSetupAddPhotos from './add-photos/DatingSetupAddPhotos';
+import DatingSetupIdentity from './identity/DatingSetupIdentity';
 
 function DatingSetup() {
   return (

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import AuthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedSiteWrapper';
+import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 function Home() {
   return (
-    <AuthenticatedSiteWrapper>
+    <AuthenticatedPageWrapper>
       <div className="home">
         <h1>Home</h1>
         <p>This is a placeholder home page!</p>
@@ -21,7 +21,7 @@ function Home() {
           <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
         </p>
       </div>
-    </AuthenticatedSiteWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

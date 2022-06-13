@@ -46,3 +46,49 @@ If you aren't satisfied with the build tool and configuration choices, you can `
 Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## App Structure
+
+Below is a general overview of our app structure, with some example subdirectories that show naming conventions.
+
+### Here are the conventions we're trying to follow, whenever possible:
+- Use `snake-case` for directories
+- Use `PascalCase` for modules that have a React component as a default export (e.g. `MyComponent.tsx`)
+- For non-component modules with only one default export, use `camelCase` (it makes imports easier since the variable name matches the module file name).
+- For non-component modules with NO default export, use `snake-case`.
+
+In addition to the above rules, always try to use `.ts`/`.tsx` rather than `.js/.jsx` because this is a TypeScript project.
+
+There will be certain times where a library that we use recommends that we use a file naming convention that doesn't match up with the above rules.  In those cases, it's fine to follow the library's convention.  One example of this is react-testing-library, which recommends the creation of a file under `src` named `setupTests.ts`.  Normally we'd use `camel-case` for a file like this, but in this case we will go with react-testing-library's recommendation.
+
+```
+.
+|── /src
+    ├── /components
+        ├── # globally shared components go in here
+    ├── /images
+    ├── /routes
+        ├── # page and routing components go in here
+        ├── home
+            ├── # Note that this directory matches the full browser route
+            ├── Home.tsx
+        ├── dating
+            ├── components # put any shared "dating" section components in here
+                ├── SomeSharedComponent.tsx # single file for simple component
+                ├── DatingAdditionalInfo
+                    ├── # This directory is named after the component inside because it is composed from multiple files
+                    ├── DatingAdditionalInfo.tsx
+                    ├── additional-info-form-options.tsx
+            ├── setup
+                ├── additional-info
+                    ├── # Note that this directory matches the full browser route
+                    ├── DatingSetupAdditionalInfo.tsx
+            ├── profile
+                ├── edit
+                    ├── # Note that this directory matches the full browser route
+                    ├── DatingProfileEdit.tsx
+    ├── /styles
+        ├── # Global styles go here
+    ├── /utils
+        ├── # Shared utility classes go here (array utils, date, utils, etc.)
+```

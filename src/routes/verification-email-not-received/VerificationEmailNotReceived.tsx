@@ -9,7 +9,7 @@ import {
   Row,
 } from 'react-bootstrap';
 import verificationEmail from '../../images/email.svg';
-import UnauthenticatedSiteWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedSiteWrapper';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import ModalContainer from '../../components/ui/CustomModal';
 
 export default function VerificationEmailNotReceived() {
@@ -18,7 +18,7 @@ export default function VerificationEmailNotReceived() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   return (
-    <UnauthenticatedSiteWrapper>
+    <UnauthenticatedPageWrapper>
       <Row className="justify-content-center">
         <Col lg="8" className="mt-3 mt-lg-2 align-self-center text-center">
           <h1 className="h2">Verification Email Not Received</h1>
@@ -46,7 +46,7 @@ export default function VerificationEmailNotReceived() {
               help@slasher.tv
             </Link>
             &nbsp;from the email address you used when you created your
-            account and include yourSlasher username as well. We will
+            account and include your Slasher username as well. We will
             be happy to help you!
           </p>
           <ModalContainer
@@ -73,6 +73,6 @@ export default function VerificationEmailNotReceived() {
           </ModalContainer>
         </Col>
       </Row>
-    </UnauthenticatedSiteWrapper>
+    </UnauthenticatedPageWrapper>
   );
 }

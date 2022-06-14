@@ -27,7 +27,7 @@ function CustomSelect({
         <option value="" disabled>
           Select one
         </option>
-        {options.map((option: any) => (
+        {options.map((option: CustomOption) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

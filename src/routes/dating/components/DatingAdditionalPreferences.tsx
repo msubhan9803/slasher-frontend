@@ -6,7 +6,7 @@ import {
   InputGroup,
   Row,
 } from 'react-bootstrap';
-import SliderComponent from '../../../components/ui/SliderComponent';
+import CustomSlider from '../../../components/ui/CustomSlider';
 import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
 import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
 
@@ -31,7 +31,7 @@ function DatingAdditionalPreferences() {
               className="w-100 fs-6 p-2"
               name={gender}
               active={selectedGender === gender}
-              onClick={(e: any) => setSelectedGender(e.target.name)}
+              onClick={(e) => setSelectedGender((e.target as HTMLButtonElement).name)}
             >
               {gender}
             </Button>
@@ -53,8 +53,8 @@ function DatingAdditionalPreferences() {
             aria-label="Distance unit"
             className="shadow-none border-start-0 w-75 ps-4 position-relative"
             value={distType}
-            onChange={(e) => setDistType(e.target.value)}
-            style={{ right: '11px' }}
+            onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
+            style={{ right: '.6rem' }}
           >
             <option value="mi">mi (miles)</option>
             <option value="km">km (kilometers)</option>
@@ -65,9 +65,9 @@ function DatingAdditionalPreferences() {
       <Row>
         <Col className="d-flex mt-3 align-items-center">
           <p className="mb-0 me-4">01</p>
-          <SliderComponent
+          <CustomSlider
             value={distance}
-            onChange={(e: any) => setDistance(e.target.value)}
+            onChange={(e) => setDistance((e.target as any).value)}
             aria-labelledby="input-slider"
             min={1}
             max={200}
@@ -95,11 +95,11 @@ function DatingAdditionalPreferences() {
       <Row>
         <Col className="d-flex mt-3 align-items-center">
           <p className="mb-0 me-4">18</p>
-          <SliderComponent
+          <CustomSlider
             value={age}
             min={18}
             max={55}
-            onChange={(e: any) => setAge(e.target.value)}
+            onChange={(e) => setAge((e.target as any).value)}
             aria-labelledby="input-slider"
             components={{ Thumb: RangeSliderThumbComponent }}
           />

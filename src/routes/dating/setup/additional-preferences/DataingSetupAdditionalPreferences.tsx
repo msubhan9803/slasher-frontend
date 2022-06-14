@@ -6,7 +6,7 @@ import {
 
 import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
-import DatingAdditionalPreferences from '../../DatingAdditionalPreferences';
+import DatingAdditionalPreferences from '../../components/DatingAdditionalPreferences';
 
 function DataingSetupAdditionalPreferences() {
   return (

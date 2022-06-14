@@ -9,7 +9,7 @@ import DatingProfile from './profile/DatingProfile';
 import DatingWelcome from './welcome/DatingWelcome';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
-import DatingPreferences from './DatingPreferences';
+import DatingPreferences from './preferences/DatingPreferences';
 
 function Dating() {
   return (

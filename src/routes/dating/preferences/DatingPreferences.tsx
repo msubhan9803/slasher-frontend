@@ -3,16 +3,12 @@ import {
   Col,
   Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
-import RoundButton from '../../components/ui/RoundButton';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import DatingAdditionalPreferences from './DatingAdditionalPreferences';
+import RoundButton from '../../../components/ui/RoundButton';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import DatingAdditionalPreferences from '../components/DatingAdditionalPreferences';
+import Switch from '../../../components/ui/Switch';
 
 function DatingPreferences() {
-  const Paragraph = styled.p`
-  color:#CCCCCC;
-  `;
-
   return (
     <AuthenticatedPageWrapper>
       <Row>
@@ -31,7 +27,7 @@ function DatingPreferences() {
 
             <Row>
               <Col>
-                <Paragraph className="mt-2">When you receive likes or messages, we will notify you by:</Paragraph>
+                <p className="mt-2 text-light">When you receive likes or messages, we will notify you by:</p>
               </Col>
             </Row>
 
@@ -39,20 +35,14 @@ function DatingPreferences() {
               <Col md={6}>
                 <div className="lh-lg d-flex justify-content-between justify-content-md-start">
                   <span>Push notifications</span>
-                  <label className="switch ms-0 ms-md-3" htmlFor="pushNotificationsSwitch">
-                    <input type="checkbox" id="pushNotificationsSwitch" />
-                    <div className="slider round" />
-                  </label>
+                  <Switch id="pushNotificationsSwitch" className="ms-0 ms-md-3" />
                 </div>
               </Col>
               <Col md={6}>
                 <div className="lh-lg d-flex mt-md-0 mt-3 justify-content-between justify-content-md-start ">
                   <span>Email notifications</span>
                   <div>
-                    <label className="switch ms-0 ms-md-3" htmlFor="emailNotificationsSwitch">
-                      <input type="checkbox" id="emailNotificationsSwitch" />
-                      <div className="slider round" />
-                    </label>
+                    <Switch id="emailNotificationsSwitch" className="ms-0 ms-md-3" />
                   </div>
                 </div>
               </Col>

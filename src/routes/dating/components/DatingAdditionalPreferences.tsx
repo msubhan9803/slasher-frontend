@@ -6,9 +6,9 @@ import {
   InputGroup,
   Row,
 } from 'react-bootstrap';
-import SliderComponent from '../../components/ui/SliderComponent';
-import SliderThumbComponent from '../../components/ui/SliderThumbComponent';
-import RangeSliderThumbComponent from '../../components/ui/RangeSliderThumbComponent';
+import SliderComponent from '../../../components/ui/SliderComponent';
+import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
+import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
 
 const genderList = ['Men', 'Women', 'Both'];
 
@@ -85,9 +85,9 @@ function DatingAdditionalPreferences() {
           <Button variant="primary" className="pe-none" size="lg">
             Between:&nbsp;
             {age[0]}
-                  &nbsp;to&nbsp;
+            &nbsp;to&nbsp;
             {age[1]}
-                  &nbsp;years
+            &nbsp;years
           </Button>
         </Col>
       </Row>

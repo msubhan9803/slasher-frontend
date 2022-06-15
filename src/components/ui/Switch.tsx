@@ -25,7 +25,7 @@ const SwitchStyledLabel = styled.label`
     transform: translate(-50%, -50%);
     top: 50%;
     left: 68%;
-    font-size: 14px;
+    font-size: 0.87rem;
     font-weight: 700;
     font-family: roboto;
   }

@@ -106,7 +106,7 @@ function DatingSetupAddPhotos() {
                   name="radio"
                   type="radio"
                   id={`primary-photo-radio-${imageIndex}`}
-                  className="p-sm-0 text-start mt-2"
+                  className="text-start mt-2"
                 />
               </Col>
             ))}

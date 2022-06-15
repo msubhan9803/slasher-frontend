@@ -77,6 +77,12 @@ pipelines:
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy
+    deploy/dev-avadh:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak:
+      - step: *lint-build-test
+      - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request
     '**':

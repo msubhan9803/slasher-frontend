@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Col, Container, Offcanvas, Row,
+  Col, Offcanvas, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -30,9 +30,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
   return (
     <>
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
-      <Container className="py-3">
+      <div className="py-3 mx-md-5">
         <Row>
-          <Col xs={3} className="d-none d-md-block">
+          <Col md={3} lg={2} className="d-none d-md-block">
             <SidebarNavContent />
           </Col>
           <Col>
@@ -41,7 +41,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
             </main>
           </Col>
         </Row>
-      </Container>
+      </div>
       <StyledOffcanvas
         id={offcanvasId}
         show={show && !forceHideOffcanvasSidebar}

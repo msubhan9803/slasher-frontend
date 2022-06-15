@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import {
   Row,
   Col,
@@ -41,7 +41,7 @@ function DatingEditProfile() {
   const [imgIndex, setImgIndex] = useState(0);
   const [message, setMessage] = useState('');
 
-  const handleMessageChange = (e: any) => {
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
   };
 
@@ -52,11 +52,11 @@ function DatingEditProfile() {
     setShow(false);
   };
 
-  const handleFileChange = (e: any, index: number) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     if (!e.target) {
       return;
     }
-    if (e.target?.name === 'file') {
+    if (e.target?.name === 'file' && e.target && e.target.files && e.target.files.length) {
       const newArr = [...imageUpload];
       const image = URL.createObjectURL(e.target.files[0]);
       newArr[index].image = image;
@@ -150,7 +150,7 @@ function DatingEditProfile() {
                   className="w-100"
                   name="male"
                   active={gender === 'male'}
-                  onClick={(e: any) => setGender(e.target.name)}
+                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Male
                 </Button>
@@ -162,7 +162,7 @@ function DatingEditProfile() {
                   className="w-100"
                   name="female"
                   active={gender === 'female'}
-                  onClick={(e: any) => setGender(e.target.name)}
+                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Female
                 </Button>

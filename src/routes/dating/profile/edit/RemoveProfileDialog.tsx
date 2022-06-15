@@ -12,7 +12,7 @@ import ModalContainer from '../../../../components/ui/CustomModal';
 interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
-  handleRemoveFile: (value: any) => void;
+  handleRemoveFile: () => void;
 }
 
 function RemoveProfileDialog({ show, setShow, handleRemoveFile }: Props) {

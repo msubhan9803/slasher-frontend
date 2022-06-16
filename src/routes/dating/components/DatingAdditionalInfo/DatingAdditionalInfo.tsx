@@ -167,7 +167,7 @@ function DatingAdditionalInfo() {
         <Col lg={2}>
           <SwitchButtonGroup
             value={newToArea}
-            onChange={(val: any) => setNewToArea(val)}
+            onChange={(val: string) => setNewToArea(val)}
             firstOption={newToAreaOptions[0]}
             secondOption={newToAreaOptions[1]}
           />

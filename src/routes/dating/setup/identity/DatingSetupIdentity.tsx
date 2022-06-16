@@ -79,7 +79,7 @@ function DatingSetupIdentity() {
                   className="w-100"
                   name="male"
                   active={gender === 'male'}
-                  onClick={(e: any) => setGender(e.target.name)}
+                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Male
                 </Button>
@@ -91,7 +91,7 @@ function DatingSetupIdentity() {
                   className="w-100"
                   name="female"
                   active={gender === 'female'}
-                  onClick={(e: any) => setGender(e.target.name)}
+                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Female
                 </Button>
@@ -112,7 +112,7 @@ function DatingSetupIdentity() {
                   className="w-100"
                   name="men"
                   active={selectGender === 'men'}
-                  onClick={(e: any) => setSelectGender(e.target.name)}
+                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Men
                 </Button>
@@ -124,7 +124,7 @@ function DatingSetupIdentity() {
                   className="w-100"
                   name="women"
                   active={selectGender === 'women'}
-                  onClick={(e: any) => setSelectGender(e.target.name)}
+                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Women
                 </Button>
@@ -136,7 +136,7 @@ function DatingSetupIdentity() {
                   className="w-100"
                   name="both"
                   active={selectGender === 'both'}
-                  onClick={(e: any) => setSelectGender(e.target.name)}
+                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Both
                 </Button>

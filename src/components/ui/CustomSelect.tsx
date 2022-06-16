@@ -1,11 +1,22 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 
+interface CustomSelectProps {
+  options: CustomOption[],
+  name: string,
+  label: string
+}
+
+interface CustomOption {
+  label: string,
+  value: string
+}
+
 function CustomSelect({
   options,
   label,
   name,
-}: any) {
+}: CustomSelectProps) {
   return (
     <>
       <p className="m-1">{label}</p>
@@ -16,7 +27,7 @@ function CustomSelect({
         <option value="" disabled>
           Select one
         </option>
-        {options.map((option: any) => (
+        {options.map((option: CustomOption) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

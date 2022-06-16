@@ -19,6 +19,8 @@ function Home() {
           <Link to="/registration">Registration</Link>
           <br />
           <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
+          <br />
+          <Link to="/dating/preferences">Dating Preferences</Link>
         </p>
       </div>
     </AuthenticatedPageWrapper>

@@ -13,7 +13,7 @@ function DatingSetupAboutMe() {
   const [message, setMessage] = useState('');
   const [charCount, setCharCount] = useState(0);
 
-  const handleMessageChange = (e: any) => {
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setMessage(e.target.value);
   };

@@ -56,7 +56,7 @@ function DatingEditProfile() {
     if (!e.target) {
       return;
     }
-    if (e.target?.name === 'file' && e.target && e.target.files && e.target.files.length) {
+    if (e.target?.name === 'file' && e?.target?.files?.length) {
       const newArr = [...imageUpload];
       const image = URL.createObjectURL(e.target.files[0]);
       newArr[index].image = image;

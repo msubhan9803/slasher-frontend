@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Navbar, Container, Form, FormControl, Nav, InputGroup,
+  Navbar, Container, Form, FormControl, Nav, InputGroup, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -10,22 +10,18 @@ import slasherLogo from '../../../../images/slasher-logo.svg';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
 import TopNavLink from './TopNavLink';
 
-const NavbarLogoImage = styled.img`
-  height: 75px;
-`;
-
 const UserCircleImage = styled.img`
-  border-radius: 50%;
-  height:25px;
   width:25px;
 `;
+const UserProfileText = styled.p`
+  font-size: .75rem;
+`;
 
-const StyledInputGroup = styled(InputGroup)`
+const SearchInputGroup = styled(InputGroup)`
   .form-control {
     border-left: 1px solid var(--bs-input-border-color);
     border-top-right-radius: 25px !important;
     border-bottom-right-radius: 25px !important;
-  
     padding:0rem;
     flex-wrap:inherit !important;
   }
@@ -53,10 +49,10 @@ function AuthenticatedPageHeader(
     <Navbar collapseOnSelect expand={offcanvasSidebarExpandBreakPoint} bg="dark" variant="dark">
       <Container className="d-none d-md-flex ms-md-5">
         <Navbar.Brand as={Link} to="/">
-          <NavbarLogoImage src={slasherLogo} alt="Slasher logo" className="mt-1" />
+          <Image src={slasherLogo} alt="Slasher logo" className="mt-1" />
         </Navbar.Brand>
         <Form className="me-auto w-50">
-          <StyledInputGroup className="mb-3">
+          <SearchInputGroup className="mb-3">
             <InputGroup.Text id="addon-label text-primary">
               <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />
             </InputGroup.Text>
@@ -66,25 +62,23 @@ function AuthenticatedPageHeader(
               aria-describedby="addon-label"
               type="search"
             />
-          </StyledInputGroup>
+          </SearchInputGroup>
         </Form>
       </Container>
       <Container className="justify-content-around justify-content-md-end justify-content-sm-between me-md-5">
         <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} />
         <Nav className="flex-row mt-3">
-          <TopNavLink label="Home" icon={solid('home')} to="/" classNames="px-2" />
+          <TopNavLink label="Home" icon={solid('home')} to="/" classNames="px-3" />
           <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" classNames="px-3" />
           <TopNavLink label="Messages" icon={solid('message')} to="/messages" classNames="px-3" />
-          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" classNames="px-3" />
+          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" classNames="px-3" badge={{ top: '3px', right: '34px' }} />
           <TopNavLink label="Search" icon={solid('search')} to="/search" classNames="d-block d-md-none px-3" />
         </Nav>
-        <Nav className="mw-auto flex-column p-1 d-none d-md-flex ">
-          <Navbar.Text className="p-0">
-            <UserCircleImage className="ms-3" src={userProfileIconPlaceholder} alt="User icon" />
-          </Navbar.Text>
-          <Navbar.Text className="p-0 text-white text-center" style={{ fontSize: '12px' }}>
-            John Doe
-          </Navbar.Text>
+        <Nav className="mw-auto flex-column p-1 d-none d-md-flex mt-3">
+          <Nav.Link className="text-center text-white pb-1 pt-0">
+            <UserCircleImage className="rounded-circle" src={userProfileIconPlaceholder} alt="User icon" />
+          </Nav.Link>
+          <UserProfileText className="mb-0 text-center">Me</UserProfileText>
         </Nav>
       </Container>
     </Navbar>

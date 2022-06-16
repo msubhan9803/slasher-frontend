@@ -18,7 +18,7 @@ import {
 } from './additional-info-form-options';
 
 function DatingAdditionalInfo() {
-  const [newToArea, setNewToArea] = useState(newToAreaOptions[0].value);
+  const [newToArea, setNewToArea] = useState(newToAreaOptions[1].value);
   const [interests, setInterests] = useState<Set<string>>(new Set<string>());
 
   const interestsChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,10 +130,10 @@ function DatingAdditionalInfo() {
           </Row>
         </Col>
       </Row>
-      <Row className="mt-3 d-none d-md-flex">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interest</h2>
+      <Row className="mt-3 d-none d-md-flex mb-5 mx-0">
+        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interests</h2>
         {interestsList.map((interest: string, index: number) => (
-          <Col xs={4} xxl={2} key={interest}>
+          <Col md={3} xxl={2} key={interest}>
             <CustomToggleButton
               id={`interest-${index}`}
               label={interest}
@@ -147,8 +147,8 @@ function DatingAdditionalInfo() {
           </Col>
         ))}
       </Row>
-      <Row className="d-flex d-md-none">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interest</h2>
+      <Row className="d-flex d-md-none mb-5 mx-0">
+        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interests</h2>
         {interestsList.map((interest: string, index: number) => (
           <Col xs={6} key={interest}>
             <Form.Check

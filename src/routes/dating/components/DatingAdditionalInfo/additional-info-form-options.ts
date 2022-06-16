@@ -5,12 +5,10 @@ export const interestsList = [
   'Cooking',
   'Movies',
   'Music',
-  'Men',
   'Outdoors',
   'Sports',
   'Video games',
   'Writing',
-  'Other',
 ];
 export const relationshipStatusOptions = [
   { label: 'Single', value: 'single' },

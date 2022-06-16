@@ -83,7 +83,7 @@ function DatingSetupAddPhotos() {
                       <ImageContainer className="d-flex justify-content-center align-items-center w-100 rounded border-0">
                         <img
                           src={image.image}
-                          alt="UploadImage.."
+                          alt="Dating profile photograph"
                           className="w-100 h-100 img-fluid rounded"
                         />
                       </ImageContainer>

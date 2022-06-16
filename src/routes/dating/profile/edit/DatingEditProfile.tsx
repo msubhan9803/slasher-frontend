@@ -93,7 +93,7 @@ function DatingEditProfile() {
                       </div>
                       <Image
                         src={image.image}
-                        alt="UploadImage.."
+                        alt="Dating profile photograph"
                         className="w-100 h-100 img-fluid rounded"
                       />
                     </>

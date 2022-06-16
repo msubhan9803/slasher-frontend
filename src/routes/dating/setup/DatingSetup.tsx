@@ -22,7 +22,6 @@ function DatingSetup() {
       <Route path="/about-me" element={<DatingSetupAboutMe />} />
       <Route path="/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       <Route path="/additional-info" element={<DatingSetupAdditionalInfo />} />
-
       <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
     </Routes>
   );

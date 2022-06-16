@@ -9,7 +9,7 @@
   RewriteRule . /index.html [L]
 </IfModule>
 
-# This line stops .index.html from being cached by Siteground.
+# This line stops index.html from being cached by Siteground.
 # Cache-Control "private" means that a file can still be cached by a client, but not by a CDN.
 <If "%{REQUEST_FILENAME} =~ m#/index.html#">
 <IfModule mod_headers.c>

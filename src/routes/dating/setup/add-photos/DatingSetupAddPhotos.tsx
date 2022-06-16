@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, Form, Row,
@@ -28,11 +28,11 @@ function DatingSetupAddPhotos() {
     { title: '', image: '', id: 5 },
     { title: '', image: '', id: 6 },
   ]);
-  const handleFileChange = (e: any, index: any) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     if (!e.target) {
       return;
     }
-    if (e.target?.name === 'file') {
+    if (e.target.name === 'file' && e.target && e.target.files && e.target.files.length) {
       const newArr = [...imageUpload];
       const image = URL.createObjectURL(e.target.files[0]);
       newArr[index].image = image;
@@ -83,9 +83,8 @@ function DatingSetupAddPhotos() {
                       <ImageContainer className="d-flex justify-content-center align-items-center w-100 rounded border-0">
                         <img
                           src={image.image}
-                          alt="UploadImage.."
+                          alt="Dating profile photograph"
                           className="w-100 h-100 img-fluid rounded"
-                          onChange={(e: any) => handleFileChange(e, imageIndex)}
                         />
                       </ImageContainer>
                     )}
@@ -107,7 +106,7 @@ function DatingSetupAddPhotos() {
                   name="radio"
                   type="radio"
                   id={`primary-photo-radio-${imageIndex}`}
-                  className="p-sm-0 text-start mt-2"
+                  className="text-start mt-2"
                 />
               </Col>
             ))}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
@@ -29,7 +29,7 @@ function ChatInput() {
         className="border-end-0"
       />
       <InputGroup.Text>
-        <FontAwesomeIcon role="button" icon={regular('paper-plane')} size="2x" className="text-primary pe-4" />
+        <FontAwesomeIcon role="button" icon={solid('paper-plane')} size="2x" className="text-primary pe-3" />
       </InputGroup.Text>
     </StyledChatInputGroup>
   );

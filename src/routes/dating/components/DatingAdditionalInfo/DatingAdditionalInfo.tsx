@@ -157,6 +157,7 @@ function DatingAdditionalInfo() {
               checked={interests.has(interest)}
               className="mb-2"
               label={interest}
+              value={interest}
               onChange={interestsChangeHandler}
             />
           </Col>

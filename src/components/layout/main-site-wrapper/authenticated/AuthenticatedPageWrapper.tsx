@@ -12,9 +12,9 @@ interface Props {
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
-  .btn-close {
-    background-color: #fff;
-  }
+.btn-close {
+  background-color: #fff;
+}
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.

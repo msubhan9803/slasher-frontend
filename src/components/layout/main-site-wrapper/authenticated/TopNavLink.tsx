@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Nav,
-} from 'react-bootstrap';
+import { Nav } from 'react-bootstrap';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
@@ -10,36 +8,38 @@ import styled from 'styled-components';
 interface Badge {
   top: string;
   right: string;
+  count?: number;
 }
 interface Props {
   label: string;
   icon: IconDefinition;
   to: string;
-  classNames?: string;
+  linkClassNames?: string;
   badge?: Badge;
+  badgeIconClassName?: string
 }
 const UserProfileText = styled.p`
-  font-size: .75rem;
+font-size: .75rem;
 `;
 const BadgeSpan = styled.span`
-  display: block;
-  font-size: xx-small;
+font-size: xx-small;
 `;
+
 function TopNavLink({
-  label, icon, to, classNames, badge,
+  label, icon, to, linkClassNames, badge, badgeIconClassName,
 }: Props) {
   return (
-    <Nav.Link as={Link} to={to} className={`text-center text-white position-relative ${classNames}`}>
-      <FontAwesomeIcon icon={icon} size="lg" />
+    <Nav.Link as={Link} to={to} className={`text-center text-white position-relative ${linkClassNames}`}>
+      <FontAwesomeIcon icon={icon} size="lg" className={badgeIconClassName} />
       {badge
         && (
           <BadgeSpan
-            className="badge badge-primary rounded-circle bg-primary position-absolute"
+            className="badge badge-primary rounded-circle bg-primary position-absolute d-block"
             style={{
               top: badge.top, right: badge.right,
             }}
           >
-            2
+            {badge.count}
           </BadgeSpan>
         )}
       <br />
@@ -49,8 +49,9 @@ function TopNavLink({
 }
 
 TopNavLink.defaultProps = {
-  classNames: '',
-  badge: '',
+  linkClassNames: '',
+  badgeIconClassName: '',
+  badge: null,
 };
 
 export default TopNavLink;

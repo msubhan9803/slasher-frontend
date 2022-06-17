@@ -15,23 +15,23 @@ interface Props {
 }
 
 const StyledInputGroup = styled(InputGroup)`
-  .input-group-text {
+.input-group-text {
+  background-color: rgb(31, 31, 31);
+  border-radius: .62rem;
+  border:none;
+}
+svg {
+  color: var(--bs-white );
+  min-width: 1.87rem;
+  }
+.btn{
+  &:focus{
+    box-shadow : none !important;
+  }
+  &:active{
     background-color: rgb(31, 31, 31);
-    border-radius: 10px;
-    border:none;
   }
-  svg {
-    color: var(--bs-white );
-    min-width: 30px;
-  }
-  .btn{
-    &:focus{
-      box-shadow : none !important;
-    }
-    &:active{
-      background-color: rgb(31, 31, 31);
-    }
-  }
+}
 `;
 
 function SidebarNavItem({
@@ -40,18 +40,17 @@ function SidebarNavItem({
   return (
     <Form className="me-auto w-100">
       <StyledInputGroup className="mb-3">
-        <InputGroup.Text id="addon-label text-primary">
+        <InputGroup.Text id="menu-button">
           <FontAwesomeIcon icon={icon} size="lg" className="me-2" style={{ color: `${color}` }} />
         </InputGroup.Text>
         <Button
           variant="form"
           size="lg"
           className="w-50 border-0 text-start p-0 fs-6"
-          name="men"
+          name="menu-button"
         >
           {label}
         </Button>
-
       </StyledInputGroup>
     </Form>
   );

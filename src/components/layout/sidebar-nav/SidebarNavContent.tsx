@@ -1,5 +1,5 @@
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import React from 'react';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
 import SidebarNavItem from './SidebarNavItem';
 

@@ -27,7 +27,7 @@ const ImageContainer = styled.div`
   border: 2px solid #3A3B46;
 `;
 
-function DatingEditProfile() {
+function DatingProfileEdit() {
   const [imageUpload, setImageUpload] = useState<Images[]>([
     { title: '', image: '', id: 1 },
     { title: '', image: '', id: 2 },
@@ -194,4 +194,4 @@ function DatingEditProfile() {
     </DatingPageWrapper>
   );
 }
-export default DatingEditProfile;
+export default DatingProfileEdit;

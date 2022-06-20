@@ -5,24 +5,29 @@ import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const ChatProfileStyleImage = styled(Image)`
-border-radius: 50%;
-height: 50px;
-width: 50px;
+height:3.313rem;
+width:3.313rem;
 border: 1px solid #fff;
+`;
+const ChatProfileStatus = styled.div`
+right: .93rem;
+bottom: .18rem;
+height: .5rem;
+width: .5rem;
+z-index:9999;
 `;
 
 function ChatUserStatus() {
   return (
-    <Row className="align-items-center">
-      <Col xs={1} className="d-sm-none ps-2">
-        <FontAwesomeIcon icon={solid('arrow-left')} size="2x" />
+    <Row className="d-flex">
+      <Col className="position-relative my-auto rounded-circle" xs={"auto"}>
+        <ChatProfileStatus className="position-absolute bg-success rounded-circle" />
+        <div className="rounded-circle">
+          <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="rounded-circle bg-secondary" />
+        </div>
       </Col>
-      <Col xs={2} lg={1} className="ps-3">
-        <ChatProfileStyleImage src="https://i.pravatar.cc/150?img=19" alt="Chat Other Profile" />
-      </Col>
-      <Col xs={9} sm={10} lg={11} className="ps-4 ps-sm-2 ps-lg-3">
+      <Col xs={"auto"} className="ps-4 ps-sm-2 ps-lg-3 align-self-center">
         <h6 className="mb-0">Eliza Williams</h6>
-        <p className="mb-0 small text-success">Online</p>
       </Col>
     </Row>
   );

@@ -38,8 +38,6 @@ function ChatMessage({ messages }: ChatProps) {
           </div>
           <span className="align-items-center d-flex small text-muted">
             {message.time}
-            <FontAwesomeIcon icon={solid('circle')} className="mx-2" />
-            Report message
           </span>
         </div>
       ) : (

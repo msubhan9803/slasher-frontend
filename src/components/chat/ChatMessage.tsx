@@ -1,6 +1,4 @@
 import React from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import { ChatProps } from './ChatProps';

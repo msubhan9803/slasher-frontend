@@ -18,14 +18,11 @@ function DatingPageWrapper({ children }: Props) {
           <Col md={8}>
             {children}
           </Col>
-          {/* -----------------Start dating menu for large screen----------- */}
-          <DatingMenuLargeScreen />
-          {/* -----------------End dating menu for large screen----------- */}
+          <Col>
+            <DatingMenuLargeScreen />
+          </Col>
         </Row>
-        {/* ---------------Start dating menu for small screen--------------- */}
         <DatingMenuSmallScreen />
-        {/* ---------------End dating menu for small screen--------------- */}
-
       </Container>
     </AuthenticatedPageWrapper>
   );

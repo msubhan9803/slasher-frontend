@@ -15,16 +15,16 @@ interface Props {
 }
 
 const SideMenuStyle = styled.div`
-background-color: rgb(31, 31, 31);
+  background-color: rgb(31, 31, 31);
 `;
 
 interface Icon {
   uniqueId?: number
 }
 const LinearIcon = styled.div<Icon>`
- svg * {
-  fill: url(#icon-${(props) => props.uniqueId});
-}
+  svg * {
+    fill: url(#icon-${(props) => props.uniqueId});
+  }
 `;
 function SidebarNavItem({
   label, icon, color, id,

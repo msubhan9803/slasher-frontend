@@ -5,18 +5,15 @@ const SwitchStyledLabel = styled.label`
   input:checked+.slider {
     background-color: #32D74B;
   }
-
   input:checked+.slider:before {
     -webkit-transform: translateX(1.62rem);
     -ms-transform: translateX(1.62rem);
     transform: translateX(1.87rem);
   }
-
   input:checked+.slider:after {
     content: 'ON';
     left: 30%;
   }
-
   .slider:after {
     content: 'OFF';
     color: #FFFFFF;
@@ -29,7 +26,6 @@ const SwitchStyledLabel = styled.label`
     font-weight: 700;
     font-family: roboto;
   }
-
   .slider {
     position: absolute;
     cursor: pointer;
@@ -43,7 +39,6 @@ const SwitchStyledLabel = styled.label`
     border-radius: 6.25rem;
     width: 3.75rem;
   }
-  
   .slider:before {
     position: absolute;
     content: "";
@@ -55,6 +50,7 @@ const SwitchStyledLabel = styled.label`
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 50%;
+  }
 `;
 
 const SwitchDiv = styled.div`
@@ -64,10 +60,8 @@ const SwitchDiv = styled.div`
   width: 3.75rem;
   height: 1.87rem;
 }
-
 .switch input {
   display: none;
-}
 }
 `;
 

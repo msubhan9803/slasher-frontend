@@ -2,7 +2,7 @@ import React from 'react';
 import { InputGroup, FormControl } from 'react-bootstrap';
 import styled from 'styled-components';
 
-export const StyledInputGroup = styled(InputGroup)`
+const StyledInputGroup = styled(InputGroup)`
   .form-control {
     border-left: 1px solid var(--bs-input-border-color);
   }

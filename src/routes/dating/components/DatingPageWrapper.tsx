@@ -13,17 +13,15 @@ interface Props {
 function DatingPageWrapper({ children }: Props) {
   return (
     <AuthenticatedPageWrapper>
-      <Container>
-        <Row className="mb-5">
-          <Col md={8}>
-            {children}
-          </Col>
-          <Col>
-            <DatingMenuLargeScreen />
-          </Col>
-        </Row>
-        <DatingMenuSmallScreen />
-      </Container>
+      <Row className="mb-5 mb-sm-0">
+        <Col md={8}>
+          {children}
+        </Col>
+        <Col md={4}>
+          <DatingMenuLargeScreen />
+        </Col>
+      </Row>
+      <DatingMenuSmallScreen />
     </AuthenticatedPageWrapper>
   );
 }

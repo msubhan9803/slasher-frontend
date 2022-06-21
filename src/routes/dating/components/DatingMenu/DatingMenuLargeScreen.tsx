@@ -41,11 +41,11 @@ function DatingMenuLargeScreen() {
       </Row>
 
       <Row className="align-items-center">
-        <Col md={9}>
+        <Col xs={9}>
           <h1 className="h4">Recent Messages</h1>
         </Col>
-        <Col md={3} className="px-0 text-end">
-          <small className="text-primary text-end">View All</small>
+        <Col xs={3} className="text-end">
+          <small className="text-primary">View All</small>
         </Col>
       </Row>
 

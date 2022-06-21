@@ -29,6 +29,7 @@ const RecentMessage = styled.p`
   font-size: .75rem;
   color: #CCCCCC;
   width:26ch;
+  margin-bottom: 0;
 `;
 
 const ItemContainer = styled.div`
@@ -36,32 +37,31 @@ const ItemContainer = styled.div`
   &:last-child {
     border-bottom: none;
   }
-  padding: .5rem 0;
 `;
 
 function UserMessageListItem({
   userName, message, image, count,
 }: Props) {
   return (
-    <ItemContainer>
-      <Row className="d-flex">
-        <Col className="position-relative my-auto" md="auto">
+    <ItemContainer className="py-2">
+      <div className="d-flex align-items-center">
+        <div>
           <RecentMessageProfileStatus className="position-absolute bg-success rounded-circle" />
-          <div className="">
+          <div>
             <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
           </div>
-        </Col>
-        <Col className="mt-3">
+        </div>
+        <div className="flex-fill">
           <p className="mb-0">{userName}</p>
           <RecentMessage>{message}</RecentMessage>
-        </Col>
+        </div>
         {count
           && (
-            <Col md="auto" className="text-end mt-4 ms-2">
+            <div>
               <span className="badge rounded-pill text-bg-primary text-white">{count}</span>
-            </Col>
+            </div>
           )}
-      </Row>
+      </div>
     </ItemContainer>
   );
 }

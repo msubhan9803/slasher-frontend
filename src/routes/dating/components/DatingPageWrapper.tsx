@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Col, Container, Row,
+  Col, Row,
 } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import DatingMenuLargeScreen from './DatingMenu/DatingMenuLargeScreen';

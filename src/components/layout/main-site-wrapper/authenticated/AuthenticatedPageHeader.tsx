@@ -11,30 +11,30 @@ import userProfileIconPlaceholder from '../../../../placeholder-images/placehold
 import TopNavLink from './TopNavLink';
 
 const UserCircleImage = styled.img`
-width:1.56rem;
+  width:1.56rem;
 `;
 const UserProfileText = styled.p`
-font-size: .75rem;
+  font-size: .75rem;
 `;
 
 const SearchInputGroup = styled(InputGroup)`
-.form-control {
-  border-left: .06rem solid var(--bs-input-border-color);
-  border-top-right-radius: 1.56rem !important;
-  border-bottom-right-radius: 1.56rem !important;
-  padding:0rem;
-  flex-wrap:inherit !important;
-}
-.input-group-text {
-  background-color: rgb(31, 31, 31);
-  border-color: #3a3b46;
-  border-radius:1.56rem;
-  width: 2.5rem
-}
-svg {
-  color: var(--bs-primary);
-   min-width: 1.87rem;
-}
+  .form-control {
+    border-left: .06rem solid var(--bs-input-border-color);
+    border-top-right-radius: 1.56rem !important;
+    border-bottom-right-radius: 1.56rem !important;
+    padding:0rem;
+    flex-wrap:inherit !important;
+  }
+  .input-group-text {
+    background-color: rgb(31, 31, 31);
+    border-color: #3a3b46;
+    border-radius:1.56rem;
+    width: 2.5rem
+  }
+  svg {
+    color: var(--bs-primary);
+    min-width: 1.87rem;
+  }
 `;
 interface Props {
   onToggleClick: () => void;

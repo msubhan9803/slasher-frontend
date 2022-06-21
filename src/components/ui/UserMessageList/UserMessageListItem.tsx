@@ -33,11 +33,9 @@ const RecentMessage = styled.p`
 
 const ItemContainer = styled.div`
   border-bottom: 1px solid rgb(23, 23, 24);
-
   &:last-child {
     border-bottom: none;
   }
-
   padding: .5rem 0;
 `;
 

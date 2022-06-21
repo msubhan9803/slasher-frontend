@@ -6,8 +6,7 @@ import styled from 'styled-components';
 const StyledFooter = styled.footer`
   .container {
     border-top: 1px solid var(--bs-dark);
-  }
-
+  } 
   a {
     text-decoration: none;
     display:block;

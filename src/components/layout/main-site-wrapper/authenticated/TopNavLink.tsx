@@ -19,10 +19,10 @@ interface Props {
   badgeIconClassName?: string
 }
 const UserProfileText = styled.p`
-font-size: .75rem;
+  font-size: .75rem;
 `;
 const BadgeSpan = styled.span`
-font-size: xx-small;
+  font-size: xx-small;
 `;
 
 function TopNavLink({

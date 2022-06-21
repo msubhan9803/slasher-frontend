@@ -13,18 +13,18 @@ interface Props {
   color?: string;
   id?: number
 }
-
-const SideMenuStyle = styled.div`
-background-color: rgb(31, 31, 31);
-`;
-
 interface Icon {
   uniqueId?: number
 }
+
+const SideMenuStyle = styled.div`
+  background-color: rgb(31, 31, 31);
+`;
+
 const LinearIcon = styled.div<Icon>`
- svg * {
-  fill: url(#icon-${(props) => props.uniqueId});
-}
+  svg * {
+    fill: url(#icon-${(props) => props.uniqueId});
+  }
 `;
 function SidebarNavItem({
   label, icon, color, id,

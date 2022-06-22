@@ -69,7 +69,7 @@ function DatingEditProfile() {
       <h1 className="h3 mb-5">Edit Dating Profile</h1>
       <Form>
         <Row className="mx-0 mb-5">
-          <h2 className="bg-secondary h5 p-3 rounded-3">My Photos</h2>
+          <h2 className="h5 p-3 rounded-3">My Photos</h2>
           {imageUpload.map((image, imageIndex) => (
             <Col key={image.id} xs={4} lg={2} className="my-3">
               <ImageContainer className="position-relative w-100 rounded border-0">

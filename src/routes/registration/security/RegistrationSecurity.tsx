@@ -71,10 +71,10 @@ function RegistrationSecurity({ activeStep }: Props) {
         </Col>
       </Row>
       <Row className="justify-content-center mt-4">
-        <Col sm={12} lg={9} className="order-xs-1 ">
+        <Col sm={12} md={9} className="order-xs-1 ">
           <p>Date of birth</p>
         </Col>
-        <Col sm={12} lg={9} className="order-3">
+        <Col sm={12} md={9} className="order-3">
           <Row>
             <Col sm={12} md={4}>
               <Form.Select aria-label="Month selection" defaultValue="">
@@ -102,16 +102,11 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Col>
           </Row>
         </Col>
-        <Col sm={12} lg={9} className="order-md-3">
+        <Col sm={12} md={9} className="order-md-3">
           <p className="mb-3 mt-md-3 mb-md-0 text-light">Your age will not be shown in your profile and you cannot change your date of birth later.</p>
         </Col>
       </Row>
       <Row className="justify-content-center my-5">
-        <Col sm={4} className="mb-2 mb-md-0">
-          <RoundButton onClick={() => { navigate('/registration/identity'); }} className="w-100" variant="secondary" type="submit">
-            Previous step
-          </RoundButton>
-        </Col>
         <Col sm={4}>
           <RoundButton onClick={handleStep} className="w-100" type="submit">
             Next step

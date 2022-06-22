@@ -33,12 +33,7 @@ function TopNavLink({
       <FontAwesomeIcon icon={icon} size="lg" className={badgeIconClassName} />
       {badge
         && (
-          <BadgeSpan
-            className="badge badge-primary rounded-circle bg-primary position-absolute d-block"
-            style={{
-              top: badge.top, right: badge.right,
-            }}
-          >
+          <BadgeSpan className="top-0 start-100 translate-middle badge rounded-pill bg-primary">
             {badge.count}
           </BadgeSpan>
         )}

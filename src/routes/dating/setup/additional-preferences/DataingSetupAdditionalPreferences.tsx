@@ -14,13 +14,13 @@ function DataingSetupAdditionalPreferences() {
       <Row>
         <Col xs={12} md={8}>
           <h1 className="h6 text-center">
-            One this screen, you can set your filters.
+            On this screen, you can set your filters.
             {' '}
             <br />
             You will be able to change these later on the dating preferences screen.
           </h1>
 
-          <div className="mt-4">
+          <div className="mt-5">
             <DatingAdditionalPreferences />
             <Row className="d-flex justify-content-center">
               <Col md={6} className="mt-4">

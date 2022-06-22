@@ -19,7 +19,7 @@ function DatingPreferences() {
 
           <div className="ms-0 ms-md-3 mt-md-4 mt-2">
             <DatingAdditionalPreferences />
-            <Row className="mt-4">
+            <Row className="mt-5">
               <Col>
                 <h2 className="h4">Notifications</h2>
               </Col>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Navbar, Container, Form, FormControl, Nav, InputGroup, Image,
 } from 'react-bootstrap';
@@ -45,43 +45,71 @@ interface Props {
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
+  const [showSearch, setShowSearch] = useState(false);
+
+  const onToggleSearch = () => {
+    setShowSearch(!showSearch);
+  };
   return (
-    <Navbar collapseOnSelect expand={offcanvasSidebarExpandBreakPoint} bg="dark" variant="dark">
-      <Container className="d-none d-md-flex ms-md-5 align-items-baseline">
-        <Navbar.Brand as={Link} to="/">
-          <Image src={slasherLogo} alt="Slasher logo" className="mt-3" />
-        </Navbar.Brand>
-        <Form className="me-auto w-50">
-          <SearchInputGroup className="mb-3">
-            <InputGroup.Text id="search">
-              <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />
-            </InputGroup.Text>
-            <FormControl
-              placeholder="Find people, hashtags, movies..."
-              aria-label="search"
-              aria-describedby="search"
-              type="search"
-            />
-          </SearchInputGroup>
-        </Form>
-      </Container>
-      <Container className="justify-content-around justify-content-md-end justify-content-sm-between me-md-5">
-        <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} />
-        <Nav className="flex-row mt-0">
-          <TopNavLink label="Home" icon={solid('home')} to="/" linkClassNames="px-3" />
-          <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" linkClassNames="px-3" />
-          <TopNavLink label="Messages" icon={solid('message')} to="/messages" linkClassNames="px-3" />
-          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" linkClassNames="px-3" badge={{ top: '.18rem', right: '2.12rem', count: 2 }} />
-          <TopNavLink label="Search" icon={solid('search')} to="/search" linkClassNames="d-block d-md-none px-3" />
-        </Nav>
-        <Nav className="mw-auto flex-column p-1 d-none d-md-flex mt-0">
-          <Nav.Link className="text-center text-white pb-1 pt-0">
-            <UserCircleImage className="rounded-circle" src={userProfileIconPlaceholder} alt="User icon" />
-          </Nav.Link>
-          <UserProfileText className="mb-0 text-center">Me</UserProfileText>
-        </Nav>
-      </Container>
-    </Navbar>
+    <>
+      <Navbar collapseOnSelect expand={offcanvasSidebarExpandBreakPoint} bg="dark" variant="dark">
+        <Container className="d-none d-md-flex ms-md-5 align-items-baseline">
+          <Navbar.Brand as={Link} to="/">
+            <Image src={slasherLogo} alt="Slasher logo" className="mt-3" />
+          </Navbar.Brand>
+          <Form className="me-auto w-50">
+            <SearchInputGroup className="mb-3">
+              <InputGroup.Text id="search">
+                <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />
+              </InputGroup.Text>
+              <FormControl
+                placeholder="Find people, hashtags, movies..."
+                aria-label="search"
+                aria-describedby="search"
+                type="search"
+              />
+            </SearchInputGroup>
+          </Form>
+        </Container>
+        <Container className="justify-content-around justify-content-md-end justify-content-sm-between me-md-5">
+          <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} />
+          <Nav className="flex-row mt-0">
+            <TopNavLink label="Home" icon={solid('home')} to="/" linkClassNames="px-3" />
+            <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" linkClassNames="px-3" />
+            <TopNavLink label="Messages" icon={solid('message')} to="/messages" linkClassNames="px-3" />
+            <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" linkClassNames="px-3" badge={{ top: '.18rem', right: '2.12rem', count: 2 }} />
+            <div className="d-md-none px-3 py-2 text-center">
+              <FontAwesomeIcon icon={solid('magnifying-glass')} size="lg" className="text-white" onClick={onToggleSearch} />
+              <br />
+              <UserProfileText className="mb-0">Search</UserProfileText>
+            </div>
+          </Nav>
+          <Nav className="mw-auto flex-column p-1 d-none d-md-flex mt-0">
+            <Nav.Link className="text-center text-white pb-1 pt-0">
+              <UserCircleImage className="rounded-circle" src={userProfileIconPlaceholder} alt="User icon" />
+            </Nav.Link>
+            <UserProfileText className="mb-0 text-center">Me</UserProfileText>
+          </Nav>
+        </Container>
+      </Navbar>
+      {
+        showSearch && (
+          <Form className="d-md-none ms-auto me-3 w-75">
+            <SearchInputGroup className="mb-3">
+              <InputGroup.Text id="search">
+                <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />
+              </InputGroup.Text>
+              <FormControl
+                placeholder="Find people, hashtags, movies..."
+                aria-label="search"
+                aria-describedby="search"
+                type="search"
+              />
+            </SearchInputGroup>
+          </Form>
+        )
+      }
+    </>
   );
 }
 export default AuthenticatedPageHeader;

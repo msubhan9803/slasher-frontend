@@ -8,14 +8,6 @@ interface Props {
   count?: number;
 }
 
-const RecentMessageProfileStatus = styled.div`
-  height: .5rem;
-  width: .5rem;
-  right: .75rem;
-  bottom: .375rem;
-  z-index: 9999;
-`;
-
 const RecentMessageImage = styled.img`
   height:3.313rem;
   width:3.313rem;
@@ -27,7 +19,7 @@ const RecentMessage = styled.p`
   text-overflow: ellipsis;
   font-size: .75rem;
   color: #CCCCCC;
-  width:26ch;
+  max-width: 26ch;
   margin-bottom: 0;
 `;
 
@@ -45,21 +37,13 @@ function UserMessageListItem({
     <ItemContainer className="py-2">
       <div className="d-flex align-items-center">
         <div>
-          <RecentMessageProfileStatus className="position-absolute bg-success rounded-circle" />
-          <div>
-            <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
-          </div>
+          <RecentMessageImage src={image} className="me-3 rounded-circle bg-secondary position-relative" />
         </div>
-        <div className="flex-fill">
+        <div className="flex-fill overflow-hidden">
           <p className="mb-0">{userName}</p>
           <RecentMessage>{message}</RecentMessage>
         </div>
-        {count
-          && (
-            <div>
-              <span className="badge rounded-pill text-bg-primary text-white">{count}</span>
-            </div>
-          )}
+        {count && <div><span className="badge rounded-pill text-bg-primary text-white ms-3">{count}</span></div>}
       </div>
     </ItemContainer>
   );

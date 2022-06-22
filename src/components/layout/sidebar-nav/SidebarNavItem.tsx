@@ -11,33 +11,31 @@ interface Props {
   id?: number;
   to: string;
 }
+
 interface Icon {
   uniqueId?: number
 }
-
-const SideMenuStyle = styled.div`
-  background-color: rgb(31, 31, 31);
-`;
 
 const LinearIcon = styled.div<Icon>`
   svg * {
     fill: url(#icon-${(props) => props.uniqueId});
   }
 `;
+
 function SidebarNavItem({
   label, icon, color, id, to,
 }: Props) {
   return (
     <>
-      <Link className="mb-2 px-2" to={to}>
-        <SideMenuStyle className="d-flex p-3 my-1 w-100 rounded-3">
+      <Link className="mb-2 btn btn-sidebar p-3" to={to}>
+        <div className="d-flex">
           <LinearIcon uniqueId={id}>
             <FontAwesomeIcon icon={icon} size="lg" className="me-2" />
           </LinearIcon>
           <div className="ms-2">
             {label}
           </div>
-        </SideMenuStyle>
+        </div>
       </Link>
       <svg width="0" height="0">
         <linearGradient id={`icon-${id}`} x1="100%" y1="100%" x2="0%" y2="0%">

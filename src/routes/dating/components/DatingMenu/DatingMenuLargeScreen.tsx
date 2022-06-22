@@ -16,7 +16,7 @@ const AdvertisementBox = styled.div`
 function DatingMenuLargeScreen() {
   return (
     <>
-      <h1 className="fs-4 h4">Dating Menu</h1>
+      <h1 className="h4 mb-4">Dating Menu</h1>
 
       <Row className="mt-3 mb-3">
         <Col>

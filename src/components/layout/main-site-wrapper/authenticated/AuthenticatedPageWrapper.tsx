@@ -33,6 +33,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       <div className="py-3 mx-md-5">
         <Row>
           <Col lg={2} className="d-none d-lg-block">
+            <h1 className="h4 mb-4">Menu</h1>
             <SidebarNavContent />
           </Col>
           <Col>

@@ -1,3 +1,6 @@
+import { generateRange } from '../../../../utils/array-utils';
+import { inchesToCentimeters, inchesToFeetInchString } from '../../../../utils/measurement-utils';
+
 export const interestsList = [
   'Art',
   'Board games',
@@ -10,6 +13,35 @@ export const interestsList = [
   'Video games',
   'Writing',
 ];
+
+export const heightOptions = (() => {
+  // 48 inches = 4 feet
+  const lowerBound = 48;
+  // 84 inches = 7 feet
+  const upperBound = 84;
+
+  const opts = generateRange(lowerBound, upperBound).map(
+    (inches) => ({
+      label: `${inchesToFeetInchString(inches)} / ${inchesToCentimeters(inches)} cm`,
+      value: `${inches}`,
+    }),
+  );
+
+  opts.unshift({
+    label: `Under ${inchesToFeetInchString(lowerBound)} / ${inchesToCentimeters(lowerBound)} cm`,
+    value: `${lowerBound - 1}`,
+  });
+
+  opts.push({
+    label: `Over ${inchesToFeetInchString(upperBound)} / ${inchesToCentimeters(upperBound)} cm`,
+    value: `${upperBound + 1}`,
+  });
+
+  return opts;
+})();
+
+// Also, make first value "under 4 feet / cm" and last value "over 7 feet / cm".
+
 export const relationshipStatusOptions = [
   { label: 'Single', value: 'single' },
   { label: 'Separated', value: 'separated' },
@@ -17,6 +49,7 @@ export const relationshipStatusOptions = [
   { label: 'Open relationship', value: 'openrelationship' },
   { label: 'Widowed', value: 'widowed' },
 ];
+
 export const bodyTypeOptions = [
   { label: 'Thin', value: 'thin' },
   { label: 'Average', value: 'average' },
@@ -24,11 +57,13 @@ export const bodyTypeOptions = [
   { label: 'Few extra lbs', value: 'fewExtraLbs' },
   { label: 'Large', value: 'large' },
 ];
+
 export const tatoosOptions = [
   { label: 'Some', value: 'some' },
   { label: 'A lot', value: 'lot' },
   { label: 'None', value: 'none' },
 ];
+
 export const ethnicityOptions = [
   { label: 'African American / Black', value: 'African American / Black' },
   { label: 'Asian', value: 'Asian' },
@@ -41,12 +76,19 @@ export const ethnicityOptions = [
   { label: 'Pacific Islander', value: 'Pacific Islander' },
   { label: 'Other', value: 'Other' },
 ];
+
 export const parentalStatusOptions = [
-  { label: 'Does not have children & wants children', value: 'parentalStatus1' },
-  { label: 'Does not have children & doesn’t want children', value: 'parentalStatus2' },
-  { label: 'Has children & wants more', value: 'parentalStatus3' },
-  { label: 'Has children & doesn’t want more', value: 'parentalStatus4' },
+  { label: 'Does not have children', value: 'noChildren' },
+  { label: 'Has children', value: 'hasChildren' },
+  { label: 'Has children, not living with me', value: 'hasChildrenNotLivingWithMe' },
 ];
+
+export const wantsChildrenOptions = [
+  { label: 'Yes', value: 'yes' },
+  { label: 'Maybe', value: 'maybe' },
+  { label: 'No', value: 'no' },
+];
+
 export const religionOptions = [
   { label: 'Anglican', value: 'Anglican' },
   { label: 'Agnostic', value: 'Agnostic' },
@@ -63,40 +105,42 @@ export const religionOptions = [
   { label: 'New Age', value: 'New Age' },
   { label: 'Pagan', value: 'Pagan' },
 ];
+
 export const educationLevelOptions = [
   { label: 'Primary / Grammar', value: 'primary/grammar' },
-  { label: 'High school', value: 'highSchool' },
+  { label: 'Secondary / High school', value: 'highSchool' },
   { label: 'Associate', value: 'associate' },
   { label: 'Bachelor', value: 'bachelor' },
   { label: 'Master’s / Graduate', value: 'master’s/graduate' },
   { label: 'Doctorate', value: 'doctorate' },
 ];
+
 export const employmentOptions = [
   { label: 'Not employed', value: 'notEmployed' },
   { label: 'Part-time', value: 'fart-time' },
   { label: 'Full-time', value: 'full-time' },
   { label: 'Self employed', value: 'selfEmployed' },
 ];
+
 export const petOptions = [
   { label: 'Cat(s)', value: 'cat(s)' },
   { label: 'Dog(s)', value: 'dog(s)' },
   { label: 'Other', value: 'other' },
   { label: 'None', value: 'none' },
 ];
+
 export const drinkingOptions = [
   { label: 'No', value: 'no' },
   { label: 'Rarely', value: 'rarely' },
   { label: 'Socially', value: 'socially' },
   { label: 'Often', value: 'often' },
 ];
+
 export const smokingOptions = [
   { label: 'Non-smoker', value: 'non-smoker' },
   { label: 'Smoker', value: 'smoker' },
 ];
-export const newToAreaOptions = [
-  { label: 'Yes', value: 'yes' },
-  { label: 'No', value: 'no' },
-];
+
 export const sexualOrientationOptions = [
   { label: 'Straight', value: 'straight' },
   { label: 'Gay', value: 'gay' },

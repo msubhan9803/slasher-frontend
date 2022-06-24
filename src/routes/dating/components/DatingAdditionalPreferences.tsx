@@ -19,10 +19,10 @@ function DatingAdditionalPreferences() {
   const [age, setAge] = useState([20, 26]);
   return (
     <>
-      <h2 className="h4">
+      <h2 className="h4 mb-0">
         I am looking for
       </h2>
-      <Row className="mt-2">
+      <Row className="my-4 pt-2">
         {genderList.map((gender: string) => (
           <Col xs={4}>
             <Button
@@ -39,26 +39,25 @@ function DatingAdditionalPreferences() {
         ))}
       </Row>
 
-      <Row className="mt-3 align-items-center">
-        <Col md={6}>
-          <h2 className="h4">Maximum Distance</h2>
+      <Row className="mb-4 mt-5 align-items-center">
+        <Col lg={6}>
+          <h2 className="h4 mb-4 mb-lg-0">Maximum Distance</h2>
         </Col>
-        <Col xs={11} md={6} className="d-flex pe-0">
-          <InputGroup.Text className="rounded-3 bg-primary d-inline-block text-center fs-5" style={{ zIndex: '1' }}>
-            {distance}
-            {distType}
-            .
-          </InputGroup.Text>
-          <Form.Select
-            aria-label="Distance unit"
-            className="shadow-none border-start-0 w-75 ps-4 position-relative"
-            value={distType}
-            onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
-            style={{ right: '.6rem' }}
-          >
-            <option value="mi">mi (miles)</option>
-            <option value="km">km (kilometers)</option>
-          </Form.Select>
+        <Col xs={12} lg={6} className="d-flex">
+          <InputGroup className="input-group-sm">
+            <InputGroup.Text className="bg-secondary fs-5 border-0 pe-3 text-primary">
+              {distance}
+            </InputGroup.Text>
+            <Form.Select
+              aria-label="Distance unit"
+              className="no-shadow rounded-3"
+              value={distType}
+              onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
+            >
+              <option value="mi">{distance === 1 ? 'mile' : 'miles'}</option>
+              <option value="km">{distance === 1 ? 'kilometer' : 'kilometers'}</option>
+            </Form.Select>
+          </InputGroup>
         </Col>
       </Row>
 
@@ -77,18 +76,12 @@ function DatingAdditionalPreferences() {
         </Col>
       </Row>
 
-      <Row className="mt-3 align-items-center">
-        <Col md={6}>
-          <h2 className="h4">Age Range</h2>
+      <Row className="mb-4 mt-5 align-items-center">
+        <Col lg={6}>
+          <h2 className="h4 mb-4 mb-lg-0">Age Range</h2>
         </Col>
-        <Col md={6} className="d-flex justify-content-md-end">
-          <Button variant="primary" className="pe-none" size="lg">
-            Between:&nbsp;
-            {age[0]}
-            &nbsp;to&nbsp;
-            {age[1]}
-            &nbsp;years
-          </Button>
+        <Col lg={6} className="d-flex justify-content-lg-end">
+          <p className="mb-0 fs-5 text-primary">{`Between ${age[0]} to ${age[1]} years`}</p>
         </Col>
       </Row>
 

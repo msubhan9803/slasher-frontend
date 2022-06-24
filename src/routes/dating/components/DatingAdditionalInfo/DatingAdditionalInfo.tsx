@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Row, Col, Form } from 'react-bootstrap';
 import CustomSelect from '../../../../components/ui/CustomSelect';
 import CustomToggleButton from '../../../../components/ui/CustomToggleButton';
-import SwitchButtonGroup from '../../../../components/ui/SwitchButtonGroup';
 import {
   bodyTypeOptions,
   educationLevelOptions,
@@ -14,11 +13,11 @@ import {
   parentalStatusOptions,
   religionOptions,
   interestsList,
-  newToAreaOptions,
+  wantsChildrenOptions,
+  heightOptions,
 } from './additional-info-form-options';
 
 function DatingAdditionalInfo() {
-  const [newToArea, setNewToArea] = useState(newToAreaOptions[0].value);
   const [interests, setInterests] = useState<Set<string>>(new Set<string>());
 
   const interestsChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,20 +29,20 @@ function DatingAdditionalInfo() {
 
   return (
     <>
-      <Row className="mx-0 mb-5">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Appearance</h2>
+      <Row className="mx-0 mb-4">
+        <h2 className="h4 m-0 mb-3 p-3 rounded-3">Appearance</h2>
         <Col xs={12}>
-          <Row className="mb-4">
-            <Col md={6}>
+          <Row className="mb-4 align-items-center">
+            <Col>
               <CustomSelect
                 name="height"
-                options={[]}
+                options={heightOptions}
                 label="Height"
               />
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="bodyType"
                 options={bodyTypeOptions}
@@ -52,7 +51,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="tattoos"
                 options={tatoosOptions}
@@ -62,11 +61,11 @@ function DatingAdditionalInfo() {
           </Row>
         </Col>
       </Row>
-      <Row className="mx-0 mb-5">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Basic Info</h2>
+      <Row className="mx-0 mb-4">
+        <h2 className="h4 m-0 mb-3 p-3 rounded-3">Basic Info</h2>
         <Col xs={12}>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="relationship"
                 options={relationshipStatusOptions}
@@ -75,7 +74,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="educationLevel"
                 options={educationLevelOptions}
@@ -84,7 +83,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="employment"
                 options={employmentOptions}
@@ -93,7 +92,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="drinking"
                 options={drinkingOptions}
@@ -102,7 +101,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="smoking"
                 options={smokingOptions}
@@ -111,7 +110,7 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
               <CustomSelect
                 name="parentalStatus"
                 options={parentalStatusOptions}
@@ -120,7 +119,16 @@ function DatingAdditionalInfo() {
             </Col>
           </Row>
           <Row className="mb-4">
-            <Col md={6}>
+            <Col>
+              <CustomSelect
+                name="parentalInterest"
+                options={wantsChildrenOptions}
+                label="Wants (more) children"
+              />
+            </Col>
+          </Row>
+          <Row className="mb-4">
+            <Col>
               <CustomSelect
                 name="Religion"
                 options={religionOptions}
@@ -130,10 +138,10 @@ function DatingAdditionalInfo() {
           </Row>
         </Col>
       </Row>
-      <Row className="mt-3 d-none d-md-flex">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interest</h2>
+      <Row className="mt-3 d-none d-md-flex mb-4 mx-0">
+        <h2 className="h4 m-0 mb-3 p-3 rounded-3">Interests</h2>
         {interestsList.map((interest: string, index: number) => (
-          <Col xs={4} xxl={2} key={interest}>
+          <Col md={4} lg={3} xxl={2} key={interest}>
             <CustomToggleButton
               id={`interest-${index}`}
               label={interest}
@@ -147,8 +155,8 @@ function DatingAdditionalInfo() {
           </Col>
         ))}
       </Row>
-      <Row className="d-flex d-md-none">
-        <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">Interest</h2>
+      <Row className="d-flex d-md-none mb-4 mx-0">
+        <h2 className="h4 m-0 mb-3 p-3 rounded-3">Interests</h2>
         {interestsList.map((interest: string, index: number) => (
           <Col xs={6} key={interest}>
             <Form.Check
@@ -157,21 +165,11 @@ function DatingAdditionalInfo() {
               checked={interests.has(interest)}
               className="mb-2"
               label={interest}
+              value={interest}
               onChange={interestsChangeHandler}
             />
           </Col>
         ))}
-      </Row>
-      <Row>
-        <h2 className="mt-5 mb-3">New to area</h2>
-        <Col lg={2}>
-          <SwitchButtonGroup
-            value={newToArea}
-            onChange={(val: string) => setNewToArea(val)}
-            firstOption={newToAreaOptions[0]}
-            secondOption={newToAreaOptions[1]}
-          />
-        </Col>
       </Row>
     </>
   );

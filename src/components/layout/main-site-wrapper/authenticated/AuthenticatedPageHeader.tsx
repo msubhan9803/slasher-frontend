@@ -25,7 +25,6 @@ interface Props {
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
-
   return (
     <>
       {/* nav-bar for large & medium screen */}

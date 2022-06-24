@@ -17,24 +17,22 @@ function DatingMenuLargeScreen() {
   return (
     <>
       <h1 className="h4 mb-4">Dating Menu</h1>
-
       <Row className="mt-3 mb-3">
-        <Col>
+        <Col md={4}>
           <TopNavLink label="My Profile" icon={regular('user')} to="/" />
         </Col>
-        <Col>
+        <Col md={4}>
           <TopNavLink label="Profiles" icon={regular('id-badge')} to="/" badgeIconClassName="text-primary" />
         </Col>
-        <Col>
-          <TopNavLink label="Messages" icon={regular('comments')} to="/" badge={{ top: '-0.43rem', right: '1.75rem', count: 12 }} />
+        <Col md={4}>
+          <TopNavLink label="Messages" icon={regular('comments')} to="/" badge={12} />
         </Col>
       </Row>
-
       <Row className="mb-4">
-        <Col>
-          <TopNavLink label="Likes" icon={regular('heart')} to="/" badge={{ top: '-0.31rem', right: '1.56rem', count: 6 }} />
+        <Col md={4}>
+          <TopNavLink label="Likes" icon={regular('heart')} to="/" badge={6} />
         </Col>
-        <Col>
+        <Col md={4}>
           <TopNavLink label="Preferences" icon={solid('sliders')} to="/" />
         </Col>
         <Col />

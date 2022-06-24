@@ -17,7 +17,7 @@ function DatingPageWrapper({ children }: Props) {
         <Col md={8}>
           {children}
         </Col>
-        <Col md={4}>
+        <Col md={4} className="d-none d-md-block">
           <DatingMenuLargeScreen />
         </Col>
       </Row>

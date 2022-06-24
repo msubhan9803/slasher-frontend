@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Navbar, Container, Nav, InputGroup, Image,
+  Navbar, Container, Nav, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import slasherLogo from '../../../../images/slasher-logo.svg';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
 import TopNavLink from './TopNavLink';
@@ -26,11 +25,7 @@ interface Props {
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
-  const [showSearch, setShowSearch] = useState(false);
 
-  const onToggleSearch = () => {
-    setShowSearch(!showSearch);
-  };
   return (
     <>
       {/* nav-bar for large & medium screen */}
@@ -65,11 +60,7 @@ function AuthenticatedPageHeader(
           <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" />
           <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} />
           <TopNavLink label="Messages" icon={solid('message')} to="/messages" />
-          <div className="ps-1 pe-1  px-3 py-2 text-center">
-            <FontAwesomeIcon icon={solid('magnifying-glass')} size="lg" className="text-white" onClick={onToggleSearch} />
-            <br />
-            <UserProfileText className="mb-0">Search</UserProfileText>
-          </div>
+          <TopNavLink label="Search" icon={solid('magnifying-glass')} to="/search" />
         </Container>
       </Navbar>
     </>

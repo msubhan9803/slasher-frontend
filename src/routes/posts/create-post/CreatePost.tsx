@@ -19,7 +19,7 @@ const UserCircleImage = styled(Image)`
   width: 3.125rem;
 `;
 
-const ImageContainer = styled('div')`
+const ImageContainer = styled.div`
   width: 6.25rem;
   height: 6.25rem;
   background-color: #1F1F1F;
@@ -31,16 +31,16 @@ function CreatePost() {
   const [posts, setPosts] = useState('');
   const [postUpload, setImageUpload] = useState<AddImage[]>([]);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target) {
+  const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
+    if (!postImage.target) {
       return;
     }
-    if (e.target.name === 'post' && e.target && e.target.files && e.target.files.length) {
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files && postImage.target.files.length) {
       const postList = [...postUpload];
-      const fileList = e.target.files;
+      const fileList = postImage.target.files;
       for (let i = 0; i < fileList.length; i += 1) {
         if (postList.length < 10) {
-          const image = URL.createObjectURL(e.target.files[i]);
+          const image = URL.createObjectURL(postImage.target.files[i]);
           const newPostList = { image };
           postList.push(newPostList);
         }
@@ -69,14 +69,14 @@ function CreatePost() {
             rows={8}
             as="textarea"
             value={posts}
-            onChange={(e) => setPosts(e.target.value)}
+            onChange={(postImage) => setPosts(postImage.target.value)}
             placeholder="Write something....."
           />
         </Form.Group>
         {postUpload.length > 0 && (
-          <Row className="mb-4 d-none d-sm-flex">
+          <Row className="mb-4 d-none d-md-flex">
             {postUpload.map((post: AddImage) => (
-              <Col lg={2} key={post.image} className="mb-3">
+              <Col sm={4} lg={2} key={post.image} className="mb-3">
                 <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
                   <Image
                     src={post.image}
@@ -101,7 +101,7 @@ function CreatePost() {
           </Row>
         )}
         <Row className="justify-content-between">
-          <Col sm={4} lg={3} className="mb-3 mb-sm-0">
+          <Col md={4} lg={3} className="mb-3 mb-md-0">
             <input
               type="file"
               name="post"
@@ -118,10 +118,10 @@ function CreatePost() {
               Add photos
             </Button>
           </Col>
-          <Col xs={12} className="d-sm-none">
+          <Col xs={12} className="d-md-none">
             <Row>
               {postUpload.map((post: any) => (
-                <Col xs={4} key={post.image} className="mb-3 d-lg-none">
+                <Col xs={4} key={post.image} className="mb-3">
                   <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
                     <Image
                       src={post.image}
@@ -145,7 +145,7 @@ function CreatePost() {
               ))}
             </Row>
           </Col>
-          <Col sm={3} lg={2}>
+          <Col md={3} lg={2}>
             <RoundButton className="w-100" type="submit">
               Post
             </RoundButton>

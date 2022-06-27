@@ -9,7 +9,6 @@ import slasherLogo from '../../../../placeholder-images/placeholder-user.jpg';
 
 const AdvertisementBox = styled.div`
   height: 11.25rem;
-  width: 19.375rem;
   background-color: #3A3B46;
 `;
 
@@ -63,7 +62,7 @@ function DatingMenuLargeScreen() {
       </UserMessageList>
 
       <h1 className="h4 mb-3">Advertisment</h1>
-      <AdvertisementBox />
+      <AdvertisementBox className="w-100" />
     </>
   );
 }

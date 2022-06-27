@@ -32,7 +32,7 @@ function SidebarNavItem({
           <LinearIcon uniqueId={id}>
             <FontAwesomeIcon icon={icon} size="lg" className="me-2" />
           </LinearIcon>
-          <div className="ms-2">
+          <div className="ms-2 fs-6 text-start">
             {label}
           </div>
         </div>

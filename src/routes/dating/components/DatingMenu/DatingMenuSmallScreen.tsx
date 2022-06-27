@@ -7,7 +7,6 @@ import TopNavLink from '../../../../components/layout/main-site-wrapper/authenti
 const DatingMenuList = styled(Row)`
   left: 0;
   right:0;
-  z-index : 9999;
 `;
 function DatingMenuSmallScreen() {
   return (

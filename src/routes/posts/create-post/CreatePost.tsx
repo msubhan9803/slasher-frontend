@@ -10,10 +10,6 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 
-interface AddImage {
-  image: string;
-}
-
 const UserCircleImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
@@ -28,30 +24,29 @@ const ImageContainer = styled.div`
 
 function CreatePost() {
   const inputFile = useRef<HTMLInputElement>(null);
-  const [posts, setPosts] = useState('');
-  const [postUpload, setImageUpload] = useState<AddImage[]>([]);
+  const [postContent, setPostContent] = useState('');
+  const [uploadPost, setUploadPost] = useState<string[]>([]);
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
       return;
     }
-    if (postImage.target.name === 'post' && postImage.target && postImage.target.files && postImage.target.files.length) {
-      const postList = [...postUpload];
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
+      const uploadedPostList = [...uploadPost];
       const fileList = postImage.target.files;
-      for (let i = 0; i < fileList.length; i += 1) {
-        if (postList.length < 10) {
-          const image = URL.createObjectURL(postImage.target.files[i]);
-          const newPostList = { image };
-          postList.push(newPostList);
+      for (let list = 0; list < fileList.length; list += 1) {
+        if (uploadedPostList.length < 10) {
+          const image = URL.createObjectURL(postImage.target.files[list]);
+          uploadedPostList.push(image);
         }
       }
-      setImageUpload(postList);
+      setUploadPost(uploadedPostList);
     }
   };
 
-  const handleRemoveFile = (img: string) => {
-    const removePostImage = postUpload.filter((i) => i.image !== img);
-    setImageUpload(removePostImage);
+  const handleRemoveFile = (postImage: string) => {
+    const removePostImage = uploadPost.filter((image) => image !== postImage, postContent);
+    setUploadPost(removePostImage);
   };
 
   return (
@@ -68,18 +63,18 @@ function CreatePost() {
           <Form.Control
             rows={8}
             as="textarea"
-            value={posts}
-            onChange={(postImage) => setPosts(postImage.target.value)}
+            value={postContent}
+            onChange={(contentEvent) => setPostContent(contentEvent.target.value)}
             placeholder="Write something....."
           />
         </Form.Group>
-        {postUpload.length > 0 && (
+        {uploadPost.length > 0 && (
           <Row className="mb-4 d-none d-md-flex">
-            {postUpload.map((post: AddImage) => (
-              <Col sm={4} lg={2} key={post.image} className="mb-3">
+            {uploadPost.map((post: string) => (
+              <Col sm={4} lg={2} key={post} className="mb-3">
                 <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
                   <Image
-                    src={post.image}
+                    src={post}
                     alt="Dating profile photograph"
                     className="w-100 h-100 img-fluid rounded"
                   />
@@ -93,7 +88,7 @@ function CreatePost() {
                       top: '5.313rem',
                       left: '5.313rem',
                     }}
-                    onClick={() => handleRemoveFile(post.image)}
+                    onClick={() => handleRemoveFile(post)}
                   />
                 </ImageContainer>
               </Col>
@@ -113,18 +108,18 @@ function CreatePost() {
               multiple
               ref={inputFile}
             />
-            <Button disabled={postUpload.length >= 10} className="btn btn-form bg-dark w-100 rounded-5" onClick={() => inputFile.current?.click()}>
+            <Button disabled={uploadPost.length >= 10} className="btn btn-form bg-dark w-100 rounded-5" onClick={() => inputFile.current?.click()}>
               <FontAwesomeIcon icon={regular('image')} className="me-2" />
               Add photos
             </Button>
           </Col>
           <Col xs={12} className="d-md-none">
             <Row>
-              {postUpload.map((post: any) => (
-                <Col xs={4} key={post.image} className="mb-3">
+              {uploadPost.map((post: string) => (
+                <Col xs={4} key={post} className="mb-3">
                   <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
                     <Image
-                      src={post.image}
+                      src={post}
                       alt="Dating profile photograph"
                       className="w-100 h-100 img-fluid rounded"
                     />
@@ -138,7 +133,7 @@ function CreatePost() {
                         top: '5.313rem',
                         left: '5.313rem',
                       }}
-                      onClick={() => handleRemoveFile(post.image)}
+                      onClick={() => handleRemoveFile(post)}
                     />
                   </ImageContainer>
                 </Col>

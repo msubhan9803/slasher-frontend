@@ -32,9 +32,12 @@ function AuthenticatedPageWrapper({ children }: Props) {
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
       <Container className="py-3">
         <Row>
-          <Col xs={3} md={4} lg={3} className="d-none d-md-block">
-            <SidebarNavContent />
-          </Col>
+          {!show
+            && (
+            <Col xs={3} md={4} lg={3} className="d-md-block d-none">
+              <SidebarNavContent />
+            </Col>
+            )}
           <Col>
             <main>
               {children}
@@ -42,6 +45,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Col>
         </Row>
       </Container>
+      {show && (
       <StyledOffcanvas
         id={offcanvasId}
         show={show && !forceHideOffcanvasSidebar}
@@ -54,6 +58,8 @@ function AuthenticatedPageWrapper({ children }: Props) {
           <SidebarNavContent />
         </Offcanvas.Body>
       </StyledOffcanvas>
+      )}
+
     </>
   );
 }

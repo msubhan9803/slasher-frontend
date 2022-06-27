@@ -4,7 +4,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 import NotFound from '../../components/NotFound';
 import CreatePost from './create-post/CreatePost';
 
-function posts() {
+function Posts() {
   return (
     <Routes>
       <Route path="create" element={<CreatePost />} />
@@ -13,4 +13,4 @@ function posts() {
   );
 }
 
-export default posts;
+export default Posts;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Image,
+  Navbar, Container, Nav, Image, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -52,14 +52,26 @@ function AuthenticatedPageHeader(
       </Navbar>
 
       {/* nav-bar for small screen */}
-      <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className=" d-md-none fixed-bottom">
-        <Container className="">
-          <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} className="me-3" />
-          <TopNavLink label="Home" icon={solid('home')} to="/" />
-          <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" />
-          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} />
-          <TopNavLink label="Messages" icon={solid('message')} to="/messages" />
-          <TopNavLink label="Search" icon={solid('magnifying-glass')} to="/search" />
+      <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="d-md-none fixed-bottom">
+        <Container>
+          <Col className="my-2">
+            <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} className="me-3" />
+          </Col>
+          <Col className="my-2">
+            <TopNavLink label="Home" icon={solid('home')} to="/" />
+          </Col>
+          <Col className="my-2">
+            <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" />
+          </Col>
+          <Col className="my-2">
+            <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} />
+          </Col>
+          <Col className="my-2">
+            <TopNavLink label="Messages" icon={solid('message')} to="/messages" />
+          </Col>
+          <Col className="my-2">
+            <TopNavLink label="Search" icon={solid('magnifying-glass')} to="/search" />
+          </Col>
         </Container>
       </Navbar>
     </>

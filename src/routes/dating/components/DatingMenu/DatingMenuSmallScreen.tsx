@@ -5,13 +5,16 @@ import styled from 'styled-components';
 import TopNavLink from '../../../../components/layout/main-site-wrapper/authenticated/TopNavLink';
 
 const DatingMenuList = styled(Row)`
-  bottom: 0;
   left: 0;
   right:0;
+  z-index : 9999;
 `;
 function DatingMenuSmallScreen() {
   return (
-    <DatingMenuList className="mt-3 m-1 bg-dark position-fixed d-md-none mb-0">
+    <DatingMenuList className="bg-dark position-fixed d-md-none mb-0 fixed-top">
+      <Col xs={12}>
+        <p className="text-center mt-1">Dating Menu</p>
+      </Col>
       <Col className="my-2">
         <TopNavLink label="My Profile" icon={regular('user')} to="/" />
       </Col>

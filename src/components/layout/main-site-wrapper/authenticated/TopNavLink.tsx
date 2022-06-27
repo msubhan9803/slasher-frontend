@@ -19,7 +19,7 @@ const BadgeSpan = styled.span`
 `;
 
 const Links = styled(Link)`
-  width : 90px
+  width : 5.62rem
 `;
 
 function TopNavLink({

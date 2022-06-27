@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col,
-  Row,
-  Tab,
-  Tabs,
+  Col, FormControl, InputGroup, Row, Tab, Tabs,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 const StyleTabs = styled(Tabs)`
-  border-bottom: 3px solid #1F1F1F;
+  border-bottom: 0.188rem solid var(--bs-dark);
   overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
+    border: none;
     &:hover {
       border-color: transparent;
       color: var(--bs-primary);
@@ -20,23 +20,40 @@ const StyleTabs = styled(Tabs)`
     &.active {
       color: var(--bs-primary);
       background-color: transparent;
-      border: none;
-      border-bottom: 3px solid var(--bs-primary);
-      position: relative;
-      bottom: -2px;
+      border-bottom:  0.188rem solid var(--bs-primary);
     }
   }
-
 `;
 
 const StyledHastagsCircle = styled.div`
   border-radius: 50%;
-  height:60px;
-  width:60px;
+  height: 3.75rem;
+  width: 3.75rem;
+`;
+
+const SearchInputGroup = styled(InputGroup)`
+  .form-control {
+    border-left: .06rem solid var(--bs-input-border-color);
+    border-top-right-radius: 1.56rem !important;
+    border-bottom-right-radius: 1.56rem !important;
+    padding: 0rem;
+    flex-wrap: inherit !important;
+  }
+  .input-group-text {
+    background-color: rgb(31, 31, 31);
+    border-color: #3a3b46;
+    border-radius: 1.56rem;
+    width: 2.5rem
+  }
+  svg {
+    color: var(--bs-primary);
+    min-width: 1.87rem;
+  }
 `;
 
 function Search() {
-  const hastags = [
+  const [search, setSearch] = useState<string>('');
+  const hashtags = [
     'horror',
     'horrorcommunty',
     'horrorfan',
@@ -44,31 +61,62 @@ function Search() {
     'horrorgram',
     'horrorlover',
     'horroraddict',
-    '80sslasher', 'horrorlife',
+    '80sslasher',
+    'horrorlife',
     'horrorgirls',
     'horrorvideo',
     'horrorshirt'];
+  const [filtered, setFiltered] = useState<string[]>([]);
+  const [message, setMessage] = useState<string>('Hashtags');
+
+  const searchData = (searchQuery: string) => {
+    let searchResult;
+    const newFilter = hashtags;
+    if (searchQuery) {
+      searchResult = newFilter.filter((src: string) => src.toLowerCase().startsWith(searchQuery));
+      setFiltered(searchResult);
+      const newMsg = searchResult.length === 0 ? 'No hastag found' : 'Hashtags';
+      setMessage(newMsg);
+    } else {
+      newFilter.length = 0;
+      setFiltered(newFilter);
+    }
+    setSearch(searchQuery);
+  };
+
   return (
     <AuthenticatedPageWrapper>
-      <h1 className="h3 mb-4">
-        Result for&nbsp;
-        <span className="text-primary">
-          &#34;horror&#34;
-        </span>
-      </h1>
+      <SearchInputGroup className="mb-3">
+        <InputGroup.Text id="search" className="px-2">
+          <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />
+        </InputGroup.Text>
+        <FormControl
+          placeholder="Search..."
+          aria-label="search"
+          aria-describedby="search"
+          value={search}
+          onChange={(e: any) => {
+            searchData(e.target.value);
+          }}
+          className="ps-1"
+        />
+      </SearchInputGroup>
       <StyleTabs className="justify-content-between flex-nowrap">
-        <Tab eventKey="users" title="Users">
-          Users
+        <Tab eventKey="users" title="People">
+          People
         </Tab>
-        <Tab eventKey="hastags" title="Hastags">
+        <Tab eventKey="posts" title="Posts">
+          Posts
+        </Tab>
+        <Tab eventKey="hashtags" title="Hashtags">
           <Row>
-            {hastags.map((hastag: string) => (
-              <Col md={6} lg={4}>
+            {filtered.length > 0 ? (filtered.map((hastag: string) => (
+              <Col md={6} lg={4} key={hastag}>
                 <Row className="py-4 align-items-center">
                   <Col xs={3} sm={2} lg={4}>
-                    <StyledHastagsCircle className="ms-md-2 align-items-center bg-primary d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
+                    <StyledHastagsCircle className="ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
                   </Col>
-                  <Col xs={9} sm={10} md={8} className="ps-0 ps-md-3 ps-xl-0">
+                  <Col xs={9} sm={10} md={8} className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
                     <h2 className="h5 mb-0">
                       #
                       {hastag}
@@ -77,14 +125,14 @@ function Search() {
                   </Col>
                 </Row>
               </Col>
-            ))}
+            )))
+              : (
+                <h1 className="h6">{message}</h1>
+              )}
           </Row>
         </Tab>
         <Tab eventKey="news" title="News">
           News
-        </Tab>
-        <Tab eventKey="posts" title="Posts">
-          Posts
         </Tab>
         <Tab eventKey="events" title="Events">
           Events

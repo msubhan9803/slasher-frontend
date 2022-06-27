@@ -1,7 +1,6 @@
-// import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import React from 'react';
 import {
-  Navbar, Container, Form, FormControl, Nav,
+  Navbar, Container, Nav,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -37,19 +36,12 @@ function AuthenticatedPageHeader(
         <Navbar.Brand as={Link} to="/">
           <NavbarLogoImage src={slasherLogoSmall} alt="Slasher logo" />
         </Navbar.Brand>
-        <Form className="me-auto d-flex">
-          <FormControl
-            type="search"
-            placeholder="Search"
-            className="me-2"
-            aria-label="Find people, hashtags, movies..."
-          />
-        </Form>
-        <Nav className="me-auto flex-row">
+        <Nav className="mx-auto flex-row">
           <TopNavLink label="Home" icon={solid('home')} to="/" />
           <TopNavLink label="Friends" icon={solid('users')} to="/friends" />
           <TopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
           <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
+          <TopNavLink label="Search" icon={solid('search')} to="/search" />
         </Nav>
         <Nav className="mw-auto">
           <Navbar.Text>

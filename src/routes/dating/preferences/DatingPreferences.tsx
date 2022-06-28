@@ -4,13 +4,13 @@ import {
   Row,
 } from 'react-bootstrap';
 import RoundButton from '../../../components/ui/RoundButton';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import DatingAdditionalPreferences from '../components/DatingAdditionalPreferences';
 import Switch from '../../../components/ui/Switch';
+import DatingPageWrapper from '../components/DatingPageWrapper';
 
 function DatingPreferences() {
   return (
-    <AuthenticatedPageWrapper>
+    <DatingPageWrapper>
       <Row>
         <Col xs={12} md={8}>
           <h1 className="h3 d-none d-md-block">
@@ -59,7 +59,7 @@ function DatingPreferences() {
 
         </Col>
       </Row>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 

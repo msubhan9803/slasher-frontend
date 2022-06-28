@@ -7,7 +7,6 @@ const StyledFooter = styled.footer`
   .container {
     border-top: 1px solid var(--bs-dark);
   }
-
   a {
     text-decoration: none;
     display:block;
@@ -17,7 +16,7 @@ const StyledFooter = styled.footer`
 function UnauthenticatedPageFooter() {
   return (
     <StyledFooter className="pt-5">
-      <Container className="py-5">
+      <Container fluid="lg" className="py-5">
         <div className="w-100 d-flex flex-wrap justify-content-evenly">
           <Link className="mb-2 px-2" to="/">About</Link>
           <Link className="mb-2 px-2" to="/">Help</Link>

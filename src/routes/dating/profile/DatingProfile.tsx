@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import NotFound from '../../../components/NotFound';
 import DatingPageWrapper from '../components/DatingPageWrapper';
-import DatingEditProfile from './edit/DatingEditProfile';
+import DatingProfileEdit from './edit/DatingProfileEdit';
 
 function DatingProfile() {
   return (
@@ -14,7 +14,7 @@ function DatingProfile() {
       {/* TODO: Update redirect below when we have profile view page */}
       <Route path="/" element={<Navigate to="edit" replace />} />
 
-      <Route path="/edit" element={<DatingEditProfile />} />
+      <Route path="/edit" element={<DatingProfileEdit />} />
 
       <Route path="*" element={<DatingPageWrapper><NotFound /></DatingPageWrapper>} />
     </Routes>

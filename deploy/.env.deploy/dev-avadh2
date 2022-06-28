@@ -1,0 +1,4 @@
+# This file is committed to the repository.  Do not put passwords or sensitive data in this file.
+REMOTE_PUBLIC_HTML_DIR='~/www/app-dev-avadh2.slasher.tv/public_html'
+REMOTE_RELEASES_DIR='~/www/app-dev-avadh2.slasher.tv/releases'
+ADD_NOINDEX_ROBOTS_TXT=true

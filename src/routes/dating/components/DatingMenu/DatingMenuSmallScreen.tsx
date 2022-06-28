@@ -2,7 +2,7 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import TopNavLink from '../../../../components/layout/main-site-wrapper/authenticated/TopNavLink';
+import GlobalNavLink from '../../../../components/layout/main-site-wrapper/authenticated/GlobalNavLink';
 
 const DatingMenuList = styled(Row)`
   left: 0;
@@ -15,19 +15,19 @@ function DatingMenuSmallScreen() {
         <p className="text-center mt-1">Dating Menu</p>
       </Col>
       <Col className="my-2">
-        <TopNavLink label="My Profile" icon={regular('user')} to="/" />
+        <GlobalNavLink label="My Profile" icon={regular('user')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <TopNavLink label="Profiles" icon={regular('id-badge')} to="/" badgeIconClassName="text-primary" />
+        <GlobalNavLink label="Profiles" icon={regular('id-badge')} to="/" iconSize="lg" badgeIconClassName="text-primary" />
       </Col>
       <Col className="my-2">
-        <TopNavLink label="Messages" icon={regular('comments')} to="/" />
+        <GlobalNavLink label="Messages" icon={regular('comments')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <TopNavLink label="Likes" icon={regular('heart')} to="/" />
+        <GlobalNavLink label="Likes" icon={regular('heart')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <TopNavLink label="Preferences" icon={solid('sliders')} to="/" />
+        <GlobalNavLink label="Preferences" icon={solid('sliders')} to="/" iconSize="lg" />
       </Col>
     </DatingMenuList>
   );

@@ -133,7 +133,7 @@ function DatingProfileEdit() {
                 as="textarea"
                 value={message}
                 onChange={handleMessageChange}
-                placeholder="Enter Descriptions..."
+                placeholder="Enter Description..."
               />
               <div className="clearfix" />
             </Form.Group>

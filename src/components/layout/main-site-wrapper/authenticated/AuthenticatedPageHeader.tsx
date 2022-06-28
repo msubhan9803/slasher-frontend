@@ -5,15 +5,32 @@ import {
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import slasherLogo from '../../../../images/slasher-logo.svg';
+import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
-import TopNavLink from './TopNavLink';
+import GlobalNavLink from './GlobalNavLink';
+import GlobalNavButton from './GlobalNavButton';
 
 const UserCircleImage = styled.img`
-  width:1.56rem;
+  // 2em is the size of a font-awesome 2x icon,
+  // so we're matching the size of the other nav icons.
+  width: 2em;
+  height: 2em;
 `;
-const UserProfileText = styled.p`
-  font-size: .75rem;
+const StyledNavbar = styled(Navbar)`
+  font-size: .8rem;
+  .nav-link {
+    min-width: 5rem;
+    padding-left: .25rem;
+    padding-right: .25rem;
+  }
+`;
+
+const StyledLogoImage = styled(Image)`
+  height: 6rem;
+`;
+
+const MobileNavbar = styled(Navbar)`
+  border-top: 5px solid #1F1F1F;
 `;
 
 interface Props {
@@ -25,55 +42,53 @@ interface Props {
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
+  const navLinkElements = [
+    <GlobalNavButton
+      aria-controls={ariaToggleTargetId}
+      label="Menu"
+      icon={solid('bars')}
+      iconSize="lg"
+      onClick={onToggleClick}
+    />,
+    <GlobalNavLink label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
+    <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
+    <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
+  ];
+
   return (
     <>
       {/* nav-bar for large & medium screen */}
-      <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="mb-3 d-none d-md-flex">
-        <Container className="justify-content-start">
-          <Container className="d-none d-md-flex">
-            <Navbar.Brand as={Link} to="/">
-              <Image src={slasherLogo} alt="Slasher logo" className="mt-3" />
-            </Navbar.Brand>
-          </Container>
-          <Nav className="me-auto flex-row ">
-            <TopNavLink label="Home" icon={solid('home')} to="/" />
-            <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" />
-            <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} />
-            <TopNavLink label="Messages" icon={solid('message')} to="/messages" />
-            <TopNavLink label="Search" icon={solid('magnifying-glass')} to="/search" />
-          </Nav>
-          <Nav className="mw-auto flex-column p-1 d-none d-md-flex mt-0">
-            <Nav.Link className="text-center text-white pb-1 pt-0">
-              <UserCircleImage className="rounded-circle" src={userProfileIconPlaceholder} alt="User icon" />
+      <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`py-0 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
+        <Container>
+          <Navbar.Brand as={Link} to="/" className="py-0">
+            <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
+          </Navbar.Brand>
+          <Nav className="ms-auto">
+            <GlobalNavLink label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />
+            <GlobalNavLink label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />
+            <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link" iconSize="2x" />
+            <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />
+            <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />
+            <Nav.Link className="d-flex flex-column justify-content-evenly text-white">
+              <UserCircleImage className="rounded-circle m-auto" src={userProfileIconPlaceholder} alt="User icon" />
+              <p className="mt-2 mb-0 text-center">Profile</p>
             </Nav.Link>
-            <UserProfileText className="mb-0 text-center">Me</UserProfileText>
           </Nav>
         </Container>
-      </Navbar>
+      </StyledNavbar>
 
       {/* nav-bar for small screen */}
-      <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="d-md-none fixed-bottom">
-        <Container>
-          <Col className="my-2">
-            <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} className="me-3" />
-          </Col>
-          <Col className="my-2">
-            <TopNavLink label="Home" icon={solid('home')} to="/" />
-          </Col>
-          <Col className="my-2">
-            <TopNavLink label="Friends" icon={solid('user-group')} to="/friends" />
-          </Col>
-          <Col className="my-2">
-            <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} />
-          </Col>
-          <Col className="my-2">
-            <TopNavLink label="Messages" icon={solid('message')} to="/messages" />
-          </Col>
-          <Col className="my-2">
-            <TopNavLink label="Search" icon={solid('magnifying-glass')} to="/search" />
-          </Col>
+      <MobileNavbar bg="dark" variant="dark" className="d-md-none fixed-bottom pt-3">
+        <Container fluid className="px-0">
+          {
+            navLinkElements.map((el, index) => {
+              const uniqueId = `nav-link-${index}`;
+              return <Col key={uniqueId} style={{ maxWidth: `${100 / navLinkElements.length}%` }}>{el}</Col>;
+            })
+          }
         </Container>
-      </Navbar>
+      </MobileNavbar>
     </>
   );
 }

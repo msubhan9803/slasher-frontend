@@ -5,40 +5,40 @@ import SidebarNavItem from './SidebarNavItem';
 
 const sidebarMenuList = [
   {
-    label: 'News & Reviews', icon: solid('newspaper'), color: '#0094FF', id: 1, to: '/',
+    label: 'News & Reviews', icon: solid('newspaper'), color: '#0094FF', to: '/news',
   },
   {
-    label: 'Events', icon: solid('calendar-day'), color: '#05FF00', id: 2, to: '/',
+    label: 'Events', icon: solid('calendar-day'), color: '#05FF00', to: '/events',
   },
   {
-    label: 'Places', icon: solid('location-dot'), color: '#FFC700', id: 3, to: '/',
+    label: 'Places', icon: solid('location-dot'), color: '#FFC700', to: '/places',
   },
   {
-    label: 'Dating', icon: solid('heart'), color: '#FF0000', id: 4, to: '/',
+    label: 'Dating', icon: solid('heart'), color: '#FF0000', to: '/dating',
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), color: '#8F00FF', id: 5, to: '/',
+    label: 'Podcasts', icon: solid('podcast'), color: '#8F00FF', to: '/podcasts',
   },
   {
-    label: 'Video Channels', icon: solid('tv'), color: '#00E676', id: 6, to: '/',
+    label: 'Video Channels', icon: solid('tv'), color: '#00E676', to: '/videos',
   },
   {
-    label: 'Shopping / Vendors', icon: solid('store'), color: '#00D2FF', id: 7, to: '/',
+    label: 'Shopping / Vendors', icon: solid('store'), color: '#00D2FF', to: '/shopping',
   },
   {
-    label: 'Movies', icon: solid('film'), color: '#FF343E', id: 8, to: '/',
+    label: 'Movies', icon: solid('film'), color: '#FF343E', to: '/movies',
   },
   {
-    label: 'Books', icon: solid('book'), color: '#D88100', id: 9, to: '/',
+    label: 'Books', icon: solid('book-skull'), color: '#D88100', to: '/books',
   },
   {
-    label: 'Music', icon: solid('headphones'), color: '#7C4DFF', id: 10, to: '/',
+    label: 'Music', icon: solid('headphones'), color: '#7C4DFF', id: 10, to: '/music',
   },
   {
-    label: 'Art', icon: solid('headphones'), color: '#799F0C', id: 11, to: '/',
+    label: 'Art', icon: solid('palette'), color: '#799F0C', id: 11, to: '/art',
   },
   {
-    label: 'Help', icon: solid('circle-question'), color: '#9E9E9E', id: 12, to: '/',
+    label: 'Help', icon: solid('circle-question'), color: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
   },
 ];
 
@@ -47,11 +47,12 @@ function SidebarNavContent() {
     <Nav className="flex-column">
       {sidebarMenuList.map((menu) => (
         <SidebarNavItem
+          key={menu.label}
           label={menu.label}
           icon={menu.icon}
           color={menu.color}
-          id={menu.id}
           to={menu.to}
+          className={menu.desktopOnly ? 'd-none d-md-block' : ''}
         />
       ))}
     </Nav>

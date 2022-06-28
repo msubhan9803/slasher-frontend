@@ -2,7 +2,7 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import TopNavLink from '../../../../components/layout/main-site-wrapper/authenticated/TopNavLink';
+import GlobalNavLink from '../../../../components/layout/main-site-wrapper/authenticated/GlobalNavLink';
 import UserMessageList from '../../../../components/ui/UserMessageList/UserMessageList';
 import UserMessageListItem from '../../../../components/ui/UserMessageList/UserMessageListItem';
 import slasherLogo from '../../../../placeholder-images/placeholder-user.jpg';
@@ -18,21 +18,21 @@ function DatingMenuLargeScreen() {
       <h1 className="h4 mb-4">Dating Menu</h1>
       <Row className="mt-3 mb-3">
         <Col md={4}>
-          <TopNavLink label="My Profile" icon={regular('user')} to="/" />
+          <GlobalNavLink label="My Profile" icon={regular('user')} iconSize="lg" to="/" />
         </Col>
         <Col md={4}>
-          <TopNavLink label="Profiles" icon={regular('id-badge')} to="/" badgeIconClassName="text-primary" />
+          <GlobalNavLink label="Profiles" icon={regular('id-badge')} iconSize="lg" to="/" badgeIconClassName="text-primary" />
         </Col>
         <Col md={4}>
-          <TopNavLink label="Messages" icon={regular('comments')} to="/" badge={12} />
+          <GlobalNavLink label="Messages" icon={regular('comments')} iconSize="lg" to="/" badge={12} />
         </Col>
       </Row>
       <Row className="mb-4">
         <Col md={4}>
-          <TopNavLink label="Likes" icon={regular('heart')} to="/" badge={6} />
+          <GlobalNavLink label="Likes" icon={regular('heart')} iconSize="lg" to="/" badge={6} />
         </Col>
         <Col md={4}>
-          <TopNavLink label="Preferences" icon={solid('sliders')} to="/" />
+          <GlobalNavLink label="Preferences" icon={solid('sliders')} iconSize="lg" to="/" />
         </Col>
         <Col />
       </Row>

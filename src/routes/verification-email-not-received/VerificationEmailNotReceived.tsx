@@ -4,11 +4,11 @@ import {
   Button,
   Col,
   Form,
-  Image,
   Modal,
   Row,
 } from 'react-bootstrap';
-import verificationEmail from '../../images/email.svg';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import ModalContainer from '../../components/ui/CustomModal';
 
@@ -56,7 +56,7 @@ export default function VerificationEmailNotReceived() {
           >
             <Modal.Header className="border-0 shadow-none" closeButton />
             <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-              <Image src={verificationEmail} />
+              <FontAwesomeIcon icon={solid('envelope')} size="6x" className="text-primary" />
               <h3>
                 This email address
                 <br />

@@ -11,13 +11,12 @@ import GlobalNavLink from './GlobalNavLink';
 import GlobalNavButton from './GlobalNavButton';
 
 const UserCircleImage = styled.img`
-  // 2em is the size of a font-awesome 2x icon,
+  // 1.25 is the size of a font-awesome lg icon,
   // so we're matching the size of the other nav icons.
-  width: 2em;
-  height: 2em;
+  width: 1.25em;
+  height: 1.25em;
 `;
 const StyledNavbar = styled(Navbar)`
-  font-size: .8rem;
   .nav-link {
     min-width: 5rem;
     padding-left: .25rem;
@@ -31,6 +30,9 @@ const StyledLogoImage = styled(Image)`
 
 const MobileNavbar = styled(Navbar)`
   border-top: 5px solid #1F1F1F;
+  p {
+    font-size: .8rem;
+  }
 `;
 
 interface Props {
@@ -65,12 +67,12 @@ function AuthenticatedPageHeader(
             <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
           </Navbar.Brand>
           <Nav className="ms-auto">
-            <GlobalNavLink label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />
-            <GlobalNavLink label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />
-            <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link" iconSize="2x" />
-            <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />
-            <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />
-            <Nav.Link className="d-flex flex-column justify-content-evenly text-white">
+            <GlobalNavLink label="Home" icon={solid('home')} to="/" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Friends" icon={solid('user-group')} to="/friends" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link mt-1" iconSize="lg" />
+            <Nav.Link className="d-flex flex-column justify-content-evenly text-white mt-1">
               <UserCircleImage className="rounded-circle m-auto" src={userProfileIconPlaceholder} alt="User icon" />
               <p className="mt-2 mb-0 text-center">Profile</p>
             </Nav.Link>

@@ -10,6 +10,7 @@ import DatingWelcome from './welcome/DatingWelcome';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 import DatingPreferences from './preferences/DatingPreferences';
+import Likes from './likes/Likes';
 
 function Dating() {
   return (
@@ -19,6 +20,7 @@ function Dating() {
       <Route path="/preferences" element={<DatingPreferences />} />
       <Route path="/setup/*" element={<DatingSetup />} />
       <Route path="/profile/*" element={<DatingProfile />} />
+      <Route path="/likes" element={<Likes />} />
 
       <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
     </Routes>

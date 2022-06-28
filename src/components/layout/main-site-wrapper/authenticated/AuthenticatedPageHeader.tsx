@@ -1,24 +1,38 @@
-// import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import React from 'react';
 import {
-  Navbar, Container, Form, FormControl, Nav,
+  Navbar, Container, Nav, Image, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import slasherLogoSmall from '../../../../images/slasher-logo-small.png';
+import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
-import TopNavLink from './TopNavLink';
-
-const NavbarLogoImage = styled.img`
-  height: 75px;
-`;
+import GlobalNavLink from './GlobalNavLink';
+import GlobalNavButton from './GlobalNavButton';
 
 const UserCircleImage = styled.img`
-  border-radius: 50%;
-  height:50px;
-  width:50px;
-  border: 1px solid #fff;
+  // 1.25 is the size of a font-awesome lg icon,
+  // so we're matching the size of the other nav icons.
+  width: 1.25em;
+  height: 1.25em;
+`;
+const StyledNavbar = styled(Navbar)`
+  .nav-link {
+    min-width: 5rem;
+    padding-left: .25rem;
+    padding-right: .25rem;
+  }
+`;
+
+const StyledLogoImage = styled(Image)`
+  height: 6rem;
+`;
+
+const MobileNavbar = styled(Navbar)`
+  border-top: 5px solid #1F1F1F;
+  p {
+    font-size: .8rem;
+  }
 `;
 
 interface Props {
@@ -30,35 +44,54 @@ interface Props {
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
+  const navLinkElements = [
+    <GlobalNavButton
+      aria-controls={ariaToggleTargetId}
+      label="Menu"
+      icon={solid('bars')}
+      iconSize="lg"
+      onClick={onToggleClick}
+    />,
+    <GlobalNavLink label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
+    <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
+    <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
+  ];
+
   return (
-    <Navbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className="mb-3">
-      <Container className="justify-content-start">
-        <Navbar.Toggle aria-controls={ariaToggleTargetId} onClick={onToggleClick} className="me-3" />
-        <Navbar.Brand as={Link} to="/">
-          <NavbarLogoImage src={slasherLogoSmall} alt="Slasher logo" />
-        </Navbar.Brand>
-        <Form className="me-auto d-flex">
-          <FormControl
-            type="search"
-            placeholder="Search"
-            className="me-2"
-            aria-label="Find people, hashtags, movies..."
-          />
-        </Form>
-        <Nav className="me-auto flex-row">
-          <TopNavLink label="Home" icon={solid('home')} to="/" />
-          <TopNavLink label="Friends" icon={solid('users')} to="/friends" />
-          <TopNavLink label="Messages" icon={solid('comment-dots')} to="/messages" />
-          <TopNavLink label="Notifications" icon={solid('bell')} to="/notifications" />
-        </Nav>
-        <Nav className="mw-auto">
-          <Navbar.Text>
-            Jane Doe
-            <UserCircleImage className="ms-3" src={userProfileIconPlaceholder} alt="User icon" />
-          </Navbar.Text>
-        </Nav>
-      </Container>
-    </Navbar>
+    <>
+      {/* nav-bar for large & medium screen */}
+      <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`py-0 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
+        <Container>
+          <Navbar.Brand as={Link} to="/" className="py-0">
+            <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
+          </Navbar.Brand>
+          <Nav className="ms-auto">
+            <GlobalNavLink label="Home" icon={solid('home')} to="/" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Friends" icon={solid('user-group')} to="/friends" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" className="nav-link mt-1" iconSize="lg" />
+            <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link mt-1" iconSize="lg" />
+            <Nav.Link className="d-flex flex-column justify-content-evenly text-white mt-1">
+              <UserCircleImage className="rounded-circle m-auto" src={userProfileIconPlaceholder} alt="User icon" />
+              <p className="mt-2 mb-0 text-center">Profile</p>
+            </Nav.Link>
+          </Nav>
+        </Container>
+      </StyledNavbar>
+
+      {/* nav-bar for small screen */}
+      <MobileNavbar bg="dark" variant="dark" className="d-md-none fixed-bottom pt-3">
+        <Container fluid className="px-0">
+          {
+            navLinkElements.map((el, index) => {
+              const uniqueId = `nav-link-${index}`;
+              return <Col key={uniqueId} style={{ maxWidth: `${100 / navLinkElements.length}%` }}>{el}</Col>;
+            })
+          }
+        </Container>
+      </MobileNavbar>
+    </>
   );
 }
 export default AuthenticatedPageHeader;

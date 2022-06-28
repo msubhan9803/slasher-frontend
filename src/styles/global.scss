@@ -36,6 +36,17 @@
   );
 }
 
+.btn-sidebar {
+  // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
+  @include button-variant(
+    $background: #1f1f1f,
+    $border: #1f1f1f,
+    $color: #ffffff,
+    $hover-background: #444444,
+    $active-background: #444444,
+  );
+}
+
 html {
   height: 100%;
 }

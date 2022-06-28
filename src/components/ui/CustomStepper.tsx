@@ -26,7 +26,6 @@ const StyledStepper = styled(Stepper)`
       }
     }
   }
-
   .MuiStepConnector-horizontal {
     top: 1.4em;
     left: calc(-50% + 25px);
@@ -41,7 +40,6 @@ const StyledStepper = styled(Stepper)`
       width: 1.75em;
       height: 1.75em;
       color: var(--bs-primary);
-
       text {
         font-size: 0.6rem;
       }

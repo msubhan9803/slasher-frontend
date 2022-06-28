@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
+import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 
 interface Props {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
       <Container className="py-3">
         <Row>
-          <Col xs={3} className="d-none d-md-block">
+          <Col xs={3} md={4} lg={3} className="d-md-block d-none">
             <SidebarNavContent />
           </Col>
           <Col>
@@ -42,18 +43,22 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Col>
         </Row>
       </Container>
-      <StyledOffcanvas
-        id={offcanvasId}
-        show={show && !forceHideOffcanvasSidebar}
-        onHide={hideOffcanvasSidebar}
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Menu</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <SidebarNavContent />
-        </Offcanvas.Body>
-      </StyledOffcanvas>
+      {show && (
+        <StyledOffcanvas
+          id={offcanvasId}
+          show={show && !forceHideOffcanvasSidebar}
+          onHide={hideOffcanvasSidebar}
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Menu</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <MobileOnlySidebarContent className="mb-3" />
+            <SidebarNavContent />
+          </Offcanvas.Body>
+        </StyledOffcanvas>
+      )}
+
     </>
   );
 }

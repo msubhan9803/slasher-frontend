@@ -80,7 +80,25 @@ pipelines:
     deploy/dev-avadh:
       - step: *lint-build-test
       - step: *deploy
+    deploy/dev-avadh1:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh2:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh3:
+      - step: *lint-build-test
+      - step: *deploy
     deploy/dev-ronak:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak1:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak2:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak3:
       - step: *lint-build-test
       - step: *deploy
   pull-requests:

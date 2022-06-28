@@ -22,14 +22,14 @@ function UnauthenticatedPageWrapper({ children, hideTopLogo }: Props) {
   return (
     <>
       <header className="text-center text-md-start pb-4">
-        <Container className={`${hideTopLogo ? 'd-none' : ''}`}>
+        <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
             <StyledLogoImage src={slasherLogo} />
           </Link>
         </Container>
       </header>
       <StyledMain className="d-flex align-items-center">
-        <Container>
+        <Container fluid="lg">
           {children}
         </Container>
       </StyledMain>

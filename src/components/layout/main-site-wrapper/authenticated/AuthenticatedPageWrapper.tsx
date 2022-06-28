@@ -31,7 +31,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   return (
     <>
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
-      <Container className="py-3">
+      <Container fluid="lg" className="py-3">
         <Row>
           <Col xs={3} md={4} lg={3} className="d-md-block d-none">
             <SidebarNavContent />

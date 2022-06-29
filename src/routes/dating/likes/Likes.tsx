@@ -8,40 +8,41 @@ import {
 import styled from 'styled-components';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import SwitchButtonGroup from '../../../components/ui/SwitchButtonGroup';
-import DatingLikesModal from './DatingLikesModal';
+import DatingLikesDialog from './DatingLikeDialog';
 
 const DatingLikeUserCircleImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
 `;
-
 const UnsubscribeLikeUserImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
-  filter: opacity(0.4) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px);
+  filter: opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px);
 `;
-
 const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     border: none;
     &:hover {
-      box-shadow: none
+      box-shadow: none;
     }
     &:focus {
-      box-shadow: none
+      box-shadow: none;
     }
-    &:active&:focus {
-      box-shadow: none
+    &:active {
+      box-shadow: none;
     }
     &:after {
       display: none;
     }
   }
-
-  .dropdown-menu {
-    inset: -30px 10px auto auto !important;
+  .dropdown-toggle[aria-expanded="true"] {
+    svg {
+      color: var(--bs-primary);
+    }
   }
-
+  .dropdown-menu {
+    inset: -30px 20px auto auto !important;
+  }
   .dropdown-item {
     &:hover {
       background-color: var(--bs-primary) !important;
@@ -49,10 +50,8 @@ const CustomDropDown = styled(Dropdown)`
     &:active {
       background-color: var(--bs-primary) !important;
     }
-
   }
 `;
-
 function Likes() {
   const navigate = useNavigate();
   const subscriberOptions = [
@@ -99,21 +98,21 @@ function Likes() {
     },
   ];
   const [show, setShow] = useState(false);
-  const [dorpDownValue, setDorpDownValue] = useState('');
+  const [dropDownValue, setDropDownValue] = useState('');
 
-  const handleLikesOption = (lekeValue: string) => {
-    if (lekeValue === 'message') {
+  const handleLikesOption = (likeValue: string) => {
+    if (likeValue === 'message') {
       navigate('/dating/conversation');
     } else {
       setShow(true);
     }
-    setDorpDownValue(lekeValue);
+    setDropDownValue(likeValue);
   };
 
   return (
     <DatingPageWrapper>
-      <Container>
-        <Row className="align-items-center mb-4">
+      <Container className="my-5 my-md-0 py-5 py-md-0">
+        <Row className="align-items-center mb-4 mt-5 mt-md-0">
           <Col xl={5}>
             <h1 className="h3 mb-0">{subscriberValue === 'yes' ? 'Likes received' : 'Dating Likes'}</h1>
           </Col>
@@ -124,24 +123,24 @@ function Likes() {
                 firstOption={subscriberOptions[0]}
                 secondOption={subscriberOptions[1]}
                 value={subscriberValue}
-                onChange={(subs) => setSubscriberValue(subs)}
+                onChange={(subscribe) => setSubscriberValue(subscribe)}
               />
             </div>
           </Col>
         </Row>
         {subscriberValue === 'yes' ? (
           <Row>
-            {datingLikes.map((like) => (
-              <Col key={like.id} lg={6} className="pb-4 px-4">
+            {datingLikes.map((likeDetails) => (
+              <Col key={likeDetails.id} lg={6} className="pb-4 px-4">
                 <Row className="bg-dark p-3 rounded">
                   <Col xs={2} className="p-0">
-                    <DatingLikeUserCircleImage src={like.profileImage} className="rounded-circle me-3" />
+                    <DatingLikeUserCircleImage src={likeDetails.profileImage} className="rounded-circle me-3" />
                   </Col>
                   <Col xs={9} className="ps-0 ps-md-4 align-self-center">
                     <h2 className="h6 mb-0 rounded-circle">
-                      {like.name}
+                      {likeDetails.name}
                     </h2>
-                    <p className="mb-0 small">{like.userID}</p>
+                    <p className="mb-0 small">{likeDetails.userID}</p>
                   </Col>
                   <Col xs={1} className="p-0 py-1 align-self-baseline">
                     <CustomDropDown onSelect={handleLikesOption}>
@@ -161,11 +160,11 @@ function Likes() {
           </Row>
         ) : (
           <Row className="px-4">
-            {datingLikes.map((like) => (
-              <Col key={like.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
+            {datingLikes.map((likeDetails) => (
+              <Col key={likeDetails.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
                 <Row className="align-items-center border-bottom border-dark pb-3">
                   <Col xs={1} className="p-0">
-                    <UnsubscribeLikeUserImage src={like.profileImage} className="rounded-circle me-3" style={{ filter: 'opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px)' }} />
+                    <UnsubscribeLikeUserImage src={likeDetails.profileImage} className="rounded-circle me-3" />
                   </Col>
                   <Col xs={11} className="ps-4">
                     <h2 className="h6 mb-0 rounded-circle">
@@ -178,7 +177,7 @@ function Likes() {
             ))}
           </Row>
         )}
-        <DatingLikesModal show={show} setShow={setShow} slectedDropdownValue={dorpDownValue} />
+        <DatingLikesDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
       </Container>
     </DatingPageWrapper>
   );

@@ -12,7 +12,7 @@ interface Props {
   slectedDropdownValue: string
 }
 
-function DatingLikesModal({ show, setShow, slectedDropdownValue }: Props) {
+function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
   };
@@ -91,4 +91,4 @@ function DatingLikesModal({ show, setShow, slectedDropdownValue }: Props) {
   );
 }
 
-export default DatingLikesModal;
+export default DatingLikesDialog;

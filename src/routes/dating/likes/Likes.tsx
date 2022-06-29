@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
@@ -9,12 +10,12 @@ import DatingPageWrapper from '../components/DatingPageWrapper';
 import SwitchButtonGroup from '../../../components/ui/SwitchButtonGroup';
 import DatingLikesModal from './DatingLikesModal';
 
-const UserCircleImage = styled(Image)`
+const DatingLikeUserCircleImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
 `;
 
-const UnsubscribeUserCircleImage = styled(Image)`
+const UnsubscribeLikeUserImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
   filter: opacity(0.4) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px);
@@ -47,13 +48,19 @@ const CustomDropDown = styled(Dropdown)`
     }
     &:active {
       background-color: var(--bs-primary) !important;
-    }import SwitchButtonGroup from './../../../components/ui/SwitchButtonGroup';
+    }
 
   }
 `;
 
 function Likes() {
-  const likes = [
+  const navigate = useNavigate();
+  const subscriberOptions = [
+    { label: 'Yes', value: 'yes' },
+    { label: 'No', value: 'no' },
+  ];
+  const [subscriberValue, setSubscriberValue] = useState('yes');
+  const datingLikes = [
     {
       id: 1, profileImage: 'https://i.pravatar.cc/300?img=12', name: 'Rayna Workman', userID: '@RaynaWorkman001',
     },
@@ -91,18 +98,18 @@ function Likes() {
       id: 12, profileImage: 'https://i.pravatar.cc/300?img=12', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
     },
   ];
-  const subscriberOptions = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-  ];
-  const [subscriberValue, setSubscriberValue] = useState('yes');
   const [show, setShow] = useState(false);
-  const [value, setValue] = useState('');
-  const handleSelect = (e: any) => {
-    console.log('hi', e);
-    setShow(true);
-    setValue(e);
+  const [dorpDownValue, setDorpDownValue] = useState('');
+
+  const handleLikesOption = (lekeValue: string) => {
+    if (lekeValue === 'message') {
+      navigate('/dating/conversation');
+    } else {
+      setShow(true);
+    }
+    setDorpDownValue(lekeValue);
   };
+
   return (
     <DatingPageWrapper>
       <Container>
@@ -124,11 +131,11 @@ function Likes() {
         </Row>
         {subscriberValue === 'yes' ? (
           <Row>
-            {likes.map((like) => (
+            {datingLikes.map((like) => (
               <Col key={like.id} lg={6} className="pb-4 px-4">
                 <Row className="bg-dark p-3 rounded">
                   <Col xs={2} className="p-0">
-                    <UserCircleImage src={like.profileImage} className="rounded-circle me-3" />
+                    <DatingLikeUserCircleImage src={like.profileImage} className="rounded-circle me-3" />
                   </Col>
                   <Col xs={9} className="ps-0 ps-md-4 align-self-center">
                     <h2 className="h6 mb-0 rounded-circle">
@@ -137,7 +144,7 @@ function Likes() {
                     <p className="mb-0 small">{like.userID}</p>
                   </Col>
                   <Col xs={1} className="p-0 py-1 align-self-baseline">
-                    <CustomDropDown onSelect={handleSelect}>
+                    <CustomDropDown onSelect={handleLikesOption}>
                       <Dropdown.Toggle className="d-flex justify-content-end bg-transparent">
                         <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                       </Dropdown.Toggle>
@@ -154,11 +161,11 @@ function Likes() {
           </Row>
         ) : (
           <Row className="px-4">
-            {likes.map((like) => (
+            {datingLikes.map((like) => (
               <Col key={like.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
                 <Row className="align-items-center border-bottom border-dark pb-3">
                   <Col xs={1} className="p-0">
-                    <UnsubscribeUserCircleImage src={like.profileImage} className="rounded-circle me-3" style={{ filter: 'opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px)' }} />
+                    <UnsubscribeLikeUserImage src={like.profileImage} className="rounded-circle me-3" style={{ filter: 'opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px)' }} />
                   </Col>
                   <Col xs={11} className="ps-4">
                     <h2 className="h6 mb-0 rounded-circle">
@@ -171,7 +178,7 @@ function Likes() {
             ))}
           </Row>
         )}
-        <DatingLikesModal show={show} setShow={setShow} values={value} />
+        <DatingLikesModal show={show} setShow={setShow} slectedDropdownValue={dorpDownValue} />
       </Container>
     </DatingPageWrapper>
   );

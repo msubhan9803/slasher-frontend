@@ -1,14 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Card, Col, Row } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import placeholderUser from '../../placeholder-images/placeholder-user.jpg';
-
-const CardRow = styled(Row)`
-  max-height: 65vh;
-`;
 
 function News() {
   const newsAndReviews = [
@@ -54,7 +49,7 @@ function News() {
           <h1 className="h3 mb-3">News &amp; Reviews</h1>
         </Col>
       </Row>
-      <CardRow className="bg-dark rounded-3 py-4 m-0 overflow-auto">
+      <Row className="bg-dark rounded-3 py-4 m-0 mb-5">
         {newsAndReviews.map((news) => (
           <Col xs={6} lg={4} className="pt-2">
             <Card className="bg-transparent border-0 px-4">
@@ -66,7 +61,7 @@ function News() {
             </Card>
           </Col>
         ))}
-      </CardRow>
+      </Row>
     </AuthenticatedPageWrapper>
   );
 }

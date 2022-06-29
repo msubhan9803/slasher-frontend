@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/likes';
+const pagePath = '/dating/likes';
 
 test.describe(pagePath, () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Dating Likes\?/);
+    await expect(page.locator('main')).toHaveText(/Subscriber\?/);
   });
 });

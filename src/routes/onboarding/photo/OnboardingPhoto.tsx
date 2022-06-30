@@ -39,7 +39,7 @@ function OnboardingPhoto() {
     navigate('/onboarding/about-me');
   };
   return (
-    <NoNavigationPageWrapper>
+    <NoNavigationPageWrapper className="align-items-center">
       <Container className="d-flex flex-column align-items-center my-auto">
         <h1 className="h3">Add your profile photo</h1>
         <Row>

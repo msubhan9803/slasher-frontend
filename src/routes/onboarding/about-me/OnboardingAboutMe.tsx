@@ -16,7 +16,7 @@ function OnboardingAboutMe() {
   const [message, setMessage] = useState('');
 
   const routeChange = () => {
-    navigate('/');
+    navigate('/onboarding/hashtag');
   };
   return (
     <NoNavigationPageWrapper>

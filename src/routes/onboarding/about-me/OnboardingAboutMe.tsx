@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
-  Button, Col, Container, Form, Row,
+  Button, Col, Container, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import NoNavigationPageWrapper from '../../../components/layout/main-site-wrapper/no-navigation/NoNavigationPageWrapper';
+import LengthRestrictedTextArea from '../../../components/ui/LengthRestrictedTextArea';
 
 const SkipButton = styled(Button)`
   background-color: #383838;
@@ -26,11 +27,10 @@ function OnboardingAboutMe() {
         <p className="pt-0 text-center text-md-start">Here are some ideas: your favorite horror movies, favorite book, music you like, if you make horror-related stuff.</p>
         <Row>
           <Col>
-            <Form.Control
-              rows={10}
-              as="textarea"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+            <LengthRestrictedTextArea
+              maxLength={1000}
+              contentDetail={message}
+              setContentDetail={setMessage}
               placeholder="Write here..."
             />
           </Col>

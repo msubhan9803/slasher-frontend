@@ -100,7 +100,7 @@ function OnboardingHashtag() {
         <Row className="d-flex justify-content-center text-center h-auto my-5">
           <Col>
             <SkipButton as="input" type="button" value="Skip" className="mx-1 rounded-pill text-white px-5 py-2" onClick={routeChange} />
-            <Button as="input" type="button" value="Next step" className="mx-1 rounded-pill px-4 py-2" onClick={routeChange} />
+            <Button as="input" type="button" value="Finish" className="mx-1 rounded-pill px-5 py-2" onClick={routeChange} />
           </Col>
         </Row>
       </Container>

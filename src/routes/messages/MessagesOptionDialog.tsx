@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Modal } from 'react-bootstrap';
 import ModalContainer from '../../components/ui/CustomModal';
 import RoundButton from '../../components/ui/RoundButton';

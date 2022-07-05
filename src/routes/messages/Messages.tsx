@@ -71,7 +71,7 @@ function Messages() {
           <Col md={8}>
             <h1 className="h3 mb-3">Messages</h1>
             <div className="bg-dark px-3 py-2 rounded-3">
-              {messages.map((message: any) => (
+              {messages.map((message) => (
                 <UserMessageListItem
                   id={message.id}
                   image={message.image}

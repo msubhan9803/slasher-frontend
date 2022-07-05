@@ -5,12 +5,14 @@ import { Col, Dropdown, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface Props {
+  id?: number;
   userName: string;
   message: string;
   image: string;
   count?: number;
   timeStamp?: string;
   options?: boolean;
+  handleDropdownOption?: (value: string) => void;
 }
 
 const RecentMessageImage = styled.img`
@@ -72,10 +74,10 @@ const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  userName, message, image, count, timeStamp, options,
+  id, userName, message, image, count, timeStamp, options, handleDropdownOption,
 }: Props) {
   return (
-    <ItemContainer className="py-2">
+    <ItemContainer className="py-2" key={id}>
       <Col xs={2} className="p-0 text-center">
         <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
       </Col>
@@ -89,12 +91,12 @@ function UserMessageListItem({
         >
           {timeStamp}
         </TimeStampStyled>
-        {count && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
+        {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
       </Col>
       {
         options && (
           <Col xs={1} className="p-md-0 px-lg-2">
-            <CustomDropDown className="">
+            <CustomDropDown onSelect={handleDropdownOption}>
               <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
               </Dropdown.Toggle>
@@ -111,8 +113,10 @@ function UserMessageListItem({
   );
 }
 UserMessageListItem.defaultProps = {
+  id: 0,
   count: 0,
   timeStamp: '',
   options: false,
+  handleDropdownOption: () => { },
 };
 export default UserMessageListItem;

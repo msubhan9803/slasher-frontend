@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row, Container } from 'react-bootstrap';
@@ -6,7 +6,36 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import UserMessageList from '../../components/ui/UserMessageList/UserMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
+import MessagesOptionDialog from './MessagesOptionDialog';
 
+const messages = [
+  {
+    id: 1, image: 'https://i.pravatar.cc/300?img=19', userName: 'Eliza Williams', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 2,
+  },
+  {
+    id: 2, image: 'https://i.pravatar.cc/300?img=20', userName: 'Emma Grate', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 0,
+  },
+  {
+    id: 3, image: 'https://i.pravatar.cc/300?img=15', userName: 'Wiley Waites', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 0,
+  },
+  {
+    id: 4, image: 'https://i.pravatar.cc/300?img=12', userName: 'Stanley Knife', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 0,
+  },
+  {
+    id: 5, image: 'https://i.pravatar.cc/300?img=18', userName: 'Laura Norda', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 9,
+  },
+  {
+    id: 6, image: 'https://i.pravatar.cc/300?img=22', userName: 'Joe V. Awl', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 0,
+  },
+  {
+    id: 7, image: 'https://i.pravatar.cc/300?img=16', userName: 'Perry Scope', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: 0,
+  },
+];
+const friendRequest = [
+  { id: 1, image: 'https://i.pravatar.cc/300?img=19', userName: 'Eliza Williams' },
+  { id: 2, image: 'https://i.pravatar.cc/300?img=13', userName: 'Joe V. Awls' },
+  { id: 3, image: 'https://i.pravatar.cc/300?img=15', userName: 'Perry Scope' },
+];
 const AdvertisementBox = styled.div`
   height: 11.25rem;
   background-color: #3A3B46;
@@ -26,35 +55,14 @@ const RejectRequestStyled = styled(FontAwesomeIcon)`
 `;
 
 function Messages() {
-  const messages = [
-    {
-      image: 'https://i.pravatar.cc/300?img=19', userName: 'Eliza Williams', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '2',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=20', userName: 'Emma Grate', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=15', userName: 'Wiley Waites', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=12', userName: 'Stanley Knife', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=18', userName: 'Laura Norda', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '9',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=22', userName: 'Joe V. Awl', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '6',
-    },
-    {
-      image: 'https://i.pravatar.cc/300?img=16', userName: 'Perry Scope', message: 'Lorem Ipsum is simply dummy text of the printing and...', timeStamp: '06/18/2022 11:10PM', count: '',
-    },
-  ];
-
-  const friendRequest = [
-    { image: 'https://i.pravatar.cc/300?img=19', userName: 'Eliza Williams' },
-    { image: 'https://i.pravatar.cc/300?img=13', userName: 'Joe V. Awls' },
-    { image: 'https://i.pravatar.cc/300?img=15', userName: 'Perry Scope' },
-  ];
+  const [show, setShow] = useState(false);
+  const [messageOptionValue, setMessageOptionValue] = useState('');
+  const handleMessagesOption = (messageOption: string) => {
+    if (messageOption !== 'markAsRead') {
+      setShow(true);
+    }
+    setMessageOptionValue(messageOption);
+  };
 
   return (
     <AuthenticatedPageWrapper>
@@ -65,12 +73,14 @@ function Messages() {
             <div className="bg-dark px-3 py-2 rounded-3">
               {messages.map((message: any) => (
                 <UserMessageListItem
+                  id={message.id}
                   image={message.image}
                   userName={message.userName}
                   message={message.message}
                   count={message.count}
                   timeStamp={message.timeStamp}
                   options
+                  handleDropdownOption={handleMessagesOption}
                 />
               ))}
             </div>
@@ -116,7 +126,7 @@ function Messages() {
               </Col>
             </Row>
             {friendRequest.map((request) => (
-              <div className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
+              <div key={request.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
                 <div className="d-flex align-items-center">
                   <FriendRequestImage src={request.image} className="me-2 rounded-circle bg-secondary position-relative" />
                   <p className="mb-0">{request.userName}</p>
@@ -129,6 +139,11 @@ function Messages() {
             ))}
           </Col>
         </Row>
+        <MessagesOptionDialog
+          show={show}
+          setShow={setShow}
+          slectedMessageDropdownValue={messageOptionValue}
+        />
       </Container>
     </AuthenticatedPageWrapper>
   );

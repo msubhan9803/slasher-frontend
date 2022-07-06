@@ -89,6 +89,12 @@ pipelines:
     deploy/dev-avadh3:
       - step: *lint-build-test
       - step: *deploy
+    deploy/dev-avadh4:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh5:
+      - step: *lint-build-test
+      - step: *deploy
     deploy/dev-ronak:
       - step: *lint-build-test
       - step: *deploy
@@ -99,6 +105,12 @@ pipelines:
       - step: *lint-build-test
       - step: *deploy
     deploy/dev-ronak3:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak4:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak5:
       - step: *lint-build-test
       - step: *deploy
   pull-requests:

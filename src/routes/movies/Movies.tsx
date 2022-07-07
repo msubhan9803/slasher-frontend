@@ -11,6 +11,13 @@ import MoviesRightSideNav from './components/MoviesRightSideNav';
 import MoviesFilterOptions from './components/MoviesFilterOptions';
 import MoviesData from './components/MoviesData';
 
+interface MoviesProps {
+  id: number;
+  image: string;
+  name: string;
+  year: string;
+  liked: boolean;
+}
 const StyledInputGroup = styled(InputGroup)`
   .form-control {
     border-left: 1px solid var(--bs-input-border-color);
@@ -80,6 +87,8 @@ function Movies() {
     },
   ];
   const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+  const [showKeys, setShowKeys] = useState(false);
+  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(myMovies);
   return (
     <AuthenticatedPageWrapper>
       <Container fluid>
@@ -116,8 +125,18 @@ function Movies() {
                 </StyleTabs>
               </Col>
             </Row>
-            <MoviesFilterOptions />
-            <MoviesData selectedTab={selectedTab} myMovies={myMovies} />
+            <MoviesFilterOptions
+              setShowKeys={setShowKeys}
+              showKeys={showKeys}
+              myMovies={myMovies}
+              setFilteredMovies={setFilteredMovies}
+            />
+            <MoviesData
+              selectedTab={selectedTab}
+              myMovies={filteredMovies}
+              showKeys={showKeys}
+              setShowKeys={setShowKeys}
+            />
           </Col>
           <Col md={4} className="d-none d-md-block">
             <MoviesRightSideNav />

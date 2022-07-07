@@ -73,9 +73,16 @@ const postData = [
 function NewsPartnerPost() {
   return (
     <AuthenticatedPageWrapper>
-      <Row>
+      <Row className="d-md-none">
+        <Col xs="auto">
+          <FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="lg" />
+        </Col>
         <Col>
-
+          <h1 className="h4 text-center">Horror Oasis</h1>
+        </Col>
+      </Row>
+      <Row className="mb-5">
+        <Col>
           {postData.map((post) => (
             <div key={post.id}>
               <Card className="bg-dark mt-3 mb-0">

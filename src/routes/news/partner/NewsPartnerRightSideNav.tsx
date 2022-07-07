@@ -2,10 +2,9 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import Switch from '../../../components/ui/Switch';
 import UserMessageList from '../../../components/ui/UserMessageList/UserMessageList';
 import UserMessageListItem from '../../../components/ui/UserMessageList/UserMessageListItem';
 

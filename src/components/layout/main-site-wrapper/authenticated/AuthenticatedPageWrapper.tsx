@@ -7,6 +7,8 @@ import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
+import RightSidebarSelf from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarSelf';
+import RightSidebarViewer from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 interface Props {
   children: React.ReactNode;
@@ -33,13 +35,17 @@ function AuthenticatedPageWrapper({ children }: Props) {
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
       <Container fluid="lg" className="py-3">
         <Row>
-          <Col xs={3} md={4} lg={3} className="d-md-block d-none">
+          <Col md={2} className="d-md-block d-none">
             <SidebarNavContent />
           </Col>
-          <Col>
+          <Col md={7}>
             <main>
               {children}
             </main>
+          </Col>
+          <Col md={3}>
+            <RightSidebarViewer />
+            {/* <RightSidebarSelf /> */}
           </Col>
         </Row>
       </Container>

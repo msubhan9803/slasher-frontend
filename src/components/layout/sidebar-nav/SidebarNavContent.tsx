@@ -55,6 +55,12 @@ function SidebarNavContent() {
           className={menu.desktopOnly ? 'd-none d-md-block' : ''}
         />
       ))}
+      <p className="d-none d-md-block">
+        Download the app
+        Advertise on Slasher
+        Terms & Policies
+        © 2022 Slasher Corp
+      </p>
     </Nav>
   );
 }

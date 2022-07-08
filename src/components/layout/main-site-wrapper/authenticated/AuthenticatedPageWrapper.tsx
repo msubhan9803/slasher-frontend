@@ -18,6 +18,10 @@ const StyledOffcanvas = styled(Offcanvas)`
   }
 `;
 
+const LeftSidebarNavCol = styled.div`
+  flex-basis: 10em;
+`;
+
 // This id links the offcanvas to the top navar toggle for accessibility.
 const offcanvasId = 'offcanvas-sidebar-nav';
 
@@ -31,11 +35,11 @@ function AuthenticatedPageWrapper({ children }: Props) {
   return (
     <>
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
-      <Container fluid="lg" className="py-3">
+      <Container fluid="xxl" className="py-3">
         <Row>
-          <Col xs={3} md={4} lg={3} className="d-md-block d-none">
+          <LeftSidebarNavCol className="d-md-block d-none">
             <SidebarNavContent />
-          </Col>
+          </LeftSidebarNavCol>
           <Col>
             <main>
               {children}

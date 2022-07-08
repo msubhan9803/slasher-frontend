@@ -6,20 +6,20 @@ import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
 
 const StyledChatInputGroup = styled(InputGroup)`
-.form-control {
-  border-radius: 1.875rem;
-  border-bottom-right-radius: 0rem;
-  border-top-right-radius: 0rem;
-}
-.input-group-text {
-  background-color: rgb(31, 31, 31);
-  border-color: #3a3b46;
-  border-radius: 1.875rem;
-}
-svg {
-  color: var(--bs-primary);
-  min-width: 1.875rem;
-}
+  .form-control {
+    border-radius: 1.875rem;
+    border-bottom-right-radius: 0rem;
+    border-top-right-radius: 0rem;
+  }
+  .input-group-text {
+    background-color: rgb(31, 31, 31);
+    border-color: #3a3b46;
+    border-radius: 1.875rem;
+  }
+  svg {
+    color: var(--bs-primary);
+    min-width: 1.875rem;
+  }
 `;
 
 function ChatInput({ showCamera, inputClassName }: ChatProps) {

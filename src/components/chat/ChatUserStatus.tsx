@@ -3,23 +3,15 @@ import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const ChatProfileStyleImage = styled(Image)`
-height:3.313rem;
-width:3.313rem;
-border: 0.063rem solid #fff;
-`;
-const ChatProfileStatus = styled.div`
-right: .93rem;
-bottom: .18rem;
-height: .5rem;
-width: .5rem;
-z-index:9999;
+  height:3.313rem;
+  width:3.313rem;
+  border: 0.063rem solid #fff;
 `;
 
 function ChatUserStatus() {
   return (
     <Row className="d-flex">
       <Col className="position-relative my-auto rounded-circle" xs="auto">
-        <ChatProfileStatus className="position-absolute bg-success rounded-circle" />
         <div className="rounded-circle">
           <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="rounded-circle bg-secondary" />
         </div>

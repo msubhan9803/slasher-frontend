@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 const TimeStamp = styled.div`
-p {
-  background-color: #1F1F1F;
-}
+  p {
+    background-color: #1F1F1F;
+  }
 `;
 
 function ChatTimestamp() {

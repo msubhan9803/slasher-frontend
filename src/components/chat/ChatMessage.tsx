@@ -3,24 +3,24 @@ import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
 
 const ChatMessages = styled.div<ChatProps>`
-.other-message { 
-  p {
-      background-color: #1F1F1F;
+  .other-message {
+    p {
+        background-color: #1F1F1F;
+        border-radius: 1.25rem;
+        border-bottom-left-radius: 0rem;
+    }
+    .fa-circle {
+      width: 0.313rem;
+      color: #3A3B46;
+    }
+  }
+  .self-message {
+    p {
       border-radius: 1.25rem;
-      border-bottom-left-radius: 0rem;
+      border-bottom-right-radius: 0rem;
+      background: ${(data) => (data.conversationType === 'dating' ? 'linear-gradient(266.51deg, #3457D5 4.43%, rgba(52, 87, 213, 0.7) 52.02%, #3457D5 100%), #000000;' : 'linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000')};
+    }
   }
-  .fa-circle {
-    width: 0.313rem;
-    color: #3A3B46;
-  }
-}
-.self-message { 
-  p {
-    border-radius: 1.25rem;
-    border-bottom-right-radius: 0rem;
-    background: ${(data) => (data.conversationType === 'dating' ? 'linear-gradient(266.51deg, #3457D5 4.43%, rgba(52, 87, 213, 0.7) 52.02%, #3457D5 100%), #000000;' : 'linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000')};
-  }
-}
 `;
 
 function ChatMessage({ messages, conversationType }: ChatProps) {

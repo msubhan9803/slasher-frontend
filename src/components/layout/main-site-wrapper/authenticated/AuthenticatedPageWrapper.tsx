@@ -7,7 +7,7 @@ import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
-import RightSidebarSelf from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarSelf';
+// import RightSidebarSelf from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 interface Props {
@@ -45,7 +45,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Col>
           <Col md={3}>
             <RightSidebarViewer />
-            {/* {/ <RightSidebarSelf /> /} */}
+            {/* <RightSidebarSelf /> */}
           </Col>
         </Row>
       </Container>

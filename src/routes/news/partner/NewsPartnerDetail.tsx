@@ -5,11 +5,12 @@ import {
   Button, Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import postImage from '../../../images/news-post.svg';
 import Switch from '../../../components/ui/Switch';
-import NewsRightSideNav from './NewsRightSideNav';
+import NewsRightSideNav from '../components/NewsRightSideNav';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -43,6 +44,8 @@ const postData = [
   { id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM' },
 ];
 function NewsPartnerDetail() {
+  const { partnerId } = useParams();
+
   return (
     <AuthenticatedPageWrapper>
       <Row>

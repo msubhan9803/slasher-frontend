@@ -1,11 +1,13 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import NewsPartnerDetail from './PartnerDetail/NewsPartnerDetail';
+import NewsIndex from './NewsIndex';
+import NewsPartnerDetail from './partner/NewsPartnerDetail';
 
 function News() {
   return (
     <Routes>
-      <Route path="/partner/1" element={<NewsPartnerDetail />} />
+      <Route path="/" element={<NewsIndex />} />
+      <Route path="/partner/:partnerId" element={<NewsPartnerDetail />} />
     </Routes>
   );
 }

@@ -11,6 +11,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 import NotFound from '../../components/NotFound';
 import DatingPreferences from './preferences/DatingPreferences';
 import DatingConversation from './conversation/DatingConversation';
+import Likes from './likes/Likes';
 
 function Dating() {
   return (
@@ -21,6 +22,7 @@ function Dating() {
       <Route path="/setup/*" element={<DatingSetup />} />
       <Route path="/profile/*" element={<DatingProfile />} />
       <Route path="/conversation" element={<DatingConversation />} />
+      <Route path="/likes" element={<Likes />} />
 
       <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
     </Routes>

@@ -1,31 +1,22 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Row,
   Col,
   Form,
   Button,
-  Image,
 } from 'react-bootstrap';
-import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import RoundButton from '../../../../components/ui/RoundButton';
-import RemoveProfileDialog from './RemoveProfileDialog';
 import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
 import CustomSelect from '../../../../components/ui/CustomSelect';
 import { sexualOrientationOptions } from '../../components/DatingAdditionalInfo/additional-info-form-options';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
+import ProfilePhotoGallery from '../../components/ProfilePhotoGallery';
 
 interface Images {
   title: string;
   image: string;
   id: number
 }
-const ImageContainer = styled.div`
-  height: 115px;
-  background-color: #1F1F1F;
-  border: 2px solid #3A3B46;
-`;
 
 function DatingProfileEdit() {
   const [imageUpload, setImageUpload] = useState<Images[]>([
@@ -37,31 +28,10 @@ function DatingProfileEdit() {
     { title: '', image: '', id: 6 },
   ]);
   const [gender, setGender] = useState('male');
-  const [show, setShow] = useState(false);
-  const [imgIndex, setImgIndex] = useState(0);
   const [message, setMessage] = useState('');
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
-  };
-
-  const handleRemoveFile = () => {
-    const newArr = [...imageUpload];
-    newArr[imgIndex].image = '';
-    setImageUpload(newArr);
-    setShow(false);
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    if (!e.target) {
-      return;
-    }
-    if (e.target?.name === 'file' && e?.target?.files?.length) {
-      const newArr = [...imageUpload];
-      const image = URL.createObjectURL(e.target.files[0]);
-      newArr[index].image = image;
-      setImageUpload(newArr);
-    }
   };
 
   return (
@@ -69,55 +39,15 @@ function DatingProfileEdit() {
       <h1 className="h3 mb-5">Edit Dating Profile</h1>
       <Form>
         <Row className="mx-0 mb-5">
-          <h2 className="h5 p-3 rounded-3">My Photos</h2>
+          <h2 className="bg-secondary h5 m-0 mb-3 p-3 rounded-3">My Photos</h2>
           {imageUpload.map((image, imageIndex) => (
-            <Col key={image.id} xs={4} lg={2} className="my-3">
-              <ImageContainer className="position-relative w-100 rounded border-0">
-                {image.image === ''
-                  ? (
-                    <Form.Label role="button" htmlFor={`file-upload-${imageIndex}`} className="align-items-center d-flex form-label h-100 justify-content-center">
-                      <FontAwesomeIcon
-                        icon={solid('camera')}
-                        size="lg"
-                        className="text-light bg-primary p-3 rounded-circle "
-                      />
-                    </Form.Label>
-                  )
-                  : (
-                    <>
-                      <div className="position-absolute w-100 d-flex justify-content-between px-1 py-2">
-                        <FontAwesomeIcon onClick={() => { setShow(true); setImgIndex(imageIndex); }} icon={solid('times')} size="xs" role="button" className="bg-primary rounded-circle" style={{ padding: '8px 10px' }} />
-                        <Form.Label htmlFor={`file-upload-${imageIndex}`} className="d-flex">
-                          <FontAwesomeIcon icon={solid('pencil')} size="xs" role="button" className="pe-auto bg-primary p-2 rounded-circle" />
-                        </Form.Label>
-                      </div>
-                      <Image
-                        src={image.image}
-                        alt="Dating profile photograph"
-                        className="w-100 h-100 img-fluid rounded"
-                      />
-                    </>
-                  )}
-                <input
-                  key={image.id}
-                  id={`file-upload-${imageIndex}`}
-                  type="file"
-                  name="file"
-                  className="d-none"
-                  accept="image/*"
-                  onChange={(e) => {
-                    handleFileChange(e, imageIndex);
-                    e.target.value = '';
-                  }}
-                />
-              </ImageContainer>
-              <Form.Check
-                inline
-                label="Make primary photo"
-                name="primary-photo"
-                type="radio"
-                id={`primary-photo-radio-${imageIndex}`}
-                className="text-start mt-2"
+            <Col key={image.id} xs={4} className="my-3">
+              <ProfilePhotoGallery
+                image={image}
+                imageIndex={imageIndex}
+                imageUpload={imageUpload}
+                setImageUpload={setImageUpload}
+                confirmationRemove
               />
             </Col>
           ))}
@@ -189,7 +119,6 @@ function DatingProfileEdit() {
             </RoundButton>
           </Col>
         </Row>
-        <RemoveProfileDialog show={show} setShow={setShow} handleRemoveFile={handleRemoveFile} />
       </Form>
     </DatingPageWrapper>
   );

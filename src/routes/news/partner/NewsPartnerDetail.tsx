@@ -44,6 +44,8 @@ const postData = [
   { id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM' },
 ];
 function NewsPartnerDetail() {
+  // TODO: Delete the eslint ignore line below once we use this
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { partnerId } = useParams();
 
   return (

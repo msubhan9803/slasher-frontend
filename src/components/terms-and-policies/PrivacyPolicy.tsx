@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-  className: string;
+  className?: string;
 }
 
 function PrivacyPolicy({ className }: Props) {
@@ -20,5 +20,9 @@ function PrivacyPolicy({ className }: Props) {
     </div>
   );
 }
+
+PrivacyPolicy.defaultProps = {
+  className: '',
+};
 
 export default PrivacyPolicy;

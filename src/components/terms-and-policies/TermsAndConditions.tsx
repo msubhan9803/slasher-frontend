@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-  className: string;
+  className?: string;
 }
 
 function TermsAndConditions({ className }: Props) {
@@ -20,5 +20,9 @@ function TermsAndConditions({ className }: Props) {
     </div>
   );
 }
+
+TermsAndConditions.defaultProps = {
+  className: '',
+};
 
 export default TermsAndConditions;

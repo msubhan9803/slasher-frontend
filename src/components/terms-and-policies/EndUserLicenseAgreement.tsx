@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface Props {
-  className: string;
+  className?: string;
 }
 
 function EndUserLicenseAgreement({ className }: Props) {
@@ -20,5 +20,9 @@ function EndUserLicenseAgreement({ className }: Props) {
     </div>
   );
 }
+
+EndUserLicenseAgreement.defaultProps = {
+  className: '',
+};
 
 export default EndUserLicenseAgreement;

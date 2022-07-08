@@ -27,11 +27,16 @@ function RegistrationTerms({ activeStep }: Props) {
         Please scroll down to review our Terms and Conditions,
         Privacy Policy, End User License Agreement, and Community Standards
       </h1>
-      <TermsAndConditions className="mt-5" />
-      <PrivacyPolicy className="mt-5" />
-      <EndUserLicenseAgreement className="mt-5" />
-      <CommunityStandardsAndRules className="mt-5" />
-      <h1 className="h3 mt-5">I agree</h1>
+      <hr />
+      <TermsAndConditions className="my-4" />
+      <hr />
+      <PrivacyPolicy className="my-4" />
+      <hr />
+      <EndUserLicenseAgreement className="my-4" />
+      <hr />
+      <CommunityStandardsAndRules className="my-4" />
+      <hr />
+      <h1 className="h3 my-4">I agree</h1>
       <p>
         By clicking Sign up, you agree that you are at least 17 years of age, and that you agree
         with our Terms and Conditions, Privacy Policy, End User License Agreement, and Community

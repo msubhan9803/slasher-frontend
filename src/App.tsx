@@ -9,6 +9,7 @@ import Dating from './routes/dating/Dating';
 import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from './components/NotFound';
 import Posts from './routes/posts/Posts';
+import Search from './routes/search/Search';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -26,6 +27,7 @@ function App() {
 
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
+      <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
       <Route path="/posts/*" element={<Posts />} />
 

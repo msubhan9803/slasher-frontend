@@ -8,8 +8,8 @@ import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
 import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from './components/NotFound';
-import Onboarding from './routes/onboarding/Onboarding';
 import News from './routes/news/News';
+import Onboarding from './routes/onboarding/Onboarding';
 import Events from './routes/events/Events';
 import Posts from './routes/posts/Posts';
 import Search from './routes/search/Search';
@@ -34,6 +34,7 @@ function App() {
       <Route path="/news" element={<News />} />
       <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
+      <Route path="/news/*" element={<News />} />
       <Route path="/events/*" element={<Events />} />
       <Route path="/posts/*" element={<Posts />} />
 

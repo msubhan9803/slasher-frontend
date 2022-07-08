@@ -8,6 +8,7 @@ import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
 import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from './components/NotFound';
+import Onboarding from './routes/onboarding/Onboarding';
 import News from './routes/news/News';
 import Events from './routes/events/Events';
 import Posts from './routes/posts/Posts';
@@ -26,6 +27,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
       <Route path="/registration/*" element={<Registration />} />
+      <Route path="/onboarding/*" element={<Onboarding />} />
 
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />

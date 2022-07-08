@@ -5,35 +5,23 @@ import {
   Row,
 } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import LengthRestrictedTextArea from '../../../../components/ui/LengthRestrictedTextArea';
 import RoundButton from '../../../../components/ui/RoundButton';
-
-const maxLength = 1000;
 
 function DatingSetupAboutMe() {
   const [message, setMessage] = useState('');
-  const [charCount, setCharCount] = useState(0);
 
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCharCount(e.target.value.length);
-    setMessage(e.target.value);
-  };
   return (
     <AuthenticatedPageWrapper>
       <Form>
         <Form.Group className="mb-3" controlId="about-me">
           <Form.Label>Tell people about yourself</Form.Label>
-          <Form.Control
-            maxLength={maxLength}
-            rows={10}
-            as="textarea"
-            value={message}
-            onChange={handleMessageChange}
+          <LengthRestrictedTextArea
+            maxLength={1000}
+            contentDetail={message}
+            setContentDetail={setMessage}
             placeholder="Type here..."
           />
-          <Form.Text className="float-end">
-            {`${charCount}/${maxLength} characters`}
-          </Form.Text>
-          <div className="clearfix" />
         </Form.Group>
         <Row>
           <Col sm={5} md={4} className="mt-5">

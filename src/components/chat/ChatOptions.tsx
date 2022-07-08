@@ -1,35 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Dropdown } from 'react-bootstrap';
 import styled from 'styled-components';
-
-const dropdownBgColor = 'rgb(19,17,17)';
+import ChatOptionDialog from './ChatOptionDialog';
 
 const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
-    background-color: ${dropdownBgColor};
     border: none;
     &:hover {
-      background-color: ${dropdownBgColor};
-      box-shadow: none
+      box-shadow: none;
     }
     &:focus {
-      background-color: ${dropdownBgColor};
-      box-shadow: none
+      box-shadow: none;
     }
-    &:active&:focus {
-      box-shadow: none
+    &:active {
+      box-shadow: none;
     }
     &:after {
       display: none;
     }
   }
-
-  .dropdown-menu {
-    background-color: ${dropdownBgColor};
+  .dropdown-toggle[aria-expanded="true"] {
+    svg {
+      color: var(--bs-primary);
+    }
   }
-
+  .dropdown-menu {
+    inset: -1.875rem 1.25rem auto auto !important;
+  }
   .dropdown-item {
     &:hover {
       background-color: var(--bs-primary) !important;
@@ -37,20 +36,31 @@ const CustomDropDown = styled(Dropdown)`
     &:active {
       background-color: var(--bs-primary) !important;
     }
-  }
+}
 `;
 
 function ChatOptions() {
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+
+  const handleLikesOption = (likeValue: string) => {
+    setShow(true);
+    setDropDownValue(likeValue);
+  };
+
   return (
     <div className="d-flex justify-content-end">
-      <CustomDropDown>
-        <Dropdown.Toggle className="d-flex justify-content-end">
-          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="2x" />
+      <CustomDropDown onSelect={handleLikesOption}>
+        <Dropdown.Toggle className="d-flex justify-content-end bg-transparent">
+          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
         </Dropdown.Toggle>
-        <Dropdown.Menu>
-          <Dropdown.Item eventKey="1" className="text-light">Report Message</Dropdown.Item>
+        <Dropdown.Menu className="bg-black">
+          <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
+          <Dropdown.Item eventKey="block" className="text-light">Block user</Dropdown.Item>
+          <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
         </Dropdown.Menu>
       </CustomDropDown>
+      <ChatOptionDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const ChatProfileStyleImage = styled(Image)`
 height:3.313rem;
 width:3.313rem;
-border: 1px solid #fff;
+border: 0.063rem solid #fff;
 `;
 const ChatProfileStatus = styled.div`
 right: .93rem;

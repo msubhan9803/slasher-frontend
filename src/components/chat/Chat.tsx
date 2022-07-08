@@ -16,8 +16,8 @@ const StyledChatContainer = styled(Card)`
     scrollbar-color: rgba(255, 255, 255, .33) rgba(255, 255, 255, .1);
   }
   *::-webkit-scrollbar {
-    width: 10px; /* Mostly for vertical scrollbars */
-    height: 10px; /* Mostly for horizontal scrollbars */
+    width: 0.625rem; /* Mostly for vertical scrollbars */
+    height: 0.625rem; /* Mostly for horizontal scrollbars */
   }
   *::-webkit-scrollbar-thumb { /* Foreground */
     background: rgba(255, 255, 255, .33);
@@ -27,7 +27,9 @@ const StyledChatContainer = styled(Card)`
   }
 `;
 
-function Chat({ messages }: ChatProps) {
+function Chat({
+  messages, showCamera, inputClassName, conversationType,
+}: ChatProps) {
   return (
     <StyledChatContainer className="bg-dark rounded-3">
       <Card.Header className="border-bottom border-opacity-25 border-secondary">
@@ -42,13 +44,20 @@ function Chat({ messages }: ChatProps) {
       </Card.Header>
       <Card.Body className="overflow-auto">
         <ChatTimestamp />
-        <ChatMessage messages={messages} />
+        <ChatMessage messages={messages} conversationType={conversationType} />
       </Card.Body>
       <Card.Footer className="text-muted border-top-0 px-3">
-        <ChatInput />
+        <ChatInput showCamera={showCamera} inputClassName={inputClassName} />
       </Card.Footer>
     </StyledChatContainer>
   );
 }
+
+Chat.defaulProps = {
+  messages: [],
+  showCamera: false,
+  inputClassName: '',
+  conversationType: '',
+};
 
 export default Chat;

@@ -1,5 +1,8 @@
 export interface ChatProps {
-  messages: MessageProps[];
+  messages?: MessageProps[];
+  showCamera?: boolean;
+  inputClassName?: string;
+  conversationType?: string;
 }
 
 interface MessageProps {

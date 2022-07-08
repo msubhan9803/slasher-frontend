@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
+import { ChatProps } from './ChatProps';
 
 const StyledChatInputGroup = styled(InputGroup)`
 .form-control {
@@ -21,12 +22,17 @@ svg {
 }
 `;
 
-function ChatInput() {
+function ChatInput({ showCamera, inputClassName }: ChatProps) {
   return (
     <StyledChatInputGroup className="mb-3">
+      {showCamera && (
+        <InputGroup.Text>
+          <FontAwesomeIcon role="button" icon={solid('camera')} size="2x" className="ps-3 text-white border-end-0" />
+        </InputGroup.Text>
+      )}
       <Form.Control
         placeholder="Type your message here..."
-        className="border-end-0"
+        className={`border-end-0 ${inputClassName}`}
       />
       <InputGroup.Text>
         <FontAwesomeIcon role="button" icon={solid('paper-plane')} size="2x" className="text-primary pe-3" />

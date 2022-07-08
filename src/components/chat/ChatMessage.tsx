@@ -1,9 +1,8 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
 
-const ChatMessages = styled(Container)`
+const ChatMessages = styled.div<ChatProps>`
 .other-message { 
   p {
       background-color: #1F1F1F;
@@ -19,15 +18,15 @@ const ChatMessages = styled(Container)`
   p {
     border-radius: 1.25rem;
     border-bottom-right-radius: 0rem;
-    background: linear-gradient(266.51deg, #3457D5 4.43%,  rgba(52, 87, 213, 0.7) 52.02%, #3457D5 100%), #000000;
+    background: ${(data) => (data.conversationType === 'dating' ? 'linear-gradient(266.51deg, #3457D5 4.43%, rgba(52, 87, 213, 0.7) 52.02%, #3457D5 100%), #000000;' : 'linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000')};
   }
 }
 `;
 
-function ChatMessage({ messages }: ChatProps) {
+function ChatMessage({ messages, conversationType }: ChatProps) {
   return (
-    <ChatMessages>
-      {messages.map((message) => (message.participant === 'other' ? (
+    <ChatMessages conversationType={conversationType}>
+      {messages?.map((message) => (message.participant === 'other' ? (
         <div key={message.id} className="other-message mb-3">
           <div className="mb-2 d-flex">
             <p className="mb-0 p-3 text-muted text-small">

@@ -14,6 +14,7 @@ interface Props {
   image: string;
   name: string;
   time: string;
+  likes?: number;
   commentMention?: string;
   commentMsg?: string;
   commentImg?: string;
@@ -84,7 +85,7 @@ const LinearGradientStop = styled.stop`
 `;
 
 function CommentSection({
-  id, image, name, time, commentMention, commentMsg, commentImg,
+  id, image, name, time, commentMention, commentMsg, commentImg, likes,
 }: Props) {
   return (
     <Row key={id}>
@@ -127,7 +128,7 @@ function CommentSection({
           <LikesButton key="like-1" type="button" className="p-1 m-2 px-2 text-light rounded-pill text-white">
             <LinearIcon uniqueId="like-button">
               <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-              24
+              {likes}
             </LinearIcon>
           </LikesButton>
           <svg width="0" height="0">
@@ -156,5 +157,6 @@ CommentSection.defaultProps = {
   commentMention: '',
   commentMsg: '',
   commentImg: '',
+  likes: undefined,
 };
 export default CommentSection;

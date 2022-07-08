@@ -12,6 +12,7 @@ interface Props {
   profileImage: string;
   userName: string;
   profileDateTime: string;
+  like: any;
   userMessage: string;
   commentReplySection: Values[];
 }
@@ -20,6 +21,7 @@ interface Values {
   image: string;
   name: string;
   time: string;
+  like: any;
   commentMention: string;
   commentMsg: string;
   commentImg?: string;
@@ -30,6 +32,7 @@ const commentSection = [
     profileImage: 'https://i.pravatar.cc/300?img=30',
     userName: 'Mari Ferrer',
     profileDateTime: '06/19/2022 12:10 AM',
+    like: 24,
     userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
     commentReplySection:
       [
@@ -38,6 +41,7 @@ const commentSection = [
           image: 'https://i.pravatar.cc/300?img=45',
           name: 'Austin Joe',
           time: '06/19/2022 12:10 AM',
+          like: 24,
           commentMention: '@Mari Ferrer',
           commentMsg: 'eque porro quisquam est qui dolorem ipsum',
         },
@@ -46,6 +50,7 @@ const commentSection = [
           image: 'https://i.pravatar.cc/300?img=25',
           name: 'Rohma Mxud',
           time: '06/19/2022 12:10 AM',
+          like: 8,
           commentMention: '@Austin Joe',
           commentMsg: 'Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
@@ -56,6 +61,7 @@ const commentSection = [
     id: 4,
     profileImage: 'https://i.pravatar.cc/300?img=30',
     userName: 'Mari Ferrer',
+    like: 44,
     profileDateTime: '06/19/2022 12:10 AM',
     userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
     commentReplySection:
@@ -65,6 +71,7 @@ const commentSection = [
           image: 'https://i.pravatar.cc/300?img=45',
           name: 'Austin Joe',
           time: '06/19/2022 12:10 AM',
+          like: 20,
           commentMention: '@Mari Ferrer ',
           commentMsg: 'eque porro quisquam est qui dolorem ipsum',
         },
@@ -73,6 +80,7 @@ const commentSection = [
           image: 'https://i.pravatar.cc/300?img=25',
           name: 'Rohma Mxud',
           time: '06/19/2022 12:10 AM',
+          like: 34,
           commentMention: '@Austin Joe ',
           commentMsg: 'Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
@@ -129,6 +137,7 @@ function NewsPartnerComments() {
                   image={data.profileImage}
                   name={data.userName}
                   time={data.profileDateTime}
+                  likes={data.like}
                   commentMsg={data.userMessage}
                 />
                 {data.commentReplySection.map((comment: Values) => (
@@ -137,6 +146,7 @@ function NewsPartnerComments() {
                       id={comment.id}
                       image={comment.image}
                       name={comment.name}
+                      likes={comment.like}
                       time={comment.time}
                       commentMsg={comment.commentMsg}
                       commentMention={comment.commentMention}

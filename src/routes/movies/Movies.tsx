@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Container, FormControl, InputGroup, Row, Tab, Tabs,
+  Col, Container, Row, Tab, Tabs,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -10,30 +8,9 @@ import RoundButton from '../../components/ui/RoundButton';
 import MoviesRightSideNav from './components/MoviesRightSideNav';
 import MoviesFilterOptions from './components/MoviesFilterOptions';
 import MoviesData from './components/MoviesData';
+import MoviesSearch from './components/MoviesSearch';
+import MoviesSort from './components/MoviesSort';
 
-interface MoviesProps {
-  id: number;
-  image: string;
-  name: string;
-  year: string;
-  liked: boolean;
-}
-const StyledInputGroup = styled(InputGroup)`
-  .form-control {
-    border-left: 1px solid var(--bs-input-border-color);
-    border-bottom-right-radius: 30px;
-    border-top-right-radius: 30px;
-  }
-  .input-group-text {
-    background-color: rgb(31, 31, 31);
-    border-color: #3a3b46;
-    border-radius: 30px;
-  }
-  svg {
-    color: var(--bs-primary);
-    min-width: 30px;
-  }
-`;
 const StyleTabs = styled(Tabs)`
   overflow-x: auto;
   overflow-y: hidden;
@@ -68,53 +45,43 @@ function Movies() {
       id: 2, image: 'https://i.pravatar.cc/300?img=13', name: 'The Djinn', year: '2022', liked: false,
     },
     {
-      id: 3, image: 'https://i.pravatar.cc/300?img=15', name: 'Ghost Lab', year: '2022', liked: true,
+      id: 3, image: 'https://i.pravatar.cc/300?img=22', name: 'Ghost Lab', year: '2022', liked: true,
     },
     {
-      id: 4, image: 'https://i.pravatar.cc/300?img=15', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 4, image: 'https://i.pravatar.cc/300?img=11 ', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 5, image: 'https://i.pravatar.cc/300?img=15', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 5, image: 'https://i.pravatar.cc/300?img=12', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 6, image: 'https://i.pravatar.cc/300?img=13', name: 'The Djinn', year: '2022', liked: false,
+      id: 6, image: 'https://i.pravatar.cc/300?img=16', name: 'The Djinn', year: '2022', liked: false,
     },
     {
-      id: 7, image: 'https://i.pravatar.cc/300?img=15', name: 'Ghost Lab', year: '2022', liked: true,
+      id: 7, image: 'https://i.pravatar.cc/300?img=18', name: 'Ghost Lab', year: '2022', liked: true,
     },
     {
-      id: 8, image: 'https://i.pravatar.cc/300?img=15', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
   ];
   const [selectedTab, setSelectedTab] = useState(tabs[0].value);
   const [showKeys, setShowKeys] = useState(false);
-  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(myMovies);
+  const [filteredMovies, setFilteredMovies] = useState(myMovies);
   return (
     <AuthenticatedPageWrapper>
       <Container fluid>
         <Row>
           <Col md={8}>
             <Row className="justify-content-between align-items-start mb-4">
-              <Col md={2}>
+              <Col md={2} lg={1} className="p-0">
                 <h1 className="h4 text-center mb-0">Movies</h1>
               </Col>
-              <Col md={7} lg={5} className="d-none d-md-block">
+              <Col md={6} lg={4} className="d-none d-md-block">
                 <RoundButton className="w-100">Add your movie</RoundButton>
               </Col>
             </Row>
             <Row className="bg-dark pb-0 pt-3 px-2 rounded-3">
               <Col xs={12}>
-                <StyledInputGroup>
-                  <InputGroup.Text id="addon-label" className="pe-0">
-                    <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
-                  </InputGroup.Text>
-                  <FormControl
-                    placeholder="Search here..."
-                    addon-label="Search here..."
-                    aria-describedby="addon-label"
-                    type="text"
-                  />
-                </StyledInputGroup>
+                <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
                 <StyleTabs
                   className="justify-content-between flex-nowrap mt-3 border-0"
                   onSelect={(e: any) => setSelectedTab(e)}
@@ -125,12 +92,18 @@ function Movies() {
                 </StyleTabs>
               </Col>
             </Row>
-            <MoviesFilterOptions
-              setShowKeys={setShowKeys}
-              showKeys={showKeys}
-              myMovies={myMovies}
-              setFilteredMovies={setFilteredMovies}
-            />
+            <Row className="my-4 align-items-center">
+              <Col md={5} lg={4} className="d-none d-md-block">
+                <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
+              </Col>
+              <Col xs={12} md={2} lg={4} className="text-center p-md-0">
+                <RoundButton className="w-100 d-md-none mb-1">Add your movie</RoundButton>
+                <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
+              </Col>
+              <Col md={5} lg={4} className="d-none d-md-block">
+                <MoviesSort title="Sort:" className="rounded-5" />
+              </Col>
+            </Row>
             <MoviesData
               selectedTab={selectedTab}
               myMovies={filteredMovies}

@@ -14,6 +14,7 @@ import Onboarding from './routes/onboarding/Onboarding';
 import Events from './routes/events/Events';
 import Posts from './routes/posts/Posts';
 import Search from './routes/search/Search';
+import Movies from './routes/movies/Movies';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -39,6 +40,7 @@ function App() {
       <Route path="/news/*" element={<News />} />
       <Route path="/events/*" element={<Events />} />
       <Route path="/posts/*" element={<Posts />} />
+      <Route path="/movies" element={<Movies />} />
 
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

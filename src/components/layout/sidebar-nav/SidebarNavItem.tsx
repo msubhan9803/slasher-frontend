@@ -22,6 +22,20 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 
+const StyledLink = styled(Link)`
+  height: 4em;
+  padding-left: 1.1em;
+
+  .nav-item-label {
+    font-size: .9em;
+    line-height: 1.3em;
+  }
+`;
+const LinkContentWrapper = styled.div`
+  // This compensates for the icon offset
+  padding-top: 0.2em;
+`;
+
 let instanceCounter = 0;
 
 function SidebarNavItem({
@@ -30,12 +44,12 @@ function SidebarNavItem({
   const uniqueId = `icon-${instanceCounter += 1}`;
 
   return (
-    <Link className={`mb-2 btn btn-sidebar p-3 ${className}`} to={to}>
-      <div className="d-flex">
+    <StyledLink className={`mb-2 btn btn-sidebar d-flex align-items-center ${className}`} to={to}>
+      <LinkContentWrapper className="d-flex align-items-center">
         <LinearIcon uniqueId={uniqueId}>
           <FontAwesomeIcon icon={icon} size="lg" className="me-2" />
         </LinearIcon>
-        <div className="ms-2 fs-6 text-start">
+        <div className="ms-2 text-start nav-item-label">
           {label}
         </div>
         <svg width="0" height="0">
@@ -44,8 +58,8 @@ function SidebarNavItem({
             <stop offset="100%" style={{ stopColor: '#FFFFFF', stopOpacity: '1' }} />
           </linearGradient>
         </svg>
-      </div>
-    </Link>
+      </LinkContentWrapper>
+    </StyledLink>
   );
 }
 

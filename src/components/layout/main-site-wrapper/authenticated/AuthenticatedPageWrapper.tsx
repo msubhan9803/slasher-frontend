@@ -45,7 +45,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           </Col>
           <Col md={3}>
             <RightSidebarViewer />
-            {/* <RightSidebarSelf /> */}
+            {/* {/ <RightSidebarSelf /> /} */}
           </Col>
         </Row>
       </Container>

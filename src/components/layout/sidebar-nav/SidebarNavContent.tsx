@@ -1,6 +1,7 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
+import styled from 'styled-components';
 import SidebarNavItem from './SidebarNavItem';
 
 const sidebarMenuList = [
@@ -23,7 +24,7 @@ const sidebarMenuList = [
     label: 'Video Channels', icon: solid('tv'), color: '#00E676', to: '/videos',
   },
   {
-    label: 'Shopping / Vendors', icon: solid('store'), color: '#00D2FF', to: '/shopping',
+    label: 'Shopping', icon: solid('store'), color: '#00D2FF', to: '/shopping',
   },
   {
     label: 'Movies', icon: solid('film'), color: '#FF343E', to: '/movies',
@@ -42,6 +43,10 @@ const sidebarMenuList = [
   },
 ];
 
+const BottomLinkList = styled.ul`
+  font-size: .9em;
+`;
+
 function SidebarNavContent() {
   return (
     <Nav className="flex-column">
@@ -52,15 +57,16 @@ function SidebarNavContent() {
           icon={menu.icon}
           color={menu.color}
           to={menu.to}
-          className={menu.desktopOnly ? 'd-none d-md-block' : ''}
+          className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
         />
       ))}
-      <p className="d-none d-md-block">
-        Download the app
-        Advertise on Slasher
-        Terms & Policies
-        © 2022 Slasher Corp
-      </p>
+      <BottomLinkList className="list-inline mt-5">
+        <li>Download the app</li>
+        <li>Advertise on Slasher</li>
+        <li>Terms &amp; Policies</li>
+        <li>&copy; 2022 Slasher Corp</li>
+      </BottomLinkList>
+      <br />
     </Nav>
   );
 }

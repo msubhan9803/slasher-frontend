@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signIn from '../../images/sign-in.svg';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
+import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 
 function SignIn() {
@@ -40,9 +41,9 @@ function SignIn() {
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>
-                <RoundButton className="w-100" variant="primary" size="lg" type="submit">
+                <RoundButtonLink to="/registration" className="w-100" variant="primary" size="lg">
                   Create an account
-                </RoundButton>
+                </RoundButtonLink>
 
                 <p className="text-center mt-3">
                   <small>

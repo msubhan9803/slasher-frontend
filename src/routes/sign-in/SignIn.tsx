@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   Col, Form, Image, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';

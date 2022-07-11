@@ -21,6 +21,8 @@ function Home() {
           <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
           <br />
           <Link to="/dating/preferences">Dating Preferences</Link>
+          <br />
+          <Link to="/right-nav-viewer">Right Nav Viewer</Link>
         </p>
       </div>
     </AuthenticatedRigthSideNavSelfWrapper>

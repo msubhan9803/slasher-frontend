@@ -9,6 +9,7 @@ import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndU
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
 import RoundButton from '../../../components/ui/RoundButton';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
 interface Props {
@@ -23,15 +24,15 @@ function RegistrationTerms({ activeStep }: Props) {
 
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
-      <h1 className="h3">
+      <p className="fs-3 mb-5">
         Please scroll down to review our Terms and Conditions,
         Privacy Policy, End User License Agreement, and Community Standards
-      </h1>
-      <TermsAndConditions className="mt-5" />
-      <PrivacyPolicy className="mt-5" />
-      <EndUserLicenseAgreement className="mt-5" />
-      <CommunityStandardsAndRules className="mt-5" />
-      <h1 className="h3 mt-5">I agree</h1>
+      </p>
+      <TermsAndConditions className="my-5" />
+      <PrivacyPolicy className="my-5" />
+      <EndUserLicenseAgreement className="my-5" />
+      <CommunityStandardsAndRules className="my-5" />
+      <h2 className="h3 my-4 border-bottom pb-2">I agree</h2>
       <p>
         By clicking Sign up, you agree that you are at least 17 years of age, and that you agree
         with our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
@@ -39,9 +40,9 @@ function RegistrationTerms({ activeStep }: Props) {
       </p>
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3">
-          <RoundButton onClick={() => { navigate('/registration/security'); }} className="w-100" variant="secondary" type="submit">
+          <RoundButtonLink to="/registration/security" className="w-100" variant="secondary">
             Previous step
-          </RoundButton>
+          </RoundButtonLink>
         </Col>
         <Col sm={4} md={3}>
           <RoundButton onClick={handleStep} className="w-100" type="submit">

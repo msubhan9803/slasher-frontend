@@ -14,7 +14,7 @@ function CommunityStandardsAndRules({ className }: Props) {
         the general rules we&apos;ve created, so you and others can enjoy your
         time on Slasher.
       </p>
-      <p>Revised: May 7, 2021</p>
+      <p>Last updated: May 7, 2021</p>
       <h3 className="h4">Posts You Don&apos;t Like</h3>
       <p>
         If you see something here you just don&apos;t like, but it&apos;s not

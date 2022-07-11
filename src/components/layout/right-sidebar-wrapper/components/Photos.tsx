@@ -23,16 +23,6 @@ function Photos() {
           </Col>
         ))}
       </Row>
-
-      {/* <Row className="mt-3">
-        <Col xs={9} className="d-flex">
-          <h2 className="h4">Friends</h2>
-          <p className="ms-3 mt-1">310</p>
-        </Col>
-        <Col xs={3} className="text-end">
-          <small className="text-primary">See All</small>
-        </Col>
-      </Row> */}
     </>
   );
 }

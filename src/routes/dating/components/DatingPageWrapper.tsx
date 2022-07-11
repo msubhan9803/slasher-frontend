@@ -12,7 +12,7 @@ function DatingPageWrapper({ children }: Props) {
   return (
     <AuthenticatedPageWrapper>
       <Row className="my-5 my-md-0 py-5 py-md-0">
-        <Col md={8} className="">{children}</Col>
+        <Col md={8}>{children}</Col>
         <Col md={4} className="d-none d-md-block">
           <DatingMenuLargeScreen />
         </Col>

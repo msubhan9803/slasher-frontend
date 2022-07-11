@@ -7,8 +7,6 @@ import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
-// import RightSidebarSelf from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../right-sidebarNav-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 interface Props {
   children: React.ReactNode;
@@ -18,6 +16,10 @@ const StyledOffcanvas = styled(Offcanvas)`
   .btn-close {
     background-color: #fff;
   }
+`;
+
+const LeftSidebarNavCol = styled.div`
+  flex-basis: 10em;
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
@@ -33,19 +35,15 @@ function AuthenticatedPageWrapper({ children }: Props) {
   return (
     <>
       <AuthenticatedPageHeader onToggleClick={showOffcanvasSidebar} offcanvasSidebarExpandBreakPoint="md" ariaToggleTargetId={offcanvasId} />
-      <Container fluid="lg" className="py-3">
+      <Container fluid="xxl" className="py-3">
         <Row>
-          <Col md={2} className="d-md-block d-none">
+          <LeftSidebarNavCol className="d-md-block d-none">
             <SidebarNavContent />
-          </Col>
-          <Col md={7}>
+          </LeftSidebarNavCol>
+          <Col>
             <main>
               {children}
             </main>
-          </Col>
-          <Col md={3}>
-            <RightSidebarViewer />
-            {/* <RightSidebarSelf /> */}
           </Col>
         </Row>
       </Container>

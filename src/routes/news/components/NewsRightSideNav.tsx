@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -29,11 +29,17 @@ const friendRequest = [
 ];
 
 function NewsRightSideNav() {
+  const [bgColor, setBgColor] = useState(false);
+
+  const followBtnClick = () => {
+    setBgColor(!bgColor);
+  };
+
   return (
     <>
       <Row className="bg-dark d-flex flex-column rounded-3 p-2">
         <Col className="ps-2 mt-2">
-          <Button as="input" type="button" value="Unfollow" className="mx-1 bg-secondary border-0 rounded-pill px-4 py-2" />
+          <Button as="input" type="button" value={bgColor ? 'Follow' : 'Unfollow'} onClick={followBtnClick} className={`mx-1 border-0 rounded-pill px-4 py-2 shadow-none ${bgColor ? 'bg-success' : 'bg-primary'}`} />
         </Col>
         <Col>
           <p className="mt-4 fw-bold">Notifications settings</p>

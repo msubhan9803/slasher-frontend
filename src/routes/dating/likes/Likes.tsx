@@ -112,7 +112,7 @@ function Likes() {
   return (
     <DatingPageWrapper>
       <Container>
-        <Row className="align-items-center>
+        <Row className="align-items-center">
           <Col xl={5}>
             <h1 className="h3 mb-0">{subscriberValue === 'yes' ? 'Likes received' : 'Dating Likes'}</h1>
           </Col>

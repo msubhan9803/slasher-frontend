@@ -7,7 +7,7 @@ interface Props {
 function CommunityStandardsAndRules({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3">Community Standards and Rules</h2>
+      <h2 className="h3 border-bottom pb-2">Community Standards and Rules</h2>
       <p>
         A lot of effort has been put forth to create a friendly atmosphere on
         Slasher, so we created some very basic Community Standards. These are

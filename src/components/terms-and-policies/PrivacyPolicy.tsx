@@ -8,7 +8,7 @@ interface Props {
 function PrivacyPolicy({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3">Privacy Policy</h2>
+      <h2 className="h3 border-bottom pb-2">Privacy Policy</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
         Premier Audio Video Designs Inc (“us”, “we”, or “our”) operates the

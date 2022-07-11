@@ -8,7 +8,7 @@ interface Props {
 function TermsAndConditions({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3">Terms and Conditions</h2>
+      <h2 className="h3 border-bottom pb-2">Terms and Conditions</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
         Please read these Terms and Conditions (“Terms”, “Terms and Conditions”)
@@ -120,7 +120,6 @@ function TermsAndConditions({ className }: Props) {
         must proceed manually, within a certain deadline date, with the full
         payment corresponding to the billing period as indicated on the invoice.
       </p>
-      Z
       <h3 className="h4">Free Trial</h3>
       <p>
         Premier Audio Video Designs Inc may, at its sole discretion, offer a

@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Container, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import NoNavigationPageWrapper from '../../../components/layout/main-site-wrapper/no-navigation/NoNavigationPageWrapper';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 const hashtagList: string[] = [
   'horrorfilm', 'monsters', 'vintagehorror', 'horror', 'art', 'scary',
@@ -28,16 +28,11 @@ const SelectedHashtagContainer = styled.div`
   background-color: #1f1F1F;
   border : .063rem solid #3A3B46;
 `;
-const SkipButton = styled(Button)`
-  background-color: #383838;
-  border: 0.063rem solid #1f1f1f;
-`;
 const HashtagText = styled.p`
   color: #CCCCCC
 `;
 
 function OnboardingHashtag() {
-  const navigate = useNavigate();
   const [selectedHashtag, setSelectedHashtag] = useState<string[]>([]);
 
   const addHashtag = (tag: string) => {
@@ -49,9 +44,6 @@ function OnboardingHashtag() {
   const romoveHashtag = (removeTag: string) => {
     const removeHashtags = selectedHashtag.filter((tag) => tag !== removeTag);
     setSelectedHashtag(removeHashtags);
-  };
-  const routeChange = () => {
-    navigate('/');
   };
   return (
     <NoNavigationPageWrapper>
@@ -71,24 +63,19 @@ function OnboardingHashtag() {
             ))}
           </Col>
         </Row>
-        {selectedHashtag.length > 0
-          && (
-            <>
-              <p className="fw-bold mt-3">Hashtags you selected:</p>
-              <Row>
-                <Col>
-                  <SelectedHashtagContainer className="rounded">
-                    {selectedHashtag.map((tag: string) => (
-                      <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-2 text-light rounded-pill text-white">
-                        {tag}
-                        <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => romoveHashtag(tag)} />
-                      </SelectedHashtagButton>
-                    ))}
-                  </SelectedHashtagContainer>
-                </Col>
-              </Row>
-            </>
-          )}
+        <p className="fw-bold mt-3">Hashtags you selected:</p>
+        <Row>
+          <Col>
+            <SelectedHashtagContainer className={`rounded ${selectedHashtag.length === 0 ? 'py-4' : ''}`}>
+              {selectedHashtag.map((tag: string) => (
+                <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-2 text-light rounded-pill text-white">
+                  {tag}
+                  <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => romoveHashtag(tag)} />
+                </SelectedHashtagButton>
+              ))}
+            </SelectedHashtagContainer>
+          </Col>
+        </Row>
         <p className="fw-bold mt-4 mb-1">What are hashtags?</p>
         <HashtagText className="mt-1">
           Hashtags are a way for people to categorize their posts,
@@ -97,10 +84,20 @@ function OnboardingHashtag() {
           When someone creates a post with “#movies” in it,
           that post will show on your timeline, since you follow “#movies”.
         </HashtagText>
-        <Row className="d-flex justify-content-center text-center h-auto my-5">
-          <Col>
-            <SkipButton as="input" type="button" value="Skip" className="mx-1 rounded-pill text-white px-5 py-2" onClick={routeChange} />
-            <Button as="input" type="button" value="Finish" className="mx-1 rounded-pill px-5 py-2" onClick={routeChange} />
+        <Row className="justify-content-center my-5">
+          <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
+            <Row>
+              <Col xs={6}>
+                <RoundButtonLink to="/" className="w-100" variant="dark">
+                  Skip
+                </RoundButtonLink>
+              </Col>
+              <Col xs={6}>
+                <RoundButtonLink to="/" className="w-100" variant="primary">
+                  Finish
+                </RoundButtonLink>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>

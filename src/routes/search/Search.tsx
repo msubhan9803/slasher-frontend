@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, FormControl, InputGroup, Row, Tab, Tabs,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useLocation } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 const StyleTabs = styled(Tabs)`
@@ -52,6 +53,7 @@ const SearchInputGroup = styled(InputGroup)`
 `;
 
 function Search() {
+  const location = useLocation();
   const [search, setSearch] = useState<string>('');
   const hashtags = [
     'horror',
@@ -68,6 +70,7 @@ function Search() {
     'horrorshirt'];
   const [filtered, setFiltered] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('Hashtags');
+  const [defaultKey, setDefaultKey] = useState<string>('users');
 
   const searchData = (searchQuery: string) => {
     let searchResult;
@@ -83,6 +86,11 @@ function Search() {
     }
     setSearch(searchQuery);
   };
+
+  useEffect(() => {
+    location.state && setSearch(location.state as string);
+    location.state && setDefaultKey('hashtags');
+  }, []);
 
   return (
     <AuthenticatedPageWrapper>
@@ -101,7 +109,7 @@ function Search() {
           className="ps-1"
         />
       </SearchInputGroup>
-      <StyleTabs className="justify-content-between flex-nowrap">
+      <StyleTabs activeKey={defaultKey} className="justify-content-between flex-nowrap">
         <Tab eventKey="users" title="People">
           People
         </Tab>

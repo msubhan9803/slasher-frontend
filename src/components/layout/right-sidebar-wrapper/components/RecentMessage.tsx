@@ -4,9 +4,15 @@ import UserMessageListItem from '../../../ui/UserMessageList/UserMessageListItem
 
 function RecentMessage() {
   const recentMessageDetails = [
-    { userName: 'Maureen Biologist', message: 'We ask only to be reassured', photo: 'https://i.pravatar.cc/300?img=47' },
-    { userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=56' },
-    { userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=26' },
+    {
+      messageId: 1, userName: 'Maureen Biologist', message: 'We ask only to be reassured', photo: 'https://i.pravatar.cc/300?img=47',
+    },
+    {
+      messageId: 2, userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=56',
+    },
+    {
+      messageId: 3, userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=26',
+    },
   ];
   return (
     <>
@@ -17,6 +23,7 @@ function RecentMessage() {
       <UserMessageList className="mb-4">
         {recentMessageDetails.map((recentMessageDetail) => (
           <UserMessageListItem
+            key={recentMessageDetail.messageId}
             userName={recentMessageDetail.userName}
             message={recentMessageDetail.message}
             count={6}

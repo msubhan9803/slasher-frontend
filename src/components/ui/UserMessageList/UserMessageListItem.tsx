@@ -7,7 +7,6 @@ import {
 import styled from 'styled-components';
 
 interface Props {
-  id?: number;
   userName: string;
   message: string;
   image: string;
@@ -76,10 +75,10 @@ const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  id, userName, message, image, count, timeStamp, options, handleDropdownOption,
+  userName, message, image, count, timeStamp, options, handleDropdownOption,
 }: Props) {
   return (
-    <StyledItem className="py-2" key={id}>
+    <StyledItem className="py-2">
       <Row>
         <Col xs={2} className="text-center">
           <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
@@ -117,7 +116,6 @@ function UserMessageListItem({
   );
 }
 UserMessageListItem.defaultProps = {
-  id: 0,
   count: 0,
   timeStamp: '',
   options: false,

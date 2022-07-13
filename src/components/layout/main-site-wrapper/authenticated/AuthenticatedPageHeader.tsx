@@ -57,16 +57,17 @@ function AuthenticatedPageHeader(
 ) {
   const navLinkElements = [
     <GlobalNavButton
+      key="Menu"
       aria-controls={ariaToggleTargetId}
       label="Menu"
       icon={solid('bars')}
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <GlobalNavLink label="Home" icon={solid('home')} to="/" iconSize="lg" />,
-    <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
-    <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
-    <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
+    <GlobalNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <GlobalNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
+    <GlobalNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
+    <GlobalNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
 
   return (

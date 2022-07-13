@@ -23,26 +23,29 @@ const SearchInputGroup = styled(InputGroup)`
     min-width: 1.87rem;
   }
 `;
-function SearchInput() {
+function SearchInput({
+  setFiltered, filtered, data, selectedTab, setMessage,
+}: any) {
   const [search, setSearch] = useState<string>('');
   const searchData = (query: any) => {
-    // const searchQuery = query.target.value;
-    // let searchResult;
-    // let newMsg = 'Hashtags';
-    // const newFilter = hashtags;
-    // if (query.key === 'Enter') {
-    //   if (searchQuery) {
-    //     searchResult = newFilter.filter((src: string) =>
-    // src.toLowerCase().startsWith(searchQuery));
-    //     setFiltered(searchResult);
-    //     newMsg = searchResult.length === 0 ? 'No hashtag found' : 'Hashtags';
-    //   } else {
-    //     newFilter.length = 0;
-    //     setFiltered(newFilter);
-    //   }
-    //   setMessage(newMsg);
-    // }
-    // setSearch(searchQuery);
+    const searchQuery = query.target.value;
+    let searchResult;
+    let newMsg = 'No data Found';
+    const newFilter = filtered;
+    if (query.key === 'Enter') {
+      if (searchQuery) {
+        searchResult = newFilter.filter((src: any) => (
+          src.name.toLowerCase().startsWith(searchQuery)
+        ));
+        setFiltered(searchResult);
+        newMsg = searchResult.length === 0 ? `No ${selectedTab} found` : 'Hashtags';
+      } else {
+        newFilter.length = 0;
+        setFiltered(data);
+      }
+      setMessage(newMsg);
+    }
+    setSearch(searchQuery);
   };
   return (
     <div>

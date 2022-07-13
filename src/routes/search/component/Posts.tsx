@@ -6,8 +6,8 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { SearchProps } from '../SearchInterface';
 import postImage from '../../../images/news-post.svg';
-import { PostsProps } from '../SearchInterface';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -66,14 +66,16 @@ const CustomDropDown = styled(Dropdown)`
     }
   }
 `;
-function Posts({ post }: PostsProps) {
+function Posts({
+  id, name, image, date, content, hashTag,
+}: SearchProps) {
   const navigate = useNavigate();
   const [like, setLike] = useState(false);
-  const [id, setId] = useState<number>();
+  const [iD, setID] = useState<number>();
 
-  const onLikeClick = (ids: number) => {
+  const onLikeClick = (likedID: number) => {
     setLike(!like);
-    setId(ids);
+    setID(likedID);
   };
   const onHashtagClick = (hashtag: string) => {
     navigate('/search', { state: hashtag });
@@ -82,7 +84,7 @@ function Posts({ post }: PostsProps) {
     navigate('/news/partner/1');
   };
   return (
-    <Card key={post.id} className="bg-dark my-3">
+    <Card key={id} className="bg-dark my-3">
       <Card.Header className="border-0 ps-1 ps-md-3">
         <Row className="align-items-center">
           <Col xs={11}>
@@ -90,16 +92,16 @@ function Posts({ post }: PostsProps) {
               <Col className="my-auto rounded-circle" xs="auto">
                 <div className="rounded-circle">
                   <CursorPointer>
-                    <ProfileImage src={post.userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
+                    <ProfileImage src={image} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
                   </CursorPointer>
                 </div>
               </Col>
               <Col xs="auto" className="ps-0 align-self-center">
                 <CursorPointer>
-                  <h1 className="mb-0 h6">{post.userName}</h1>
+                  <h1 className="mb-0 h6">{name}</h1>
                 </CursorPointer>
                 <CursorPointer>
-                  <SmallText className="mb-0">{post.postDate}</SmallText>
+                  <SmallText className="mb-0">{date}</SmallText>
                 </CursorPointer>
               </Col>
             </Row>
@@ -121,8 +123,8 @@ function Posts({ post }: PostsProps) {
         <Row>
           <Col xs={12}>
             <>
-              <span className="p">{post?.content}</span>
-              {post?.hashTag?.map((hashtag: string) => (
+              <span className="p">{content}</span>
+              {hashTag?.map((hashtag: string) => (
                 <CursorPointer key={hashtag} className="text-primary p cursor-pointer" onClick={() => onHashtagClick(hashtag)}>
                   #
                   {hashtag}
@@ -163,14 +165,14 @@ function Posts({ post }: PostsProps) {
       <CardFooter>
         <Row className="justify-content-between d-flex m-2">
           <Col className="p-0">
-            {like && (post.id === id) ? (
+            {like && (id === iD) ? (
               <LinearIcon uniqueId="like-button">
-                <FontAwesomeIcon role="button" onClick={() => onLikeClick(post.id)} icon={solid('heart')} size="lg" className="me-2" />
+                <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={solid('heart')} size="lg" className="me-2" />
                 Like
               </LinearIcon>
             ) : (
               <>
-                <FontAwesomeIcon role="button" onClick={() => onLikeClick(post.id)} icon={regular('heart')} size="lg" className="me-2" />
+                <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={regular('heart')} size="lg" className="me-2" />
                 Like
               </>
             )}

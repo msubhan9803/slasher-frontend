@@ -3,6 +3,7 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import { SearchProps } from '../SearchInterface';
 
 const MovieCardStyle = styled(Card)`
   img {
@@ -24,10 +25,12 @@ const MovieCardStyle = styled(Card)`
     transform: rotateY(180deg);
   }
 `;
-function Movies({ movie }: any) {
+function Movies({
+  name, image, year, liked,
+}: SearchProps) {
   return (
     <MovieCardStyle className="bg-transparent my-2">
-      <Card.Img variant="top" src={movie.image} className="rounded-3" />
+      <Card.Img variant="top" src={image} className="rounded-3" />
       <Card.ImgOverlay className="d-flex justify-content-end">
         <Card.Title className="rating bg-white mb-0 px-2 rounded-5 small text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1" size="sm" />
@@ -36,15 +39,15 @@ function Movies({ movie }: any) {
       </Card.ImgOverlay>
       <Card.Body className="px-0">
         <Card.Text className="d-flex justify-content-between align-items-center mb-1 small text-light">
-          {movie.year}
-          {movie.liked ? (
+          {year}
+          {liked ? (
             <FontAwesomeIcon icon={regular('thumbs-up')} className="text-success rounded-circle border p-1" size="sm" />
           ) : (
             <FontAwesomeIcon icon={regular('thumbs-down')} className="text-primary rounded-circle border p-1" size="sm" />
           )}
         </Card.Text>
         <Card.Text>
-          {movie.name}
+          {name}
         </Card.Text>
       </Card.Body>
     </MovieCardStyle>

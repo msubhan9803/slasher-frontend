@@ -3,6 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import { SearchProps } from '../SearchInterface';
 
 const MovieCardStyle = styled(Card)`
   img {
@@ -25,20 +26,22 @@ const MovieCardStyle = styled(Card)`
   }
 `;
 
-function Events({ event }: any) {
+function Events({
+  name, image, date, address,
+}: SearchProps) {
   return (
     <MovieCardStyle className="bg-transparent">
-      <Card.Img variant="top" src={event.image} className="rounded-3 mb-2" />
+      <Card.Img variant="top" src={image} className="rounded-3 mb-2" />
       <Card.Body className="p-0">
         <Card.Text>
-          {event.date}
+          {date}
         </Card.Text>
         <Card.Text>
           <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
-          {event.address}
+          {address}
         </Card.Text>
         <Card.Text>
-          {event.name}
+          {name}
         </Card.Text>
       </Card.Body>
     </MovieCardStyle>

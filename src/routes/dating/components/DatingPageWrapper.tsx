@@ -1,7 +1,4 @@
 import React from 'react';
-import {
-  Row,
-} from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import DatingMenuSmallScreen from './DatingMenu/DatingMenuSmallScreen';
 
@@ -12,9 +9,7 @@ interface Props {
 function DatingPageWrapper({ children }: Props) {
   return (
     <AuthenticatedPageWrapper rightSidebarType="dating">
-      <Row className="mb-5 mb-sm-0">
-        {children}
-      </Row>
+      {children}
       <DatingMenuSmallScreen />
     </AuthenticatedPageWrapper>
   );

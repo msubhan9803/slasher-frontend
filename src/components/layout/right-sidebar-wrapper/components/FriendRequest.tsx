@@ -1,7 +1,7 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
 
 function FriendRequest() {
@@ -22,14 +22,10 @@ function FriendRequest() {
   ];
   return (
     <>
-      <Row className="align-items-center mt-4">
-        <Col xs={9}>
-          <h3 className="h4">Friend requests</h3>
-        </Col>
-        <Col xs={3} className="text-end">
-          <small className="text-primary">View All</small>
-        </Col>
-      </Row>
+      <div className="d-flex align-items-end justify-content-between mt-4 mb-2">
+        <h3 className="h4 mb-0">Friend requests</h3>
+        <small className="text-primary">View All</small>
+      </div>
       {friendRequestPhotos.map((request) => (
         <div key={request.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
           <div className="d-flex align-items-center">

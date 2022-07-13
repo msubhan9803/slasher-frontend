@@ -14,15 +14,17 @@ function Photos() {
         </Col>
       </Row>
 
-      <Row className=" p-3 bg-dark rounded-3">
-        {photos.map((photo) => (
-          <Col md={4} className="px-1">
-            <Card className="bg-transparent my-2 position-relative">
-              <Card.Img variant="top" src={photo} className="rounded-3 w-100 h-100" />
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <div className="p-3 bg-dark rounded-3">
+        <Row>
+          {photos.map((photo) => (
+            <Col md={4} key={photo}>
+              <Card className="bg-transparent my-2 position-relative">
+                <Card.Img variant="top" src={photo} className="rounded-3 w-100 h-100" />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
     </>
   );
 }

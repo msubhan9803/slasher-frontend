@@ -1,13 +1,13 @@
 import React from 'react';
-import AuthenticatedRigthSideNavViewerWrapper from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarNavViewerWrapper';
+import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
 function TempRightNavViewer() {
   return (
-    <AuthenticatedRigthSideNavViewerWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
       <div className="home">
         <h1>Right side nav viewer</h1>
       </div>
-    </AuthenticatedRigthSideNavViewerWrapper>
+    </AuthenticatedPageWrapper>
   );
 }
 

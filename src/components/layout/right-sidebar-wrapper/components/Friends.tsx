@@ -15,16 +15,17 @@ function Friends() {
         </Col>
       </Row>
 
-      <Row className=" p-3 bg-dark rounded-3">
-        {friendPhotos.map((friendPhoto) => (
-          <Col md={4} className="px-1">
-            <Card className="bg-transparent my-2 position-relative">
-              <Card.Img variant="top" src={friendPhoto} className="rounded-circle w-100 h-100" />
-            </Card>
-          </Col>
-        ))}
-
-      </Row>
+      <div className="p-3 bg-dark rounded-3">
+        <Row>
+          {friendPhotos.map((friendPhoto) => (
+            <Col md={4} key={friendPhoto}>
+              <Card className="bg-transparent my-2 position-relative">
+                <Card.Img variant="top" src={friendPhoto} className="rounded-circle w-100 h-100" />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
     </>
   );
 }

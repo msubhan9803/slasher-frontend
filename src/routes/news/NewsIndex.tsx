@@ -40,7 +40,7 @@ function NewsIndex() {
   ];
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row>
         <Col xs={1} className="d-md-none">
           <FontAwesomeIcon icon={solid('arrow-left')} size="2x" />

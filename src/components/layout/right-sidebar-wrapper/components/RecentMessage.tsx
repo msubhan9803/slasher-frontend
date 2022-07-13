@@ -1,5 +1,4 @@
 import React from 'react';
-import { Col, Row } from 'react-bootstrap';
 import UserMessageList from '../../../ui/UserMessageList/UserMessageList';
 import UserMessageListItem from '../../../ui/UserMessageList/UserMessageListItem';
 
@@ -11,24 +10,20 @@ function RecentMessage() {
   ];
   return (
     <>
-      <Row className="align-items-center mt-4">
-        <Col xs={9}>
-          <h3 className="h4">Recent Messages</h3>
-        </Col>
-        <Col xs={3} className="text-end">
-          <small className="text-primary">View All</small>
-        </Col>
-      </Row>
-      {recentMessageDetails.map((recentMessageDetail) => (
-        <UserMessageList className="mb-4">
+      <div className="d-flex align-items-end justify-content-between mt-4 mb-2">
+        <h3 className="h4 mb-0">Recent messages</h3>
+        <small className="text-primary">View All</small>
+      </div>
+      <UserMessageList className="mb-4">
+        {recentMessageDetails.map((recentMessageDetail) => (
           <UserMessageListItem
             userName={recentMessageDetail.userName}
             message={recentMessageDetail.message}
             count={6}
             image={recentMessageDetail.photo}
           />
-        </UserMessageList>
-      ))}
+        ))}
+      </UserMessageList>
 
     </>
   );

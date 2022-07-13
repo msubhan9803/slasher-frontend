@@ -1,9 +1,8 @@
 import React from 'react';
 import {
-  Col, Row,
+  Row,
 } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import DatingMenuLargeScreen from './DatingMenu/DatingMenuLargeScreen';
 import DatingMenuSmallScreen from './DatingMenu/DatingMenuSmallScreen';
 
 interface Props {
@@ -12,14 +11,9 @@ interface Props {
 
 function DatingPageWrapper({ children }: Props) {
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="dating">
       <Row className="mb-5 mb-sm-0">
-        <Col md={8}>
-          {children}
-        </Col>
-        <Col md={4} className="d-none d-md-block">
-          <DatingMenuLargeScreen />
-        </Col>
+        {children}
       </Row>
       <DatingMenuSmallScreen />
     </AuthenticatedPageWrapper>

@@ -65,7 +65,7 @@ function Messages() {
   };
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Container fluid>
         <Row>
           <Col md={8}>

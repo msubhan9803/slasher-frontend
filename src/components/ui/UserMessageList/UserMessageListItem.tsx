@@ -1,7 +1,9 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Dropdown, Row } from 'react-bootstrap';
+import {
+  Col, Dropdown, Row,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface Props {
@@ -32,7 +34,7 @@ const TimeStampStyled = styled.p`
   font-size: 0.75rem;
 `;
 
-const ItemContainer = styled(Row)`
+const StyledItem = styled.div`
   border-bottom: 0.125rem solid rgb(23, 23, 24);
   &:last-child {
     border-bottom: none;
@@ -77,39 +79,41 @@ function UserMessageListItem({
   id, userName, message, image, count, timeStamp, options, handleDropdownOption,
 }: Props) {
   return (
-    <ItemContainer className="py-2" key={id}>
-      <Col xs={2} className="p-0 text-center">
-        <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
-      </Col>
-      <Col xs={timeStamp ? 5 : 8} className={`ps-md-4 ps-xl-2 pe-0  ${timeStamp ? 'align-self-center' : 'ps-md-4 px-xl-0 align-self-center'}`}>
-        <h1 className="h6 mb-0">{userName}</h1>
-        <RecentMessage>{message}</RecentMessage>
-      </Col>
-      <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'p-0 pt-1' : ''}>
-        <TimeStampStyled
-          className="mb-0 rounded-5 small text-end text-light"
-        >
-          {timeStamp}
-        </TimeStampStyled>
-        {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
-      </Col>
-      {
-        options && (
-          <Col xs={1} className="p-md-0 px-lg-2">
-            <CustomDropDown onSelect={handleDropdownOption}>
-              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="bg-black">
-                <Dropdown.Item eventKey="markAsRead" className="text-light">Mark as read</Dropdown.Item>
-                <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-                <Dropdown.Item eventKey="blockUser" className="text-light">Block user</Dropdown.Item>
-              </Dropdown.Menu>
-            </CustomDropDown>
-          </Col>
-        )
-      }
-    </ItemContainer>
+    <StyledItem className="py-2" key={id}>
+      <Row>
+        <Col xs={2} className="text-center">
+          <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
+        </Col>
+        <Col xs={timeStamp ? 5 : 8} className={`ps-md-4 ps-xl-2 pe-0  ${timeStamp ? 'align-self-center' : 'ps-md-4 px-xl-0 align-self-center'}`}>
+          <h1 className="h6 mb-0">{userName}</h1>
+          <RecentMessage>{message}</RecentMessage>
+        </Col>
+        <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'pt-1' : ''}>
+          <TimeStampStyled
+            className="mb-0 rounded-5 small text-end text-light"
+          >
+            {timeStamp}
+          </TimeStampStyled>
+          {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
+        </Col>
+        {
+          options && (
+            <Col xs={1} className="">
+              <CustomDropDown onSelect={handleDropdownOption}>
+                <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
+                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="bg-black">
+                  <Dropdown.Item eventKey="markAsRead" className="text-light">Mark as read</Dropdown.Item>
+                  <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
+                  <Dropdown.Item eventKey="blockUser" className="text-light">Block user</Dropdown.Item>
+                </Dropdown.Menu>
+              </CustomDropDown>
+            </Col>
+          )
+        }
+      </Row>
+    </StyledItem>
   );
 }
 UserMessageListItem.defaultProps = {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import WatchListCard from './WatchListCard';
+import BooksIhaveReadCard from './BooksIhaveReadCard';
 
 function BooksIhaveRead() {
   return (
@@ -13,7 +13,7 @@ function BooksIhaveRead() {
           <small className="text-primary">See All</small>
         </Col>
       </Row>
-      <WatchListCard />
+      <BooksIhaveReadCard />
     </>
   );
 }

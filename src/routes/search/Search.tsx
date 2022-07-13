@@ -128,7 +128,7 @@ function Search() {
             <Tab eventKey="events" title="Events">
               <Row className="justify-content-evenly mx-3 mx-sm-0">
                 {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
-                  <Col sm={5} key={eventDetail.id} className="bg-dark my-3 p-4 rounded-3">
+                  <Col sm={5} key={eventDetail.id} className="bg-dark my-3 rounded-3">
                     <Events
                       id={eventDetail.id}
                       name={eventDetail.name}

@@ -88,7 +88,7 @@ function Posts({
       <Card.Header className="border-0 ps-1 ps-md-3">
         <Row className="align-items-center">
           <Col xs={11}>
-            <Row className="d-flex">
+            <Row>
               <Col className="my-auto rounded-circle" xs="auto">
                 <div className="rounded-circle">
                   <CursorPointer>
@@ -96,7 +96,7 @@ function Posts({
                   </CursorPointer>
                 </div>
               </Col>
-              <Col xs="auto" className="ps-0 align-self-center">
+              <Col xs="auto" className="align-self-center">
                 <CursorPointer>
                   <h1 className="mb-0 h6">{name}</h1>
                 </CursorPointer>
@@ -106,7 +106,7 @@ function Posts({
               </Col>
             </Row>
           </Col>
-          <Col xs={1} className="d-none d-md-block">
+          <Col xs={1}>
             <CustomDropDown>
               <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
@@ -123,9 +123,9 @@ function Posts({
         <Row>
           <Col xs={12}>
             <>
-              <span className="p">{content}</span>
+              <span>{content}</span>
               {hashTag?.map((hashtag: string) => (
-                <CursorPointer key={hashtag} className="text-primary p cursor-pointer" onClick={() => onHashtagClick(hashtag)}>
+                <CursorPointer key={hashtag} className="text-primary cursor-pointer" onClick={() => onHashtagClick(hashtag)}>
                   #
                   {hashtag}
                 </CursorPointer>
@@ -135,11 +135,11 @@ function Posts({
           </Col>
         </Row>
         <Row className="mt-3">
-          <Col className="">
+          <Col>
             <Image src={postImage} className="w-100" />
           </Col>
         </Row>
-        <Row className="justify-content-between d-flex m-2">
+        <Row className="justify-content-between m-2">
           <Col>
             <LinearIcon uniqueId="like-button">
               <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
@@ -163,8 +163,8 @@ function Posts({
         </Row>
       </Card.Body>
       <CardFooter>
-        <Row className="justify-content-between d-flex m-2">
-          <Col className="p-0">
+        <Row className="justify-content-between my-2">
+          <Col>
             {like && (id === iD) ? (
               <LinearIcon uniqueId="like-button">
                 <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={solid('heart')} size="lg" className="me-2" />
@@ -177,11 +177,11 @@ function Posts({
               </>
             )}
           </Col>
-          <Col className="text-center p-0">
+          <Col className="text-center">
             <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
             Comment
           </Col>
-          <Col className="text-end p-0">
+          <Col className="text-end">
             <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
             Share
           </Col>

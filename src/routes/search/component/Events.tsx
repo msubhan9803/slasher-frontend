@@ -5,7 +5,7 @@ import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
 
-const MovieCardStyle = styled(Card)`
+const EventsCardStyle = styled(Card)`
   img {
     height: 10.938rem;
   }
@@ -30,7 +30,7 @@ function Events({
   name, image, date, address,
 }: SearchProps) {
   return (
-    <MovieCardStyle className="bg-transparent">
+    <EventsCardStyle className="bg-transparent px-2 py-4 ">
       <Card.Img variant="top" src={image} className="rounded-3 mb-2" />
       <Card.Body className="p-0">
         <Card.Text>
@@ -44,7 +44,7 @@ function Events({
           {name}
         </Card.Text>
       </Card.Body>
-    </MovieCardStyle>
+    </EventsCardStyle>
   );
 }
 

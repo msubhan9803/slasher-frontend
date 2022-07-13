@@ -11,7 +11,7 @@ function PodcastsCard() {
             <Card className="bg-transparent my-2">
               <Card.Img variant="top" src={image} className="rounded-3 w-100 h-100" />
               <Card.Body className="px-1">
-                <Card.Text>
+                <Card.Text className="small">
                   The No Sleep Podcast
                 </Card.Text>
               </Card.Body>

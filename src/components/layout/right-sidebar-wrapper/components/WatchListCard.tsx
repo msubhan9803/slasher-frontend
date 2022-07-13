@@ -24,7 +24,7 @@ function WatchListCard() {
       <Row>
         {watchListImage.map((image) => (
           <Col md={4} key={image}>
-            <Card className="bg-transparent my-2">
+            <Card className="bg-transparent my-2 border-0">
               <CardImage variant="top" src={image} className="rounded-3" />
               <RatingDiv className="d-flex justify-content-end">
                 <MovieCardStyle className="bg-white text-black rounded-5 px-1 small">

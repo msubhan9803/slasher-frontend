@@ -8,8 +8,9 @@ function FriendsCard() {
       <Row>
         {friendPhotos.map((friendPhoto) => (
           <Col md={4} key={friendPhoto}>
-            <Card className="bg-transparent my-2 position-relative">
+            <Card className="bg-transparent my-2 position-relative border-0">
               <Card.Img variant="top" src={friendPhoto} className="rounded-circle w-100 h-100" />
+              <Card.Text className="small text-center mt-2">Teri Dactyl</Card.Text>
             </Card>
           </Col>
         ))}

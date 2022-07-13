@@ -163,29 +163,30 @@ function Posts({
         </Row>
       </Card.Body>
       <CardFooter>
-        <Row className="justify-content-between my-2">
-          <Col>
-            {like && (id === iD) ? (
-              <LinearIcon uniqueId="like-button">
-                <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={solid('heart')} size="lg" className="me-2" />
-                Like
-              </LinearIcon>
-            ) : (
-              <>
-                <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={regular('heart')} size="lg" className="me-2" />
-                Like
-              </>
-            )}
-          </Col>
-          <Col className="text-center">
+        <div className="justify-content-between d-flex m-2">
+          <div className="p-0">
+            {like && (id === iD)
+              ? (
+                <LinearIcon uniqueId="like-button">
+                  <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={solid('heart')} size="lg" className="me-2" />
+                  Like
+                </LinearIcon>
+              ) : (
+                <>
+                  <FontAwesomeIcon role="button" onClick={() => onLikeClick(id)} icon={regular('heart')} size="lg" className="me-2" />
+                  Like
+                </>
+              )}
+          </div>
+          <div className="p-0 text-center">
             <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
             Comment
-          </Col>
-          <Col className="text-end">
+          </div>
+          <div className="p-0 text-end">
             <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
             Share
-          </Col>
-        </Row>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );

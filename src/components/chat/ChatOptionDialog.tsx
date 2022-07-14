@@ -52,14 +52,15 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
           <h3 className="h3 mb-0 text-primary text-center">Report</h3>
           <p className="px-3 text-center mb-4">Why are you reporting this?</p>
           <Form className="mb-4">
-            {blockOptions.map((report: string, index: number) => (
+            {blockOptions.map((label: string, index: number) => (
               <Form.Check
+                key={label}
                 type="checkbox"
                 id={`report-${index}`}
-                checked={reports.has(report)}
+                checked={reports.has(label)}
                 className="mb-2"
-                label={report}
-                value={report}
+                label={label}
+                value={label}
                 onChange={reportChangeHandler}
               />
             ))}

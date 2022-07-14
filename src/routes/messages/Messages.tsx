@@ -73,7 +73,7 @@ function Messages() {
             <div className="bg-dark px-3 py-2 rounded-3">
               {messages.map((message) => (
                 <UserMessageListItem
-                  id={message.id}
+                  key={message.id}
                   image={message.image}
                   userName={message.userName}
                   message={message.message}

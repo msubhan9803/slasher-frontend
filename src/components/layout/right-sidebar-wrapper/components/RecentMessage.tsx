@@ -22,15 +22,13 @@ function RecentMessage() {
       </div>
       <UserMessageList className="mb-4">
         {recentMessageDetails.map((recentMessageDetail) => (
-          <div key={recentMessageDetail.id}>
-            <UserMessageListItem
-              id={recentMessageDetail.id}
-              userName={recentMessageDetail.userName}
-              message={recentMessageDetail.message}
-              count={6}
-              image={recentMessageDetail.photo}
-            />
-          </div>
+          <UserMessageListItem
+            key={recentMessageDetail.id}
+            userName={recentMessageDetail.userName}
+            message={recentMessageDetail.message}
+            count={6}
+            image={recentMessageDetail.photo}
+          />
         ))}
       </UserMessageList>
 

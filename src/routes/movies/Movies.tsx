@@ -5,7 +5,6 @@ import {
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
-import MoviesRightSideNav from './components/MoviesRightSideNav';
 import MoviesFilterOptions from './components/MoviesFilterOptions';
 import MoviesData from './components/MoviesData';
 import MoviesSearch from './components/MoviesSearch';
@@ -67,54 +66,47 @@ function Movies() {
   const [showKeys, setShowKeys] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState(myMovies);
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Container fluid>
-        <Row>
-          <Col md={8}>
-            <Row className="justify-content-between align-items-start mb-4">
-              <Col md={2} lg={1} className="p-0">
-                <h1 className="h4 text-center mb-0">Movies</h1>
-              </Col>
-              <Col md={6} lg={4} className="d-none d-md-block">
-                <RoundButton className="w-100">Add your movie</RoundButton>
-              </Col>
-            </Row>
-            <Row className="bg-dark pb-0 pt-3 px-2 rounded-3">
-              <Col xs={12}>
-                <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
-                <StyleTabs
-                  className="justify-content-between flex-nowrap mt-3 border-0"
-                  onSelect={(e: any) => setSelectedTab(e)}
-                >
-                  {tabs.map(({ value, label }) => (
-                    <Tab key={value} eventKey={value} title={label} />
-                  ))}
-                </StyleTabs>
-              </Col>
-            </Row>
-            <Row className="my-4 align-items-center">
-              <Col md={5} lg={4} className="d-none d-md-block">
-                <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
-              </Col>
-              <Col xs={12} md={2} lg={4} className="text-center p-md-0">
-                <RoundButton className="w-100 d-md-none mb-1">Add your movie</RoundButton>
-                <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
-              </Col>
-              <Col md={5} lg={4} className="d-none d-md-block">
-                <MoviesSort title="Sort:" className="rounded-5" />
-              </Col>
-            </Row>
-            <MoviesData
-              selectedTab={selectedTab}
-              myMovies={filteredMovies}
-              showKeys={showKeys}
-              setShowKeys={setShowKeys}
-            />
+        <Row className="justify-content-between align-items-start mb-4">
+          <Col md={2} lg={1} className="p-0">
+            <h1 className="h4 text-center mb-0">Movies</h1>
           </Col>
-          <Col md={4} className="d-none d-md-block">
-            <MoviesRightSideNav />
+          <Col md={6} lg={4} className="d-none d-md-block">
+            <RoundButton className="w-100">Add your movie</RoundButton>
           </Col>
         </Row>
+        <Row className="bg-dark pb-0 pt-3 px-2 rounded-3">
+          <Col xs={12}>
+            <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
+            <StyleTabs
+              className="justify-content-between flex-nowrap mt-3 border-0"
+              onSelect={(e: any) => setSelectedTab(e)}
+            >
+              {tabs.map(({ value, label }) => (
+                <Tab key={value} eventKey={value} title={label} />
+              ))}
+            </StyleTabs>
+          </Col>
+        </Row>
+        <Row className="my-4 align-items-center">
+          <Col md={5} lg={4} className="d-none d-md-block">
+            <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
+          </Col>
+          <Col xs={12} md={2} lg={4} className="text-center p-md-0">
+            <RoundButton className="w-100 d-md-none mb-1">Add your movie</RoundButton>
+            <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
+          </Col>
+          <Col md={5} lg={4} className="d-none d-md-block">
+            <MoviesSort title="Sort:" className="rounded-5" />
+          </Col>
+        </Row>
+        <MoviesData
+          selectedTab={selectedTab}
+          myMovies={filteredMovies}
+          showKeys={showKeys}
+          setShowKeys={setShowKeys}
+        />
       </Container>
     </AuthenticatedPageWrapper>
   );

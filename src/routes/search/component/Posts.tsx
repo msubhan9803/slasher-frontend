@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
 import postImage from '../../../images/news-post.svg';
@@ -29,10 +29,6 @@ const ProfileImage = styled(Image)`
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
 `;
-const CursorPointer = styled.span`
-  cursor:Pointer;
-`;
-
 const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     border: none;
@@ -69,7 +65,6 @@ const CustomDropDown = styled(Dropdown)`
 function Posts({
   id, name, image, date, content, hashTag,
 }: SearchProps) {
-  const navigate = useNavigate();
   const [like, setLike] = useState(false);
   const [iD, setID] = useState<number>();
 
@@ -77,12 +72,7 @@ function Posts({
     setLike(!like);
     setID(likedID);
   };
-  const onHashtagClick = (hashtag: string) => {
-    navigate('/search', { state: hashtag });
-  };
-  const onProfileDetailClick = () => {
-    navigate('/news/partner/1');
-  };
+
   return (
     <Card key={id} className="bg-dark my-3">
       <Card.Header className="border-0 ps-1 ps-md-3">
@@ -91,18 +81,18 @@ function Posts({
             <Row>
               <Col className="my-auto rounded-circle" xs="auto">
                 <div className="rounded-circle">
-                  <CursorPointer>
-                    <ProfileImage src={image} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
-                  </CursorPointer>
+                  <Link to="/news/partner/1">
+                    <ProfileImage src={image} className="rounded-circle bg-secondary" />
+                  </Link>
                 </div>
               </Col>
               <Col xs="auto" className="align-self-center">
-                <CursorPointer>
+                <Link to="/news/partner/1">
                   <h1 className="mb-0 h6">{name}</h1>
-                </CursorPointer>
-                <CursorPointer>
+                </Link>
+                <Link to="/news/partner/1">
                   <SmallText className="mb-0">{date}</SmallText>
-                </CursorPointer>
+                </Link>
               </Col>
             </Row>
           </Col>
@@ -125,10 +115,10 @@ function Posts({
             <>
               <span>{content}</span>
               {hashTag?.map((hashtag: string) => (
-                <CursorPointer key={hashtag} className="text-primary cursor-pointer" onClick={() => onHashtagClick(hashtag)}>
+                <Link to="/search" key={hashtag} className="text-primary cursor-pointer">
                   #
                   {hashtag}
-                </CursorPointer>
+                </Link>
               ))}
               ☠️
             </>

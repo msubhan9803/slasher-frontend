@@ -27,6 +27,7 @@ const RecentMessage = styled.p`
   text-overflow: ellipsis;
   font-size: .75rem;
   color: #CCCCCC;
+  width: 26ch;
   margin-bottom: 0;
 `;
 

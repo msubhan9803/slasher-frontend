@@ -16,7 +16,7 @@ function DatingSetupIdentity() {
   const [selectGender, setSelectGender] = useState('');
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="dating">
       <Row>
         <Col md={5}>
           <Form.Group className="mb-3" controlId="formBasicName">

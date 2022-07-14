@@ -12,7 +12,7 @@ function DatingSetupAboutMe() {
   const [message, setMessage] = useState('');
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="dating">
       <Form>
         <Form.Group className="mb-3" controlId="about-me">
           <Form.Label>Tell people about yourself</Form.Label>

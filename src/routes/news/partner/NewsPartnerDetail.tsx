@@ -49,7 +49,7 @@ function NewsPartnerDetail() {
   const { partnerId } = useParams();
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row>
         <Col md={8}>
           <Row>

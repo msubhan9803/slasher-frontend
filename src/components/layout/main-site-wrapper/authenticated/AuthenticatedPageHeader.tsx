@@ -35,6 +35,17 @@ const MobileNavbar = styled(Navbar)`
   }
 `;
 
+const StyledNav = styled(Nav)`
+  @media (min-width: 992px) {
+    overflow: hidden;
+    .nav-link {
+      position: relative;
+      // We need to use an exact offset here because we're matching the width of the word "Profile"
+      right: -1em;
+    }
+  }
+`;
+
 interface Props {
   onToggleClick: () => void;
   offcanvasSidebarExpandBreakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -46,27 +57,28 @@ function AuthenticatedPageHeader(
 ) {
   const navLinkElements = [
     <GlobalNavButton
+      key="Menu"
       aria-controls={ariaToggleTargetId}
       label="Menu"
       icon={solid('bars')}
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <GlobalNavLink label="Home" icon={solid('home')} to="/" iconSize="lg" />,
-    <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
-    <GlobalNavLink label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
-    <GlobalNavLink label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
+    <GlobalNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <GlobalNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
+    <GlobalNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
+    <GlobalNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
 
   return (
     <>
       {/* nav-bar for large & medium screen */}
       <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`py-0 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
-        <Container fluid="lg">
+        <Container fluid="xxl">
           <Navbar.Brand as={Link} to="/" className="py-0">
             <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
           </Navbar.Brand>
-          <Nav className="ms-auto">
+          <StyledNav className="ms-auto">
             <GlobalNavLink label="Home" icon={solid('home')} to="/" className="nav-link mt-1" iconSize="lg" />
             <GlobalNavLink label="Friends" icon={solid('user-group')} to="/friends" className="nav-link mt-1" iconSize="lg" />
             <GlobalNavLink label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link mt-1" iconSize="lg" />
@@ -76,12 +88,12 @@ function AuthenticatedPageHeader(
               <UserCircleImage className="rounded-circle m-auto" src={userProfileIconPlaceholder} alt="User icon" />
               <p className="mt-2 mb-0 text-center">Profile</p>
             </Nav.Link>
-          </Nav>
+          </StyledNav>
         </Container>
       </StyledNavbar>
 
       {/* nav-bar for small screen */}
-      <MobileNavbar bg="dark" variant="dark" className="d-md-none fixed-bottom pt-3">
+      <MobileNavbar bg="dark" variant="dark" className={`d-${offcanvasSidebarExpandBreakPoint}-none fixed-bottom pt-3`}>
         <Container fluid className="px-0">
           {
             navLinkElements.map((el, index) => {

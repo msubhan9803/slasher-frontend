@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Dropdown, Image, Row,
+  Card, Col, Dropdown, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -28,19 +28,33 @@ const ProfileImage = styled(Image)`
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
 `;
-
-const postData = [
+const StyledCommentInputGroup = styled(InputGroup)`
+  .form-control {
+    border-radius: 1.875rem;
+    border-bottom-right-radius: 0rem;
+    border-top-right-radius: 0rem;
+  }
+  .input-group-text {
+    background-color: rgb(31, 31, 31);
+    border-color: #3a3b46;
+    border-radius: 1.875rem;
+  }
+  svg {
+    min-width: 1.875rem;
+  }
+`;
+const intialPostdata = [
   {
-    id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: true,
   },
   {
-    id: 2, userName: 'Horror Oasis1', postDate: '07/10/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 2, userName: 'Horror Oasis1', postDate: '07/10/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
   },
   {
-    id: 3, userName: 'Horror Oasis2', postDate: '08/09/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 3, userName: 'Horror Oasis2', postDate: '08/09/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
   },
   {
-    id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
   },
 ];
 
@@ -50,10 +64,26 @@ function NewsPostData() {
   const [id, setId] = useState<number>();
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [postData, setPostData] = useState(intialPostdata);
 
   const onLikeClick = (likeId: number) => {
-    setLike(!like);
-    setId(likeId);
+    const likeData = postData.map((checkLikeId: any) => {
+      if (checkLikeId.id === likeId) {
+        return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
+      }
+      return checkLikeId;
+    });
+    setPostData(likeData);
+  };
+
+  const handleCommmentBox = (commentsId: any) => {
+    const commentData = postData.map((checkCommentId: any) => {
+      if (checkCommentId.id === commentsId) {
+        return { ...checkCommentId, commentSection: !checkCommentId.commentSection };
+      }
+      return checkCommentId;
+    });
+    setPostData(commentData);
   };
 
   const handleNewsOption = (newsValue: string) => {
@@ -71,7 +101,7 @@ function NewsPostData() {
   return (
     <>
       {
-        postData.map((post) => (
+        postData.map((post: any) => (
           <Card key={post.id} className="bg-dark mb-5 my-3">
             <Card.Header className="border-0 ps-1 ps-md-3">
               <Row className="align-items-center">
@@ -83,8 +113,8 @@ function NewsPostData() {
                           <ProfileImage src={userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
                         </div>
                         <div className="ps-3">
-                          <h1 className="mb-0 h6">{post.userName}</h1>
-                          <small className="mb-0 text-light">{post.postDate}</small>
+                          <h1 className="mb-0 h6">{post?.userName}</h1>
+                          <small className="mb-0 text-light">{post?.postDate}</small>
                         </div>
                       </Link>
                     </Col>
@@ -96,7 +126,6 @@ function NewsPostData() {
                       <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="bg-black">
-                      <Dropdown.Item eventKey="block" className="text-light">Block</Dropdown.Item>
                       <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
                     </Dropdown.Menu>
                   </CustomDropDown>
@@ -108,9 +137,8 @@ function NewsPostData() {
                 <Col xs={12}>
                   <>
                     <span>{post.content}</span>
-                    {post.hashTag?.map((hashtag) => (
-                      <span role="button" key={hashtag} className="text-primary" onClick={() => onHashtagClick(hashtag)}>
-                        {' '}
+                    {post.hashTag?.map((hashtag: any) => (
+                      <span role="button" tabIndex={0} key={hashtag} className="text-primary" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
                         #
                         {hashtag}
                       </span>
@@ -149,30 +177,58 @@ function NewsPostData() {
             </Card.Body>
             <CardFooter>
               <div className="justify-content-between d-flex m-2">
-                <div className="p-0">
-                  {like && (post.id === id)
-                    ? (
-                      <LinearIcon uniqueId="like-button">
-                        <FontAwesomeIcon role="button" onClick={() => onLikeClick(post.id)} icon={solid('heart')} size="lg" className="me-2" />
-                        Like
-                      </LinearIcon>
-                    )
-                    : (
-                      <>
-                        <FontAwesomeIcon role="button" onClick={() => onLikeClick(post.id)} icon={regular('heart')} size="lg" className="me-2" />
-                        Like
-                      </>
-                    )}
+                <div className="p-0" role="button" aria-hidden="true" onClick={() => onLikeClick(post.id)}>
+                  {
+                    post.likeIcon
+                      ? (
+                        <LinearIcon uniqueId="like-button">
+                          <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                          Like
+                        </LinearIcon>
+                      )
+                      : (
+                        <>
+                          <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                          Like
+                        </>
+                      )
+}
                 </div>
-                <div className="p-0 text-center">
-                  <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
+                <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => handleCommmentBox(post.id)}>
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                   Comment
                 </div>
-                <div className="p-0 text-end">
-                  <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                  Share
+                <div className="p-0 text-end" role="button">
+                  <Col xs={1} className="d-none d-md-block">
+                    <CustomDropDown>
+                      <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
+                        <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                        Share
+                      </Dropdown.Toggle>
+                      <Dropdown.Menu className="bg-black">
+                        <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
+                        <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
+                        <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </CustomDropDown>
+                  </Col>
                 </div>
+
               </div>
+              {post.commentSection
+                && (
+                <Col className="bg-dark ps-0 pe-4 mt-4">
+                  <StyledCommentInputGroup className="mb-3">
+                    <Form.Control
+                      placeholder="Write a comment ..."
+                      className="border-end-0"
+                    />
+                    <InputGroup.Text>
+                      <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
+                    </InputGroup.Text>
+                  </StyledCommentInputGroup>
+                </Col>
+                )}
             </CardFooter>
           </Card>
         ))

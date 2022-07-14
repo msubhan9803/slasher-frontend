@@ -21,11 +21,11 @@ const SelectedHashtagButton = styled(Button)`
   background-color: #383838;
   border: none;
   &:hover {
-    background-color: #383838; 
+    background-color: #383838;
   }
 `;
 const SelectedHashtagContainer = styled.div`
-  background-color: #1f1F1F;
+  background-color: #1F1F1F;
   border : .063rem solid #3A3B46;
 `;
 const HashtagText = styled.p`

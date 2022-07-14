@@ -1,24 +1,14 @@
 import React, { useState } from 'react';
 import {
-  Button, Col, Container, Row,
+  Col, Container, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import NoNavigationPageWrapper from '../../../components/layout/main-site-wrapper/no-navigation/NoNavigationPageWrapper';
 import LengthRestrictedTextArea from '../../../components/ui/LengthRestrictedTextArea';
-
-const SkipButton = styled(Button)`
-  background-color: #383838;
-  border: 0.063rem solid #1f1f1f;
-`;
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 function OnboardingAboutMe() {
-  const navigate = useNavigate();
   const [message, setMessage] = useState('');
 
-  const routeChange = () => {
-    navigate('/onboarding/hashtag');
-  };
   return (
     <NoNavigationPageWrapper>
       <Container>
@@ -35,10 +25,20 @@ function OnboardingAboutMe() {
             />
           </Col>
         </Row>
-        <Row className="d-flex justify-content-center text-center h-auto mt-5">
-          <Col>
-            <SkipButton as="input" type="button" value="Skip" className="mx-1 rounded-pill text-white px-5 py-2" onClick={routeChange} />
-            <Button as="input" type="button" value="Next step" className="mx-1 rounded-pill px-4 py-2" onClick={routeChange} />
+        <Row className="justify-content-center my-5">
+          <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
+            <Row>
+              <Col xs={6}>
+                <RoundButtonLink to="/onboarding/hashtag" className="w-100" variant="dark">
+                  Skip
+                </RoundButtonLink>
+              </Col>
+              <Col xs={6}>
+                <RoundButtonLink to="/onboarding/hashtag" className="w-100" variant="primary">
+                  Next step
+                </RoundButtonLink>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>

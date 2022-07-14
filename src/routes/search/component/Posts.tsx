@@ -84,31 +84,22 @@ function Posts({
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
           </Dropdown.Toggle>
           <Dropdown.Menu className="bg-black">
-            <Dropdown.Item eventKey="block" className="text-light">Block</Dropdown.Item>
             <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
           </Dropdown.Menu>
         </CustomDropDown>
       </Card.Header>
       <Card.Body className="ps-1 ps-md-3 pt-1">
-        <Row>
-          <Col xs={12}>
-            <>
-              <span>{content}</span>
-              {hashTag?.map((hashtag: string) => (
-                <Link to="/search" key={hashtag} className="text-primary cursor-pointer">
-                  #
-                  {hashtag}
-                </Link>
-              ))}
-              ☠️
-            </>
-          </Col>
-        </Row>
-        <Row className="mt-3">
-          <Col>
-            <Image src={postImage} className="w-100" />
-          </Col>
-        </Row>
+        <Card.Text>
+          {content}
+          {hashTag?.map((hashtag: string) => (
+            <Link to="/search" key={hashtag} className="text-primary cursor-pointer">
+              #
+              {hashtag}
+            </Link>
+          ))}
+          ☠️
+        </Card.Text>
+        <Card.Img src={postImage} />
         <Row className="justify-content-between m-2">
           <Col>
             <LinearIcon uniqueId="like-button">

@@ -80,8 +80,8 @@ function UserMessageListItem({
 }: Props) {
   return (
     <StyledItem className="py-2" key={id}>
-      <Row>
-        <Col xs={2} className="text-center">
+      <Row className="px-3">
+        <Col xs={2} className="text-center ps-2">
           <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
         </Col>
         <Col xs={timeStamp ? 5 : 8} className={`ps-md-4 ps-xl-2 pe-0  ${timeStamp ? 'align-self-center' : 'ps-md-4 px-xl-0 align-self-center'}`}>
@@ -94,7 +94,7 @@ function UserMessageListItem({
           >
             {timeStamp}
           </TimeStampStyled>
-          {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
+          {count !== 0 && <div className="text-end mt-3"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
         </Col>
         {
           options && (

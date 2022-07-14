@@ -23,7 +23,7 @@ function FriendRequest() {
   return (
     <>
       {friendRequestPhotos.map((request) => (
-        <div key={request.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
+        <div key={request.id} className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3 bg-dark mt-3">
           <div className="d-flex align-items-center">
             <FriendRequestImage src={request.image} className="me-2 rounded-circle bg-secondary position-relative" />
             <p className="mb-0">{request.userName}</p>

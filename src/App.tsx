@@ -15,6 +15,7 @@ import Events from './routes/events/Events';
 import Posts from './routes/posts/Posts';
 import Search from './routes/search/Search';
 import Movies from './routes/movies/Movies';
+import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewer';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -41,6 +42,7 @@ function App() {
       <Route path="/events/*" element={<Events />} />
       <Route path="/posts/*" element={<Posts />} />
       <Route path="/movies" element={<Movies />} />
+      <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
 
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

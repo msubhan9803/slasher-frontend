@@ -12,7 +12,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 
 function DatingWelcome() {
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="dating">
       <Row className="text-center pt-5 justify-content-center">
         <Col md={8}>
           <h1>Welcome!</h1>

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Button, Modal } from 'react-bootstrap';
 import MoviesSort from './MoviesSort';
 import RoundButton from '../../../components/ui/RoundButton';
-import ModalContainer from '../../../components/ui/CustomModal';
+import CustomModal from '../../../components/ui/CustomModal';
 
 interface Props {
   showKeys: any;
@@ -30,7 +30,7 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
     setShowKeys(false);
   };
   return (
-    <ModalContainer
+    <CustomModal
       show={showKeys}
       centered
       onHide={handleCloseKeys}
@@ -76,7 +76,7 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
           Apply filter
         </RoundButton>
       </Modal.Body>
-    </ModalContainer>
+    </CustomModal>
   );
 }
 

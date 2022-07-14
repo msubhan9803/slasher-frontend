@@ -3,7 +3,7 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import MoviesFilterComponent from './MoviesFilterComponent';
+import MoviesFilter from './MoviesFilter';
 
 interface Props {
   selectedTab: string;
@@ -46,7 +46,7 @@ function MoviesData({
   return (
     <div className="p-3 bg-dark rounded-3">
       {showKeys && (
-        <MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />
+        <MoviesFilter showKeys={showKeys} setShowKeys={setShowKeys} />
       )}
       <Row>
         {selectedTab === 'myMovies' ? myMovies.map((moviesData: MoviesProps) => (

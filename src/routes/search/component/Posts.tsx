@@ -18,10 +18,6 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const SmallText = styled.p`
-  font-size: small;
-  color: #CCCCCC;
-`;
 const ProfileImage = styled(Image)`
   height:3.313rem;
   width:3.313rem;
@@ -75,39 +71,23 @@ function Posts({
 
   return (
     <Card key={id} className="bg-dark my-3">
-      <Card.Header className="border-0 ps-1 ps-md-3">
-        <Row className="align-items-center">
-          <Col xs={11}>
-            <Row>
-              <Col className="my-auto rounded-circle" xs="auto">
-                <div className="rounded-circle">
-                  <Link to="/news/partner/1">
-                    <ProfileImage src={image} className="rounded-circle bg-secondary" />
-                  </Link>
-                </div>
-              </Col>
-              <Col xs="auto" className="align-self-center">
-                <Link to="/news/partner/1">
-                  <h1 className="mb-0 h6">{name}</h1>
-                </Link>
-                <Link to="/news/partner/1">
-                  <SmallText className="mb-0">{date}</SmallText>
-                </Link>
-              </Col>
-            </Row>
-          </Col>
-          <Col xs={1}>
-            <CustomDropDown>
-              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="bg-black">
-                <Dropdown.Item eventKey="block" className="text-light">Block</Dropdown.Item>
-                <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
-              </Dropdown.Menu>
-            </CustomDropDown>
-          </Col>
-        </Row>
+      <Card.Header className="border-0 ps-1 ps-md-3 align-items-center d-flex justify-content-between">
+        <Link to="/news/partner/1" className="align-items-center d-flex">
+          <ProfileImage src={image} className="rounded-circle bg-secondary" />
+          <div className="mx-3">
+            <h1 className="mb-0 h6">{name}</h1>
+            <small className="text-light">{date}</small>
+          </div>
+        </Link>
+        <CustomDropDown>
+          <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1 px-0">
+            <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+          </Dropdown.Toggle>
+          <Dropdown.Menu className="bg-black">
+            <Dropdown.Item eventKey="block" className="text-light">Block</Dropdown.Item>
+            <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
+          </Dropdown.Menu>
+        </CustomDropDown>
       </Card.Header>
       <Card.Body className="ps-1 ps-md-3 pt-1">
         <Row>

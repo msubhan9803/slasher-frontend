@@ -7,22 +7,7 @@ import { SearchProps } from '../SearchInterface';
 
 const EventsCardStyle = styled(Card)`
   img {
-    height: 10.938rem;
-  }
-
-  .card-img-overlay {
-    top: 7.813rem;
-
-    .rating {
-      height: 1.563rem;
-      line-height: 2
-    }
-  }
-  .fa-star {
-    color: #FF8A00;
-  }
-  .fa-thumbs-down {
-    transform: rotateY(180deg);
+    aspect-ratio: 16/9;
   }
 `;
 
@@ -30,13 +15,13 @@ function Events({
   name, image, date, address,
 }: SearchProps) {
   return (
-    <EventsCardStyle className="bg-transparent px-2 py-4 ">
+    <EventsCardStyle className="bg-dark my-3 px-3 py-4">
       <Card.Img variant="top" src={image} className="rounded-3 mb-2" />
       <Card.Body className="p-0">
-        <Card.Text>
+        <Card.Text className="text-light">
           {date}
         </Card.Text>
-        <Card.Text>
+        <Card.Text className="text-light">
           <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
           {address}
         </Card.Text>

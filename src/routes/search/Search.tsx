@@ -126,7 +126,7 @@ function Search() {
         <Tab eventKey="events" title="Events">
           <Row className="justify-content-evenly mx-3 mx-sm-0">
             {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
-              <Col sm={5} key={eventDetail.id} className="bg-dark my-3 rounded-3">
+              <Col sm={5} key={eventDetail.id} className="">
                 <Events
                   id={eventDetail.id}
                   name={eventDetail.name}
@@ -141,9 +141,9 @@ function Search() {
           </Row>
         </Tab>
         <Tab eventKey="movies" title="Movies">
-          <Row>
+          <Row className="my-3 mx-0">
             {filtered && filtered.length > 0 ? (filtered.map((movieDetail) => (
-              <Col xs={6} sm={4} lg={3} key={movieDetail.id}>
+              <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
                 <Movies
                   id={movieDetail.id}
                   name={movieDetail.name}

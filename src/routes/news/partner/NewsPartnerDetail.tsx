@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button, Col, Row,
 } from 'react-bootstrap';
@@ -20,6 +20,10 @@ const SmallText = styled.p`
 `;
 
 function NewsPartnerDetail() {
+  const [bgColor, setBgColor] = useState(false);
+  const followBtnClick = () => {
+    setBgColor(!bgColor);
+  };
   // TODO: Delete the eslint ignore line below once we use this
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { partnerId } = useParams();
@@ -42,7 +46,7 @@ function NewsPartnerDetail() {
           </Row>
           <Row className=" d-flex d-md-none justify-content-center">
             <Col xs={6}>
-              <Button as="input" type="button" value="Follow" className="mb-4 mx-1 rounded-pill px-5" />
+              <Button as="input" type="button" value={bgColor ? 'Follow' : 'Unfollow'} onClick={followBtnClick} className={`mb-4 mx-1 border-0 rounded-pill px-5 shadow-none ${bgColor ? 'bg-success' : 'bg-primary'}`} />
             </Col>
           </Row>
           <Row className="d-md-none bg-dark mt-2">

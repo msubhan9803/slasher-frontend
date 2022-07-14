@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BlockDialog from '../../../components/ui/BlockDialog';
 import ReportDialog from '../../../components/ui/Reportdialog';
@@ -21,19 +21,12 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const SmallText = styled.p`
-  font-size: small;
-  color: #CCCCCC;
-`;
 const ProfileImage = styled(Image)`
   height:3.313rem;
   width:3.313rem;
 `;
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
-`;
-const CursorPointer = styled.span`
-  cursor:Pointer;
 `;
 
 const postData = [
@@ -68,8 +61,8 @@ function NewsPostData() {
     setDropDownValue(newsValue);
   };
 
-  const onHashtagClick = (hashtag: string) => {
-    navigate('/search', { state: hashtag });
+  const onHashtagClick = (hashtagValue: string) => {
+    navigate('/search', { state: { hashtag: hashtagValue } });
   };
 
   const onProfileDetailClick = () => {
@@ -83,15 +76,17 @@ function NewsPostData() {
             <Card.Header className="border-0 ps-1 ps-md-3">
               <Row className="align-items-center">
                 <Col xs={11}>
-                  <Row className="d-flex">
+                  <Row>
                     <Col className="my-auto rounded-circle" xs="auto">
-                      <div className="rounded-circle">
-                        <CursorPointer><ProfileImage src={userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} /></CursorPointer>
-                      </div>
-                    </Col>
-                    <Col xs="auto" className="ps-0 align-self-center">
-                      <CursorPointer><h1 className="mb-0 h6" onClick={() => { onProfileDetailClick(); }}>{post.userName}</h1></CursorPointer>
-                      <CursorPointer><SmallText className="mb-0" onClick={() => { onProfileDetailClick(); }}>{post.postDate}</SmallText></CursorPointer>
+                      <Link className="text-white d-flex align-items-center" to="/news/partner/1">
+                        <div className="rounded-circle">
+                          <ProfileImage src={userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
+                        </div>
+                        <div className="ps-3">
+                          <h1 className="mb-0 h6">{post.userName}</h1>
+                          <small className="mb-0 text-light">{post.postDate}</small>
+                        </div>
+                      </Link>
                     </Col>
                   </Row>
                 </Col>
@@ -112,24 +107,24 @@ function NewsPostData() {
               <Row>
                 <Col xs={12}>
                   <>
-                    <span className="p">{post.content}</span>
+                    <span>{post.content}</span>
                     {post.hashTag?.map((hashtag) => (
-                      <CursorPointer key={hashtag} className="text-primary p cursor-pointer" onClick={() => onHashtagClick(hashtag)}>
+                      <span role="button" key={hashtag} className="text-primary" onClick={() => onHashtagClick(hashtag)}>
                         {' '}
                         #
                         {hashtag}
-                      </CursorPointer>
+                      </span>
                     ))}
                     ☠️
                   </>
                 </Col>
               </Row>
               <Row className="mt-3">
-                <Col className="">
+                <Col>
                   <Image src={postImage} className="w-100" />
                 </Col>
               </Row>
-              <Row className="justify-content-between d-flex m-2">
+              <Row className="justify-content-between m-2">
                 <Col>
                   <LinearIcon uniqueId="like-button">
                     <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
@@ -153,8 +148,8 @@ function NewsPostData() {
               </Row>
             </Card.Body>
             <CardFooter>
-              <Row className="justify-content-between d-flex m-2">
-                <Col className="p-0">
+              <div className="justify-content-between d-flex m-2">
+                <div className="p-0">
                   {like && (post.id === id)
                     ? (
                       <LinearIcon uniqueId="like-button">
@@ -168,24 +163,28 @@ function NewsPostData() {
                         Like
                       </>
                     )}
-                </Col>
-                <Col className="text-center p-0">
+                </div>
+                <div className="p-0 text-center">
                   <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
                   Comment
-                </Col>
-                <Col className="text-end p-0">
+                </div>
+                <div className="p-0 text-end">
                   <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
                   Share
-                </Col>
-              </Row>
+                </div>
+              </div>
             </CardFooter>
           </Card>
         ))
       }
-      {dropDownValue === 'report'
-        && <ReportDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}
-      {dropDownValue === 'block'
-        && <BlockDialog show={show} setShow={setShow} slectedMessageDropdownValue={dropDownValue} />}
+      {
+        dropDownValue === 'report'
+        && <ReportDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      }
+      {
+        dropDownValue === 'block'
+        && <BlockDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      }
     </>
   );
 }

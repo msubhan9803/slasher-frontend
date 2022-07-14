@@ -6,10 +6,10 @@ import ModalContainer from './CustomModal';
 interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
-  slectedMessageDropdownValue: string
+  slectedDropdownValue: string
 }
 
-function BlockDialog({ show, setShow, slectedMessageDropdownValue }: Props) {
+function BlockDialog({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
   };
@@ -20,7 +20,7 @@ function BlockDialog({ show, setShow, slectedMessageDropdownValue }: Props) {
       onHide={closeModal}
       size="sm"
     >
-      {slectedMessageDropdownValue === 'block' && (
+      {slectedDropdownValue === 'block' && (
         <>
           <Modal.Header className="border-0 shadow-none" closeButton />
           <Modal.Body className="d-flex flex-column align-items-center text-center">

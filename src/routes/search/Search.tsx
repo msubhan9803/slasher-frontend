@@ -8,6 +8,12 @@ import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 
+interface Location {
+  state : {
+    hashtag : string
+  }
+}
+
 const StyleTabs = styled(Tabs)`
   border-bottom: 0.188rem solid var(--bs-dark);
   overflow-x: auto;
@@ -71,6 +77,7 @@ function Search() {
   const [filtered, setFiltered] = useState<string[]>([]);
   const [message, setMessage] = useState<string>('Hashtags');
   const [defaultKey, setDefaultKey] = useState<string>('users');
+  const { state } = location as Location;
 
   const searchData = (searchQuery: string) => {
     let searchResult;
@@ -88,8 +95,10 @@ function Search() {
   };
 
   useEffect(() => {
-    location.state && setSearch(location.state as string);
-    location.state && setDefaultKey('hashtags');
+    if (location.state) {
+      setSearch(state.hashtag);
+      setDefaultKey('hashtags');
+    }
   }, []);
 
   return (

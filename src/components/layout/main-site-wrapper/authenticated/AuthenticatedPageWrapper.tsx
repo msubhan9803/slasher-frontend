@@ -47,7 +47,7 @@ const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const [show, setShow] = useState(false);
-  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 768px)' });
+  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 960px)' });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);

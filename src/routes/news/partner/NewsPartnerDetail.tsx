@@ -51,7 +51,7 @@ function NewsPartnerDetail() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row>
-        <Col md={8}>
+        <Col>
           <Row>
             <Col xs={12} md="auto" className="d-flex justify-content-center">
               <HeaderProfileImage src={userImage} className="me-3 rounded-circle" />
@@ -154,9 +154,6 @@ function NewsPartnerDetail() {
               </CardFooter>
             </Card>
           ))}
-        </Col>
-        <Col md={4} className="d-none d-md-block">
-          <NewsRightSideNav />
         </Col>
       </Row>
     </AuthenticatedPageWrapper>

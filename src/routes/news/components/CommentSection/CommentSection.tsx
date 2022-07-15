@@ -20,7 +20,6 @@ interface Props {
   commentImg?: string;
 }
 const dropdownBgColor = '#171717';
-
 const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     background-color: ${dropdownBgColor};
@@ -99,9 +98,9 @@ function CommentSection({
               <h6 className="mb-0 ">{name}</h6>
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
-            <Col xs={1} className="d-none d-md-block">
+            <Col xs="auto" className="d-none d-md-block pe-0">
               <CustomDropDown>
-                <Dropdown.Toggle className="d-flex justify-content-end">
+                <Dropdown.Toggle className="d-flex justify-content-end pe-0">
                   <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -138,21 +137,19 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <Row className="d-flex m-2">
-          <Col className="p-0" xs="auto" md={4} lg={3}>
-            <FontAwesomeIcon role="button" icon={regular('heart')} size="lg" className="me-2" />
+        <div className="justify-content-between d-flex m-2">
+          <div className="p-0" role="button" aria-hidden="true">
+            <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
             Like
-          </Col>
-          <Col className="text-center p-0" xs="auto" md={4} lg={3}>
-            <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
+            <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-5" />
             Reply
-          </Col>
-        </Row>
+          </div>
+        </div>
+
       </Col>
     </Row>
   );
 }
-
 CommentSection.defaultProps = {
   commentMention: '',
   commentMsg: '',

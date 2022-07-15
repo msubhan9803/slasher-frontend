@@ -1,3 +1,12 @@
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 960px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
 $primary: #FF1700;
 $secondary: #000000;
 $info: #007c82;
@@ -10,7 +19,7 @@ $dark: #131313;
 $font-family-base: 'Roboto';
 
 $body-color: #ffffff;
-$link-color: $body-color;
+$link-color: $primary;
 
 $offcanvas-bg-color: $dark;
 

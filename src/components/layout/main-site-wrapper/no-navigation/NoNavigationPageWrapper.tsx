@@ -6,6 +6,7 @@ import slasherLogo from '../../../../images/slasher-logo-medium.png';
 interface Props {
   hideTopLogo?: boolean,
   children: React.ReactNode;
+  className?: string;
 }
 
 const StyledMain = styled.main`
@@ -16,7 +17,7 @@ const StyledLogoImage = styled(Image)`
   height: 6rem;
 `;
 
-function NoNavigationPageWrapper({ children, hideTopLogo }: Props) {
+function NoNavigationPageWrapper({ children, hideTopLogo, className }: Props) {
   return (
     <>
       <header className="text-center text-md-start">
@@ -24,7 +25,7 @@ function NoNavigationPageWrapper({ children, hideTopLogo }: Props) {
           <StyledLogoImage src={slasherLogo} />
         </Container>
       </header>
-      <StyledMain className="d-flex align-items-center">
+      <StyledMain className={`d-flex ${className}`}>
         <Container fluid="lg">
           {children}
         </Container>
@@ -35,6 +36,7 @@ function NoNavigationPageWrapper({ children, hideTopLogo }: Props) {
 
 NoNavigationPageWrapper.defaultProps = {
   hideTopLogo: false,
+  className: '',
 };
 
 export default NoNavigationPageWrapper;

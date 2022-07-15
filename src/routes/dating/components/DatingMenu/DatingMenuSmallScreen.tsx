@@ -10,7 +10,7 @@ const DatingMenuList = styled(Row)`
 `;
 function DatingMenuSmallScreen() {
   return (
-    <DatingMenuList className="bg-dark position-fixed d-md-none mb-0 fixed-top">
+    <DatingMenuList className="bg-dark position-fixed d-lg-none mb-0 fixed-top">
       <Col xs={12}>
         <p className="text-center mt-1">Dating Menu</p>
       </Col>

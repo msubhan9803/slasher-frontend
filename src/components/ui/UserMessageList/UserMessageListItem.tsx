@@ -85,7 +85,7 @@ function UserMessageListItem({
         <h1 className="h6 mb-0">{userName}</h1>
         <RecentMessage>{message}</RecentMessage>
       </Col>
-      <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'p-0 pt-1' : ''}>
+      <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'p-0 pt-1' : 'align-self-center'}>
         <TimeStampStyled
           className="mb-0 rounded-5 small text-end text-light"
         >

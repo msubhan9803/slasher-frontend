@@ -41,7 +41,7 @@ function NewsPartnerDetail() {
             </Col>
           </Row>
           <Row className=" d-flex d-md-none justify-content-center">
-            <Col xs={6}>
+            <Col xs={6} className="text-center">
               <Button as="input" type="button" value={bgColor ? 'Follow' : 'Unfollow'} onClick={followBtnClick} className={`mb-4 mx-1 border-0 rounded-pill px-5 shadow-none ${bgColor ? 'bg-success' : 'bg-primary'}`} />
             </Col>
           </Row>

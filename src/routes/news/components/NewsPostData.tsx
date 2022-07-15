@@ -160,7 +160,7 @@ function NewsPostData() {
                   Comment
                 </div>
                 <div className="p-0 text-end" role="button">
-                  <Col xs={1} className="d-none d-md-block">
+                  <Col xs={1} className=" d-block">
                     <CustomDropDown>
                       <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
                         <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />

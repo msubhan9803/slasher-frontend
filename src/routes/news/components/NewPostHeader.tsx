@@ -33,8 +33,8 @@ function NewPostHeader({ userName, postDate }: Props) {
   return (
     <>
       <Row className="align-items-center">
-        <Col xs={11}>
-          <Row>
+        <Col >
+          <Row className="justify-content-between">
             <Col className="my-auto rounded-circle" xs="auto">
               <Link className="text-white d-flex align-items-center" to="/news/partner/1">
                 <div className="rounded-circle">
@@ -46,18 +46,19 @@ function NewPostHeader({ userName, postDate }: Props) {
                 </div>
               </Link>
             </Col>
+            <Col xs="auto" className="d-none d-md-block pe-0 align-self-center">
+              <CustomDropDown onSelect={handleNewsOption}>
+                <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
+                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="bg-black">
+                  <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
+                </Dropdown.Menu>
+              </CustomDropDown>
+            </Col>
           </Row>
         </Col>
-        <Col xs={1} className="d-none d-md-block">
-          <CustomDropDown onSelect={handleNewsOption}>
-            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="bg-black">
-              <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
-            </Dropdown.Menu>
-          </CustomDropDown>
-        </Col>
+
       </Row>
       {
         dropDownValue === 'report'

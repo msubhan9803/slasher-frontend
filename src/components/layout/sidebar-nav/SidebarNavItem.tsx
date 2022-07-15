@@ -23,11 +23,13 @@ const LinearIcon = styled.div<LinearIconProps>`
 `;
 
 const StyledLink = styled(Link)`
-  height: 4em;
+  height: 3.35em;
+  padding-top: 0;
+  padding-bottom: 0;
   padding-left: 1.1em;
 
   .nav-item-label {
-    font-size: .9em;
+    font-size: .875em;
     line-height: 1.3em;
   }
 `;

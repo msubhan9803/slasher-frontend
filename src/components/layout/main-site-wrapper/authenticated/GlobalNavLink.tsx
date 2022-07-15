@@ -9,12 +9,13 @@ interface Props {
   iconSize: SizeProp;
   to: string;
   badge?: number;
-  badgeIconClassName?: string
-  className?: string
+  badgeIconClassName?: string;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 function GlobalNavLink({
-  label, icon, iconSize, to, badge, badgeIconClassName, className,
+  label, icon, iconSize, to, badge, badgeIconClassName, className, children,
 }: Props) {
   return (
     <Link to={to} className={className}>
@@ -25,6 +26,7 @@ function GlobalNavLink({
         badge={badge}
         badgeIconClassName={badgeIconClassName}
       />
+      {children}
     </Link>
   );
 }
@@ -33,6 +35,7 @@ GlobalNavLink.defaultProps = {
   badgeIconClassName: '',
   className: '',
   badge: null,
+  children: null,
 };
 
 export default GlobalNavLink;

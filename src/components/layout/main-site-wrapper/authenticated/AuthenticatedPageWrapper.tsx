@@ -23,8 +23,13 @@ const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 const LeftSidebarCol = styled.div`
-  flex-basis: 160px;
-  padding:0;
+  flex-basis: 131px;
+  @media (max-width: 1199px) {
+    // flex-basis: 45px;
+    // max-width: 45px;
+    // overflow: hidden;
+    // padding:0;
+  }
 `;
 
 const MainContentCol = styled.main`
@@ -60,12 +65,12 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <Container fluid="xxl" className="py-3">
+      <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
           <LeftSidebarCol className={`d-${desktopBreakPoint}-block d-none`}>
             <SidebarNavContent />
           </LeftSidebarCol>
-          <MainContentCol className="px-3">
+          <MainContentCol className="px-lg-4">
             {children}
           </MainContentCol>
           {

@@ -3,7 +3,6 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import Switch from '../../../components/ui/Switch';
@@ -20,23 +19,20 @@ const SmallText = styled.p`
 `;
 
 function NewsPartnerDetail() {
-  const [bgColor, setBgColor] = useState(false);
+  const [bgColor, setBgColor] = useState<boolean>(false);
   const followBtnClick = () => {
     setBgColor(!bgColor);
   };
-  // TODO: Delete the eslint ignore line below once we use this
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { partnerId } = useParams();
 
   return (
     <AuthenticatedPageWrapper>
-      <Row>
+      <Row className="mb-5 p-2">
         <Col md={8}>
           <Row>
             <Col xs={12} md="auto" className="d-flex justify-content-center">
               <HeaderProfileImage src={userImage} className="me-3 rounded-circle" />
             </Col>
-            <Col md={8} className="align-self-center">
+            <Col md={5} className="align-self-center">
               <h2 className="text-center text-md-start h3 mt-3 mt-md-0">Horror Oasis</h2>
               <SmallText className="text-center text-md-start">
                 It is a long established fact that a reader will be by the

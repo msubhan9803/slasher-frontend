@@ -1,29 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Dropdown, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import BlockDialog from '../../../components/ui/BlockDialog';
-import ReportDialog from '../../../components/ui/Reportdialog';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
-import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import postImage from '../../../images/news-post.svg';
+import NewPostHeader from './NewPostHeader';
 
 interface LinearIconProps {
   uniqueId?: string
+}
+interface PostProps {
+  id: number;
+  userName: string;
+  postDate: string;
+  content: string;
+  hashTag: string[];
+  commentSection: boolean;
+  likeIcon: boolean;
 }
 
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const ProfileImage = styled(Image)`
-  height:3.313rem;
-  width:3.313rem;
 `;
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
@@ -60,12 +63,7 @@ const intialPostdata = [
 
 function NewsPostData() {
   const navigate = useNavigate();
-  const [like, setLike] = useState(false);
-  const [id, setId] = useState<number>();
-  const [show, setShow] = useState(false);
-  const [dropDownValue, setDropDownValue] = useState('');
-  const [postData, setPostData] = useState(intialPostdata);
-
+  const [postData, setPostData] = useState<PostProps[]>(intialPostdata);
   const onLikeClick = (likeId: number) => {
     const likeData = postData.map((checkLikeId: any) => {
       if (checkLikeId.id === likeId) {
@@ -75,7 +73,6 @@ function NewsPostData() {
     });
     setPostData(likeData);
   };
-
   const handleCommmentBox = (commentsId: any) => {
     const commentData = postData.map((checkCommentId: any) => {
       if (checkCommentId.id === commentsId) {
@@ -85,60 +82,24 @@ function NewsPostData() {
     });
     setPostData(commentData);
   };
-
-  const handleNewsOption = (newsValue: string) => {
-    setShow(true);
-    setDropDownValue(newsValue);
-  };
-
   const onHashtagClick = (hashtagValue: string) => {
     navigate('/search', { state: { hashtag: hashtagValue } });
-  };
-
-  const onProfileDetailClick = () => {
-    navigate('/news/partner/1');
   };
   return (
     <>
       {
-        postData.map((post: any) => (
-          <Card key={post.id} className="bg-dark mb-5 my-3">
+        postData.map((post: PostProps) => (
+          <Card key={post.id} className="bg-dark my-3">
             <Card.Header className="border-0 ps-1 ps-md-3">
-              <Row className="align-items-center">
-                <Col xs={11}>
-                  <Row>
-                    <Col className="my-auto rounded-circle" xs="auto">
-                      <Link className="text-white d-flex align-items-center" to="/news/partner/1">
-                        <div className="rounded-circle">
-                          <ProfileImage src={userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
-                        </div>
-                        <div className="ps-3">
-                          <h1 className="mb-0 h6">{post?.userName}</h1>
-                          <small className="mb-0 text-light">{post?.postDate}</small>
-                        </div>
-                      </Link>
-                    </Col>
-                  </Row>
-                </Col>
-                <Col xs={1} className="d-none d-md-block">
-                  <CustomDropDown onSelect={handleNewsOption}>
-                    <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                      <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu className="bg-black">
-                      <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </CustomDropDown>
-                </Col>
-              </Row>
+              <NewPostHeader userName={post.userName} postDate={post.postDate} />
             </Card.Header>
             <Card.Body className="ps-1 ps-md-3 pt-1">
               <Row>
                 <Col xs={12}>
                   <>
                     <span>{post.content}</span>
-                    {post.hashTag?.map((hashtag: any) => (
-                      <span role="button" tabIndex={0} key={hashtag} className="text-primary" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
+                    {post.hashTag?.map((hashtag: string) => (
+                      <span role="button" tabIndex={0} key={hashtag} className="text-primary mx-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
                         #
                         {hashtag}
                       </span>
@@ -192,7 +153,7 @@ function NewsPostData() {
                           Like
                         </>
                       )
-}
+                  }
                 </div>
                 <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => handleCommmentBox(post.id)}>
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
@@ -217,29 +178,21 @@ function NewsPostData() {
               </div>
               {post.commentSection
                 && (
-                <Col className="bg-dark ps-0 pe-4 mt-4">
-                  <StyledCommentInputGroup className="mb-3">
-                    <Form.Control
-                      placeholder="Write a comment ..."
-                      className="border-end-0"
-                    />
-                    <InputGroup.Text>
-                      <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
-                    </InputGroup.Text>
-                  </StyledCommentInputGroup>
-                </Col>
+                  <Col className="bg-dark ps-0 pe-4 mt-4">
+                    <StyledCommentInputGroup className="mb-3">
+                      <Form.Control
+                        placeholder="Write a comment ..."
+                        className="border-end-0"
+                      />
+                      <InputGroup.Text>
+                        <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
+                      </InputGroup.Text>
+                    </StyledCommentInputGroup>
+                  </Col>
                 )}
             </CardFooter>
           </Card>
         ))
-      }
-      {
-        dropDownValue === 'report'
-        && <ReportDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-      }
-      {
-        dropDownValue === 'block'
-        && <BlockDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
       }
     </>
   );

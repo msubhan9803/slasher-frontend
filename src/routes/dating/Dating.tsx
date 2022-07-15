@@ -7,11 +7,11 @@ import {
 import DatingSetup from './setup/DatingSetup';
 import DatingProfile from './profile/DatingProfile';
 import DatingWelcome from './welcome/DatingWelcome';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 import DatingPreferences from './preferences/DatingPreferences';
 import DatingConversation from './conversation/DatingConversation';
 import Likes from './likes/Likes';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 
 function Dating() {
   return (
@@ -24,7 +24,7 @@ function Dating() {
       <Route path="/conversation" element={<DatingConversation />} />
       <Route path="/likes" element={<Likes />} />
 
-      <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
+      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );
 }

@@ -24,7 +24,7 @@ function DatingAdditionalPreferences() {
       </h2>
       <Row className="my-4 pt-2">
         {genderList.map((gender: string) => (
-          <Col xs={4}>
+          <Col key={gender} xs={4}>
             <Button
               variant="form"
               size="lg"

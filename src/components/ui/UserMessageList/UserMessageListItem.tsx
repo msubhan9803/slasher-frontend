@@ -26,6 +26,7 @@ const RecentMessage = styled.p`
   text-overflow: ellipsis;
   font-size: .75rem;
   color: #CCCCCC;
+  width: 26ch;
   margin-bottom: 0;
 `;
 
@@ -93,7 +94,7 @@ function UserMessageListItem({
           >
             {timeStamp}
           </TimeStampStyled>
-          {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
+          {count !== 0 && <div className="text-end mt-3"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
         </Col>
         {
           options && (

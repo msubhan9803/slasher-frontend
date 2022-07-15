@@ -5,13 +5,13 @@ import UserMessageListItem from '../../../ui/UserMessageList/UserMessageListItem
 function RecentMessage() {
   const recentMessageDetails = [
     {
-      messageId: 1, userName: 'Maureen Biologist', message: 'We ask only to be reassured', photo: 'https://i.pravatar.cc/300?img=47',
+      id: 21, userName: 'Maureen Biologist', message: 'We ask only to be reassured We ask only to be reassured We ask only to be reassured', photo: 'https://i.pravatar.cc/300?img=47',
     },
     {
-      messageId: 2, userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=56',
+      id: 22, userName: 'Teri Dactyl', message: 'There was a knock ', photo: 'https://i.pravatar.cc/300?img=56',
     },
     {
-      messageId: 3, userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=26',
+      id: 23, userName: 'Teri Dactyl', message: 'There was a knock on the door and', photo: 'https://i.pravatar.cc/300?img=26',
     },
   ];
   return (
@@ -23,7 +23,7 @@ function RecentMessage() {
       <UserMessageList className="mb-4">
         {recentMessageDetails.map((recentMessageDetail) => (
           <UserMessageListItem
-            key={recentMessageDetail.messageId}
+            key={recentMessageDetail.id}
             userName={recentMessageDetail.userName}
             message={recentMessageDetail.message}
             count={6}

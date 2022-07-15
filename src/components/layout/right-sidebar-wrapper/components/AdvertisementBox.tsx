@@ -9,7 +9,7 @@ function AdvertisementBox() {
   return (
     <>
       <h2 className="h4 my-3 ps-0">Advertisment</h2>
-      <Advertisement className=" bg-dark " />
+      <Advertisement className=" bg-dark mx-2" />
     </>
   );
 }

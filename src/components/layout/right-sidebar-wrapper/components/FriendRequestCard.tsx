@@ -4,17 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
 
-function FriendRequest() {
-  const FriendRequestImage = styled(Image)`
+const FriendRequestImage = styled(Image)`
   height: 2.5rem;
   width: 2.5rem;
 `;
-  const AcceptRequestStyled = styled(FontAwesomeIcon)`
+const AcceptRequestStyled = styled(FontAwesomeIcon)`
   padding: 0.25rem 0.313rem;
 `;
-  const RejectRequestStyled = styled(FontAwesomeIcon)`
+const RejectRequestStyled = styled(FontAwesomeIcon)`
   padding: 0.25rem 0.438rem;
 `;
+
+function FriendRequest() {
   const friendRequestPhotos = [
     { id: 1, image: 'https://i.pravatar.cc/300?img=19', userName: 'Maureen Biologist' },
     { id: 2, image: 'https://i.pravatar.cc/300?img=20', userName: 'Bernadette Audrey' },

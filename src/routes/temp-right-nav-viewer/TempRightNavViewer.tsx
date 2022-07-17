@@ -4,9 +4,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 function TempRightNavViewer() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
-      <div className="home">
-        <h1>Right side nav viewer</h1>
-      </div>
+      <h1 className="h3 mb-3">Right side nav viewer</h1>
     </AuthenticatedPageWrapper>
   );
 }

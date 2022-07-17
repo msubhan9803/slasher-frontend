@@ -1,14 +1,14 @@
 import React from 'react';
-import RecentMessage from '../components/RecentMessage';
-import FriendRequest from '../components/FriendRequest';
+import RecentMessages from '../components/RecentMessages';
+import FriendRequests from '../components/FriendRequests';
 import AdvertisementBox from '../components/AdvertisementBox';
 
 function RightSidebarSelf() {
   return (
     <>
       <AdvertisementBox />
-      <RecentMessage />
-      <FriendRequest />
+      <RecentMessages />
+      <FriendRequests />
     </>
   );
 }

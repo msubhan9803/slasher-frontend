@@ -9,7 +9,7 @@ import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import DatingMenuLargeScreen from '../../../../routes/dating/components/DatingMenu/DatingMenuLargeScreen';
+import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
 
 interface Props {
   children: React.ReactNode;
@@ -22,23 +22,25 @@ const StyledOffcanvas = styled(Offcanvas)`
   }
 `;
 
-const LeftSidebarCol = styled.div`
-  flex-basis: 131px;
-  @media (max-width: 1199px) {
-    // flex-basis: 45px;
-    // max-width: 45px;
-    // overflow: hidden;
-    // padding:0;
-  }
+const LeftSidebarWrapper = styled.div`
+  width: 127px;
 `;
 
 const MainContentCol = styled.main`
-  flex: 1 0;
+  // This stops wide child items from forcing this element from expanding beyond its intended
+  // maximum width.
+  min-width: 0;
+
+  // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
+  padding-bottom: 5.25em;
+  // For desktop sizes, reduce bottom padding
+  @media (min-width: 960px) {
+    padding-bottom: 1em;
+  }
 `;
 
-const RightSidebarCol = styled.div`
-  flex-basis: 334px;
-  padding:0;
+const RightSidebarWrapper = styled.div`
+  width: 334px;
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
@@ -55,7 +57,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const renderSidebarForType = (type: string) => ({
     'profile-self': <RightSidebarSelf />,
     'profile-other-user': <RightSidebarViewer />,
-    dating: <DatingMenuLargeScreen />,
+    dating: <DatingSidebar />,
   }[type]);
 
   return (
@@ -65,20 +67,24 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <Container fluid="xxl" className="py-3 px-lg-4">
+      <Container fluid="xxl" className="py-4 px-lg-4">
         <div className="d-flex">
-          <LeftSidebarCol className={`d-${desktopBreakPoint}-block d-none`}>
-            <SidebarNavContent />
-          </LeftSidebarCol>
-          <MainContentCol className="px-lg-4">
+          <div className={`d-${desktopBreakPoint}-block d-none`}>
+            <LeftSidebarWrapper>
+              <SidebarNavContent />
+            </LeftSidebarWrapper>
+          </div>
+          <MainContentCol className="px-lg-4 flex-grow-1">
             {children}
           </MainContentCol>
           {
             rightSidebarType
             && (
-              <RightSidebarCol className={`d-${desktopBreakPoint}-block d-none`}>
-                {renderSidebarForType(rightSidebarType)}
-              </RightSidebarCol>
+              <div>
+                <RightSidebarWrapper className={`d-${desktopBreakPoint}-block d-none`}>
+                  {renderSidebarForType(rightSidebarType)}
+                </RightSidebarWrapper>
+              </div>
             )
           }
         </div>

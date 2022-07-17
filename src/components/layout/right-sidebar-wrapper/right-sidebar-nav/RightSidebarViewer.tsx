@@ -4,13 +4,13 @@ import BooksIhaveRead from '../components/BooksIhaveRead';
 import Friends from '../components/Friends';
 import Photos from '../components/Photos';
 import Podcasts from '../components/Podcasts';
-import WatchList from '../components/WatchList';
+import WatchedList from '../components/WatchedList';
 
 function RightSidebarViewer() {
   return (
     <>
       <AdvertisementBox />
-      <WatchList />
+      <WatchedList />
       <Podcasts />
       <BooksIhaveRead />
       <Photos />

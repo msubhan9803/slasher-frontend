@@ -1,0 +1,88 @@
+import React from 'react';
+import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import styled from 'styled-components';
+
+const StarLabel = styled.span`
+  font-size: .6rem;
+  bottom: .2rem;
+  right: .2rem;
+  .svg-inline--fa {
+    color: #FF8A00;
+    shape-rendering: geometricPrecision; // better rendering for small SVG
+  }
+`;
+
+const YearAndThumbRating = styled.div`
+  font-size: 0.625rem;
+  .svg-inline--fa {
+    border: 1px solid #3A3B46;
+    color: #FF8A00;
+    font-size: .5rem;
+    padding: .15rem;
+    shape-rendering: geometricPrecision; // better rendering for small SVG
+  }
+`;
+
+const MovieTitle = styled.div`
+  font-size: 0.75rem;
+`;
+
+interface Props {
+  className?: string;
+  image: string;
+  title: string;
+  year?: number;
+  thumbRating?: 'up' | 'down' | null;
+  numericRating?: number;
+}
+
+function WatchListItem({
+  className, image, title, year, numericRating, thumbRating,
+}: Props) {
+  const renderThumbIcon = (rating: 'up' | 'down') => (
+    rating === 'up'
+      ? <FontAwesomeIcon icon={regular('thumbs-up')} className="text-success rounded-circle" size="xs" />
+      : <FontAwesomeIcon icon={regular('thumbs-down')} className="text-primary rounded-circle" size="xs" />
+  );
+
+  const hasYearOrThumbRating = year || thumbRating;
+
+  return (
+    <div className={`${className}`}>
+      <div className="position-relative">
+        <img alt={`Poster for ${title}`} src={image} className="img-fluid rounded-3" />
+        {
+          numericRating
+          && (
+            <StarLabel className="position-absolute badge rounded-pill text-black bg-white">
+              <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
+              {numericRating}
+            </StarLabel>
+          )
+        }
+      </div>
+      {
+        (hasYearOrThumbRating)
+        && (
+          <YearAndThumbRating className="d-flex justify-content-between align-items-center pt-1">
+            {year && <span className="text-light">{year}</span>}
+            {thumbRating && renderThumbIcon(thumbRating!)}
+          </YearAndThumbRating>
+        )
+      }
+      <MovieTitle className={hasYearOrThumbRating ? '' : 'mt-2'}>
+        {title}
+      </MovieTitle>
+    </div>
+  );
+}
+
+WatchListItem.defaultProps = {
+  className: '',
+  year: null,
+  numericRating: null,
+  thumbRating: null,
+};
+
+export default WatchListItem;

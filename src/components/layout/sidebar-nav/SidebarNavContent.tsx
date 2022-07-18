@@ -1,71 +1,67 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
-import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 
 const sidebarMenuList = [
   {
-    label: 'News & Reviews', icon: solid('newspaper'), color: '#0094FF', to: '/news',
+    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/news',
   },
   {
-    label: 'Events', icon: solid('calendar-day'), color: '#05FF00', to: '/events',
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/events',
   },
   {
-    label: 'Places', icon: solid('location-dot'), color: '#FFC700', to: '/places',
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/places',
   },
   {
-    label: 'Dating', icon: solid('heart'), color: '#FF0000', to: '/dating',
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/dating',
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), color: '#8F00FF', to: '/podcasts',
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/podcasts',
   },
   {
-    label: 'Video Channels', icon: solid('tv'), color: '#00E676', to: '/videos',
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/videos',
   },
   {
-    label: 'Shopping', icon: solid('store'), color: '#00D2FF', to: '/shopping',
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/shopping',
   },
   {
-    label: 'Movies', icon: solid('film'), color: '#FF343E', to: '/movies',
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/movies',
   },
   {
-    label: 'Books', icon: solid('book-skull'), color: '#D88100', to: '/books',
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/books',
   },
   {
-    label: 'Music', icon: solid('headphones'), color: '#7C4DFF', id: 10, to: '/music',
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 10, to: '/music',
   },
   {
-    label: 'Art', icon: solid('palette'), color: '#799F0C', id: 11, to: '/art',
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 11, to: '/art',
   },
   {
-    label: 'Help', icon: solid('circle-question'), color: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
+    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
   },
 ];
 
-const BottomLinkList = styled.ul`
-  font-size: .9em;
-`;
-
 function SidebarNavContent() {
   return (
-    <Nav className="flex-column">
+    <Nav>
       {sidebarMenuList.map((menu) => (
         <SidebarNavItem
           key={menu.label}
           label={menu.label}
           icon={menu.icon}
-          color={menu.color}
+          iconColor={menu.iconColor}
           to={menu.to}
           className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
         />
       ))}
-      <BottomLinkList className="list-inline mt-5">
-        <li>Download the app</li>
-        <li>Advertise on Slasher</li>
-        <li>Terms &amp; Policies</li>
-        <li>&copy; 2022 Slasher Corp</li>
-      </BottomLinkList>
+      <ul className="list-inline mt-4 link-hover-underline">
+        <li><Link className="text-light small" to="/">Download the app</Link></li>
+        <li><Link className="text-light small" to="/">Advertise on Slasher</Link></li>
+        <li><Link className="text-light small" to="/">Terms &amp; Policies</Link></li>
+        <li className="text-light small">&copy; 2022 Slasher Corp</li>
+      </ul>
       <br />
     </Nav>
   );

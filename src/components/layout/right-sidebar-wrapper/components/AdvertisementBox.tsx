@@ -2,14 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Advertisement = styled.div`
-  height: 15.625rem;
+  height: 250px;
+  width: 300px;
+  background-color: #272727;
 `;
 
 function AdvertisementBox() {
   return (
     <>
-      <h2 className="h4 my-3 ps-0">Advertisment</h2>
-      <Advertisement className=" bg-dark mx-2" />
+      <h2 className="h3 mb-3">Advertisment</h2>
+      <Advertisement className="mx-auto" />
     </>
   );
 }

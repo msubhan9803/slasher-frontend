@@ -6,15 +6,17 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import MoviesFilterOptions from './components/MoviesFilterOptions';
-import MoviesData from './components/MoviesData';
 import MoviesSearch from './components/MoviesSearch';
 import MoviesSort from './components/MoviesSort';
+import MoviesFilterComponent from './components/MoviesFilterComponent';
+import MovieCard from '../../components/movie/MovieCard';
 
 const StyleTabs = styled(Tabs)`
   overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
     border: none;
+    color: #ffffff;
     &:hover {
       border-color: transparent;
       color: var(--bs-primary);
@@ -29,6 +31,7 @@ const StyleTabs = styled(Tabs)`
 
 function Movies() {
   const tabs = [
+    { value: 'allMovies', label: 'All movies' },
     { value: 'myMovies', label: 'My Movies' },
     { value: 'slasherIndie', label: 'Slasher Indie' },
     { value: 'favoritesList', label: 'Favorites list' },
@@ -62,7 +65,7 @@ function Movies() {
       id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
   ];
-  const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+  // const [selectedTab, setSelectedTab] = useState(tabs[0].value);
   const [showKeys, setShowKeys] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState(myMovies);
   return (
@@ -76,12 +79,12 @@ function Movies() {
             <RoundButton className="w-100">Add your movie</RoundButton>
           </Col>
         </Row>
-        <Row className="bg-dark pb-0 pt-3 px-2 rounded-3">
+        <Row className="bg-dark pb-0 pt-3 rounded-3">
           <Col xs={12}>
             <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
             <StyleTabs
               className="justify-content-between flex-nowrap mt-3 border-0"
-              onSelect={(e: any) => setSelectedTab(e)}
+            // onSelect={(e: any) => setSelectedTab(e)}
             >
               {tabs.map(({ value, label }) => (
                 <Tab key={value} eventKey={value} title={label} />
@@ -101,12 +104,23 @@ function Movies() {
             <MoviesSort title="Sort:" className="rounded-5" />
           </Col>
         </Row>
-        <MoviesData
-          selectedTab={selectedTab}
-          myMovies={filteredMovies}
-          showKeys={showKeys}
-          setShowKeys={setShowKeys}
-        />
+        {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
+        <div className="bg-dark rounded-3  py-1 px-2">
+          <Row className="my-3 mx-0">
+            {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
+              <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
+                <MovieCard
+                  name={movieDetail.name}
+                  image={movieDetail.image}
+                  year={movieDetail.year}
+                  liked={movieDetail.liked}
+                />
+              </Col>
+            )) : (
+              <h1 className="h4 text-center mb-0">No data found</h1>
+            )}
+          </Row>
+        </div>
       </Container>
     </AuthenticatedPageWrapper>
   );

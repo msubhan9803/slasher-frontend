@@ -65,7 +65,7 @@ function Movies() {
       id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
   ];
-  // const [selectedTab, setSelectedTab] = useState(tabs[0].value);
+  const [selectedTab, setSelectedTab] = useState(tabs[0].value);
   const [showKeys, setShowKeys] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState(myMovies);
   return (
@@ -84,7 +84,7 @@ function Movies() {
             <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
             <StyleTabs
               className="justify-content-between flex-nowrap mt-3 border-0"
-            // onSelect={(e: any) => setSelectedTab(e)}
+              onSelect={(e: any) => setSelectedTab(e)}
             >
               {tabs.map(({ value, label }) => (
                 <Tab key={value} eventKey={value} title={label} />
@@ -105,22 +105,24 @@ function Movies() {
           </Col>
         </Row>
         {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark rounded-3  py-1 px-2">
-          <Row className="my-3 mx-0">
-            {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
-              <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
-                <MovieCard
-                  name={movieDetail.name}
-                  image={movieDetail.image}
-                  year={movieDetail.year}
-                  liked={movieDetail.liked}
-                />
-              </Col>
-            )) : (
-              <h1 className="h4 text-center mb-0">No data found</h1>
-            )}
-          </Row>
-        </div>
+        {selectedTab === 'My Movies' && (
+          <div className="bg-dark rounded-3  py-1 px-2">
+            <Row className="my-3 mx-0">
+              {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
+                <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
+                  <MovieCard
+                    name={movieDetail.name}
+                    image={movieDetail.image}
+                    year={movieDetail.year}
+                    liked={movieDetail.liked}
+                  />
+                </Col>
+              )) : (
+                <h1 className="h4 text-center mb-0">No data found</h1>
+              )}
+            </Row>
+          </div>
+        )}
       </Container>
     </AuthenticatedPageWrapper>
   );

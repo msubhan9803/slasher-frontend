@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
   Col, Form, InputGroup, Row,
@@ -12,19 +12,23 @@ interface Props {
   profileImage: string;
   userName: string;
   profileDateTime: string;
-  like: any;
+  like: number;
   userMessage: string;
   commentReplySection: Values[];
+  onIconClick: (value: number) => void;
+  likeIcon: boolean;
 }
 interface Values {
   id: number;
   image: string;
   name: string;
   time: string;
-  like: any;
+  like: number;
+  likeIcon: boolean;
   commentMention: string;
   commentMsg: string;
   commentImg?: string;
+  onIconClick: (value: number) => void;
 }
 const commentSection = [
   {
@@ -33,6 +37,7 @@ const commentSection = [
     userName: 'Mari Ferrer',
     profileDateTime: '06/19/2022 12:10 AM',
     like: 24,
+    likeIcon: false,
     userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
     commentReplySection:
       [
@@ -42,6 +47,7 @@ const commentSection = [
           name: 'Austin Joe',
           time: '06/19/2022 12:10 AM',
           like: 24,
+          likeIcon: false,
           commentMention: '@Mari Ferrer',
           commentMsg: 'eque porro quisquam est qui dolorem ipsum',
         },
@@ -51,6 +57,7 @@ const commentSection = [
           name: 'Rohma Mxud',
           time: '06/19/2022 12:10 AM',
           like: 8,
+          likeIcon: false,
           commentMention: '@Austin Joe',
           commentMsg: 'Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
@@ -62,6 +69,7 @@ const commentSection = [
     profileImage: 'https://i.pravatar.cc/300?img=30',
     userName: 'Mari Ferrer',
     like: 44,
+    likeIcon: false,
     profileDateTime: '06/19/2022 12:10 AM',
     userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
     commentReplySection:
@@ -72,6 +80,7 @@ const commentSection = [
           name: 'Austin Joe',
           time: '06/19/2022 12:10 AM',
           like: 20,
+          likeIcon: false,
           commentMention: '@Mari Ferrer ',
           commentMsg: 'eque porro quisquam est qui dolorem ipsum',
         },
@@ -81,6 +90,7 @@ const commentSection = [
           name: 'Rohma Mxud',
           time: '06/19/2022 12:10 AM',
           like: 34,
+          likeIcon: false,
           commentMention: '@Austin Joe ',
           commentMsg: 'Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
@@ -107,8 +117,27 @@ const StyledCommentInputGroup = styled(InputGroup)`
     min-width: 1.875rem;
   }
 `;
-
 function NewsPartnerComments() {
+  const [postData, setPostData] = useState<any[]>(commentSection);
+
+  const handleLikeIcon = (likeId: number) => {
+    const tempData = [...postData];
+    tempData.map((data: any) => {
+      const temp = data;
+      if (temp.id === likeId) {
+        temp.likeIcon = !temp.likeIcon;
+      }
+      data.commentReplySection.map((like: any) => {
+        const tempLike = like;
+        if (tempLike.id === likeId) {
+          tempLike.likeIcon = !tempLike.likeIcon;
+        }
+        return true;
+      });
+      return tempData;
+    });
+    setPostData(tempData);
+  };
   return (
     <>
       <Row className="ps-3 order-last order-sm-0">
@@ -127,7 +156,7 @@ function NewsPartnerComments() {
           </StyledCommentInputGroup>
         </Col>
       </Row>
-      {commentSection.map((data: Props) => (
+      {postData.map((data: Props) => (
         <Row className="ps-3" key={data.id}>
           <Col>
             <Row className="flex-start ms-3">
@@ -138,7 +167,9 @@ function NewsPartnerComments() {
                   name={data.userName}
                   time={data.profileDateTime}
                   likes={data.like}
+                  likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
+                  onIconClick={() => handleLikeIcon(data.id)}
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5">
@@ -148,9 +179,11 @@ function NewsPartnerComments() {
                       name={comment.name}
                       likes={comment.like}
                       time={comment.time}
+                      likeIcon={comment.likeIcon}
                       commentMsg={comment.commentMsg}
                       commentMention={comment.commentMention}
                       commentImg={comment.commentImg}
+                      onIconClick={() => handleLikeIcon(comment.id)}
                     />
                   </div>
                 ))}

@@ -18,6 +18,8 @@ interface Props {
   commentMention?: string;
   commentMsg?: string;
   commentImg?: string;
+  onIconClick: (value: number) => void;
+  likeIcon: boolean;
 }
 const dropdownBgColor = '#171717';
 const CustomDropDown = styled(Dropdown)`
@@ -84,7 +86,7 @@ const LinearGradientStop = styled.stop`
 `;
 
 function CommentSection({
-  id, image, name, time, commentMention, commentMsg, commentImg, likes,
+  id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
   return (
     <Row key={id}>
@@ -137,15 +139,29 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <div className="justify-content-between d-flex m-2">
-          <div className="p-0" role="button" aria-hidden="true">
-            <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-            Like
-            <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-5" />
-            Reply
+        <div className="m-2">
+          <div className="p-0 d-flex" role="button" aria-hidden="true">
+            {
+              likeIcon
+                ? (
+                  <LinearIcon uniqueId="like-button">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
+                    Like
+                  </LinearIcon>
+                )
+                : (
+                  <div>
+                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
+                    Like
+                  </div>
+                )
+            }
+            <div>
+              <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-5" />
+              Reply
+            </div>
           </div>
         </div>
-
       </Col>
     </Row>
   );

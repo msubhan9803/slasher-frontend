@@ -15,7 +15,7 @@ const BadgeSpan = styled.span`
   font-size: xx-small;
 `;
 
-function GlobalNavItemInnerElement({
+function IconWithTextNavItemInnerElement({
   label, icon, iconSize, badge, badgeIconClassName,
 }: Props) {
   return (
@@ -27,14 +27,14 @@ function GlobalNavItemInnerElement({
             {badge}
           </BadgeSpan>
         )}
-      <p className="mb-0 text-center px-1 mt-2">{label}</p>
+      <p className="mb-0 text-center mt-2">{label}</p>
     </div>
   );
 }
 
-GlobalNavItemInnerElement.defaultProps = {
+IconWithTextNavItemInnerElement.defaultProps = {
   badgeIconClassName: '',
   badge: null,
 };
 
-export default GlobalNavItemInnerElement;
+export default IconWithTextNavItemInnerElement;

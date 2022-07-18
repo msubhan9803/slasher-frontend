@@ -39,8 +39,8 @@ function Messages() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <h1 className="h3 mb-3">Messages</h1>
-      <div className="bg-dark rounded-3 p-4">
+      <h1 className="h3 mb-3 text-center text-lg-start">Messages</h1>
+      <div className="">
         {messages.map((message) => (
           <UserMessageListItem
             key={message.id}

@@ -34,7 +34,7 @@ const MainContentCol = styled.main`
   // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
   padding-bottom: 5.25em;
   // For desktop sizes, reduce bottom padding
-  @media (min-width: 960px) {
+  @media (min-width: 992px) {
     padding-bottom: 1em;
   }
 `;
@@ -49,7 +49,7 @@ const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const [show, setShow] = useState(false);
-  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 960px)' });
+  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);

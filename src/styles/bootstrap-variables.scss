@@ -2,7 +2,7 @@ $grid-breakpoints: (
   xs: 0,
   sm: 576px,
   md: 768px,
-  lg: 960px,
+  lg: 992px,
   xl: 1200px,
   xxl: 1400px
 );
@@ -28,7 +28,7 @@ $h5-font-size:   $font-size-base * 1.1 !default;
 $h6-font-size:   $font-size-base !default;
 
 $body-color: #ffffff;
-$link-color: $primary;
+$link-color: $body-color;
 
 $offcanvas-bg-color: $dark;
 

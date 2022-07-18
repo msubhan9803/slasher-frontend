@@ -9,12 +9,12 @@ html {
 }
 
 body {
-  @media (min-width: 960px) {
+  @media (min-width: 992px) {
     padding-top: 125px; // To account for fixed top navbar on desktop views
   }
 }
 
-.link-hover-underline a:hover {
+a {
   text-decoration: underline;
 }
 

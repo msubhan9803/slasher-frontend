@@ -29,8 +29,7 @@
         "@typescript-eslint/no-unused-vars": "warn",
         "react/jsx-props-no-spreading": "off",
         "max-lines": [
-            "error",
-            200
+            "error"
         ],
         "import/no-extraneous-dependencies": [
             "error",

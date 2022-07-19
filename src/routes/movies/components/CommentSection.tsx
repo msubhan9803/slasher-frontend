@@ -44,6 +44,7 @@ const CustomDropDown = styled(Dropdown)`
   }
   .dropdown-menu {
     background-color: ${dropdownBgColor};
+    inset: auto 15px 0px auto !important;
   }
   .dropdown-item {
     &:hover {
@@ -103,7 +104,7 @@ function CommentSection({
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   <Dropdown.Item eventKey="1" className="text-light">Report</Dropdown.Item>
-                  <Dropdown.Item eventKey="2" className="text-light">Block user</Dropdown.Item>
+                  <Dropdown.Item eventKey="2" className="text-light">Delete</Dropdown.Item>
                 </Dropdown.Menu>
               </CustomDropDown>
             </Col>

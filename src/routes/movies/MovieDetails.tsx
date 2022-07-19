@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Col, Container, Row } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../components/ui/RoundButton';
 import AboutMovie from './components/AboutMovie';
 import MovieCasts from './components/MovieCasts';
 import MovieComments from './components/MovieComments';
@@ -21,7 +20,7 @@ function MovieDetails() {
   ];
   const movieTrailer = ['ojuqj8_wWo8', 'uOV-xMYQ7sk', 'GZjvNPnIzQg', 'dylgnwNKoYc'];
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
+    <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid className="mb-5">
         <Row className="justify-content-between align-items-start mb-4">
           <Col md={2} lg={1}>
@@ -29,9 +28,6 @@ function MovieDetails() {
               <FontAwesomeIcon icon={solid('arrow-left')} size="lg" className="d-md-none" />
               <h1 className="h4 text-center mb-md-0 mx-auto">Movies</h1>
             </div>
-          </Col>
-          <Col md={5} xl={4}>
-            <RoundButton className="w-100">Add your movie</RoundButton>
           </Col>
         </Row>
         <PlayMovie embedId="WT_24V6Aids" />

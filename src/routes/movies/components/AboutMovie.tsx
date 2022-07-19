@@ -7,16 +7,8 @@ import {
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
+import ListIcon from './ListIcon';
 
-interface LinearIconProps {
-  uniqueId?: string
-}
-
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-`;
 const StyledMoviePoster = styled(Image)`
   aspect-ratio: 9/11;
 `;
@@ -41,7 +33,7 @@ overflow-y: hidden;
 function AboutMovie() {
   return (
     <div>
-      <div className="bg-dark my-3 p-4 pb-0 rounded-2">
+      <div className="bg-dark my-3 p-3 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={8} sm={5} className="text-center">
             <StyledMoviePoster src="https://i.pravatar.cc/300?img=21" className="w-100 rounded-3 mb-2" />
@@ -49,103 +41,85 @@ function AboutMovie() {
           <Col xl={7}>
             <Row className="justify-content-center text-center text-xl-start">
               <Col md={9} xl={12}>
-                <small className="text-light">2022</small>
-                <h1 style={{ fontSize: '35px' }}>The Curse of La Patasola</h1>
-                <Row className="mt-3">
-                  <Col xs={4} xl={1} className="text-end">
-                    <small className="m-0 text-primary border border-primary" style={{ padding: '8px 14px' }}>R</small>
+                <h1 className="h2">
+                  The Curse of La Patasola | Part 1 Weekend camping trip | English dubbed | 1080p
+                </h1>
+                <Row className="mt-3 pb-3 align-items-center" style={{ borderBottom: '0.063rem solid #282828' }}>
+                  <Col xl={6}>
+                    <div className="d-flex align-items-center justify-content-between text-light">
+                      <small>2022</small>
+                      <small className="align-items-center border border-primary d-flex justify-content-center m-0 text-primary" style={{ width: '2.063rem', height: '2.063rem' }}>R</small>
+                      <span className="d-flex align-items-center">
+                        <p className="my-0">Atlanta</p>
+                        <FontAwesomeIcon icon={solid('circle')} size="sm" style={{ width: '0.188rem' }} className="mx-2 text-primary" />
+                        <p className="my-0">1h 30m</p>
+                      </span>
+                    </div>
                   </Col>
-                  <Col xs={8} xl={10}>
+                  <Col xl={6}>
                     <div className="d-flex align-items-center">
-                      <p className="my-0 ms-4 me-3">Atlanta</p>
-                      <FontAwesomeIcon icon={solid('circle')} size="sm" style={{ width: '3px' }} className="text-primary" />
-                      <p className="my-0 ms-3">1h 30m</p>
+                      <span className="d-flex align-items-center justify-content-between">
+                        <FontAwesomeIcon icon={solid('star')} size="sm" style={{ color: '#FF8A00', width: '1.638rem', height: '1.563rem' }} className="mb-2 mt-1" />
+                        <div className="d-flex">
+                          <h2 className="h4 m-0">3.3/5</h2>
+                          <p className="m-0 text-light">(10K)</p>
+                        </div>
+                      </span>
+                      <RoundButton className="bg-black border-0">
+                        <FontAwesomeIcon icon={regular('star')} size="sm" className="me-2" />
+                        Rate
+                      </RoundButton>
                     </div>
                   </Col>
                 </Row>
-                <p className="m-0 mt-4">Rating</p>
-                <Row className="align-items-center justify-content-center justify-content-xl-start mb-4">
-                  <Col xs={5} xl={3}>
-                    <div className="d-flex justify-content-end justify-content-xl-start">
-                      <FontAwesomeIcon icon={solid('star')} size="sm" style={{ color: '#FF8A00' }} className="me-2 mt-1" />
-                      <div>
-                        <p className="m-0 fs-6">3.3/5</p>
-                        <p className="m-0 text-light small">(256)</p>
+                <Row className="mt-3 pb-3 align-items-center" style={{ borderBottom: '0.063rem solid #282828' }}>
+                  <Col xl={8}>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <h2 className="m-0 h6">Worth watching?</h2>
+                      <div className="d-flex align-items-center justify-content-between">
+                        <span className="align-items-center d-flex">
+                          <FontAwesomeIcon icon={regular('thumbs-up')} size="sm" style={{ color: '#00FF0A', border: '0.063rem solid #3A3B46' }} className="rounded-circle p-2" />
+                          <p className="m-0 text-light">(10K)</p>
+                        </span>
+                        <span className="align-items-center d-flex">
+                          <FontAwesomeIcon icon={regular('thumbs-down')} size="sm" style={{ color: ' #FF1800', border: '0.063rem solid #3A3B46', transform: 'rotateY(180deg)' }} className="rounded-circle p-2" />
+                          <p className="m-0 text-light">(2K)</p>
+                        </span>
                       </div>
                     </div>
                   </Col>
-                  <Col xs={6} xl={5} className="text-start text-xl-center">
-                    <span className="bg-black fs-5 px-4 py-2 rounded-pill">
-                      <FontAwesomeIcon icon={regular('star')} size="sm" className="me-2" />
-                      Rate
-                    </span>
+                  <Col xl={4} className="d-none d-xl-block text-end">
+                    <RoundButton className="bg-black px-4 py-2 rounded-pill border-0">
+                      <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
+                      Share
+                    </RoundButton>
                   </Col>
                 </Row>
-                <Row className="justify-content-center justify-content-xl-start">
-                  <Col xs={5} xl={3} className="text-end text-xl-start">
-                    <p className="m-0">Worth it!</p>
-                    <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" style={{ color: '#00FF0A', border: '1px solid #00FF0A' }} className="rounded-circle p-3 mt-2" />
-                  </Col>
-                  <Col xs={6} xl={5} className="text-start text-xl-center">
-                    <p className="m-0">Worth a watch?</p>
-                    <div className="mt-3 ms-3">
-                      <FontAwesomeIcon icon={regular('thumbs-up')} size="sm" style={{ color: '#00FF0A', border: '1px solid #3A3B46' }} className="rounded-circle p-2 me-2" />
-                      <FontAwesomeIcon icon={regular('thumbs-down')} size="sm" style={{ color: ' #FF1800', border: '1px solid #3A3B46', transform: 'rotateY(180deg)' }} className="rounded-circle p-2 me-2" />
-                    </div>
-                  </Col>
-                </Row>
+                <div className="d-flex align-items-center py-3" style={{ color: '#00FF0A' }}>
+                  <div
+                    className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center"
+                    style={{
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      border: '0.063rem solid #3A3B46',
+                      background: '#1F1F1F',
+                    }}
+                  >
+                    <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" style={{ width: '1.326rem', height: '1.391rem' }} />
+                  </div>
+                  <p className="m-0">Worth it!</p>
+                </div>
               </Col>
             </Row>
           </Col>
         </Row>
-        <Row className="align-items-center justify-content-center mt-4">
+        <Row className="align-items-center justify-content-center justify-content-xl-start mt-4">
           <Col xs={10} sm={8} md={6} xl={5} className="text-center">
             <h1 className="small">Your lists</h1>
-            <div className="d-flex justify-content-between mt-2">
-              <LinearIcon uniqueId="like" className="d-flex flex-column">
-                <FontAwesomeIcon icon={solid('heart')} size="lg" className="bg-white p-3 rounded-circle" />
-                <h6 className="mt-2"> Favorite </h6>
-                <svg width="0" height="0">
-                  <linearGradient id="like" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#8F00FF', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#8F00FF', stopOpacity: '0.6' }} />
-                  </linearGradient>
-                </svg>
-              </LinearIcon>
-              <LinearIcon uniqueId="watch" className="d-flex flex-column">
-                <FontAwesomeIcon icon={solid('eye')} size="lg" className="bg-white p-3 rounded-circle" />
-                <small className="mt-2"> Watch </small>
-                <svg width="0" height="0">
-                  <linearGradient id="watch" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#32D74B', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#32D74B', stopOpacity: '0.6' }} />
-                  </linearGradient>
-                </svg>
-              </LinearIcon>
-              <LinearIcon uniqueId="watchlist" className="d-flex flex-column">
-                <FontAwesomeIcon icon={solid('list-check')} size="lg" className="bg-white p-3 rounded-circle" />
-                <small className="mt-2"> Watchlist </small>
-                <svg width="0" height="0">
-                  <linearGradient id="watchlist" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF8A00', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FF8A00', stopOpacity: '0.6' }} />
-                  </linearGradient>
-                </svg>
-              </LinearIcon>
-              <LinearIcon uniqueId="buy" className="d-flex flex-column">
-                <FontAwesomeIcon icon={solid('bag-shopping')} size="lg" className="bg-white p-3 rounded-circle" />
-                <small className="mt-2"> Buy </small>
-                <svg width="0" height="0">
-                  <linearGradient id="buy" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FF1800', stopOpacity: '0.6' }} />
-                  </linearGradient>
-                </svg>
-              </LinearIcon>
-            </div>
+            <ListIcon />
           </Col>
-          <Col xl={7} className="text-center text-xl-end mt-3 mt-xl-0">
-            <RoundButton className="d-xl-none px-4 py-2 rounded-pill border-0 me-2">
+          <Col xl={7} className="d-xl-none text-center text-xl-end mt-3 mt-xl-0">
+            <RoundButton className="px-4 py-2 rounded-pill border-0 me-2">
               Follow
             </RoundButton>
             <RoundButton className="bg-black px-4 py-2 rounded-pill border-0">

@@ -60,14 +60,15 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
           <Modal.Body className="d-flex flex-column p-5 pt-4">
             <h3 className="text-primary mb-3 text-center"> Block &#38; Report </h3>
             <Form className="mb-4">
-              {blockOptions.map((report: string, index: number) => (
+              {blockOptions.map((label: string, index: number) => (
                 <Form.Check
+                  key={label}
                   type="checkbox"
                   id={`report-${index}`}
-                  checked={reports.has(report)}
+                  checked={reports.has(label)}
                   className="mb-2"
-                  label={report}
-                  value={report}
+                  label={label}
+                  value={label}
                   onChange={reportChangeHandler}
                 />
               ))}

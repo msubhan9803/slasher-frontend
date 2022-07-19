@@ -1,11 +1,12 @@
-import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Dropdown, Row } from 'react-bootstrap';
+import React from 'react';
+import {
+  Dropdown,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface Props {
-  id?: number;
   userName: string;
   message: string;
   image: string;
@@ -16,26 +17,34 @@ interface Props {
 }
 
 const RecentMessageImage = styled.img`
-  height: 3.125rem;
+  height: 3.625rem;
 `;
 
-const RecentMessage = styled.p`
+const MessageContent = styled.div`
+  // This stops wide child items from forcing this element from expanding beyond its intended
+  // maximum width. It's necessary for getting overflow: hidden to work property for child items.
+  min-width: 0;
+`;
+
+const TrucatedText = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: .75rem;
-  color: #CCCCCC;
-  margin-bottom: 0;
 `;
 
-const TimeStampStyled = styled.p`
+const DateDisplay = styled.div`
+  white-space: nowrap;
   font-size: 0.75rem;
 `;
 
-const ItemContainer = styled(Row)`
-  border-bottom: 0.125rem solid rgb(23, 23, 24);
+const StyledItem = styled.div`
+  border-bottom: 1px solid #383838;
+  &:first-child {
+    padding-top: 0 !important;
+  }
   &:last-child {
     border-bottom: none;
+    padding-bottom: 0 !important;
   }
 `;
 
@@ -74,48 +83,50 @@ const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  id, userName, message, image, count, timeStamp, options, handleDropdownOption,
+  userName, message, image, count, timeStamp, options, handleDropdownOption,
 }: Props) {
   return (
-    <ItemContainer className="py-2" key={id}>
-      <Col xs={2} className="p-0 text-center">
-        <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
-      </Col>
-      <Col xs={timeStamp ? 5 : 8} className={`ps-md-4 ps-xl-2 pe-0  ${timeStamp ? 'align-self-center' : 'ps-md-4 px-xl-0 align-self-center'}`}>
-        <h1 className="h6 mb-0">{userName}</h1>
-        <RecentMessage>{message}</RecentMessage>
-      </Col>
-      <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'p-0 pt-1' : ''}>
-        <TimeStampStyled
-          className="mb-0 rounded-5 small text-end text-light"
-        >
-          {timeStamp}
-        </TimeStampStyled>
-        {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
-      </Col>
+    <StyledItem className="px-2 py-4 d-flex align-items-center">
+      <div>
+        <RecentMessageImage src={image} className="rounded-circle" />
+      </div>
+      <MessageContent className="px-3 flex-grow-1">
+        <TrucatedText className="mb-1 fs-5">
+          {userName}
+        </TrucatedText>
+        <TrucatedText className="mb-0 text-light">{message}</TrucatedText>
+      </MessageContent>
+      {/* <div className={`text-end ${count && count > 0 ? '' : 'align-self-start'}`}></div> */}
+      <div className="text-end">
+        <DateDisplay className="text-light mb-1">{timeStamp}</DateDisplay>
+        {count !== 0 ? <div className="badge rounded-pill bg-primary ms-auto">{count}</div> : <div>&nbsp;</div>}
+      </div>
       {
         options && (
-          <Col xs={1} className="p-md-0 px-lg-2">
+          <div className="align-self-start">
             <CustomDropDown onSelect={handleDropdownOption}>
-              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
+              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1 ps-4">
                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
               </Dropdown.Toggle>
               <Dropdown.Menu className="bg-black">
-                <Dropdown.Item eventKey="markAsRead" className="text-light">Mark as read</Dropdown.Item>
+                <Dropdown.Item eventKey="markAsRead" className="text-light">
+                  Mark as read
+                </Dropdown.Item>
                 <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-                <Dropdown.Item eventKey="blockUser" className="text-light">Block user</Dropdown.Item>
+                <Dropdown.Item eventKey="blockUser" className="text-light">
+                  Block user
+                </Dropdown.Item>
               </Dropdown.Menu>
             </CustomDropDown>
-          </Col>
+          </div>
         )
       }
-    </ItemContainer>
+    </StyledItem>
   );
 }
 UserMessageListItem.defaultProps = {
-  id: 0,
   count: 0,
-  timeStamp: '',
+  timeStamp: null,
   options: false,
   handleDropdownOption: () => { },
 };

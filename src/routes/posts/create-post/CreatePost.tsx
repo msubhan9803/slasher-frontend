@@ -50,7 +50,7 @@ function CreatePost() {
   };
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <h1 className="h3">Create Post</h1>
       <Form className="bg-dark px-3 py-4 rounded-2">
         <Form.Group className="mb-4" controlId="about-me">

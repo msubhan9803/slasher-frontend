@@ -10,6 +10,7 @@ const StyledFooter = styled.footer`
   a {
     text-decoration: none;
     display:block;
+    color: var(--text-white);
   }
 `;
 

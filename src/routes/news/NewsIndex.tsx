@@ -40,7 +40,7 @@ function NewsIndex() {
   ];
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row>
         <Col xs={1} className="d-md-none">
           <FontAwesomeIcon icon={solid('arrow-left')} size="2x" />
@@ -51,7 +51,7 @@ function NewsIndex() {
       </Row>
       <Row className="bg-dark rounded-3 py-4 m-0 mb-5">
         {newsAndReviews.map((news) => (
-          <Col xs={6} lg={4} className="pt-2">
+          <Col key={news.name} xs={6} lg={4} className="pt-2">
             <Card className="bg-transparent border-0 px-4">
               <Card.Img src={news.logo} className="rounded-4" />
               <Card.Body className="px-0">

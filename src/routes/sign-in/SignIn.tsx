@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   Col, Form, Image, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -9,6 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signIn from '../../images/sign-in.svg';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
+import RoundButtonLink from '../../components/ui/RoundButtonLink';
+import RoundButton from '../../components/ui/RoundButton';
 
 function SignIn() {
   return (
@@ -22,7 +23,7 @@ function SignIn() {
         <Col sm={12} md={5} lg={5}>
           <Row className="mt-3 mt-sm-0">
             <div>
-              <h1 className="h2 text-center mb-4">Sign In</h1>
+              <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
               <Form>
                 <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
                 <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
@@ -36,9 +37,13 @@ function SignIn() {
                   </small>
                 </p>
 
-                <Button className="w-100 my-3" variant="primary" size="lg" type="submit">
+                <RoundButton className="w-100 my-3" variant="primary" size="lg" type="submit">
                   Sign in
-                </Button>
+                </RoundButton>
+                <p className="text-center">OR</p>
+                <RoundButtonLink to="/registration" className="w-100" variant="primary" size="lg">
+                  Create an account
+                </RoundButtonLink>
 
                 <p className="text-center mt-3">
                   <small>

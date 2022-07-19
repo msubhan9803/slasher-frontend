@@ -5,7 +5,6 @@ import {
   Button, Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import postImage from '../../../images/news-post.svg';
@@ -43,10 +42,6 @@ const postData = [
   { id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM' },
 ];
 function NewsPartnerDetail() {
-  // TODO: Delete the eslint ignore line below once we use this
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { partnerId } = useParams();
-
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row>
@@ -155,82 +150,6 @@ function NewsPartnerDetail() {
           ))}
         </Col>
       </Row>
-      {postData.map((post) => (
-        <Card key={post.id} className="bg-dark mb-5 my-3">
-          <Card.Header className="border-0 ps-1 ps-md-3">
-            <Row className="align-items-center">
-              <Col xs={11}>
-                <Row className="d-flex">
-                  <Col className="my-auto rounded-circle" xs="auto">
-                    <div className="rounded-circle">
-                      <ProfileImage src={userImage} className="rounded-circle bg-secondary" />
-                    </div>
-                  </Col>
-                  <Col xs="auto" className="ps-0 align-self-center">
-                    <h6 className="mb-0 ">{post.userName}</h6>
-                    <SmallText className="mb-0">{post.postDate}</SmallText>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs={1} className="d-none d-md-block">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Col>
-
-            </Row>
-          </Card.Header>
-          <Card.Body className="ps-1 ps-md-3 pt-1">
-            <Row>
-              <Col xs={12}>
-                <span className="p">This space is used to help indie creators have a platform to promote their work.</span>
-                <span className="text-primary p"> #horrorday #slasher #horroroasis ☠️</span>
-              </Col>
-            </Row>
-            <Row className="mt-3">
-              <Col className="">
-                <Image src={postImage} className="w-100" />
-              </Col>
-            </Row>
-            <Row className="justify-content-between d-flex m-2">
-              <Col>
-                <LinearIcon uniqueId="like-button">
-                  <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-                  12K
-                </LinearIcon>
-              </Col>
-              <Col className="text-center">
-                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-                10
-              </Col>
-              <Col className="text-end">
-                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                25
-              </Col>
-              <svg width="0" height="0">
-                <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                  <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                </linearGradient>
-              </svg>
-            </Row>
-          </Card.Body>
-          <CardFooter>
-            <Row className="justify-content-between d-flex m-2">
-              <Col className="p-0">
-                <FontAwesomeIcon role="button" icon={regular('heart')} size="lg" className="me-2" />
-                Like
-              </Col>
-              <Col className="text-center p-0">
-                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-                Comment
-              </Col>
-              <Col className="text-end p-0">
-                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                Share
-              </Col>
-            </Row>
-          </CardFooter>
-        </Card>
-      ))}
     </AuthenticatedPageWrapper>
   );
 }

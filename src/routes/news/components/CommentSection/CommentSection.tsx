@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Button, Col, Dropdown, Image, Row,
+  Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 
@@ -55,15 +55,24 @@ const CustomDropDown = styled(Dropdown)`
   }
 `;
 const SmallText = styled.p`
-  font-size: small;
+  font-size: .75rem;
   color: #CCCCCC;
+`;
+const CommentMessage = styled.span`
+ color: #CCCCCC;
+`;
+const CommentReplyImage = styled(Image)`
+  height : 5.625rem;
+  width: 5.625rem;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const LikesButton = styled(Button)`
+const LikesButton = styled.div`
+  width: 3.81rem; 
+  height: 1.938rem;
   background-color: #383838;
   border: none;
   &:hover {
@@ -90,13 +99,13 @@ function CommentSection({
 }: Props) {
   return (
     <Row key={id}>
-      <Col xs="auto" className="pe-0">
+      <Col xs="auto" className="px-0">
         <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
       </Col>
       <Col className="ps-0 pe-4">
-        <CommentBox className="p-3 rounded ">
+        <CommentBox className="pt-3 px-3 pb-4 rounded ">
           <div className="d-flex justify-content-between align-items-center">
-            <Col xs="auto" className="ps-0 align-self-center ">
+            <Col xs="auto" className="ps-0 align-self-center mb-2">
               <h6 className="mb-0 ">{name}</h6>
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
@@ -115,21 +124,21 @@ function CommentSection({
           <span className="text-primary">
             {commentMention}
           </span>
-          <span className="small mb-0 ms-1">
+          <CommentMessage className="small mb-0">
             {commentMsg}
-          </span>
+          </CommentMessage>
           {commentImg
             && (
               <div>
-                <Image src={commentImg} />
+                <CommentReplyImage src={commentImg} className="mt-2" />
               </div>
             )}
         </CommentBox>
         <Likes className="rounded d-flex justify-content-end">
-          <LikesButton key="like-1" type="button" className="p-1 m-2 px-2 text-light rounded-pill text-white">
+          <LikesButton key="like-1" className="p-1 m-2 px-2 text-light rounded-pill text-white">
             <LinearIcon uniqueId="like-button">
-              <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-              {likes}
+              <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+              <small>{likes}</small>
             </LinearIcon>
           </LikesButton>
           <svg width="0" height="0">
@@ -139,8 +148,8 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <div className="m-2">
-          <div className="p-0 d-flex" role="button" aria-hidden="true">
+        <div className="mb-3">
+          <div className="p-0 px-3 d-flex" role="button" aria-hidden="true">
             {
               likeIcon
                 ? (
@@ -157,7 +166,7 @@ function CommentSection({
                 )
             }
             <div>
-              <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-5" />
+              <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
               Reply
             </div>
           </div>

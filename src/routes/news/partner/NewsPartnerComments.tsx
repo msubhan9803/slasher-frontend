@@ -38,7 +38,7 @@ const commentSection = [
     profileDateTime: '06/19/2022 12:10 AM',
     like: 24,
     likeIcon: false,
-    userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
+    userMessage: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has this text here that will go to the end of the line.',
     commentReplySection:
       [
         {
@@ -49,7 +49,7 @@ const commentSection = [
           like: 24,
           likeIcon: false,
           commentMention: '@Mari Ferrer',
-          commentMsg: 'eque porro quisquam est qui dolorem ipsum',
+          commentMsg: ' eque porro quisquam est qui dolorem ipsum',
         },
         {
           id: 3,
@@ -59,7 +59,7 @@ const commentSection = [
           like: 8,
           likeIcon: false,
           commentMention: '@Austin Joe',
-          commentMsg: 'Lorem Ipsum has been the industry standard dummy',
+          commentMsg: ' Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
         },
       ],
@@ -71,7 +71,7 @@ const commentSection = [
     like: 44,
     likeIcon: false,
     profileDateTime: '06/19/2022 12:10 AM',
-    userMessage: 'It is a long established fact that a reader will be distracted bythe readable content of a page.',
+    userMessage: ' It is a long established fact that a reader will be distracted bythe readable content of a page.',
     commentReplySection:
       [
         {
@@ -82,7 +82,7 @@ const commentSection = [
           like: 20,
           likeIcon: false,
           commentMention: '@Mari Ferrer ',
-          commentMsg: 'eque porro quisquam est qui dolorem ipsum',
+          commentMsg: ' eque porro quisquam est qui dolorem ipsum',
         },
         {
           id: 6,
@@ -92,7 +92,7 @@ const commentSection = [
           like: 34,
           likeIcon: false,
           commentMention: '@Austin Joe ',
-          commentMsg: 'Lorem Ipsum has been the industry standard dummy',
+          commentMsg: ' Lorem Ipsum has been the industry standard dummy',
           commentImg: 'https://i.pravatar.cc/100?img=56',
         },
       ],
@@ -157,7 +157,7 @@ function NewsPartnerComments() {
         </Col>
       </Row>
       {postData.map((data: Props) => (
-        <Row className="ps-3" key={data.id}>
+        <Row className="ps-3 pt-2" key={data.id}>
           <Col>
             <Row className="flex-start ms-3">
               <Col className="ps-0 pe-4">

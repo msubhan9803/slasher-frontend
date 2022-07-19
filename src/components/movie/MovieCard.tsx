@@ -28,10 +28,16 @@ const MovieCardStyle = styled(Card)`
     border: 0.063rem solid #3A3B46;
     transform: rotateY(180deg);
   }
+  .movie-name{
+    font-size: 1.125rem;
+  }
 `;
 const RatingDiv = styled.div`
   margin-top: -1.688rem;
   margin-bottom: 0.313rem;
+`;
+const StyledLikedIcon = styled(FontAwesomeIcon)`
+  width: 0.804rem;
 `;
 
 function MovieCard({
@@ -47,15 +53,15 @@ function MovieCard({
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0">
-        <Card.Text className="d-flex justify-content-between align-items-center m-0 small text-light">
+        <Card.Text className="d-flex justify-content-between align-items-center m-0 text-light">
           {year}
-          <FontAwesomeIcon
+          <StyledLikedIcon
             icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
             className="rounded-circle p-1 me-2"
             size="sm"
           />
         </Card.Text>
-        <Card.Text>
+        <Card.Text className="movie-name">
           {name}
         </Card.Text>
       </Card.Body>

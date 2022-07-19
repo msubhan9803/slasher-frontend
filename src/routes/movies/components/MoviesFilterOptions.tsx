@@ -12,14 +12,14 @@ function MoviesFilterOptions({ showKeys, setShowKeys }: Props) {
     <>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`bg-transparent border-0 d-none d-md-inline shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`bg-transparent border-0 d-none d-lg-inline shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <FontAwesomeIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
       </Button>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`bg-transparent border-0 d-md-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         Sort/Filter
         <FontAwesomeIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />

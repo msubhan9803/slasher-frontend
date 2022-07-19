@@ -45,8 +45,8 @@ function MoviesSearch({ setFilteredMovies, myMovies }: Props) {
     setSearch(searchQuery);
   };
   return (
-    <StyledInputGroup>
-      <InputGroup.Text id="search" className="pe-0">
+    <StyledInputGroup className="d-none d-lg-flex">
+      <InputGroup.Text id="search" className="pe-0 border-end-0">
         <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
       </InputGroup.Text>
       <FormControl

@@ -46,7 +46,7 @@ function AboutMovie() {
                 </h1>
                 <Row className="mt-3 pb-3 align-items-center" style={{ borderBottom: '0.063rem solid #282828' }}>
                   <Col xl={6}>
-                    <div className="d-flex align-items-center justify-content-between text-light">
+                    <div className="align-items-center d-flex justify-content-evenly justify-content-xl-between text-light  ">
                       <small>2022</small>
                       <small className="align-items-center border border-primary d-flex justify-content-center m-0 text-primary" style={{ width: '2.063rem', height: '2.063rem' }}>R</small>
                       <span className="d-flex align-items-center">
@@ -57,7 +57,7 @@ function AboutMovie() {
                     </div>
                   </Col>
                   <Col xl={6}>
-                    <div className="d-flex align-items-center">
+                    <div className="align-items-center d-flex justify-content-evenly py-4 py-xl-0">
                       <span className="d-flex align-items-center justify-content-between">
                         <FontAwesomeIcon icon={solid('star')} size="sm" style={{ color: '#FF8A00', width: '1.638rem', height: '1.563rem' }} className="mb-2 mt-1" />
                         <div className="d-flex">
@@ -74,10 +74,10 @@ function AboutMovie() {
                 </Row>
                 <Row className="mt-3 pb-3 align-items-center" style={{ borderBottom: '0.063rem solid #282828' }}>
                   <Col xl={8}>
-                    <div className="d-flex align-items-center justify-content-between">
+                    <div className="align-items-center d-flex justify-content-evenly justify-content-xl-between">
                       <h2 className="m-0 h6">Worth watching?</h2>
                       <div className="d-flex align-items-center justify-content-between">
-                        <span className="align-items-center d-flex">
+                        <span className="align-items-center d-flex me-3 me-xl-0">
                           <FontAwesomeIcon icon={regular('thumbs-up')} size="sm" style={{ color: '#00FF0A', border: '0.063rem solid #3A3B46' }} className="rounded-circle p-2" />
                           <p className="m-0 text-light">(10K)</p>
                         </span>
@@ -95,7 +95,7 @@ function AboutMovie() {
                     </RoundButton>
                   </Col>
                 </Row>
-                <div className="d-flex align-items-center py-3" style={{ color: '#00FF0A' }}>
+                <div className="align-items-center d-flex justify-content-center justify-content-xl-start py-3" style={{ color: '#00FF0A' }}>
                   <div
                     className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center"
                     style={{

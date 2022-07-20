@@ -43,9 +43,13 @@ const CustomDropDown = styled(Dropdown)`
     }
   }
   .dropdown-menu {
+    border: 1px solid #383838;
     background-color: ${dropdownBgColor};
+    inset: auto 30px 38px auto;
   }
   .dropdown-item {
+   
+    height:2.813rem;
     &:hover {
       background-color: var(--bs-primary) !important;
     }
@@ -72,7 +76,7 @@ const LinearIcon = styled.div<LinearIconProps>`
 `;
 const LikesButton = styled.div`
   width: 3.81rem; 
-  height: 1.938rem;
+  height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
@@ -86,8 +90,8 @@ const Likes = styled.div`
   margin-top : -1.43rem;
 `;
 const CommentImage = styled(Image)`
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 3.125rem;
+  width: 3.125rem;
 `;
 const LinearGradientStop = styled.stop`
   stop-color: #FF1800;
@@ -102,16 +106,16 @@ function CommentSection({
       <Col xs="auto" className="px-0">
         <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
       </Col>
-      <Col className="ps-0 pe-4">
-        <CommentBox className="pt-3 px-3 pb-4 rounded ">
-          <div className="d-flex justify-content-between align-items-center">
+      <Col className="ps-2">
+        <CommentBox className="pt-3 px-3 pb-4 rounded">
+          <div className="d-flex justify-content-between">
             <Col xs="auto" className="ps-0 align-self-center mb-2">
               <h6 className="mb-0 ">{name}</h6>
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
-            <Col xs="auto" className="d-none d-md-block pe-0">
+            <Col xs="auto" className="d-block pe-0">
               <CustomDropDown>
-                <Dropdown.Toggle className="d-flex justify-content-end pe-0">
+                <Dropdown.Toggle className="d-flex justify-content-end pe-0 pt-0">
                   <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -130,12 +134,12 @@ function CommentSection({
           {commentImg
             && (
               <div>
-                <CommentReplyImage src={commentImg} className="mt-2" />
+                <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
             )}
         </CommentBox>
         <Likes className="rounded d-flex justify-content-end">
-          <LikesButton key="like-1" className="p-1 m-2 px-2 text-light rounded-pill text-white">
+          <LikesButton key="like-1" className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
             <LinearIcon uniqueId="like-button">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
               <small>{likes}</small>
@@ -148,8 +152,8 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <div className="mb-3">
-          <div className="p-0 px-3 d-flex" role="button" aria-hidden="true">
+        <div className="mb-3 mt-2">
+          <div className="p-0 d-flex" role="button" aria-hidden="true">
             {
               likeIcon
                 ? (

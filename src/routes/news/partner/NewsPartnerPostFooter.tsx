@@ -24,8 +24,8 @@ const LinearIcon = styled.div<LinearIconProps>`
 function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
   return (
     <CardFooter className="p-0 pb-4">
-      <Row className="justify-content-evenly d-flex my-3 px-3">
-        <Col role="button" className="ps-4" onClick={() => onLikeClick(id)}>
+      <Row className=" d-flex justify-content-evenly py-3 px-3">
+        <Col role="button" onClick={() => onLikeClick(id)}>
           {likeIcon ? (
             <LinearIcon uniqueId="like-button">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
@@ -43,7 +43,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
           <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
           Comment
         </Col>
-        <Col className="text-end pe-4" role="button">
+        <Col className="text-end" role="button">
           <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
           Share
         </Col>

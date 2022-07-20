@@ -151,7 +151,7 @@ function NewsPartnerComments() {
               className="border-end-0"
             />
             <InputGroup.Text>
-              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
+              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />
             </InputGroup.Text>
           </StyledCommentInputGroup>
         </Col>
@@ -159,7 +159,7 @@ function NewsPartnerComments() {
       {postData.map((data: Props) => (
         <Row className="ps-3 pt-2" key={data.id}>
           <Col>
-            <Row className="flex-start ms-3">
+            <Row className="ms-2 ps-1">
               <Col className="ps-0 pe-4">
                 <CommentSection
                   id={data.id}
@@ -172,19 +172,21 @@ function NewsPartnerComments() {
                   onIconClick={() => handleLikeIcon(data.id)}
                 />
                 {data.commentReplySection.map((comment: Values) => (
-                  <div key={comment.id} className="ms-5">
-                    <CommentSection
-                      id={comment.id}
-                      image={comment.image}
-                      name={comment.name}
-                      likes={comment.like}
-                      time={comment.time}
-                      likeIcon={comment.likeIcon}
-                      commentMsg={comment.commentMsg}
-                      commentMention={comment.commentMention}
-                      commentImg={comment.commentImg}
-                      onIconClick={() => handleLikeIcon(comment.id)}
-                    />
+                  <div key={comment.id} className="ms-5 ps-2">
+                    <div className="ms-2">
+                      <CommentSection
+                        id={comment.id}
+                        image={comment.image}
+                        name={comment.name}
+                        likes={comment.like}
+                        time={comment.time}
+                        likeIcon={comment.likeIcon}
+                        commentMsg={comment.commentMsg}
+                        commentMention={comment.commentMention}
+                        commentImg={comment.commentImg}
+                        onIconClick={() => handleLikeIcon(comment.id)}
+                      />
+                    </div>
                   </div>
                 ))}
               </Col>

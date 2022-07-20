@@ -66,25 +66,6 @@ const CustomDropDown = styled(Dropdown)`
     }
   }
 `;
-const CustomCard = styled(Card)`
-  max-height: 180vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  ::-webkit-scrollbar {
-    width: .313rem;
-  }
-  ::-webkit-scrollbar-track {
-    background: rgb(33, 32, 32);
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: red;
-    border-radius: .625rem;
-    border: .188rem solid red;
-  }  
-`;
-const CustomText = styled.span`
-font-size: 1.25rem`;
-
 const data = [
   {
     id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', likeIcon: false,
@@ -103,16 +84,16 @@ function NewsPartnerPost() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Row className="d-md-none">
+      <Row className="d-md-none bg-dark">
         <Col xs="auto"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="lg" /></Col>
         <Col><h1 className="h4 text-center">Horror Oasis</h1></Col>
       </Row>
       <Row className="mb-5">
-        <Col>
+        <Col className="p-0">
           {postData.map((post: PostProps) => (
-            <CustomCard className="bg-dark mt-3 mb-0 p-2" key={post.id}>
-              <Card.Header className="border-0 ps-1 ps-md-3">
-                <Row className="align-items-center justify-content-between">
+            <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={post.id}>
+              <Card.Header className="border-0 px-sm-3 px-md-0">
+                <Row className="justify-content-between">
                   <Col xs="auto">
                     <Row className="d-flex">
                       <Col className="my-auto rounded-circle" xs="auto">
@@ -121,14 +102,14 @@ function NewsPartnerPost() {
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
-                        <h6 className="mb-0">{post.userName}</h6>
+                        <h1 className="mb-0 h6">{post.userName}</h1>
                         <SmallText className="mb-0">{post.postDate}</SmallText>
                       </Col>
                     </Row>
                   </Col>
-                  <Col xs="auto" className="d-none d-md-block">
+                  <Col xs="auto" className="d-block">
                     <CustomDropDown>
-                      <Dropdown.Toggle className="d-flex justify-content-end pe-0 bg-dark">
+                      <Dropdown.Toggle className="d-flex justify-content-end pt-0 pe-0 bg-dark">
                         <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                       </Dropdown.Toggle>
                       <Dropdown.Menu>
@@ -138,20 +119,20 @@ function NewsPartnerPost() {
                   </Col>
                 </Row>
               </Card.Header>
-              <Card.Body className="ps-1 ps-md-3 pt-1">
+              <Card.Body className="px-0 pt-3">
                 <Row>
-                  <Col>
-                    <CustomText>
+                  <Col className="px-4 px-md-3">
+                    <span>
                       This space is used to help indie creators have a platform to
                       promote their work.
-                    </CustomText>
-                    <CustomText className="text-primary"> #horrorday #slasher #horroroasis ☠️</CustomText>
+                    </span>
+                    <span className="text-primary"> #horrorday #slasher #horroroasis ☠️</span>
                   </Col>
                 </Row>
-                <Row className="mt-3">
+                <Row className="mt-3 mt-md-4">
                   <Image src="https://i.pravatar.cc/500?img=10" className="w-100" />
                 </Row>
-                <Row className="justify-content-evenly d-flex mt-4 mb-1 px-3">
+                <Row className="d-flex justify-content-evenly pt-3 px-3">
                   <Col>
                     <LinearIcon uniqueId="like-button">
                       <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
@@ -180,7 +161,7 @@ function NewsPartnerPost() {
                 onLikeClick={() => onLikeClick(post.id)}
               />
               <NewsPartnerComments />
-            </CustomCard>
+            </Card>
           ))}
         </Col>
       </Row>

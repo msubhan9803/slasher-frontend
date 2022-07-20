@@ -1,4 +1,6 @@
 import React from 'react';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
@@ -101,6 +103,8 @@ const UserProfileImage = styled.img`
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
+    border-bottom-right-radius: 0rem;
+    border-top-right-radius: 0rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -123,8 +127,12 @@ function MovieComments() {
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-3">
             <Form.Control
-              placeholder="Write a comment"
+              placeholder="Write a comment ..."
+              className="border-end-0"
             />
+            <InputGroup.Text>
+              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
+            </InputGroup.Text>
           </StyledCommentInputGroup>
         </Col>
       </Row>

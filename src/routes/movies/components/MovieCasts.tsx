@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
+import styled from 'styled-components';
 
 interface Props {
   movieCasts: CastsProps[];
@@ -9,26 +10,34 @@ interface CastsProps {
   name: string;
   designation: string;
 }
+const StyledCast = styled.div`
+  overflow-x: auto;
+  overflow-y: hidden;
 
+  img {
+    width: 8.697rem;
+    height: 8.744rem;
+  }
+`;
 function MovieCasts({ movieCasts }: Props) {
   return (
-    <Row>
+    <StyledCast className="d-flex flex-nowrap">
       {movieCasts.map((cast: CastsProps) => (
-        <Col xs={4} md={3} lg={2} key={cast.name}>
-          <Card className="bg-transparent my-2">
+        <div key={cast.name} className="me-2">
+          <Card className="bg-transparent my-2 border-0">
             <Card.Img variant="top" src={cast.image} className="rounded-3" />
             <Card.Body className="px-0">
               <Card.Title className="h6 m-0">
                 {cast.name}
               </Card.Title>
-              <Card.Text className="text-primary">
+              <Card.Text className="text-primary small">
                 {cast.designation}
               </Card.Text>
             </Card.Body>
           </Card>
-        </Col>
+        </div>
       ))}
-    </Row>
+    </StyledCast>
   );
 }
 

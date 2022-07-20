@@ -12,7 +12,7 @@ const StyledMovieTrailer = styled.div`
 
 function MovieTrailers({ movieTrailer }: Props) {
   return (
-    <StyledMovieTrailer className="d-flex flex-nowrap ">
+    <StyledMovieTrailer className="d-flex flex-nowrap">
       {movieTrailer.map((trailer: string) => (
         <iframe
           key={trailer}

@@ -44,7 +44,7 @@ const CustomDropDown = styled(Dropdown)`
   }
   .dropdown-menu {
     background-color: ${dropdownBgColor};
-    inset: auto 15px 0px auto !important;
+    inset: auto 0.938rem 0rem  auto !important;
   }
   .dropdown-item {
     &:hover {
@@ -130,9 +130,9 @@ function CommentSection({
             </LinearIcon>
           </LikesButton>
           <svg width="0" height="0">
-            <linearGradient id="like-button" x1="0%" y1="30%" x2="0%" y2="100%">
+            <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-              <stop offset="100%" style={{ stopColor: '#FF1800', stopOpacity: '0.5' }} />
+              <stop offset="100%" style={{ stopColor: '#FF6363', stopOpacity: '1' }} />
             </linearGradient>
           </svg>
         </Likes>

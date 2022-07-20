@@ -1,6 +1,6 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import styled from 'styled-components';
 
 interface LinearIconProps {
@@ -42,18 +42,6 @@ function ListIcon() {
           </linearGradient>
         </svg>
       </LinearIcon>
-      <LinearIcon uniqueId="buy" className="d-flex flex-column align-items-center">
-        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
-          <FontAwesomeIcon icon={solid('bag-shopping')} size="lg" />
-        </div>
-        <small className="mt-2"> Buy </small>
-        <svg width="0" height="0">
-          <linearGradient id="buy" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-            <stop offset="100%" style={{ stopColor: '#FF1800', stopOpacity: '0.6' }} />
-          </linearGradient>
-        </svg>
-      </LinearIcon>
       <LinearIcon uniqueId="watchlist" className="d-flex flex-column align-items-center">
         <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
           <FontAwesomeIcon icon={solid('list-check')} size="lg" />
@@ -63,6 +51,18 @@ function ListIcon() {
           <linearGradient id="watchlist" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#FF8A00', stopOpacity: '1' }} />
             <stop offset="100%" style={{ stopColor: '#FF8A00', stopOpacity: '0.6' }} />
+          </linearGradient>
+        </svg>
+      </LinearIcon>
+      <LinearIcon uniqueId="buy" className="d-flex flex-column align-items-center">
+        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
+          <FontAwesomeIcon icon={solid('bag-shopping')} size="lg" />
+        </div>
+        <small className="mt-2"> Buy </small>
+        <svg width="0" height="0">
+          <linearGradient id="buy" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+            <stop offset="100%" style={{ stopColor: '#FF1800', stopOpacity: '0.6' }} />
           </linearGradient>
         </svg>
       </LinearIcon>

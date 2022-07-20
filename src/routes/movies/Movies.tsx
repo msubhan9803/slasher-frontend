@@ -36,13 +36,13 @@ const MovieCardStyle = styled.div`
 
 function Movies() {
   const tabs = [
-    { value: 'allMovies', label: 'All Movies' },
-    { value: 'myMovies', label: 'My Movies' },
+    { value: 'allMovies', label: 'All movies' },
+    { value: 'myMovies', label: 'My movies' },
     { value: 'slasherIndie', label: 'Slasher Indie' },
-    { value: 'favoritesList', label: 'Favorites List' },
-    { value: 'watchList', label: 'Watch List' },
-    { value: 'watchedList', label: 'Watched List' },
-    { value: 'buyList', label: 'Buy List' },
+    { value: 'favoritesList', label: 'Favorites list' },
+    { value: 'watchList', label: 'Watch list' },
+    { value: 'watchedList', label: 'Watched list' },
+    { value: 'buyList', label: 'Buy list' },
   ];
   const myMovies = [
     {

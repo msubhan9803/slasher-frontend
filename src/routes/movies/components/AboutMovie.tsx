@@ -10,8 +10,9 @@ import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
 
-const StyledMoviePoster = styled(Image)`
-  aspect-ratio: 9/11;
+const StyledMoviePoster = styled.div`
+  width: 18.75rem;
+  height: 22.5rem;
 `;
 const StyleTabs = styled(Tabs)`
 border-bottom: 0.188rem solid var(--bs-dark);
@@ -36,26 +37,32 @@ function AboutMovie() {
     <div>
       <div className="bg-dark my-3 p-3 pb-0 rounded-2">
         <Row className="justify-content-center">
-          <Col xs={8} sm={5} className="text-center">
-            <StyledMoviePoster src="https://i.pravatar.cc/300?img=21" className="w-100 rounded-3" />
-          </Col>
+          <StyledMoviePoster>
+            <Image src="https://i.pravatar.cc/300?img=21" className="w-100 h-100 rounded-3" />
+          </StyledMoviePoster>
           <Col xl={7}>
             <AboutDetails />
           </Col>
         </Row>
-        <Row className="align-items-center justify-content-center justify-content-xl-start mt-xl-3">
+        <Row className="align-items-center justify-content-center justify-content-xl-start mt-2 mt-xl-0">
           <Col sm={8} md={6} xl={5} className="text-center">
             <small>Your lists</small>
             <ListIcon />
           </Col>
-          <Col xl={7} className="d-xl-none text-center text-xl-end mt-3 mt-xl-0">
-            <RoundButton className="px-5 py-2 rounded-pill border-0 me-2">
-              Follow
-            </RoundButton>
-            <RoundButton className="bg-black px-4 py-2 rounded-pill border-0">
-              <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-              Share
-            </RoundButton>
+          <Col xl={7} className="mt-3 mt-xl-0 d-none">
+            <Row className="justify-content-center">
+              <Col className="d-block">
+                <RoundButton className="px-5 py-2 rounded-pill border-0 me-2">
+                  Follow
+                </RoundButton>
+              </Col>
+              <Col xl={4}>
+                <RoundButton className="bg-black py-2 rounded-pill border-0" variant="lg">
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
+                  Share
+                </RoundButton>
+              </Col>
+            </Row>
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">

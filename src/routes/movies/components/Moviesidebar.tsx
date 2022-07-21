@@ -3,11 +3,13 @@ import FriendRequests from '../../../components/layout/right-sidebar-wrapper/com
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import RoundButton from '../../../components/ui/RoundButton';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
+import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 
 function MovieSidebar() {
   return (
     <>
       <RoundButton className="w-100 mb-4 fs-4">Add your movie</RoundButton>
+      <NotificationSetting />
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />

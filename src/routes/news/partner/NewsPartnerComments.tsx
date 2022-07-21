@@ -173,7 +173,7 @@ function NewsPartnerComments() {
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
-                    <div className="ms-2">
+                    <div className="ms-4 ps-3">
                       <CommentSection
                         id={comment.id}
                         image={comment.image}

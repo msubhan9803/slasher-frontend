@@ -2,9 +2,11 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Col, Dropdown, Image, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -21,43 +23,6 @@ interface Props {
   onIconClick: (value: number) => void;
   likeIcon: boolean;
 }
-const dropdownBgColor = '#171717';
-const CustomDropDown = styled(Dropdown)`
-  .dropdown-toggle {
-    background-color: ${dropdownBgColor};
-    border: none;
-    &:hover {
-      background-color: ${dropdownBgColor};
-      box-shadow: none
-    }
-    &:focus {
-      color:red;
-      background-color: ${dropdownBgColor};
-      box-shadow: none
-    }
-    &:active&:focus {
-      box-shadow: none
-    }
-    &:after {
-      display: none;
-    }
-  }
-  .dropdown-menu {
-    border: 1px solid #383838;
-    background-color: ${dropdownBgColor};
-    inset: auto 30px 38px auto;
-  }
-  .dropdown-item {
-   
-    height:2.813rem;
-    &:hover {
-      background-color: var(--bs-primary) !important;
-    }
-    &:active {
-      background-color: var(--bs-primary) !important;
-    }
-  }
-`;
 const SmallText = styled.p`
   font-size: .75rem;
   color: #CCCCCC;
@@ -90,20 +55,42 @@ const Likes = styled.div`
   margin-top : -1.43rem;
 `;
 const CommentImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
+  height: 2.5rem;
+  width: 2.5rem;
 `;
 const LinearGradientStop = styled.stop`
   stop-color: #FF1800;
   stop-opacity: 1;
 `;
-
+const CustomPopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 1px solid rgb(56,56,56);
+  position:absolute;
+  top: 0px !important;
+  .popover-arrow{
+    &:after{
+      border-left-color:rgb(56,56,56);
+    }
+  }
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: red;
+  }
+`;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
+  const popover = (
+    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">Block user</PopoverText>
+    </CustomPopover>
+  );
   return (
     <Row key={id}>
-      <Col xs="auto" className="px-0">
+      <Col xs="auto" className={`px-1 ${!commentMention && 'mt-3'}`}>
         <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
       </Col>
       <Col className="ps-2">
@@ -114,15 +101,11 @@ function CommentSection({
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
             <Col xs="auto" className="d-block pe-0">
-              <CustomDropDown>
-                <Dropdown.Toggle className="d-flex justify-content-end pe-0 pt-0">
+              <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                <div>
                   <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  <Dropdown.Item eventKey="1" className="text-light">Report</Dropdown.Item>
-                  <Dropdown.Item eventKey="2" className="text-light">Block user</Dropdown.Item>
-                </Dropdown.Menu>
-              </CustomDropDown>
+                </div>
+              </OverlayTrigger>
             </Col>
           </div>
           <span className="text-primary">
@@ -152,7 +135,7 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <div className="mb-3 mt-2">
+        <div className={`mb-3 mt-2 ${commentMention ? 'ms-3 ms--0' : 'ms-3'}`}>
           <div className="p-0 d-flex" role="button" aria-hidden="true">
             {
               likeIcon

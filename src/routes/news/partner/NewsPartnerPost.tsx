@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Dropdown, Image, Row,
+  Card, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -29,41 +29,24 @@ const SmallText = styled.p`
   color: #CCCCCC;
 `;
 const ProfileImage = styled(Image)`
-  height:2.5rem;
-  width:2.5rem;
+  height:3.125rem;
+  width:3.125rem;
 `;
-const dropdownBgColor = 'rgb(27,24,24)';
-const CustomDropDown = styled(Dropdown)`
-  .dropdown-toggle {
-    border: none;
-    &:hover {
-      background-color: ${dropdownBgColor};
-      box-shadow: none
-    }
-    &:focus {
-      color:red;
-      background-color: ${dropdownBgColor};
-      box-shadow: none
-    }
-    &:active&:focus {
-      box-shadow: none
-    }
-    &:after {
-      display: none;
+const CustomPopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 1px solid rgb(56,56,56);
+  position:absolute;
+  top: 0px !important;
+  .popover-arrow{
+    &:after{
+      border-left-color:rgb(56,56,56);
     }
   }
-
-  .dropdown-menu {
-    background-color: ${dropdownBgColor};
-  }
-
-  .dropdown-item {
-    &:hover {
-      background-color: var(--bs-primary) !important;
-    }
-    &:active {
-      background-color: var(--bs-primary) !important;
-    }
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: red;
   }
 `;
 const data = [
@@ -82,10 +65,16 @@ function NewsPartnerPost() {
     });
     setPostData(likeData);
   };
+
+  const popover = (
+    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
+    </CustomPopover>
+  );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark">
-        <Col xs="auto"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="lg" /></Col>
+        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
         <Col><h1 className="h4 text-center">Horror Oasis</h1></Col>
       </Row>
       <Row className="mb-5">
@@ -108,14 +97,11 @@ function NewsPartnerPost() {
                     </Row>
                   </Col>
                   <Col xs="auto" className="d-block">
-                    <CustomDropDown>
-                      <Dropdown.Toggle className="d-flex justify-content-end pt-0 pe-0 bg-dark">
+                    <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                      <div>
                         <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu>
-                        <Dropdown.Item eventKey="1" className="text-light">Report</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </CustomDropDown>
+                      </div>
+                    </OverlayTrigger>
                   </Col>
                 </Row>
               </Card.Header>

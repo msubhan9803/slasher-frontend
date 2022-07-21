@@ -14,44 +14,37 @@ const CustomDatePicker = styled(Form.Control)`
   color-scheme: dark;
 `;
 const ImageContainer = styled.div`
-  width: 6.25rem;
-  height: 6.25rem;
+  height: 18.75rem;
   background-color: #1F1F1F;
-  border: 0.125rem solid #3A3B46
-`;
-const UploadImageContainer = styled.div`
-  height: 6.0rem;
-  background-color: #1F1F1F;
-  border: .063rem solid #3A3B46
+  border: 0.125rem solid #3A3B46;
+  cursor:pointer;
 `;
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.43rem;
   margin-right: .5rem;
 `;
+const CustomCol = styled(Col)`
+  width: 19.375rem !important;
+`;
 function EventSuggestion() {
   const stratDateRef = useRef() as MutableRefObject<HTMLInputElement>;
   const endDateRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const inputFile = useRef<HTMLInputElement>(null);
   const [uploadEventPost, setUploadEventPost] = useState<string[]>([]);
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
+  const [imageUpload, setImageUpload] = useState<string>('');
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setDescription(e.target.value);
   };
-  const handleFileChange = (eventImage: ChangeEvent<HTMLInputElement>) => {
-    if (!eventImage.target) return;
-    if (eventImage.target.name === 'eventPost' && eventImage.target && eventImage.target.files) {
-      const uploadEventPostList = [...uploadEventPost];
-      const fileList = eventImage.target.files;
-      for (let list = 0; list < fileList.length; list += 1) {
-        const image = URL.createObjectURL(eventImage.target.files[list]);
-        uploadEventPostList.push(image);
-      }
-      setUploadEventPost(uploadEventPostList);
-      const blankTargetValueOnChange = eventImage;
-      blankTargetValueOnChange.target.value = '';
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target) {
+      return;
+    }
+    if (e.target?.name === 'file' && e?.target?.files?.length) {
+      setImageUpload(URL.createObjectURL(e.target.files[0]));
+      e.target.value = '';
     }
   };
   const handleRemoveFile = (eventImage: string) => {
@@ -61,7 +54,7 @@ function EventSuggestion() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <h1 className="h4 d-md-block d-none">Suggest Event</h1>
-      <Container style={{ backgroundColor: '#1F1F1F' }} className="rounded p-4">
+      <Container style={{ backgroundColor: '#1B1B1B' }} className="rounded p-4">
         <Row className="align-items-center d-md-none mb-3">
           <Col xs={2}>
             <FontAwesomeIcon icon={solid('arrow-left')} size="lg" className="text-light rounded-circle text-start" />
@@ -70,30 +63,69 @@ function EventSuggestion() {
             <h3 className="h4 text-center my-0">Event Suggestion</h3>
           </Col>
         </Row>
-        <Row className="justify-content-center justify-content-sm-start">
-          <Col xs={7} md={3} className="mb-3 mb-md-0">
-            <input
-              type="file"
-              name="eventPost"
-              className="d-none"
-              accept="image/*"
-              onChange={(eventPost) => {
-                handleFileChange(eventPost);
-              }}
-              multiple
-              ref={inputFile}
-            />
-            <UploadImageContainer onClick={() => inputFile.current?.click()} className="d-flex flex-column justify-content-center align-items-center w-100 mx-auto rounded">
-              <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light p-3 rounded-circle " />
-            </UploadImageContainer>
-          </Col>
-          <Col>
-            <h3 className="text-center text-md-start h5 mb-1">Add Photos</h3>
-            <p className="text-light text-center text-md-start small mb-0">Recommended size: 830x300 pixels</p>
-            <p className="text-light text-center text-md-start small ">(Jpg, Png)</p>
-            <div className="d-flex justify-content-center justify-content-sm-start mt-3 px-3 ps-0">
-              <RoundButton>Upload photo</RoundButton>
-            </div>
+        <Row>
+          <Col className="h-100">
+            <Row className="h-100">
+              <CustomCol xs={7} md={3}>
+                <label htmlFor="file-upload" className="d-inline">
+                  {imageUpload.length === 0
+                    && (
+                      <ImageContainer style={{ width: '300px', height: '300px' }} className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
+                        <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
+                        <FontAwesomeIcon
+                          icon={solid('plus')}
+                          size="sm"
+                          role="button"
+                          className="position-absolute bg-primary text-white rounded-circle"
+                          style={{
+                            padding: '0.313rem 0.438rem',
+                            top: '17.62rem',
+                            left: '17.62rem',
+                          }}
+                        />
+                      </ImageContainer>
+                    )}
+
+                </label>
+                {imageUpload.length > 0
+                  && (
+                    <ImageContainer style={{ width: '300px', height: '300px' }} className="position-relative d-flex align-items-center rounded border-0">
+                      <Image
+                        src={imageUpload}
+                        alt="Dating profile photograph"
+                        className="w-100 h-100 img-fluid rounded"
+                      />
+                      <FontAwesomeIcon
+                        icon={solid('times')}
+                        size="sm"
+                        role="button"
+                        className="position-absolute bg-white text-primary rounded-circle"
+                        style={{
+                          padding: '0.313rem 0.438rem',
+                          top: '17.62rem',
+                          left: '17.62rem',
+                        }}
+                        onClick={() => setImageUpload('')}
+                      />
+                    </ImageContainer>
+                  )}
+                <input
+                  id="file-upload"
+                  type="file"
+                  name="file"
+                  className="d-none"
+                  accept="image/*"
+                  onChange={(e) => {
+                    handleFileChange(e);
+                  }}
+                />
+              </CustomCol>
+              <Col>
+                <h3 className="text-center text-md-start h5 mb-1">Add Photo</h3>
+                <p className="text-light text-center text-md-start small mb-0" style={{ color: '#A6A6A6' }}>Recommended size: 830x300 pixels</p>
+                <p className="text-light text-center text-md-start small " style={{ color: '#A6A6A6' }}>(Jpg, Png)</p>
+              </Col>
+            </Row>
           </Col>
         </Row>
         <Row className="h-100">

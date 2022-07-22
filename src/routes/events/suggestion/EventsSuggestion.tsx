@@ -14,7 +14,8 @@ const CustomDatePicker = styled(Form.Control)`
   color-scheme: dark;
 `;
 const ImageContainer = styled.div`
-  height: 18.75rem;
+  height: 12.5rem;
+  width:12.5rem;
   background-color: #1F1F1F;
   border: 0.125rem solid #3A3B46;
   cursor:pointer;
@@ -24,37 +25,35 @@ const CustomSpan = styled(Form.Text)`
   margin-right: .5rem;
 `;
 const CustomCol = styled(Col)`
-  width: 19.375rem !important;
+  width: 13.125rem !important;
+`;
+const CustomContainer = styled(Container)`
+  background-color: #1B1B1B;
+`;
+const CustomText = styled.p`
+  color: #A6A6A6
 `;
 function EventSuggestion() {
   const stratDateRef = useRef() as MutableRefObject<HTMLInputElement>;
   const endDateRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const [uploadEventPost, setUploadEventPost] = useState<string[]>([]);
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
   const [imageUpload, setImageUpload] = useState<string>('');
-
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setDescription(e.target.value);
   };
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target) {
-      return;
-    }
+    if (!e.target) return;
     if (e.target?.name === 'file' && e?.target?.files?.length) {
       setImageUpload(URL.createObjectURL(e.target.files[0]));
       e.target.value = '';
     }
   };
-  const handleRemoveFile = (eventImage: string) => {
-    const removePostImage = uploadEventPost.filter((image) => image !== eventImage);
-    setUploadEventPost(removePostImage);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <h1 className="h4 d-md-block d-none">Suggest Event</h1>
-      <Container style={{ backgroundColor: '#1B1B1B' }} className="rounded p-4">
+      <CustomContainer className="rounded p-4">
         <Row className="align-items-center d-md-none mb-3">
           <Col xs={2}>
             <FontAwesomeIcon icon={solid('arrow-left')} size="lg" className="text-light rounded-circle text-start" />
@@ -66,11 +65,11 @@ function EventSuggestion() {
         <Row>
           <Col className="h-100">
             <Row className="h-100">
-              <CustomCol xs={7} md={3}>
+              <CustomCol xs={7} md={3} className="ms-4 ms-md-0">
                 <label htmlFor="file-upload" className="d-inline">
                   {imageUpload.length === 0
                     && (
-                      <ImageContainer style={{ width: '300px', height: '300px' }} className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
+                      <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
                         <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
                         <FontAwesomeIcon
                           icon={solid('plus')}
@@ -79,17 +78,16 @@ function EventSuggestion() {
                           className="position-absolute bg-primary text-white rounded-circle"
                           style={{
                             padding: '0.313rem 0.438rem',
-                            top: '17.62rem',
-                            left: '17.62rem',
+                            top: '11.62rem',
+                            left: '11.62rem',
                           }}
                         />
                       </ImageContainer>
                     )}
-
                 </label>
                 {imageUpload.length > 0
                   && (
-                    <ImageContainer style={{ width: '300px', height: '300px' }} className="position-relative d-flex align-items-center rounded border-0">
+                    <ImageContainer className="position-relative d-flex align-items-center rounded border-0">
                       <Image
                         src={imageUpload}
                         alt="Dating profile photograph"
@@ -102,8 +100,8 @@ function EventSuggestion() {
                         className="position-absolute bg-white text-primary rounded-circle"
                         style={{
                           padding: '0.313rem 0.438rem',
-                          top: '17.62rem',
-                          left: '17.62rem',
+                          top: '11.62rem',
+                          left: '11.62rem',
                         }}
                         onClick={() => setImageUpload('')}
                       />
@@ -121,33 +119,12 @@ function EventSuggestion() {
                 />
               </CustomCol>
               <Col>
-                <h3 className="text-center text-md-start h5 mb-1">Add Photo</h3>
-                <p className="text-light text-center text-md-start small mb-0" style={{ color: '#A6A6A6' }}>Recommended size: 830x300 pixels</p>
-                <p className="text-light text-center text-md-start small " style={{ color: '#A6A6A6' }}>(Jpg, Png)</p>
+                <h3 className="text-center text-md-start h5 mb-1 mt-1 mt-md-0">Add Photo</h3>
+                <CustomText className="text-light text-center text-md-start small mb-0">Recommended size: 830x300 pixels</CustomText>
+                <CustomText className="text-light text-center text-md-start small ">(Jpg, Png)</CustomText>
               </Col>
             </Row>
           </Col>
-        </Row>
-        <Row className="h-100">
-          {uploadEventPost.length > 0 && (
-            <Row className=" mt-3  d-md-flex">
-              {uploadEventPost.map((eventPost: string) => (
-                <Col key={eventPost} className="mb-3" xs={4} md={2}>
-                  <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
-                    <Image src={eventPost} alt="Event photograph" className="w-100 h-100 img-fluid rounded" />
-                    <FontAwesomeIcon
-                      icon={solid('times')}
-                      size="xs"
-                      role="button"
-                      className="position-absolute bg-white text-primary rounded-circle"
-                      style={{ padding: '0.313rem 0.438rem', top: '5.313rem', left: '5.313rem' }}
-                      onClick={() => handleRemoveFile(eventPost)}
-                    />
-                  </ImageContainer>
-                </Col>
-              ))}
-            </Row>
-          )}
         </Row>
         <h2 className="h4 d-md-block mt-4">Event Information</h2>
         <Row>
@@ -170,6 +147,7 @@ function EventSuggestion() {
                 value={description}
                 onChange={handleMessageChange}
                 placeholder="Event description"
+                style={{ resize: 'none' }}
               />
               <CustomSpan className="float-end">{`${charCount}/${1000} characters`}</CustomSpan>
             </Form.Group>
@@ -180,10 +158,22 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <CustomDatePicker placeholder="Start Date" type="date" ref={stratDateRef} />
+            <CustomDatePicker
+              placeholder="Start Date"
+              type="text"
+              ref={stratDateRef}
+              onFocus={() => { (stratDateRef.current.type = 'date'); }}
+              onBlur={() => { (stratDateRef.current.type = 'date'); }}
+            />
           </Col>
           <Col md={6} className="mt-3">
-            <CustomDatePicker placeholder="End Date" type="date" ref={endDateRef} />
+            <CustomDatePicker
+              placeholder="End Date"
+              type="text"
+              ref={endDateRef}
+              onFocus={() => { (endDateRef.current.type = 'date'); }}
+              onBlur={() => { (endDateRef.current.type = 'date'); }}
+            />
           </Col>
         </Row>
         <Row>
@@ -204,12 +194,12 @@ function EventSuggestion() {
             </Form.Select>
           </Col>
         </Row>
-        <Row className=" my-5">
-          <Col md={6} lg={5}>
-            <RoundButton className="w-100" size="lg">Send</RoundButton>
+        <Row className="my-4 pe-md-5">
+          <Col md={6}>
+            <RoundButton className="w-100 mb-5 mb-md-0" size="lg">Send</RoundButton>
           </Col>
         </Row>
-      </Container>
+      </CustomContainer>
     </AuthenticatedPageWrapper>
   );
 }

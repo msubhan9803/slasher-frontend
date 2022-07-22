@@ -8,6 +8,10 @@ interface Props {
 const StyledMovieTrailer = styled.div`
   overflow-x: auto;
   overflow-y: hidden;
+
+  iframe {
+    aspect-ratio: 16/9;
+  }
 `;
 
 function MovieTrailers({ movieTrailer }: Props) {
@@ -16,7 +20,6 @@ function MovieTrailers({ movieTrailer }: Props) {
       {movieTrailer.map((trailer: string) => (
         <iframe
           key={trailer}
-          style={{ aspectRatio: '16/9' }}
           className="rounded-2 me-2"
           src={`https://www.youtube.com/embed/${trailer}`}
           title="YouTube video player"

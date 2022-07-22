@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,6 +13,11 @@ import AboutDetails from './AboutDetails';
 const StyledMoviePoster = styled.div`
   width: 18.75rem;
   height: 22.5rem;
+
+  @media (max-width: 62rem) {
+    width: 11.75rem;
+    height: 14.038rem;
+  }
 `;
 const StyleTabs = styled(Tabs)`
 border-bottom: 0.188rem solid var(--bs-dark);
@@ -32,7 +37,11 @@ overflow-y: hidden;
   }
 }
 `;
+const FollowStyledButton = styled(RoundButton)`
+  width: 9.938rem;
+`;
 function AboutMovie() {
+  const [bgColor, setBgColor] = useState<boolean>(false);
   return (
     <div>
       <div className="bg-dark my-3 p-3 pb-0 rounded-2">
@@ -45,24 +54,20 @@ function AboutMovie() {
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center justify-content-xl-start mt-2 mt-xl-0">
-          <Col sm={8} md={6} xl={5} className="text-center">
+          <Col xs={10} sm={7} md={5} lg={9} xl={5} className="text-center">
             <small>Your lists</small>
             <ListIcon />
           </Col>
-          <Col xl={7} className="mt-3 mt-xl-0 d-none">
-            <Row className="justify-content-center">
-              <Col className="d-block">
-                <RoundButton className="px-5 py-2 rounded-pill border-0 me-2">
-                  Follow
-                </RoundButton>
-              </Col>
-              <Col xl={4}>
-                <RoundButton className="bg-black py-2 rounded-pill border-0" variant="lg">
-                  <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-                  Share
-                </RoundButton>
-              </Col>
-            </Row>
+          <Col xl={7} className="mt-3 mt-xl-0 d-lg-none">
+            <div className="d-flex justify-content-center">
+              <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`me-2 border-0 rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}>
+                {bgColor ? 'Follow' : 'Unfollow'}
+              </FollowStyledButton>
+              <RoundButton className="px-3 bg-black rounded-pill border-0" variant="lg">
+                <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
+                Share
+              </RoundButton>
+            </div>
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">

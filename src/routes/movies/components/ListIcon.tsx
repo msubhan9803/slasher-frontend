@@ -14,12 +14,17 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg {
     width: 1.125rem;
   }
+
+  .detail-movie-icon {
+    width: 3.125rem;
+    height: 3.125rem;
+  }
 `;
 function ListIcon() {
   return (
-    <div className="d-flex justify-content-between mt-2">
+    <div className="d-flex justify-content-center mt-2">
       <LinearIcon uniqueId="like" className="d-flex flex-column align-items-center">
-        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
+        <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('heart')} size="lg" />
         </div>
         <h6 className="mt-2"> Favorite </h6>
@@ -30,8 +35,8 @@ function ListIcon() {
           </linearGradient>
         </svg>
       </LinearIcon>
-      <LinearIcon uniqueId="watch" className="d-flex flex-column align-items-center">
-        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
+      <LinearIcon uniqueId="watch" className="mx-4 d-flex flex-column align-items-center">
+        <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('check')} size="lg" />
         </div>
         <small className="mt-2"> Watch </small>
@@ -42,8 +47,8 @@ function ListIcon() {
           </linearGradient>
         </svg>
       </LinearIcon>
-      <LinearIcon uniqueId="watchlist" className="d-flex flex-column align-items-center">
-        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
+      <LinearIcon uniqueId="watchlist" className="me-4 d-flex flex-column align-items-center">
+        <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('list-check')} size="lg" />
         </div>
         <small className="mt-2"> Watchlist </small>
@@ -55,7 +60,7 @@ function ListIcon() {
         </svg>
       </LinearIcon>
       <LinearIcon uniqueId="buy" className="d-flex flex-column align-items-center">
-        <div className="align-items-center bg-white d-flex justify-content-center rounded-circle" style={{ width: '3.125rem', height: '3.125rem' }}>
+        <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('bag-shopping')} size="lg" />
         </div>
         <small className="mt-2"> Buy </small>

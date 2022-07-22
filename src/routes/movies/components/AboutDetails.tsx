@@ -82,7 +82,7 @@ function AboutDetails() {
   return (
     <AboutMovieDetails className="text-xl-start">
       <Row className="justify-content-center mt-2 mt-xl-0">
-        <Col sm={10} md={8} lg={9} xl={12}>
+        <Col xs={10} sm={8} md={6} lg={9} xl={12}>
           <h1 className="h2 m-0 text-center">
             The Curse of La Patasola | Part 1 Weekend camping trip | English dubbed | 1080p
           </h1>
@@ -104,7 +104,7 @@ function AboutDetails() {
       </Row>
 
       <StyledRateBorder className="py-3 justify-content-center align-items-center">
-        <Col xs={5} xl={5}>
+        <Col xs={6} sm={5}>
           <span className="align-items-center d-flex justify-content-end pe-xs-3 pe-xl-2">
             <FontAwesomeIcon icon={solid('star')} size="xs" className="star mb-2 mt-1" />
             <div className="d-flex">
@@ -113,7 +113,7 @@ function AboutDetails() {
             </div>
           </span>
         </Col>
-        <Col xs={5} xl={5}>
+        <Col xs={6} sm={5}>
           <RoundButton className="rate-btn bg-black border-0 py-2" variant="lg">
             <FontAwesomeIcon icon={regular('star')} size="sm" className="me-2" />
             Rate
@@ -124,7 +124,7 @@ function AboutDetails() {
       <Row className="justify-content-center py-3">
         <Col xl={10}>
           <div className="align-items-center d-flex justify-content-center">
-            <p className="m-0 me-3">Worth watching?</p>
+            <p className="m-0 me-1 me-sm-3">Worth watching?</p>
             <div className="d-flex align-items-center justify-content-between">
               <span className="align-items-center d-flex me-xl-0">
                 {liked ? (
@@ -156,15 +156,15 @@ function AboutDetails() {
       </Row>
 
       <Row className="justify-content-center">
-        <Col xs={5} xl={5}>
-          <StyledWorth className="align-items-center justify-content-end justify-content-xl-center d-flex me-4 me-xl-0">
+        <Col lg={5}>
+          <StyledWorth className="align-items-center justify-content-center d-flex me-4 me-xl-0">
             <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
               <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
             </div>
             <p className="m-0">Worth it!</p>
           </StyledWorth>
         </Col>
-        <Col xs={5} xl={5}>
+        <Col lg={5} className="d-none d-lg-block">
           <RoundButton className="bg-black py-2 rounded-pill border-0" variant="lg">
             <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
             Share

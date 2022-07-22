@@ -23,6 +23,13 @@ const StyledCast = styled.div`
   &::-webkit-scrollbar {
     display: none;
 }
+
+  @media (max-width: 48rem) {
+    img {
+      width: 6.25rem;
+      height: 6.249rem;
+    }
+  }
 `;
 
 function MovieCasts({ movieCasts }: Props) {

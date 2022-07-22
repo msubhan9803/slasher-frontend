@@ -1,14 +1,16 @@
 import React from 'react';
+import styled from 'styled-components';
 
 interface Props {
   embedId: string;
 }
+const StyledMoviePlay = styled.iframe`
+  aspectRatio: 16/9;
+`;
 function PlayMovie({ embedId }: Props) {
   return (
-    <iframe
-      className="rounded-2"
-      width="100%"
-      height="420"
+    <StyledMoviePlay
+      className="rounded-2 w-100"
       src={`https://www.youtube.com/embed/${embedId}`}
       title="YouTube video player"
       frameBorder="0"

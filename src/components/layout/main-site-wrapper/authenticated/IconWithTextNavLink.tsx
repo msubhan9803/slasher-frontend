@@ -1,7 +1,7 @@
 import React from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
 import { Link } from 'react-router-dom';
-import GlobalNavItemInnerElement from './GlobalNavItemInnerElement';
+import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 
 interface Props {
   label: string;
@@ -14,12 +14,12 @@ interface Props {
   children?: React.ReactNode;
 }
 
-function GlobalNavLink({
+function IconWithTextNavLink({
   label, icon, iconSize, to, badge, badgeIconClassName, className, children,
 }: Props) {
   return (
     <Link to={to} className={className}>
-      <GlobalNavItemInnerElement
+      <IconWithTextNavItemInnerElement
         label={label}
         icon={icon}
         iconSize={iconSize}
@@ -31,11 +31,11 @@ function GlobalNavLink({
   );
 }
 
-GlobalNavLink.defaultProps = {
+IconWithTextNavLink.defaultProps = {
   badgeIconClassName: '',
   className: '',
   badge: null,
   children: null,
 };
 
-export default GlobalNavLink;
+export default IconWithTextNavLink;

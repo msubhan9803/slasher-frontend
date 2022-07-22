@@ -76,11 +76,7 @@ function EventSuggestion() {
                           size="sm"
                           role="button"
                           className="position-absolute bg-primary text-white rounded-circle"
-                          style={{
-                            padding: '0.313rem 0.438rem',
-                            top: '11.62rem',
-                            left: '11.62rem',
-                          }}
+                          style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
                         />
                       </ImageContainer>
                     )}
@@ -98,11 +94,7 @@ function EventSuggestion() {
                         size="sm"
                         role="button"
                         className="position-absolute bg-white text-primary rounded-circle"
-                        style={{
-                          padding: '0.313rem 0.438rem',
-                          top: '11.62rem',
-                          left: '11.62rem',
-                        }}
+                        style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
                         onClick={() => setImageUpload('')}
                       />
                     </ImageContainer>

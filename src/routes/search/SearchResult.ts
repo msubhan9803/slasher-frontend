@@ -18,16 +18,31 @@ export const people = [
 
 export const posts = [
   {
-    id: 1, image: 'https://i.pravatar.cc/300?img=14', name: 'Horror Oasis', date: '06/11/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 1, image: 'https://i.pravatar.cc/300?img=14', name: 'Horror Oasis', date: '06/11/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
   },
   {
-    id: 2, image: 'https://i.pravatar.cc/300?img=15', name: 'Oasis1', date: '07/10/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 2, image: 'https://i.pravatar.cc/300?img=15', name: 'Oasis1', date: '07/10/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
   },
   {
-    id: 3, image: 'https://i.pravatar.cc/300?img=19', name: 'Horror Oasis2', date: '08/09/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 3, image: 'https://i.pravatar.cc/300?img=19', name: 'Horror Oasis2', date: '08/09/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
   },
   {
-    id: 4, image: 'https://i.pravatar.cc/300?img=21', name: 'Horror Oasis3', date: '09/12/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'],
+    id: 4, image: 'https://i.pravatar.cc/300?img=21', name: 'Horror Oasis3', date: '09/12/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
+  },
+];
+
+export const news = [
+  {
+    id: 1, image: 'https://i.pravatar.cc/300?img=14', name: 'Horror Oasis', date: '06/11/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
+  },
+  {
+    id: 2, image: 'https://i.pravatar.cc/300?img=15', name: 'Oasis1', date: '07/10/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
+  },
+  {
+    id: 3, image: 'https://i.pravatar.cc/300?img=19', name: 'Horror Oasis2', date: '08/09/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
+  },
+  {
+    id: 4, image: 'https://i.pravatar.cc/300?img=21', name: 'Horror Oasis3', date: '09/12/2022 11:10 PM', content: 'Hell is empty and all the devils are here.', hashTag: ['horrorday', '#horrorcommunity', 'slasher', 'horroroasis'],
   },
 ];
 

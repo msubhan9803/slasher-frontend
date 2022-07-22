@@ -7,13 +7,14 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 import SearchInput from './SearchInput';
 import Hashtags from './component/Hashtags';
 import {
-  events, hashtags, myMovies, people, posts,
+  events, hashtags, myMovies, people, posts, news,
 } from './SearchResult';
 import People from './component/People';
 import Movies from './component/Movies';
 import Events from './component/Events';
 import Posts from './component/Posts';
 import { SearchProps } from './SearchInterface';
+import NewsList from './component/NewsList';
 
 const StyleTabs = styled(Tabs)`
   border-bottom: 0.188rem solid var(--bs-dark);
@@ -46,7 +47,7 @@ function Search() {
     if (setTab === 'People') { setFiltered(people); setData(people); }
     if (setTab === 'Posts') { setFiltered(posts); setData(posts); }
     if (setTab === 'Hashtags') { setFiltered(hashtags); setData(hashtags); }
-    if (setTab === 'News') { setFiltered(posts); setData(posts); }
+    if (setTab === 'News') { setFiltered(news); setData(news); }
     if (setTab === 'Events') { setFiltered(events); setData(events); }
     if (setTab === 'Movies') { setFiltered(myMovies); setData(myMovies); }
   };
@@ -107,15 +108,15 @@ function Search() {
         </Tab>
         <Tab eventKey="news" title="News">
           <Row>
-            {filtered && filtered.length > 0 ? (filtered.map((postDetail) => (
-              <Col xs={12} key={postDetail.id}>
-                <Posts
-                  id={postDetail.id}
-                  name={postDetail.name}
-                  image={postDetail.image}
-                  date={postDetail.date}
-                  content={postDetail.content}
-                  hashTag={postDetail.hashTag}
+            {filtered && filtered.length > 0 ? (filtered.map((newsdetail) => (
+              <Col xs={12} key={newsdetail.id}>
+                <NewsList
+                  id={newsdetail.id}
+                  name={newsdetail.name}
+                  image={newsdetail.image}
+                  date={newsdetail.date}
+                  content={newsdetail.content}
+                  hashTag={newsdetail.hashTag}
                 />
               </Col>
             ))) : (
@@ -124,9 +125,9 @@ function Search() {
           </Row>
         </Tab>
         <Tab eventKey="events" title="Events">
-          <Row className="justify-content-evenly mx-3 mx-sm-0">
+          <Row className="justify-content-center mx-3 mx-sm-0">
             {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
-              <Col sm={5} key={eventDetail.id} className="">
+              <Col sm={6} key={eventDetail.id} className="">
                 <Events
                   id={eventDetail.id}
                   name={eventDetail.name}

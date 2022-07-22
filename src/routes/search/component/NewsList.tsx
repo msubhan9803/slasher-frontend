@@ -42,7 +42,7 @@ const PopoverText = styled.p`
   background: red;
 }
 `;
-function Posts({
+function NewsList({
   id, name, image, date, content, hashTag,
 }: SearchProps) {
   const [like, setLike] = useState(false);
@@ -58,7 +58,7 @@ function Posts({
     </CustomPopover>
   );
   return (
-    <Card key={id} className="bg-dark my-3 p-3">
+    <Card className="bg-dark my-3 p-3">
       <Card.Header className="border-0 ps-1 ps-md-3 align-items-center d-flex justify-content-between">
         <Link to="/news/partner/1" className="text-white align-items-center d-flex">
           <ProfileImage src={image} className="rounded-circle bg-secondary" />
@@ -88,7 +88,7 @@ function Posts({
         <Card.Img src={postImage} />
         <Row className="justify-content-between mx-1 mt-3">
           <Col>
-            <LinearIcon uniqueId="like-button-post">
+            <LinearIcon uniqueId="like-button-news">
               <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
               12K
             </LinearIcon>
@@ -102,7 +102,7 @@ function Posts({
             25
           </Col>
           <svg width="0" height="0">
-            <linearGradient id="like-button-post" x1="00%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="like-button-news" x1="00%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
               <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
             </linearGradient>
@@ -113,7 +113,7 @@ function Posts({
         <Row className=" d-flex justify-content-evenly py-3 px-3">
           <Col role="button" onClick={() => onLikeClick(id)}>
             {like && (id === iD) ? (
-              <LinearIcon uniqueId="like-button-post">
+              <LinearIcon uniqueId="like-button-news">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                 Like
               </LinearIcon>
@@ -134,7 +134,7 @@ function Posts({
             Share
           </Col>
           <svg width="0" height="0">
-            <linearGradient id="like-button-post" x1="100%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="like-button-news" x1="100%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
               <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
             </linearGradient>
@@ -145,4 +145,4 @@ function Posts({
   );
 }
 
-export default Posts;
+export default NewsList;

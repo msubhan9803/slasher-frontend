@@ -12,21 +12,27 @@ const MovieCardStyle = styled(Card)`
   .fa-star {
     color: #FF8A00;
   }
-  .fa-thumbs-up {
-    color: #00FF0A;
-    background-color: #1F1F1F;
-    border: 0.063rem solid #3A3B46;
-  }
-  .fa-thumbs-down {
-    color: #FF1800;
-    background-color: #1F1F1F;
-    border: 0.063rem solid #3A3B46;
-    transform: rotateY(180deg);
-  }
 `;
 const RatingDiv = styled.div`
   margin-top: -1.688rem;
   margin-bottom: 0.313rem;
+`;
+const StyledLikeButton = styled.div`
+  width: 1.514rem;
+  height: 1.514rem;
+  border: 0.063rem solid #3A3B46;
+  background-color: #1F1F1F;
+  .fa-thumbs-up {
+    color: #00FF0A;
+  }
+  .fa-thumbs-down {
+    color: #FF1800;
+    transform: rotateY(180deg);
+  }
+  .fa-sm {
+    width: 0.804rem;
+    height: 0.805rem;
+  }
 `;
 function Movies({
   name, image, year, liked,
@@ -43,13 +49,14 @@ function Movies({
       <Card.Body className="px-0">
         <Card.Text className="d-flex justify-content-between align-items-center m-0 small text-light">
           {year}
-          <FontAwesomeIcon
-            icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
-            className="rounded-circle p-1 me-2"
-            size="sm"
-          />
+          <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">
+            <FontAwesomeIcon
+              icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
+              size="sm"
+            />
+          </StyledLikeButton>
         </Card.Text>
-        <Card.Text>
+        <Card.Text className="fw-bold">
           {name}
         </Card.Text>
       </Card.Body>

@@ -5,7 +5,7 @@ interface Props {
   embedId: string;
 }
 const StyledMoviePlay = styled.iframe`
-  aspectRatio: 16/9;
+  aspect-ratio: 16/9;
 `;
 function PlayMovie({ embedId }: Props) {
   return (

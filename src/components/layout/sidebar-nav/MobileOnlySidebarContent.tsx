@@ -30,7 +30,7 @@ function MobileOnlySidebarContent({ className }: Props) {
           <Col xs={4}>
             <SpecificHeightLink to="/" className="btn btn-sidebar w-100 pt-2">
               <UserCircleImage className="rounded-circle mb-1" src={userProfileIconPlaceholder} alt="User icon" />
-              Profile
+              Me
             </SpecificHeightLink>
           </Col>
           <Col xs={4}>

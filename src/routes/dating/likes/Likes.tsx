@@ -111,8 +111,8 @@ function Likes() {
 
   return (
     <DatingPageWrapper>
-      <Container className="my-5 my-md-0 py-5 py-md-0">
-        <Row className="align-items-center mb-4 mt-5 mt-md-0">
+      <Container>
+        <Row className="align-items-center mb-4">
           <Col xl={5}>
             <h1 className="h3 mb-0">{subscriberValue === 'yes' ? 'Likes received' : 'Dating Likes'}</h1>
           </Col>

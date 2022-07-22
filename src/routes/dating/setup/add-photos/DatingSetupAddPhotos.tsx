@@ -25,7 +25,7 @@ function DatingSetupAddPhotos() {
   ]);
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="dating">
       <Container className="py-5 my-5 py-md-0 my-md-0">
         <Row className="justify-content-center text-center">
           <Col lg={8}>

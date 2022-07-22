@@ -76,7 +76,7 @@ const CustomPopover = styled(Popover)`
 `;
 const PopoverText = styled.p`
   &:hover {
-    background: red;
+    background: var(--bs-primary);
   }
 `;
 function CommentSection({
@@ -142,19 +142,19 @@ function CommentSection({
                 ? (
                   <LinearIcon uniqueId="like-button">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                    Like
+                    <small>Like</small>
                   </LinearIcon>
                 )
                 : (
                   <div>
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                    Like
+                    <small>Like</small>
                   </div>
                 )
             }
             <div>
               <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
-              Reply
+              <small>Reply</small>
             </div>
           </div>
         </div>

@@ -58,10 +58,6 @@ const CommentImage = styled(Image)`
   height: 2.5rem;
   width: 2.5rem;
 `;
-const LinearGradientStop = styled.stop`
-  stop-color: #FF1800;
-  stop-opacity: 1;
-`;
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);

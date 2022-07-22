@@ -109,7 +109,7 @@ function NewsPartnerDetail() {
                 </Row>
                 <Row className="justify-content-between d-flex m-2">
                   <Col>
-                    <LinearIcon uniqueId="like-button">
+                    <LinearIcon uniqueId="like-button1">
                       <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
                       12K
                     </LinearIcon>
@@ -123,7 +123,7 @@ function NewsPartnerDetail() {
                     25
                   </Col>
                   <svg width="0" height="0">
-                    <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient id="like-button1" x1="00%" y1="0%" x2="0%" y2="100%">
                       <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
                       <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
                     </linearGradient>

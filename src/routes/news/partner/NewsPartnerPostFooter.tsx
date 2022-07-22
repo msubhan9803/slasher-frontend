@@ -27,7 +27,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
       <Row className=" d-flex justify-content-evenly py-3 px-3">
         <Col role="button" onClick={() => onLikeClick(id)}>
           {likeIcon ? (
-            <LinearIcon uniqueId="like-button">
+            <LinearIcon uniqueId="like-button-footer">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
               Like
             </LinearIcon>
@@ -48,7 +48,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
           Share
         </Col>
         <svg width="0" height="0">
-          <linearGradient id="like-button" x1="100%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
             <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
           </linearGradient>

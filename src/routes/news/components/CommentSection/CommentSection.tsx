@@ -122,16 +122,16 @@ function CommentSection({
             )}
         </CommentBox>
         <Likes className="rounded d-flex justify-content-end">
-          <LikesButton key="like-1" className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
-            <LinearIcon uniqueId="like-button">
+          <LikesButton className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
+            <LinearIcon uniqueId="like-button-comment">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
               <small>{likes}</small>
             </LinearIcon>
           </LikesButton>
           <svg width="0" height="0">
-            <linearGradient id="like-1" x1="00%" y1="0%" x2="0%" y2="100%">
-              <LinearGradientStop offset="0%" />
-              <LinearGradientStop offset="100%" />
+            <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+              <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
             </linearGradient>
           </svg>
         </Likes>
@@ -140,7 +140,7 @@ function CommentSection({
             {
               likeIcon
                 ? (
-                  <LinearIcon uniqueId="like-button">
+                  <LinearIcon uniqueId="like-button-comment">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
                     <small>Like</small>
                   </LinearIcon>

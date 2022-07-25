@@ -52,7 +52,6 @@ function EventSuggestion() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <h1 className="h4 d-md-block d-none">Suggest Event</h1>
       <CustomContainer className="rounded p-4">
         <Row className="align-items-center d-md-none mb-3">
           <Col xs={2}>
@@ -187,8 +186,8 @@ function EventSuggestion() {
           </Col>
         </Row>
         <Row className="my-4 pe-md-5">
-          <Col md={6}>
-            <RoundButton className="w-100 mb-5 mb-md-0" size="lg">Send</RoundButton>
+          <Col md={5}>
+            <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg">Send</RoundButton>
           </Col>
         </Row>
       </CustomContainer>

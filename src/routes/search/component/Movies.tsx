@@ -38,7 +38,7 @@ function Movies({
   name, image, year, liked,
 }: SearchProps) {
   return (
-    <MovieCardStyle className="bg-transparent my-2">
+    <MovieCardStyle className="bg-transparent my-2 border-0">
       <Card.Img variant="top" src={image} className="rounded-3" />
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="fw-bold rating bg-white mb-0 px-2 rounded-5 small text-black">

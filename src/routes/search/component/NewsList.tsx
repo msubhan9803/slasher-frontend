@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
 import postImage from '../../../images/news-post.svg';
@@ -19,8 +18,8 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const ProfileImage = styled(Image)`
-  height: 2.5rem;
-  width: 2.5rem;
+  height: 3.125rem;
+  width: 3.125rem;
 `;
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
@@ -42,6 +41,10 @@ const PopoverText = styled.p`
   background: red;
 }
 `;
+const SmallText = styled.p`
+  font-size: .875rem;
+  color: #CCCCCC;
+`;
 function NewsList({
   id, name, image, date, content, hashTag,
 }: SearchProps) {
@@ -58,90 +61,110 @@ function NewsList({
     </CustomPopover>
   );
   return (
-    <Card className="bg-dark my-3 p-3">
-      <Card.Header className="border-0 ps-1 ps-md-3 align-items-center d-flex justify-content-between">
-        <Link to="/news/partner/1" className="text-white align-items-center d-flex">
-          <ProfileImage src={image} className="rounded-circle bg-secondary" />
-          <div className="mx-3">
-            <h1 className="mb-0 h6">{name}</h1>
-            <small className="text-light">{date}</small>
-          </div>
-        </Link>
-        <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-          <div>
-            <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-          </div>
-        </OverlayTrigger>
-      </Card.Header>
-      <Card.Body className="ps-1 ps-md-3 pt-1">
-        <Card.Text>
-          {content}
-          <br />
-          {hashTag?.map((hashtag: string) => (
-            <Link to="/search" key={hashtag} className="text-primary cursor-pointer">
-              #
-              {hashtag}
-            </Link>
-          ))}
-          ☠️
-        </Card.Text>
-        <Card.Img src={postImage} />
-        <Row className="justify-content-between mx-1 mt-3">
-          <Col>
-            <LinearIcon uniqueId="like-button-news">
-              <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-              12K
-            </LinearIcon>
-          </Col>
-          <Col className="text-center">
-            <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-            10
-          </Col>
-          <Col className="text-end">
-            <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-            25
-          </Col>
-          <svg width="0" height="0">
-            <linearGradient id="like-button-news" x1="00%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-              <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-            </linearGradient>
-          </svg>
-        </Row>
-      </Card.Body>
-      <CardFooter>
-        <Row className=" d-flex justify-content-evenly py-3 px-3">
-          <Col role="button" onClick={() => onLikeClick(id)}>
-            {like && (id === iD) ? (
-              <LinearIcon uniqueId="like-button-news">
-                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                Like
-              </LinearIcon>
-            )
-              : (
-                <>
-                  <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                  Like
-                </>
-              )}
-          </Col>
-          <Col className="text-center" role="button">
-            <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            Comment
-          </Col>
-          <Col className="text-end" role="button">
-            <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-            Share
-          </Col>
-          <svg width="0" height="0">
-            <linearGradient id="like-button-news" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-              <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-            </linearGradient>
-          </svg>
-        </Row>
-      </CardFooter>
-    </Card>
+    <Row className="my-3 px-2">
+      <Col className="p-0">
+        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
+          <Card.Header className="border-0 px-sm-3 px-md-0 bg-dark">
+            <Row className="justify-content-between">
+              <Col xs="auto">
+                <Row className="d-flex">
+                  <Col className="my-auto rounded-circle" xs="auto">
+                    <div className="rounded-circle">
+                      <ProfileImage src={image} className="rounded-circle bg-secondary" />
+                    </div>
+                  </Col>
+                  <Col xs="auto" className="ps-0 align-self-center">
+                    <h1 className="mb-0 h6">{name}</h1>
+                    <SmallText className="mb-0">{date}</SmallText>
+                  </Col>
+                </Row>
+              </Col>
+              <Col xs="auto" className="d-block">
+                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                  <div>
+                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                  </div>
+                </OverlayTrigger>
+              </Col>
+            </Row>
+          </Card.Header>
+          <Card.Body className="px-0 pt-3">
+            <Row>
+              <Col className="px-4 px-md-3">
+                <span>
+                  {content}
+                </span>
+                <br />
+                {hashTag?.map((hashtag: string) => (
+                  <span key={hashtag} className="text-primary cursor-pointer">
+                    #
+                    {hashtag}
+                    &nbsp;
+                  </span>
+                ))}
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Image src={postImage} className="w-100" />
+            </Row>
+            <Row className="d-flex justify-content-evenly pt-3 px-3">
+              <Col>
+                <LinearIcon uniqueId="like-button-news">
+                  <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
+                  12K
+                </LinearIcon>
+              </Col>
+              <Col className="text-center">
+                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
+                10
+              </Col>
+              <Col className="text-end">
+                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
+                25
+              </Col>
+              <svg width="0" height="0">
+                <linearGradient id="like-button-news" x1="00%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
+            </Row>
+          </Card.Body>
+          <CardFooter className="p-0">
+            <Row className=" d-flex justify-content-evenly py-3 px-3">
+              <Col role="button" onClick={() => onLikeClick(id)}>
+                {like && (id === iD) ? (
+                  <LinearIcon uniqueId="like-button-footer-news">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                    Like
+                  </LinearIcon>
+                )
+                  : (
+                    <>
+                      <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                      Like
+                    </>
+                  )}
+              </Col>
+              <Col className="text-center" role="button">
+                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                Comment
+              </Col>
+              <Col className="text-end" role="button">
+                <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                Share
+              </Col>
+              <svg width="0" height="0">
+                <linearGradient id="like-button-footer-news" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
+            </Row>
+          </CardFooter>
+        </Card>
+      </Col>
+    </Row>
   );
 }
 

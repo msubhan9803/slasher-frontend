@@ -64,7 +64,7 @@ function Search() {
         <Tab eventKey="people" title="People">
           <Row>
             {filtered && filtered.length > 0 ? (filtered?.map((peopleDetail) => (
-              <Col md={6} lg={4} key={peopleDetail.id}>
+              <Col md={6} key={peopleDetail.id}>
                 <People
                   id={peopleDetail.id}
                   name={peopleDetail.name}
@@ -98,7 +98,7 @@ function Search() {
         <Tab eventKey="hashtags" title="Hashtags">
           <Row>
             {filtered && filtered.length > 0 ? (filtered.map((hashtagDetail) => (
-              <Col md={6} lg={4} key={hashtagDetail.id}>
+              <Col md={6} key={hashtagDetail.id}>
                 <Hashtags id={hashtagDetail.id} name={hashtagDetail.name} />
               </Col>
             ))) : (
@@ -127,7 +127,7 @@ function Search() {
         <Tab eventKey="events" title="Events">
           <Row className="justify-content-center mx-3 mx-sm-0">
             {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
-              <Col sm={6} key={eventDetail.id} className="">
+              <Col sm={6} key={eventDetail.id}>
                 <Events
                   id={eventDetail.id}
                   name={eventDetail.name}

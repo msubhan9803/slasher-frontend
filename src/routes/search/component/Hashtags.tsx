@@ -5,20 +5,20 @@ import { SearchProps } from '../SearchInterface';
 
 const StyledHastagsCircle = styled.div`
   border-radius: 50%;
-  height: 3.75rem;
-  width: 3.75rem;
+  height: 3.125rem;
+  width: 3.125rem;
 `;
 function Hashtags({ name }: SearchProps) {
   return (
     <Row className="py-4 align-items-center">
-      <Col xs={3} sm={2} lg={4}>
+      <Col xs="auto">
         <StyledHastagsCircle className="ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light">#</StyledHastagsCircle>
       </Col>
-      <Col xs={9} sm={10} md={8} className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
-        <h2 className="h5 mb-0">
+      <Col xs="auto" className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
+        <p className="fw-bold mb-0">
           #
           {name}
-        </h2>
+        </p>
         <p className="small text-light mb-0">24.3M posts</p>
       </Col>
     </Row>

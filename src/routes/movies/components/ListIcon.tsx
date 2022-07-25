@@ -35,7 +35,7 @@ function ListIcon() {
           </linearGradient>
         </svg>
       </LinearIcon>
-      <LinearIcon uniqueId="watch" className="mx-4 d-flex flex-column align-items-center">
+      <LinearIcon uniqueId="watch" className="mx-3 d-flex flex-column align-items-center">
         <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('check')} size="lg" />
         </div>
@@ -47,7 +47,7 @@ function ListIcon() {
           </linearGradient>
         </svg>
       </LinearIcon>
-      <LinearIcon uniqueId="watchlist" className="me-4 d-flex flex-column align-items-center">
+      <LinearIcon uniqueId="watchlist" className="me-3 d-flex flex-column align-items-center">
         <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={solid('list-check')} size="lg" />
         </div>

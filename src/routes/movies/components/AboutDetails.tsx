@@ -83,7 +83,7 @@ function AboutDetails() {
     <AboutMovieDetails className="text-xl-start">
       <Row className="justify-content-center mt-2 mt-xl-0">
         <Col xs={10} sm={8} md={6} lg={9} xl={12}>
-          <h1 className="h2 m-0 text-center">
+          <h1 className="h2 m-0 text-center text-xl-start">
             The Curse of La Patasola | Part 1 Weekend camping trip | English dubbed | 1080p
           </h1>
         </Col>
@@ -91,7 +91,7 @@ function AboutDetails() {
 
       <Row className="py-4 justify-content-center">
         <Col>
-          <div className="align-items-center d-flex justify-content-center text-light">
+          <div className="align-items-center d-flex justify-content-center justify-content-xl-start text-light">
             <small>2022</small>
             <small className="small-initial ms-3 me-4 align-items-center border border-primary d-flex justify-content-center text-primary">R</small>
             <span className="align-items-center d-flex">
@@ -103,9 +103,9 @@ function AboutDetails() {
         </Col>
       </Row>
 
-      <StyledRateBorder className="py-3 justify-content-center align-items-center">
+      <StyledRateBorder className="py-3 justify-content-center  justify-content-xl-start align-items-center">
         <Col xs={6} sm={5}>
-          <span className="align-items-center d-flex justify-content-end pe-xs-3 pe-xl-2">
+          <span className="align-items-center d-flex justify-content-end justify-content-xl-start pe-xs-3 pe-xl-2">
             <FontAwesomeIcon icon={solid('star')} size="xs" className="star mb-2 mt-1" />
             <div className="d-flex">
               <h2 className="h4 m-0 ms-2 me-1">3.3/5</h2>
@@ -121,9 +121,9 @@ function AboutDetails() {
         </Col>
       </StyledRateBorder>
 
-      <Row className="justify-content-center py-3">
+      <Row className="justify-content-center justify-content-xl-start py-3">
         <Col xl={10}>
-          <div className="align-items-center d-flex justify-content-center">
+          <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
             <p className="m-0 me-1 me-sm-3">Worth watching?</p>
             <div className="d-flex align-items-center justify-content-between">
               <span className="align-items-center d-flex me-xl-0">
@@ -155,20 +155,14 @@ function AboutDetails() {
         </Col>
       </Row>
 
-      <Row className="justify-content-center">
-        <Col lg={5}>
-          <StyledWorth className="align-items-center justify-content-center d-flex me-4 me-xl-0">
+      <Row className="justify-content-center justify-content-xl-start">
+        <Col>
+          <StyledWorth className="align-items-center justify-content-center justify-content-xl-start d-flex me-4 me-xl-0">
             <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
               <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
             </div>
             <p className="m-0">Worth it!</p>
           </StyledWorth>
-        </Col>
-        <Col lg={5} className="d-none d-lg-block">
-          <RoundButton className="bg-black py-2 rounded-pill border-0" variant="lg">
-            <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-            Share
-          </RoundButton>
         </Col>
       </Row>
     </AboutMovieDetails>

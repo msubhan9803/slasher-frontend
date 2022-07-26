@@ -59,22 +59,16 @@ function Movies() {
       id: 4, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 5, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 5, name: 'The Exorcist', year: '2022', liked: true,
     },
     {
-      id: 6, name: 'The Djinn', year: '2022', liked: false,
+      id: 6, name: 'Spiral: From the Book of Saw', year: '2022', liked: false,
     },
     {
-      id: 7, name: 'Ghost Lab', year: '2022', liked: true,
+      id: 7, name: 'The Night House', year: '2022', liked: true,
     },
     {
-      id: 8, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
-    },
-    {
-      id: 9, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
-    },
-    {
-      id: 10, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 8, name: 'Zombie Reddy', year: '2022', liked: true,
     },
   ];
   const [showKeys, setShowKeys] = useState(false);

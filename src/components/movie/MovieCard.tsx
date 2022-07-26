@@ -30,8 +30,7 @@ const MovieCardStyle = styled(Card)`
   }
 `;
 const RatingDiv = styled.div`
-  margin-top: -1.688rem;
-  margin-bottom: 0.313rem;
+  margin-top: -1.875rem;
 `;
 const StyledLikeButton = styled.div`
   width: 1.514rem;
@@ -74,7 +73,7 @@ function MovieCard({
             />
           </StyledLikeButton>
         </Card.Text>
-        <Card.Text className="fw-bold">
+        <Card.Text className="fw-bold mt-1">
           {name}
         </Card.Text>
       </Card.Body>

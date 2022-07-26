@@ -7,7 +7,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 function MovieSidebar() {
   return (
     <>
-      <RoundButton className="text-black fw-bold fs-6 w-100 mb-4">Add your movie</RoundButton>
+      <RoundButton className="w-100 mb-4 fs-4">Add your movie</RoundButton>
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />

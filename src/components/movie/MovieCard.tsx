@@ -3,9 +3,9 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import MoviePoster from '../../images/movie-poster.svg';
 
 interface MoviesProps {
-  image: string;
   name: string;
   year: string;
   liked: boolean;
@@ -52,11 +52,11 @@ const StyledLikeButton = styled.div`
 `;
 
 function MovieCard({
-  name, image, year, liked,
+  name, year, liked,
 }: MoviesProps) {
   return (
     <MovieCardStyle className="bg-transparent my-2 border-0">
-      <Card.Img variant="top" src={image} className="rounded-3" />
+      <Card.Img variant="top" src={MoviePoster} className="rounded-3" />
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 small text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="sm" />

@@ -27,7 +27,6 @@ interface Props {
 }
 interface MoviesProps {
   id: number;
-  image: string;
   name: string;
   year: string;
   liked: boolean;

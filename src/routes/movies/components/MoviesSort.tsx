@@ -15,7 +15,7 @@ function MoviesSort({ title, className }: Props) {
   const sortoptions = [
     { value: 'alphabetical', label: 'Alphabetical' },
     { value: 'releaseDate', label: 'Release Date' },
-    { value: 'userRating', label: 'User Ratinge' },
+    { value: 'userRating', label: 'User Rating' },
   ];
   return (
     <StyledStortingSelect>

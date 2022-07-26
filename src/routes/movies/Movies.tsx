@@ -10,7 +10,6 @@ import MoviesSearch from './components/MoviesSearch';
 import MoviesSort from './components/MoviesSort';
 import MoviesFilterComponent from './components/MoviesFilterComponent';
 import MovieCard from '../../components/movie/MovieCard';
-import MoviePoster from '../../images/movie.svg';
 
 const StyleTabs = styled(Tabs)`
   overflow-x: auto;
@@ -48,34 +47,34 @@ function Movies() {
   ];
   const myMovies = [
     {
-      id: 1, image: `${MoviePoster}`, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 1, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 2, image: 'https://i.pravatar.cc/300?img=13', name: 'The Djinn', year: '2022', liked: false,
+      id: 2, name: 'The Djinn', year: '2022', liked: false,
     },
     {
-      id: 3, image: 'https://i.pravatar.cc/300?img=22', name: 'Ghost Lab', year: '2022', liked: true,
+      id: 3, name: 'Ghost Lab', year: '2022', liked: true,
     },
     {
-      id: 4, image: 'https://i.pravatar.cc/300?img=11 ', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 4, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 5, image: 'https://i.pravatar.cc/300?img=12', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 5, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 6, image: 'https://i.pravatar.cc/300?img=16', name: 'The Djinn', year: '2022', liked: false,
+      id: 6, name: 'The Djinn', year: '2022', liked: false,
     },
     {
-      id: 7, image: 'https://i.pravatar.cc/300?img=18', name: 'Ghost Lab', year: '2022', liked: true,
+      id: 7, name: 'Ghost Lab', year: '2022', liked: true,
     },
     {
-      id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 8, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 9, image: 'https://i.pravatar.cc/300?img=09', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 9, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 10, image: 'https://i.pravatar.cc/300?img=25', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 10, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
   ];
   const [showKeys, setShowKeys] = useState(false);
@@ -116,7 +115,6 @@ function Movies() {
               <Col xs={4} md={3} lg={4} xl={3} key={movieDetail.id}>
                 <MovieCard
                   name={movieDetail.name}
-                  image={movieDetail.image}
                   year={movieDetail.year}
                   liked={movieDetail.liked}
                 />

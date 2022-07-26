@@ -100,41 +100,6 @@ function UserMessageListItem({
   const sharedYPadding = 'py-3 py-lg-4';
 
   return (
-<<<<<<< HEAD
-    <ItemContainer className="py-2" key={id}>
-      <Col xs={2} className="p-0 text-center">
-        <RecentMessageImage src={image} className="rounded-circle bg-secondary position-relative" />
-      </Col>
-      <Col xs={timeStamp ? 5 : 8} className={`ps-md-4 ps-xl-2 pe-0  ${timeStamp ? 'align-self-center' : 'ps-md-4 px-xl-0 align-self-center'}`}>
-        <h1 className="h6 mb-0">{userName}</h1>
-        <RecentMessage>{message}</RecentMessage>
-      </Col>
-      <Col xs={timeStamp ? 4 : 2} className={timeStamp ? 'p-0 pt-1' : 'align-self-center'}>
-        <TimeStampStyled
-          className="mb-0 rounded-5 small text-end text-light"
-        >
-          {timeStamp}
-        </TimeStampStyled>
-        {count !== 0 && <div className="text-end"><span className="badge rounded-pill text-bg-primary text-white">{count}</span></div>}
-      </Col>
-      {
-        options && (
-          <Col xs={1} className="p-md-0 px-lg-2">
-            <CustomDropDown onSelect={handleDropdownOption}>
-              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="bg-black">
-                <Dropdown.Item eventKey="markAsRead" className="text-light">Mark as read</Dropdown.Item>
-                <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-                <Dropdown.Item eventKey="blockUser" className="text-light">Block user</Dropdown.Item>
-              </Dropdown.Menu>
-            </CustomDropDown>
-          </Col>
-        )
-      }
-    </ItemContainer>
-=======
     <StyledItem>
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
         <StyledLink to="/" className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
@@ -178,7 +143,6 @@ function UserMessageListItem({
         </div>
       </div>
     </StyledItem>
->>>>>>> 2420d29209aa0ca8ed69da88fae536e279f7463f
   );
 }
 UserMessageListItem.defaultProps = {

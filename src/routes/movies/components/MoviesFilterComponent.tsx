@@ -40,7 +40,7 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
         <Modal.Title className="mx-auto">Filter</Modal.Title>
       </Modal.Header>
       <Modal.Body className="pb-5">
-        <div className="d-md-none mb-4">
+        <div className="d-lg-none mb-4">
           <Modal.Title className="h6 mb-2">Sort</Modal.Title>
           <MoviesSort />
         </div>

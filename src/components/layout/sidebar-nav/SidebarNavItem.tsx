@@ -8,7 +8,7 @@ interface Props {
   label: string;
   icon: IconDefinition;
   to: string;
-  color?: string;
+  iconColor?: string;
   className?: string;
 }
 
@@ -23,11 +23,12 @@ const LinearIcon = styled.div<LinearIconProps>`
 `;
 
 const StyledLink = styled(Link)`
-  height: 4em;
-  padding-left: 1.1em;
+  height: 3.35em;
+  padding: 0 0 0 1.1em;
+  margin-bottom: 0.75rem;
 
   .nav-item-label {
-    font-size: .9em;
+    font-size: .875em;
     line-height: 1.3em;
   }
 `;
@@ -36,18 +37,22 @@ const LinkContentWrapper = styled.div`
   padding-top: 0.2em;
 `;
 
+const StyledIcon = styled(FontAwesomeIcon)`
+  font-size:1.25rem;
+`;
+
 let instanceCounter = 0;
 
 function SidebarNavItem({
-  label, icon, color, to, className,
+  label, icon, iconColor: color, to, className,
 }: Props) {
   const uniqueId = `icon-${instanceCounter += 1}`;
 
   return (
-    <StyledLink className={`mb-2 btn btn-sidebar d-flex align-items-center ${className}`} to={to}>
-      <LinkContentWrapper className="d-flex align-items-center">
+    <StyledLink className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
+      <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={uniqueId}>
-          <FontAwesomeIcon icon={icon} size="lg" className="me-2" />
+          <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
         </LinearIcon>
         <div className="ms-2 text-start nav-item-label">
           {label}
@@ -65,7 +70,7 @@ function SidebarNavItem({
 
 SidebarNavItem.defaultProps = {
   className: '',
-  color: '',
+  iconColor: '',
 };
 
 export default SidebarNavItem;

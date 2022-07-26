@@ -102,7 +102,7 @@ function Search() {
   }, []);
 
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <SearchInputGroup className="mb-3">
         <InputGroup.Text id="search" className="px-2">
           <FontAwesomeIcon icon={solid('magnifying-glass')} size="sm" className="text-white" />

@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import Switch from '../../../components/ui/Switch';
-import NewsRightSideNav from '../components/NewsRightSideNav';
 import NewsPostData from '../components/NewsPostData';
 
 const HeaderProfileImage = styled.img`

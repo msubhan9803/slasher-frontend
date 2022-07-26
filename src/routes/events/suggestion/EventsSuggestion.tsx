@@ -57,7 +57,7 @@ function EventSuggestion() {
     setUploadEventPost(removePostImage);
   };
   return (
-    <AuthenticatedPageWrapper>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <h1 className="h4 d-md-block d-none">Suggest Event</h1>
       <Container style={{ backgroundColor: '#1F1F1F' }} className="rounded p-4">
         <Row className="justify-content-between">

@@ -4,13 +4,13 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from '../../../components/NotFound';
 import DatingSetupAdditionalInfo from './additional-info/DatingSetupAdditionalInfo';
 import DataingSetupAdditionalPreferences from './additional-preferences/DataingSetupAdditionalPreferences';
 import DatingSetupAboutMe from './about-me/DatingSetupAboutMe';
 import DatingSetupAddPhotos from './add-photos/DatingSetupAddPhotos';
 import DatingSetupIdentity from './identity/DatingSetupIdentity';
+import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 
 function DatingSetup() {
   return (
@@ -22,7 +22,7 @@ function DatingSetup() {
       <Route path="/about-me" element={<DatingSetupAboutMe />} />
       <Route path="/additional-preferences" element={<DataingSetupAdditionalPreferences />} />
       <Route path="/additional-info" element={<DatingSetupAdditionalInfo />} />
-      <Route path="*" element={<AuthenticatedPageWrapper><NotFound /></AuthenticatedPageWrapper>} />
+      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );
 }

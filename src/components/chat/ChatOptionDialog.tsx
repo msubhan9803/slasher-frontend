@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
+import styled from 'styled-components';
 import ModalContainer from '../ui/CustomModal';
 import RoundButton from '../ui/RoundButton';
 
@@ -8,7 +9,11 @@ interface Props {
   setShow: (value: boolean) => void;
   slectedDropdownValue: string
 }
-
+const StyledTextarea = styled(Form)`
+  .form-control {
+    resize: none;
+  }
+`;
 function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
@@ -51,7 +56,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
         <Modal.Body className="d-flex flex-column pt-0">
           <h3 className="h3 mb-0 text-primary text-center">Report</h3>
           <p className="px-3 text-center mb-4">Why are you reporting this?</p>
-          <Form className="mb-4">
+          <StyledTextarea className="mb-4">
             {blockOptions.map((label: string, index: number) => (
               <Form.Check
                 key={label}
@@ -66,7 +71,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
             ))}
             {reports.has('Other') && (
               <Form.Control
-                rows={5}
+                rows={4}
                 as="textarea"
                 value={otherReport}
                 onChange={(other) => setOtherReport(other.target.value)}
@@ -74,7 +79,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
                 className="mt-3"
               />
             )}
-          </Form>
+          </StyledTextarea>
           <RoundButton className="mb-3 w-100">Send report</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel report</RoundButton>
         </Modal.Body>

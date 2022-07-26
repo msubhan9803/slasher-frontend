@@ -49,10 +49,10 @@ function Conversation() {
     <AuthenticatedPageWrapper>
       <Container fluid>
         <Row>
-          <Col md={8}>
+          <Col lg={8}>
             <Chat messages={messages} showCamera inputClassName="border-start-0" />
           </Col>
-          <Col md={4} className="d-none d-md-block">
+          <Col lg={4} className="d-none d-lg-block">
             <ConversationRightSideNav />
           </Col>
         </Row>

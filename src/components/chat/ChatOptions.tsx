@@ -1,67 +1,64 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { Dropdown } from 'react-bootstrap';
+import {
+  Button, OverlayTrigger, Popover,
+} from 'react-bootstrap';
 import styled from 'styled-components';
 import ChatOptionDialog from './ChatOptionDialog';
 
-const CustomDropDown = styled(Dropdown)`
-  .dropdown-toggle {
-    border: none;
-    &:hover {
-      box-shadow: none;
-    }
-    &:focus {
-      box-shadow: none;
-    }
-    &:active {
-      box-shadow: none;
-    }
-    &:after {
-      display: none;
+const CustomPopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 0.063rem solid rgb(56,56,56);
+  position:absolute;
+  top: 0rem !important;
+  .popover-arrow{
+    &:after{
+      border-left-color:rgb(56,56,56);
     }
   }
-  .dropdown-toggle[aria-expanded="true"] {
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: var(--bs-primary);
+  }
+`;
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"] {
     svg {
       color: var(--bs-primary);
     }
   }
-  .dropdown-menu {
-    inset: -1.875rem 1.25rem auto auto !important;
-  }
-  .dropdown-item {
-    &:hover {
-      background-color: var(--bs-primary) !important;
-    }
-    &:active {
-      background-color: var(--bs-primary) !important;
-    }
-}
 `;
-
 function ChatOptions() {
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const optionValues = ['Delete', 'Block user', 'Report'];
 
   const handleLikesOption = (likeValue: string) => {
     setShow(true);
     setDropDownValue(likeValue);
   };
+  const popover = (
+    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+      {optionValues.map((value: string) => (
+        <PopoverText key={value} onClick={() => handleLikesOption(value)} className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">
+          {value}
+        </PopoverText>
+      ))}
+    </CustomPopover>
+  );
 
   return (
-    <div className="d-flex justify-content-end">
-      <CustomDropDown onSelect={handleLikesOption}>
-        <Dropdown.Toggle className="d-flex justify-content-end bg-transparent">
+    <StyledPopover>
+      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+        <Button className="bg-transparent shadow-none border-0 py-0 px-2" variant="lg">
           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-        </Dropdown.Toggle>
-        <Dropdown.Menu className="bg-black">
-          <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-          <Dropdown.Item eventKey="block" className="text-light">Block user</Dropdown.Item>
-          <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
-        </Dropdown.Menu>
-      </CustomDropDown>
+        </Button>
+      </OverlayTrigger>
       <ChatOptionDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-    </div>
+    </StyledPopover>
   );
 }
 

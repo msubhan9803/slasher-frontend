@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
@@ -11,6 +11,9 @@ import ChatUserStatus from './ChatUserStatus';
 const StyledChatContainer = styled(Card)`
   height: calc(100vh - 30vh);
 
+  @media (max-width: 37.5rem) {
+    height: calc(100vh - 15vh);
+  }
   * {
     /* Foreground, Background */
     scrollbar-color: rgba(255, 255, 255, .33) rgba(255, 255, 255, .1);
@@ -25,6 +28,11 @@ const StyledChatContainer = styled(Card)`
   *::-webkit-scrollbar-track { /* Background */
     background: rgba(255, 255, 255, .1);
   }
+
+  .card-footer {
+    padding-right: 2.063rem;
+    padding-left: 1.5rem;
+  }
 `;
 
 function Chat({
@@ -32,21 +40,17 @@ function Chat({
 }: ChatProps) {
   return (
     <StyledChatContainer className="bg-dark rounded-3">
-      <Card.Header className="border-bottom border-opacity-25 border-secondary">
-        <Row className="align-items-center">
-          <Col xs={11}>
-            <ChatUserStatus />
-          </Col>
-          <Col xs={1}>
-            <ChatOptions />
-          </Col>
-        </Row>
+      <Card.Header className="border-bottom border-opacity-25 border-secondary p-4">
+        <div className="d-flex justify-content-between">
+          <ChatUserStatus />
+          <ChatOptions />
+        </div>
       </Card.Header>
-      <Card.Body className="overflow-auto">
+      <Card.Body className="overflow-auto px-4">
         <ChatTimestamp />
         <ChatMessage messages={messages} conversationType={conversationType} />
       </Card.Body>
-      <Card.Footer className="text-muted border-top-0 px-3">
+      <Card.Footer className="text-muted border-top-0">
         <ChatInput showCamera={showCamera} inputClassName={inputClassName} />
       </Card.Footer>
     </StyledChatContainer>

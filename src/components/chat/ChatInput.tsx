@@ -10,6 +10,7 @@ const StyledChatInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
+    font-size: 0.875;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -26,7 +27,7 @@ function ChatInput({ showCamera, inputClassName }: ChatProps) {
   return (
     <StyledChatInputGroup className="mb-3">
       {showCamera && (
-        <InputGroup.Text>
+        <InputGroup.Text className="border-end-0">
           <FontAwesomeIcon role="button" icon={solid('camera')} size="2x" className="ps-3 text-white border-end-0" />
         </InputGroup.Text>
       )}
@@ -34,7 +35,7 @@ function ChatInput({ showCamera, inputClassName }: ChatProps) {
         placeholder="Type your message here..."
         className={`border-end-0 ${inputClassName}`}
       />
-      <InputGroup.Text>
+      <InputGroup.Text className="border-start-0">
         <FontAwesomeIcon role="button" icon={solid('paper-plane')} size="2x" className="text-primary pe-3" />
       </InputGroup.Text>
     </StyledChatInputGroup>

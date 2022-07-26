@@ -31,7 +31,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
       size="sm"
     >
       <Modal.Header className="border-0 shadow-none" closeButton />
-      {slectedDropdownValue === 'delete' && (
+      {slectedDropdownValue === 'Delete' && (
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 mb-0 text-primary">Delete</h1>
           <p className="px-3">Are you sure you want to delete this conversation?</p>
@@ -39,7 +39,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
-      {slectedDropdownValue === 'block' && (
+      {slectedDropdownValue === 'Block user' && (
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 mb-0 text-primary">Block</h1>
           <p className="px-3">Are you sure you want to block this user?</p>
@@ -47,7 +47,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
-      {slectedDropdownValue === 'report' && (
+      {slectedDropdownValue === 'Report' && (
         <Modal.Body className="d-flex flex-column pt-0">
           <h3 className="h3 mb-0 text-primary text-center">Report</h3>
           <p className="px-3 text-center mb-4">Why are you reporting this?</p>

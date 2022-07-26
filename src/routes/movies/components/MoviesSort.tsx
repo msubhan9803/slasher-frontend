@@ -1,10 +1,16 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
+import styled from 'styled-components';
 
 interface Props {
   title?: string;
   className?: string;
 }
+const StyledStortingSelect = styled(Form)`
+  .form-select {
+    font-size: 0.875rem;
+  }
+`;
 function MoviesSort({ title, className }: Props) {
   const sortoptions = [
     { value: 'alphabetical', label: 'Alphabetical' },
@@ -12,7 +18,7 @@ function MoviesSort({ title, className }: Props) {
     { value: 'userRating', label: 'User Ratinge' },
   ];
   return (
-    <Form>
+    <StyledStortingSelect>
       <Form.Select aria-label="Default select example" className={`shadow-none px-4 ${className}`}>
         {sortoptions.map(({ value, label }) => (
           <option key={value} value={value}>
@@ -21,7 +27,7 @@ function MoviesSort({ title, className }: Props) {
           </option>
         ))}
       </Form.Select>
-    </Form>
+    </StyledStortingSelect>
   );
 }
 

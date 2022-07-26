@@ -9,6 +9,7 @@ const StyledInputGroup = styled(InputGroup)`
     border-left: 0.063rem solid var(--bs-input-border-color);
     border-bottom-right-radius: 1.875rem;
     border-top-right-radius: 1.875rem;
+    font-size: 0.875rem !important;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -45,12 +46,12 @@ function MoviesSearch({ setFilteredMovies, myMovies }: Props) {
     setSearch(searchQuery);
   };
   return (
-    <StyledInputGroup className="d-none d-lg-flex">
+    <StyledInputGroup>
       <InputGroup.Text id="search" className="pe-0 border-end-0">
         <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
       </InputGroup.Text>
       <FormControl
-        placeholder="Search here..."
+        placeholder="Search list..."
         addon-label="search"
         aria-describedby="search"
         type="text"

@@ -70,7 +70,7 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
         <RoundButton
           variant="primary"
           type="submit"
-          className="w-100"
+          className="text-black fw-bold w-100"
           size="lg"
         >
           Apply filter

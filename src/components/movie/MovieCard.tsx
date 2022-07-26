@@ -12,7 +12,7 @@ interface MoviesProps {
 }
 const MovieCardStyle = styled(Card)`
   img {
-    aspect-ratio: 9/11;
+    aspect-ratio: 5/6;
   }
   .fa-star {
     color: #FF8A00;
@@ -28,16 +28,27 @@ const MovieCardStyle = styled(Card)`
     border: 0.063rem solid #3A3B46;
     transform: rotateY(180deg);
   }
-  .movie-name{
-    font-size: 1.125rem;
-  }
 `;
 const RatingDiv = styled.div`
   margin-top: -1.688rem;
   margin-bottom: 0.313rem;
 `;
-const StyledLikedIcon = styled(FontAwesomeIcon)`
-  width: 0.804rem;
+const StyledLikeButton = styled.div`
+  width: 1.514rem;
+  height: 1.514rem;
+  border: 0.063rem solid #3A3B46;
+  background-color: #1F1F1F;
+  .fa-thumbs-up {
+    color: #00FF0A;
+  }
+  .fa-thumbs-down {
+    color: #FF1800;
+    transform: rotateY(180deg);
+  }
+  .fa-sm {
+    width: 0.804rem;
+    height: 0.805rem;
+  }
 `;
 
 function MovieCard({
@@ -47,21 +58,23 @@ function MovieCard({
     <MovieCardStyle className="bg-transparent my-2 border-0">
       <Card.Img variant="top" src={image} className="rounded-3" />
       <RatingDiv className="d-flex justify-content-end me-2">
-        <Card.Text className="fw-bold rating bg-white mb-0 px-2 rounded-5 small text-black">
-          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />
+        <Card.Text className="rating bg-white mb-0 px-2 rounded-5 small text-black">
+          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="sm" />
           <span>3.0</span>
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0">
-        <Card.Text className="d-flex justify-content-between align-items-center m-0 text-light">
+        <Card.Text className="small d-flex justify-content-between align-items-center m-0 text-light">
           {year}
-          <StyledLikedIcon
-            icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
-            className="rounded-circle p-1 me-2"
-            size="sm"
-          />
+          <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">
+            <FontAwesomeIcon
+              icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
+              size="sm"
+              className="border-0"
+            />
+          </StyledLikeButton>
         </Card.Text>
-        <Card.Text className="movie-name">
+        <Card.Text className="fw-bold">
           {name}
         </Card.Text>
       </Card.Body>

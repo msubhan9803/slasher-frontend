@@ -10,11 +10,13 @@ import MoviesSearch from './components/MoviesSearch';
 import MoviesSort from './components/MoviesSort';
 import MoviesFilterComponent from './components/MoviesFilterComponent';
 import MovieCard from '../../components/movie/MovieCard';
+import MoviePoster from '../../images/movie.svg';
 
 const StyleTabs = styled(Tabs)`
   overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
+    padding-bottom: 1rem;
     border: none;
     color: #ffffff;
     &:hover {
@@ -46,7 +48,7 @@ function Movies() {
   ];
   const myMovies = [
     {
-      id: 1, image: 'https://i.pravatar.cc/300?img=19', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 1, image: `${MoviePoster}`, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
       id: 2, image: 'https://i.pravatar.cc/300?img=13', name: 'The Djinn', year: '2022', liked: false,
@@ -70,29 +72,22 @@ function Movies() {
       id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 8, image: 'https://i.pravatar.cc/300?img=09', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 9, image: 'https://i.pravatar.cc/300?img=09', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
     {
-      id: 8, image: 'https://i.pravatar.cc/300?img=25', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+      id: 10, image: 'https://i.pravatar.cc/300?img=25', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
     },
   ];
-  const [selectedTab, setSelectedTab] = useState(tabs[0].value);
   const [showKeys, setShowKeys] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState(myMovies);
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid>
-        <Row className="justify-content-between align-items-start mb-4">
-          <Col className="p-0">
-            <h1 className="h4 text-center text-lg-start mb-0">Movies</h1>
-          </Col>
-        </Row>
-        <Row className="bg-dark pb-0 pt-lg-3 rounded-3">
+        <h1 className="d-lg-none h4 text-center">Movies</h1>
+        <Row className="bg-dark rounded-3">
           <Col xs={12}>
-            <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
             <StyleTabs
               className="justify-content-between flex-nowrap mt-3 border-0"
-              onSelect={(e: any) => setSelectedTab(e)}
             >
               {tabs.map(({ value, label }) => (
                 <Tab key={value} eventKey={value} title={label} />
@@ -101,42 +96,36 @@ function Movies() {
           </Col>
         </Row>
         <Row className="my-4 align-items-center">
-          <Col md={5} lg={4} className="d-none d-lg-block">
+          <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
             <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
           </Col>
-          <Col xs={12} lg={4} className="text-center p-md-0">
-            <Row className="flex-md-row-reverse justify-content-between me-0">
-              <Col md={4}>
-                <RoundButton className="w-100 d-lg-none mb-1">Add your movie</RoundButton>
-              </Col>
-              <Col md={4} lg={12} className="text-md-start text-lg-center">
-                <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
-              </Col>
-            </Row>
+          <Col md={4} className="text-center">
+            <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
           </Col>
-          <Col md={5} lg={4} className="d-none d-lg-block">
-            <MoviesSort title="Sort:" className="rounded-5" />
+          <Col md={4} className="d-none d-lg-block">
+            <MoviesSort title="Sort: " className="rounded-5" />
+          </Col>
+          <Col md={4} className="order-first order-md-last">
+            <RoundButton className="py-2 d-lg-none text-black fw-bold fs-6 w-100">Add your movie</RoundButton>
           </Col>
         </Row>
         {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        {selectedTab === 'myMovies' && (
-          <MovieCardStyle className="bg-dark rounded-3 py-1 px-2">
-            <Row className="my-3 mx-0">
-              {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
-                <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
-                  <MovieCard
-                    name={movieDetail.name}
-                    image={movieDetail.image}
-                    year={movieDetail.year}
-                    liked={movieDetail.liked}
-                  />
-                </Col>
-              )) : (
-                <h1 className="h4 text-center mb-0">No data found</h1>
-              )}
-            </Row>
-          </MovieCardStyle>
-        )}
+        <MovieCardStyle className="bg-dark rounded-3 py-1 px-2">
+          <Row className="my-3 mx-0">
+            {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
+              <Col xs={4} md={3} lg={4} xl={3} key={movieDetail.id}>
+                <MovieCard
+                  name={movieDetail.name}
+                  image={movieDetail.image}
+                  year={movieDetail.year}
+                  liked={movieDetail.liked}
+                />
+              </Col>
+            )) : (
+              <h1 className="h4 text-center mb-0">No data found</h1>
+            )}
+          </Row>
+        </MovieCardStyle>
       </Container>
     </AuthenticatedPageWrapper>
   );

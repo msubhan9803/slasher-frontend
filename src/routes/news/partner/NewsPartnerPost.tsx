@@ -119,7 +119,7 @@ function NewsPartnerPost() {
                   </Col>
                 </Row>
               </Card.Header>
-              <Card.Body className="px-0 pt-3 pb-4">
+              <Card.Body className="px-0 py-3">
                 <Row>
                   <Col className="px-4 px-md-3">
                     <span>
@@ -132,7 +132,7 @@ function NewsPartnerPost() {
                 <Row className="mt-3 mt-md-4">
                   <Image src="https://i.pravatar.cc/500?img=10" className="w-100" />
                 </Row>
-                <Row className="d-flex justify-content-evenly pt-4 px-3">
+                <Row className="d-flex justify-content-evenly pt-3 px-3">
                   <Col>
                     <LinearIcon uniqueId="like-button">
                       <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />

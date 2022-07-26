@@ -52,7 +52,7 @@ const CommentBox = styled.div`
 background-color: #171717;
 `;
 const Likes = styled.div`
-  margin-top : -1.43rem;
+  right:.063rem;
 `;
 const CommentImage = styled(Image)`
   height: 2.5rem;
@@ -102,7 +102,7 @@ function CommentSection({
         <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
       </Col>
       <Col className="ps-2">
-        <CommentBox className="pt-3 px-3 pb-4 rounded">
+        <CommentBox className="pt-3 px-3 pb-4 rounded position-relative">
           <div className="d-flex justify-content-between">
             <Col xs="auto" className="ps-0 align-self-center mb-2">
               <h6 className="mb-0 ">{name}</h6>
@@ -128,22 +128,22 @@ function CommentSection({
                 <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
             )}
+          <Likes className="rounded d-flex justify-content-end position-absolute">
+            <LikesButton className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
+              <LinearIcon uniqueId="like-button-comment">
+                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                <small>{likes}</small>
+              </LinearIcon>
+            </LikesButton>
+            <svg width="0" height="0">
+              <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+              </linearGradient>
+            </svg>
+          </Likes>
         </CommentBox>
-        <Likes className="rounded d-flex justify-content-end">
-          <LikesButton className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
-            <LinearIcon uniqueId="like-button-comment">
-              <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              <small>{likes}</small>
-            </LinearIcon>
-          </LikesButton>
-          <svg width="0" height="0">
-            <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-              <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-            </linearGradient>
-          </svg>
-        </Likes>
-        <div className={`mb-3 mt-2 ${commentMention ? 'ms-3 ms-0' : 'ms-3'}`}>
+        <div className={`my-3 ${commentMention ? 'ms-3 ms-0' : 'ms-3'}`}>
           <div className="p-0 d-flex me-2" role="button" aria-hidden="true">
             {
               likeIcon

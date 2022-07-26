@@ -24,7 +24,7 @@ const LinearIcon = styled.div<LinearIconProps>`
 function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
   return (
     <CardFooter className="p-0 pb-4">
-      <Row className=" d-flex justify-content-evenly py-4 px-3">
+      <Row className=" d-flex justify-content-evenly py-3 px-3">
         <Col role="button" onClick={() => onLikeClick(id)}>
           {likeIcon ? (
             <LinearIcon uniqueId="like-button-footer">

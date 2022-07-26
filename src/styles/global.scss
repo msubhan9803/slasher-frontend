@@ -18,6 +18,11 @@ a {
   text-decoration: underline;
 }
 
+// This class is often used with flex box and truncated (ellipsis) text
+.min-width-0 {
+  min-width: 0;
+}
+
 .btn-primary {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(

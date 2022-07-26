@@ -39,8 +39,7 @@ function Messages() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <h1 className="h3 mb-3 text-center text-lg-start">Messages</h1>
-      <div className="">
+      <div>
         {messages.map((message) => (
           <UserMessageListItem
             key={message.id}
@@ -49,7 +48,6 @@ function Messages() {
             message={message.message}
             count={message.count}
             timeStamp={message.timeStamp}
-            options
             handleDropdownOption={handleMessagesOption}
           />
         ))}

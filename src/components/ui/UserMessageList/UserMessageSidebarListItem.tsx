@@ -12,12 +12,6 @@ const RecentMessageImage = styled.img`
   height: 3.625rem;
 `;
 
-const MessageContent = styled.div`
-  // This stops wide child items from forcing this element from expanding beyond its intended
-  // maximum width. It's necessary for getting overflow: hidden to work property for child items.
-  min-width: 0;
-`;
-
 const MessageSnippet = styled.p`
   white-space: nowrap;
   overflow: hidden;
@@ -43,12 +37,12 @@ function UserMessageListItem({
       <div>
         <RecentMessageImage src={image} className="rounded-circle" />
       </div>
-      <MessageContent className="px-3 flex-grow-1">
+      <div className="px-3 flex-grow-1 min-width-0">
         <p className="mb-0">
           {userName}
         </p>
         <MessageSnippet className="mb-0 small text-light">{message}</MessageSnippet>
-      </MessageContent>
+      </div>
       {count !== 0 && <span className="badge rounded-pill bg-primary me-3">{count}</span>}
     </StyledItem>
   );

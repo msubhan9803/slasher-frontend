@@ -25,6 +25,7 @@ const LinearIcon = styled.div<LinearIconProps>`
 const StyledLink = styled(Link)`
   height: 3.35em;
   padding: 0 0 0 1.1em;
+  margin-bottom: 0.75rem;
 
   .nav-item-label {
     font-size: .875em;
@@ -48,7 +49,7 @@ function SidebarNavItem({
   const uniqueId = `icon-${instanceCounter += 1}`;
 
   return (
-    <StyledLink className={`w-100 mb-2 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
+    <StyledLink className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={uniqueId}>
           <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />

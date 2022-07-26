@@ -13,18 +13,11 @@ interface Props {
   image: string;
   count?: number;
   timeStamp?: string;
-  options?: boolean;
   handleDropdownOption?: (value: string) => void;
 }
 
 const RecentMessageImage = styled.img`
-  height: 3.625rem;
-`;
-
-const MessageContent = styled.div`
-  // This stops wide child items from forcing this element from expanding beyond its intended
-  // maximum width. It's necessary for getting overflow: hidden to work property for child items.
-  min-width: 0;
+  height: 3.125rem;
 `;
 
 const TrucatedText = styled.p`
@@ -39,7 +32,6 @@ const DateDisplay = styled.div`
 `;
 
 const StyledItem = styled.div`
-
   @media(min-width: 992px) {
     background-color: var(--bs-dark);
   }
@@ -48,16 +40,24 @@ const StyledItem = styled.div`
     background-color: #282828;
   }
 
-  border-bottom: 1px solid #383838;
+  .message-bottom-border {
+    border-bottom: 1px solid #383838;
+  }
+
   &:first-child {
-    // padding-top: 0 !important;
     border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;
   }
+
   &:last-child {
-    border-bottom: none;
-    // padding-bottom: 0 !important;
     border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);
+    .message-bottom-border {
+      border-bottom: none !important;
+    }
   }
+`;
+
+const StyledLink = styled(Link)`
+  min-width: 0; // To fix text wrapping in flex
 `;
 
 const CustomDropDown = styled(Dropdown)`
@@ -95,53 +95,59 @@ const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  userName, message, image, count, timeStamp, options, handleDropdownOption,
+  userName, message, image, count, timeStamp, handleDropdownOption,
 }: Props) {
+  const sharedYPadding = 'py-3 py-lg-4';
+
   return (
-    <StyledItem className="d-flex">
-      <Link to="/" className="d-flex align-items-center ps-2 pe-1 ps-lg-4 pe-lg-2 py-3 py-lg-4" style={{ minWidth: 0 }}>
-        <div>
-          <RecentMessageImage src={image} className="rounded-circle" />
-        </div>
-        <MessageContent className="px-3 flex-grow-1">
-          <TrucatedText className="mb-1 fs-5">
-            {userName}
-          </TrucatedText>
-          <DateDisplay className="text-light d-lg-none">{timeStamp}</DateDisplay>
-          <TrucatedText className="mb-0 text-light">{message}</TrucatedText>
-        </MessageContent>
-        <div className="text-end align-self-center">
-          <DateDisplay className="text-light mb-1 d-none d-lg-block">{timeStamp}</DateDisplay>
-          {count !== 0 ? <div className="badge rounded-pill bg-primary ms-auto">{count}</div> : <div>&nbsp;</div>}
-        </div>
-      </Link>
-      {
-        options && (
-          <div className="align-self-center">
-            <CustomDropDown onSelect={handleDropdownOption}>
-              <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-4">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Dropdown.Toggle>
-              <Dropdown.Menu className="bg-black">
-                <Dropdown.Item eventKey="markAsRead" className="text-light">
-                  Mark as read
-                </Dropdown.Item>
-                <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
-                <Dropdown.Item eventKey="blockUser" className="text-light">
-                  Block user
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </CustomDropDown>
+    <StyledItem>
+      <div className="d-flex px-2 px-lg-4 align-items-stretch">
+        <StyledLink to="/" className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
+          <div>
+            <RecentMessageImage src={image} className="rounded-circle" />
           </div>
-        )
-      }
+          <div className="flex-grow-1 min-width-0 ps-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <TrucatedText className="fs-5 mb-0">
+                {userName}
+              </TrucatedText>
+              <DateDisplay className="text-light">{timeStamp}</DateDisplay>
+            </div>
+            <div className="d-flex justify-content-between align-items-center">
+              <TrucatedText className="mb-0">
+                {message}
+              </TrucatedText>
+              {
+                count !== 0
+                  ? <div className="badge rounded-pill bg-primary ms-3">{count}</div>
+                  : <div>&nbsp;</div>
+              }
+            </div>
+          </div>
+        </StyledLink>
+        <div className={`${sharedYPadding} message-bottom-border`}>
+          <CustomDropDown onSelect={handleDropdownOption}>
+            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3">
+              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="bg-black">
+              <Dropdown.Item eventKey="markAsRead" className="text-light">
+                Mark as read
+              </Dropdown.Item>
+              <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>
+              <Dropdown.Item eventKey="blockUser" className="text-light">
+                Block user
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </CustomDropDown>
+        </div>
+      </div>
     </StyledItem>
   );
 }
 UserMessageListItem.defaultProps = {
   count: 0,
   timeStamp: null,
-  options: false,
   handleDropdownOption: () => { },
 };
 export default UserMessageListItem;

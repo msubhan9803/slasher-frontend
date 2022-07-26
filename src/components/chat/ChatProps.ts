@@ -2,7 +2,7 @@ export interface ChatProps {
   messages?: MessageProps[];
   showCamera?: boolean;
   inputClassName?: string;
-  conversationType?: string;
+  conversationType?: 'dating' | 'standard';
 }
 
 interface MessageProps {

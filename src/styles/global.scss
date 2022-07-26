@@ -9,13 +9,18 @@ html {
 }
 
 body {
-  @media (min-width: 960px) {
+  @media (min-width: 992px) {
     padding-top: 125px; // To account for fixed top navbar on desktop views
   }
 }
 
-.link-hover-underline a:hover {
+a {
   text-decoration: underline;
+}
+
+// This class is often used with flex box and truncated (ellipsis) text
+.min-width-0 {
+  min-width: 0;
 }
 
 .btn-primary {

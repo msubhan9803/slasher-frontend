@@ -63,7 +63,7 @@ function MovieCard({
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0">
-        <Card.Text className="small d-flex justify-content-between align-items-center m-0 text-light">
+        <div className="small d-flex justify-content-between align-items-center m-0 text-light">
           {year}
           <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">
             <FontAwesomeIcon
@@ -72,7 +72,7 @@ function MovieCard({
               className="border-0"
             />
           </StyledLikeButton>
-        </Card.Text>
+        </div>
         <Card.Text className="fw-bold mt-1">
           {name}
         </Card.Text>

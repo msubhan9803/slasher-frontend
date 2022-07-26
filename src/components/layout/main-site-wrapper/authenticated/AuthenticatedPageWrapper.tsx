@@ -28,14 +28,11 @@ const LeftSidebarWrapper = styled.div`
 `;
 
 const MainContentCol = styled.main`
-  // This stops wide child items from forcing this element from expanding beyond its intended
-  // maximum width.
-  min-width: 0;
-
   // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
   padding-bottom: 5.25em;
+
   // For desktop sizes, reduce bottom padding
-  @media (min-width: 960px) {
+  @media (min-width: 992px) {
     padding-bottom: 1em;
   }
 `;
@@ -50,7 +47,7 @@ const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const [show, setShow] = useState(false);
-  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 960px)' });
+  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
@@ -69,14 +66,14 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <Container fluid="xxl" className="py-4 px-lg-4">
+      <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
           <div className={`d-${desktopBreakPoint}-block d-none`}>
             <LeftSidebarWrapper>
               <SidebarNavContent />
             </LeftSidebarWrapper>
           </div>
-          <MainContentCol className="px-lg-4 flex-grow-1">
+          <MainContentCol className="px-lg-3 flex-grow-1 min-width-0">
             {children}
           </MainContentCol>
           {

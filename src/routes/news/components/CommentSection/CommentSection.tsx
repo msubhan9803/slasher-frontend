@@ -61,7 +61,7 @@ const CommentImage = styled(Image)`
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
+  border: .063rem solid rgb(56,56,56);
   position:absolute;
   top: 0px !important;
   .popover-arrow{
@@ -75,16 +75,11 @@ const PopoverText = styled.p`
     background: var(--bs-primary);
   }
 `;
-const CustomButton = styled(Button)`
-  background: #171717 !important;
-  border : 0 !important;
-    &:focus {
-      color :red !important;
-      box-shadow: none !important;
-  }
-  &:active{
-    color :red !important;
-    box-shadow: none !important;
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
   }
 `;
 function CommentSection({
@@ -109,11 +104,13 @@ function CommentSection({
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
             <Col xs="auto" className="d-block pe-0">
-              <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                <CustomButton>
-                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                </CustomButton>
-              </OverlayTrigger>
+              <StyledPopover className="pe-3">
+                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                  <Button className="bg-transparent shadow-none border-0">
+                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                  </Button>
+                </OverlayTrigger>
+              </StyledPopover>
             </Col>
           </div>
           <span className="text-primary">

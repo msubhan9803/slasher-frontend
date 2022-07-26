@@ -50,19 +50,13 @@ const PopoverText = styled.p`
     background: red;
   }
 `;
-const CustomButton = styled(Button)`
-  background: var(--bs-dark) !important;
-  border : 0 !important;
-    &:focus {
-      color :red !important;
-      box-shadow: none !important;
-  }
-  &:active{
-    color :var(--bs-primary) !important;
-    box-shadow: none !important;
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
   }
 `;
-
 const data = [
   {
     id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', likeIcon: false,
@@ -111,11 +105,13 @@ function NewsPartnerPost() {
                     </Row>
                   </Col>
                   <Col xs="auto" className="d-block">
-                    <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                      <CustomButton>
-                        <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                      </CustomButton>
-                    </OverlayTrigger>
+                    <StyledPopover className="pe-3">
+                      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                        <Button className="bg-transparent shadow-none border-0">
+                          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                        </Button>
+                      </OverlayTrigger>
+                    </StyledPopover>
                   </Col>
                 </Row>
               </Card.Header>

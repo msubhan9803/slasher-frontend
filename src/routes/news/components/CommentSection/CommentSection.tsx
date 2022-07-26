@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Col, Image, Row,
+  Button, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import Popover from 'react-bootstrap/Popover';
@@ -75,6 +75,18 @@ const PopoverText = styled.p`
     background: var(--bs-primary);
   }
 `;
+const CustomButton = styled(Button)`
+  background: #171717 !important;
+  border : 0 !important;
+    &:focus {
+      color :red !important;
+      box-shadow: none !important;
+  }
+  &:active{
+    color :red !important;
+    box-shadow: none !important;
+  }
+`;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
@@ -98,16 +110,16 @@ function CommentSection({
             </Col>
             <Col xs="auto" className="d-block pe-0">
               <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                <div>
+                <CustomButton>
                   <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                </div>
+                </CustomButton>
               </OverlayTrigger>
             </Col>
           </div>
           <span className="text-primary">
             {commentMention}
           </span>
-          <CommentMessage className="small mb-0">
+          <CommentMessage className="mb-0">
             {commentMsg}
           </CommentMessage>
           {commentImg
@@ -131,18 +143,20 @@ function CommentSection({
             </linearGradient>
           </svg>
         </Likes>
-        <div className={`mb-3 mt-2 ${commentMention ? 'ms-3 ms--0' : 'ms-3'}`}>
-          <div className="p-0 d-flex" role="button" aria-hidden="true">
+        <div className={`mb-3 mt-2 ${commentMention ? 'ms-3 ms-0' : 'ms-3'}`}>
+          <div className="p-0 d-flex me-2" role="button" aria-hidden="true">
             {
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                    <small>Like</small>
+                    <div className="me-2">
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
+                      <small>Like</small>
+                    </div>
                   </LinearIcon>
                 )
                 : (
-                  <div>
+                  <div className="me-2">
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
                     <small>Like</small>
                   </div>

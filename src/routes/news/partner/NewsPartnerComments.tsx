@@ -140,12 +140,12 @@ function NewsPartnerComments() {
   };
   return (
     <>
-      <Row className="ps-3 order-last order-sm-0">
+      <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
           <UserProfileImage src="https://i.pravatar.cc/300?img=56" className="me-3 rounded-circle bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
-          <StyledCommentInputGroup className="mb-3">
+          <StyledCommentInputGroup className="mb-4">
             <Form.Control
               placeholder="Write a comment ..."
               className="border-end-0"

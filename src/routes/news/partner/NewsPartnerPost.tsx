@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Card, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -25,7 +26,7 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const SmallText = styled.p`
-  font-size: .875rem;
+  font-size: .75rem;
   color: #CCCCCC;
 `;
 const ProfileImage = styled(Image)`
@@ -49,6 +50,19 @@ const PopoverText = styled.p`
     background: red;
   }
 `;
+const CustomButton = styled(Button)`
+  background: var(--bs-dark) !important;
+  border : 0 !important;
+    &:focus {
+      color :red !important;
+      box-shadow: none !important;
+  }
+  &:active{
+    color :var(--bs-primary) !important;
+    box-shadow: none !important;
+  }
+`;
+
 const data = [
   {
     id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', likeIcon: false,
@@ -98,14 +112,14 @@ function NewsPartnerPost() {
                   </Col>
                   <Col xs="auto" className="d-block">
                     <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                      <div>
+                      <CustomButton>
                         <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                      </div>
+                      </CustomButton>
                     </OverlayTrigger>
                   </Col>
                 </Row>
               </Card.Header>
-              <Card.Body className="px-0 pt-3">
+              <Card.Body className="px-0 pt-3 pb-4">
                 <Row>
                   <Col className="px-4 px-md-3">
                     <span>
@@ -118,7 +132,7 @@ function NewsPartnerPost() {
                 <Row className="mt-3 mt-md-4">
                   <Image src="https://i.pravatar.cc/500?img=10" className="w-100" />
                 </Row>
-                <Row className="d-flex justify-content-evenly pt-3 px-3">
+                <Row className="d-flex justify-content-evenly pt-4 px-3">
                   <Col>
                     <LinearIcon uniqueId="like-button">
                       <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />

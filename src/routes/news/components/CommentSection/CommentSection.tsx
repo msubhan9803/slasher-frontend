@@ -104,9 +104,9 @@ function CommentSection({
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
             <Col xs="auto" className="d-block pe-0">
-              <StyledPopover className="pe-3">
+              <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="bg-transparent shadow-none border-0">
+                  <Button className="bg-transparent shadow-none border-0 pt-0 pe-0">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>
@@ -126,7 +126,7 @@ function CommentSection({
               </div>
             )}
           <Likes className="rounded d-flex justify-content-end position-absolute">
-            <LikesButton className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
+            <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
               <LinearIcon uniqueId="like-button-comment">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                 <small>{likes}</small>

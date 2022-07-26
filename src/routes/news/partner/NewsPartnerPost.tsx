@@ -7,7 +7,6 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import NewsPartnerComments from './NewsPartnerComments';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
 
@@ -95,7 +94,7 @@ function NewsPartnerPost() {
                     <Row className="d-flex">
                       <Col className="my-auto rounded-circle" xs="auto">
                         <div className="rounded-circle">
-                          <ProfileImage src={userImage} className="rounded-circle bg-secondary" />
+                          <ProfileImage src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
@@ -105,9 +104,9 @@ function NewsPartnerPost() {
                     </Row>
                   </Col>
                   <Col xs="auto" className="d-block">
-                    <StyledPopover className="pe-3">
+                    <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0">
+                        <Button className="bg-transparent shadow-none border-0 pe-1">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>

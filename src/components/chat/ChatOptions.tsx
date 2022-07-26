@@ -12,10 +12,14 @@ const CustomPopover = styled(Popover)`
   background:rgb(27,24,24);
   border: 0.063rem solid rgb(56,56,56);
   position:absolute;
-  top: 0rem !important;
+  top: 2.188rem !important;
   .popover-arrow{
     &:after{
+      top: -2.313rem;
       border-left-color:rgb(56,56,56);
+    }
+    &:before{
+      top: -2.313rem;
     }
   }
 `;

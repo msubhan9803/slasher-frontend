@@ -29,7 +29,7 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const CardFooter = styled(Card.Footer)`
-  border-top: .063rem solid #242424
+  border-top: .063rem solid #3A3B46
 `;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -87,113 +87,109 @@ function NewsPostData() {
   };
   return (
     <>
-      {
-        postData.map((post: PostProps) => (
-          <Card key={post.id} className="bg-dark my-3">
-            <Card.Header className="border-0 ps-1 ps-md-3">
-              <NewPostHeader userName={post.userName} postDate={post.postDate} />
-            </Card.Header>
-            <Card.Body className="ps-1 ps-md-3 pt-1">
-              <Row>
-                <Col xs={12}>
-                  <>
-                    <span>{post.content}</span>
-                    {post.hashTag?.map((hashtag: string) => (
-                      <span role="button" tabIndex={0} key={hashtag} className="text-primary mx-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
-                        #
-                        {hashtag}
-                      </span>
-                    ))}
-                    ☠️
-                  </>
-                </Col>
-              </Row>
-              <Row className="mt-3">
-                <Col>
-                  <Image src={postImage} className="w-100" />
-                </Col>
-              </Row>
-              <Row className="justify-content-between m-2">
-                <Col>
-                  <LinearIcon uniqueId="like-button">
-                    <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-                    12K
-                  </LinearIcon>
-                </Col>
-                <Col className="text-center">
-                  <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-                  10
-                </Col>
-                <Col className="text-end">
-                  <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                  25
-                </Col>
-                <svg width="0" height="0">
-                  <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                  </linearGradient>
-                </svg>
-              </Row>
-            </Card.Body>
-            <CardFooter>
-              <div className="justify-content-between d-flex m-2">
-                <div className="p-0" role="button" aria-hidden="true" onClick={() => onLikeClick(post.id)}>
-                  {
-                    post.likeIcon
-                      ? (
-                        <LinearIcon uniqueId="like-button">
-                          <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                          Like
-                        </LinearIcon>
-                      )
-                      : (
-                        <>
-                          <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                          Like
-                        </>
-                      )
-                  }
-                </div>
-                <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => handleCommmentBox(post.id)}>
-                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                  Comment
-                </div>
-                <div className="p-0 text-end" role="button">
-                  <Col xs={1} className=" d-block">
-                    <CustomDropDown>
-                      <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                        <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                        Share
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="bg-black">
-                        <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
-                        <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
-                        <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </CustomDropDown>
-                  </Col>
-                </div>
-
+      {postData.map((post: PostProps) => (
+        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4 my-4" key={post.id}>
+          <Card.Header className="border-0 px-sm-3 px-md-0">
+            <NewPostHeader userName={post.userName} postDate={post.postDate} />
+          </Card.Header>
+          <Card.Body className="px-0 pt-3">
+            <Row>
+              <Col xs={12}>
+                <>
+                  <p className="mb-0">{post.content}</p>
+                  {post.hashTag?.map((hashtag: string) => (
+                    <span role="button" tabIndex={0} key={hashtag} className="text-primary mx-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
+                      #
+                      {hashtag}
+                    </span>
+                  ))}
+                  ☠️
+                </>
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Image src={postImage} className="w-100" />
+            </Row>
+            <Row className="d-flex justify-content-evenly pt-3 px-3">
+              <Col>
+                <LinearIcon uniqueId="like-button">
+                  <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
+                  12K
+                </LinearIcon>
+              </Col>
+              <Col className="text-center">
+                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
+                10
+              </Col>
+              <Col className="text-end">
+                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
+                25
+              </Col>
+              <svg width="0" height="0">
+                <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                  <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                </linearGradient>
+              </svg>
+            </Row>
+          </Card.Body>
+          <CardFooter className="px-2">
+            <div className="justify-content-between d-flex m-2">
+              <div className="p-0" role="button" aria-hidden="true" onClick={() => onLikeClick(post.id)}>
+                {
+                  post.likeIcon
+                    ? (
+                      <LinearIcon uniqueId="like-button">
+                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                        Like
+                      </LinearIcon>
+                    )
+                    : (
+                      <>
+                        <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                        Like
+                      </>
+                    )
+                }
               </div>
-              {post.commentSection
-                && (
-                  <Col className="bg-dark ps-0 pe-4 mt-4">
-                    <StyledCommentInputGroup className="mb-3">
-                      <Form.Control
-                        placeholder="Write a comment ..."
-                        className="border-end-0"
-                      />
-                      <InputGroup.Text>
-                        <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
-                      </InputGroup.Text>
-                    </StyledCommentInputGroup>
-                  </Col>
-                )}
-            </CardFooter>
-          </Card>
-        ))
-      }
+              <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => handleCommmentBox(post.id)}>
+                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                Comment
+              </div>
+              <div className="p-0 text-end" role="button">
+                <Col xs={1} className=" d-block">
+                  <CustomDropDown>
+                    <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1 pe-0">
+                      <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                      Share
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="bg-black">
+                      <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
+                      <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
+                      <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </CustomDropDown>
+                </Col>
+              </div>
+
+            </div>
+            {post.commentSection
+              && (
+                <Col className="bg-dark ps-0 pe-4 mt-4">
+                  <StyledCommentInputGroup className="mb-3">
+                    <Form.Control
+                      placeholder="Write a comment ..."
+                      className="border-end-0"
+                    />
+                    <InputGroup.Text>
+                      <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
+                    </InputGroup.Text>
+                  </StyledCommentInputGroup>
+                </Col>
+              )}
+          </CardFooter>
+        </Card>
+      ))}
     </>
   );
 }

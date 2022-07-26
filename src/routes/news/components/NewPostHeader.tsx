@@ -2,17 +2,43 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Dropdown, Image, Row,
+  Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
-import userImage from '../../../placeholder-images/placeholder-user.jpg';
 import ReportDialog from '../../../components/ui/Reportdialog';
 
 const ProfileImage = styled(Image)`
-  height:3.313rem;
-  width:3.313rem;
+  height:3.125rem;
+  width:3.125rem;
+`;
+const SmallText = styled.p`
+  font-size: .75rem;
+  color: #CCCCCC;
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: red;
+  }
+`;
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
+  }
+`;
+const CustomPopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 1px solid rgb(56,56,56);
+  position:absolute;
+  top: 0px !important;
+  .popover-arrow{
+    &:after{
+      border-left-color:rgb(56,56,56);
+    }
+  }
 `;
 interface Props {
   userName: string;
@@ -30,35 +56,36 @@ function NewPostHeader({ userName, postDate }: Props) {
   const onProfileDetailClick = () => {
     navigate('/news/partner/1');
   };
+  const popover = (
+    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button" onClick={() => handleNewsOption('report')}>Report</PopoverText>
+    </CustomPopover>
+  );
   return (
     <>
-      <Row className="align-items-center">
-        <Col >
-          <Row className="justify-content-between">
+      <Row className="justify-content-between">
+        <Col xs="auto">
+          <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
-              <Link className="text-white d-flex align-items-center" to="/news/partner/1">
-                <div className="rounded-circle">
-                  <ProfileImage src={userImage} className="rounded-circle bg-secondary" onClick={() => { onProfileDetailClick(); }} />
-                </div>
-                <div className="ps-3">
-                  <h1 className="mb-0 h6">{userName}</h1>
-                  <small className="mb-0 text-light">{postDate}</small>
-                </div>
-              </Link>
+              <div className="rounded-circle">
+                <ProfileImage src="https://i.pravatar.cc/300?img=11" onClick={() => { onProfileDetailClick(); }} className="rounded-circle bg-secondary" />
+              </div>
             </Col>
-            <Col xs="auto" className="d-none d-md-block pe-0 align-self-center">
-              <CustomDropDown onSelect={handleNewsOption}>
-                <Dropdown.Toggle className="d-flex justify-content-end bg-transparent pt-1">
-                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                </Dropdown.Toggle>
-                <Dropdown.Menu className="bg-black">
-                  <Dropdown.Item eventKey="report" className="text-light">Report</Dropdown.Item>
-                </Dropdown.Menu>
-              </CustomDropDown>
+            <Col xs="auto" className="ps-0 align-self-center">
+              <h1 className="mb-0 h6">{userName}</h1>
+              <SmallText className="mb-0">{postDate}</SmallText>
             </Col>
           </Row>
         </Col>
-
+        <Col xs="auto" className="d-block">
+          <StyledPopover>
+            <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+              <Button className="bg-transparent shadow-none border-0 pe-1">
+                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+              </Button>
+            </OverlayTrigger>
+          </StyledPopover>
+        </Col>
       </Row>
       {
         dropDownValue === 'report'

@@ -38,6 +38,7 @@ function ReportDialog({ show, setShow, slectedDropdownValue }: Props) {
             <Form className="mb-4">
               {blockOptions.map((report: string, index: number) => (
                 <Form.Check
+                  key={report}
                   type="checkbox"
                   id={`report-${index}`}
                   checked={reports.has(report)}

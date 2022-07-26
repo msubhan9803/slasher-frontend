@@ -60,7 +60,7 @@ const StyledLink = styled(Link)`
   min-width: 0; // To fix text wrapping in flex
 `;
 
-const CustomDropDown = styled(Dropdown)`
+export const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     border: none;
     &:hover {

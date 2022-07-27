@@ -44,7 +44,7 @@ const MobileNavbar = styled(Navbar)`
 
 const StyledNav = styled(Nav)`
   font-size: .875em;
-  @media (min-width: 960px) {
+  @media (min-width: 992px) {
     // We need to use an exact offset here because we're matching the width of the word "Profile"
     transform: translateX(2.3rem);
     overflow: hidden;

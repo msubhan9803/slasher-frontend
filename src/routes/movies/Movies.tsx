@@ -29,11 +29,6 @@ const StyleTabs = styled(Tabs)`
     }
   }
 `;
-const MovieCardStyle = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 110vh;
-`;
 
 function Movies() {
   const tabs = [
@@ -103,8 +98,8 @@ function Movies() {
           </Col>
         </Row>
         {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <MovieCardStyle className="bg-dark rounded-3 py-1 px-2">
-          <Row className="my-3 mx-0">
+        <div className="bg-dark rounded-3 py-1 px-2">
+          <Row className="mt-3 mx-0">
             {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
               <Col xs={4} md={3} lg={4} xl={3} key={movieDetail.id}>
                 <MovieCard
@@ -117,7 +112,7 @@ function Movies() {
               <h1 className="h4 text-center mb-0">No data found</h1>
             )}
           </Row>
-        </MovieCardStyle>
+        </div>
       </Container>
     </AuthenticatedPageWrapper>
   );

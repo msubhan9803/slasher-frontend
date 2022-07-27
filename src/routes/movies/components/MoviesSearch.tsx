@@ -50,7 +50,7 @@ function MoviesSearch({ setFilteredMovies, myMovies }: Props) {
         <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
       </InputGroup.Text>
       <FormControl
-        placeholder="Search list..."
+        placeholder="Search..."
         addon-label="search"
         aria-describedby="search"
         type="text"

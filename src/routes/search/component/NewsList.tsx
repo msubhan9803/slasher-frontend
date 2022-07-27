@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { solid, regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Card, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -25,25 +26,29 @@ const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #242424
 `;
 const CustomPopover = styled(Popover)`
-z-index :1;
-background:rgb(27,24,24);
-border: 0.063rem solid rgb(56,56,56);
-position:absolute;
-top: 0rem !important;
-.popover-arrow{
-  &:after{
-    border-left-color:rgb(56,56,56);
+  z-index: 1;
+  background: rgb(27,24,24);
+  border: 0.063rem solid rgb(56,56,56);
+  position: absolute;
+  top: 0rem !important;
+  .popover-arrow {
+    &:after {
+      border-left-color: rgb(56,56,56);
+    }
   }
-}
 `;
 const PopoverText = styled.p`
-&:hover {
-  background: red;
-}
+  &:hover {
+    background: var(--bs-primary);
+  }
 `;
-const SmallText = styled.p`
-  font-size: .875rem;
-  color: #CCCCCC;
+
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
+  }
 `;
 function NewsList({
   id, name, image, date, content, hashTag,
@@ -75,22 +80,24 @@ function NewsList({
                   </Col>
                   <Col xs="auto" className="ps-0 align-self-center">
                     <h1 className="mb-0 h6">{name}</h1>
-                    <SmallText className="mb-0">{date}</SmallText>
+                    <small className="mb-0 text-light">{date}</small>
                   </Col>
                 </Row>
               </Col>
               <Col xs="auto" className="d-block">
-                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <div>
-                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                  </div>
-                </OverlayTrigger>
+                <StyledPopover>
+                  <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                    <Button className="bg-transparent shadow-none border-0 pe-1">
+                      <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                    </Button>
+                  </OverlayTrigger>
+                </StyledPopover>
               </Col>
             </Row>
           </Card.Header>
           <Card.Body className="px-0 pt-3">
             <Row>
-              <Col className="px-4 px-md-3">
+              <Col>
                 <span>
                   {content}
                 </span>

@@ -111,27 +111,27 @@ export const events = [
 
 export const myMovies = [
   {
-    id: 1, image: 'https://i.pravatar.cc/300?img=19', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+    id: 1, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
   },
   {
-    id: 2, image: 'https://i.pravatar.cc/300?img=13', name: 'The Djinn', year: '2022', liked: false,
+    id: 2, name: 'The Djinn', year: '2022', liked: false,
   },
   {
-    id: 3, image: 'https://i.pravatar.cc/300?img=22', name: 'Ghost Lab', year: '2022', liked: true,
+    id: 3, name: 'Ghost Lab', year: '2022', liked: true,
   },
   {
-    id: 4, image: 'https://i.pravatar.cc/300?img=11 ', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+    id: 4, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
   },
   {
-    id: 5, image: 'https://i.pravatar.cc/300?img=12', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+    id: 5, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
   },
   {
-    id: 6, image: 'https://i.pravatar.cc/300?img=16', name: 'The Djinn', year: '2022', liked: false,
+    id: 6, name: 'The Djinn', year: '2022', liked: false,
   },
   {
-    id: 7, image: 'https://i.pravatar.cc/300?img=18', name: 'Ghost Lab', year: '2022', liked: true,
+    id: 7, name: 'Ghost Lab', year: '2022', liked: true,
   },
   {
-    id: 8, image: 'https://i.pravatar.cc/300?img=14', name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
+    id: 8, name: 'Dreamcatcher: Get ready for a killer night out', year: '2022', liked: true,
   },
 ];

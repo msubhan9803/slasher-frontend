@@ -148,7 +148,6 @@ function Search() {
                 <Movies
                   id={movieDetail.id}
                   name={movieDetail.name}
-                  image={movieDetail.image}
                   year={movieDetail.year}
                   liked={movieDetail.liked}
                 />

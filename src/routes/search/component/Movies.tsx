@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
+import moviePoster from '../../../images/movie-poster.svg';
 
 const MovieCardStyle = styled(Card)`
   img {
-    aspect-ratio: 9/11;
+    aspect-ratio: 0.83;
   }
   .fa-star {
     color: #FF8A00;
@@ -35,11 +36,11 @@ const StyledLikeButton = styled.div`
   }
 `;
 function Movies({
-  name, image, year, liked,
+  name, year, liked,
 }: SearchProps) {
   return (
     <MovieCardStyle className="bg-transparent my-2 border-0">
-      <Card.Img variant="top" src={image} className="rounded-3" />
+      <Card.Img variant="top" src={moviePoster} className="rounded-3" />
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="fw-bold rating bg-white mb-0 px-2 rounded-5 small text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="xs" />

@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
+  Button,
   Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -52,7 +53,7 @@ const CommentBox = styled.div`
 background-color: #171717;
 `;
 const Likes = styled.div`
-  margin-top : -1.43rem;
+  right:.063rem;
 `;
 const CommentImage = styled(Image)`
   height: 2.5rem;
@@ -61,7 +62,7 @@ const CommentImage = styled(Image)`
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);
-  border: 0.063rem solid rgb(56,56,56);
+  border: .063rem solid rgb(56,56,56);
   position:absolute;
   top: 0rem !important;
   .popover-arrow{
@@ -75,39 +76,47 @@ const PopoverText = styled.p`
     background: var(--bs-primary);
   }
 `;
-function CommentSection({
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
+  }
+`; function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">Delete</PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">Block user</PopoverText>
     </CustomPopover>
   );
   return (
     <Row key={id}>
-      <Col xs="auto" className={`px-1 ${!commentMention && 'mt-3'}`}>
+      <Col xs="auto" className="px-1">
         <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
       </Col>
       <Col className="ps-2">
-        <CommentBox className="pt-3 px-3 pb-4 rounded">
+        <CommentBox className="pt-3 px-3 pb-4 rounded position-relative">
           <div className="d-flex justify-content-between">
             <Col xs="auto" className="ps-0 align-self-center mb-2">
               <h6 className="mb-0 ">{name}</h6>
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
             <Col xs="auto" className="d-block pe-0">
-              <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                <div>
-                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                </div>
-              </OverlayTrigger>
+              <StyledPopover>
+                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                  <Button className="bg-transparent shadow-none border-0 pt-0 pe-0">
+                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                  </Button>
+                </OverlayTrigger>
+              </StyledPopover>
             </Col>
           </div>
           <span className="text-primary">
             {commentMention}
           </span>
-          <CommentMessage className="small mb-0">
+          <CommentMessage className="mb-0">
             {commentMsg}
           </CommentMessage>
           {commentImg
@@ -116,33 +125,35 @@ function CommentSection({
                 <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
             )}
+          <Likes className="rounded d-flex justify-content-end position-absolute">
+            <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+              <LinearIcon uniqueId="like-button-comment">
+                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                <small>{likes}</small>
+              </LinearIcon>
+            </LikesButton>
+            <svg width="0" height="0">
+              <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+              </linearGradient>
+            </svg>
+          </Likes>
         </CommentBox>
-        <Likes className="rounded d-flex justify-content-end">
-          <LikesButton className="p-1 px-2 text-light me-3 mt-1 rounded-pill text-white">
-            <LinearIcon uniqueId="like-button-comment">
-              <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              <small>{likes}</small>
-            </LinearIcon>
-          </LikesButton>
-          <svg width="0" height="0">
-            <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-              <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-            </linearGradient>
-          </svg>
-        </Likes>
-        <div className={`mb-3 mt-2 ${commentMention ? 'ms-3 ms--0' : 'ms-3'}`}>
-          <div className="p-0 d-flex" role="button" aria-hidden="true">
+        <div className={`my-3 ${commentMention ? 'ms-3 ms-0' : 'ms-3'}`}>
+          <div className="p-0 d-flex me-2" role="button" aria-hidden="true">
             {
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                    <small>Like</small>
+                    <div className="me-2">
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
+                      <small>Like</small>
+                    </div>
                   </LinearIcon>
                 )
                 : (
-                  <div>
+                  <div className="me-2">
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
                     <small>Like</small>
                   </div>

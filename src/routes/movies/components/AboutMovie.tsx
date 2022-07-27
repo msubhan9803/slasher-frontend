@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Row, Image, Col, Tabs, Tab,
 } from 'react-bootstrap';
@@ -9,12 +7,10 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
+import MoviePoster from '../../../images/movies-poster.svg';
 
 const StyledMoviePoster = styled.div`
-  aspect-ratio: 5/6;
-  img {
-    object-fit: cover;
-  }
+  aspect-ratio: 0.83;
 `;
 const StyleTabs = styled(Tabs)`
 border-bottom: 0.188rem solid var(--bs-dark);
@@ -35,7 +31,7 @@ overflow-y: hidden;
 }
 `;
 const FollowStyledButton = styled(RoundButton)`
-  width: 9.938rem;
+  width: 21.125rem;
 `;
 function AboutMovie() {
   const [bgColor, setBgColor] = useState<boolean>(false);
@@ -43,37 +39,38 @@ function AboutMovie() {
     <div>
       <div className="bg-dark my-3 p-3 pb-0 rounded-2">
         <Row className="justify-content-center">
-          <Col xs={6} sm={5} md={4} lg={6} xl={5}>
-            <StyledMoviePoster className="w-100 h-100">
-              <Image src="https://i.pravatar.cc/300?img=21" className="w-100 h-100 rounded-3" />
+          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+            <StyledMoviePoster>
+              <Image src={MoviePoster} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
+            <div className="d-none d-xl-block">
+              <small>Your lists</small>
+              <ListIcon like="likeXL" watch="watchXL" watchlist="watchlistXL" buy="buyXL" />
+            </div>
           </Col>
           <Col xl={7}>
             <AboutDetails />
           </Col>
         </Row>
-        <Row className="justify-content-center justify-content-xl-start mt-2">
-          <Col xs={10} sm={7} md={5} lg={9} xl={5} className="text-center">
+        <Row className="d-xl-none justify-content-center mt-4 mt-lg-2">
+          <Col xs={10} sm={7} md={5} lg={9} className="text-center">
             <small>Your lists</small>
-            <ListIcon />
+            <ListIcon like="like" watch="watch" watchlist="watchlist" buy="buy" />
           </Col>
-          <Col xl={7} className="mt-3 mt-xl-0">
-            <div className="d-flex align-items-baseline justify-content-center justify-content-xl-start">
-              <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={` d-lg-none me-2 border-0 rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}>
-                {bgColor ? 'Follow' : 'Unfollow'}
-              </FollowStyledButton>
-              <RoundButton className="mt-3 px-3 bg-black rounded-pill border-0" variant="lg">
-                <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-                Share
-              </RoundButton>
-            </div>
+        </Row>
+        <Row className="d-lg-none mt-3 text-center">
+          <Col xs={12}>
+            <p className="text-center fw-bold">Get updates for this movie</p>
+            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`border-0 rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}>
+              {bgColor ? 'Follow' : 'Unfollow'}
+            </FollowStyledButton>
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">
           <Col sm={5}>
-            <div className="align-items-center d-flex justify-content-evenly">
-              <span>Push notifications</span>
-              <Switch id="pushNotificationsSwitch" className="ms-0 ms-md-3" />
+            <div className="align-items-center d-flex justify-content-center">
+              <span className="mb-2">Push notifications</span>
+              <Switch id="pushNotificationsSwitch" className="ms-4" />
             </div>
           </Col>
         </Row>

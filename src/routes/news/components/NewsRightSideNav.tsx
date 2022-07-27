@@ -11,13 +11,19 @@ import RoundButton from '../../../components/ui/RoundButton';
 
 const CustomButton = styled(RoundButton)`
   border: 0.063rem solid #3A3B46;
+  &:focus {
+    border: 0.063rem solid #3A3B46;
+  }
+  &:hover {
+    border: 0.063rem solid #3A3B46;
+  }
 `;
 function NewsRightSideNav() {
   const [bgColor, setBgColor] = useState(false);
 
   return (
     <>
-      <div className="bg-dark m-2 mb-4 p-3 rounded-3">
+      <div className="bg-dark  mb-4 mt-0 p-3 rounded-3">
         <Row>
           <Col xs={6}>
             <CustomButton

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Dropdown, Form, Image, InputGroup, Row,
+  Card, Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
 import postImage from '../../../images/news-post.svg';
 import NewPostHeader from './NewPostHeader';
+import LikeShareModal from '../../../components/ui/LikeShareModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -31,20 +32,13 @@ const LinearIcon = styled.div<LinearIconProps>`
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid #3A3B46
 `;
-const StyledCommentInputGroup = styled(InputGroup)`
-  .form-control {
-    border-radius: 1.875rem;
-    border-bottom-right-radius: 0rem;
-    border-top-right-radius: 0rem;
-  }
-  .input-group-text {
-    background-color: rgb(31, 31, 31);
-    border-color: #3a3b46;
-    border-radius: 1.875rem;
-  }
-  svg {
-    min-width: 1.875rem;
-  }
+const Text = styled.p`
+  font-size: 0.938rem;
+  font-weight: 400;
+`;
+const Span = styled.span`
+  font-size: 0.938rem;
+  font-weight: 400;
 `;
 const intialPostdata = [
   {
@@ -53,17 +47,18 @@ const intialPostdata = [
   {
     id: 2, userName: 'Horror Oasis1', postDate: '07/10/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
   },
-  {
-    id: 3, userName: 'Horror Oasis2', postDate: '08/09/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
-  },
-  {
-    id: 4, userName: 'Horror Oasis3', postDate: '09/12/2022 11:10 PM', content: 'This space is used to help indie creators have a platform to promote their work.', hashTag: ['horrorday', 'slasher', 'horroroasis'], commentSection: false, likeIcon: false,
-  },
 ];
 
 function NewsPostData() {
   const navigate = useNavigate();
   const [postData, setPostData] = useState<PostProps[]>(intialPostdata);
+  const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
+  const [buttonClick, setButtonClck] = useState<string>('');
+
+  const openDialogue = (click: string) => {
+    setOpenLikeShareModal(true);
+    setButtonClck(click);
+  };
   const onLikeClick = (likeId: number) => {
     const likeData = postData.map((checkLikeId: any) => {
       if (checkLikeId.id === likeId) {
@@ -73,22 +68,16 @@ function NewsPostData() {
     });
     setPostData(likeData);
   };
-  const handleCommmentBox = (commentsId: any) => {
-    const commentData = postData.map((checkCommentId: any) => {
-      if (checkCommentId.id === commentsId) {
-        return { ...checkCommentId, commentSection: !checkCommentId.commentSection };
-      }
-      return checkCommentId;
-    });
-    setPostData(commentData);
-  };
   const onHashtagClick = (hashtagValue: string) => {
     navigate('/search', { state: { hashtag: hashtagValue } });
+  };
+  const commentSection = () => {
+    navigate('/news/partner/posts/1');
   };
   return (
     <>
       {postData.map((post: PostProps) => (
-        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4 my-4" key={post.id}>
+        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4 my-3" key={post.id}>
           <Card.Header className="border-0 px-sm-3 px-md-0">
             <NewPostHeader userName={post.userName} postDate={post.postDate} />
           </Card.Header>
@@ -96,12 +85,12 @@ function NewsPostData() {
             <Row>
               <Col xs={12}>
                 <>
-                  <p className="mb-0">{post.content}</p>
+                  <Text className="mb-0">{post.content}</Text>
                   {post.hashTag?.map((hashtag: string) => (
-                    <span role="button" tabIndex={0} key={hashtag} className="text-primary mx-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
+                    <Span role="button" tabIndex={0} key={hashtag} className=" text-primary me-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
                       #
                       {hashtag}
-                    </span>
+                    </Span>
                   ))}
                   ☠️
                 </>
@@ -112,17 +101,17 @@ function NewsPostData() {
             </Row>
             <Row className="d-flex justify-content-evenly pt-3 px-3">
               <Col>
-                <LinearIcon uniqueId="like-button">
-                  <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
+                <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
+                  <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                   12K
                 </LinearIcon>
               </Col>
-              <Col className="text-center">
-                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
+              <Col className="text-center" role="button" onClick={() => commentSection()}>
+                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                 10
               </Col>
-              <Col className="text-end">
-                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
+              <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
+                <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                 25
               </Col>
               <svg width="0" height="0">
@@ -152,7 +141,7 @@ function NewsPostData() {
                     )
                 }
               </div>
-              <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => handleCommmentBox(post.id)}>
+              <div className="p-0 text-center" role="button" aria-hidden="true" onClick={() => commentSection()}>
                 <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                 Comment
               </div>
@@ -171,25 +160,20 @@ function NewsPostData() {
                   </CustomDropDown>
                 </Col>
               </div>
-
             </div>
-            {post.commentSection
-              && (
-                <Col className="bg-dark ps-0 pe-4 mt-4">
-                  <StyledCommentInputGroup className="mb-3">
-                    <Form.Control
-                      placeholder="Write a comment ..."
-                      className="border-end-0"
-                    />
-                    <InputGroup.Text>
-                      <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="pe-3" />
-                    </InputGroup.Text>
-                  </StyledCommentInputGroup>
-                </Col>
-              )}
           </CardFooter>
         </Card>
       ))}
+      {
+        openLikeShareModal
+        && (
+          <LikeShareModal
+            show={openLikeShareModal}
+            setShow={setOpenLikeShareModal}
+            click={buttonClick}
+          />
+        )
+      }
     </>
   );
 }

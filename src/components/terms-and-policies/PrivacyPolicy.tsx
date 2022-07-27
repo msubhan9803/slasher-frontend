@@ -8,7 +8,7 @@ interface Props {
 function PrivacyPolicy({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3 border-bottom pb-2">Privacy Policy</h2>
+      <h2 className="border-bottom pb-2">Privacy Policy</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
         Premier Audio Video Designs Inc (“us”, “we”, or “our”) operates the
@@ -27,7 +27,7 @@ function PrivacyPolicy({ className }: Props) {
         Policy, the terms used in this Privacy Policy have the same meanings as
         in our Terms and Conditions.
       </p>
-      <h3 className="h4">Definitions</h3>
+      <h3>Definitions</h3>
       <div className="ms-3">
         <p>
           <strong>Service</strong>
@@ -60,13 +60,13 @@ function PrivacyPolicy({ className }: Props) {
           device).
         </p>
       </div>
-      <h3 className="h4">Information Collection and Use</h3>
+      <h3>Information Collection and Use</h3>
       <p>
         We collect several different types of information for various purposes
         to provide and improve our Service to you.
       </p>
-      <h3 className="h4">Types of Data Collected</h3>
-      <h4 className="h5">Types of Personal Data</h4>
+      <h3>Types of Data Collected</h3>
+      <h4>Types of Personal Data</h4>
       <p>
         While using our Service, we may ask you to provide us with certain
         personally identifiable information that can be used to contact or
@@ -91,7 +91,7 @@ function PrivacyPolicy({ className }: Props) {
         communications from us by following the unsubscribe link or the
         instructions provided in any email we send.
       </p>
-      <h4 className="h5">Usage Data</h4>
+      <h4>Usage Data</h4>
       <p>
         We may also collect information that your browser sends whenever you
         visit our Service or when you access the Service by or through a mobile
@@ -111,7 +111,7 @@ function PrivacyPolicy({ className }: Props) {
         mobile operating system, the type of mobile Internet browser you use,
         unique device identifiers and other diagnostic data.
       </p>
-      <h4 className="h5">Location Data</h4>
+      <h4>Location Data</h4>
       <p>
         We may use and store information about your location if you give us
         permission to do so (“Location Data”). We use this data to provide
@@ -121,7 +121,7 @@ function PrivacyPolicy({ className }: Props) {
         You can enable or disable location services when you use our Service at
         any time by way of your device settings.
       </p>
-      <h4 className="h5">Tracking Cookies Data</h4>
+      <h4>Tracking Cookies Data</h4>
       <p>
         We use cookies and similar tracking technologies to track the activity
         on our Service and we hold certain information.
@@ -170,7 +170,7 @@ function PrivacyPolicy({ className }: Props) {
           </p>
         </li>
       </ul>
-      <h3 className="h4">Use of Data</h3>
+      <h3>Use of Data</h3>
       <p>
         Premier Audio Video Designs Inc uses the collected data for various
         purposes:
@@ -212,7 +212,7 @@ function PrivacyPolicy({ className }: Props) {
           </p>
         </li>
       </ul>
-      <h3 className="h4">Transfer of Data</h3>
+      <h3>Transfer of Data</h3>
       <p>
         Your information, including Personal Data, may be transferred to – and
         maintained on – computers located outside of your state, province,
@@ -236,22 +236,22 @@ function PrivacyPolicy({ className }: Props) {
         in place including the security of your data and other personal
         information.
       </p>
-      <h3 className="h4">Disclosure of Data</h3>
-      <h4 className="h5">Business Transaction</h4>
+      <h3>Disclosure of Data</h3>
+      <h4>Business Transaction</h4>
       <p>
         If Premier Audio Video Designs Inc is involved in a merger, acquisition
         or asset sale, your Personal Data may be transferred. We will provide
         notice before your Personal Data is transferred and becomes subject to a
         different Privacy Policy.
       </p>
-      <h4 className="h5">Disclosure for Law Enforcement</h4>
+      <h4>Disclosure for Law Enforcement</h4>
       <p>
         Under certain circumstances, Premier Audio Video Designs Inc may be
         required to disclose your Personal Data if required to do so by law or
         in response to valid requests by public authorities (e.g. a court or a
         government agency).
       </p>
-      <h4 className="h5">Legal Requirements</h4>
+      <h4>Legal Requirements</h4>
       <p>
         Premier Audio Video Designs Inc may disclose your Personal Data in the
         good faith belief that such action is necessary to:
@@ -281,14 +281,17 @@ function PrivacyPolicy({ className }: Props) {
           <p>To protect against legal liability</p>
         </li>
       </ul>
-      <h3 className="h4">Security of Data</h3>
+      <h3>Security of Data</h3>
       <p>
         The security of your data is important to us but remember that no method
         of transmission over the Internet or method of electronic storage is
         100% secure. While we strive to use commercially acceptable means to
         protect your Personal Data, we cannot guarantee its absolute security.
       </p>
-      <h3 className="h4">Our Policy on “Do Not Track” Signals under the California Online Protection Act (CalOPPA)</h3>
+      <h3>
+        Our Policy on “Do Not Track” Signals under the
+        California Online Protection Act (CalOPPA)
+      </h3>
       <p>
         We do not support Do Not Track (“DNT”). Do Not Track is a preference you
         can set in your web browser to inform websites that you do not want to
@@ -298,7 +301,7 @@ function PrivacyPolicy({ className }: Props) {
         You can enable or disable Do Not Track by visiting the Preferences or
         Settings page of your web browser.
       </p>
-      <h3 className="h4">Service Providers</h3>
+      <h3>Service Providers</h3>
       <p>
         We may employ third party companies and individuals to facilitate our
         Service (“Service Providers”), provide the Service on our behalf,
@@ -310,7 +313,7 @@ function PrivacyPolicy({ className }: Props) {
         these tasks on our behalf and are obligated not to disclose or use it
         for any other purpose.
       </p>
-      <h3 className="h4">Analytics</h3>
+      <h3>Analytics</h3>
       <p>
         We may use third-party Service Providers to monitor and analyse the use
         of our Service.
@@ -333,7 +336,7 @@ function PrivacyPolicy({ className }: Props) {
           https://policies.google.com/privacy?hl=en
         </a>
       </p>
-      <h3 className="h4">Advertising</h3>
+      <h3>Advertising</h3>
       <p>
         We may use third-party Service Providers to show advertisements to you
         to help support and maintain our Service.
@@ -382,7 +385,7 @@ function PrivacyPolicy({ className }: Props) {
           http://www.google.com/policies/privacy/
         </a>
       </p>
-      <h3 className="h4">Behavioral Remarketing</h3>
+      <h3>Behavioral Remarketing</h3>
       <p>
         Premier Audio Video Designs Inc uses remarketing services to advertise
         on third party websites to you after you visited our Service. We and our
@@ -471,7 +474,7 @@ function PrivacyPolicy({ className }: Props) {
           https://www.facebook.com/privacy/explanation
         </a>
       </p>
-      <h3 className="h4">Payments</h3>
+      <h3>Payments</h3>
       <p>
         We may provide paid products and/or services within the Service. In that
         case, we use third-party services for payment processing (e.g. payment
@@ -517,7 +520,7 @@ function PrivacyPolicy({ className }: Props) {
           https://www.paypal.com/webapps/mpp/ua/privacy-full
         </a>
       </p>
-      <h3 className="h4">Links to Other Sites</h3>
+      <h3>Links to Other Sites</h3>
       <p>
         Our Service may contain links to other sites that are not operated by
         us. If you click a third party link, you will be directed to that third
@@ -528,7 +531,7 @@ function PrivacyPolicy({ className }: Props) {
         We have no control over and assume no responsibility for the content,
         privacy policies or practices of any third party sites or services.
       </p>
-      <h3 className="h4">Children&apos;s Privacy</h3>
+      <h3>Children&apos;s Privacy</h3>
       <p>
         Our Service does not address anyone under the age of 18 (“Children”).
       </p>
@@ -540,7 +543,7 @@ function PrivacyPolicy({ className }: Props) {
         children without verification of parental consent, we take steps to
         remove that information from our servers.
       </p>
-      <h3 className="h4">Changes to This Privacy Policy</h3>
+      <h3>Changes to This Privacy Policy</h3>
       <p>
         We may update our Privacy Policy from time to time. We will notify you
         of any changes by posting the new Privacy Policy on this page.
@@ -555,7 +558,7 @@ function PrivacyPolicy({ className }: Props) {
         changes. Changes to this Privacy Policy are effective when they are
         posted on this page.
       </p>
-      <h3 className="h4">Contact Us</h3>
+      <h3>Contact Us</h3>
       <p>
         If you have any questions about this Privacy Policy, please contact us:
       </p>

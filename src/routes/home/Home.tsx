@@ -5,7 +5,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 function Home() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <h1>Home</h1>
+      <h1 className="h3 mb-3">Home</h1>
       <p>This is a placeholder home page!</p>
       <p>Here are a few sample links for testing:</p>
       <p>

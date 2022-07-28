@@ -1,8 +1,9 @@
 import React from 'react';
 import UserMessageList from '../../../ui/UserMessageList/UserMessageList';
-import UserMessageListItem from '../../../ui/UserMessageList/UserMessageListItem';
+import UserMessageSidebarListItem from '../../../ui/UserMessageList/UserMessageSidebarListItem';
+import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
-function RecentMessage() {
+function RecentMessages() {
   const recentMessageDetails = [
     {
       id: 21, userName: 'Maureen Biologist', message: 'We ask only to be reassured We ask only to be reassured We ask only to be reassured', photo: 'https://i.pravatar.cc/300?img=47',
@@ -15,14 +16,11 @@ function RecentMessage() {
     },
   ];
   return (
-    <>
-      <div className="d-flex align-items-end justify-content-between mt-4 mb-2">
-        <h3 className="h4 mb-0">Recent messages</h3>
-        <small className="text-primary">View All</small>
-      </div>
+    <div>
+      <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />
       <UserMessageList className="mb-4">
         {recentMessageDetails.map((recentMessageDetail) => (
-          <UserMessageListItem
+          <UserMessageSidebarListItem
             key={recentMessageDetail.id}
             userName={recentMessageDetail.userName}
             message={recentMessageDetail.message}
@@ -31,9 +29,8 @@ function RecentMessage() {
           />
         ))}
       </UserMessageList>
-
-    </>
+    </div>
   );
 }
 
-export default RecentMessage;
+export default RecentMessages;

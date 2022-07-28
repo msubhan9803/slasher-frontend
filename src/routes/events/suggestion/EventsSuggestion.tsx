@@ -1,18 +1,16 @@
+import React, {
+  useState, ChangeEvent,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, {
-  useState, useRef, MutableRefObject, ChangeEvent,
-} from 'react';
 import {
   Col, Container, Form, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
+import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 
-const CustomDatePicker = styled(Form.Control)`
-  color-scheme: dark;
-`;
 const ImageContainer = styled.div`
   height: 12.5rem;
   width:12.5rem;
@@ -33,12 +31,13 @@ const CustomContainer = styled(Container)`
 const CustomText = styled.p`
   color: #A6A6A6
 `;
+
 function EventSuggestion() {
-  const stratDateRef = useRef() as MutableRefObject<HTMLInputElement>;
-  const endDateRef = useRef() as MutableRefObject<HTMLInputElement>;
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
   const [imageUpload, setImageUpload] = useState<string>('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setDescription(e.target.value);
@@ -52,19 +51,15 @@ function EventSuggestion() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <CustomContainer className="rounded p-4">
-        <Row className="align-items-center d-md-none mb-3">
-          <Col xs={2}>
-            <FontAwesomeIcon icon={solid('arrow-left')} size="lg" className="text-light rounded-circle text-start" />
-          </Col>
-          <Col xs={8}>
-            <h3 className="h4 text-center my-0">Event Suggestion</h3>
-          </Col>
+      <CustomContainer className="rounded p-md-4 pb-0 pb-md-4">
+        <Row className="d-md-none bg-dark pt-2">
+          <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
+          <Col><h2 className="text-center">Event Suggest</h2></Col>
         </Row>
         <Row>
           <Col className="h-100">
             <Row className="h-100">
-              <CustomCol xs={7} md={3} className="ms-4 ms-md-0">
+              <CustomCol xs={12} md={3} className="mx-auto mx-md-0">
                 <label htmlFor="file-upload" className="d-inline">
                   {imageUpload.length === 0
                     && (
@@ -109,23 +104,23 @@ function EventSuggestion() {
                   }}
                 />
               </CustomCol>
-              <Col>
-                <h3 className="text-center text-md-start h5 mb-1 mt-1 mt-md-0">Add Photo</h3>
+              <Col xs={12} md={7}>
+                <h2 className="text-center text-md-start  mb-1 mt-3 mt-md-0">Add Photo</h2>
                 <CustomText className="text-light text-center text-md-start small mb-0">Recommended size: 830x300 pixels</CustomText>
                 <CustomText className="text-light text-center text-md-start small ">(Jpg, Png)</CustomText>
               </Col>
             </Row>
           </Col>
         </Row>
-        <h2 className="h4 d-md-block mt-4">Event Information</h2>
+        <h2 className="d-md-block mt-4">Event Information</h2>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Event Category" defaultValue="">
+            <Form.Select aria-label="Event Category" defaultValue="" className="fs-4">
               <option value="" disabled>Event Category</option>
             </Form.Select>
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Control type="text" placeholder="Event Name" />
+            <Form.Control type="text" placeholder="Event Name" className="fs-4" />
           </Col>
         </Row>
         <Row className="mt-3">
@@ -139,48 +134,37 @@ function EventSuggestion() {
                 onChange={handleMessageChange}
                 placeholder="Event description"
                 style={{ resize: 'none' }}
+                className="fs-4"
               />
-              <CustomSpan className="float-end">{`${charCount}/${1000} characters`}</CustomSpan>
+              <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
             </Form.Group>
           </Col>
         </Row>
         <Row>
-          <Col><Form.Control type="text" placeholder="Event Website" /></Col>
+          <Col><Form.Control type="text" placeholder="Event website" className="fs-4" /></Col>
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <CustomDatePicker
-              placeholder="Start Date"
-              type="text"
-              ref={stratDateRef}
-              onFocus={() => { (stratDateRef.current.type = 'date'); }}
-              onBlur={() => { (stratDateRef.current.type = 'date'); }}
-            />
+            <CustomDatePicker date={startDate} setDate={setStartDate} label="Start date" />
           </Col>
           <Col md={6} className="mt-3">
-            <CustomDatePicker
-              placeholder="End Date"
-              type="text"
-              ref={endDateRef}
-              onFocus={() => { (endDateRef.current.type = 'date'); }}
-              onBlur={() => { (endDateRef.current.type = 'date'); }}
-            />
+            <CustomDatePicker date={endDate} setDate={setEndDate} label="End date" />
           </Col>
         </Row>
         <Row>
-          <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street Address" /></Col>
+          <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street Address" className="fs-4" /></Col>
           <Col md={6} className="mt-3">
-            <Form.Control type="text" placeholder="City" />
+            <Form.Control type="text" placeholder="City" className="fs-4" />
           </Col>
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="State/Province" defaultValue="">
+            <Form.Select aria-label="State/Province" defaultValue="" className="fs-4">
               <option value="" disabled>State/Province</option>
             </Form.Select>
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Country" defaultValue="">
+            <Form.Select aria-label="Country" defaultValue="" className="fs-4">
               <option value="" disabled>Country</option>
             </Form.Select>
           </Col>

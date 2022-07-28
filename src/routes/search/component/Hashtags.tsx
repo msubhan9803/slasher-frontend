@@ -19,7 +19,7 @@ function Hashtags({ name }: SearchProps) {
           #
           {name}
         </p>
-        <p className="small text-light mb-0">24.3M posts</p>
+        <small className="text-light mb-0">24.3M posts</small>
       </Col>
     </Row>
   );

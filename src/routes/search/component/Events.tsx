@@ -28,7 +28,7 @@ function Events({
           <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
           {address}
         </Card.Text>
-        <h1 className="m-0 h4">
+        <h1 className="m-0 h2">
           {name}
         </h1>
       </Card.Body>

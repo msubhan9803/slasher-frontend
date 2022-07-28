@@ -20,7 +20,7 @@ function People({
         <p className="fw-bold mb-0">
           {name}
         </p>
-        <p className="small text-light mb-0">{email}</p>
+        <small className="text-light mb-0">{email}</small>
       </Col>
     </Row>
   );

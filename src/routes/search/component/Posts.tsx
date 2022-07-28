@@ -29,8 +29,6 @@ const CustomPopover = styled(Popover)`
   z-index: 1;
   background: rgb(27,24,24);
   border: 0.063rem solid rgb(56,56,56);
-  position: absolute;
-  top: 0rem !important;
   .popover-arrow {
     &:after {
       border-left-color: rgb(56,56,56);
@@ -50,6 +48,12 @@ const StyledPopover = styled.div`
     }
   }
 `;
+const StyledPostImage = styled(Row)`
+  aspect-ratio: 1.64;
+  img {
+    object-fit: cover;
+  }
+`;
 
 function Posts({
   id, name, image, date, content, hashTag,
@@ -62,7 +66,7 @@ function Posts({
     setID(likedID);
   };
   const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+    <CustomPopover id="popover-basic" className="py-2 rounded-2 fs-5">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
     </CustomPopover>
   );
@@ -80,13 +84,13 @@ function Posts({
                     </div>
                   </Col>
                   <Col xs="auto" className="ps-0 align-self-center">
-                    <h1 className="mb-0 h6">{name}</h1>
-                    <small className="mb-0 text-light">{date}</small>
+                    <h1 className="mb-0 h3 fw-bold">{name}</h1>
+                    <span className="mb-0 text-light fs-6">{date}</span>
                   </Col>
                 </Row>
               </Col>
               <Col xs="auto" className="d-block">
-                <StyledPopover>
+                <StyledPopover className="position-relative">
                   <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
                     <Button className="bg-transparent shadow-none border-0 pe-1">
                       <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
@@ -99,22 +103,23 @@ function Posts({
           <Card.Body className="px-0 pt-3">
             <Row>
               <Col>
-                <span>
+                <span className="fs-4">
                   {content}
                 </span>
                 <br />
                 {hashTag?.map((hashtag: string) => (
-                  <span key={hashtag} className="text-primary cursor-pointer">
+                  <span key={hashtag} className="fs-4 text-primary cursor-pointer">
                     #
                     {hashtag}
                     &nbsp;
                   </span>
                 ))}
+                ☠️
               </Col>
             </Row>
-            <Row className="mt-3">
-              <Image src={postImage} className="w-100" />
-            </Row>
+            <StyledPostImage className="mt-3">
+              <Image src={postImage} className="w-100 h-100" />
+            </StyledPostImage>
             <Row className="d-flex justify-content-evenly pt-3 px-3">
               <Col>
                 <LinearIcon uniqueId="like-button-post">

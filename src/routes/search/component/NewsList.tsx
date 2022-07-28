@@ -30,10 +30,14 @@ const CustomPopover = styled(Popover)`
   background: rgb(27,24,24);
   border: 0.063rem solid rgb(56,56,56);
   position: absolute;
-  top: 0rem !important;
+  top: 0.5rem !important;
   .popover-arrow {
-    &:after {
+    &:after {   
+      top: -0.5rem !important;
       border-left-color: rgb(56,56,56);
+    }
+    &:before {   
+      top: -0.5rem !important;
     }
   }
 `;
@@ -61,7 +65,7 @@ function NewsList({
     setID(likedID);
   };
   const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+    <CustomPopover id="popover-basic" className="py-2 rounded-2 fs-5">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
     </CustomPopover>
   );
@@ -79,8 +83,8 @@ function NewsList({
                     </div>
                   </Col>
                   <Col xs="auto" className="ps-0 align-self-center">
-                    <h1 className="mb-0 h6">{name}</h1>
-                    <small className="mb-0 text-light">{date}</small>
+                    <h1 className="mb-0 h3 fw-bold">{name}</h1>
+                    <span className="mb-0 text-light fs-6">{date}</span>
                   </Col>
                 </Row>
               </Col>
@@ -98,17 +102,18 @@ function NewsList({
           <Card.Body className="px-0 pt-3">
             <Row>
               <Col>
-                <span>
+                <span className="fs-4">
                   {content}
                 </span>
                 <br />
                 {hashTag?.map((hashtag: string) => (
-                  <span key={hashtag} className="text-primary cursor-pointer">
+                  <span key={hashtag} className="fs-4 text-primary cursor-pointer">
                     #
                     {hashtag}
                     &nbsp;
                   </span>
                 ))}
+                ☠️
               </Col>
             </Row>
             <Row className="mt-3">

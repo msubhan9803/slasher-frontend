@@ -3,7 +3,7 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
-import MoviePoster from '../../images/movies-poster.svg';
+import MoviePoster from '../../images/movies-poster.jpg';
 
 interface MoviesProps {
   name: string;

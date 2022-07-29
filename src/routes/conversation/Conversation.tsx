@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  Col, Container, Row,
-} from 'react-bootstrap';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import ConversationRightSideNav from './ConversationRightSideNav';
 
 const messages = [
   {
@@ -46,17 +42,8 @@ const messages = [
 ];
 function Conversation() {
   return (
-    <AuthenticatedPageWrapper>
-      <Container fluid>
-        <Row>
-          <Col lg={8}>
-            <Chat messages={messages} showCamera inputClassName="border-start-0" />
-          </Col>
-          <Col lg={4} className="d-none d-lg-block">
-            <ConversationRightSideNav />
-          </Col>
-        </Row>
-      </Container>
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
+      <Chat messages={messages} showCamera inputClassName="border-start-0" />
     </AuthenticatedPageWrapper>
   );
 }

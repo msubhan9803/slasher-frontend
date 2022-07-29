@@ -13,6 +13,11 @@ const StyledChatContainer = styled(Card)`
 
   @media (max-width: 37.5rem) {
     height: calc(100vh - 15vh);
+
+    .card-footer {
+      padding-right: 2.063rem;
+      padding-left: 1.5rem;
+    }
   }
   * {
     /* Foreground, Background */
@@ -28,29 +33,24 @@ const StyledChatContainer = styled(Card)`
   *::-webkit-scrollbar-track { /* Background */
     background: rgba(255, 255, 255, .1);
   }
-
-  .card-footer {
-    padding-right: 2.063rem;
-    padding-left: 1.5rem;
-  }
 `;
 
 function Chat({
   messages, showCamera, inputClassName, conversationType,
 }: ChatProps) {
   return (
-    <StyledChatContainer className="bg-dark rounded-3">
-      <Card.Header className="border-bottom border-opacity-25 border-secondary p-4">
+    <StyledChatContainer className="bg-dark bg-mobile-transparent rounded-3">
+      <Card.Header className="border-bottom border-opacity-25 border-secondary px-0 px-lg-4 py-4 pt-5 pt-lg-4">
         <div className="d-flex justify-content-between">
           <ChatUserStatus />
           <ChatOptions />
         </div>
       </Card.Header>
-      <Card.Body className="overflow-auto px-4">
+      <Card.Body className="overflow-auto px-0 px-lg-4">
         <ChatTimestamp />
         <ChatMessage messages={messages} conversationType={conversationType} />
       </Card.Body>
-      <Card.Footer className="text-muted border-top-0">
+      <Card.Footer className="p-0 text-muted border-top-0">
         <ChatInput showCamera={showCamera} inputClassName={inputClassName} />
       </Card.Footer>
     </StyledChatContainer>

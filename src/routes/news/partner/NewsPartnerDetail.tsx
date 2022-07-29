@@ -84,7 +84,7 @@ function NewsPartnerDetail() {
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
-                        <h6 className="mb-0 ">{post.userName}</h6>
+                        <h3 className="mb-0 ">{post.userName}</h3>
                         <SmallText className="mb-0">{post.postDate}</SmallText>
                       </Col>
                     </Row>
@@ -98,8 +98,8 @@ function NewsPartnerDetail() {
               <Card.Body className="ps-1 ps-md-3 pt-1">
                 <Row>
                   <Col xs={12}>
-                    <span className="p">This space is used to help indie creators have a platform to promote their work.</span>
-                    <span className="text-primary p"> #horrorday #slasher #horroroasis ☠️</span>
+                    <span className="p fs-4">This space is used to help indie creators have a platform to promote their work.</span>
+                    <span className="text-primary p fs-4"> #horrorday #slasher #horroroasis ☠️</span>
                   </Col>
                 </Row>
                 <Row className="mt-3">

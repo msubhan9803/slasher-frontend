@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Button, Col, Image, Row,
+  Button, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import Popover from 'react-bootstrap/Popover';
@@ -92,18 +92,18 @@ function CommentSection({
     </CustomPopover>
   );
   return (
-    <Row key={id}>
-      <Col xs="auto" className={`px-1 ${!commentMention && 'mt-3'}`}>
-        <CommentImage src={image} className="me-3 rounded-circle bg-secondary" />
-      </Col>
-      <Col className="ps-2">
-        <CommentBox className="pt-3 px-3 pb-4 rounded position-relative">
+    <div key={id} className="d-flex">
+      <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
+        <CommentImage src={image} className="me-0 me-md-3 rounded-circle bg-secondary" />
+      </div>
+      <div className="w-100">
+        <CommentBox className="ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative">
           <div className="d-flex justify-content-between">
-            <Col xs="auto" className="ps-0 align-self-center mb-2">
-              <h6 className="mb-0 ">{name}</h6>
+            <div className="ps-0 align-self-center mb-2">
+              <h3 className="mb-0 ">{name}</h3>
               <SmallText className="mb-0">{time}</SmallText>
-            </Col>
-            <Col xs="auto" className="d-block pe-0">
+            </div>
+            <div className="d-block pe-0">
               <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
                   <Button className="bg-transparent shadow-none border-0 pt-0 pe-0">
@@ -111,12 +111,12 @@ function CommentSection({
                   </Button>
                 </OverlayTrigger>
               </StyledPopover>
-            </Col>
+            </div>
           </div>
           <span className="text-primary">
             {commentMention}
           </span>
-          <CommentMessage className="mb-0">
+          <CommentMessage className="mb-0 fs-4">
             {commentMsg}
           </CommentMessage>
           {commentImg
@@ -125,22 +125,25 @@ function CommentSection({
                 <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
             )}
-          <Likes className="rounded d-flex justify-content-end position-absolute">
-            <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
-              <LinearIcon uniqueId="like-button-comment">
-                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                <small>{likes}</small>
-              </LinearIcon>
-            </LikesButton>
-            <svg width="0" height="0">
-              <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-              </linearGradient>
-            </svg>
-          </Likes>
+          {likes
+            && (
+              <Likes className="rounded d-flex justify-content-end position-absolute">
+                <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+                  <LinearIcon uniqueId="like-button-comment">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                    <small>{likes}</small>
+                  </LinearIcon>
+                </LikesButton>
+                <svg width="0" height="0">
+                  <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                  </linearGradient>
+                </svg>
+              </Likes>
+            )}
         </CommentBox>
-        <div className={`my-3 ${commentMention ? 'ms-3 ms-0' : 'ms-3'}`}>
+        <div className="my-md-3 mt-3 mb-4 ms-md-3 ms-4">
           <div className="p-0 d-flex me-2" role="button" aria-hidden="true">
             {
               likeIcon
@@ -165,8 +168,8 @@ function CommentSection({
             </div>
           </div>
         </div>
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 }
 CommentSection.defaultProps = {

@@ -68,7 +68,6 @@ const commentSection = [
     id: 4,
     profileImage: 'https://i.pravatar.cc/300?img=30',
     userName: 'Mari Ferrer',
-    like: 44,
     likeIcon: false,
     profileDateTime: '06/19/2022 12:10 AM',
     userMessage: ' It is a long established fact that a reader will be distracted bythe readable content of a page.',
@@ -89,7 +88,6 @@ const commentSection = [
           image: 'https://i.pravatar.cc/300?img=25',
           name: 'Rohma Mxud',
           time: '06/19/2022 12:10 AM',
-          like: 34,
           likeIcon: false,
           commentMention: '@Austin Joe ',
           commentMsg: ' Lorem Ipsum has been the industry standard dummy',
@@ -147,7 +145,7 @@ function NewsPartnerComments() {
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-4">
             <Form.Control
-              placeholder="Write a comment ..."
+              placeholder="Write a comment"
               className="border-end-0"
             />
             <InputGroup.Text>
@@ -157,10 +155,10 @@ function NewsPartnerComments() {
         </Col>
       </Row>
       {postData.map((data: Props) => (
-        <Row className="ps-3 pt-2" key={data.id}>
+        <Row className="ps-md-4 pt-md-2" key={data.id}>
           <Col>
-            <Row className="ms-2 ps-1">
-              <Col className="ps-0 pe-4">
+            <Row className="mx-auto">
+              <Col className="ps-md-0">
                 <CommentSection
                   id={data.id}
                   image={data.profileImage}
@@ -173,7 +171,7 @@ function NewsPartnerComments() {
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
-                    <div className="ms-4 ps-3">
+                    <div className="ms-md-4">
                       <CommentSection
                         id={comment.id}
                         image={comment.image}

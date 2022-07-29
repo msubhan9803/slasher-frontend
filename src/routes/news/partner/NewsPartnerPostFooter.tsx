@@ -13,7 +13,7 @@ interface Props {
   onLikeClick: (val: number) => void
 }
 const CardFooter = styled(Card.Footer)`
-  border-top: .063rem solid #242424
+  border-top: .063rem solid #3A3B46;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -23,7 +23,7 @@ const LinearIcon = styled.div<LinearIconProps>`
 
 function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
   return (
-    <CardFooter className="p-0 pb-4">
+    <CardFooter className="p-0 pb-md-4">
       <Row className=" d-flex justify-content-evenly py-3 px-3">
         <Col role="button" onClick={() => onLikeClick(id)}>
           {likeIcon ? (
@@ -54,7 +54,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
           </linearGradient>
         </svg>
       </Row>
-      <CardFooter className="p-0" />
+      <CardFooter className="p-0 d-none d-md-flex" />
     </CardFooter>
   );
 }

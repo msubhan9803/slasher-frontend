@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NewsPartnerComments from './NewsPartnerComments';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
+import postImage from '../../../images/news-post.svg';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -56,6 +57,9 @@ const StyledPopover = styled.div`
     }
   }
 `;
+const ImageContainer = styled(Row)`
+  aspect-ratio: 1.9
+`;
 const data = [
   {
     id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', likeIcon: false,
@@ -80,14 +84,14 @@ function NewsPartnerPost() {
   );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Row className="d-md-none bg-dark">
+      <Row className="d-md-none bg-dark bg-mobile-transparent">
         <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
         <Col><h1 className="h4 text-center">Horror Oasis</h1></Col>
       </Row>
-      <Row className="mb-5">
+      <Row className="mb-5 px-2">
         <Col className="p-0">
           {postData.map((post: PostProps) => (
-            <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={post.id}>
+            <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={post.id}>
               <Card.Header className="border-0 px-sm-3 px-md-0">
                 <Row className="justify-content-between">
                   <Col xs="auto">
@@ -98,7 +102,7 @@ function NewsPartnerPost() {
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
-                        <h1 className="mb-0 h6">{post.userName}</h1>
+                        <h3 className="mb-0">{post.userName}</h3>
                         <SmallText className="mb-0">{post.postDate}</SmallText>
                       </Col>
                     </Row>
@@ -116,17 +120,17 @@ function NewsPartnerPost() {
               </Card.Header>
               <Card.Body className="px-0 py-3">
                 <Row>
-                  <Col className="px-4 px-md-3">
-                    <span>
+                  <Col className="px-4 px-md-2 ms-md-1">
+                    <p className="fs-4 mb-0">
                       This space is used to help indie creators have a platform to
                       promote their work.
-                    </span>
-                    <span className="text-primary"> #horrorday #slasher #horroroasis ☠️</span>
+                    </p>
+                    <p className="text-primary fs-4 mb-0"> #horrorday #slasher #horroroasis ☠️</p>
                   </Col>
                 </Row>
-                <Row className="mt-3 mt-md-4">
-                  <Image src="https://i.pravatar.cc/500?img=10" className="w-100" />
-                </Row>
+                <ImageContainer className="mt-3">
+                  <Image src={postImage} className="w-100 h-100" />
+                </ImageContainer>
                 <Row className="d-flex justify-content-evenly pt-3 px-3">
                   <Col>
                     <LinearIcon uniqueId="like-button">

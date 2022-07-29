@@ -29,11 +29,11 @@ $border-radius-lg: .625rem;
 $font-family-base: 'Roboto';
 $font-size-base: 1rem !default;
 $h1-font-size:   $font-size-base * 1.75 !default;
-$h2-font-size:   $font-size-base * 1.5 !default;
-$h3-font-size:   $font-size-base * 1.25 !default;
-$h4-font-size:   $font-size-base * 1.2 !default;
-$h5-font-size:   $font-size-base * 1.1 !default;
-$h6-font-size:   $font-size-base !default;
+$h2-font-size:   $font-size-base * 1.25 !default;
+$h3-font-size:   $font-size-base * 1 !default;
+$h4-font-size:   $font-size-base * 0.9375 !default;
+$h5-font-size:   $font-size-base * 0.875 !default;
+$h6-font-size:   $font-size-base * 0.75 !default;
 
 $body-color: #ffffff;
 $link-color: $body-color;

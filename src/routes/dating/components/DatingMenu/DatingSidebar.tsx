@@ -9,7 +9,7 @@ import AdvertisementBox from '../../../../components/layout/right-sidebar-wrappe
 function DatingSidebar() {
   return (
     <>
-      <h2 className="h3 mb-4">Dating Menu</h2>
+      <h2 className="mb-4">Dating Menu</h2>
       <Row className="my-4">
         <Col md={4}>
           <IconWithTextNavLink label="My Profile" icon={regular('user')} iconSize="2x" to="/" />

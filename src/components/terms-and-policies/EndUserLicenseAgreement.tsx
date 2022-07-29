@@ -8,7 +8,7 @@ interface Props {
 function EndUserLicenseAgreement({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3 border-bottom pb-2">End-User License Agreement</h2>
+      <h2 className="border-bottom pb-2">End-User License Agreement</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
         Please read this End-User License Agreement (“Agreement”) carefully
@@ -35,14 +35,14 @@ function EndUserLicenseAgreement({ className }: Props) {
         Designs Inc for use strictly in accordance with the terms of this
         Agreement.
       </p>
-      <h3 className="h4">License</h3>
+      <h3>License</h3>
       <p>
         Premier Audio Video Designs Inc grants you a revocable, non-exclusive,
         non-transferable, limited license to download, install and use the
         Application solely for your personal, non-commercial purposes strictly
         in accordance with the terms of this Agreement.
       </p>
-      <h3 className="h4">Restrictions</h3>
+      <h3>Restrictions</h3>
       <p>You agree not to, and you will not permit others to:</p>
       <p className="ms-3">
         license, sell, rent, lease, assign, distribute, transmit, host,
@@ -62,14 +62,14 @@ function EndUserLicenseAgreement({ className }: Props) {
         of copyright or trademark) of Premier Audio Video Designs Inc or its
         affiliates, partners, suppliers or the licensors of the Application.
       </p>
-      <h3 className="h4">Intellectual Property</h3>
+      <h3>Intellectual Property</h3>
       <p>
         The Application, including without limitation all copyrights, patents,
         trademarks, trade secrets and other intellectual property rights are,
         and shall remain, the sole and exclusive property of Premier Audio
         Video Designs Inc.
       </p>
-      <h3 className="h4">Your Suggestions</h3>
+      <h3>Your Suggestions</h3>
       <p>
         Any feedback, comments, ideas, improvements or suggestions
         (collectively, “Suggestions”) provided by you to Premier Audio Video
@@ -81,14 +81,14 @@ function EndUserLicenseAgreement({ className }: Props) {
         publish, or redistribute the Suggestions for any purpose and in any
         way without any credit or any compensation to you.
       </p>
-      <h3 className="h4">Modifications to Application</h3>
+      <h3>Modifications to Application</h3>
       <p>
         Premier Audio Video Designs Inc reserves the right to modify, suspend
         or discontinue, temporarily or permanently, the Application or any
         service to which it connects, with or without notice and without
         liability to you.
       </p>
-      <h3 className="h4">Updates to Application</h3>
+      <h3>Updates to Application</h3>
       <p>
         Premier Audio Video Designs Inc may from time to time provide
         enhancements or improvements to the features/functionality of the
@@ -107,7 +107,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         integral part of the Application, and (ii) subject to the terms and
         conditions of this Agreement.
       </p>
-      <h3 className="h4">Third-Party Services</h3>
+      <h3>Third-Party Services</h3>
       <p>
         The Application may display, include or make available third-party
         content (including data, information, applications and other products
@@ -128,7 +128,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         convenience to you and you access and use them entirely at your own
         risk and subject to such third parties&apos; terms and conditions.
       </p>
-      <h3 className="h4">Privacy Policy</h3>
+      <h3>Privacy Policy</h3>
       <p>
         Premier Audio Video Designs Inc collects, stores, maintains, and
         shares information about you in accordance with its Privacy Policy,
@@ -136,7 +136,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         Agreement, you acknowledge that you hereby agree and consent to the
         terms and conditions of our Privacy Policy.
       </p>
-      <h3 className="h4">Term and Termination</h3>
+      <h3>Term and Termination</h3>
       <p>
         This Agreement shall remain in effect until terminated by you or
         Premier Audio Video Designs Inc.
@@ -164,7 +164,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         breach by you (during the term of this Agreement) of any of your
         obligations under the present Agreement.
       </p>
-      <h3 className="h4">User Conduct</h3>
+      <h3>User Conduct</h3>
       <p>
         It is unacceptable for any user make what may be considered abusive,
         threatening, or potentially harmful comments directed toward any other
@@ -174,7 +174,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         the right to refuse service, terminate accounts, remove or edit
         content, or cancel orders in our sole discretion.
       </p>
-      <h3 className="h4">Indemnification</h3>
+      <h3>Indemnification</h3>
       <p>
         You agree to indemnify and hold Premier Audio Video Designs Inc and
         its parents, subsidiaries, affiliates, officers, employees, agents,
@@ -183,7 +183,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         (a) use of the Application; (b) violation of this Agreement or any law
         or regulation; or (c) violation of any right of a third party.
       </p>
-      <h3 className="h4">No Warranties</h3>
+      <h3>No Warranties</h3>
       <p>
         The Application is provided to you “AS IS” and “AS AVAILABLE” and with
         all faults and defects without warranty of any kind. To the maximum
@@ -222,7 +222,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         rights of a consumer, so some or all of the above exclusions and
         limitations may not apply to you.
       </p>
-      <h3 className="h4">Limitation of Liability</h3>
+      <h3>Limitation of Liability</h3>
       <p>
         Notwithstanding any damages that you might incur, the entire liability
         of Premier Audio Video Designs Inc and any of its suppliers under any
@@ -249,7 +249,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         incidental or consequential damages, so the above limitation or
         exclusion may not apply to you.
       </p>
-      <h3 className="h4">Severability</h3>
+      <h3>Severability</h3>
       <p>
         If any provision of this Agreement is held to be unenforceable or
         invalid, such provision will be changed and interpreted to accomplish
@@ -257,7 +257,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         applicable law and the remaining provisions will continue in full
         force and effect.
       </p>
-      <h3 className="h4">Waiver</h3>
+      <h3>Waiver</h3>
       <p>
         Except as provided herein, the failure to exercise a right or to
         require performance of an obligation under this Agreement shall not
@@ -265,7 +265,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         performance at any time thereafter nor shall be the waiver of a breach
         constitute waiver of any subsequent breach.
       </p>
-      <h3 className="h4">For U.S. Government End Users</h3>
+      <h3>For U.S. Government End Users</h3>
       <p>
         The Application and related documentation are “Commercial Items”, as
         that term is defined under 48 C.F.R. §2.101, consisting of “Commercial
@@ -278,7 +278,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         (b) with only those rights as are granted to all other end users
         pursuant to the terms and conditions herein.
       </p>
-      <h3 className="h4">Export Compliance</h3>
+      <h3>Export Compliance</h3>
       <p>
         You may not export or re-export the Application except as authorized
         by United States law and the laws of the jurisdiction in which the
@@ -296,7 +296,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         and warrant that you are not located in, under control of, or a
         national or resident of any such country or on any such list.
       </p>
-      <h3 className="h4">Amendments to this Agreement</h3>
+      <h3>Amendments to this Agreement</h3>
       <p>
         Premier Audio Video Designs Inc reserves the right, at its sole
         discretion, to modify or replace this Agreement at any time. If a
@@ -310,7 +310,7 @@ function EndUserLicenseAgreement({ className }: Props) {
         do not agree to the new terms, you are no longer authorized to use the
         Application.
       </p>
-      <h3 className="h4">Governing Law</h3>
+      <h3>Governing Law</h3>
       <p>
         The laws of New York, United States, excluding its conflicts of law
         rules, shall govern this Agreement and your use of the Application.
@@ -321,11 +321,11 @@ function EndUserLicenseAgreement({ className }: Props) {
         This Agreement shall not be governed by the United Nations Convention
         on Contracts for the International Sale of Good.
       </p>
-      <h3 className="h4">Contact Information</h3>
+      <h3>Contact Information</h3>
       <p>
         If you have any questions about this Agreement, please contact us.
       </p>
-      <h3 className="h4">Entire Agreement</h3>
+      <h3>Entire Agreement</h3>
       <p>
         The Agreement constitutes the entire agreement between you and Premier
         Audio Video Designs Inc regarding your use of the Application and

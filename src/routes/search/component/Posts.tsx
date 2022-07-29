@@ -73,34 +73,24 @@ function Posts({
   return (
     <Row className="my-3 px-2">
       <Col className="p-0">
-        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
-          <Card.Header className="border-0 px-sm-3 px-md-0 bg-dark">
-            <Row className="justify-content-between">
-              <Col xs="auto">
-                <Row className="d-flex">
-                  <Col className="my-auto rounded-circle" xs="auto">
-                    <div className="rounded-circle">
-                      <ProfileImage src={image} className="rounded-circle bg-secondary" />
-                    </div>
-                  </Col>
-                  <Col xs="auto" className="ps-0 align-self-center">
-                    <h1 className="mb-0 h3 fw-bold">{name}</h1>
-                    <span className="mb-0 text-light fs-6">{date}</span>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs="auto" className="d-block">
-                <StyledPopover className="position-relative">
-                  <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                    <Button className="bg-transparent shadow-none border-0 pe-1">
-                      <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                    </Button>
-                  </OverlayTrigger>
-                </StyledPopover>
-              </Col>
-            </Row>
+        <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
+          <Card.Header className="d-flex justify-content-between border-0 px-0 bg-mobile-transparent bg-dark">
+            <div className="d-flex align-items-center">
+              <ProfileImage src={image} className="rounded-circle bg-secondary" />
+              <div className="ms-3">
+                <h1 className="mb-0 h3 fw-bold">{name}</h1>
+                <span className="mb-0 text-light fs-6">{date}</span>
+              </div>
+            </div>
+            <StyledPopover className="position-relative">
+              <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                <Button className="bg-transparent shadow-none border-0 pe-1">
+                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                </Button>
+              </OverlayTrigger>
+            </StyledPopover>
           </Card.Header>
-          <Card.Body className="px-0 pt-3">
+          <Card.Body className="px-0 pt-2">
             <Row>
               <Col>
                 <span className="fs-4">

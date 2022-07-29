@@ -3,6 +3,8 @@ import {
   Col, Row, Tab, Tabs,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import SearchInput from './SearchInput';
 import Hashtags from './component/Hashtags';
@@ -53,6 +55,10 @@ function Search() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
+      <div className="d-lg-none d-flex align-items-center mb-3">
+        <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
+        <h1 className="h4 text-center mb-0 mx-auto">Search</h1>
+      </div>
       <SearchInput
         filtered={filtered}
         setFiltered={setFiltered}

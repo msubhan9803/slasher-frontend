@@ -29,15 +29,9 @@ const CustomPopover = styled(Popover)`
   z-index: 1;
   background: rgb(27,24,24);
   border: 0.063rem solid rgb(56,56,56);
-  position: absolute;
-  top: 0.5rem !important;
   .popover-arrow {
-    &:after {   
-      top: -0.5rem !important;
+    &:after {
       border-left-color: rgb(56,56,56);
-    }
-    &:before {   
-      top: -0.5rem !important;
     }
   }
 `;
@@ -54,6 +48,13 @@ const StyledPopover = styled.div`
     }
   }
 `;
+const StyledPostImage = styled(Row)`
+  aspect-ratio: 1.64;
+  img {
+    object-fit: cover;
+  }
+`;
+
 function NewsList({
   id, name, image, date, content, hashTag,
 }: SearchProps) {
@@ -72,34 +73,24 @@ function NewsList({
   return (
     <Row className="my-3 px-2">
       <Col className="p-0">
-        <Card className="rounded-3 bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
-          <Card.Header className="border-0 px-sm-3 px-md-0 bg-dark">
-            <Row className="justify-content-between">
-              <Col xs="auto">
-                <Row className="d-flex">
-                  <Col className="my-auto rounded-circle" xs="auto">
-                    <div className="rounded-circle">
-                      <ProfileImage src={image} className="rounded-circle bg-secondary" />
-                    </div>
-                  </Col>
-                  <Col xs="auto" className="ps-0 align-self-center">
-                    <h1 className="mb-0 h3 fw-bold">{name}</h1>
-                    <span className="mb-0 text-light fs-6">{date}</span>
-                  </Col>
-                </Row>
-              </Col>
-              <Col xs="auto" className="d-block">
-                <StyledPopover>
-                  <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                    <Button className="bg-transparent shadow-none border-0 pe-1">
-                      <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                    </Button>
-                  </OverlayTrigger>
-                </StyledPopover>
-              </Col>
-            </Row>
+        <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
+          <Card.Header className="d-flex justify-content-between border-0 px-0 bg-mobile-transparent bg-dark">
+            <div className="d-flex align-items-center">
+              <ProfileImage src={image} className="rounded-circle bg-secondary" />
+              <div className="ms-3">
+                <h1 className="mb-0 h3 fw-bold">{name}</h1>
+                <span className="mb-0 text-light fs-6">{date}</span>
+              </div>
+            </div>
+            <StyledPopover className="position-relative">
+              <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                <Button className="bg-transparent shadow-none border-0 pe-1">
+                  <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                </Button>
+              </OverlayTrigger>
+            </StyledPopover>
           </Card.Header>
-          <Card.Body className="px-0 pt-3">
+          <Card.Body className="px-0 pt-2">
             <Row>
               <Col>
                 <span className="fs-4">
@@ -116,9 +107,9 @@ function NewsList({
                 ☠️
               </Col>
             </Row>
-            <Row className="mt-3">
-              <Image src={postImage} className="w-100" />
-            </Row>
+            <StyledPostImage className="mt-3">
+              <Image src={postImage} className="w-100 h-100" />
+            </StyledPostImage>
             <Row className="d-flex justify-content-evenly pt-3 px-3">
               <Col>
                 <LinearIcon uniqueId="like-button-news">
@@ -146,7 +137,7 @@ function NewsList({
             <Row className=" d-flex justify-content-evenly py-3 px-3">
               <Col role="button" onClick={() => onLikeClick(id)}>
                 {like && (id === iD) ? (
-                  <LinearIcon uniqueId="like-button-footer-news">
+                  <LinearIcon uniqueId="like-button-footer">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                     Like
                   </LinearIcon>
@@ -167,7 +158,7 @@ function NewsList({
                 Share
               </Col>
               <svg width="0" height="0">
-                <linearGradient id="like-button-footer-news" x1="100%" y1="0%" x2="0%" y2="100%">
+                <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
                   <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
                 </linearGradient>

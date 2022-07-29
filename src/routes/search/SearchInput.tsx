@@ -11,6 +11,7 @@ const SearchInputGroup = styled(InputGroup)`
     border-bottom-right-radius: 1.56rem !important;
     padding: 0rem;
     flex-wrap: inherit !important;
+    font-size: 0.875rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);

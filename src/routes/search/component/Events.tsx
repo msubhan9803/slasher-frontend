@@ -8,7 +8,7 @@ import EventPost from '../../../images/event-post.svg';
 
 const EventsCardStyle = styled(Card)`
   img {
-    aspect-ratio: 1.97;
+    aspect-ratio: 1.78;
   }
   margin-bottom: 0.75rem;
   margin-top: 0.75rem;

@@ -7,10 +7,10 @@ import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon from './WorthWatchIcon';
 
 const StyledRateBorder = styled.div`
-  @media (min-width: 90rem) {
+  @media (min-width: 89.938rem) {
     border-bottom: 0.063rem solid #3A3B46;
   }
-  @media (max-width: 90rem) {
+  @media (max-width: 89.938rem) {
     .rating {
       border-bottom: 0.063rem solid #3A3B46;
       border-top: 0.063rem solid #3A3B46;
@@ -68,10 +68,13 @@ const AboutMovieDetails = styled.div`
 `;
 const StyleBorderButton = styled(RoundButton)`
   border: 0.063rem solid #3A3B46;
+  &:hover {
+    border: 0.063rem solid #3A3B46;
+  }
 `;
 function AboutDetails() {
   return (
-    <AboutMovieDetails className="text-xl-start">
+    <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
         <Col xs={10} sm={8} md={6} lg={9} xl={12}>
           <h1 className="fw-semibold m-0 text-center text-xl-start">
@@ -119,7 +122,7 @@ function AboutDetails() {
             <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
               <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
             </div>
-            <p className="m-0">Worth it!</p>
+            <p className=" fs-2 fw-bold m-0">Worth it!</p>
           </StyledWorth>
         </Col>
         <Col xs={6} sm={5} xl={12} className="pt-xl-3 pt-xxl-0">

@@ -1,19 +1,19 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface Props {
   movieTrailer: string[];
 }
 
-const StyledMovieTrailer = styled.div`
+const StyledMovieTrailer = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
 
-  iframe {
-    aspect-ratio: 240/135;
+  .trailer-image {
+    aspect-ratio: 1.78;
   }
   &::-webkit-scrollbar {
     display: none;
@@ -37,25 +37,28 @@ function MovieTrailers({ movieTrailer }: Props) {
   };
   return (
     <div className="bg-dark p-3 rounded-2 mt-3">
-      <h1 className="h3 fw-bold">Trailers</h1>
+      <h1 className="h2 fw-bold">Trailers</h1>
       <div className="d-flex align-items-center mt-3">
         <Button className="prev bg-transparent border-0 shadow-none" onClick={slideTrailerLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </Button>
         <StyledMovieTrailer
           id="slideTrailer"
-          className="d-flex flex-nowrap"
+          className="d-flex flex-nowrap w-100"
         >
           {movieTrailer.map((trailer: string) => (
-            <iframe
-              key={trailer}
-              className="rounded-2 me-2"
-              src={`https://www.youtube.com/embed/${trailer}`}
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            <Col sm={5} md={4} lg={6} xl={4} key={trailer}>
+              <div className="trailer-image position-relative">
+                <iframe
+                  className="w-100 h-100 rounded-2 position-absolute"
+                  src={`https://www.youtube.com/embed/${trailer}`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </Col>
           ))}
         </StyledMovieTrailer>
         <Button className="next bg-transparent border-0 shadow-none" onClick={slideTrailerRight}>

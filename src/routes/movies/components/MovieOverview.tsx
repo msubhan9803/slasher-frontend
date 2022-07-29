@@ -1,15 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const StyledOverview = styled.span`
-  font-size: 0.938rem;
-`;
 
 function MovieOverview() {
   return (
     <div className="bg-dark p-3 rounded-2">
-      <h1 className="h3 mb-3 fw-bold">Overview</h1>
-      <StyledOverview className="text-light">
+      <h1 className="h2 mb-3 fw-bold">Overview</h1>
+      <span className="h4 text-light">
         Contrary to popular belief, Lorem Ipsum is not simply random text.
         It has roots in a piece of classical Latin literature from 45 BC, making
         it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney
@@ -24,7 +19,7 @@ function MovieOverview() {
         1.10.32 and 1.10.33 from &#34;de Finibus Bonorum et Malorum&#34; by Cicero are
         also reproduced in their exact original form, accompanied by English versions
         from the 1914 translation by H. Rackham.
-      </StyledOverview>
+      </span>
     </div>
   );
 }

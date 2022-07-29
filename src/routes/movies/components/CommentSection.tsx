@@ -100,7 +100,7 @@ const StyledPopover = styled.div`
         <CommentBox className="pt-3 px-3 pb-4 rounded position-relative">
           <div className="d-flex justify-content-between">
             <Col xs="auto" className="ps-0 align-self-center mb-2">
-              <h6 className="mb-0 ">{name}</h6>
+              <h1 className="mb-0 h3">{name}</h1>
               <SmallText className="mb-0">{time}</SmallText>
             </Col>
             <Col xs="auto" className="d-block pe-0">
@@ -113,10 +113,10 @@ const StyledPopover = styled.div`
               </StyledPopover>
             </Col>
           </div>
-          <span className="text-primary">
+          <span className="fs-4 text-primary">
             {commentMention}
           </span>
-          <CommentMessage className="mb-0">
+          <CommentMessage className="fs-4 mb-0">
             {commentMsg}
           </CommentMessage>
           {commentImg

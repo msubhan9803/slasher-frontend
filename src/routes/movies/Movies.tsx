@@ -72,7 +72,7 @@ function Movies() {
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid>
         <h1 className="d-lg-none h4 text-center">Movies</h1>
-        <Row className="bg-dark rounded-3">
+        <Row className="bg-dark bg-mobile-transparent rounded-3">
           <Col xs={12}>
             <StyleTabs
               className="justify-content-between flex-nowrap mt-3 border-0"
@@ -98,8 +98,8 @@ function Movies() {
           </Col>
         </Row>
         {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark rounded-3 py-1 px-2">
-          <Row className="mt-3 mx-0">
+        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-2">
+          <Row className="mt-3 mx-lg-0">
             {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (
               <Col xs={4} md={3} lg={4} xl={3} key={movieDetail.id}>
                 <MovieCard

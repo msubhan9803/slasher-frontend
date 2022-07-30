@@ -106,8 +106,8 @@ function EventSuggestion() {
               </CustomCol>
               <Col xs={12} md={7}>
                 <h2 className="text-center text-md-start  mb-1 mt-3 mt-md-0">Add Photo</h2>
-                <CustomText className="text-light text-center text-md-start small mb-0">Recommended size: 830x300 pixels</CustomText>
-                <CustomText className="text-light text-center text-md-start small ">(Jpg, Png)</CustomText>
+                <CustomText className="text-light text-center text-md-start small mb-0">Recommended size: 830x467 pixels</CustomText>
+                <CustomText className="text-light text-center text-md-start small ">(jpg, png)</CustomText>
               </Col>
             </Row>
           </Col>

@@ -9,7 +9,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
-import MoviePoster from '../../../images/movies-poster.svg';
+import MovieDetailPoster from '../../../images/movie-detail-poster.jpg';
 
 interface MovieIconProps {
   label: string;
@@ -85,7 +85,7 @@ function AboutMovie() {
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledMoviePoster className="mx-4">
-              <Image src={MoviePoster} className="rounded-3 w-100 h-100" />
+              <Image src={MovieDetailPoster} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
             <div className="d-none d-xl-block mt-3">
               <small>Your lists</small>

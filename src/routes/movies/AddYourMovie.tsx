@@ -144,42 +144,45 @@ function AddYourMovie() {
             />
             <h3 className="text-center mb-1 mt-3">Upload cover art</h3>
             <CustomText className="text-center fs-5 mb-0">Recommended size:</CustomText>
-            <CustomText className="text-center fs-5 ">600x900 pixels (Jpg, Png)</CustomText>
+            <CustomText className="text-center fs-5 ">600x900 pixels (jpg, png)</CustomText>
           </Col>
           <Col>
-            <Row>
-              <Col>
-                <Form.Control type="text" placeholder="Title" className="fs-4" />
-              </Col>
-            </Row>
-            <Row className="mt-3">
-              <Col>
-                <Form.Group className="mb-3 fs-5" controlId="Overview">
-                  <Form.Control
-                    maxLength={113}
-                    rows={6}
-                    as="textarea"
-                    value={description}
-                    onChange={handleMessageChange}
-                    placeholder="Overview"
-                    style={{ resize: 'none' }}
-                    className="fs-4"
-                  />
-                  <CustomSpan className="float-end fs-5">{`${charCount}/${113} characters`}</CustomSpan>
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <Form.Control type="text" placeholder="Movie trailer (YouTube link)" className="fs-5" />
-              </Col>
-            </Row>
-            <p className="my-4 fs-4">You can add more details later on the “Edit movie” screen.</p>
-            <Row className="">
-              <Col md={4} className="mt-1">
-                <RoundButton className="w-100 p-1 fs-3" size="lg">Submit</RoundButton>
-              </Col>
-            </Row>
+            <Form>
+              <Row>
+                <Col>
+                  <Form.Control type="text" placeholder="Title" className="fs-4" />
+                </Col>
+              </Row>
+              <Row className="mt-3">
+                <Col>
+                  <Form.Group className="mb-3 fs-5" controlId="Overview">
+                    <Form.Control
+                      maxLength={1000}
+                      rows={6}
+                      as="textarea"
+                      value={description}
+                      onChange={handleMessageChange}
+                      placeholder="Overview"
+                      style={{ resize: 'none' }}
+                      className="fs-4"
+                    />
+                    <CustomSpan className="float-end fs-5">{`${charCount}/${1000} characters`}</CustomSpan>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  <Form.Control type="text" placeholder="Movie trailer (YouTube link)" className="fs-5" />
+                </Col>
+              </Row>
+              <p className="my-4 fs-4">You can add more details later on the “Edit movie” screen.</p>
+              <Row className="">
+                <Col md={4} className="mt-1">
+                  <RoundButton className="w-100 p-1 fs-3" variant="primary" size="lg" type="submit">Submit</RoundButton>
+                </Col>
+              </Row>
+
+            </Form>
           </Col>
         </Row>
       </div>

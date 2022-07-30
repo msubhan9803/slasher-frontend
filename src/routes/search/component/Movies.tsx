@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
-import MoviePoster from '../../../images/movie-poster.svg';
+import MoviePoster from '../../../images/movie-poster.jpg';
 
 const MovieCardStyle = styled(Card)`
   .movie-poster {

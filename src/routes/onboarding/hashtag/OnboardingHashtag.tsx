@@ -15,7 +15,7 @@ const hashtagList: string[] = [
 ];
 
 const HashtagButton = styled(Button)`
-  border : .125rem solid #1F1F1F
+  border : 0.125rem solid #383838
 `;
 const SelectedHashtagButton = styled(Button)`
   background-color: #383838;
@@ -25,7 +25,7 @@ const SelectedHashtagButton = styled(Button)`
   }
 `;
 const SelectedHashtagContainer = styled.div`
-  background-color: #1F1F1F;
+  background-color: #1B1B1B;
   border : .063rem solid #3A3B46;
 `;
 const HashtagText = styled.p`
@@ -48,7 +48,7 @@ function OnboardingHashtag() {
   return (
     <NoNavigationPageWrapper>
       <Container>
-        <p className="fw-bold mb-1">Suggested hashtags:</p>
+        <h1 className="mt-5 mb-3 h4">Suggested hashtags:</h1>
         <Row>
           <Col>
             {hashtagList.map((hashtag: string) => (
@@ -57,18 +57,18 @@ function OnboardingHashtag() {
                 as="input"
                 type="button"
                 value={hashtag}
-                className="m-1 px-2 text-light rounded-pill bg-secondary"
+                className="m-1 px-3 py-1 text-light rounded-pill bg-secondary"
                 onClick={() => addHashtag(hashtag)}
               />
             ))}
           </Col>
         </Row>
-        <p className="fw-bold mt-3">Hashtags you selected:</p>
+        <h2 className="mt-5 mb-3 h4">Hashtags you selected:</h2>
         <Row>
           <Col>
             <SelectedHashtagContainer className={`rounded ${selectedHashtag.length === 0 ? 'py-4' : ''}`}>
               {selectedHashtag.map((tag: string) => (
-                <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-2 text-light rounded-pill text-white">
+                <SelectedHashtagButton key={`${tag}-1`} type="button" className="p-1 m-2 px-3 text-light rounded-pill text-white">
                   {tag}
                   <FontAwesomeIcon icon={solid('times')} size="lg" className="text-light ms-2" onClick={() => romoveHashtag(tag)} />
                 </SelectedHashtagButton>
@@ -76,7 +76,7 @@ function OnboardingHashtag() {
             </SelectedHashtagContainer>
           </Col>
         </Row>
-        <p className="fw-bold mt-4 mb-1">What are hashtags?</p>
+        <h3 className="h4 mt-5 mb-1">What are hashtags?</h3>
         <HashtagText className="mt-1">
           Hashtags are a way for people to categorize their posts,
           so people who may enjoy them can find them more easily.

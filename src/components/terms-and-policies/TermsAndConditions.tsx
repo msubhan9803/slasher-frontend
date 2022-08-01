@@ -8,7 +8,7 @@ interface Props {
 function TermsAndConditions({ className }: Props) {
   return (
     <div className={className}>
-      <h2 className="h3 border-bottom pb-2">Terms and Conditions</h2>
+      <h2 className="border-bottom pb-2">Terms and Conditions</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
         Please read these Terms and Conditions (“Terms”, “Terms and Conditions”)
@@ -26,7 +26,7 @@ function TermsAndConditions({ className }: Props) {
         If you disagree with any part of the terms then you do not have
         permission to access the Service.
       </p>
-      <h3 className="h4">Communications</h3>
+      <h3>Communications</h3>
       <p>
         By creating an Account on our service, you agree to subscribe to
         newsletters, marketing or promotional materials and other information we
@@ -34,7 +34,7 @@ function TermsAndConditions({ className }: Props) {
         communications from us by following the unsubscribe link or instructions
         provided in any email we send.
       </p>
-      <h3 className="h4">Purchases</h3>
+      <h3>Purchases</h3>
       <p>
         If you wish to purchase any product or service made available through
         the Service (“Purchase”), you may be asked to supply certain information
@@ -64,7 +64,7 @@ function TermsAndConditions({ className }: Props) {
         We reserve the right to refuse or cancel your order if fraud or an
         unauthorized or illegal transaction is suspected.
       </p>
-      <h3 className="h4">Availability, Errors and Inaccuracies</h3>
+      <h3>Availability, Errors and Inaccuracies</h3>
       <p>
         We are constantly updating product and service offerings on the Service.
         We may experience delays in updating information on the Service and in
@@ -79,7 +79,7 @@ function TermsAndConditions({ className }: Props) {
         correct errors, inaccuracies, or omissions at any time without prior
         notice.
       </p>
-      <h3 className="h4">Contests, Sweepstakes and Promotions</h3>
+      <h3>Contests, Sweepstakes and Promotions</h3>
       <p>
         Any contests, sweepstakes or other promotions (collectively,
         “Promotions”) made available through the Service may be governed by
@@ -88,7 +88,7 @@ function TermsAndConditions({ className }: Props) {
         Privacy Policy. If the rules for a Promotion conflict with these Terms
         and Conditions, the Promotion rules will apply.
       </p>
-      <h3 className="h4">Subscriptions</h3>
+      <h3>Subscriptions</h3>
       <p>
         Some parts of the Service are billed on a subscription basis
         (“Subscription(s)”). You will be billed in advance on a recurring and
@@ -120,7 +120,7 @@ function TermsAndConditions({ className }: Props) {
         must proceed manually, within a certain deadline date, with the full
         payment corresponding to the billing period as indicated on the invoice.
       </p>
-      <h3 className="h4">Free Trial</h3>
+      <h3>Free Trial</h3>
       <p>
         Premier Audio Video Designs Inc may, at its sole discretion, offer a
         Subscription with a free trial for a limited period of time (“Free
@@ -143,7 +143,7 @@ function TermsAndConditions({ className }: Props) {
         the right to (i) modify the terms and conditions of the Free Trial
         offer, or (ii) cancel such Free Trial offer.
       </p>
-      <h3 className="h4">Fee Changes</h3>
+      <h3>Fee Changes</h3>
       <p>
         Premier Audio Video Designs Inc, in its sole discretion and at any time,
         may modify the Subscription fees for the Subscriptions. Any Subscription
@@ -160,7 +160,7 @@ function TermsAndConditions({ className }: Props) {
         comes into effect constitutes your agreement to pay the modified
         Subscription fee amount.
       </p>
-      <h3 className="h4">Refunds</h3>
+      <h3>Refunds</h3>
       <p>
         Except when required by law, paid Subscription fees are non-refundable.
         We may offer credit toward a future purchase solely at our discretion
@@ -170,7 +170,7 @@ function TermsAndConditions({ className }: Props) {
         We recommend contacting us by email at help@slasher.tv for assistance if
         you experience any issues receiving or downloading our products.
       </p>
-      <h3 className="h4">Content</h3>
+      <h3>Content</h3>
       <p>
         Our Service allows you to post, link, store, share and otherwise make
         available certain information, text, graphics, videos, or other material
@@ -211,7 +211,7 @@ function TermsAndConditions({ className }: Props) {
         Content, whether in whole or in part, for commercial purposes or for
         personal gain, without express advance written permission from us.
       </p>
-      <h3 className="h4">Accounts</h3>
+      <h3>Accounts</h3>
       <p>
         When you create an account with us, you guarantee that you are above the
         age of 18, and that the information you provide us is accurate,
@@ -243,7 +243,7 @@ function TermsAndConditions({ className }: Props) {
         refuse service, terminate accounts, remove or edit content, or cancel
         orders in our sole discretion.
       </p>
-      <h3 className="h4">Copyright Policy</h3>
+      <h3>Copyright Policy</h3>
       <p>
         We respect the intellectual property rights of others. It is our policy
         to respond to any claim that Content posted on the Service infringes on
@@ -264,7 +264,7 @@ function TermsAndConditions({ className }: Props) {
         fees) for misrepresentation or bad-faith claims on the infringement of
         any Content found on and/or through the Service on your copyright.
       </p>
-      <h3 className="h4">DMCA Notice and Procedure for Copyright Infringement Claims</h3>
+      <h3>DMCA Notice and Procedure for Copyright Infringement Claims</h3>
       <p>
         You may submit a notification pursuant to the Digital Millennium
         Copyright Act (DMCA) by providing our Copyright Agent with the following
@@ -294,7 +294,7 @@ function TermsAndConditions({ className }: Props) {
         owner or authorized to act on the copyright owner&apos;s behalf.
       </p>
       <p>You can contact our Copyright Agent via email at help@slasher.tv</p>
-      <h3 className="h4">Intellectual Property</h3>
+      <h3>Intellectual Property</h3>
       <p>
         The Service and its original content (excluding Content provided by
         users), features and functionality are and will remain the exclusive
@@ -304,7 +304,7 @@ function TermsAndConditions({ className }: Props) {
         not be used in connection with any product or service without the prior
         written consent of Premier Audio Video Designs Inc.
       </p>
-      <h3 className="h4">Links To Other Web Sites</h3>
+      <h3>Links To Other Web Sites</h3>
       <p>
         Our Service may contain links to third party web sites or services that
         are not owned or controlled by Premier Audio Video Designs Inc
@@ -326,7 +326,7 @@ function TermsAndConditions({ className }: Props) {
         We strongly advise you to read the terms and conditions and privacy
         policies of any third party web sites or services that you visit.
       </p>
-      <h3 className="h4">Termination</h3>
+      <h3>Termination</h3>
       <p>
         We may terminate or suspend your account and bar access to the Service
         immediately, without prior notice or liability, under our sole
@@ -343,7 +343,7 @@ function TermsAndConditions({ className }: Props) {
         ownership provisions, warranty disclaimers, indemnity and limitations of
         liability.
       </p>
-      <h3 className="h4">Indemnification</h3>
+      <h3>Indemnification</h3>
       <p>
         You agree to defend, indemnify and hold harmless Premier Audio Video
         Designs Inc and its licensee and licensors, and their employees,
@@ -354,7 +354,7 @@ function TermsAndConditions({ className }: Props) {
         any person using your account and password; b) a breach of these Terms,
         or c) Content posted on the Service.
       </p>
-      <h3 className="h4">Limitation Of Liability</h3>
+      <h3>Limitation Of Liability</h3>
       <p>
         In no event shall Premier Audio Video Designs Inc, nor its directors,
         employees, partners, agents, suppliers, or affiliates, be liable for any
@@ -369,7 +369,7 @@ function TermsAndConditions({ className }: Props) {
         been informed of the possibility of such damage, and even if a remedy
         set forth herein is found to have failed of its essential purpose.
       </p>
-      <h3 className="h4">Disclaimer</h3>
+      <h3>Disclaimer</h3>
       <p>
         Your use of the Service is at your sole risk. The Service is provided on
         an “AS IS” and “AS AVAILABLE” basis. The Service is provided without
@@ -385,13 +385,13 @@ function TermsAndConditions({ className }: Props) {
         viruses or other harmful components; or d) the results of using the
         Service will meet your requirements.
       </p>
-      <h3 className="h4">Exclusions</h3>
+      <h3>Exclusions</h3>
       <p>
         Some jurisdictions do not allow the exclusion of certain warranties or
         the exclusion or limitation of liability for consequential or incidental
         damages, so the limitations above may not apply to you.
       </p>
-      <h3 className="h4">Governing Law</h3>
+      <h3>Governing Law</h3>
       <p>
         These Terms shall be governed and construed in accordance with the laws
         of New York, United States, without regard to its conflict of law
@@ -405,7 +405,7 @@ function TermsAndConditions({ className }: Props) {
         agreement between us regarding our Service, and supersede and replace
         any prior agreements we might have had between us regarding the Service.
       </p>
-      <h3 className="h4">Changes</h3>
+      <h3>Changes</h3>
       <p>
         We reserve the right, at our sole discretion, to modify or replace these
         Terms at any time. If a revision is material we will provide at least 30
@@ -417,7 +417,7 @@ function TermsAndConditions({ className }: Props) {
         effective, you agree to be bound by the revised terms. If you do not
         agree to the new terms, you are no longer authorized to use the Service.
       </p>
-      <h3 className="h4">Contact Us</h3>
+      <h3>Contact Us</h3>
       <p>
         If you have any questions about these Terms, please contact us at:
         help@slasher.tv.

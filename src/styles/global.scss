@@ -23,6 +23,13 @@ a {
   min-width: 0;
 }
 
+// Many of our desktop screens have dark background that become transparent on mobile
+.bg-mobile-transparent {
+  @media(max-width: 991px) {
+    background-color: transparent !important;
+  }
+}
+
 .btn-primary {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(

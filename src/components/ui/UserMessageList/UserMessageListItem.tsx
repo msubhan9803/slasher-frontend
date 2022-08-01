@@ -32,10 +32,6 @@ const DateDisplay = styled.div`
 `;
 
 const StyledItem = styled.div`
-  @media(min-width: 992px) {
-    background-color: var(--bs-dark);
-  }
-
   &:hover {
     background-color: #282828;
   }
@@ -100,7 +96,7 @@ function UserMessageListItem({
   const sharedYPadding = 'py-3 py-lg-4';
 
   return (
-    <StyledItem>
+    <StyledItem className="bg-dark bg-mobile-transparent">
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
         <StyledLink to="/" className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>

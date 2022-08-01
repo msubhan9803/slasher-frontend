@@ -34,24 +34,20 @@ function ChatMessage({ messages, conversationType }: ChatProps) {
       {messages?.map((message) => (message.participant === 'other' ? (
         <div key={message.id} className="other-message mb-3">
           <div className="mb-2 d-flex">
-            <p className="mb-0 p-3 text-small">
+            <p className="fs-4 mb-0 p-3 text-small">
               {message.message}
             </p>
           </div>
           <span className="time-stamp align-items-center d-flex">
             {message.time}
-            {conversationType === 'dating' && (
-              <span>
-                <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
-                Report message
-              </span>
-            )}
+            <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
+            Report message
           </span>
         </div>
       ) : (
         <div key={message.id} className="self-message align-items-end d-flex flex-column mb-3">
           <div className="mb-2">
-            <p className="mb-0 p-3 text-small text-white">
+            <p className="fs-4 mb-0 p-3 text-small text-white">
               {message.message}
             </p>
           </div>

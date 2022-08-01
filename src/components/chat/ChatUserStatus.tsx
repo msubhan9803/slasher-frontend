@@ -17,7 +17,7 @@ function ChatUserStatus() {
         <FontAwesomeIcon icon={solid('arrow-left')} size="2x" className="text-white border-end-0" />
       </Link>
       <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="mx-3 ms-lg-0 rounded-circle bg-secondary" />
-      <h6 className="mb-0">Eliza Williams</h6>
+      <h1 className="h3 mb-0">Eliza Williams</h1>
     </div>
   );
 }

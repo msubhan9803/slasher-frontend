@@ -10,25 +10,30 @@ const StyledChatInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    font-size: 0.875;
+    font-size: 0.875rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
     border-color: #3a3b46;
     border-radius: 1.875rem;
-  }
-  svg {
-    color: var(--bs-primary);
-    min-width: 1.875rem;
+    padding: 0.75rem !important;
+    .fa-camera {
+      width: 1.508rem;
+      height: 1.5rem;
+    }
+    .fa-paper-plane {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
   }
 `;
 
 function ChatInput({ showCamera, inputClassName }: ChatProps) {
   return (
-    <StyledChatInputGroup className="mb-3">
+    <StyledChatInputGroup className="mb-3 pe-2">
       {showCamera && (
         <InputGroup.Text className="border-end-0">
-          <FontAwesomeIcon role="button" icon={solid('camera')} size="2x" className="ps-3 text-white border-end-0" />
+          <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-3 text-white border-end-0" />
         </InputGroup.Text>
       )}
       <Form.Control
@@ -36,7 +41,7 @@ function ChatInput({ showCamera, inputClassName }: ChatProps) {
         className={`border-end-0 ${inputClassName}`}
       />
       <InputGroup.Text className="border-start-0">
-        <FontAwesomeIcon role="button" icon={solid('paper-plane')} size="2x" className="text-primary pe-3" />
+        <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-3" />
       </InputGroup.Text>
     </StyledChatInputGroup>
   );

@@ -60,18 +60,18 @@ function NewsIndex() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Row className="d-md-none bg-dark pt-3">
-        <Col xs="auto" className="ms-2 "><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-        <Col><h1 className="h4 text-center">News &#38; Reviews </h1></Col>
-      </Row>
-      <Row className="bg-dark rounded-3 px-4 pt-4 pb-5 m-0 mb-5">
+      <div className="px-2 bg-mobile-transparent d-flex align-items-center d-lg-none bg-dark">
+        <FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" />
+        <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>
+      </div>
+      <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
         {newsAndReviews.map((news) => (
-          <Col key={news.name} xs={6} md={3} className="pt-2">
+          <Col key={news.name} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
             <Card className="bg-transparent border-0">
-              <Card.Img src={news.logo} className="rounded-4" />
+              <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
               <Card.Body className="px-0">
-                <p className="mb-1 fw-bold">{news.name}</p>
-                <TrucatedDescription className="text-light">{news.description}</TrucatedDescription>
+                <p className="fs-3 mb-1 fw-bold">{news.name}</p>
+                <TrucatedDescription className="text-light fs-4">{news.description}</TrucatedDescription>
               </Card.Body>
             </Card>
           </Col>

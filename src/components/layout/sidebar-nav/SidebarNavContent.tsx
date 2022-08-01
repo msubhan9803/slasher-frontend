@@ -56,11 +56,11 @@ function SidebarNavContent() {
           className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
         />
       ))}
-      <ul className="list-inline mt-4 link-hover-underline fs-5">
-        <li><Link className="text-light small" to="/">Download the app</Link></li>
-        <li><Link className="text-light small" to="/">Advertise on Slasher</Link></li>
-        <li><Link className="text-light small" to="/">Terms &amp; Policies</Link></li>
-        <li className="text-light small">&copy; 2022 Slasher Corp</li>
+      <ul className="list-inline mt-4 link-hover-underline fs-6">
+        <li><Link className="text-light" to="/">Download the app</Link></li>
+        <li><Link className="text-light" to="/">Advertise on Slasher</Link></li>
+        <li><Link className="text-light" to="/">Terms &amp; Policies</Link></li>
+        <li className="text-light">&copy; 2022 Slasher Corp</li>
       </ul>
       <br />
     </Nav>

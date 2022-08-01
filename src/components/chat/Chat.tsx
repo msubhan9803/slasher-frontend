@@ -10,21 +10,6 @@ import ChatUserStatus from './ChatUserStatus';
 
 const StyledChatContainer = styled(Card)`
   height: calc(100vh - 30vh);
-
-  * {
-    /* Foreground, Background */
-    scrollbar-color: rgba(255, 255, 255, .33) rgba(255, 255, 255, .1);
-  }
-  *::-webkit-scrollbar {
-    width: 10px; /* Mostly for vertical scrollbars */
-    height: 10px; /* Mostly for horizontal scrollbars */
-  }
-  *::-webkit-scrollbar-thumb { /* Foreground */
-    background: rgba(255, 255, 255, .33);
-  }
-  *::-webkit-scrollbar-track { /* Background */
-    background: rgba(255, 255, 255, .1);
-  }
 `;
 
 function Chat({ messages }: ChatProps) {

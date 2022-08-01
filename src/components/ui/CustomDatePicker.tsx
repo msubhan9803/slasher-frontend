@@ -1,0 +1,76 @@
+import React from 'react';
+import { DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { TextField } from '@mui/material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+interface Props {
+  date: Date | null;
+  setDate: (val: any) => void;
+  label: string;
+}
+
+function CustomDatePicker({ date, setDate, label }: Props) {
+  const color = '#ffffff';
+  const theme = createTheme({
+    components: {
+      MuiIconButton: {
+        styleOverrides: {
+          sizeMedium: {
+            color,
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            color,
+            borderRadius: '0.625rem',
+            outline: 'none',
+            boxShadow: 'none',
+            fontSize: '0.938rem',
+            '& fieldset': {
+              borderColor: '#3A3B46 !important',
+            },
+            '&:hover fieldset': {
+              borderColor: '#3A3B46 !important',
+
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#3A3B46 !important',
+
+            },
+
+          },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            color,
+            '&.Mui-focused': {
+              color: 'white',
+            },
+          },
+        },
+      },
+    },
+  });
+  return (
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DesktopDatePicker
+          label={label}
+          inputFormat="MM/dd/yyyy"
+          value={date}
+          onChange={(newValue) => {
+            setDate(newValue);
+          }}
+          renderInput={(params: any) => <TextField {...params} sx={{ width: '100%' }} />}
+        />
+      </LocalizationProvider>
+    </ThemeProvider>
+  );
+}
+
+export default CustomDatePicker;

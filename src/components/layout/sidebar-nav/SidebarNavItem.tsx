@@ -28,7 +28,6 @@ const StyledLink = styled(Link)`
   margin-bottom: 0.75rem;
 
   .nav-item-label {
-    font-size: .875em;
     line-height: 1.3em;
   }
 `;
@@ -54,7 +53,7 @@ function SidebarNavItem({
         <LinearIcon uniqueId={uniqueId}>
           <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
         </LinearIcon>
-        <div className="ms-2 text-start nav-item-label">
+        <div className="ms-2 text-start nav-item-label fs-5">
           {label}
         </div>
         <svg width="0" height="0">

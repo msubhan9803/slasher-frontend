@@ -1,16 +1,39 @@
 @import './bootstrap-variables.scss';
 @import "~bootstrap/scss/bootstrap";
 
+* {
+  /* Foreground, Background */
+  scrollbar-color: #3A3B46 #1F1F1F;
+}
+*::-webkit-scrollbar {
+  width: 8px; /* Mostly for vertical scrollbars */
+  height: 6px; /* Mostly for horizontal scrollbars */
+}
+*::-webkit-scrollbar-thumb { /* Foreground */
+  background: #3A3B46;
+  border-radius: 6px;
+}
+*::-webkit-scrollbar-track { /* Background */
+  background: #1F1F1F;
+}
+
 html {
   // Ideally, this is the only place where we want to set a pixel font size.
   // Everything else will be in rems (relative to this base size)
   // or ems (relative to parent element font size).
-  font-size: 16px;
+  font-size: 14px;
+  @media (min-width: 992px) {
+    font-size: 15px;
+  }
 }
 
 body {
   @media (min-width: 992px) {
     padding-top: 125px; // To account for fixed top navbar on desktop views
+  }
+  &::-webkit-scrollbar {
+    width: 10px; /* Mostly for vertical scrollbars */
+    height: 10px; /* Mostly for horizontal scrollbars */
   }
 }
 
@@ -21,6 +44,13 @@ a {
 // This class is often used with flex box and truncated (ellipsis) text
 .min-width-0 {
   min-width: 0;
+}
+
+// Many of our desktop screens have dark background that become transparent on mobile
+.bg-mobile-transparent {
+  @media(max-width: 991px) {
+    background-color: transparent !important;
+  }
 }
 
 .btn-primary {

@@ -10,9 +10,10 @@ import MoviesSearch from './components/MoviesSearch';
 import MoviesSort from './components/MoviesSort';
 import MoviesFilterComponent from './components/MoviesFilterComponent';
 import MovieCard from '../../components/movie/MovieCard';
+import CustomScrollbar from '../../components/ui/CustomScrollbar';
 
-const StyleTabs = styled(Tabs)`
-  overflow-x: auto;
+const StyleTabs = styled(CustomScrollbar)`
+  overflow-x: scroll;
   overflow-y: hidden;
   .nav-link {
     padding-bottom: 1rem;
@@ -74,12 +75,12 @@ function Movies() {
         <h1 className="d-lg-none h4 text-center">Movies</h1>
         <Row className="bg-dark bg-mobile-transparent rounded-3">
           <Col xs={12}>
-            <StyleTabs
-              className="justify-content-between flex-nowrap mt-3 border-0"
-            >
-              {tabs.map(({ value, label }) => (
-                <Tab key={value} eventKey={value} title={label} />
-              ))}
+            <StyleTabs>
+              <Tabs className="border-0 justify-content-between flex-nowrap mt-3">
+                {tabs.map(({ value, label }) => (
+                  <Tab key={value} eventKey={value} title={label} />
+                ))}
+              </Tabs>
             </StyleTabs>
           </Col>
         </Row>

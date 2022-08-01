@@ -10,8 +10,8 @@ interface Props {
   setShowKeys: any;
 }
 const KeyboardButtons = styled(Button)`
-  width: 2.188rem;
-  height: 2.188rem;
+  width: 2.5rem;
+  height: 2.5rem;
 `;
 const SmallKeyboardButtons = styled(Button)`
   width: 1.875rem;
@@ -35,16 +35,17 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
       centered
       onHide={handleCloseKeys}
       className="px-3 px-md-0"
+      scrollable
     >
       <Modal.Header className="border-0 shadow-none m-0" closeButton>
-        <Modal.Title className="mx-auto">Filter</Modal.Title>
+        <Modal.Title className="h2 mx-auto">Filter</Modal.Title>
       </Modal.Header>
       <Modal.Body className="pb-5">
         <div className="d-lg-none mb-4">
-          <Modal.Title className="h6 mb-2">Sort</Modal.Title>
+          <Modal.Title className="h3 mb-2">Sort</Modal.Title>
           <MoviesSort />
         </div>
-        <Modal.Title className="h6 mb-1">Jump to</Modal.Title>
+        <Modal.Title className="h3 mb-1">Jump to</Modal.Title>
         <div className="align-items-center d-flex flex-wrap justify-content-center">
           {keyboard.slice(0, 11).map((keys) => (
             <SmallKeyboardButtons
@@ -71,7 +72,6 @@ function MoviesFilterComponent({ showKeys, setShowKeys }: Props) {
           variant="primary"
           type="submit"
           className="w-100"
-          size="lg"
         >
           Apply filter
         </RoundButton>

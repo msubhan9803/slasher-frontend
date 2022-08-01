@@ -6,7 +6,7 @@
   scrollbar-color: #3A3B46 #1F1F1F;
 }
 *::-webkit-scrollbar {
-  width: 6px; /* Mostly for vertical scrollbars */
+  width: 8px; /* Mostly for vertical scrollbars */
   height: 6px; /* Mostly for horizontal scrollbars */
 }
 *::-webkit-scrollbar-thumb { /* Foreground */
@@ -30,6 +30,10 @@ html {
 body {
   @media (min-width: 992px) {
     padding-top: 125px; // To account for fixed top navbar on desktop views
+  }
+  &::-webkit-scrollbar {
+    width: 10px; /* Mostly for vertical scrollbars */
+    height: 10px; /* Mostly for horizontal scrollbars */
   }
 }
 

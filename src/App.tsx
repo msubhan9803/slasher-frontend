@@ -34,7 +34,6 @@ function App() {
 
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
-      <Route path="/news" element={<News />} />
       <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
       <Route path="/messages" element={<Messages />} />

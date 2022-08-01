@@ -12,10 +12,6 @@ const ProfileImage = styled(Image)`
   height:3.125rem;
   width:3.125rem;
 `;
-const SmallText = styled.p`
-  font-size: .75rem;
-  color: #CCCCCC;
-`;
 const PopoverText = styled.p`
   &:hover {
     background: red;
@@ -72,8 +68,8 @@ function NewPostHeader({ userName, postDate }: Props) {
               </div>
             </Col>
             <Col xs="auto" className="ps-0 align-self-center">
-              <h1 className="mb-0 h6">{userName}</h1>
-              <SmallText className="mb-0">{postDate}</SmallText>
+              <h1 className="mb-0 h3">{userName}</h1>
+              <p className="mb-0 fs-6 text-light">{postDate}</p>
             </Col>
           </Row>
         </Col>

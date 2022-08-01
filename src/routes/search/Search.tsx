@@ -1,21 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Col, Row, Tab, Tabs,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { useLocation } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import SearchInput from './SearchInput';
 import Hashtags from './component/Hashtags';
 import {
   events, hashtags, myMovies, people, posts, news,
 } from './SearchResult';
+import { SearchProps } from './SearchInterface';
 import People from './component/People';
 import Movies from './component/Movies';
 import Events from './component/Events';
 import Posts from './component/Posts';
-import { SearchProps } from './SearchInterface';
 import NewsList from './component/NewsList';
 
 interface Location {
@@ -44,10 +45,14 @@ const StyleTabs = styled(Tabs)`
 `;
 
 function Search() {
+  const location = useLocation();
+  const [search, setSearch] = useState<string>('');
   const [data, setData] = useState<SearchProps[]>(people);
   const [filtered, setFiltered] = useState<SearchProps[]>(people);
   const [selectedTab, setSelectedTab] = useState('People');
+  const [redirectSearch, setRedirectSearch] = useState<boolean>(false);
   const [message, setMessage] = useState('');
+  const { state } = location as Location;
 
   const handleTabs = (tab: any) => {
     const setTab = tab.target.innerText;
@@ -59,6 +64,16 @@ function Search() {
     if (setTab === 'Events') { setFiltered(events); setData(events); }
     if (setTab === 'Movies') { setFiltered(myMovies); setData(myMovies); }
   };
+
+  useEffect(() => {
+    if (location.state) {
+      setSearch(state.hashtag);
+      setSelectedTab('Hashtags');
+      setData(hashtags);
+      setRedirectSearch(true);
+      setFiltered(hashtags);
+    }
+  }, []);
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div className="d-lg-none d-flex align-items-center mb-3">
@@ -66,14 +81,17 @@ function Search() {
         <h1 className="h4 text-center mb-0 mx-auto">Search</h1>
       </div>
       <SearchInput
+        search={search}
+        setSearch={setSearch}
         filtered={filtered}
         setFiltered={setFiltered}
         data={data}
+        isRedirect={redirectSearch}
         selectedTab={selectedTab}
         setMessage={setMessage}
       />
-      <StyleTabs onClick={handleTabs} onKeyDown={handleTabs} className="justify-content-between flex-nowrap">
-        <Tab eventKey="people" title="People">
+      <StyleTabs activeKey={selectedTab} onClick={handleTabs} onKeyDown={handleTabs} className="justify-content-between flex-nowrap">
+        <Tab eventKey="People" title="People">
           <Row>
             {filtered && filtered.length > 0 ? (filtered?.map((peopleDetail) => (
               <Col md={6} key={peopleDetail.id}>
@@ -89,7 +107,7 @@ function Search() {
             )}
           </Row>
         </Tab>
-        <Tab eventKey="posts" title="Posts">
+        <Tab eventKey="Posts" title="Posts">
           <Row>
             {filtered && filtered.length > 0 ? (filtered.map((postDetail) => (
               <Col xs={12} key={postDetail.id}>
@@ -107,7 +125,7 @@ function Search() {
             )}
           </Row>
         </Tab>
-        <Tab eventKey="hashtags" title="Hashtags">
+        <Tab eventKey="Hashtags" title="Hashtags">
           <Row>
             {filtered && filtered.length > 0 ? (filtered.map((hashtagDetail) => (
               <Col md={6} key={hashtagDetail.id}>
@@ -118,7 +136,7 @@ function Search() {
             )}
           </Row>
         </Tab>
-        <Tab eventKey="news" title="News">
+        <Tab eventKey="News" title="News">
           <Row>
             {filtered && filtered.length > 0 ? (filtered.map((newsdetail) => (
               <Col xs={12} key={newsdetail.id}>
@@ -136,7 +154,7 @@ function Search() {
             )}
           </Row>
         </Tab>
-        <Tab eventKey="events" title="Events">
+        <Tab eventKey="Events" title="Events">
           <Row className="justify-content-center mx-3 mx-sm-0">
             {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
               <Col sm={6} key={eventDetail.id}>
@@ -153,7 +171,7 @@ function Search() {
             )}
           </Row>
         </Tab>
-        <Tab eventKey="movies" title="Movies">
+        <Tab eventKey="Movies" title="Movies">
           <Row className="my-3 mx-0">
             {filtered && filtered.length > 0 ? (filtered.map((movieDetail) => (
               <Col xs={4} sm={3} lg={3} key={movieDetail.id}>

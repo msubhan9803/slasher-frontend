@@ -15,10 +15,6 @@ const HeaderProfileImage = styled.img`
   height: 11.25rem;
   width: 11.25rem;
 `;
-const SmallText = styled.p`
-  font-size: .938rem;
-  color: #CCCCCC;
-`;
 const CustomButton = styled(RoundButton)`
   border: 0.063rem solid #3A3B46;
   &:focus {
@@ -33,27 +29,27 @@ function NewsPartnerDetail() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="news">
-      <Row className="d-md-none">
+      <Row className="d-md-none mb-3">
         <Col xs={1}>
-          <FontAwesomeIcon icon={solid('arrow-left')} size="2x" />
+          <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
         </Col>
         <Col xs={11} md={12} className="text-center text-md-start">
-          <h1 className="h3 mb-3">News Partner Detail</h1>
+          <h1 className="h3 mb-0">News Partner Detail</h1>
         </Col>
       </Row>
-      <Row className="mb-5">
+      <Row>
         <Col>
           <Row className="bg-dark rounded-3 mx-0">
-            <Col md="auto" className="d-flex justify-content-center p-4 pb-3">
+            <Col md="auto" className="d-flex justify-content-center p-4 pb-md-4 pb-0">
               <HeaderProfileImage src={userImage} className="rounded-2" />
             </Col>
             <Col md={7} className="pt-md-4 pt-md-2  pt-0 ps-md-0">
-              <h2 className="text-center text-md-start h3 mt-md-3 mt-2  mt-md-0">Horror Oasis</h2>
-              <SmallText className="text-center text-md-start m-2 m-md-0">
+              <h2 className="text-center text-md-start mt-md-3 mt-2  mt-md-0">Horror Oasis</h2>
+              <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
                 Take a deep dive and try our list of over 40 unique generators,
                 find placeholder images for your next design,
                 or add a lorem ipsum plugin to the CMS or text editor of your choice.
-              </SmallText>
+              </p>
             </Col>
             <Col className="d-md-none">
               <p className="fw-bold text-center my-3">Get updates for this movie</p>

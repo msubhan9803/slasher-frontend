@@ -2,7 +2,7 @@ import React from 'react';
 import { Form } from 'react-bootstrap';
 import styled from 'styled-components';
 
-interface Props {
+interface SortDataProps {
   title?: string;
   className?: string;
 }
@@ -11,7 +11,7 @@ const StyledStortingSelect = styled(Form)`
     font-size: 0.875rem;
   }
 `;
-function MoviesSort({ title, className }: Props) {
+function SortData({ title, className }: SortDataProps) {
   const sortoptions = [
     { value: 'alphabetical', label: 'Alphabetical' },
     { value: 'releaseDate', label: 'Release Date' },
@@ -31,9 +31,9 @@ function MoviesSort({ title, className }: Props) {
   );
 }
 
-MoviesSort.defaultProps = {
+SortData.defaultProps = {
   title: '',
   className: '',
 };
 
-export default MoviesSort;
+export default SortData;

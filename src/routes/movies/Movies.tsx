@@ -7,7 +7,6 @@ function Movies() {
   return (
     <Routes>
       <Route path="/" element={<MovieData />} />
-      {/* <Route path="" element={<MovieData />} /> */}
       <Route path="add" element={<AddYourMovie />} />
     </Routes>
   );

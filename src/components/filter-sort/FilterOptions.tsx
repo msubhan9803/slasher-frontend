@@ -1,13 +1,13 @@
-import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
 import { Button } from 'react-bootstrap';
 
-interface Props {
+interface FilterProps {
   showKeys: any;
   setShowKeys: any;
 }
-function MoviesFilterOptions({ showKeys, setShowKeys }: Props) {
+function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
   return (
     <>
       <Button
@@ -28,4 +28,4 @@ function MoviesFilterOptions({ showKeys, setShowKeys }: Props) {
   );
 }
 
-export default MoviesFilterOptions;
+export default FilterOptions;

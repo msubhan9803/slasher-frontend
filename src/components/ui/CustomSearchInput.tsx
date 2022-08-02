@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React from 'react';
 import { FormControl, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
+interface SearchProps {
+  setSearch: (value: string) => void
+  search: string;
+  label: string;
+}
 const StyledInputGroup = styled(InputGroup)`
   .form-control {
     border-left: 0.063rem solid var(--bs-input-border-color);
@@ -21,46 +26,25 @@ const StyledInputGroup = styled(InputGroup)`
     min-width: 1.875rem;
   }
 `;
-interface Props {
-  setFilteredMovies: (value: MoviesProps[]) => void
-  myMovies: MoviesProps[];
-}
-interface MoviesProps {
-  id: number;
-  name: string;
-  year: string;
-  liked: boolean;
-}
-function MoviesSearch({ setFilteredMovies, myMovies }: Props) {
-  const [search, setSearch] = useState<string>('');
-  const searchData = (searchQuery: string) => {
-    let searchResult;
-    const newFilter = myMovies;
-    if (searchQuery) {
-      searchResult = newFilter.filter((src: any) => src.name.toLowerCase().startsWith(searchQuery));
-      setFilteredMovies(searchResult);
-    } else {
-      setFilteredMovies(myMovies);
-    }
-    setSearch(searchQuery);
-  };
+
+function CustomSearchInput({ setSearch, search, label }: SearchProps) {
   return (
     <StyledInputGroup>
       <InputGroup.Text id="search" className="pe-0 border-end-0">
         <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
       </InputGroup.Text>
       <FormControl
-        placeholder="Search..."
+        placeholder={label}
         addon-label="search"
         aria-describedby="search"
         type="text"
         value={search}
         onChange={(e: any) => {
-          searchData(e.target.value);
+          setSearch(e.target.value);
         }}
       />
     </StyledInputGroup>
   );
 }
 
-export default MoviesSearch;
+export default CustomSearchInput;

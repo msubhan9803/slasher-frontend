@@ -1,35 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Col, Container, Row, Tab, Tabs,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import CustomScrollbar from '../../components/ui/CustomScrollbar';
 import RoundButton from '../../components/ui/RoundButton';
-import MoviesFilterComponent from './components/MoviesFilterComponent';
-import MoviesFilterOptions from './components/MoviesFilterOptions';
-import MoviesSearch from './components/MoviesSearch';
-import MoviesSort from './components/MoviesSort';
 import MovieCard from '../../components/movie/MovieCard';
+import CustomTabs from '../../components/ui/CustomTabs';
+import FilterOptions from '../../components/filter-sort/FilterOptions';
+import FilterDialog from '../../components/filter-sort/FilterModal';
+import SortData from '../../components/filter-sort/SortData';
+import CustomSearchInput from '../../components/ui/CustomSearchInput';
 
-const StyleTabs = styled(CustomScrollbar)`
-  overflow-x: scroll;
-  overflow-y: hidden;
-  .nav-link {
-    padding-bottom: 1rem;
-    border: none;
-    color: #ffffff;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
-`;
 function MovieData() {
   const tabs = [
     { value: 'allMovies', label: 'All movies' },
@@ -68,36 +49,48 @@ function MovieData() {
   ];
   const [showKeys, setShowKeys] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState(myMovies);
+  const [search, setSearch] = useState<string>('');
+  const searchData = () => {
+    let searchResult;
+    const newFilter = myMovies;
+    if (search) {
+      searchResult = newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search));
+      setFilteredMovies(searchResult);
+    } else {
+      setFilteredMovies(myMovies);
+    }
+  };
+  useEffect(() => { searchData(); }, [search]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid>
         <h1 className="d-lg-none h4 text-center">Movies</h1>
         <Row className="bg-dark bg-mobile-transparent rounded-3">
           <Col xs={12}>
-            <StyleTabs>
+            <CustomTabs>
               <Tabs className="border-0 justify-content-between flex-nowrap mt-3">
                 {tabs.map(({ value, label }) => (
                   <Tab key={value} eventKey={value} title={label} />
                 ))}
               </Tabs>
-            </StyleTabs>
+            </CustomTabs>
           </Col>
         </Row>
         <Row className="my-4 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
-            <MoviesSearch setFilteredMovies={setFilteredMovies} myMovies={myMovies} />
+            <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
           </Col>
           <Col md={4} className="text-center">
-            <MoviesFilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
+            <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
           </Col>
           <Col md={4} className="d-none d-lg-block">
-            <MoviesSort title="Sort: " className="rounded-5" />
+            <SortData title="Sort: " className="rounded-5" />
           </Col>
           <Col md={4} className="order-first order-md-last">
             <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>
           </Col>
         </Row>
-        {showKeys && (<MoviesFilterComponent showKeys={showKeys} setShowKeys={setShowKeys} />)}
+        {showKeys && (<FilterDialog showKeys={showKeys} setShowKeys={setShowKeys} />)}
         <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-2">
           <Row className="mt-3 mx-lg-0">
             {filteredMovies.length > 0 ? filteredMovies.map((movieDetail) => (

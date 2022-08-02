@@ -34,7 +34,6 @@ function App() {
 
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />
-      <Route path="/news" element={<News />} />
       <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
       <Route path="/messages" element={<Messages />} />
@@ -43,7 +42,7 @@ function App() {
       <Route path="/posts/*" element={<Posts />} />
       <Route path="/movies" element={<Movies />} />
       <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
-
+      <Route path="/movies/*" element={<Movies />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>

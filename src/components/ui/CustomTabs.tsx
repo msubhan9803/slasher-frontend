@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import CustomScrollbar from './CustomScrollbar';
 
 const CustomTabs = styled(CustomScrollbar)`
-  overflow-x: scroll;
+  overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
     padding-bottom: 1rem;

@@ -1,109 +1,109 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Col, Container, Row,
-} from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../components/ui/RoundButton';
-import FilterOptions from '../../components/filter-sort/FilterOptions';
 import FilterModal from '../../components/filter-sort/FilterModal';
+import FilterOptions from '../../components/filter-sort/FilterOptions';
 import SortData from '../../components/filter-sort/SortData';
-import CustomSearchInput from '../../components/ui/CustomSearchInput';
-import TabLinks from '../../components/tabs/TabLinks';
+import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../components/tabs/PosterCardList';
+import TabLinks from '../../components/tabs/TabLinks';
+import CustomSearchInput from '../../components/ui/CustomSearchInput';
+import RoundButton from '../../components/ui/RoundButton';
 import {
-  allMovies, buyList, favoritesList, myMovies, slasherIndie, watchedList, watchList,
-} from './components/MovieList';
+  allBooks, buyList, favoritesList, myBooks, read, readingList, slasherIndie,
+} from './components/booksList';
 
-interface MoviesProps {
+interface BooksProps {
   id: number,
   name: string,
   image: string,
   year: string,
   liked: boolean,
 }
-function MovieData() {
+
+function BooksData() {
   const tabs = [
-    { value: 'all-movies', label: 'All movies' },
-    { value: 'my-movies', label: 'My movies' },
+    { value: 'all-books', label: 'All books' },
+    { value: 'my-books', label: 'My books' },
     { value: 'slasher-indie', label: 'Slasher Indie' },
     { value: 'favorites-list', label: 'Favorites list' },
-    { value: 'watch-list', label: 'Watch list' },
-    { value: 'watched-list', label: 'Watched list' },
+    { value: 'read', label: 'Read' },
+    { value: 'reading-list', label: 'Reading list' },
     { value: 'buy-list', label: 'Buy list' },
   ];
+
   const [showKeys, setShowKeys] = useState(false);
   const path = useParams();
-  const navigate = useNavigate();
-  const [movies, setMovies] = useState<MoviesProps[]>([]);
-  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
-  const [selectedMovieTab, setSelectedMovieTab] = useState<string>();
+  const [books, setBooks] = useState<BooksProps[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>([]);
+  const [selectedBookTab, setSelectedBookTab] = useState<string>();
   const [search, setSearch] = useState<string>('');
   const searchData = () => {
     let searchResult;
-    const newFilter = movies;
+    const newFilter = books;
     if (search) {
       searchResult = newFilter && newFilter.length > 0
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
-      setFilteredMovies(searchResult);
+      setFilteredBooks(searchResult);
     } else {
-      setFilteredMovies(movies);
+      setFilteredBooks(books);
     }
   };
+  const navigate = useNavigate();
   useEffect(() => {
     searchData();
     if (path && path.id) {
-      setSelectedMovieTab(path.id);
+      setSelectedBookTab(path.id);
     } else {
-      setSelectedMovieTab(tabs[0].value);
+      setSelectedBookTab(tabs[0].value);
     }
   }, [search, path]);
   useEffect(() => {
     switch (path.id) {
       case tabs[0].value:
-        setMovies(allMovies);
-        setFilteredMovies(allMovies);
+        setBooks(allBooks);
+        setFilteredBooks(allBooks);
         break;
       case tabs[1].value:
-        setMovies(myMovies);
-        setFilteredMovies(myMovies);
+        setBooks(myBooks);
+        setFilteredBooks(myBooks);
         break;
       case tabs[2].value:
-        setMovies(slasherIndie);
-        setFilteredMovies(slasherIndie);
+        setBooks(slasherIndie);
+        setFilteredBooks(slasherIndie);
         break;
       case tabs[3].value:
-        setMovies(favoritesList);
-        setFilteredMovies(favoritesList);
+        setBooks(favoritesList);
+        setFilteredBooks(favoritesList);
         break;
       case tabs[4].value:
-        setMovies(watchList);
-        setFilteredMovies(watchList);
+        setBooks(read);
+        setFilteredBooks(read);
         break;
       case tabs[5].value:
-        setMovies(watchedList);
-        setFilteredMovies(watchedList);
+        setBooks(readingList);
+        setFilteredBooks(readingList);
         break;
       case tabs[6].value:
-        setMovies(buyList);
-        setFilteredMovies(buyList);
+        setBooks(buyList);
+        setFilteredBooks(buyList);
         break;
       default:
-        setMovies([]);
-        setFilteredMovies([]);
+        setBooks([]);
+        setFilteredBooks([]);
     }
   }, [path]);
 
   const changeTab = (value: string) => {
-    navigate(`/movies/${value}`);
+    navigate(`/books/${value}`);
   };
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="movie">
+    <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid>
         <h1 className="d-lg-none h4 text-center">Movies</h1>
-        <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedMovieTab} />
+        <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedBookTab} />
         <Row className="my-4 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
             <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
@@ -115,16 +115,16 @@ function MovieData() {
             <SortData title="Sort: " className="rounded-5" />
           </Col>
           <Col md={4} className="order-first order-md-last">
-            <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>
+            <RoundButton className="py-2 d-lg-none w-100">Add your book</RoundButton>
           </Col>
         </Row>
         {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
         <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-2">
-          <PosterCardList dataList={filteredMovies} />
+          <PosterCardList dataList={filteredBooks} />
         </div>
       </Container>
     </AuthenticatedPageWrapper>
   );
 }
 
-export default MovieData;
+export default BooksData;

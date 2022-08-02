@@ -6,7 +6,7 @@ import MovieData from './MovieData';
 function Movies() {
   return (
     <Routes>
-      <Route path="/" element={<MovieData />} />
+      <Route path="/:id" element={<MovieData />} />
       <Route path="add" element={<AddYourMovie />} />
     </Routes>
   );

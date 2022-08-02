@@ -3,15 +3,15 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
-import MoviePoster from '../../images/movies-poster.jpg';
 
-interface MoviesProps {
+interface PosterProps {
   name: string;
+  poster: string;
   year: string;
   liked: boolean;
 }
-const MovieCardStyle = styled(Card)`
-  .movie-poster {
+const PosterCardStyle = styled(Card)`
+  .poster {
     aspect-ratio: 0.67;
     img {
       object-fit: cover;
@@ -53,18 +53,18 @@ const StyledLikeButton = styled.div`
   }
 `;
 
-function MovieCard({
-  name, year, liked,
-}: MoviesProps) {
+function PosterCard({
+  name, poster, year, liked,
+}: PosterProps) {
   return (
-    <MovieCardStyle className="bg-transparent my-2 border-0">
-      <div className="movie-poster">
-        <Card.Img variant="top" src={MoviePoster} className="w-100 h-100 rounded-3" />
+    <PosterCardStyle className="bg-transparent my-2 border-0">
+      <div className="poster">
+        <Card.Img variant="top" src={poster} className="w-100 h-100 rounded-4" />
       </div>
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 small text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="sm" />
-          <span>3.0</span>
+          <span className="h5">3.0</span>
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0">
@@ -82,8 +82,8 @@ function MovieCard({
           {name}
         </Card.Text>
       </Card.Body>
-    </MovieCardStyle>
+    </PosterCardStyle>
   );
 }
 
-export default MovieCard;
+export default PosterCard;

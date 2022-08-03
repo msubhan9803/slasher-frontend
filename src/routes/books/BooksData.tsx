@@ -23,10 +23,10 @@ interface BooksProps {
 
 function BooksData() {
   const tabs = [
-    { value: 'all-books', label: 'All books' },
+    { value: 'all', label: 'All books' },
     { value: 'my-books', label: 'My books' },
     { value: 'slasher-indie', label: 'Slasher Indie' },
-    { value: 'favorites-list', label: 'Favorites list' },
+    { value: 'favorites', label: 'Favorites list' },
     { value: 'read', label: 'Read' },
     { value: 'reading-list', label: 'Reading list' },
     { value: 'buy-list', label: 'Buy list' },

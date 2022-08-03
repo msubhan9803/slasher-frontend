@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NewsPartnerComments from './NewsPartnerComments';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
-import postImage from '../../../images/news-post.svg';
+import postImage from '../../../images/news-partner-detail.jpg';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -24,10 +24,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const SmallText = styled.p`
-  font-size: .75rem;
-  color: #CCCCCC;
 `;
 const ProfileImage = styled(Image)`
   height:3.125rem;
@@ -59,6 +55,9 @@ const StyledPopover = styled.div`
 `;
 const ImageContainer = styled(Row)`
   aspect-ratio: 1.9
+  svg {
+    object-fit: cover;
+  }
 `;
 const data = [
   {
@@ -78,15 +77,15 @@ function NewsPartnerPost() {
   };
 
   const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+    <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
     </CustomPopover>
   );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark bg-mobile-transparent">
-        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-        <Col><h1 className="h4 text-center">Horror Oasis</h1></Col>
+        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
+        <Col><h1 className="h2 text-center">Horror Oasis</h1></Col>
       </Row>
       <Row className="mb-5 px-2">
         <Col className="p-0">
@@ -103,7 +102,7 @@ function NewsPartnerPost() {
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
                         <h3 className="mb-0">{post.userName}</h3>
-                        <SmallText className="mb-0">{post.postDate}</SmallText>
+                        <p className="fs-6 text-light mb-0">{post.postDate}</p>
                       </Col>
                     </Row>
                   </Col>
@@ -131,7 +130,7 @@ function NewsPartnerPost() {
                 <ImageContainer className="mt-3">
                   <Image src={postImage} className="w-100 h-100" />
                 </ImageContainer>
-                <Row className="d-flex justify-content-evenly pt-3 px-3">
+                <Row className="fs-3 d-flex justify-content-evenly pt-3 px-3">
                   <Col>
                     <LinearIcon uniqueId="like-button">
                       <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />

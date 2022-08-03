@@ -146,7 +146,7 @@ function NewsPartnerComments() {
           <StyledCommentInputGroup className="mb-4">
             <Form.Control
               placeholder="Write a comment"
-              className="border-end-0"
+              className="fs-5 border-end-0"
             />
             <InputGroup.Text>
               <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />
@@ -155,7 +155,7 @@ function NewsPartnerComments() {
         </Col>
       </Row>
       {postData.map((data: Props) => (
-        <Row className="ps-md-4 pt-md-2" key={data.id}>
+        <Row className="ps-md-4 pt-md-1" key={data.id}>
           <Col>
             <Row className="mx-auto">
               <Col className="ps-md-0">

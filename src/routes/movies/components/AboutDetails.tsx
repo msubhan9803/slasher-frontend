@@ -84,16 +84,16 @@ function AboutDetails() {
       </Row>
       <StyledRateBorder className="pb-xxl-3 align-items-center d-block d-xxl-flex justify-content-center justify-content-xl-between">
         <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-center justify-content-xl-start text-light">
-          <p className="m-0">2022</p>
-          <p className="small-initial mb-0 mx-3 align-items-center border border-primary d-flex justify-content-center text-primary">R</p>
-          <span className="align-items-center d-flex">
+          <p className="m-0 fs-3">2022</p>
+          <p className="fs-3 small-initial mb-0 mx-3 align-items-center border border-primary d-flex justify-content-center text-primary">R</p>
+          <span className="fs-3 align-items-center d-flex">
             <p className="my-0">Atlanta</p>
             <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-2 text-primary" />
             <p className="my-0">1h 30m</p>
           </span>
         </div>
         <div className="rating align-items-center d-flex py-3 pb-xxl-0 justify-content-center justify-content-xl-start">
-          <span className="me-3 me-xxl-2 align-items-center d-flex justify-content-end justify-content-xl-start">
+          <span className="fs-3 me-3 me-xxl-2 align-items-center d-flex justify-content-end justify-content-xl-start">
             <FontAwesomeIcon icon={solid('star')} size="xs" className="star mb-2 mt-1" />
             <div className="d-flex">
               <p className="fw-bold m-0 mx-2">3.3/5</p>
@@ -102,18 +102,18 @@ function AboutDetails() {
           </span>
           <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2" variant="lg">
             <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
-            <p className="fw-bold m-0">Rate</p>
+            <p className="fs-3 fw-bold m-0">Rate</p>
           </StyleBorderButton>
         </div>
       </StyledRateBorder>
       <div className="d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
         <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
-          <p className="m-0 me-1 me-sm-3 fw-bold">Worth watching?</p>
+          <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
           <WorthWatchIcon />
         </div>
         <StyleBorderButton className="d-none d-xxl-flex align-items-center share-btn bg-black py-2" variant="lg">
           <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-          <p className="fw-bold m-0">Share</p>
+          <p className="fs-3 fw-bold m-0">Share</p>
         </StyleBorderButton>
       </div>
       <Row className="align-items-center justify-content-center justify-content-xl-start">
@@ -122,13 +122,13 @@ function AboutDetails() {
             <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
               <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
             </div>
-            <p className=" fs-2 fw-bold m-0">Worth it!</p>
+            <p className="fs-2 fw-bold m-0">Worth it!</p>
           </StyledWorth>
         </Col>
         <Col xs={6} sm={5} xl={12} className="pt-xl-3 pt-xxl-0">
           <StyleBorderButton className="d-flex d-xxl-none align-items-center share-btn bg-black py-2" variant="lg">
             <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-            <p className="fw-bold m-0">Share</p>
+            <p className="fs-3 fw-bold m-0">Share</p>
           </StyleBorderButton>
         </Col>
       </Row>

@@ -7,15 +7,14 @@ import {
 import styled from 'styled-components';
 
 const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
+  height: 3.125rem;
+  width: 3.125rem;
 `;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    font-size: 0.875rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -36,7 +35,7 @@ function CommentInput() {
         <StyledCommentInputGroup className="mb-4">
           <Form.Control
             placeholder="Write a comment"
-            className="border-end-0"
+            className="border-end-0 fs-5"
           />
           <InputGroup.Text>
             <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />

@@ -21,10 +21,6 @@ interface Props {
   onIconClick: (value: number) => void;
   likeIcon: boolean;
 }
-const SmallText = styled.p`
-  font-size: .75rem;
-  color: #CCCCCC;
-`;
 const CommentMessage = styled.span`
   color: #CCCCCC;
 `;
@@ -84,9 +80,9 @@ function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
   const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+    <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">Block user</PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Delete</PopoverText>
     </CustomPopover>
   );
   return (
@@ -99,7 +95,7 @@ function CommentSection({
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
               <h3 className="mb-0 ">{name}</h3>
-              <SmallText className="mb-0">{time}</SmallText>
+              <p className="fs-6 text-light mb-0">{time}</p>
             </div>
             <div className="d-block pe-0">
               <StyledPopover>
@@ -129,7 +125,7 @@ function CommentSection({
                 <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
                   <LinearIcon uniqueId="like-button-comment">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <small>{likes}</small>
+                    <span className="fs-5">{likes}</span>
                   </LinearIcon>
                 </LikesButton>
                 <svg width="0" height="0">
@@ -142,28 +138,28 @@ function CommentSection({
             )}
         </CommentBox>
         <div className="my-md-3 mt-3 mb-4 ms-md-3 ms-4">
-          <div className="p-0 d-flex me-2" role="button" aria-hidden="true">
+          <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <div className="me-2">
-                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                      <small>Like</small>
-                    </div>
+                    <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                      <span className="fs-5">Like</span>
+                    </Button>
                   </LinearIcon>
                 )
                 : (
-                  <div className="me-2">
-                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" onClick={() => onIconClick(id)} />
-                    <small>Like</small>
-                  </div>
+                  <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                    <span className="fs-5">Like</span>
+                  </Button>
                 )
             }
-            <div>
-              <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
-              <small>Reply</small>
-            </div>
+            <Button variant="link" className="text-decoration-none shadow-none">
+              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
+              <span className="fs-5">Reply</span>
+            </Button>
           </div>
         </div>
       </div>

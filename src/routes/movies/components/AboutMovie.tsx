@@ -105,7 +105,7 @@ function AboutMovie() {
               </div>
             </div>
             <div className="d-none d-xl-block">
-              <StyleTabs className="justify-content-between px-2 border-0">
+              <StyleTabs className="fs-3 justify-content-between px-2 border-0">
                 <Tab eventKey="details" title="Details" />
                 <Tab eventKey="posts" title="Posts" />
                 <Tab eventKey="edit" title="Edit" />
@@ -118,7 +118,7 @@ function AboutMovie() {
         </Row>
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
           <Col xs={10} sm={7} md={5} lg={9} className="text-center">
-            <small>Your lists</small>
+            <span className="fs-5">Your lists</span>
             <div className="mt-2 d-flex justify-content-center">
               {movieIconListData.map((iconList: MovieIconProps) => (
                 <ListIcon
@@ -153,7 +153,7 @@ function AboutMovie() {
         </Row>
         <Row className="d-xl-none">
           <Col xl={5}>
-            <StyleTabs className="justify-content-between mt-3 px-2 border-0">
+            <StyleTabs className="fs-3 justify-content-between mt-3 px-2 border-0">
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="posts" title="Posts" />
               <Tab eventKey="edit" title="Edit" />

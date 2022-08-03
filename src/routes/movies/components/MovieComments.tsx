@@ -115,10 +115,10 @@ function MovieComments() {
   };
   return (
     <div className="bg-dark p-3 rounded-2 mt-3">
-      <h1 className="h3 fw-bold ps-3 py-2">Comments (28)</h1>
+      <h1 className="h2 fw-bold ps-3 py-2">Comments (28)</h1>
       <CommentInput />
       {postData.map((data: Props) => (
-        <Row className="ps-md-4 pt-md-2" key={data.id}>
+        <Row className="ps-md-4 pt-md-1" key={data.id}>
           <Col>
             <Row className="mx-auto">
               <Col className="ps-md-0">

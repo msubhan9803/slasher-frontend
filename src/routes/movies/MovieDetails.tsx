@@ -24,10 +24,7 @@ function MovieDetails() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid className="mb-5">
-        <div className="d-lg-none d-flex align-items-center">
-          <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
-          <h1 className="h4 text-center mb-0 mx-auto">Movies</h1>
-        </div>
+        <FontAwesomeIcon icon={solid('arrow-left')} className="d-lg-none mb-2" size="lg" />
         <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>
         <PlayMovie embedId="WT_24V6Aids" />
         <AboutMovie />

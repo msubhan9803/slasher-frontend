@@ -79,7 +79,7 @@ function WorthWatchIcon() {
             <StyleWatchWorthIcon icon={regular('thumbs-up')} />
           </StyledLikeIcon>
         )}
-        <p className="m-0 text-light">(10K)</p>
+        <p className="m-0 fs-3 text-light">(10K)</p>
       </span>
       <span className="align-items-center d-flex ms-3">
         {disLiked ? (
@@ -91,7 +91,7 @@ function WorthWatchIcon() {
             <StyleWatchWorthIcon icon={regular('thumbs-down')} />
           </StyledDisLikeIcon>
         )}
-        <p className="m-0 text-light">(2K)</p>
+        <p className="m-0 fs-3 text-light">(2K)</p>
       </span>
     </div>
   );

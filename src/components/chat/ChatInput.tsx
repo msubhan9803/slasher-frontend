@@ -10,7 +10,6 @@ const StyledChatInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    font-size: 0.875rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -38,7 +37,7 @@ function ChatInput({ showCamera, inputClassName }: ChatProps) {
       )}
       <Form.Control
         placeholder="Type your message here..."
-        className={`border-end-0 ${inputClassName}`}
+        className={`border-end-0 fs-5 ${inputClassName}`}
       />
       <InputGroup.Text className="border-start-0">
         <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-3" />

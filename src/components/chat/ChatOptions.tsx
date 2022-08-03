@@ -47,7 +47,7 @@ function ChatOptions() {
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
       {optionValues.map((value: string) => (
-        <PopoverText key={value} onClick={() => handleLikesOption(value)} className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">
+        <PopoverText key={value} onClick={() => handleLikesOption(value)} className="fs-4 ps-4 pb-2 pe-5 pt-2 mb-0" role="button">
           {value}
         </PopoverText>
       ))}

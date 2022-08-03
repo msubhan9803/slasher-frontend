@@ -38,7 +38,7 @@ function ChatMessage({ messages, conversationType }: ChatProps) {
               {message.message}
             </p>
           </div>
-          <span className="time-stamp align-items-center d-flex">
+          <span className="fs-6 time-stamp align-items-center d-flex">
             {message.time}
             <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
             Report message
@@ -51,7 +51,7 @@ function ChatMessage({ messages, conversationType }: ChatProps) {
               {message.message}
             </p>
           </div>
-          <span className="time-stamp">{message.time}</span>
+          <span className="time-stamp fs-6">{message.time}</span>
         </div>
       )))}
     </ChatMessages>

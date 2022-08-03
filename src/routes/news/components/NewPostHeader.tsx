@@ -53,7 +53,7 @@ function NewPostHeader({ userName, postDate }: Props) {
     navigate('/news/partner/1');
   };
   const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+    <CustomPopover id="popover-basic" className="fs-3 py-2 rounded-2">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button" onClick={() => handleNewsOption('report')}>Report</PopoverText>
     </CustomPopover>
   );

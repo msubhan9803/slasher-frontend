@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
-import userImage from '../../../placeholder-images/placeholder-user.jpg';
+import userImage from '../../../images/placeholder-user.jpg';
 import NewsPostData from '../components/NewsPostData';
 
 const HeaderProfileImage = styled.img`
@@ -34,14 +34,14 @@ function NewsPartnerDetail() {
           <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
         </Col>
         <Col xs={11} md={12} className="text-center text-md-start">
-          <h1 className="h3 mb-0">News Partner Detail</h1>
+          <h1 className="h2 mb-0">News Partner Detail</h1>
         </Col>
       </Row>
       <Row>
         <Col>
           <Row className="bg-dark rounded-3 mx-0">
             <Col md="auto" className="d-flex justify-content-center p-4 pb-md-4 pb-0">
-              <HeaderProfileImage src={userImage} className="rounded-2" />
+              <HeaderProfileImage src={userImage} className="rounded-4" />
             </Col>
             <Col md={7} className="pt-md-4 pt-md-2  pt-0 ps-md-0">
               <h2 className="text-center text-md-start mt-md-3 mt-2  mt-md-0">Horror Oasis</h2>

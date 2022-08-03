@@ -90,7 +90,7 @@ function NewsPostData() {
             <Row className="mt-3">
               <PostImage src={postImage} className="w-100" />
             </Row>
-            <Row className="d-flex justify-content-evenly pt-3 px-3">
+            <Row className="fs-3 d-flex justify-content-evenly pt-3 px-3">
               <Col>
                 <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
                   <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
@@ -114,7 +114,7 @@ function NewsPostData() {
             </Row>
           </Card.Body>
           <CardFooter className="p-0">
-            <Row className=" d-flex justify-content-evenly pt-3 pb-2 px-3">
+            <Row className="fs-3 d-flex justify-content-evenly pt-3 pb-2 px-3">
               <Col role="button" onClick={() => onLikeClick(post.id)}>
                 {post.likeIcon ? (
                   <LinearIcon uniqueId="like-button-footer">

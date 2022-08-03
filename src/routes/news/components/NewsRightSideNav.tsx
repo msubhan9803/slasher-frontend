@@ -28,7 +28,7 @@ function NewsRightSideNav() {
           <Col xs={6}>
             <CustomButton
               onClick={() => setBgColor(!bgColor)}
-              className={`w-100  rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}
+              className={`w-100 fs-3 rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}
             >
               {bgColor ? 'Follow' : 'Unfollow'}
             </CustomButton>
@@ -36,8 +36,8 @@ function NewsRightSideNav() {
         </Row>
         <Row className="mt-3">
           <Col>
-            <p className="fw-bold">Get updates for this movie</p>
-            <div className="mb-2 lh-lg d-flex justify-content-between">
+            <p className="fs-3 fw-bold">Get updates for this movie</p>
+            <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
               <span>Push notifications</span>
               <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" />
             </div>

@@ -19,17 +19,23 @@ const PosterCardStyle = styled(Card)`
   }
   .fa-star {
     color: #FF8A00;
+    width: 0.847rem;
+    height: 0.808rem;
   }
   .fa-thumbs-up {
     color: #00FF0A;
     background-color: #1F1F1F;
     border: 0.063rem solid #3A3B46;
+    width: 0.847rem;
+    height: 0.808rem;
   }
   .fa-thumbs-down {
     color: #FF1800;
     background-color: #1F1F1F;
     border: 0.063rem solid #3A3B46;
     transform: rotateY(180deg);
+    width: 0.847rem;
+    height: 0.808rem;
   }
 `;
 const RatingDiv = styled.div`
@@ -42,12 +48,12 @@ const StyledLikeButton = styled.div`
   background-color: #1F1F1F;
   .fa-thumbs-up {
     color: #00FF0A;
+    width: 0.804rem;
+    height: 0.805rem;
   }
   .fa-thumbs-down {
     color: #FF1800;
     transform: rotateY(180deg);
-  }
-  .fa-sm {
     width: 0.804rem;
     height: 0.805rem;
   }
@@ -62,23 +68,22 @@ function PosterCard({
         <Card.Img variant="top" src={poster} className="w-100 h-100 rounded-4" />
       </div>
       <RatingDiv className="d-flex justify-content-end me-2">
-        <Card.Text className="rating bg-white mb-0 px-2 rounded-5 small text-black">
-          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" size="sm" />
+        <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+          <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
           <span className="h5">3.0</span>
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0">
-        <div className="small d-flex justify-content-between align-items-center m-0 text-light">
+        <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
           <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">
             <FontAwesomeIcon
               icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
-              size="sm"
               className="border-0"
             />
           </StyledLikeButton>
         </div>
-        <Card.Text className="fw-bold mt-1">
+        <Card.Text className="h3 fw-bold mt-1">
           {name}
         </Card.Text>
       </Card.Body>

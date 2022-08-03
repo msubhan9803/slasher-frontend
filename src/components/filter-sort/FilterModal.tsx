@@ -47,7 +47,7 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
             <KeyboardButtons
               key={keys}
               onClick={() => setKey(keys)}
-              className={`border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+              className={`fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
             >
               {keys}
             </KeyboardButtons>
@@ -56,7 +56,7 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
         <RoundButton
           variant="primary"
           type="submit"
-          className="w-100"
+          className="w-100 fs-3 "
         >
           Apply filter
         </RoundButton>

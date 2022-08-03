@@ -14,7 +14,6 @@ const StyledInputGroup = styled(InputGroup)`
     border-left: 0.063rem solid var(--bs-input-border-color);
     border-bottom-right-radius: 1.875rem;
     border-top-right-radius: 1.875rem;
-    font-size: 0.875rem !important;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -34,6 +33,7 @@ function CustomSearchInput({ setSearch, search, label }: SearchProps) {
         <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
       </InputGroup.Text>
       <FormControl
+        className="fs-5"
         placeholder={label}
         addon-label="search"
         aria-describedby="search"

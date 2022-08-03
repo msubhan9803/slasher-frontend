@@ -7,9 +7,7 @@ interface SortDataProps {
   className?: string;
 }
 const StyledStortingSelect = styled(Form)`
-  .form-select {
-    font-size: 0.875rem;
-  }
+
 `;
 function SortData({ title, className }: SortDataProps) {
   const sortoptions = [
@@ -19,7 +17,7 @@ function SortData({ title, className }: SortDataProps) {
   ];
   return (
     <StyledStortingSelect>
-      <Form.Select aria-label="Default select example" className={`shadow-none px-4 ${className}`}>
+      <Form.Select aria-label="Default select example" className={`fs-5 shadow-none px-4 ${className}`}>
         {sortoptions.map(({ value, label }) => (
           <option key={value} value={value}>
             {title}

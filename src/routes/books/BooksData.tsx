@@ -102,7 +102,6 @@ function BooksData() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid>
-        <h1 className="d-lg-none h4 text-center">Movies</h1>
         <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedBookTab} />
         <Row className="my-4 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">

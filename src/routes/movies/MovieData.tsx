@@ -102,7 +102,6 @@ function MovieData() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid>
-        <h1 className="d-lg-none h4 text-center">Movies</h1>
         <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedMovieTab} />
         <Row className="my-4 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">

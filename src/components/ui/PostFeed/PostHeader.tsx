@@ -5,11 +5,13 @@ import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useSearchParams } from 'react-router-dom';
 
 interface PostHeaderProps {
   userName: string;
   postDate: string;
   profileImage: string;
+  popoverOptions: string[];
 }
 const ProfileImage = styled(Image)`
   height:3.313rem;
@@ -40,11 +42,16 @@ const CustomPopover = styled(Popover)`
   }
 `;
 
-function PostHeader({ userName, postDate, profileImage }: PostHeaderProps) {
+function PostHeader({
+  userName, postDate, profileImage, popoverOptions,
+}: PostHeaderProps) {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Edit</PopoverText>
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Delete</PopoverText>
+      {queryParam !== 'self'
+        ? <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+        : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (

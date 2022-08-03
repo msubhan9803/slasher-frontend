@@ -1,8 +1,11 @@
 import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Card, Col, Row } from 'react-bootstrap';
+import {
+  Card, Col, Dropdown, Row,
+} from 'react-bootstrap';
 import styled from 'styled-components';
+import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -23,28 +26,37 @@ const LinearIcon = styled.div<LinearIconProps>`
 function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
   return (
     <CardFooter className="p-0">
-      <Row className=" d-flex justify-content-evenly py-3 px-3">
+      <Row className=" d-flex justify-content-evenly py-3 px-md-3">
         <Col role="button" onClick={() => onLikeClick(id)}>
           {likeIcon ? (
             <LinearIcon uniqueId="like-button-footer">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              Like
+              <span className="fs-3">Like</span>
             </LinearIcon>
           )
             : (
               <>
                 <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                Like
+                <span className="fs-3">Like</span>
               </>
             )}
         </Col>
         <Col className="text-center" role="button">
           <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-          Comment
+          <span className="fs-3">Comment</span>
         </Col>
         <Col className="text-end" role="button">
-          <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-          Share
+          <CustomDropDown>
+            <Dropdown.Toggle className=" bg-transparent p-0">
+              <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+              <span className="fs-3">Share</span>
+            </Dropdown.Toggle>
+            <Dropdown.Menu className="bg-black">
+              <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
+              <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
+              <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+            </Dropdown.Menu>
+          </CustomDropDown>
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

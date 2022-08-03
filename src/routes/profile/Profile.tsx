@@ -2,8 +2,11 @@ import React from 'react';
 import {
   Navigate, Route, Routes,
 } from 'react-router-dom';
-import ProfileFriends from './ProfileFriends';
-import ProfilePosts from './ProfilePosts';
+import ProfileAbout from './ProfileAbout/ProfileAbout';
+import ProfileFriends from './ProfileFriends/ProfileFriends';
+import ProfilePhotos from './ProfilePhotos/ProfilePhotos';
+import ProfilePosts from './ProfilePosts/ProfilePosts';
+import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 
 function Profile() {
   return (
@@ -11,9 +14,9 @@ function Profile() {
       <Route path="/" element={<Navigate to="posts" replace />} />
       <Route path="/posts" element={<ProfilePosts />} />
       <Route path="/friends" element={<ProfileFriends />} />
-      <Route path="/about" element={<ProfileFriends />} />
-      <Route path="/photos" element={<ProfileFriends />} />
-      <Route path="/watchedList" element={<ProfileFriends />} />
+      <Route path="/about" element={<ProfileAbout />} />
+      <Route path="/photos" element={<ProfilePhotos />} />
+      <Route path="/watchedList" element={<ProfileWatchList />} />
     </Routes>
   );
 }

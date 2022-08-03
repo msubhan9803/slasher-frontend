@@ -54,12 +54,12 @@ function CreatePost() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark">
-        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-        <Col><h1 className="h4 text-center">Create Post</h1></Col>
+        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
+        <Col><h1 className="h2 text-center">Create Post</h1></Col>
       </Row>
       <Form className="bg-dark px-4 py-4 rounded-2">
         <Form.Group controlId="about-me">
-          <div className="align-items-center d-flex form-label mb-4  w-100 mb-4">
+          <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
             <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-3" />
             <h2 className="h3 mb-0 align-self-center">
               Aly Khan

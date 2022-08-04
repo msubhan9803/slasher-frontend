@@ -138,7 +138,7 @@ function AboutMovie({ setSelectedScreen }: any) {
         <Row className="d-lg-none mt-3 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this movie</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
+            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
               {bgColor ? 'Follow' : 'Unfollow'}
             </FollowStyledButton>
           </Col>

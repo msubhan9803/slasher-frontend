@@ -100,7 +100,7 @@ function CommentSection({
             <div className="d-block pe-0">
               <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="bg-transparent shadow-none border-0 pt-0 pe-0">
+                  <Button className="bg-transparent border-0 pt-0 pe-0">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>

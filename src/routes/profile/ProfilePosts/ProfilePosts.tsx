@@ -66,7 +66,7 @@ function ProfilePosts() {
             <PostTopBorder className="d-md-none d-block" />
           </>
         )}
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
+      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection={false} />
     </AuthenticatedPageWrapper>
   );
 }

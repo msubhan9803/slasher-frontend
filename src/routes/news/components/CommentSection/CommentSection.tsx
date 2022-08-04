@@ -1,9 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import {
-  Button, Image,
-} from 'react-bootstrap';
+import { Button, Image } from 'react-bootstrap';
 import styled from 'styled-components';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -24,7 +22,7 @@ interface Props {
   likeIcon: boolean;
 }
 const CommentMessage = styled.span`
- color: #CCCCCC;
+  color: #CCCCCC;
 `;
 const CommentReplyImage = styled(Image)`
   height : 5.625rem;
@@ -84,7 +82,7 @@ function CommentSection({
   const popover = (
     <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
       <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2  mb-0" role="button">Block user</PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Block user</PopoverText>
     </CustomPopover>
   );
   return (
@@ -139,7 +137,7 @@ function CommentSection({
               </Likes>
             )}
         </CommentBox>
-        <div className="my-md-3 mt-3 mb-4 ms-md-3 ms-4">
+        <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon
@@ -159,7 +157,7 @@ function CommentSection({
                 )
             }
             <Button variant="link" className="text-decoration-none shadow-none">
-              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
+              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>
           </div>

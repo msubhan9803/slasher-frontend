@@ -24,12 +24,12 @@ interface BooksProps {
 function BooksData() {
   const tabs = [
     { value: 'all', label: 'All books' },
-    { value: 'my-books', label: 'My books' },
     { value: 'slasher-indie', label: 'Slasher Indie' },
     { value: 'favorites', label: 'Favorites list' },
     { value: 'read', label: 'Read' },
     { value: 'reading-list', label: 'Reading list' },
     { value: 'buy-list', label: 'Buy list' },
+    { value: 'my-books', label: 'My books' },
   ];
 
   const [showKeys, setShowKeys] = useState(false);
@@ -66,28 +66,28 @@ function BooksData() {
         setFilteredBooks(allBooks);
         break;
       case tabs[1].value:
-        setBooks(myBooks);
-        setFilteredBooks(myBooks);
-        break;
-      case tabs[2].value:
         setBooks(slasherIndie);
         setFilteredBooks(slasherIndie);
         break;
-      case tabs[3].value:
+      case tabs[2].value:
         setBooks(favoritesList);
         setFilteredBooks(favoritesList);
         break;
-      case tabs[4].value:
+      case tabs[3].value:
         setBooks(read);
         setFilteredBooks(read);
         break;
-      case tabs[5].value:
+      case tabs[4].value:
         setBooks(readingList);
         setFilteredBooks(readingList);
         break;
-      case tabs[6].value:
+      case tabs[5].value:
         setBooks(buyList);
         setFilteredBooks(buyList);
+        break;
+      case tabs[6].value:
+        setBooks(myBooks);
+        setFilteredBooks(myBooks);
         break;
       default:
         setBooks([]);
@@ -103,7 +103,7 @@ function BooksData() {
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid>
         <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedBookTab} />
-        <Row className="my-4 align-items-center">
+        <Row className="mt-3 mb-md-3 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
             <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
           </Col>
@@ -118,7 +118,7 @@ function BooksData() {
           </Col>
         </Row>
         {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-2">
+        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-3">
           <PosterCardList dataList={filteredBooks} />
         </div>
       </Container>

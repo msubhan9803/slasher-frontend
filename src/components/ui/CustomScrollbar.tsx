@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 const CustomScrollbar = styled.div`
   &::-webkit-scrollbar {
-    height: 0.188rem;
+    height: 0.375rem;
   }
   &::-webkit-scrollbar-thumb {
     background: #3A3B46 !important;

@@ -24,13 +24,13 @@ interface MoviesProps {
 }
 function MovieData() {
   const tabs = [
-    { value: 'all-movies', label: 'All movies' },
-    { value: 'my-movies', label: 'My movies' },
+    { value: 'all', label: 'All movies' },
     { value: 'slasher-indie', label: 'Slasher Indie' },
-    { value: 'favorites-list', label: 'Favorites list' },
+    { value: 'favorites', label: 'Favorites list' },
     { value: 'watch-list', label: 'Watch list' },
     { value: 'watched-list', label: 'Watched list' },
     { value: 'buy-list', label: 'Buy list' },
+    { value: 'my-movies', label: 'My movies' },
   ];
   const [showKeys, setShowKeys] = useState(false);
   const path = useParams();
@@ -66,28 +66,28 @@ function MovieData() {
         setFilteredMovies(allMovies);
         break;
       case tabs[1].value:
-        setMovies(myMovies);
-        setFilteredMovies(myMovies);
-        break;
-      case tabs[2].value:
         setMovies(slasherIndie);
         setFilteredMovies(slasherIndie);
         break;
-      case tabs[3].value:
+      case tabs[2].value:
         setMovies(favoritesList);
         setFilteredMovies(favoritesList);
         break;
-      case tabs[4].value:
+      case tabs[3].value:
         setMovies(watchList);
         setFilteredMovies(watchList);
         break;
-      case tabs[5].value:
+      case tabs[4].value:
         setMovies(watchedList);
         setFilteredMovies(watchedList);
         break;
-      case tabs[6].value:
+      case tabs[5].value:
         setMovies(buyList);
         setFilteredMovies(buyList);
+        break;
+      case tabs[6].value:
+        setMovies(myMovies);
+        setFilteredMovies(myMovies);
         break;
       default:
         setMovies([]);
@@ -103,7 +103,7 @@ function MovieData() {
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid>
         <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedMovieTab} />
-        <Row className="my-4 align-items-center">
+        <Row className="mt-3 mb-md-3 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
             <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
           </Col>
@@ -118,7 +118,7 @@ function MovieData() {
           </Col>
         </Row>
         {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-2">
+        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-3">
           <PosterCardList dataList={filteredMovies} />
         </div>
       </Container>

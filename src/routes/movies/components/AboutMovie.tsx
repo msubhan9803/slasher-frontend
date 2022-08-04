@@ -28,20 +28,20 @@ const StyledMoviePoster = styled.div`
 `;
 const MovieIconList = [
   {
-    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,
+    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.445rem', height: '1.445rem', addMovie: false,
   },
   {
-    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
+    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.445rem', height: '1.033rem', addMovie: false,
   },
   {
-    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: true,
+    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.498rem', height: '1.265rem', addMovie: true,
   },
   {
-    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
+    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addMovie: false,
   },
 ];
 const StyleTabs = styled(Tabs)`
-border-bottom: 0.188rem solid var(--bs-dark);
+border-bottom: 0.2rem solid var(--bs-dark);
 overflow-x: auto;
 overflow-y: hidden;
 .nav-link {
@@ -54,7 +54,7 @@ overflow-y: hidden;
   &.active {
     color: var(--bs-primary);
     background-color: transparent;
-    border-bottom:  0.188rem solid var(--bs-primary);
+    border-bottom:  0.2rem solid var(--bs-primary);
   }
 }
 `;
@@ -81,15 +81,15 @@ function AboutMovie() {
   };
   return (
     <div>
-      <div className="bg-dark my-3 p-3 pb-0 rounded-2">
+      <div className="bg-dark my-3 p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <StyledMoviePoster className="mx-4">
+            <StyledMoviePoster className="mx-md-4">
               <Image src={MovieDetailPoster} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
             <div className="d-none d-xl-block mt-3">
               <small>Your lists</small>
-              <div className="mt-2 d-flex justify-content-center">
+              <div className="mt-2 d-flex justify-content-between">
                 {movieIconListData.map((iconList: MovieIconProps) => (
                   <ListIcon
                     key={iconList.label}
@@ -119,7 +119,7 @@ function AboutMovie() {
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
           <Col xs={10} sm={7} md={5} lg={9} className="text-center">
             <span className="fs-5">Your lists</span>
-            <div className="mt-2 d-flex justify-content-center">
+            <div className="mt-2 d-flex justify-content-around">
               {movieIconListData.map((iconList: MovieIconProps) => (
                 <ListIcon
                   key={iconList.label}

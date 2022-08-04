@@ -2,7 +2,7 @@ import React from 'react';
 
 function MovieOverview() {
   return (
-    <div className="bg-dark p-3 rounded-2">
+    <div className="bg-dark p-4 rounded-2">
       <h1 className="h2 mb-3 fw-bold">Overview</h1>
       <span className="h4 text-light">
         Contrary to popular belief, Lorem Ipsum is not simply random text.

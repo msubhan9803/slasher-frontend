@@ -34,8 +34,8 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const StyledRemoveWatchlist = styled.div`
-  top: -0.5rem;
-  left: 3rem;
+  top: -0.4rem;
+  left: 2.1rem;
   border: 0.063rem solid #3A3B46;
   width: 1.5rem;
   height: 1.5rem;
@@ -45,7 +45,7 @@ const StyledRemoveWatchlist = styled.div`
     height: 0.781rem;
   }
   @media only screen and (min-width: 75rem) and (max-width: 89.938rem) {
-    left: 2.5rem;
+    left: 1.9rem;
   }
 `;
 let instanceCounter = 0;
@@ -57,7 +57,7 @@ function ListIcon({
 
   return (
     <div className="position-relative">
-      <LinearIcon role="button" onClick={() => onClickIcon(label)} width={width} height={height} uniqueId={uniqueId} className="mx-xxl-3 mx-xl-2 mx-3 d-flex flex-column align-items-center">
+      <LinearIcon role="button" onClick={() => onClickIcon(label)} width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center">
         <div className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={icon} />
         </div>

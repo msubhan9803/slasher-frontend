@@ -97,7 +97,7 @@ function AboutDetails() {
             <FontAwesomeIcon icon={solid('star')} size="xs" className="star mb-2 mt-1" />
             <div className="d-flex">
               <p className="fw-bold m-0 mx-2">3.3/5</p>
-              <p className="m-0 text-light">(10K)</p>
+              <p className="m-0 text-light me-xxl-2">(10K)</p>
             </div>
           </span>
           <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2" variant="lg">

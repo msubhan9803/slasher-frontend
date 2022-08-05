@@ -10,10 +10,11 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
+import BooksRigthSideNav from '../../../../routes/books/BooksRigthSideNav';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'book';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -55,6 +56,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     'profile-self': <RightSidebarSelf />,
     'profile-other-user': <RightSidebarViewer />,
     dating: <DatingSidebar />,
+    book: <BooksRigthSideNav />,
   }[type]);
 
   return (

@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Col, Row,
-} from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -29,22 +25,14 @@ function NewsPartnerDetail() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="news">
-      <Row className="d-md-none mb-3">
-        <Col xs={1}>
-          <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
-        </Col>
-        <Col xs={11} md={12} className="text-center text-md-start">
-          <h1 className="h2 mb-0">News Partner Detail</h1>
-        </Col>
-      </Row>
       <Row>
         <Col>
           <Row className="bg-dark rounded-3 mx-0">
             <Col md="auto" className="d-flex justify-content-center p-4 pb-md-4 pb-0">
               <HeaderProfileImage src={userImage} className="rounded-4" />
             </Col>
-            <Col md={7} className="pt-md-4 pt-md-2  pt-0 ps-md-0">
-              <h2 className="text-center text-md-start mt-md-3 mt-2  mt-md-0">Horror Oasis</h2>
+            <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
+              <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">Horror Oasis</h2>
               <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
                 Take a deep dive and try our list of over 40 unique generators,
                 find placeholder images for your next design,
@@ -52,7 +40,6 @@ function NewsPartnerDetail() {
               </p>
             </Col>
             <Col className="d-md-none">
-              <p className="fw-bold text-center my-3">Get updates for this movie</p>
               <div className="mt-3 mb-4">
                 <CustomButton
                   onClick={() => setBgColor(!bgColor)}

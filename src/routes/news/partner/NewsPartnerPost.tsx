@@ -83,10 +83,6 @@ function NewsPartnerPost() {
   );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Row className="d-md-none bg-dark bg-mobile-transparent">
-        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
-        <Col><h1 className="h2 text-center">Horror Oasis</h1></Col>
-      </Row>
       <Row className="mb-5 px-2">
         <Col className="p-0">
           {postData.map((post: PostProps) => (

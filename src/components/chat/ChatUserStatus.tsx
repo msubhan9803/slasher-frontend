@@ -10,7 +10,7 @@ const ChatProfileStyleImage = styled(Image)`
 function ChatUserStatus() {
   return (
     <div className="align-items-center d-flex">
-      <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="mx-3 ms-lg-0 rounded-circle bg-secondary" />
+      <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="ms-0 me-3 rounded-circle bg-secondary" />
       <h1 className="h3 mb-0">Eliza Williams</h1>
     </div>
   );

@@ -55,7 +55,7 @@ function ChatOptions() {
   );
 
   return (
-    <StyledPopover>
+    <StyledPopover className="pe-3 pe-lg-0">
       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
         <Button className="bg-transparent shadow-none border-0 py-0 px-2" variant="lg">
           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />

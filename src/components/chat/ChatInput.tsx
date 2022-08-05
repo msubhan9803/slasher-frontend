@@ -29,7 +29,7 @@ const StyledChatInputGroup = styled(InputGroup)`
 
 function ChatInput({ showCamera, inputClassName }: ChatProps) {
   return (
-    <StyledChatInputGroup className="mb-3 pe-2">
+    <StyledChatInputGroup className="mb-3 pe-4 pe-lg-2">
       {showCamera && (
         <InputGroup.Text className="border-end-0">
           <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-3 text-white border-end-0" />

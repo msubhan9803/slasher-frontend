@@ -41,7 +41,7 @@ function Chat({
           <ChatOptions />
         </div>
       </Card.Header>
-      <Card.Body className="overflow-auto px-0 px-lg-4">
+      <Card.Body className="overflow-auto px-0 pe-3 px-lg-4">
         <ChatTimestamp />
         <ChatMessage messages={messages} conversationType={conversationType} />
       </Card.Body>

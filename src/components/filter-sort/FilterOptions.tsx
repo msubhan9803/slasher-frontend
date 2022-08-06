@@ -25,7 +25,7 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
       </Button>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`pt-0 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`pt-0 pb-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         Sort/Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />

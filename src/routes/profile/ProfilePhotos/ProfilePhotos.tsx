@@ -77,7 +77,7 @@ function ProfilePhotos() {
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" />
-      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent ">
+      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
         <Row className="justify-content-between">
           {photosData.map((data) => (
             <Col xs={4} md={3} key={data.id}>

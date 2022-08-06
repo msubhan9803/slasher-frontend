@@ -11,6 +11,7 @@ interface SearchProps {
 }
 const StyledInputGroup = styled(InputGroup)`
   .form-control {
+    width:14.063rem;
     height:2.625rem;
     border-left: 0.063rem solid var(--bs-input-border-color);
     border-bottom-right-radius: 1.875rem;

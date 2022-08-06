@@ -16,25 +16,6 @@ const ProfileImage = styled(Image)`
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
-const StyleTabs = styled(Tabs)`
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-link {
-    width: max-content;
-    padding-bottom: 1rem;
-    border: none;
-    color: #ffffff;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
-`;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
     svg{
@@ -120,7 +101,7 @@ function ProfileHeader({ tabKey }: any) {
           onSelect={(tab: any) => handleChange(tab)}
           activeKey={tabKey}
           id="uncontrolled-tab-example"
-          className="border-0 justify-content-between flex-nowrap text-light mt-1 fs-3"
+          className="border-0 justify-content-between flex-nowrap text-light fs-3"
         >
           <Tab eventKey="about" title="About" />
           <Tab eventKey="posts" title="Posts" />
@@ -128,7 +109,7 @@ function ProfileHeader({ tabKey }: any) {
           <Tab eventKey="photos" title="Photos" />
           <Tab eventKey="watchedList" title="Watched List" />
         </Tabs>
-      </CustomTabs >
+      </CustomTabs>
     </div>
   );
 }

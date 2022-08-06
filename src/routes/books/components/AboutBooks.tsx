@@ -4,30 +4,36 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import ListIcon from './ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
 import RoundButton from '../../../components/ui/RoundButton';
-import BooksDetails from './BooksDetails';
+import BooksData from './BooksData';
 
 const StyleTabs = styled(Tabs)`
-border-bottom: 0.2rem solid var(--bs-dark);
-overflow-x: auto;
-overflow-y: hidden;
-.nav-link {
-  border: none;
-  color: white;
-  &:hover {
-    border-color: transparent;
-    color: var(--bs-primary);
+  border-bottom: 0.2rem solid var(--bs-dark);
+  overflow-x: auto;
+  overflow-y: hidden;
+  .nav-item {
+    width: 65px;
+    .nav-link {
+      width: 100%;
+      border: none;
+      color: white;
+      padding-bottom: 1rem !important;
+      &:hover {
+        border-color: transparent;
+        color: var(--bs-primary);
+      }
+      &.active {
+        color: var(--bs-primary);
+        background-color: transparent;
+        border-bottom:  0.222rem solid var(--bs-primary);
+      }
+    }
   }
-  &.active {
-    color: var(--bs-primary);
-    background-color: transparent;
-    border-bottom:  0.2rem solid var(--bs-primary);
-  }
-}
 `;
 const StyledBookPoster = styled.div`
 aspect-ratio: 0.67;
@@ -65,7 +71,11 @@ interface BookIconProps {
   height: string;
   addBook: boolean;
 }
-function AboutBooks({ setSelectedTab, selectedTab, queryParam }: any) {
+interface AboutBooksProps {
+  setSelectedTab: (value: string) => void;
+  selectedTab?: string;
+}
+function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [bookIconListData, setbookIconListData] = useState(BookIconList);
   const handleBookAddRemove = (labelName: string) => {
@@ -79,6 +89,8 @@ function AboutBooks({ setSelectedTab, selectedTab, queryParam }: any) {
     });
     setbookIconListData(tempBookIconList);
   };
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
 
   return (
     <div>
@@ -106,15 +118,15 @@ function AboutBooks({ setSelectedTab, selectedTab, queryParam }: any) {
               </div>
             </div>
             <div className="d-none d-xl-block">
-              <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam !== 'self' && 'justify-content-between'} px-2 border-0`}>
+              <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam === 'self' ? 'justify-content-xl-between' : 'justify-content-xl-around'} px-2 border-0`}>
                 <Tab eventKey="details" title="Details" />
                 <Tab eventKey="posts" title="Posts" />
-                {queryParam !== 'self' && <Tab eventKey="edit" title="Edit" />}
+                {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
               </StyleTabs>
             </div>
           </Col>
           <Col xl={7}>
-            <BooksDetails />
+            <BooksData />
           </Col>
         </Row>
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
@@ -153,11 +165,11 @@ function AboutBooks({ setSelectedTab, selectedTab, queryParam }: any) {
           </Col>
         </Row>
         <Row className="d-xl-none justify-content-center">
-          <Col xl={5}>
-            <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam !== 'self' && 'justify-content-between'} justify-content-center justify-content-xl-start px-2 border-0`}>
+          <Col sm={6} md={5} lg={8} xl={4}>
+            <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam === 'self' ? 'justify-content-between' : 'justify-content-around'}  mx-3 border-0`}>
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="posts" title="Posts" />
-              {queryParam !== 'self' && <Tab eventKey="edit" title="Edit" />}
+              {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
             </StyleTabs>
           </Col>
         </Row>
@@ -165,5 +177,8 @@ function AboutBooks({ setSelectedTab, selectedTab, queryParam }: any) {
     </div>
   );
 }
+AboutBooks.defaultProps = {
+  selectedTab: '',
+};
 
 export default AboutBooks;

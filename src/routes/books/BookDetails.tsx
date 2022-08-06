@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import AboutBooks from './components/AboutBooks';
 import CreatePostInput from './components/CreatePostInput';
 import postImage from '../../images/book-post-image.jpg';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
+import BookEdit from './BookEdit';
 
 const postData = [
   {
@@ -20,12 +21,14 @@ const postData = [
   },
 ];
 const popoverOptions = ['Edit', 'Delete'];
-function BooksPost() {
+function BookDetails() {
   const navigate = useNavigate();
   const path = useParams();
   const [selectedTab, setSelectedTab] = useState<string>();
   const changeTab = (value: string) => {
-    if (value === 'posts') { navigate(`/books/1/${value}`); }
+    if (value === 'details') { navigate(`/books/1/${value}?view=self`); }
+    if (value === 'posts') { navigate(`/books/1/${value}?view=self`); }
+    if (value === 'edit') { navigate(`/books/1/${value}?view=self`); }
     setSelectedTab(value);
   };
   useEffect(() => {
@@ -35,22 +38,21 @@ function BooksPost() {
       setSelectedTab('details');
     }
   }, [path]);
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid className="mb-5">
         <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your book</RoundButton>
-        <AboutBooks setSelectedTab={changeTab} selectedTab={selectedTab} queryParam={queryParam} />
+        <AboutBooks setSelectedTab={changeTab} selectedTab={selectedTab} />
         {selectedTab === 'posts' && (
           <>
             <CreatePostInput />
             <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
           </>
         )}
+        {selectedTab === 'edit' && <BookEdit />}
       </Container>
     </AuthenticatedPageWrapper>
   );
 }
 
-export default BooksPost;
+export default BookDetails;

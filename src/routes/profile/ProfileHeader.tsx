@@ -107,7 +107,7 @@ function ProfileHeader({ tabKey }: any) {
           <Tab eventKey="posts" title="Posts" />
           <Tab eventKey="friends" title="Friends" />
           <Tab eventKey="photos" title="Photos" />
-          <Tab eventKey="watchedList" title="Watched List" />
+          <Tab eventKey="watchedList" title="Watched list" />
         </Tabs>
       </CustomTabs>
     </div>

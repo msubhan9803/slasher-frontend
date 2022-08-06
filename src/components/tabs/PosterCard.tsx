@@ -63,7 +63,7 @@ function PosterCard({
   name, poster, year, liked,
 }: PosterProps) {
   return (
-    <PosterCardStyle className="bg-transparent my-2 border-0">
+    <PosterCardStyle className="bg-transparent border-0">
       <div className="poster">
         <Card.Img variant="top" src={poster} className="w-100 h-100 rounded-4" />
       </div>
@@ -73,7 +73,7 @@ function PosterCard({
           <span className="h5">3.0</span>
         </Card.Text>
       </RatingDiv>
-      <Card.Body className="px-0">
+      <Card.Body className="px-0 pb-4">
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
           <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">

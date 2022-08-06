@@ -118,8 +118,10 @@ function MovieData() {
           </Col>
         </Row>
         {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark bg-mobile-transparent rounded-3 py-1 px-lg-3">
-          <PosterCardList dataList={filteredMovies} />
+        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4">
+          <div className="m-md-2">
+            <PosterCardList dataList={filteredMovies} />
+          </div>
         </div>
       </Container>
     </AuthenticatedPageWrapper>

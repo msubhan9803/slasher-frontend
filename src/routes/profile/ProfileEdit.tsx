@@ -21,7 +21,7 @@ function ProfileEdit() {
                 </div>
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change profile photo</h1>
-                  <div className="d-flex d-md-block justify-content-center">
+                  <div className="d-block justify-content-center">
                     <p className="fs-5 text-light mb-0">
                       Recommended size: 180x180 pixels
                     </p>
@@ -39,7 +39,7 @@ function ProfileEdit() {
                 </div>
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
-                  <div className="d-flex d-md-block justify-content-center">
+                  <div className="d-block justify-content-center">
                     <p className="fs-5 text-light mb-0">
                       Recommended size: 830x4670 pixels
                     </p>
@@ -99,7 +99,7 @@ function ProfileEdit() {
           </Row>
           <Row className="mt-2">
             <Col md={3} lg={4} xl={3}>
-              <RoundButton className="py-2 w-100 h3 fw-bold" type="submit">
+              <RoundButton className="py-2 w-100 h3 fw-bold">
                 Update profile
               </RoundButton>
             </Col>

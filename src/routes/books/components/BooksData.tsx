@@ -68,7 +68,7 @@ const AboutBookDetails = styled.div`
   }
   
 `;
-function BooksDetails() {
+function BooksData() {
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -163,4 +163,4 @@ function BooksDetails() {
   );
 }
 
-export default BooksDetails;
+export default BooksData;

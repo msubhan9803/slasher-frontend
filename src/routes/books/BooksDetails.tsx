@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import AboutBooks from './components/AboutBooks';
@@ -20,7 +20,7 @@ const postData = [
   },
 ];
 const popoverOptions = ['Edit', 'Delete'];
-function BooksPost() {
+function BooksDetails() {
   const navigate = useNavigate();
   const path = useParams();
   const [selectedTab, setSelectedTab] = useState<string>();
@@ -35,13 +35,11 @@ function BooksPost() {
       setSelectedTab('details');
     }
   }, [path]);
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid className="mb-5">
         <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your book</RoundButton>
-        <AboutBooks setSelectedTab={changeTab} selectedTab={selectedTab} queryParam={queryParam} />
+        <AboutBooks setSelectedTab={changeTab} selectedTab={selectedTab} />
         {selectedTab === 'posts' && (
           <>
             <CreatePostInput />
@@ -53,4 +51,4 @@ function BooksPost() {
   );
 }
 
-export default BooksPost;
+export default BooksDetails;

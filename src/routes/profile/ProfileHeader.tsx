@@ -22,7 +22,6 @@ const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
 const StyleTabs = styled(Tabs)`
-  overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
     padding-bottom: 1rem !important;
@@ -93,13 +92,13 @@ function ProfileHeader({ tabKey }: any) {
               </ImageContainer>
             </Col>
             <Row className="d-flex ms-3">
-              <CustomCol md={3} className="text-center text-lg-start position-relative">
+              <CustomCol md={3} lg={12} xl={3} className="text-center text-lg-center text-xl-start  position-relative">
                 <AboutProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
-                {queryParam === 'self'
+                {queryParam !== 'self'
                   && (
-                    <StyledPopover className="d-block d-md-none position-absolute" style={{ top: '55px', right: '0px' }}>
+                    <StyledPopover className="d-block d-md-none d-lg-block d-xl-none position-absolute" style={{ top: '55px', right: '0px' }}>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 pe-3">
+                        <Button className="bg-transparent shadow-none border-0 py-0 pe-3 mt-2">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" className="ps-0" />
                         </Button>
                       </OverlayTrigger>
@@ -108,25 +107,27 @@ function ProfileHeader({ tabKey }: any) {
               </CustomCol>
               <Col className="w-100 mt-md-4">
                 <Row className="d-flex justify-content-between">
-                  <Col xs={12} md={6} className="text-center text-md-start mt-4 mt-md-0 ps-md-0">
+                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                     <h1 className="mb-md-0">Aly khan</h1>
-                    <p className="fs-5 mb-md-0 text-light">@aly-khan</p>
+                    <p className="fs-5  text-light">@aly-khan</p>
                   </Col>
-                  <Col xs={12} md={6}>
+                  <Col xs={12} md={6} lg={12} xl={6}>
                     {queryParam === 'self'
                       && (
-                        <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2 ms-md-auto mx-auto me-md-1">
-                          <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
-                          <h3 className="mb-0"> Edit profile</h3>
-                        </RoundButton>
+                        <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                          <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2">
+                            <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
+                            <h3 className="mb-0"> Edit profile</h3>
+                          </RoundButton>
+                        </div>
                       )}
                     {queryParam !== 'self'
                       && (
-                        <div className="d-flex align-items-center justify-content-md-end justify-content-center">
+                        <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                           <Button className="btn btn-form bg-black rounded-5 d-flex px-4 me-2">
                             <h3 className="mb-0">Unfriend</h3>
                           </Button>
-                          <StyledPopover className="d-none d-md-block">
+                          <StyledPopover className="d-none d-md-block d-lg-none d-xl-block">
                             <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
                               <Button className="bg-transparent shadow-none border-0 py-0 pe-1">
                                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />

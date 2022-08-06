@@ -7,6 +7,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
+import CustomTabs from '../../components/ui/CustomTab';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;
@@ -14,25 +15,6 @@ const ProfileImage = styled(Image)`
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
-`;
-const StyleTabs = styled(Tabs)`
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-link {
-    width: max-content;
-    padding-bottom: 1rem;
-    border: none;
-    color: #ffffff;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
 `;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
@@ -87,7 +69,7 @@ function ProfileHeader({ tabKey }: any) {
           </div>
         </div>
 
-        <div>
+        <div className="align-self-center">
           {queryParam === 'self'
             && (
               <RoundButton className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 py-2">
@@ -114,20 +96,20 @@ function ProfileHeader({ tabKey }: any) {
       </div>
 
       <StyledBorder className="d-md-block d-none" />
-      <div className="px-md-4">
-        <StyleTabs
+      <CustomTabs className="bg-dark bg-mobile-transparent rounded-3 px-md-4">
+        <Tabs
           onSelect={(tab: any) => handleChange(tab)}
           activeKey={tabKey}
           id="uncontrolled-tab-example"
-          className="border-0 mb-4 mt-1 justify-content-between fs-3 text-light flex-nowrap"
+          className="border-0 justify-content-between flex-nowrap text-light fs-3"
         >
           <Tab eventKey="about" title="About" />
           <Tab eventKey="posts" title="Posts" />
           <Tab eventKey="friends" title="Friends" />
           <Tab eventKey="photos" title="Photos" />
           <Tab eventKey="watchedList" title="Watched List" />
-        </StyleTabs>
-      </div>
+        </Tabs>
+      </CustomTabs>
     </div>
   );
 }

@@ -10,7 +10,7 @@ const TimeStamp = styled.div`
 
 function ChatTimestamp() {
   return (
-    <TimeStamp className="fs-5 d-flex align-items-center justify-content-center mb-4">
+    <TimeStamp className="p-3 fs-5 d-flex align-items-center justify-content-center">
       <span
         className="mb-0 mx-3 px-4 py-1 rounded-5 text-center"
       >

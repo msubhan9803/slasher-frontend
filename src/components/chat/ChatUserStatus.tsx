@@ -3,8 +3,8 @@ import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const ChatProfileStyleImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
+  height: 3.334rem;
+  width: 3.334rem;
 `;
 
 function ChatUserStatus() {

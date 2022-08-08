@@ -40,6 +40,7 @@ const messages = [
     time: '01:35 PM',
   },
 ];
+
 function Conversation() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">

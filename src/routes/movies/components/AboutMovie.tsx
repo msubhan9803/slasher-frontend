@@ -9,7 +9,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
-import MovieDetailPoster from '../../../images/movie-poster.jpg';
+import MovieDetailPoster from '../../../images/movie-detail-poster.jpg';
 
 interface MovieIconProps {
   label: string;
@@ -81,15 +81,15 @@ function AboutMovie({ setSelectedScreen }: any) {
   };
   return (
     <div>
-      <div className="bg-dark my-3 p-3 pb-0 rounded-2">
+      <div className="bg-dark my-3 p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledMoviePoster className="mx-4">
               <Image src={MovieDetailPoster} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
             <div className="d-none d-xl-block mt-3">
-              <small>Your lists</small>
-              <div className="mt-2 d-flex justify-content-center">
+              <p className="fs-5">Your lists</p>
+              <div className="mt-2 d-flex justify-content-between">
                 {movieIconListData.map((iconList: MovieIconProps) => (
                   <ListIcon
                     key={iconList.label}
@@ -119,7 +119,7 @@ function AboutMovie({ setSelectedScreen }: any) {
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
           <Col xs={10} sm={7} md={5} lg={9} className="text-center">
             <span className="fs-5">Your lists</span>
-            <div className="mt-2 d-flex justify-content-center">
+            <div className="mt-2 d-flex justify-content-around">
               {movieIconListData.map((iconList: MovieIconProps) => (
                 <ListIcon
                   key={iconList.label}
@@ -145,7 +145,7 @@ function AboutMovie({ setSelectedScreen }: any) {
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">
           <Col sm={5}>
-            <div className="align-items-center d-flex justify-content-center">
+            <div className="align-items-center d-flex justify-content-evenly">
               <span className="mb-2">Push notifications</span>
               <Switch id="pushNotificationsSwitch" className="ms-4" />
             </div>

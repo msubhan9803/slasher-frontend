@@ -95,7 +95,7 @@ function ProfileHeader({ tabKey }: any) {
         </div>
       </div>
 
-      <StyledBorder className="d-md-block d-none" />
+      <StyledBorder className="d-md-block d-none mb-2" />
       <CustomTabs className="bg-dark bg-mobile-transparent rounded-3 px-md-4">
         <Tabs
           onSelect={(tab: any) => handleChange(tab)}

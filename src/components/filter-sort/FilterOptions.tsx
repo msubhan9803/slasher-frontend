@@ -1,12 +1,12 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface FilterProps {
-  showKeys: any;
-  setShowKeys: any;
+  showKeys: boolean;
+  setShowKeys: (val: boolean) => void;
 }
 
 const StyledFilterIcon = styled(FontAwesomeIcon)`
@@ -25,9 +25,9 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
       </Button>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`pt-0 pb-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`pt-3 pb-4 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
-        Sort/Filter
+        <span className="fs-3">Sort/Filter</span>
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
       </Button>
     </>

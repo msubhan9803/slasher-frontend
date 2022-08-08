@@ -2,12 +2,12 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, OverlayTrigger, Popover, Row, Tab, Tabs,
+  Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
-import CustomTabs from '../../components/ui/CustomTab';
+import TabLinks from '../../components/ui/Tabs/TabLink';
 import postImage from '../../images/about-post.jpg';
 
 const ProfileImage = styled(Image)`
@@ -46,6 +46,15 @@ const CustomPopover = styled(Popover)`
     }
   }
 `;
+
+const tabs = [
+  { value: 'about', label: 'About' },
+  { value: 'posts', label: 'Posts' },
+  { value: 'friends', label: 'Friends' },
+  { value: 'photos', label: 'Photos' },
+  { value: 'watched-list', label: 'Watched list' },
+];
+
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -64,7 +73,7 @@ function ProfileHeader({ tabKey }: any) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
 
-  const handleChange = (tab: string) => {
+  const changeTab = (tab: string) => {
     navigate(`/${params.userName}/${tab}`);
   };
 
@@ -168,21 +177,8 @@ function ProfileHeader({ tabKey }: any) {
           </div>
         )}
 
-      <StyledBorder className="d-md-block d-none mb-2" />
-      <CustomTabs className="bg-dark bg-mobile-transparent rounded-3 px-md-4">
-        <Tabs
-          onSelect={(tab: any) => handleChange(tab)}
-          activeKey={tabKey}
-          id="uncontrolled-tab-example"
-          className="border-0 justify-content-between flex-nowrap text-light fs-3"
-        >
-          <Tab eventKey="about" title="About" />
-          <Tab eventKey="posts" title="Posts" />
-          <Tab eventKey="friends" title="Friends" />
-          <Tab eventKey="photos" title="Photos" />
-          <Tab eventKey="watchedList" title="Watched List" />
-        </Tabs>
-      </CustomTabs>
+      <StyledBorder className="d-md-block d-none" />
+      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
     </div>
   );
 }

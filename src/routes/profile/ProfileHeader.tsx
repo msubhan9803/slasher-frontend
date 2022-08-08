@@ -92,7 +92,7 @@ function ProfileHeader({ tabKey }: any) {
               </ImageContainer>
             </Col>
             <Row className="d-flex ms-3">
-              <CustomCol md={3} lg={12} xl={3} className="text-center text-lg-center text-xl-start  position-relative">
+              <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
                 <AboutProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
                 {queryParam !== 'self'
                   && (
@@ -107,7 +107,7 @@ function ProfileHeader({ tabKey }: any) {
               </CustomCol>
               <Col className="w-100 mt-md-4">
                 <Row className="d-flex justify-content-between">
-                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                     <h1 className="mb-md-0">Aly khan</h1>
                     <p className="fs-5  text-light">@aly-khan</p>
                   </Col>
@@ -179,7 +179,7 @@ function ProfileHeader({ tabKey }: any) {
             </div>
           </div>
         )}
-      <StyledBorder className="d-md-block d-none" />
+      <StyledBorder className="d-md-block d-none mb-2" />
       <div className="px-md-4">
         <StyleTabs
           onSelect={(tab: any) => handleChange(tab)}
@@ -191,7 +191,7 @@ function ProfileHeader({ tabKey }: any) {
           <Tab eventKey="posts" title="Posts" />
           <Tab eventKey="friends" title="Friends" />
           <Tab eventKey="photos" title="Photos" />
-          <Tab eventKey="watchedList" title="Watched List" />
+          <Tab eventKey="watchedList" title="Watched list" />
         </StyleTabs>
       </div>
     </div>

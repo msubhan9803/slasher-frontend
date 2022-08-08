@@ -8,27 +8,6 @@ import ChatOptions from './ChatOptions';
 import ChatTimestamp from './ChatTimestamp';
 import ChatUserStatus from './ChatUserStatus';
 
-// const StyledChatContainer = styled.div`
-//   height: calc(100vh - 30vh);
-
-//   @media (max-width: 37.5rem) {
-//     height: calc(100vh - 15vh);
-//   }
-//   * {
-//     /* Foreground, Background */
-//     scrollbar-color: rgba(255, 255, 255, .33) rgba(255, 255, 255, .1);
-//   }
-//   *::-webkit-scrollbar {
-//     width: 0.625rem; /* Mostly for vertical scrollbars */
-//     height: 0.625rem; /* Mostly for horizontal scrollbars */
-//   }
-//   *::-webkit-scrollbar-thumb { /* Foreground */
-//     background: rgba(255, 255, 255, .33);
-//   }
-//   *::-webkit-scrollbar-track { /* Background */
-//     background: rgba(255, 255, 255, .1);
-//   }
-// `;
 const StyledChatContainer = styled.div`
   height: calc(100% - 25rem);
   .card {
@@ -43,17 +22,19 @@ const StyledChatContainer = styled.div`
         height: calc(100% - 85px);
         overflow-x: hidden;
       }
-      &::-webkit-scrollbar {
-        transition: all .5s;
-        width: 5px;
-        height: 1px;
-        z-index: 10;
+      * {
+        /* Foreground, Background */
+        scrollbar-color: rgba(255, 255, 255, .33) rgba(255, 255, 255, .1);
+        }
+      *::-webkit-scrollbar {
+        width: 0.625rem; /* Mostly for vertical scrollbars */
+        height: 0.625rem; /* Mostly for horizontal scrollbars */
       }
-      &::-webkit-scrollbar-track {
-        background: transparent;
+        *::-webkit-scrollbar-thumb { /* Foreground */
+        background: rgba(255, 255, 255, .33);
       }
-      &::-webkit-scrollbar-thumb {
-        background: #b3ada7;
+      *::-webkit-scrollbar-track { /* Background */
+          background: rgba(255, 255, 255, .1);
       }
       @media (max-width: 992px) {
         height: calc(100vh - 165px);

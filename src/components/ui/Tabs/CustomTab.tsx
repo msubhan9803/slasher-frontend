@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import CustomScrollbar from './CustomScrollbar';
+import CustomScrollbar from '../CustomScrollbar';
 
 const CustomTabs = styled(CustomScrollbar)`
   overflow-x: auto;

@@ -44,7 +44,7 @@ function ProfileWatchList() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="watchedList" />
+      <ProfileHeader tabKey="watched-list" />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

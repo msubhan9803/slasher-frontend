@@ -68,7 +68,7 @@ const AboutBookDetails = styled.div`
   }
   
 `;
-function BooksData() {
+function BookSummary() {
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -86,7 +86,7 @@ function BooksData() {
           <div className="d-flex d-xxl-none align-items-center justify-content-center justify-content-xl-start">
             <span className="fs-3 d-lg-flex text-center">
               <p className="m-0 fw-bold">
-                Year:
+                Year:&nbsp;
               </p>
               <p className="m-0 text-light"> 1921</p>
             </span>
@@ -107,7 +107,7 @@ function BooksData() {
           </div>
           <Ratings />
         </div>
-        <div className="mt-xxl-3 d-none d-xxl-flex align-items-center">
+        <div className="my-2 mb-xl-0 mt-xxl-3 d-none d-xxl-flex align-items-center">
           <span className="d-lg-flex">
             <p className="m-0 fs-3 fw-bold">
               Year:&nbsp;
@@ -130,7 +130,7 @@ function BooksData() {
           </span>
         </div>
       </StyledRateBorder>
-      <div className="d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
+      <div className="mt-2 mt-xl-0 d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
         <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
           <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
           <LikeDislike />
@@ -139,28 +139,26 @@ function BooksData() {
           <ShareButton />
         </div>
       </div>
-      <Row className="align-items-center justify-content-center justify-content-xl-start">
+      <Row className="mt-4 mt-lg-0 align-items-center justify-content-center justify-content-xl-start">
         <Col xs={6} sm={5} xl={12}>
           <div className="d-flex justify-content-xl-between justify-content-end align-items-center">
             <StyledWorth className="me-3 align-items-center d-flex justify-content-end justify-content-xl-start">
               <WorthContent />
             </StyledWorth>
-            <RoundButton className="d-none d-xl-block bg-primary px-5 py-2">Buy now</RoundButton>
+            <RoundButton className="d-none d-xl-block bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
           </div>
         </Col>
         <Col xs={6} sm={5} xl={12} className="d-xxl-none pt-xl-3 pt-xxl-0">
-          {/* <div className="d-flex align-items-center justify-content-between"> */}
           <ShareButton />
-          {/* </div> */}
         </Col>
       </Row>
-      <Row className="mt-3 d-xl-none">
+      <Row className="mt-5 d-xl-none">
         <Col className="text-center text-xl-end">
-          <RoundButton className="bg-primary px-5 py-2">Buy now</RoundButton>
+          <RoundButton className="bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
         </Col>
       </Row>
     </AboutBookDetails>
   );
 }
 
-export default BooksData;
+export default BookSummary;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import BookDetails from './BookDetails';
+import BooksDetails from './BooksDetails';
 
 function Books() {
   return (
     <Routes>
-      <Route path="/1/:id" element={<BookDetails />} />
+      <Route path="/1/:id" element={<BooksDetails />} />
     </Routes>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import AboutBooks from './components/AboutBooks';
@@ -21,7 +21,9 @@ const postData = [
   },
 ];
 const popoverOptions = ['Edit', 'Delete'];
-function BookDetails() {
+function BooksDetails() {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
   const navigate = useNavigate();
   const path = useParams();
   const [selectedTab, setSelectedTab] = useState<string>();
@@ -37,6 +39,7 @@ function BookDetails() {
     } else {
       setSelectedTab('details');
     }
+    if (path.id === 'edit' && queryParam !== 'self') { navigate('/books/1/details'); }
   }, [path]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
@@ -49,10 +52,10 @@ function BookDetails() {
             <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
           </>
         )}
-        {selectedTab === 'edit' && <BookEdit />}
+        {selectedTab === 'edit' && queryParam === 'self' && <BookEdit />}
       </Container>
     </AuthenticatedPageWrapper>
   );
 }
 
-export default BookDetails;
+export default BooksDetails;

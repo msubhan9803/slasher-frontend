@@ -1,12 +1,11 @@
 import styled from 'styled-components';
-import CustomScrollbar from './CustomScrollbar';
+import CustomScrollbar from '../CustomScrollbar';
 
 const CustomTabs = styled(CustomScrollbar)`
   overflow-x: auto;
   overflow-y: hidden;
   .nav-link {
-    padding-top:1.25rem;
-    padding-bottom:1.25rem;
+    padding-bottom: 1rem !important;
     border: none;
     color: #ffffff;
     width: max-content;
@@ -18,9 +17,7 @@ const CustomTabs = styled(CustomScrollbar)`
       color: var(--bs-primary);
       background-color: transparent;
       border-bottom:  0.188rem solid var(--bs-primary);
-      margin-bottom:1px;
     }
   }
 `;
-
 export default CustomTabs;

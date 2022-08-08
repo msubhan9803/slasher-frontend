@@ -13,25 +13,19 @@ const StyledDiv = styled.div`
   border : 1px solid #3A3B46;
   border-radius: 6.25rem;
 `;
-const PostTopBorder = styled.div`
-  border-bottom: .063rem solid #3A3B46
-`;
 function CreatePostInput() {
   return (
-    <>
-      <RoundButton className="w-100 bg-transparent border-0 my-4 p-md-0 pb-4 ">
-        <StyledDiv className="d-flex justify-content-between px-2 py-2 bg-dark">
-          <div>
-            <CommentProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
-            <span className="ms-2 text-light fs-5">Create a post</span>
-          </div>
-          <div className="align-self-center me-2">
-            <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
-          </div>
-        </StyledDiv>
-      </RoundButton>
-      <PostTopBorder className="d-md-none d-block" />
-    </>
+    <RoundButton className="w-100 bg-transparent border-0 my-4 p-md-0 pb-4 ">
+      <StyledDiv className="d-flex justify-content-between px-2 py-2 bg-dark">
+        <div>
+          <CommentProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
+          <span className="ms-2 text-light fs-5">Create a post</span>
+        </div>
+        <div className="align-self-center me-2">
+          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
+        </div>
+      </StyledDiv>
+    </RoundButton>
   );
 }
 

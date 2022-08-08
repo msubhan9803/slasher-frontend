@@ -10,19 +10,21 @@ import ListIcon from './ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
 import RoundButton from '../../../components/ui/RoundButton';
-import BooksData from './BooksData';
+import BookSummary from './BookSummary';
 
-const StyleTabs = styled(Tabs)`
-  border-bottom: 0.2rem solid var(--bs-dark);
+interface QueryParamProps {
+  queryParam: boolean
+}
+const StyleTabs = styled(Tabs) <QueryParamProps>`
+border-bottom: 0.2rem solid var(--bs-dark);
   overflow-x: auto;
   overflow-y: hidden;
   .nav-item {
-    width: 65px;
+    ${(props) => !props.queryParam && 'margin-right: 2rem; flex-grow: 0;'};
     .nav-link {
-      width: 100%;
-      border: none;
-      color: white;
       padding-bottom: 1rem !important;
+      border: none;
+      color: #ffffff;
       &:hover {
         border-color: transparent;
         color: var(--bs-primary);
@@ -32,21 +34,34 @@ const StyleTabs = styled(Tabs)`
         background-color: transparent;
         border-bottom:  0.222rem solid var(--bs-primary);
       }
+      .btn {
+        ${(props) => !props.queryParam && 'width: max-content;'};
+      }
     }
   }
+
+  @media (max-width: 992px) {
+    .nav-item {
+      ${(props) => !props.queryParam && 'margin-right: 0; flex-grow: 1;'};
+      .btn {
+        ${(props) => (!props.queryParam ? 'width: 100%;' : 'width: 75%')};
+      } 
+    }
+  }
+
 `;
 const StyledBookPoster = styled.div`
-aspect-ratio: 0.67;
-img{
-  object-fit: cover;
+aspect - ratio: 0.67;
+  img{
+  object - fit: cover;
 }
 `;
 const FollowStyledButton = styled(RoundButton)`
-  width: 21.125rem;
+width: 21.125rem;
+border: 0.063rem solid #3A3B46;
+  &: hover, &:focus{
   border: 0.063rem solid #3A3B46;
-  &:hover, &:focus{
-    border: 0.063rem solid #3A3B46;
-  }
+}
 `;
 const BookIconList = [
   {
@@ -118,7 +133,7 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
               </div>
             </div>
             <div className="d-none d-xl-block">
-              <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam === 'self' ? 'justify-content-xl-between' : 'justify-content-xl-around'} px-2 border-0`}>
+              <StyleTabs justify queryParam={queryParam === 'self'} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between' : 'justify-content-center justify-content-xl-start'} fs-3 px-2 border-0`}>
                 <Tab eventKey="details" title="Details" />
                 <Tab eventKey="posts" title="Posts" />
                 {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
@@ -126,7 +141,7 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
             </div>
           </Col>
           <Col xl={7}>
-            <BooksData />
+            <BookSummary />
           </Col>
         </Row>
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
@@ -148,15 +163,15 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
             </div>
           </Col>
         </Row>
-        <Row className="d-lg-none mt-3 text-center">
+        <Row className="d-lg-none mt-3 mb-2 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this book</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
+            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'} `}>
               {bgColor ? 'Follow' : 'Unfollow'}
             </FollowStyledButton>
           </Col>
         </Row>
-        <Row className="align-items-center justify-content-center mt-4 d-lg-none">
+        <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
           <Col sm={5}>
             <div className="align-items-center d-flex justify-content-center">
               <span className="mb-2">Push notifications</span>
@@ -164,9 +179,9 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
             </div>
           </Col>
         </Row>
-        <Row className="d-xl-none justify-content-center">
-          <Col sm={6} md={5} lg={8} xl={4}>
-            <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`fs-3 ${queryParam === 'self' ? 'justify-content-between' : 'justify-content-around'}  mx-3 border-0`}>
+        <Row className="mt-4 d-xl-none justify-content-center">
+          <Col xs={queryParam === 'self' ? 10 : 12} sm={6} md={5} lg={8} xl={4}>
+            <StyleTabs justify queryParam={queryParam === 'self'} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between mx-3' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="posts" title="Posts" />
               {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}

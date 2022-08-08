@@ -7,7 +7,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
-import TabLinks from '../../components/ui/Tabs/TabLink';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;

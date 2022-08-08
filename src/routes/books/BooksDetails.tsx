@@ -7,6 +7,7 @@ import AboutBooks from './components/AboutBooks';
 import CreatePostInput from './components/CreatePostInput';
 import postImage from '../../images/book-post-image.jpg';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
+import BooksOverview from './BooksOverview';
 
 const postData = [
   {
@@ -26,6 +27,7 @@ function BooksDetails() {
   const [selectedTab, setSelectedTab] = useState<string>();
   const changeTab = (value: string) => {
     if (value === 'posts') { navigate(`/books/1/${value}`); }
+    if (value === 'details') { navigate(`/books/1/${value}`); }
     setSelectedTab(value);
   };
   useEffect(() => {
@@ -46,6 +48,11 @@ function BooksDetails() {
             <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
           </>
         )}
+        {
+          selectedTab === 'details' && (
+            <BooksOverview />
+          )
+        }
       </Container>
     </AuthenticatedPageWrapper>
   );

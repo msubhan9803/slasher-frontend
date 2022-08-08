@@ -5,8 +5,8 @@ import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
 import SortData from '../../components/filter-sort/SortData';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import PosterCardList from '../../components/tabs/PosterCardList';
-import TabLinks from '../../components/tabs/TabLinks';
+import PosterCardList from '../../components/ui/Poster/PosterCardList';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import {

@@ -9,8 +9,8 @@ import FilterOptions from '../../components/filter-sort/FilterOptions';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import SortData from '../../components/filter-sort/SortData';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
-import TabLinks from '../../components/tabs/TabLinks';
-import PosterCardList from '../../components/tabs/PosterCardList';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
+import PosterCardList from '../../components/ui/Poster/PosterCardList';
 import {
   allMovies, buyList, favoritesList, myMovies, slasherIndie, watchedList, watchList,
 } from './components/MovieList';

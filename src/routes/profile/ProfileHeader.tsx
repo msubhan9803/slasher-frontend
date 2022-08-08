@@ -2,11 +2,12 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Image, OverlayTrigger, Popover, Tab, Tabs,
+  Button, Image, OverlayTrigger, Popover,
 } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;
@@ -14,25 +15,6 @@ const ProfileImage = styled(Image)`
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
-`;
-const StyleTabs = styled(Tabs)`
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-link {
-    width: max-content;
-    padding-bottom: 1rem;
-    border: none;
-    color: #ffffff;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
 `;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
@@ -58,6 +40,15 @@ const CustomPopover = styled(Popover)`
     }
   }
 `;
+
+const tabs = [
+  { value: 'about', label: 'About' },
+  { value: 'posts', label: 'Posts' },
+  { value: 'friends', label: 'Friends' },
+  { value: 'photos', label: 'Photos' },
+  { value: 'watched-list', label: 'Watched list' },
+];
+
 const popover = (
   <CustomPopover id="popover-basic" className="py-2 rounded-2">
     <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
@@ -70,7 +61,7 @@ function ProfileHeader({ tabKey }: any) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
 
-  const handleChange = (tab: string) => {
+  const changeTab = (tab: string) => {
     navigate(`/${params.userName}/${tab}`);
   };
 
@@ -87,7 +78,7 @@ function ProfileHeader({ tabKey }: any) {
           </div>
         </div>
 
-        <div>
+        <div className="align-self-center">
           {queryParam === 'self'
             && (
               <RoundButton className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 py-2">
@@ -114,20 +105,7 @@ function ProfileHeader({ tabKey }: any) {
       </div>
 
       <StyledBorder className="d-md-block d-none" />
-      <div className="px-md-4">
-        <StyleTabs
-          onSelect={(tab: any) => handleChange(tab)}
-          activeKey={tabKey}
-          id="uncontrolled-tab-example"
-          className="border-0 mb-4 mt-1 justify-content-between fs-3 text-light flex-nowrap"
-        >
-          <Tab eventKey="about" title="About" />
-          <Tab eventKey="posts" title="Posts" />
-          <Tab eventKey="friends" title="Friends" />
-          <Tab eventKey="photos" title="Photos" />
-          <Tab eventKey="watchedList" title="Watched List" />
-        </StyleTabs>
-      </div>
+      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
     </div>
   );
 }

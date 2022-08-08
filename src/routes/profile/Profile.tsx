@@ -18,7 +18,7 @@ function Profile() {
       <Route path="/friends" element={<ProfileFriends />} />
       <Route path="/about" element={<ProfileAbout />} />
       <Route path="/photos" element={<ProfilePhotos />} />
-      <Route path="/watchedList" element={<ProfileWatchList />} />
+      <Route path="/watched-list" element={<ProfileWatchList />} />
     </Routes>
   );
 }

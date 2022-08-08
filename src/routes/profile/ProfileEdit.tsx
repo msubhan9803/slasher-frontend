@@ -41,7 +41,7 @@ function ProfileEdit() {
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
                   <div className="d-block justify-content-center">
                     <p className="fs-5 text-light mb-0">
-                      Recommended size: 830x4670 pixels
+                      Recommended size: 830x467 pixels
                     </p>
                     <p className="fs-5 text-light mb-0">
                       (jpg, png)
@@ -85,11 +85,11 @@ function ProfileEdit() {
                   In order to edit your email address, we will ask your
                   security question.
                 </Form.Text>
-                <Form.Text className="text-muted d-flex my-3">
+                <Form.Text className="text-muted d-flex my-3 fs-4">
                   When you change your email address, we will send an email to that
                   address with an update button.
                 </Form.Text>
-                <Form.Text className="text-muted">
+                <Form.Text className="text-muted fs-4">
                   Be sure to click the button in the email to activate your new email address.
                   If you do not, this can cause issues with your account, such as your ability
                   to login.
@@ -99,7 +99,7 @@ function ProfileEdit() {
           </Row>
           <Row className="mt-2">
             <Col md={3} lg={4} xl={3}>
-              <RoundButton className="py-2 w-100 h3 fw-bold">
+              <RoundButton className="py-2 w-100  fs-3 fw-bold">
                 Update profile
               </RoundButton>
             </Col>

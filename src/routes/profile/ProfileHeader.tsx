@@ -7,6 +7,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
+import CustomTabs from '../../components/ui/CustomTab';
 import postImage from '../../images/about-post.jpg';
 
 const ProfileImage = styled(Image)`
@@ -21,27 +22,11 @@ const AboutProfileImage = styled(Image)`
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
-const StyleTabs = styled(Tabs)`
-  overflow-y: hidden;
-  .nav-link {
-    padding-bottom: 1rem !important;
-    border: none;
-    color: #ffffff;
-    width: max-content;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
-`;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
-    svg{color: var(--bs-primary);}
+    svg{
+      color: var(--bs-primary);
+    }
   }
 `;
 const PopoverText = styled.p`
@@ -78,9 +63,11 @@ function ProfileHeader({ tabKey }: any) {
   const params = useParams();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+
   const handleChange = (tab: string) => {
     navigate(`/${params.userName}/${tab}`);
   };
+
   return (
     <div className="bg-dark bg-mobile-transparent rounded">
       {tabKey === 'about'
@@ -143,7 +130,7 @@ function ProfileHeader({ tabKey }: any) {
           </Row>
         )
         : (
-          <div className="d-flex justify-content-between  p-md-3 p-2">
+          <div className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
                 <ProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-2" />
@@ -153,7 +140,8 @@ function ProfileHeader({ tabKey }: any) {
                 <p className="fs-5 text-light mb-0">Aly khan</p>
               </div>
             </div>
-            <div>
+
+            <div className="align-self-center">
               {queryParam === 'self'
                 && (
                   <RoundButton className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 py-2">
@@ -179,22 +167,24 @@ function ProfileHeader({ tabKey }: any) {
             </div>
           </div>
         )}
+
       <StyledBorder className="d-md-block d-none mb-2" />
-      <div className="px-md-4">
-        <StyleTabs
+      <CustomTabs className="bg-dark bg-mobile-transparent rounded-3 px-md-4">
+        <Tabs
           onSelect={(tab: any) => handleChange(tab)}
           activeKey={tabKey}
           id="uncontrolled-tab-example"
-          className="border-0 mb-4 mt-1 justify-content-between fs-3 text-light flex-nowrap"
+          className="border-0 justify-content-between flex-nowrap text-light fs-3"
         >
           <Tab eventKey="about" title="About" />
           <Tab eventKey="posts" title="Posts" />
           <Tab eventKey="friends" title="Friends" />
           <Tab eventKey="photos" title="Photos" />
-          <Tab eventKey="watchedList" title="Watched list" />
-        </StyleTabs>
-      </div>
+          <Tab eventKey="watchedList" title="Watched List" />
+        </Tabs>
+      </CustomTabs>
     </div>
   );
 }
+
 export default ProfileHeader;

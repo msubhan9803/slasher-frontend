@@ -26,7 +26,7 @@ function ProfileAbout() {
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="about" />
-      <div className="bg-dark rounded p-4">
+      <div className="bg-dark rounded p-4 my-3">
         <div className="d-flex justify-content-between">
           <h2 className="mb-4">About me</h2>
           {queryParam === 'self'

@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
 import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
@@ -38,7 +38,7 @@ const CustomPopover = styled(Popover)`
     }
   }
 `;
-const Container = styled(Row)`
+const Container = styled.div`
   background: #1F1F1F;
 `;
 const friendList = [
@@ -123,28 +123,28 @@ function ProfileFriends() {
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
           <Row>
             {friendList.map((friend) => (
-              <Col md={4} key={friend.id}>
-                <Container className="py-2 justify-content-between w-100 rounded mx-0 mb-3 bg-mobile-transparent">
-                  <Col xs="auto">
-                    <Row className="align-items-center">
-                      <Col xs="auto" className="ps-0 ps-md-2">
-                        <ProfileImage src={friend.imageUrl} className="rounded-circle" />
-                      </Col>
-                      <Col xs="auto" className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
+              <Col md={4} lg={6} xl={4} key={friend.id}>
+                <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
+                  <div>
+                    <div className="d-flex align-items-center">
+                      <div>
+                        <ProfileImage src={friend.imageUrl} className="rounded-circle me-2" />
+                      </div>
+                      <div>
                         <h1 className="h3 mb-0">{friend.name}</h1>
                         <p className="fs-6 mb-0 text-light">{friend.email}</p>
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Col xs="auto" className="align-self-center">
+                      </div>
+                    </div>
+                  </div>
+                  <div className="d-flex align-self-center">
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 px-0">
+                        <Button className="bg-transparent shadow-none border-0 pe-0">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>
                     </StyledPopover>
-                  </Col>
+                  </div>
                 </Container>
               </Col>
             ))}

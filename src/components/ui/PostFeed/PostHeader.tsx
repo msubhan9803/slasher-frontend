@@ -50,7 +50,12 @@ function PostHeader({
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
       {queryParam !== 'self'
-        ? <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+        ? (
+          <>
+            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Block user</PopoverText>
+          </>
+        )
         : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );

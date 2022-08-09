@@ -149,9 +149,7 @@ function BookSummary() {
           </div>
         </Col>
         <Col xs={6} sm={5} xl={12} className="d-xxl-none pt-xl-3 pt-xxl-0">
-          {/* <div className="d-flex align-items-center justify-content-between"> */}
           <ShareButton />
-          {/* </div> */}
         </Col>
       </Row>
       <Row className="mt-5 d-xl-none">

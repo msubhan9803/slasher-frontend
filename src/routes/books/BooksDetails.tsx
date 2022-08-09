@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import AboutBooks from './components/AboutBooks';
@@ -8,6 +8,7 @@ import CreatePostInput from './components/CreatePostInput';
 import postImage from '../../images/book-post-image.jpg';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import BooksOverview from './BooksOverview';
+import BookEdit from './BookEdit';
 
 const postData = [
   {
@@ -22,12 +23,17 @@ const postData = [
 ];
 const popoverOptions = ['Edit', 'Delete'];
 function BooksDetails() {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
   const navigate = useNavigate();
   const path = useParams();
   const [selectedTab, setSelectedTab] = useState<string>();
   const changeTab = (value: string) => {
-    if (value === 'posts') { navigate(`/books/1/${value}`); }
-    if (value === 'details') { navigate(`/books/1/${value}`); }
+    if (!queryParam || queryParam !== 'self') {
+      navigate(`/books/1/${value}`);
+    } else {
+      navigate(`/books/1/${value}?view=self`);
+    }
     setSelectedTab(value);
   };
   useEffect(() => {
@@ -36,6 +42,7 @@ function BooksDetails() {
     } else {
       setSelectedTab('details');
     }
+    if (path.id === 'edit' && queryParam !== 'self') { navigate('/books/1/details'); }
   }, [path]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
@@ -53,6 +60,7 @@ function BooksDetails() {
             <BooksOverview />
           )
         }
+        {selectedTab === 'edit' && queryParam === 'self' && <BookEdit />}
       </Container>
     </AuthenticatedPageWrapper>
   );

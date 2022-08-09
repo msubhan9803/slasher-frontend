@@ -30,7 +30,7 @@ const ChatMessages = styled.div<ChatProps>`
 
 function ChatMessage({ messages, conversationType }: ChatProps) {
   return (
-    <ChatMessages conversationType={conversationType} className="px-lg-4 pe-3">
+    <ChatMessages conversationType={conversationType} className="px-3">
       {messages?.map((message) => (message.participant === 'other' ? (
         <div key={message.id} className="other-message mb-3">
           <div className="mb-2 d-flex">

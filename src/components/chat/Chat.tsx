@@ -9,17 +9,17 @@ import ChatTimestamp from './ChatTimestamp';
 import ChatUserStatus from './ChatUserStatus';
 
 const StyledChatContainer = styled.div`
-  height: calc(100% - 25rem);
+  height: calc(100vh - 170px);
   .card {
     height: 100%;
     .card-header {
       z-index: 1;
     }
     .card-body {
-      height: calc(100% - 12px);
+      height: calc(100vh - 165px);
       z-index: 0;
       .conversation-container {
-        height: calc(100% - 85px);
+        height: calc(100vh - 355px);
         overflow-x: hidden;
       }
       * {
@@ -39,7 +39,7 @@ const StyledChatContainer = styled.div`
       @media (max-width: 992px) {
         height: calc(100vh - 165px);
         .conversation-container {
-          height: calc(100vh - 242px);
+          height: calc(100vh - 235px);
         }
       }
     }
@@ -55,7 +55,7 @@ function Chat({
   return (
     <StyledChatContainer>
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
-        <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-4 py-lg-4">
+        <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus />
           <ChatOptions />
         </Card.Header>
@@ -66,8 +66,6 @@ function Chat({
           </div>
           <ChatInput showCamera={showCamera} inputClassName={inputClassName} />
         </Card.Body>
-        {/* <Card.Footer className="px-0 px-lg-4 text-muted border-top-0">
-        </Card.Footer> */}
       </Card>
     </StyledChatContainer>
   );

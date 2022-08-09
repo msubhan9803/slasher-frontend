@@ -48,8 +48,8 @@ const postData = [
   },
 
 ];
-const viewPopoverOption = ['Report', 'Delete'];
-const selfPopoverOption = ['Report'];
+const viewPopoverOption = ['Report'];
+const selfPopoverOption = ['Report', 'Delete'];
 
 function BookComments() {
   const [searchParams] = useSearchParams();

@@ -77,9 +77,6 @@ pipelines:
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy
-    deploy/dev-avadh:
-      - step: *lint-build-test
-      - step: *deploy
     deploy/dev-avadh1:
       - step: *lint-build-test
       - step: *deploy
@@ -95,7 +92,16 @@ pipelines:
     deploy/dev-avadh5:
       - step: *lint-build-test
       - step: *deploy
-    deploy/dev-ronak:
+    deploy/dev-avadh6:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh7:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh8:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-avadh9:
       - step: *lint-build-test
       - step: *deploy
     deploy/dev-ronak1:
@@ -111,6 +117,18 @@ pipelines:
       - step: *lint-build-test
       - step: *deploy
     deploy/dev-ronak5:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak6:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak7:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak8:
+      - step: *lint-build-test
+      - step: *deploy
+    deploy/dev-ronak9:
       - step: *lint-build-test
       - step: *deploy
   pull-requests:

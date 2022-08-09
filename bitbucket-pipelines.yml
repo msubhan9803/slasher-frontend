@@ -77,9 +77,6 @@ pipelines:
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy
-    deploy/dev-avadh:
-      - step: *lint-build-test
-      - step: *deploy
     deploy/dev-avadh1:
       - step: *lint-build-test
       - step: *deploy
@@ -105,9 +102,6 @@ pipelines:
       - step: *lint-build-test
       - step: *deploy
     deploy/dev-avadh9:
-      - step: *lint-build-test
-      - step: *deploy
-    deploy/dev-ronak:
       - step: *lint-build-test
       - step: *deploy
     deploy/dev-ronak1:

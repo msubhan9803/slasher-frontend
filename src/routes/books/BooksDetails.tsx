@@ -25,7 +25,7 @@ function BooksDetails() {
   const path = useParams();
   const [selectedTab, setSelectedTab] = useState<string>();
   const changeTab = (value: string) => {
-    if (value === 'posts') { navigate(`/books/1/${value}`); }
+    if (value === 'posts') { navigate(`/books/1/${value}?view=self`); }
     setSelectedTab(value);
   };
   useEffect(() => {

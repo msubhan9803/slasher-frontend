@@ -7,7 +7,7 @@ import {
   Col,
   Button,
 } from 'react-bootstrap';
-import ModalContainer from '../../../../components/ui/CustomModal';
+import CustomModal from '../../../../components/ui/CustomModal';
 
 interface Props {
   show: boolean;
@@ -17,7 +17,7 @@ interface Props {
 
 function RemoveProfileDialog({ show, setShow, handleRemoveFile }: Props) {
   return (
-    <ModalContainer
+    <CustomModal
       show={show}
       centered
     >
@@ -41,7 +41,7 @@ function RemoveProfileDialog({ show, setShow, handleRemoveFile }: Props) {
           </Col>
         </Row>
       </Modal.Body>
-    </ModalContainer>
+    </CustomModal>
   );
 }
 

@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import ReportDialog from '../../../components/ui/Reportdialog';
+import ReportModal from '../../../components/ui/ReportModal';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;
@@ -41,16 +41,12 @@ interface Props {
   postDate: string;
 }
 function NewPostHeader({ userName, postDate }: Props) {
-  const navigate = useNavigate();
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
 
   const handleNewsOption = (newsValue: string) => {
     setShow(true);
     setDropDownValue(newsValue);
-  };
-  const onProfileDetailClick = () => {
-    navigate('/news/partner/1');
   };
   const popover = (
     <CustomPopover id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -63,9 +59,9 @@ function NewPostHeader({ userName, postDate }: Props) {
         <Col xs="auto">
           <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
-              <div className="rounded-circle">
-                <ProfileImage src="https://i.pravatar.cc/300?img=11" onClick={() => { onProfileDetailClick(); }} className="rounded-circle bg-secondary" />
-              </div>
+              <Link to="/news/partner/1" className="rounded-circle">
+                <ProfileImage src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
+              </Link>
             </Col>
             <Col xs="auto" className="ps-0 align-self-center">
               <h1 className="mb-0 h3">{userName}</h1>
@@ -75,7 +71,7 @@ function NewPostHeader({ userName, postDate }: Props) {
         </Col>
         <Col xs="auto" className="d-block">
           <StyledPopover>
-            <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+            <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
               <Button className="bg-transparent shadow-none border-0 pe-1">
                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
               </Button>
@@ -85,7 +81,7 @@ function NewPostHeader({ userName, postDate }: Props) {
       </Row>
       {
         dropDownValue === 'report'
-        && <ReportDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+        && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
       }
     </>
   );

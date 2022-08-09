@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
 import RoundButton from './RoundButton';
-import ModalContainer from './CustomModal';
+import CustomModal from './CustomModal';
 
 interface Props {
   show: boolean;
@@ -9,7 +9,7 @@ interface Props {
   slectedDropdownValue: string
 }
 
-function ReportDialog({ show, setShow, slectedDropdownValue }: Props) {
+function ReportModal({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
   };
@@ -25,7 +25,7 @@ function ReportDialog({ show, setShow, slectedDropdownValue }: Props) {
   };
 
   return (
-    <ModalContainer
+    <CustomModal
       show={show}
       centered
       onHide={closeModal}
@@ -64,8 +64,8 @@ function ReportDialog({ show, setShow, slectedDropdownValue }: Props) {
           </Modal.Body>
         </>
       )}
-    </ModalContainer>
+    </CustomModal>
   );
 }
 
-export default ReportDialog;
+export default ReportModal;

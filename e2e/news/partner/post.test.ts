@@ -1,0 +1,13 @@
+import { test, expect } from '@playwright/test';
+
+const pagePath = '/news/partner/posts/1';
+
+test.describe(pagePath, () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(pagePath);
+  });
+
+  test('should display the expected content', async ({ page }) => {
+    await expect(page.locator('main')).toHaveText(/This space is used to help indie creators have a platform to promote their work./);
+  });
+});

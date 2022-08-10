@@ -72,7 +72,7 @@ function NewPostHeader({ userName, postDate }: Props) {
         <Col xs="auto" className="d-block">
           <StyledPopover>
             <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
-              <Button className="bg-transparent shadow-none border-0 pe-1">
+              <Button variant="link" className="bg-transparent shadow-none border-0 pe-1">
                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
               </Button>
             </OverlayTrigger>

@@ -135,7 +135,7 @@ function NewsPostData() {
               </Col>
               <Col className="text-end" role="button">
                 <CustomDropDown>
-                  <Dropdown.Toggle className="bg-transparent pt-1 pe-0">
+                  <Dropdown.Toggle className="bg-transparent pt-1 pe-0" variant="link">
                     <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                     Share
                   </Dropdown.Toggle>

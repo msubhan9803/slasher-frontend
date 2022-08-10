@@ -44,7 +44,7 @@ const StyledChatContainer = styled.div`
       }
     }
   }
-  @media (max-width: 992px) {
+  @media (max-width: 991px) {
     height: 100% !important;
   }
 `;

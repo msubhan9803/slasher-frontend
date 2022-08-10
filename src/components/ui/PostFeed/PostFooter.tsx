@@ -47,7 +47,7 @@ function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
         </Col>
         <Col className="text-end" role="button">
           <CustomDropDown>
-            <Dropdown.Toggle className="bg-transparent p-0 btn-link">
+            <Dropdown.Toggle variant="link" className="bg-transparent p-0">
               <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>

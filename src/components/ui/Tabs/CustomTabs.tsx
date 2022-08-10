@@ -16,7 +16,7 @@ const CustomTabs = styled(CustomScrollbar)`
     &.active {
       color: var(--bs-primary);
       background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
+      border-bottom: 0.27rem solid var(--bs-primary);
     }
   }
 `;

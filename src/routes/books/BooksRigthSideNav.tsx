@@ -8,7 +8,7 @@ import RoundButton from '../../components/ui/RoundButton';
 function BooksRigthSideNav() {
   return (
     <>
-      <RoundButton className="w-100 mb-4 fs-4">Add your book</RoundButton>
+      <RoundButton className="w-100 my-3 fs-3 fw-bold">Add your book</RoundButton>
       <NotificationSetting />
       <AdvertisementBox />
       <RecentMessages />

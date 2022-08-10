@@ -139,7 +139,7 @@ function BookSummary() {
           <ShareButton />
         </div>
       </div>
-      <Row className="mt-4 mt-lg-0 align-items-center justify-content-center justify-content-xl-start">
+      <Row className="mt-2 mt-lg-0 align-items-center justify-content-center justify-content-xl-start">
         <Col xs={6} sm={5} xl={12}>
           <div className="d-flex justify-content-xl-between justify-content-end align-items-center">
             <StyledWorth className="me-3 align-items-center d-flex justify-content-end justify-content-xl-start">

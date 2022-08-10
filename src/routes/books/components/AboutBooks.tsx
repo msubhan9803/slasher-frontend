@@ -109,7 +109,7 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
 
   return (
     <div>
-      <div className="bg-dark mt-3 p-4 pb-0 rounded-2">
+      <div className="bg-dark p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledBookPoster className="mx-md-4">

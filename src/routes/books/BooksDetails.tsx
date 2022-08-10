@@ -46,7 +46,7 @@ function BooksDetails() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid className="mb-5">
-        <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your book</RoundButton>
+        <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your book</RoundButton>
         <AboutBooks setSelectedTab={changeTab} selectedTab={selectedTab} />
         {selectedTab === 'posts' && (
           <>

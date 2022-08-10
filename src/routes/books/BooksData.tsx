@@ -97,6 +97,7 @@ function BooksData() {
 
   const changeTab = (value: string) => {
     navigate(`/books/${value}`);
+    setSelectedBookTab(value);
   };
 
   return (

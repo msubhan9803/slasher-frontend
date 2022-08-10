@@ -97,6 +97,7 @@ function MovieData() {
 
   const changeTab = (value: string) => {
     navigate(`/movies/${value}`);
+    setSelectedMovieTab(value);
   };
 
   return (

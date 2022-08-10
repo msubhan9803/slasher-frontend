@@ -13,7 +13,7 @@ import MapImage from '../../../images/place-map.jpg';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import LocationImage from '../../../images/location-feature.jpg';
 import category from '../PlaceData';
-import EventCard from './EventCard';
+import PlacePosterCard from './PlacePosterCard';
 
 const MapLocation = styled.div`
   aspectRetio : 3.56rem;
@@ -107,7 +107,7 @@ function PlaceLocation() {
         <MapLocation>
           <Image src={MapImage} alt="Google map" className="h-100 w-100 rounded" />
         </MapLocation>
-        <div className="mt-4 d-md-flex d-none justify-content-between">
+        <div className="mt-4 d-none d-md-flex d-lg-none d-xl-flex justify-content-between">
           {placeCategory.map((place) => (
             <div key={place.id}>
               <div className="d-flex me-2">
@@ -117,7 +117,7 @@ function PlaceLocation() {
             </div>
           ))}
         </div>
-        <Row className="mt-4 d-md-none justify-content-between">
+        <Row className="mt-4 d-md-none d-lg-flex d-xl-none justify-content-between">
           {placeCategory.map((place) => (
             <Col xs={6} key={place.id}>
               <div className="d-flex me-2">
@@ -162,7 +162,7 @@ function PlaceLocation() {
           <Row className="justify-content-md-center mx-md-3">
             {category.map((eventDetail) => (
               <Col md={6} key={eventDetail.id}>
-                <EventCard
+                <PlacePosterCard
                   listDetail={eventDetail}
                 />
               </Col>

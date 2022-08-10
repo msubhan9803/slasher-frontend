@@ -2,36 +2,27 @@ import React, { useState } from 'react';
 import {
   Col, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import Switch from '../../../components/ui/Switch';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import FriendRequests from '../../../components/layout/right-sidebar-wrapper/components/FriendRequests';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import RoundButton from '../../../components/ui/RoundButton';
 
-const CustomButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
-  &:focus {
-    border: 0.063rem solid #3A3B46;
-  }
-  &:hover {
-    border: 0.063rem solid #3A3B46;
-  }
-`;
 function NewsRightSideNav() {
-  const [bgColor, setBgColor] = useState(false);
+  const [following, setBgColor] = useState(true);
 
   return (
     <>
       <div className="bg-dark  mb-4 mt-0 p-3 rounded-3">
         <Row>
           <Col xs={6}>
-            <CustomButton
-              onClick={() => setBgColor(!bgColor)}
-              className={`w-100 fs-3 rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}
+            <RoundButton
+              variant={following ? 'black' : 'primary'}
+              onClick={() => setBgColor(!following)}
+              className="w-100 fs-3 rounded-pill"
             >
-              {bgColor ? 'Follow' : 'Unfollow'}
-            </CustomButton>
+              {following ? 'Unfollow' : 'Follow'}
+            </RoundButton>
           </Col>
         </Row>
         <Row className="mt-3">

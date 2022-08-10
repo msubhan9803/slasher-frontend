@@ -21,7 +21,7 @@ const CustomButton = styled(RoundButton)`
   }
 `;
 function NewsPartnerDetail() {
-  const [bgColor, setBgColor] = useState(false);
+  const [following, setFollowing] = useState(true);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="news">
@@ -42,10 +42,11 @@ function NewsPartnerDetail() {
             <Col className="d-md-none">
               <div className="mt-3 mb-4">
                 <CustomButton
-                  onClick={() => setBgColor(!bgColor)}
-                  className={`w-100  rounded-pill shadow-none ${bgColor ? 'bg-primary' : 'bg-black'}`}
+                  variant={following ? 'black' : 'primary'}
+                  onClick={() => setFollowing(!following)}
+                  className="w-100 rounded-pill shadow-none"
                 >
-                  {bgColor ? 'Follow' : 'Unfollow'}
+                  {following ? 'Unfollow' : 'Follow'}
                 </CustomButton>
               </div>
               <div className="my-4 lh-lg d-flex justify-content-center">

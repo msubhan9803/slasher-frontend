@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Form, Modal } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import CustomModal from '../../../components/ui/CustomModal';
-import RoundButton from '../../../components/ui/RoundButton';
+import RoundButton from './RoundButton';
+import CustomModal from './CustomModal';
 
 interface Props {
   show: boolean;
@@ -12,7 +9,7 @@ interface Props {
   slectedDropdownValue: string
 }
 
-function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
+function ReportModal({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
   };
@@ -26,49 +23,28 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
     if (checked) { newSet.add(value); } else { newSet.delete(value); }
     setReports(newSet);
   };
+
   return (
     <CustomModal
       show={show}
       centered
       onHide={closeModal}
     >
-      {slectedDropdownValue === '' && (
-        <>
-          <Modal.Header className="border-0 shadow-none" closeButton />
-          <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
-            <FontAwesomeIcon icon={solid('user-plus')} size="2x" className="border border-primary mb-4 rounded-5 text-primary" style={{ padding: '15px 12px' }} />
-            <h3> Want to see who likes you?</h3>
-            <Link to="/dating/likes" className="text-decoration-none text-primary">
-              Click here
-            </Link>
-          </Modal.Body>
-        </>
-      )}
-      {slectedDropdownValue === 'unmatch' && (
-        <>
-          <Modal.Header className="border-0 shadow-none" closeButton />
-          <Modal.Body className="d-flex flex-column align-items-center text-center p-5 pt-4">
-            <h3 className="text-primary mb-3"> Are you sure you want to unmatch? </h3>
-            <RoundButton className="mb-3 w-100">Yes</RoundButton>
-            <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>No</RoundButton>
-          </Modal.Body>
-        </>
-      )}
       {slectedDropdownValue === 'report' && (
         <>
           <Modal.Header className="border-0 shadow-none" closeButton />
           <Modal.Body className="d-flex flex-column p-5 pt-4">
             <h3 className="text-primary mb-3 text-center"> Block &#38; Report </h3>
             <Form className="mb-4">
-              {blockOptions.map((label: string, index: number) => (
+              {blockOptions.map((report: string, index: number) => (
                 <Form.Check
-                  key={label}
+                  key={report}
                   type="checkbox"
                   id={`report-${index}`}
-                  checked={reports.has(label)}
+                  checked={reports.has(report)}
                   className="mb-2"
-                  label={label}
-                  value={label}
+                  label={report}
+                  value={report}
                   onChange={reportChangeHandler}
                 />
               ))}
@@ -92,4 +68,4 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
   );
 }
 
-export default DatingLikesDialog;
+export default ReportModal;

@@ -14,7 +14,7 @@ interface PlaceHeaderProps {
 }
 const tabs = [
   { value: 'location', label: 'By location' },
-  { value: 'category', label: 'By category' },
+  { value: 'categories', label: 'By category' },
   { value: 'newest', label: 'Newest' },
   { value: 'favorites', label: 'Favorites' },
   { value: 'my-places', label: 'My places' },

@@ -13,7 +13,7 @@ function PlaceCategory() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="place">
-      <PlaceHeader tabKey="category" changeTab={changeTab} showKeys={showKeys} setShowKeys={setShowKeys} />
+      <PlaceHeader tabKey="categories" changeTab={changeTab} showKeys={showKeys} setShowKeys={setShowKeys} />
       <div className="p-4 pt-0">
         <PlacePosterCardList dataList={category} />
       </div>

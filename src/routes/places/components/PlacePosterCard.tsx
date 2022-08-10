@@ -25,7 +25,9 @@ const EventsCardStyle = styled(Card)`
   }
   margin-bottom: 0.75rem;
   margin-top: 0.75rem;
-  .rating {
+  .rating {    
+    width: 3.6rem;
+    height: 1.6rem;
     padding: 0.15rem 0.5rem;
     .fa-star {
       color: #FF8A00;
@@ -37,7 +39,7 @@ const EventsCardStyle = styled(Card)`
 function PlacePosterCard({ listDetail }: Props) {
   return (
     <EventsCardStyle className="rounded-3 bg-dark px-3 py-4">
-      <Card.Img variant="top" src={listDetail.image} className="rounded-3 mb-2" />
+      <Card.Img variant="top" src={listDetail.image} className="rounded-4 mb-2" />
       <Card.Body className="p-0">
         <div className="d-flex justify-content-between align-items-center">
           <p className="fs-4 m-0 mt-2 text-light">

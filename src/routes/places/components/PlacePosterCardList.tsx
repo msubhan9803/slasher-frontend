@@ -20,7 +20,7 @@ function PlacePosterCardList({ dataList }: PosterCardListProps) {
   return (
     <Row className="mt-0">
       {dataList && dataList.length > 0 ? dataList.map((listDetail: PlaceListProps) => (
-        <Col sm={6} xl={6} key={listDetail.id}>
+        <Col sm={6} lg={12} xl={6} key={listDetail.id}>
           <PlacePosterCard listDetail={listDetail} />
         </Col>
       )) : (

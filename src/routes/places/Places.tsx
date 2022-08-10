@@ -5,7 +5,7 @@ import PlaceCategory from './PlaceCategory/PlaceCategory';
 function Places() {
   return (
     <Routes>
-      <Route path="category" element={<PlaceCategory />} />
+      <Route path="categories" element={<PlaceCategory />} />
     </Routes>
   );
 }

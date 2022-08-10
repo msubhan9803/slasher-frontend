@@ -90,11 +90,11 @@ function AddYourBook() {
             </div>
           ))}
         </div>
-        <div className="d-block d-md-none">
+        <div className="d-block d-sm-none">
           <span className="text-primary h2">$20.00</span>
           <span className="text-light fs-5">/month</span>
         </div>
-        <Row className="h-100 mt-5 mt-md-3">
+        <Row className="h-100 mt-5 mt-sm-3">
           <Col xs={12} md="auto">
             <label htmlFor="file-upload" className="d-flex justify-content-center">
               {imageUpload.length === 0

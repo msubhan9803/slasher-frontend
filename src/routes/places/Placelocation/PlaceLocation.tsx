@@ -12,6 +12,8 @@ import PlaceHeader from '../PlaceHeader';
 import MapImage from '../../../images/place-map.jpg';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import LocationImage from '../../../images/location-feature.jpg';
+import category from '../PlaceData';
+import EventCard from './EventCard';
 
 const MapLocation = styled.div`
   aspectRetio : 3.56rem;
@@ -21,17 +23,18 @@ const Circle = styled.div`
   height:1.25rem;
   background:${(p) => p.color};
 `;
-const StyledCast = styled(Row)`
+const StyledLocation = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
 
-  .casts-image {
+  .location-image {
     aspect-ratio: 1.78;
   }
   &::-webkit-scrollbar {
     display: none;
 }
 `;
+
 const placeCategory = [
   { id: 1, category: 'Haunted houses', color: '#0047FF' },
   { id: 2, category: 'Haunted Hayrides', color: '#FF9A00' },
@@ -45,74 +48,126 @@ const locationList = [
     id: 11, image: LocationImage, title: 'Grim Trails Haunted Attraction', category: 'Haunted Houses',
   },
   {
-    id: 12, image: LocationImage, title: 'Grim Trails Haunted Attraction', category: 'Haunted Houses',
+    id: 12, image: LocationImage, title: 'High Desert Haunted House', category: 'Haunted Houses',
   },
   {
-    id: 13, image: LocationImage, title: 'Grim Trails Haunted Attraction', category: 'Haunted Houses',
+    id: 13, image: LocationImage, title: 'Evil on Erie ', category: 'Escape Rooms',
+  },
+  {
+    id: 14, image: LocationImage, title: 'Haunt for Hope ', category: 'Ghost Tours',
   },
 ];
+
 function PlaceLocation() {
   const [search, setSearch] = useState<string>('');
-  const slideCastsLeft = () => {
-    const slider = document.getElementById('slideCasts');
+  const slideLocationLeft = () => {
+    const slider = document.getElementById('slideLocation');
     if (slider !== null) {
       slider.scrollLeft -= 300;
     }
   };
-
-  const slideCastsRight = () => {
-    const slider = document.getElementById('slideCasts');
+  const slideLocationRight = () => {
+    const slider = document.getElementById('slideLocation');
     if (slider !== null) {
       slider.scrollLeft += 300;
     }
   };
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <PlaceHeader />
-      <div>
-        <MapLocation>
-          <Image src={MapImage} alt="Google map" className="h-100 w-100 rounded" />
-        </MapLocation>
-        <div className="mt-4 d-flex justify-content-between">
-          {placeCategory.map((place) => (
-            <div key={place.id} className="d-flex me-2">
-              <Circle color={place.color} className="rounded-circle me-1" />
-              <p className="fs-5">{place.category}</p>
-            </div>
-          ))}
-        </div>
-        <CustomSearchInput label="Find haunted places near you" setSearch={setSearch} search={search} />
-        <div className="bg-dark p-4 mt-3 rounded">
+    <AuthenticatedPageWrapper rightSidebarType="place">
+      <PlaceHeader tabKey="location" />
+      <div className="mt-4">
+        <div className="bg-dark p-4 pb-0 mt-3  rounded-3 mb-3 d-block d-md-none">
           <div className="d-flex justify-content-between">
             <h1 className="h2">Featured places</h1>
             <p className="fs-3 text-primary">Get featured</p>
           </div>
           <div className="d-flex align-items-center mt-3">
-            <Button className="ps-0 prev bg-transparent border-0 shadow-none text-white" onClick={slideCastsLeft}>
+            <Button className="d-none d-md-block ps-0 prev bg-transparent border-0 shadow-none text-white" onClick={slideLocationLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
             </Button>
-            <StyledCast
-              id="slideCasts"
+            <StyledLocation
+              id="slideLocation"
               className="d-flex flex-nowrap w-100"
             >
               {locationList.map((location: any) => (
-                <Col md={6} key={location.id}>
-                  <div className="casts-image position-relative">
+                <Col xs={6} key={location.id} className="order-sm-0">
+                  <div className="location-image position-relative">
                     <Image src={location.image} className="w-100 h-100 rounded" />
                   </div>
-                  <div>
-                    {location.title}
-                  </div>
-                  <div>
-                    {location.category}
-                  </div>
+                  <h1 className="h3 mt-3 mb-2">{location.title}</h1>
+                  <p className="fs-4 text-primary">{location.category}</p>
                 </Col>
               ))}
-            </StyledCast>
-            <Button className="pe-0 next bg-transparent border-0 shadow-none text-white" onClick={slideCastsRight}>
+            </StyledLocation>
+            <Button className="d-none d-md-block pe-0 next bg-transparent border-0 shadow-none text-white" onClick={slideLocationRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
             </Button>
           </div>
+        </div>
+        <MapLocation>
+          <Image src={MapImage} alt="Google map" className="h-100 w-100 rounded" />
+        </MapLocation>
+        <div className="mt-4 d-md-flex d-none justify-content-between">
+          {placeCategory.map((place) => (
+            <div key={place.id}>
+              <div className="d-flex me-2">
+                <Circle color={place.color} className="rounded-circle me-1" />
+                <p className="fs-5">{place.category}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <Row className="mt-4 d-md-none justify-content-between">
+          {placeCategory.map((place) => (
+            <Col xs={6} key={place.id}>
+              <div className="d-flex me-2">
+                <Circle color={place.color} className="rounded-circle me-1" />
+                <p className="fs-5">{place.category}</p>
+              </div>
+            </Col>
+          ))}
+        </Row>
+        <div className="mt-2 mt-md-0">
+          <CustomSearchInput label="Find haunted places near you" setSearch={setSearch} search={search} />
+        </div>
+        <div className="bg-dark p-4 mt-3 mx-2 mx-md-0 rounded-3 mb-2 d-none d-md-block">
+          <div className="d-flex justify-content-between">
+            <h1 className="h2">Featured places</h1>
+            <p className="fs-3 text-primary">Get featured</p>
+          </div>
+          <div className="d-flex align-items-center mt-3">
+            <Button className="d-none d-md-block ps-0 prev bg-transparent border-0 shadow-none text-white" onClick={slideLocationLeft}>
+              <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
+            </Button>
+            <StyledLocation
+              id="slideLocation"
+              className="d-flex flex-nowrap w-100"
+            >
+              {locationList.map((location: any) => (
+                <Col xs={6} key={location.id} className="order-sm-0">
+                  <div className="location-image position-relative">
+                    <Image src={location.image} className="w-100 h-100 rounded" />
+                  </div>
+                  <h1 className="h3 mt-3 mb-2">{location.title}</h1>
+                  <p className="fs-4 text-primary">{location.category}</p>
+                </Col>
+              ))}
+            </StyledLocation>
+            <Button className="d-none d-md-block pe-0 next bg-transparent border-0 shadow-none text-white" onClick={slideLocationRight}>
+              <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
+            </Button>
+          </div>
+        </div>
+        <div>
+          <Row className="justify-content-md-center mx-md-3">
+            {category.map((eventDetail) => (
+              <Col md={6} key={eventDetail.id}>
+                <EventCard
+                  listDetail={eventDetail}
+                />
+              </Col>
+            ))}
+          </Row>
         </div>
       </div>
     </AuthenticatedPageWrapper>

@@ -1,10 +1,10 @@
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Col, Image, Row, Tab, Tabs,
 } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
@@ -93,48 +93,75 @@ function PodcastDetail() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [bgColor, setBgColor] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const path = useParams();
+  const [selectedTab, setSelectedTab] = useState<string>();
+  const changeTab = (value: string) => {
+    if (!queryParam || queryParam !== 'self') {
+      navigate(`/podcasts/1/${value}`);
+    } else {
+      navigate(`/podcasts/1/${value}?view=self`);
+    }
+    setSelectedTab(value);
+  };
+  useEffect(() => {
+    if (path && path.id) {
+      setSelectedTab(path.id);
+    } else {
+      setSelectedTab('episodes');
+    }
+    if (path.id === 'edit' && queryParam !== 'self') { navigate('/podcasts/1/episodes'); }
+  }, [path]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="podcast">
       <div className="bg-dark rounded p-4 pb-0">
-        <Row className="mb-3">
-          <Col xl={4} xxl={3} className="text-center">
-            <StyledPodcastPoster className="rounded-3 me-xl-4" src={PodcastPoster} alt="podcast poster" />
-          </Col>
-          <Col xl={8} xxl={9} className="text-center text-xl-start mt-3 mt-xl-0">
+        <div className="mb-3 text-center d-xl-flex">
+          <div className="me-xl-4">
+            <StyledPodcastPoster className="rounded-3" src={PodcastPoster} alt="podcast poster" />
+          </div>
+          <div className="text-center text-xl-start mt-3 mt-xl-0">
             <h1 className="h2">The No Sleep Podcast</h1>
-            <p className="fs-4 text-light px-5 mx-5 me-xl-5 pe-xl-5 text-center text-xl-start">
-              In publishing and graphic design, Lorem ipsum is a placeholder
-              text commonly used to demonstrate the visual form of a document
-              or a typeface without.
-            </p>
+            <Row className="justify-content-center justify-content-xl-start">
+              <Col xs={10} sm={8} md={6} lg={8} xl={10}>
+                <p className="fs-4 text-light">
+                  In publishing and graphic design, Lorem ipsum is a placeholder
+                  text commonly used to demonstrate the visual form of a document
+                  or a typeface without.
+                </p>
+              </Col>
+            </Row>
             <p className="h4 mb-4">
               <span className="fw-normal text-light">
                 Number of episodes:&nbsp;
               </span>
               2.8K
             </p>
-            <p className="fs-3 fw-bold mb-2 mb-xl-1">Rating</p>
-            <div className="d-block d-xl-flex justify-content-between align-items-center">
-              <div className="d-flex align-items-center justify-content-center">
-                <span className="fs-3 me-3 me-xxl-2 align-items-center d-flex justify-content-end justify-content-xl-start">
-                  <StyledIcons icon={solid('star')} size="xs" className="star mb-2 mt-1" />
-                  <div className="d-flex">
-                    <p className="fw-bold m-0 mx-2">3.3/5</p>
-                    <p className="m-0 text-light me-xxl-2">(10K)</p>
-                  </div>
-                </span>
-                <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-4" variant="lg">
-                  <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
-                  <p className="fs-3 fw-bold m-0">Rate</p>
+            <p className="fs-3 fw-bold mb-3 mb-xl-1">Rating</p>
+            <Row className="justify-content-center justify-content-xl-between align-items-center">
+              <Col xl={8}>
+                <div className="d-flex align-items-center justify-content-center justify-content-xl-start">
+                  <span className="fs-3 me-3 me-xxl-2 align-items-center d-flex justify-content-end justify-content-xl-start">
+                    <StyledIcons icon={solid('star')} size="xs" className="star mb-2 mt-1" />
+                    <div className="d-flex">
+                      <p className="fw-bold m-0 mx-2">3.3/5</p>
+                      <p className="m-0 text-light me-xxl-2">(10K)</p>
+                    </div>
+                  </span>
+                  <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-4" variant="lg">
+                    <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
+                    <p className="fs-3 fw-bold m-0">Rate</p>
+                  </StyleBorderButton>
+                </div>
+              </Col>
+              <Col xl={4}>
+                <StyleBorderButton className="mt-4 mt-xl-0 mx-auto me-xl-0 ms-xl-auto d-flex d-xxl-none align-items-center share-btn bg-black px-4 py-2" variant="lg">
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
+                  <p className="fs-3 fw-bold m-0">Share</p>
                 </StyleBorderButton>
-              </div>
-              <StyleBorderButton className="mx-auto mb-2 mt-4 mt-xl-0 d-flex d-xxl-none align-items-center share-btn bg-black px-4 py-2" variant="lg">
-                <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-                <p className="fs-3 fw-bold m-0">Share</p>
-              </StyleBorderButton>
-            </div>
+              </Col>
+            </Row>
             <div className="d-lg-none mt-4 text-center">
-              <p className="fw-bold m-0 ">Get updates for this movie</p>
+              <p className="fw-bold m-0">Get updates for this movie</p>
               <Row className="justify-content-center">
                 <Col xs={10} sm={5}>
                   <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`my-3 w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
@@ -147,15 +174,20 @@ function PodcastDetail() {
                 </Col>
               </Row>
             </div>
+          </div>
+        </div>
+        <Row className="mt-4 justify-content-center justify-content-xl-start">
+          <Col xs={queryParam === 'self' ? 10 : 12} sm={6} md={5} lg={8} xl={5}>
+            <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => changeTab(tab)} justify queryParam={queryParam === 'self'} className={`${queryParam === 'self' ? 'justify-content-between mx-3 mx-xl-0' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
+              <Tab eventKey="episodes" title="Episodes" />
+              <Tab eventKey="posts" title="Posts" />
+              {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
+            </StyleTabs>
           </Col>
         </Row>
-        <StyleTabs justify queryParam={queryParam === 'self'} className={`${queryParam === 'self' ? 'justify-content-between mx-3' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
-          <Tab eventKey="episodes" title="Episodes" />
-          <Tab eventKey="posts" title="Posts" />
-        </StyleTabs>
       </div>
 
-      <PodcastEpisodes episodeData={episodeData} />
+      {selectedTab === 'episodes' && <PodcastEpisodes episodeData={episodeData} />}
     </AuthenticatedPageWrapper>
   );
 }

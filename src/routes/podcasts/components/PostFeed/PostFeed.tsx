@@ -32,6 +32,9 @@ const StylePlayButton = styled(RoundButton)`
   width: 2.667rem;
   height: 2.667rem;
 `;
+const StyledPodcastPlay = styled.div`
+  background: #0F0F0F;;
+`;
 function PostFeed({ episode }: Props) {
   const [postData, setPostData] = useState<EpisodeProps>(episode);
 
@@ -53,30 +56,30 @@ function PostFeed({ episode }: Props) {
         />
       </Card.Header>
       <Card.Body className="px-0 mt-2">
-        <div className="d-flex align-items-center bg-black p-3 mb-4 rounded">
+        <StyledPodcastPlay className="d-flex align-items-center p-3 mb-4 rounded">
           <StylePlayButton className="me-3">
             <FontAwesomeIcon icon={solid('play')} size="lg" />
           </StylePlayButton>
           <div>
             <h1 className="h3 fw-bold m-0">{postData.podcast}</h1>
-            <p className="m-0 fs-5 text-light">{postData.episodeTimeWise}</p>
+            <p className="m-0 fs-3 text-light">{postData.episodeTimeWise}</p>
           </div>
-        </div>
+        </StyledPodcastPlay>
         {postData.content}
         <Row className="pt-3 px-md-3">
           <Col>
             <LinearIcon uniqueId="like-button" role="button">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              <span className="fs-5">12K</span>
+              <span className="fs-3">12K</span>
             </LinearIcon>
           </Col>
           <Col className="text-center" role="button">
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-5">10</span>
+            <span className="fs-3">10</span>
           </Col>
           <Col className="text-end" role="button">
             <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-            <span className="fs-5">25</span>
+            <span className="fs-3">25</span>
           </Col>
           <svg width="0" height="0">
             <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">

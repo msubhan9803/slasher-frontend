@@ -5,6 +5,7 @@ import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useSearchParams } from 'react-router-dom';
 
 interface PostHeaderProps {
   userName: string;
@@ -12,8 +13,8 @@ interface PostHeaderProps {
   profileImage: string;
 }
 const ProfileImage = styled(Image)`
-  height:3.313rem;
-  width:3.313rem;
+  height: 3.334rem;
+  width: 3.334rem;
 `;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
@@ -39,11 +40,15 @@ const CustomPopover = styled(Popover)`
     }
   }
 `;
-
+const popoverOptions = ['Edit', 'Delete'];
 function PostHeader({ userName, postDate, profileImage }: PostHeaderProps) {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+      {queryParam !== 'self'
+        ? <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+        : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (
@@ -56,7 +61,7 @@ function PostHeader({ userName, postDate, profileImage }: PostHeaderProps) {
             </div>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
-            <h1 className="mb-0 h3">{userName}</h1>
+            <h1 className="mb-0 h3 fw-bold">{userName}</h1>
             <p className="mb-0 fs-6 text-light">{postDate}</p>
           </Col>
         </Row>

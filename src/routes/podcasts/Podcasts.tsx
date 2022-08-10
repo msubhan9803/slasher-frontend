@@ -5,7 +5,7 @@ import PodcastDetail from './PodcastDetail';
 function Podcasts() {
   return (
     <Routes>
-      <Route path="1" element={<PodcastDetail />} />
+      <Route path="1/:id" element={<PodcastDetail />} />
     </Routes>
   );
 }

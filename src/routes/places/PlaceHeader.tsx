@@ -22,7 +22,7 @@ function PlaceHeader({
 }: any) {
   return (
     <>
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} />
+      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
       <Row className="mt-4 mb-lg-3 justify-content-between align-items-center">
         <Col md={5} className="d-none d-lg-block">
           <SortData type="select" className="rounded-5" />

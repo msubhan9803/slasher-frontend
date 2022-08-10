@@ -1,6 +1,6 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -10,8 +10,12 @@ const CommentProfileImage = styled(Image)`
   width:2.5rem;
 `;
 const StyledDiv = styled.div`
-  border : 1px solid #3A3B46;
+  border : 0.063rem solid #3A3B46;
   border-radius: 6.25rem;
+`;
+const CameraIcon = styled(FontAwesomeIcon)`
+  height:1.25rem;
+  width:1.438rem;
 `;
 function CreatePostInput() {
   return (
@@ -21,8 +25,8 @@ function CreatePostInput() {
           <CommentProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
-        <div className="align-self-center me-2">
-          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
+        <div className="align-self-center me-2 mt-1">
+          <CameraIcon role="button" icon={solid('camera')} />
         </div>
       </StyledDiv>
     </RoundButton>

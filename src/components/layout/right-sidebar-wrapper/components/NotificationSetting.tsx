@@ -16,7 +16,7 @@ function NotificationSetting() {
     <div className="bg-dark m-2 p-3 rounded-3">
       <Row>
         <Col xs={6}>
-          <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
+          <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'}`}>
             {bgColor ? 'Follow' : 'Unfollow'}
           </StyleBorderButton>
         </Col>

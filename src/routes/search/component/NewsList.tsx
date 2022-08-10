@@ -84,7 +84,7 @@ function NewsList({
             </div>
             <StyledPopover className="position-relative">
               <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                <Button className="bg-transparent shadow-none border-0 pe-1">
+                <Button className="bg-transparent shadow-none  border-0 pe-1">
                   <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                 </Button>
               </OverlayTrigger>

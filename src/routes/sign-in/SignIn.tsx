@@ -25,8 +25,8 @@ function SignIn() {
             <div>
               <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
               <Form>
-                <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
-                <CustomInputGroup addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
+                <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
+                <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
 
                 <p className="text-center">
                   <small>
@@ -37,11 +37,11 @@ function SignIn() {
                   </small>
                 </p>
 
-                <RoundButton className="w-100 my-3" variant="primary" size="lg" type="submit">
+                <RoundButton className="w-100 my-3" variant="primary" type="submit">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>
-                <RoundButtonLink to="/registration" className="w-100" variant="primary" size="lg">
+                <RoundButtonLink to="/registration" className="w-100" variant="primary">
                   Create an account
                 </RoundButtonLink>
 

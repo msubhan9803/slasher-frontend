@@ -129,8 +129,8 @@ function ProfileHeader({ tabKey }: any) {
                           </Button>
                           <StyledPopover className="d-none d-md-block d-lg-none d-xl-block">
                             <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1">
-                                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1 text-white">
+                                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} className="text-white" size="lg" />
                               </Button>
                             </OverlayTrigger>
                           </StyledPopover>
@@ -165,12 +165,12 @@ function ProfileHeader({ tabKey }: any) {
               {queryParam !== 'self'
                 && (
                   <div className="d-flex align-items-center">
-                    <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4">
+                    <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 text-white">
                       <h3 className="mb-0">Unfriend</h3>
                     </Button>
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0">
+                        <Button className="bg-transparent shadow-none border-0 py-0 text-white">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>

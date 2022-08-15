@@ -28,13 +28,11 @@ function SignIn() {
                 <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
                 <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
 
-                <p className="text-center">
-                  <small>
-                    Forgot your password? &nbsp;
-                    <Link to="/sign-in" className="text-primary">
-                      Click here
-                    </Link>
-                  </small>
+                <p className="text-center fs-5">
+                  Forgot your password?&nbsp;
+                  <Link to="/forgot-password" className="text-primary">
+                    Click here
+                  </Link>
                 </p>
 
                 <RoundButton className="w-100 my-3" variant="primary" type="submit">
@@ -45,16 +43,7 @@ function SignIn() {
                   Create an account
                 </RoundButtonLink>
 
-                <p className="text-center mt-3">
-                  <small>
-                    Don’t have an account? &nbsp;
-                    <Link to="/sign-in" className="text-primary">
-                      Click here
-                    </Link>
-                  </small>
-                </p>
-
-                <p className="fs-6">
+                <p className="mt-3">
                   NOTE: If you just created an account and you are not able to login,
                   be sure you activated your account by clicking
                   the button in the email we sent when you created your account.
@@ -65,7 +54,7 @@ function SignIn() {
                   <br />
                   <br />
                   Please check your spam folder for the email.
-                  If you have not received it, please &nbsp;
+                  If you have not received it, please&nbsp;
                   <Link to="/sign-in" className="text-primary">click here.</Link>
                 </p>
               </Form>

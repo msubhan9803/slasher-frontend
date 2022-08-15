@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button,
-  Card, Col, Image, OverlayTrigger, Popover, Row,
+  Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NewsPartnerComments from './NewsPartnerComments';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
 import postImage from '../../../images/news-partner-detail.jpg';
+import CustomPopover from '../../../components/ui/CustomPopover';
+import ReportModal from '../../../components/ui/ReportModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -29,30 +30,6 @@ const ProfileImage = styled(Image)`
   height:3.125rem;
   width:3.125rem;
 `;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
-  }
-`;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
 const ImageContainer = styled(Row)`
   aspect-ratio: 1.9
   svg {
@@ -66,6 +43,15 @@ const data = [
 ];
 function NewsPartnerPost() {
   const [postData, setPostData] = useState<PostProps[]>(data);
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
+  const popoverOption = ['Report'];
+
+  const handlePopover = (selectedOption: string) => {
+    setShow(true);
+    setDropDownValue(selectedOption);
+  };
+
   const onLikeClick = (likeId: number) => {
     const likeData = postData.map((checkLikeId: PostProps) => {
       if (checkLikeId.id === likeId) {
@@ -76,11 +62,6 @@ function NewsPartnerPost() {
     setPostData(likeData);
   };
 
-  const popover = (
-    <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button">Report</PopoverText>
-    </CustomPopover>
-  );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="mb-5 px-2">
@@ -103,13 +84,7 @@ function NewsPartnerPost() {
                     </Row>
                   </Col>
                   <Col xs="auto" className="d-block">
-                    <StyledPopover>
-                      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 pe-1">
-                          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                        </Button>
-                      </OverlayTrigger>
-                    </StyledPopover>
+                    <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopover} />
                   </Col>
                 </Row>
               </Card.Header>
@@ -159,6 +134,7 @@ function NewsPartnerPost() {
           ))}
         </Col>
       </Row>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

@@ -7,6 +7,7 @@ const CustomModal = styled(Modal)`
     background-color: #000000;
   }
   .btn-close {
+    margin: 0;
     background: url("${closeIcon}") center/4em auto no-repeat;
     opacity: 1;
     &:focus {

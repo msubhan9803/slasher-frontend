@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tab, Tabs } from 'react-bootstrap';
-import CustomTabs from './CustomTab';
+import CustomTabs from './CustomTabs';
 
 interface TabLinksProps {
   tabLink: TabProps[];

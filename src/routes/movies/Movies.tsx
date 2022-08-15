@@ -1,10 +1,12 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AddYourMovie from './AddYourMovie';
+import MovieData from './MovieData';
 
 function Movies() {
   return (
     <Routes>
+      <Route path="/:id" element={<MovieData />} />
       <Route path="add" element={<AddYourMovie />} />
     </Routes>
   );

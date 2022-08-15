@@ -61,6 +61,10 @@ const CustomCol = styled(Col)`
 const ImageContainer = styled.div`
   aspectRatio: '1.78'
 `;
+const RoundDiv = styled.div`
+  border-top-left-radius:50%;
+  border-top-right-radius:50%;
+`;
 const popover = (
   <CustomPopover id="popover-basic" className="py-2 rounded-2">
     <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
@@ -125,8 +129,8 @@ function ProfileHeader({ tabKey }: any) {
                           </Button>
                           <StyledPopover className="d-none d-md-block d-lg-none d-xl-block">
                             <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1">
-                                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1 text-white">
+                                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} className="text-white" size="lg" />
                               </Button>
                             </OverlayTrigger>
                           </StyledPopover>
@@ -139,7 +143,7 @@ function ProfileHeader({ tabKey }: any) {
           </Row>
         )
         : (
-          <div className="d-flex bg-dark justify-content-between p-md-3 p-2">
+          <RoundDiv className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
                 <ProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-2" />
@@ -161,12 +165,12 @@ function ProfileHeader({ tabKey }: any) {
               {queryParam !== 'self'
                 && (
                   <div className="d-flex align-items-center">
-                    <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4">
+                    <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 text-white">
                       <h3 className="mb-0">Unfriend</h3>
                     </Button>
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0">
+                        <Button className="bg-transparent shadow-none border-0 py-0 text-white">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>
@@ -174,7 +178,7 @@ function ProfileHeader({ tabKey }: any) {
                   </div>
                 )}
             </div>
-          </div>
+          </RoundDiv>
         )}
 
       <StyledBorder className="d-md-block d-none" />

@@ -71,7 +71,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
     <>
       {postData.map((post: PostProps) => (
         <div key={post.id}>
-          <Card className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+          <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0">
               <PostHeader
                 userName={post.userName}

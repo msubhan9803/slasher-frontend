@@ -1,15 +1,11 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import postImage from '../../../images/news-post.svg';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 
-const PostTopBorder = styled.div`
-  border-bottom: .063rem solid #3A3B46
-`;
 const postData = [
   {
     id: 1,
@@ -40,12 +36,9 @@ function ProfilePosts() {
       <ProfileHeader tabKey="posts" />
       {queryParam === 'self'
         && (
-          <>
-            <div className="mt-4">
-              <CustomCreatePost />
-            </div>
-            <PostTopBorder className="d-md-none d-block" />
-          </>
+          <div className="mt-4">
+            <CustomCreatePost />
+          </div>
         )}
       <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection={false} />
     </AuthenticatedPageWrapper>

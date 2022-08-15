@@ -13,10 +13,11 @@ const SwitchStyledLabel = styled.label`
   input:checked+.slider:after {
     content: 'ON';
     left: 30%;
+    color: #000000;
   }
   .slider:after {
     content: 'OFF';
-    color: #FFFFFF;
+    color: #ffffff;
     display: block;
     position: absolute;
     transform: translate(-50%, -50%);

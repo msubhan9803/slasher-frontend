@@ -10,7 +10,7 @@ import {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
-import ModalContainer from '../../components/ui/CustomModal';
+import CustomModal from '../../components/ui/CustomModal';
 
 export default function VerificationEmailNotReceived() {
   const [show, setShow] = useState(false);
@@ -49,7 +49,7 @@ export default function VerificationEmailNotReceived() {
             account and include your Slasher username as well. We will
             be happy to help you!
           </p>
-          <ModalContainer
+          <CustomModal
             show={show}
             centered
             onHide={handleClose}
@@ -70,7 +70,7 @@ export default function VerificationEmailNotReceived() {
                 &nbsp;for assistance
               </p>
             </Modal.Body>
-          </ModalContainer>
+          </CustomModal>
         </Col>
       </Row>
     </UnauthenticatedPageWrapper>

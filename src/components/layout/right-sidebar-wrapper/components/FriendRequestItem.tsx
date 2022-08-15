@@ -23,8 +23,8 @@ function FriendRequestItem({
     <div key={id} className={`px-2 py-3 d-flex align-items-center rounded-3 bg-dark ${className}`}>
       <FriendRequestImage src={image} className="me-2 rounded-circle bg-secondary position-relative" />
       <p className="mb-0 flex-grow-1">{userName}</p>
-      <CircleButton variant="success" className="me-2 text-white" icon={solid('check')} />
-      <CircleButton variant="primary" className="me-2" icon={solid('times')} />
+      <CircleButton variant="black" className="me-2 text-success" icon={solid('check')} />
+      <CircleButton variant="black" className="me-2 text-primary" icon={solid('times')} />
     </div>
   );
 }

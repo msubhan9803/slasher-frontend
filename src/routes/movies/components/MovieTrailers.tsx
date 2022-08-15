@@ -39,7 +39,7 @@ function MovieTrailers({ movieTrailer }: Props) {
     <div className="bg-dark p-4 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Trailers</h1>
       <div className="d-flex align-items-center mt-3">
-        <Button className="ps-0 prev bg-transparent border-0 shadow-none" onClick={slideTrailerLeft}>
+        <Button className="text-white ps-0 prev bg-transparent border-0 shadow-none" onClick={slideTrailerLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </Button>
         <StyledMovieTrailer
@@ -61,7 +61,7 @@ function MovieTrailers({ movieTrailer }: Props) {
             </Col>
           ))}
         </StyledMovieTrailer>
-        <Button className="pe-0 next bg-transparent border-0 shadow-none" onClick={slideTrailerRight}>
+        <Button className="text-white pe-0 next bg-transparent border-0 shadow-none" onClick={slideTrailerRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </Button>
       </div>

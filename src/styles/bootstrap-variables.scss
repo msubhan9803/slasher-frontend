@@ -24,6 +24,9 @@ $success: #00FF0A;
 $light: #cccccc;
 $dark: #1b1b1b;
 
+$slasher-comments-bg-color: #171717;
+$stroke-and-line-separator-color: #3A3B46;
+
 $border-radius-lg: .625rem;
 
 $font-family-base: 'Roboto';
@@ -40,9 +43,16 @@ $link-color: $body-color;
 
 $offcanvas-bg-color: $dark;
 
-$input-padding-y: 1rem;
+$input-btn-padding-y: .50rem;
+$btn-font-size: $h3-font-size;
+$input-font-size: $h4-font-size;
+$btn-font-size-lg: $h3-font-size;
+$input-font-size-lg: $h4-font-size;
+$input-btn-padding-y-lg: 1.15rem;
+// $btn-line-height:
+// $input-btn-line-height:
 $input-border-radius: 10px;
-$input-btn-padding-y-lg: .75rem;
+$btn-font-weight: 'bold';
 
 $input-bg: #1F1F1F;
 $input-border-color: #3A3B46;

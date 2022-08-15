@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const StyledFooter = styled.footer`
-  .container {
-    border-top: 1px solid var(--bs-dark);
+  .footer-container {
+    border-top: 1px solid var(--slasher-comments-bg-color);
   }
   a {
     text-decoration: none;
@@ -17,7 +17,7 @@ const StyledFooter = styled.footer`
 function UnauthenticatedPageFooter() {
   return (
     <StyledFooter className="pt-5">
-      <Container fluid="lg" className="py-5">
+      <Container fluid="lg" className="footer-container py-5">
         <div className="w-100 d-flex flex-wrap justify-content-evenly">
           <Link className="mb-2 px-2" to="/">About</Link>
           <Link className="mb-2 px-2" to="/">Help</Link>

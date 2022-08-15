@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Form, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import ModalContainer from '../../../components/ui/CustomModal';
+import CustomModal from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
 
 interface Props {
@@ -27,7 +27,7 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
     setReports(newSet);
   };
   return (
-    <ModalContainer
+    <CustomModal
       show={show}
       centered
       onHide={closeModal}
@@ -88,7 +88,7 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
           </Modal.Body>
         </>
       )}
-    </ModalContainer>
+    </CustomModal>
   );
 }
 

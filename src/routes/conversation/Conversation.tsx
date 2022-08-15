@@ -44,7 +44,7 @@ const messages = [
 function Conversation() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Chat messages={messages} showCamera inputClassName="border-start-0" />
+      <Chat messages={messages} />
     </AuthenticatedPageWrapper>
   );
 }

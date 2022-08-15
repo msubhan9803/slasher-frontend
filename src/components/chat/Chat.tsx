@@ -49,9 +49,7 @@ const StyledChatContainer = styled.div`
   }
 `;
 
-function Chat({
-  messages, showCamera, inputClassName, conversationType,
-}: ChatProps) {
+function Chat({ messages }: ChatProps) {
   return (
     <StyledChatContainer>
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
@@ -62,9 +60,9 @@ function Chat({
         <Card.Body className="position-relative overflow-auto p-0">
           <div className="conversation-container">
             <ChatTimestamp />
-            <ChatMessage messages={messages} conversationType={conversationType} />
+            <ChatMessage messages={messages} />
           </div>
-          <ChatInput showCamera={showCamera} inputClassName={inputClassName} />
+          <ChatInput />
         </Card.Body>
       </Card>
     </StyledChatContainer>
@@ -73,9 +71,6 @@ function Chat({
 
 Chat.defaulProps = {
   messages: [],
-  showCamera: false,
-  inputClassName: '',
-  conversationType: '',
 };
 
 export default Chat;

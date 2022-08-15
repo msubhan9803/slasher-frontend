@@ -4,7 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
 
-const ChatMessages = styled.div<ChatProps>`
+const ChatMessages = styled.div`
 .time-stamp{
   color: #797979;
   font-size: 0.75rem;
@@ -23,14 +23,14 @@ const ChatMessages = styled.div<ChatProps>`
     p {
       border-radius: 1.25rem;
       border-bottom-right-radius: 0rem;
-      background: ${(data) => (data.conversationType === 'dating' ? 'linear-gradient(266.51deg, #3457D5 4.43%, rgba(52, 87, 213, 0.7) 52.02%, #3457D5 100%), #000000;' : 'linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000')};
+      background: linear-gradient(90deg, #5C258D 2%, #4389A2 100%), #000000;
     }
   }
 `;
 
-function ChatMessage({ messages, conversationType }: ChatProps) {
+function ChatMessage({ messages }: ChatProps) {
   return (
-    <ChatMessages conversationType={conversationType} className="px-3">
+    <ChatMessages className="px-3">
       {messages?.map((message) => (message.participant === 'other' ? (
         <div key={message.id} className="other-message mb-3">
           <div className="mb-2 d-flex">

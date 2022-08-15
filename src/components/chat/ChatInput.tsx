@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Form, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
-import { ChatProps } from './ChatProps';
 
 const StyledChatInputGroup = styled.div`
   .input-group{
@@ -29,21 +28,19 @@ const StyledChatInputGroup = styled.div`
   }  
 `;
 
-function ChatInput({ showCamera, inputClassName }: ChatProps) {
+function ChatInput() {
   return (
     <StyledChatInputGroup className="pt-4 pt-lg-3 pb-0 pb-lg-3 px-3 text-muted border-top-0 overflow-hidden">
       <InputGroup className="pe-2">
-        {showCamera && (
-          <InputGroup.Text className="border-end-0">
-            <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-3 text-white border-end-0" />
-          </InputGroup.Text>
-        )}
+        <InputGroup.Text className="border-end-0">
+          <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" />
+        </InputGroup.Text>
         <Form.Control
           placeholder="Type your message here..."
-          className={`border-end-0 fs-5 ${inputClassName}`}
+          className="border-end-0 fs-5 border-start-0"
         />
         <InputGroup.Text className="border-start-0">
-          <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-3" />
+          <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" />
         </InputGroup.Text>
 
       </InputGroup>

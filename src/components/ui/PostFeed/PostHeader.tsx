@@ -42,6 +42,10 @@ const CustomPopover = styled(Popover)`
   }
 `;
 
+const PostTopBorder = styled.div`
+  border-bottom: .063rem solid #3A3B46
+`;
+
 function PostHeader({
   userName, postDate, profileImage, popoverOptions,
 }: PostHeaderProps) {
@@ -50,35 +54,43 @@ function PostHeader({
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
       {queryParam !== 'self'
-        ? <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+        ? (
+          <>
+            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
+            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Block user</PopoverText>
+          </>
+        )
         : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (
-    <Row className="justify-content-between">
-      <Col xs="auto">
-        <Row className="d-flex">
-          <Col className="my-auto rounded-circle" xs="auto">
-            <div className="rounded-circle">
-              <ProfileImage src={profileImage} className="rounded-circle bg-secondary" />
-            </div>
-          </Col>
-          <Col xs="auto" className="ps-0 align-self-center">
-            <h1 className="mb-0 h3">{userName}</h1>
-            <p className="mb-0 fs-6 text-light">{postDate}</p>
-          </Col>
-        </Row>
-      </Col>
-      <Col xs="auto" className="d-block">
-        <StyledPopover>
-          <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-            <Button className="bg-transparent shadow-none border-0 pe-1">
-              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-            </Button>
-          </OverlayTrigger>
-        </StyledPopover>
-      </Col>
-    </Row>
+    <>
+      <PostTopBorder className="d-md-none d-block mb-3" />
+      <Row className="justify-content-between">
+        <Col xs="auto">
+          <Row className="d-flex">
+            <Col className="my-auto rounded-circle" xs="auto">
+              <div className="rounded-circle">
+                <ProfileImage src={profileImage} className="rounded-circle bg-secondary" />
+              </div>
+            </Col>
+            <Col xs="auto" className="ps-0 align-self-center">
+              <h1 className="mb-0 h3">{userName}</h1>
+              <p className="mb-0 fs-6 text-light">{postDate}</p>
+            </Col>
+          </Row>
+        </Col>
+        <Col xs="auto" className="d-block">
+          <StyledPopover>
+            <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+              <Button className="bg-transparent shadow-none border-0 pe-1 text-white">
+                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+              </Button>
+            </OverlayTrigger>
+          </StyledPopover>
+        </Col>
+      </Row>
+    </>
   );
 }
 

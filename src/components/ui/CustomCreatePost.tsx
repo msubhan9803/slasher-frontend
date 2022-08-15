@@ -21,7 +21,7 @@ function CustomCreatePost() {
           <CommentProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
-        <div className="align-self-center me-2">
+        <div className="align-self-center me-2 text-white">
           <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
         </div>
       </StyledDiv>

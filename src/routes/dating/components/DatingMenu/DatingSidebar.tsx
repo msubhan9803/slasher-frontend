@@ -15,7 +15,7 @@ function DatingSidebar() {
           <IconWithTextNavLink label="My Profile" icon={regular('user')} iconSize="2x" to="/" />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} iconSize="2x" to="/" badgeIconClassName="text-primary" />
+          <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} iconSize="2x" to="/" />
         </Col>
         <Col md={4}>
           <IconWithTextNavLink label="Messages" icon={regular('comments')} iconSize="2x" to="/" badge={12} />
@@ -26,7 +26,7 @@ function DatingSidebar() {
           <IconWithTextNavLink label="Likes" icon={regular('heart')} iconSize="2x" to="/" badge={6} />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/" />
+          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/" badgeIconClassName="text-primary" />
         </Col>
         <Col />
       </Row>

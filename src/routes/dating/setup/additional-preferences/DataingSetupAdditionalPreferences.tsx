@@ -10,20 +10,14 @@ import DatingPageWrapper from '../../components/DatingPageWrapper';
 function DataingSetupAdditionalPreferences() {
   return (
     <DatingPageWrapper>
-      <Row>
+      <Row className="my-5 py-5 py-md-0 my-md-0">
         <Col xs={12}>
-          <h1 className="h6 text-center">
-            On this screen, you can set your filters.
-            <br />
-            You will be able to change these later on the dating preferences screen.
-          </h1>
-
-          <div className="mt-5">
+          <div className="bg-dark bg-mobile-transparent p-2 p-md-4 rounded">
             <DatingAdditionalPreferences />
-            <Row className="d-flex justify-content-center">
-              <Col md={6} className="my-4">
+            <Row>
+              <Col md={3} lg={5} xl={3} className="mb-4">
                 <RoundButton className="w-100" type="submit">
-                  Next Step
+                  Save changes
                 </RoundButton>
               </Col>
             </Row>

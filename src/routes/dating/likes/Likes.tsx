@@ -1,107 +1,65 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Col, Container, Dropdown, Image, Row,
+  Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import DatingPageWrapper from '../components/DatingPageWrapper';
-import SwitchButtonGroup from '../../../components/ui/SwitchButtonGroup';
+import likesList from './LikesData';
 import DatingLikesDialog from './DatingLikeDialog';
 
-const DatingLikeUserCircleImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
+const ProfileImage = styled(Image)`
+  height: 2.667rem;
+  width: 2.667rem;
 `;
-const UnsubscribeLikeUserImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
-  filter: opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px);
+const UnsubscribeProfileImage = styled.div`
+  height: 3.867rem;
+  width: 3.867rem;
 `;
-const CustomDropDown = styled(Dropdown)`
-  .dropdown-toggle {
-    border: none;
-    &:hover {
-      box-shadow: none;
-    }
-    &:focus {
-      box-shadow: none;
-    }
-    &:active {
-      box-shadow: none;
-    }
-    &:after {
-      display: none;
-    }
-  }
-  .dropdown-toggle[aria-expanded="true"] {
-    svg {
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
       color: var(--bs-primary);
     }
   }
-  .dropdown-menu {
-    inset: -30px 20px auto auto !important;
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: red;
   }
-  .dropdown-item {
-    &:hover {
-      background-color: var(--bs-primary) !important;
-    }
-    &:active {
-      background-color: var(--bs-primary) !important;
+`;
+const CustomPopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 1px solid rgb(56,56,56);
+  position:absolute;
+  top: 0px !important;
+  .popover-arrow{
+    &:after{
+      border-left-color:rgb(56,56,56);
     }
   }
 `;
+const Container = styled.div`
+  background: #171717;
+  @media (max-width: 991px) {
+    background: #1B1B1B;
+  }
+`;
+const StyledBorder = styled.div`
+  border-bottom: 1px solid #1F1F1F;
+`;
 function Likes() {
   const navigate = useNavigate();
-  const subscriberOptions = [
-    { label: 'Yes', value: 'yes' },
-    { label: 'No', value: 'no' },
-  ];
-  const [subscriberValue, setSubscriberValue] = useState('yes');
-  const datingLikes = [
-    {
-      id: 1, profileImage: 'https://i.pravatar.cc/300?img=12', name: 'Rayna Workman', userID: '@RaynaWorkman001',
-    },
-    {
-      id: 2, profileImage: 'https://i.pravatar.cc/300?img=11', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-    {
-      id: 3, profileImage: 'https://i.pravatar.cc/300?img=15', name: 'Haylie Bothman', userID: '@HaylieBothman126',
-    },
-    {
-      id: 4, profileImage: 'https://i.pravatar.cc/300?img=13', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-    {
-      id: 5, profileImage: 'https://i.pravatar.cc/300?img=19', name: 'Haylie Bothman', userID: '@HaylieBothman126',
-    },
-    {
-      id: 6, profileImage: 'https://i.pravatar.cc/300?img=17', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-    {
-      id: 7, profileImage: 'https://i.pravatar.cc/300?img=21', name: 'Haylie Bothman', userID: '@HaylieBothman126',
-    },
-    {
-      id: 8, profileImage: 'https://i.pravatar.cc/300?img=23', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-    {
-      id: 9, profileImage: 'https://i.pravatar.cc/300?img=22', name: 'Haylie Bothman', userID: '@HaylieBothman126',
-    },
-    {
-      id: 10, profileImage: 'https://i.pravatar.cc/300?img=20', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-    {
-      id: 11, profileImage: 'https://i.pravatar.cc/300?img=18', name: 'Haylie Bothman', userID: '@HaylieBothman126',
-    },
-    {
-      id: 12, profileImage: 'https://i.pravatar.cc/300?img=12', name: 'Lydia Lipshutz', userID: '@lydialipshutz102',
-    },
-  ];
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('user');
+  const options = ['Message', 'Unmatch', 'Block & Report'];
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-
   const handleLikesOption = (likeValue: string) => {
-    if (likeValue === 'message') {
+    if (likeValue === 'Message') {
       navigate('/dating/conversation');
     } else {
       setShow(true);
@@ -109,76 +67,78 @@ function Likes() {
     setDropDownValue(likeValue);
   };
 
+  const popover = (
+    <CustomPopover id="popover-basic" className="py-2 rounded-2">
+      {queryParam === 'subscriber'
+        && options.map((option) => (
+          <PopoverText key={option} onClick={() => handleLikesOption(option)} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>
+        ))}
+    </CustomPopover>
+  );
   return (
     <DatingPageWrapper>
-      <Container>
-        <Row className="align-items-center mb-4">
-          <Col xl={5}>
-            <h1 className="h3 mb-0">{subscriberValue === 'yes' ? 'Likes received' : 'Dating Likes'}</h1>
-          </Col>
-          <Col xl={7} className="p-xl-0">
-            <div className="d-flex justify-content-between align-items-end">
-              <h2 className="h4">Subscriber? </h2>
-              <SwitchButtonGroup
-                firstOption={subscriberOptions[0]}
-                secondOption={subscriberOptions[1]}
-                value={subscriberValue}
-                onChange={(subscribe) => setSubscriberValue(subscribe)}
-              />
+      <div className="mt-5 pt-5 mt-lg-0 pt-lg-0">
+        {queryParam === 'subscriber' ? (
+          <>
+            <div className="mt-3 mt-lg-0 d-flex align-items-center justify-content-center justify-content-lg-between">
+              <h1 className="h2 fw-bold">Likes received</h1>
+              <Button className="bg-transparent border-0 text-white d-none d-lg-flex align-items-center">
+                <FontAwesomeIcon icon={solid('sliders')} size="lg" className="me-2" />
+                <h2 className="m-0">Settings</h2>
+              </Button>
             </div>
-          </Col>
-        </Row>
-        {subscriberValue === 'yes' ? (
-          <Row>
-            {datingLikes.map((likeDetails) => (
-              <Col key={likeDetails.id} lg={6} className="pb-4 px-4">
-                <Row className="bg-dark p-3 rounded">
-                  <Col xs={2} className="p-0">
-                    <DatingLikeUserCircleImage src={likeDetails.profileImage} className="rounded-circle me-3" />
+            <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-4 pb-md-1 my-4 mt-lg-3 mt-md-2">
+              <Row>
+                {likesList.map((likesDetail) => (
+                  <Col md={4} lg={6} xl={4} key={likesDetail.id}>
+                    <Container className="d-flex p-3 justify-content-between w-100 rounded mb-3">
+                      <div className="d-flex align-items-center">
+                        <ProfileImage src={likesDetail.imageUrl} className="rounded-circle me-2" />
+                        <div>
+                          <h3 className="mb-0">{likesDetail.name}</h3>
+                          <p className="fs-6 mb-0 text-light">{likesDetail.email}</p>
+                        </div>
+                      </div>
+                      <div className="d-flex align-self-center">
+                        <StyledPopover>
+                          <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
+                            <Button className="bg-transparent shadow-none border-0 pe-0 text-white">
+                              <FontAwesomeIcon icon={solid('ellipsis-vertical')} size="lg" />
+                            </Button>
+                          </OverlayTrigger>
+                        </StyledPopover>
+                      </div>
+                    </Container>
                   </Col>
-                  <Col xs={9} className="ps-0 ps-md-4 align-self-center">
-                    <h2 className="h6 mb-0 rounded-circle">
-                      {likeDetails.name}
-                    </h2>
-                    <p className="mb-0 small">{likeDetails.userID}</p>
-                  </Col>
-                  <Col xs={1} className="p-0 py-1 align-self-baseline">
-                    <CustomDropDown onSelect={handleLikesOption}>
-                      <Dropdown.Toggle className="d-flex justify-content-end bg-transparent">
-                        <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="bg-black">
-                        <Dropdown.Item eventKey="message" className="text-light">Message</Dropdown.Item>
-                        <Dropdown.Item eventKey="unmatch" className="text-light">Unmatch</Dropdown.Item>
-                        <Dropdown.Item eventKey="report" className="text-light">Block &#38; Report</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </CustomDropDown>
-                  </Col>
-                </Row>
-              </Col>
-            ))}
-          </Row>
+                ))}
+              </Row>
+            </div>
+          </>
         ) : (
-          <Row className="px-4">
-            {datingLikes.map((likeDetails) => (
-              <Col key={likeDetails.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
-                <Row className="align-items-center border-bottom border-dark pb-3">
-                  <Col xs={1} className="p-0">
-                    <UnsubscribeLikeUserImage src={likeDetails.profileImage} className="rounded-circle me-3" />
-                  </Col>
-                  <Col xs={11} className="ps-4">
-                    <h2 className="h6 mb-0 rounded-circle">
-                      You’ve got a new match
-                    </h2>
-                    <p className="mb-0 small">Just now</p>
-                  </Col>
-                </Row>
-              </Col>
-            ))}
+          <Row className="justify-content-end">
+            <Col lg={10}>
+              <div className="mb-0 mt-lg-3 mt-2">
+                <h1 className="h2 text-center text-lg-start fw-bold">Dating Likes</h1>
+                {likesList.slice(1, 9).map((likesDetail) => (
+                  <StyledBorder key={likesDetail.id} className="d-flex justify-content-between p-3 mb-3">
+                    <div className="d-flex align-items-center">
+                      <UnsubscribeProfileImage className="text-white d-flex justify-content-center align-items-center bg-dark rounded-circle me-2">
+                        {/* <h3 className="mb-0 h1">?</h3> */}
+                        <FontAwesomeIcon role="button" icon={solid('question')} size="2x" />
+                      </UnsubscribeProfileImage>
+                      <div>
+                        <h3 className="h4 mb-0">You’ve got a new match</h3>
+                        <p className="fs-5 mb-0 text-light">Just now</p>
+                      </div>
+                    </div>
+                  </StyledBorder>
+                ))}
+              </div>
+            </Col>
           </Row>
         )}
         <DatingLikesDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-      </Container>
+      </div>
     </DatingPageWrapper>
   );
 }

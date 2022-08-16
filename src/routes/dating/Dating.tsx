@@ -12,6 +12,7 @@ import DatingPreferences from './preferences/DatingPreferences';
 import DatingConversation from './conversation/DatingConversation';
 import Likes from './likes/Likes';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import DatingTutorial from './tutorial/DatingTutorial';
 
 function Dating() {
   return (
@@ -23,6 +24,7 @@ function Dating() {
       <Route path="/profile/*" element={<DatingProfile />} />
       <Route path="/conversation" element={<DatingConversation />} />
       <Route path="/likes" element={<Likes />} />
+      <Route path="/tutorial/*" element={<DatingTutorial />} />
 
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>

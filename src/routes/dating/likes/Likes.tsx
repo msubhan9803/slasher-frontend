@@ -121,16 +121,16 @@ function Likes() {
                 <h1 className="h2 text-center text-lg-start fw-bold">Dating Likes</h1>
                 {likesList.slice(1, 9).map((likesDetail) => (
                   <StyledBorder key={likesDetail.id} className="d-flex justify-content-between p-3 mb-3">
-                    <div className="d-flex align-items-center">
+                    <Button className="shadow-none text-white text-start d-flex align-items-center bg-transparent border-0" onClick={() => handleLikesOption('')}>
                       <UnsubscribeProfileImage className="text-white d-flex justify-content-center align-items-center bg-dark rounded-circle me-2">
                         {/* <h3 className="mb-0 h1">?</h3> */}
                         <FontAwesomeIcon role="button" icon={solid('question')} size="2x" />
                       </UnsubscribeProfileImage>
                       <div>
-                        <h3 className="h4 mb-0">You’ve got a new match</h3>
+                        <h3 className="h3 mb-0">You’ve got a new match</h3>
                         <p className="fs-5 mb-0 text-light">Just now</p>
                       </div>
-                    </div>
+                    </Button>
                   </StyledBorder>
                 ))}
               </div>

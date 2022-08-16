@@ -18,13 +18,13 @@ function DatingMenuSmallScreen() {
         <IconWithTextNavLink label="My Profile" icon={regular('user')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} to="/" iconSize="lg" badgeIconClassName="text-primary" />
+        <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
         <IconWithTextNavLink label="Messages" icon={regular('comments')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/" iconSize="lg" />
+        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/" iconSize="lg" badgeIconClassName="text-primary" />
       </Col>
       <Col className="my-2">
         <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/" iconSize="lg" />

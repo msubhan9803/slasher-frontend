@@ -17,7 +17,7 @@ const StyledNextButton = styled(RoundButton)`
     width: 100%;
   }
 `;
-function PassDeck() {
+function Undo() {
   return (
     <DatingPageWrapper>
       <div className="text-center p-3 mt-5 pt-5 mt-lg-0 pt-lg-3">
@@ -25,9 +25,9 @@ function PassDeck() {
         <TutorialPhotos desktopImage={PassDeckDesktop} mobileImage={PassDeckMobile} />
         <Row className="justify-content-center">
           <Col xs={8}>
-            <TutorialIcon tutorialIcon={solid('times')} iconColor="#FF1800" uniqueId="cancel-icon" shadow="rgba(255, 24, 0, 0.7)" />
-            <h2 className="h2 fw-bold mt-4">Pass deck</h2>
-            <p className="fs-4">On a user’s profile, the X icon is to pass and move on to the next profile.</p>
+            <TutorialIcon tutorialIcon={solid('rotate-left')} iconColor="#FF8A00" uniqueId="undo-icon" shadow="rgba(255, 138, 0, 0.6)" />
+            <h2 className="h2 fw-bold mt-4">Undo</h2>
+            <p className="fs-4">On a user’s profile, the undo icon is to go back to the last profile. This will undo a pass or like and allow you to change your mind.</p>
           </Col>
         </Row>
         <Link to="/dating/tutorial/undo" className="d-flex justify-content-center mt-3">
@@ -40,4 +40,4 @@ function PassDeck() {
   );
 }
 
-export default PassDeck;
+export default Undo;

@@ -6,10 +6,10 @@ import TutorialButtons from './components/TutorialButtons';
 import TutorialHeader from './components/TutorialHeader';
 import TutorialIcon from './components/TutorialIcon';
 import TutorialPhotos from './components/TutorialPhotos';
-import DatingMessagesDesktop from '../../../images/dating-messages-desktop.jpg';
-import DatingMessagesMobile from '../../../images/dating-messages-mobile.jpg';
+import DatingMessagesDesktop from '../../../images/dating-messages-desktop.png';
+import DatingMessagesMobile from '../../../images/dating-messages-mobile.png';
 
-function DatingMessages() {
+function TutorialDatingMessages() {
   return (
     <DatingPageWrapper>
       <div className="text-center p-3 mt-5 pt-5 mt-lg-0 pt-lg-3">
@@ -31,4 +31,4 @@ function DatingMessages() {
   );
 }
 
-export default DatingMessages;
+export default TutorialDatingMessages;

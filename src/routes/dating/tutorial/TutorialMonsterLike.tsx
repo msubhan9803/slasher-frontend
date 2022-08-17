@@ -3,13 +3,13 @@ import { Col, Row } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import TutorialHeader from './components/TutorialHeader';
-import PassDeckDesktop from '../../../images/pass-deck-desktop.jpg';
-import PassDeckMobile from '../../../images/pass-deck-mobile.jpg';
+import PassDeckDesktop from '../../../images/pass-deck-desktop.png';
+import PassDeckMobile from '../../../images/pass-deck-mobile.png';
 import TutorialIcon from './components/TutorialIcon';
 import TutorialPhotos from './components/TutorialPhotos';
 import TutorialButtons from './components/TutorialButtons';
 
-function MonsterLike() {
+function TutorialMonsterLike() {
   return (
     <DatingPageWrapper>
       <div className="text-center p-3 mt-5 pt-5 mt-lg-0 pt-lg-3">
@@ -32,4 +32,4 @@ function MonsterLike() {
   );
 }
 
-export default MonsterLike;
+export default TutorialMonsterLike;

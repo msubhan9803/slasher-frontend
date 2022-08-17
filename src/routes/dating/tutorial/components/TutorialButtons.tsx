@@ -14,11 +14,13 @@ const StyledNextButton = styled(RoundButton)`
 `;
 function TutorialButtons({ nextLink }: TutorialButtonProps) {
   return (
-    <Link to={`/dating/tutorial/${nextLink}`} className="d-flex justify-content-center mt-3">
-      <StyledNextButton variant="primary" className="fs-3">
-        Next
-      </StyledNextButton>
-    </Link>
+    <div className="d-flex justify-content-center mt-3">
+      <Link to={`/dating/tutorial/${nextLink}`}>
+        <StyledNextButton variant="primary" className="fs-3">
+          Next
+        </StyledNextButton>
+      </Link>
+    </div>
   );
 }
 

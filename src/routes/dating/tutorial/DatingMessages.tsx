@@ -25,7 +25,7 @@ function DatingMessages() {
             </p>
           </Col>
         </Row>
-        <TutorialButtons nextLink="dating-messages" />
+        <TutorialButtons nextLink="dating-likes" />
       </div>
     </DatingPageWrapper>
   );

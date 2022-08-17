@@ -1,0 +1,91 @@
+import React from 'react';
+import styled from 'styled-components';
+import { Col, Image, Row } from 'react-bootstrap';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import ShoppingHeader from '../ShoppingHeader';
+import SlasherLogo from '../../../images/slasher-logo-medium.png';
+import ShoppingFeaturePoster from '../components/ShoppingFeaturePoster';
+import ShoppingPhotos from '../../../images/shopping-photos.png';
+import RoundButton from '../../../components/ui/RoundButton';
+import ShoppingSelect from '../components/ShoppingSelect';
+import ShoppingCardList from '../components/ShoppingCardList';
+
+const ShoppingBanner = styled.div`
+  aspect-ratio: 3.56;
+  img {
+    width: 175px;
+    height: 80px;
+  }
+`;
+const featuredVendors = [
+  {
+    id: 1, image: `${ShoppingPhotos}`, name: 'The Half Moon', feature: 'Clothing & Accessories', rating: '3.0',
+  },
+  {
+    id: 2, image: `${ShoppingPhotos}`, name: 'Kinky Blossom', feature: 'Makeup & FX', rating: '3.0',
+  },
+  {
+    id: 3, image: `${ShoppingPhotos}`, name: 'Endless Ink Tattoo & Piercing', feature: 'Tattoos & Piercing', rating: '3.0',
+  },
+  {
+    id: 4, image: `${ShoppingPhotos}`, name: 'Horror Buzz', feature: 'Toys & Games', rating: '3.0',
+  },
+];
+const allShopping = [
+  {
+    id: 1, image: `${ShoppingPhotos}`, rating: '3.0', name: 'The Half Moon | Clothing Company', discount: '50% discount on new orders / buy now this is!', offerCode: 'T48VZHMLD3RV94', expireDate: '05/06/2022', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '40 King St. S Waterloo, Ontario N2J 1N8',
+  },
+  {
+    id: 2, image: `${ShoppingPhotos}`, rating: '3.0', name: 'Scream Addicts', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '40 King St. S Waterloo, Ontario N2J 1N8',
+  },
+  {
+    id: 3, image: `${ShoppingPhotos}`, rating: '3.0', name: 'Cavity Colors', discount: '50% discount on new orders / buy now this is!', offerCode: 'T48VZHMLD3RV94', expireDate: '05/06/2022', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '40 King St. S Waterloo, Ontario N2J 1N8',
+  },
+];
+function AllShopping() {
+  return (
+    <AuthenticatedPageWrapper rightSidebarType="shopping">
+      <div className="d-flex flex-column">
+
+        <ShoppingHeader tabKey="all" />
+        <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
+        <ShoppingBanner id="banner" className="order-3 order-lg-1 d-flex flex-column justify-content-center bg-dark align-items-center mt-4 rounded">
+          <Image src={SlasherLogo} alt="Shopping Banner" />
+          <h1 className="h2 fw-bold">Support the horror community</h1>
+        </ShoppingBanner>
+        <div id="featured" className="order-2 order-lg-2 bg-dark mt-4 p-4 rounded">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2 className="fw-bold m-0">
+              Featured vendors
+            </h2>
+            <p className="fs-4 fw-bold text-primary m-0">
+              Get featured
+            </p>
+          </div>
+          <Row>
+            {featuredVendors.map((featureDetails: any) => (
+              <Col xs={6} md={3} lg={6} xl={3} key={featureDetails.id} className="mt-3">
+                <ShoppingFeaturePoster
+                  featureImage={featureDetails.image}
+                  rating={featureDetails.rating}
+                />
+                <h3 className="fw-bold mt-3 mb-0">{featureDetails.name}</h3>
+                <p className="fs-5 text-primary">{featureDetails.feature}</p>
+              </Col>
+            ))}
+          </Row>
+        </div>
+        <div className="order-4 my-4">
+          <ShoppingSelect />
+        </div>
+        <div className="order-last bg-dark p-4 rounded">
+          <h2 className="fw-bold mb-4">Clothing &#38; Accessories</h2>
+          <ShoppingCardList shoppingList={allShopping} />
+        </div>
+
+      </div>
+    </AuthenticatedPageWrapper>
+  );
+}
+
+export default AllShopping;

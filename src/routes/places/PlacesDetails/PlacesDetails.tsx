@@ -78,14 +78,9 @@ const tabsForViewer = [
 function PlacesDetails() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
-
-  let tabs;
-  if (queryParam === 'self') { tabs = tabsForSelf; } else {
-    tabs = tabsForViewer;
-  }
+  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-
   const [isFavorite, setFavorite] = useState<boolean>(false);
   const changeTab = (tab: string) => {
     if (!queryParam || queryParam !== 'self') {

@@ -7,7 +7,6 @@ interface TutorialIconProps {
   tutorialIcon: IconDefinition;
   iconColor: string;
   uniqueId: string;
-  shadow: string;
 }
 interface IconBorderProps {
   shadow: string;
@@ -26,10 +25,10 @@ const StyledIconBorder = styled.div <IconBorderProps>`
   box-shadow: 0 0 0.571rem ${(props) => props.shadow} !important;
 `;
 function TutorialIcon({
-  tutorialIcon, iconColor, uniqueId, shadow,
+  tutorialIcon, iconColor, uniqueId,
 }: TutorialIconProps) {
   return (
-    <StyledIconBorder shadow={shadow} className="bg-white border d-flex justify-content-center align-items-center mx-auto rounded-circle">
+    <StyledIconBorder shadow={iconColor} className="bg-white border d-flex justify-content-center align-items-center mx-auto rounded-circle">
       <LinearIcon uniqueId={uniqueId}>
         <FontAwesomeIcon icon={tutorialIcon} size="2x" />
       </LinearIcon>

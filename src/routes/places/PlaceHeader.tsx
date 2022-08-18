@@ -12,7 +12,7 @@ function PlaceHeader({
   tabKey, changeTab,
 }: any) {
   return (
-    <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
+    <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
   );
 }
 

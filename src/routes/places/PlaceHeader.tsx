@@ -24,7 +24,7 @@ const sortoptions = [
 function PlaceHeader({ tabKey, changeTab }: PlaceHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} />
+      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
       <Row className="mt-4 mb-lg-3 justify-content-between align-items-center">
         <Col md={4} lg={5} className="mt-4 mt-md-0">
           <SortData type="select" className="rounded-5" />

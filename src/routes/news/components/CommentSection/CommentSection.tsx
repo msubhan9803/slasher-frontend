@@ -34,16 +34,16 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const LikesButton = styled.div`
-  width: 3.81rem; 
+  width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
-    background-color: #383838; 
+    background-color: #383838;
   }
 `;
 const CommentBox = styled.div`
-background-color: #171717;
+background-color: var(--slasher-comments-bg-color);
 `;
 const Likes = styled.div`
   right:.063rem;

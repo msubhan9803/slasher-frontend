@@ -29,7 +29,7 @@ function PlaceHeader({ tabKey, changeTab }: PlaceHeaderProps) {
         <Col md={4} lg={5} className="mt-4 mt-md-0">
           <SortData type="select" className="rounded-5" />
         </Col>
-        <Col md={4} className="mt-4 mt-md-0">
+        <Col md={4} lg={5} xl={4} className="mt-4 mt-md-0">
           <SortData title="Sort: " sortoptions={sortoptions} type="sort" className="rounded-5" />
         </Col>
         <Col md={4} className="order-first order-md-last">

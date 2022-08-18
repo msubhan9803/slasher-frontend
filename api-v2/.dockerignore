@@ -1,0 +1,15 @@
+# Do not include env files in the built container images because they can contain sensitive info
+.env
+.env.*
+
+# Definitely don't want any repositories in built container images
+.git
+
+# Do not copy node_modules from the host environment. They should be downloaded during the container
+# build so they're guaranteed to be compatible with the container environment.
+node_modules
+
+# Various other files that don't need to be in the container image
+bitbucket-pipelines.yml
+*.Dockerfile
+.vscode

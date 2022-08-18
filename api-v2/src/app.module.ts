@@ -1,10 +1,11 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { APP_PIPE } from '@nestjs/core';
+import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 
 @Module({
   imports: [
@@ -31,4 +32,11 @@ import { APP_PIPE } from '@nestjs/core';
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(JwtAuthenticationMiddleware)
+      .exclude('/users/login') // don't require login for the login endpoint!
+      .forRoutes('*');
+  }
+}

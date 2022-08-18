@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  api-v1:
+    restart: on-failure
+    build: ./api-v1
+    #hostname: api-v1
+    ports:
+      - '4001:5933'
+      - '5001:5941'
+    networks:
+      - api-v1-network
+  api-v2:
+    restart: on-failure
+    build:
+      context: ./api-v2
+      dockerfile: app.Dockerfile
+    env_file:
+      - ./api-v2/.env
+    #hostname: api-v2
+    ports:
+      - '4002:4000'
+      - '5002:4001'
+    networks:
+      - api-v2-network
+  cron-v2:
+    restart: on-failure
+    build:
+      context: ./api-v2
+      dockerfile: cron.Dockerfile
+    env_file:
+      - ./api-v2/.env
+    #hostname: cron-v2
+    ports:
+      - '4003:4000'
+    networks:
+      - cron-v2-network
+    tty: true
+  redis:
+    build: ./docker/redis
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    networks:
+      - api-v1-network
+      - api-v2-network
+      - cron-v2-network
+  nginx:
+    build: ./docker/nginx
+    restart: on-failure
+    ports:
+      - '80:80'
+      - '5933:5933'
+      - '5941:5941'
+    networks:
+      - api-v1-network
+      - api-v2-network
+      - cron-v2-network
+    depends_on:
+      - api-v1
+      - api-v2
+      - cron-v2
+
+networks:
+    api-v1-network:
+    api-v2-network:
+    cron-v2-network:

@@ -11,14 +11,15 @@ export class UsersService {
 
   // TODO: Remove this if not used
   async findAll(page: number, perPage: number): Promise<UserDocument[]> {
-    console.log(`page: ${page}, perPage: ${perPage}`);
     return this.userModel
-      .find({}, null, { skip: page * perPage, limit: perPage })
+      .find({})
+      .skip((page - 1) * perPage)
+      .limit(perPage)
       .exec();
   }
 
   // TODO: Remove this if not used
-  async findOne(id: string): Promise<UserDocument> {
+  async findById(id: string): Promise<UserDocument> {
     return this.userModel.findById(id).exec();
   }
 

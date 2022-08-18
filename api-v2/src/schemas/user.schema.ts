@@ -25,7 +25,7 @@ export class Device {
 }
 const DeviceSchema = SchemaFactory.createForClass(Device);
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ required: true })
   _id: mongoose.Schema.Types.ObjectId;
@@ -63,10 +63,20 @@ export class User {
   @Prop({ required: true, default: null })
   token: string;
 
+  @Prop({ default: null }) // TODO: Make this required once it's been set on all user documents
+  passwordChangedAt: Date;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+
   generateNewJwtToken(jwtSecretKey: string) {
     const jwtPayload = {
-      id: this._id.toString(),
+      userId: this._id.toString(),
       userType: this.userType,
+      passwordChangedAt: this.passwordChangedAt?.toISOString(),
     };
 
     return jwt.sign(jwtPayload, jwtSecretKey);

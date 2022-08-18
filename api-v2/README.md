@@ -43,10 +43,10 @@ npm run build
 docker build -t slasher-web-backend:latest .
 
 # Run the image
-docker run --env-file .env -p 4000:3000 --rm slasher-web-backend:latest
+docker run --env-file .env -p 4000:4000 --rm slasher-web-backend:latest
 
 # Explanation of above options:
 # --env-file .env (read in the local .env file and set environment variables in the container)
-# -p 4000:3000 (map external port 4000 to container port 3000, and expose port 3000 internally)
+# -p 4000:3000 (map host port 4000 to container port 4000, and expose port 4000 internally)
 # --rm (delete the container after it is stopped)
 ```

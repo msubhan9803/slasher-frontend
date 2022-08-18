@@ -1,0 +1,38 @@
+image: node:16.13.1
+
+definitions:
+  caches:
+    node: node_modules
+  steps:
+    - step: &api-v2-lint-test-build
+        name: Lint, test, and build
+        caches:
+          - node
+        script:
+          # Change to api-v2 directory
+          - cd api-v2
+          # Install NPM dependencies
+          - npm ci
+          # Run linter
+          - npm run lint
+          # Run build
+          - npm run build
+    - step: &deploy
+        name: Deploy
+        caches:
+          - node
+        script:
+          # Run build
+          - "echo 'TODO: deploy'"
+
+pipelines:
+  branches:
+    main:
+      - step: *api-v2-lint-test-build
+    deploy/staging:
+      - step: *api-v2-lint-test-build
+      - step: *deploy
+  pull-requests:
+    # Run for any branch that has an open pull request
+    '**':
+      - step: *api-v2-lint-test-build

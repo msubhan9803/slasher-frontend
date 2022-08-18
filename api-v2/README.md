@@ -1,4 +1,4 @@
-# slasher-web-backend
+# api-v2 (a NestJS app)
 
 ## Installation
 
@@ -36,14 +36,11 @@ $ npm run test:cov
 
 The commands below will build the image and then run it:
 ```
-# Build the app (MUST do before running docker build, since docker build pulls in dist directory)
-npm run build
-
-# Then build the image and give it the tag "latest"
-docker build -t slasher-web-backend:latest .
+# Build the image and give it the tag "latest"
+docker build -f app.Dockerfile -t slasher-web-new-api-v2:latest .
 
 # Run the image
-docker run --env-file .env -p 4000:4000 --rm slasher-web-backend:latest
+docker run --env-file .env -p 4000:4000 --rm slasher-web-new-api-v2:latest
 
 # Explanation of above options:
 # --env-file .env (read in the local .env file and set environment variables in the container)

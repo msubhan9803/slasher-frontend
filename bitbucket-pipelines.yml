@@ -22,8 +22,9 @@ definitions:
         caches:
           - node
         script:
-          # Run build
-          - "echo 'TODO: deploy'"
+          # Load environment variables from appropriate deployment env file
+          - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
+          # TODO: Run deployment
 
 pipelines:
   branches:

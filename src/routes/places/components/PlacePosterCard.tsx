@@ -26,30 +26,31 @@ const EventsCardStyle = styled(Card)`
   }
   margin-bottom: 0.75rem;
   margin-top: 0.75rem;
-  .rating {    
-    width: 3.6rem;
-    height: 1.6rem;
-    padding: 0.15rem 0.5rem;
-    .fa-star {
-      color: #FF8A00;
-      width: 0.904rem;
-      height: 0.862rem;
-    }
+`;
+const StyledRating = styled.div`
+  margin-top: -2.5rem;
+  svg {
+    margin-bottom: 0.066rem;
+    color: #FF8A00;
+    width: 0.847rem;
+    height: 0.808rem;
   }
 `;
 function PlacePosterCard({ listDetail }: Props) {
   return (
     <EventsCardStyle className="rounded-3 bg-dark px-3 py-4">
       <Card.Img variant="top" src={listDetail.image} className="rounded-4 mb-2" />
-      <Card.Body className="p-0">
+      <StyledRating className="d-flex justify-content-end me-2">
+        <p className="bg-white mb-0 px-2 rounded-5 fs-5 text-black">
+          <FontAwesomeIcon icon={solid('star')} className="me-1" />
+          <span className="h5 mb-0">3.0</span>
+        </p>
+      </StyledRating>
+      <Card.Body className="p-0 mt-4">
         <div className="d-flex justify-content-between align-items-center">
           <p className="fs-4 m-0 mt-2 text-light">
             {listDetail.date}
           </p>
-          <div className="rating bg-white mb-0 rounded-5 fs-5 text-black">
-            <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-            <span className="h5">3.0</span>
-          </div>
         </div>
         <h2 className="mt-3 fw-bold">{listDetail.place}</h2>
         <p className="fs-4 text-primary mb-1">{listDetail.type}</p>
@@ -57,7 +58,7 @@ function PlacePosterCard({ listDetail }: Props) {
         <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
         {listDetail.location}
         <div className="mt-4">
-          <span className="text-primary fs-4">Distance From You: </span>
+          <span className="text-primary fs-4">Distance: </span>
           <span>{listDetail.distance}</span>
         </div>
       </Card.Body>

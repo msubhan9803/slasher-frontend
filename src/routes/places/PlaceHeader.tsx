@@ -20,9 +20,9 @@ function PlaceHeader({
   return (
     <>
       <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
-      <Row className="mt-2 justify-content-between align-items-center">
+      <Row className="mt-2 justify-content-end d-lg-none">
         <Col md={4}>
-          <RoundButton className="py-2 d-lg-none w-100 my-3">Add your place</RoundButton>
+          <RoundButton className="py-2 w-100 my-3">Add your place</RoundButton>
         </Col>
       </Row>
     </>

@@ -51,7 +51,7 @@ function AddYourPlace() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
+      <div className="bg-dark px-md-4 py-4 rounded-3 bg-mobile-transparent">
         <h1 className="h2 mb-0 fw-bold">Add your shop and reach horror fans on Slasher more easily!</h1>
         <div className="my-3 text-light">
           <p className="mb-0 fs-4">Save time and build your audience by listing your place.</p>
@@ -122,7 +122,7 @@ function AddYourPlace() {
             <p className="fs-5 text-light">(jpg, png)</p>
           </div>
         </div>
-        <h2 className="mb-4 mt-5 fw-bold">Place information</h2>
+        <h2 className="mb-4 mt-4 pt-3 fw-bold">Place information</h2>
         <PlaceInformation
           description={description}
           charCount={charCount}

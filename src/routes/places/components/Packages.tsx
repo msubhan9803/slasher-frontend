@@ -68,7 +68,7 @@ function Packages() {
         <div className="full-month">
           <span className="m-0 fs-1">12</span>
           <p className="month fs-5 text-light">month</p>
-          <p className="mb-1 fs-3 text-primary">$100</p>
+          <p className="mb-1 fs-3 text-primary">$200</p>
           <p className="m-0 fs-5 text-light month">2 months free</p>
         </div>
         {fullMonth && (

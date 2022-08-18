@@ -40,7 +40,7 @@ The commands below will build the image and then run it:
 docker build -f app.Dockerfile -t slasher-web-new-api-v2:latest .
 
 # Run the image
-docker run --env-file .env -p 4000:4000 --rm slasher-web-new-api-v2:latest
+docker run --env-file .env -p 4000:4000 --rm -d slasher-web-new-api-v2:latest
 
 # Explanation of above options:
 # --env-file .env (read in the local .env file and set environment variables in the container)

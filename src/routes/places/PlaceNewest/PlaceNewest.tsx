@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PlacePosterCardList from '../components/PlacePosterCard/PlacePosterCardList';
@@ -6,14 +6,13 @@ import category from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 
 function PlaceNewest() {
-  const [showKeys, setShowKeys] = useState(false);
   const navigate = useNavigate();
   const changeTab = (tab: string) => {
     navigate(`/places/${tab}`);
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="place">
-      <PlaceHeader tabKey="newest" changeTab={changeTab} showKeys={showKeys} setShowKeys={setShowKeys} />
+      <PlaceHeader tabKey="newest" changeTab={changeTab} />
       <div className="p-4 pt-0">
         <PlacePosterCardList dataList={category} />
       </div>

@@ -182,7 +182,7 @@ function ProfileHeader({ tabKey }: any) {
         )}
 
       <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
+      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
     </div>
   );
 }

@@ -45,12 +45,12 @@ function ShoppingCard({ listDetail }: ShoppingCardProps) {
       </Col>
       <Col xs={8}>
         <div className="ms-2">
-          <h1 className="h2 fw-bold">
+          <h1 className="h2 fw-bold mb-1">
             {listDetail.name}
           </h1>
           {listDetail.offerCode && listDetail.expireDate && listDetail.discount && (
             <>
-              <div className="mt-3 d-flex align-items-center text-primary">
+              <div className="mt-lg-3 d-flex align-items-center text-primary">
                 <FontAwesomeIcon icon={solid('tag')} className="me-1" />
                 <p className="ms-2 mb-0 fs-4 fw-bold">{listDetail.discount}</p>
               </div>
@@ -66,9 +66,9 @@ function ShoppingCard({ listDetail }: ShoppingCardProps) {
               </div>
             </>
           )}
-          <StyledDescription className="mt-3 text-light">{listDetail.description}</StyledDescription>
-          <div className="mt-3 d-flex align-items-center">
-            <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-1" />
+          <StyledDescription className="mt-1 mt-lg-3 text-light m-0">{listDetail.description}</StyledDescription>
+          <div className="mt-1 mt-lg-3 d-flex align-items-center">
+            <FontAwesomeIcon icon={solid('location-dot')} size="lg" className="text-primary me-1" />
             <p className="ms-2 mb-0 fs-4">{listDetail.location}</p>
           </div>
           <StyledRating className="d-lg-none d-flex mt-2">
@@ -82,11 +82,5 @@ function ShoppingCard({ listDetail }: ShoppingCardProps) {
     </Row>
   );
 }
-
-// ShoppingCard.defaultProps = {
-//   discount: '',
-//   offerCode: '',
-//   expireDate: ''
-// };
 
 export default ShoppingCard;

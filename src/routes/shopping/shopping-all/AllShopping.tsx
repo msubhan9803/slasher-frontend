@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Col, Image, Row } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ShoppingHeader from '../ShoppingHeader';
 import SlasherLogo from '../../../images/slasher-logo-medium.png';
@@ -33,7 +34,7 @@ const featuredVendors = [
 ];
 const allShopping = [
   {
-    id: 1, image: `${ShoppingPhotos}`, rating: '3.0', name: 'The Half Moon | Clothing Company', discount: '50% discount on new orders / buy now this is!', offerCode: 'T48VZHMLD3RV94', expireDate: '05/06/2022', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '40 King St. S Waterloo, Ontario N2J 1N8',
+    id: 1, image: `${ShoppingPhotos}`, rating: '3.0', name: 'The Half Moon | Clothing Company', discount: '50% discount on new orders / buy now this is!', offerCode: 'T48VZHMLD3RV94', expireDate: '05/06/2022', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '3500 Lemp Avenue St. Louis, MO USA',
   },
   {
     id: 2, image: `${ShoppingPhotos}`, rating: '3.0', name: 'Scream Addicts', description: 'There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain There is no one who loves pain itself, who seeks after it.', location: '40 King St. S Waterloo, Ontario N2J 1N8',
@@ -43,11 +44,15 @@ const allShopping = [
   },
 ];
 function AllShopping() {
+  const navigate = useNavigate();
+  const changeTab = (tab: string) => {
+    navigate(`/shopping/${tab}`);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
       <div className="d-flex flex-column">
 
-        <ShoppingHeader tabKey="all" />
+        <ShoppingHeader tabKey="all" changeTab={changeTab} />
         <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
         <ShoppingBanner id="banner" className="order-3 order-lg-1 d-flex flex-column justify-content-center bg-dark align-items-center mt-4 rounded">
           <Image src={SlasherLogo} alt="Shopping Banner" />

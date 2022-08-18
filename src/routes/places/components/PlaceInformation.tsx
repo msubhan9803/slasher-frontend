@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 
+interface InformationProps {
+  description: string;
+  charCount: number;
+  startDate: Date | null;
+  endDate: Date | null;
+  setStartDate: (value: Date) => void;
+  setEndDate: (value: Date) => void;
+  handleMessageChange: (value: ChangeEvent<HTMLInputElement>) => void;
+}
+
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.77rem;
-  margin-right: .7rem;
+  margin-right: 0.7rem;
 `;
 function PlaceInformation({
   description, charCount, startDate, setStartDate, endDate, setEndDate, handleMessageChange,
-}: any) {
+}: InformationProps) {
   return (
     <>
       <Row>

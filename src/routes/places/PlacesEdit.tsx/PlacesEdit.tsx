@@ -4,7 +4,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Container, Form, Image, Row,
+  Col, Form, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -23,9 +23,6 @@ const CustomSpan = styled(Form.Text)`
 `;
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
-`;
-const CustomContainer = styled(Container)`
-  background-color: #1B1B1B;
 `;
 const CustomText = styled.p`
   color: #A6A6A6
@@ -64,11 +61,7 @@ function PlacesEdit() {
     }
   };
   return (
-    <CustomContainer className="rounded p-md-4 pb-0 pb-md-4 mt-3">
-      <Row className="d-md-none bg-dark pt-2">
-        <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
-        <Col><h2 className="text-center">Event Suggest</h2></Col>
-      </Row>
+    <div className="bg-dark bg-mobile-transparent p-md-4 pb-0 pb-md-4 mt-3">
       <Row>
         <Col className="h-100">
           <Row className="h-100">
@@ -177,8 +170,8 @@ function PlacesEdit() {
           </Form.Select>
         </Col>
         <Col md={6} className="mt-3">
-          <Form.Select aria-label="United States" defaultValue="" className="fs-4">
-            <option value="" disabled>United States</option>
+          <Form.Select aria-label="Country" defaultValue="" className="fs-4">
+            <option value="" disabled>Country</option>
           </Form.Select>
         </Col>
       </Row>
@@ -188,7 +181,7 @@ function PlacesEdit() {
           Deactivate listing
         </RoundButton>
       </StyleButton>
-    </CustomContainer>
+    </div>
   );
 }
 export default PlacesEdit;

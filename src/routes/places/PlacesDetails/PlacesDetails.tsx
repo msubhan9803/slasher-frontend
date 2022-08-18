@@ -1,69 +1,33 @@
 import React, { useState } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Col, Image, Row } from 'react-bootstrap';
+import {
+  Col, Image, Row,
+} from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import postImage from '../../../images/places-post.jpg';
-import LikeDislike from './LikeDislike';
 import PlaceAbout from './PlaceAbout';
 import PlacesPosts from '../PlacesPosts.tsx/PlacesPosts';
 import PlacesPhotos from '../PlacesPhotos/PlacesPhotos';
 import PlacesEdit from '../PlacesEdit.tsx/PlacesEdit';
-
-interface LinearIconProps {
-  uniqueId?: string
-}
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-  .favorite-icon{
-    height:3.57rem;
-    width:3.57rem;
-  }
-`;
+import PlaceDetailSmallScreen from './PlaceDetailSmallScreen';
+import PlacesDetailLargeScreen from './PlacesDetailLargeScreen';
+import RoundButton from '../../../components/ui/RoundButton';
+import Switch from '../../../components/ui/Switch';
 
 const ImageContainer = styled.div`
   aspectRatio: '1.78'
 `;
-const CustomCol = styled(Col)`
-  margin-top: -3.938rem;
-`;
-const AboutProfileImage = styled(Image)`
-  border:0.25rem solid #1B1B1B;
-  height:11.25rem;
-  width:11.25rem;
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
-  &:hover {
-    border: 0.063rem solid #3A3B46;
-  }
-`;
-const StyledStar = styled(FontAwesomeIcon)`
-  color: #FF8A00;
-  width: 1.638rem;
-  height: 1.563rem;
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 0.063rem solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
-`;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
+`;
+const FollowStyledButton = styled(RoundButton)`
+width: 21.125rem;
+border: 0.063rem solid #3A3B46;
+  &: hover, &:focus{
+  border: 0.063rem solid #3A3B46;
+}
 `;
 const tabsForSelf = [
   { value: 'posts', label: 'Posts' },
@@ -76,12 +40,14 @@ const tabsForViewer = [
 ];
 
 function PlacesDetails() {
+  const [isFavorite, setFavorite] = useState<boolean>(false);
+  const [bgColor, setBgColor] = useState<boolean>(false);
+
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const [isFavorite, setFavorite] = useState<boolean>(false);
   const changeTab = (tab: string) => {
     if (!queryParam || queryParam !== 'self') {
       navigate(`/places/1/${tab}`);
@@ -89,104 +55,55 @@ function PlacesDetails() {
       navigate(`/places/1/${tab}?view=self`);
     }
   };
+  const handleToggle = () => {
+    setFavorite(!isFavorite);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="place">
+      <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your place</RoundButton>
       <div className="bg-dark rounded p-4 pb-0">
         <ImageContainer>
           <Image src={postImage} alt="Banner image" className="w-100 rounded" />
         </ImageContainer>
-        <Row className="d-flex ms-3">
-          <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage src={postImage} className="rounded-circle" />
-            <div className="position-relative">
-              <LinearIcon role="button" uniqueId="favorite" className="d-flex flex-column align-items-center mt-4">
-                <div className="favorite-icon d-flex align-items-center bg-white d-flex justify-content-center rounded-circle ">
-                  <FontAwesomeIcon role="button" icon={solid('heart')} size="2x" onClick={() => setFavorite(!isFavorite)} />
-                </div>
-                <h1 className="h5 mt-2 mb-0">Favorite</h1>
-                <svg width="0" height="0">
-                  <linearGradient id="favorite" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#8F00FF', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#8F00FF', stopOpacity: '0.6' }} />
-                  </linearGradient>
-                </svg>
-              </LinearIcon>
-              {isFavorite
-                && (
-                  <div
-                    role="button"
-                    style={{
-                      top: '0px', left: '96px', width: '1.5rem', height: '1.5rem', border: '0.063rem solid #3A3B46',
-                    }}
-                    className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle"
-                  >
-                    <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary " onClick={() => setFavorite(!isFavorite)} />
-                  </div>
-                )}
-            </div>
-          </CustomCol>
-          <Col className="w-100 mt-md-4">
-            <div className="d-flex justify-content-between">
-              <div className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                <p className="fs-5">July 28,2022  - July 28,2022 </p>
-                <h1 className="h2">High Desert Haunted House</h1>
-              </div>
-              <div className="rating align-items-center d-flex py-3 pb-xxl-0 justify-content-center justify-content-xl-start">
-                <span className="fs-3 me-3 me-xxl-2 align-self-center d-flex justify-content-end justify-content-xl-start">
-                  <StyledStar icon={solid('star')} size="xs" className="star mb-2" />
-                  <div className="d-flex">
-                    <h1 className="h2 m-0 mx-2">3.3/5</h1>
-                    <p className="fs-3 m-0 text-light me-xxl-2">(10K)</p>
-                  </div>
-                </span>
-                <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-3" variant="lg">
-                  <FontAwesomeIcon icon={regular('star')} className="align-self-center me-2" />
-                  <h1 className="h3 m-0">Rate</h1>
-                </StyleBorderButton>
-              </div>
-            </div>
-            <div>
-              <p className="fs-4 text-primary">Escape Rooms</p>
-            </div>
-            <div className="d-flex justify-content-between">
-              <div className="d-flex">
-                <div>
-                  <FontAwesomeIcon icon={solid('location-dot')} size="lg" className="my-1 me-2 text-primary" />
-                </div>
-                <div>
-                  <p className="fs-4 mb-0">3500 Lemp Avenue,</p>
-                  <p className="fs-4 mb-0">St. Louis, MO 12345</p>
-                  <p className="fs-4"> USA  (7802.07 mi)</p>
-                </div>
-              </div>
-              <StyleBorderButton className="d-flex align-self-center rate-btn bg-black py-2" variant="lg">
-                <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                <h1 className="h3 m-0">Share</h1>
-              </StyleBorderButton>
-            </div>
-            <div className="d-flex">
-              <FontAwesomeIcon icon={solid('globe')} size="lg" className="my-1 me-2 text-primary" />
-              <p className="fs-3">www.websitename.com</p>
-            </div>
-            <div className="align-items-center d-flex justify-content-center justify-content-xl-start">
-              <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth going?</p>
-              <LikeDislike />
-            </div>
-            <div className="mt-4 d-flex justify-content-xl-between justify-content-end align-items-center">
-              <StyledWorth className="me-3 align-items-center d-flex justify-content-end justify-content-xl-start">
-                <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
-                  <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
-                </div>
-                <p className="fs-2 fw-bold m-0">Worth it!</p>
-              </StyledWorth>
+
+        <div className="d-none d-md-block d-lg-none d-xl-block">
+          <PlacesDetailLargeScreen
+            toggle={isFavorite}
+            onToggleClick={handleToggle}
+          />
+        </div>
+
+        <div className="d-md-none d-lg-block d-xl-none">
+          <PlaceDetailSmallScreen
+            toggle={isFavorite}
+            onToggleClick={handleToggle}
+          />
+        </div>
+
+        <StyledBorder className="d-md-block d-none d-lg-none d-xl-block my-4" />
+        <PlaceAbout />
+        <StyledBorder className="d-block d-lg-none my-4" />
+        <Row className="mt-3 mb-2 text-center d-lg-none">
+          <Col xs={12}>
+            <p className="text-center fw-bold">Get updates for this book</p>
+            <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
+              {bgColor ? 'Follow' : 'Unfollow'}
+            </FollowStyledButton>
+          </Col>
+        </Row>
+        <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
+          <Col sm={5}>
+            <div className="align-items-center d-flex justify-content-center">
+              <span className="mb-2">Push notifications</span>
+              <Switch id="pushNotificationsSwitch" className="ms-4" />
             </div>
           </Col>
         </Row>
-        <StyledBorder className="d-md-block d-none my-4" />
-        <PlaceAbout />
-        <div className="d-flex">
-          <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.id} />
-        </div>
+        <Row>
+          <Col md={4} lg={12} xl={5}>
+            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.id} className="justify-content-around justify-content-md-start" />
+          </Col>
+        </Row>
       </div>
       {params.id === 'posts' && <PlacesPosts />}
       {params.id === 'photos' && <PlacesPhotos />}

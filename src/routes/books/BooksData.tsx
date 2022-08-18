@@ -102,7 +102,7 @@ function BooksData() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="book">
       <Container fluid>
-        <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedBookTab} />
+        <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={selectedBookTab} className="justify-content-between" />
         <Row className="mt-3 mb-md-3 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
             <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

@@ -1,10 +1,11 @@
 import React from 'react';
+import ReadMore from './ReadMore';
 
 function PlaceAbout() {
   return (
     <div>
       <h2 className="mb-0">About</h2>
-      <p className="fs-4 mt-3 mb-0 text-light">
+      <ReadMore>
         Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
         Aenean commodo ligula eget dolor. Aenean massa.
         Cum sociis natoque penatibus et magnis dis parturient montes,
@@ -21,7 +22,7 @@ function PlaceAbout() {
         ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus,
         tellus eget condimentum rhoncus, sem quam semper libero,
         sit amet adipiscing sem neque sed ipsum.
-      </p>
+      </ReadMore>
     </div>
   );
 }

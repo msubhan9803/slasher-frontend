@@ -13,7 +13,7 @@ const StyleBorderButton = styled(RoundButton)`
 function NotificationSetting() {
   const [bgColor, setBgColor] = useState<boolean>(false);
   return (
-    <div className="bg-dark mx-2 my-4 p-3 rounded-3">
+    <div className="bg-dark mx-2 my-4 p-3 pb-0 rounded-3">
       <Row>
         <Col xs={6}>
           <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'}`}>

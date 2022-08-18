@@ -12,7 +12,7 @@ function PlaceRightSidebar() {
   return (
     <>
       <Link to="/places/posts">
-        <RoundButton className="w-100 fs-4">Add your place</RoundButton>
+        <RoundButton className={`w-100 fs-4 ${queryParam === 'self' && ' mb-3'}`}>Add your place</RoundButton>
       </Link>
       {queryParam !== 'self'
         && <NotificationSetting />}

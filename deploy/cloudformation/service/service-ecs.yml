@@ -1,0 +1,289 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Sets Up Service Api
+Parameters:
+  AlbHealthCheckStartPeriod:
+    Default: 30
+    Type: String
+
+  ContainerNetworkMode:
+    Type: String
+    Default: bridge
+
+  BuildNumber:
+    Type: String
+    Default: latest
+
+  ClusterName:
+    Default: slasher
+    Type: String
+
+  Stage:
+    Default: staging
+    Type: String
+
+  TypeProject:
+    Default: server
+    Type: String
+
+  SiteBackend:
+    Default: stagingtestapi.slasher.tv
+    Type: String
+
+  Site:
+    Type: String
+    Default: stagingtest.slasher.tv
+
+  EcsTasksNumber:
+    Type: String
+    Default: 4
+
+  NginxPort:
+    Default: 80
+    Type: Number
+
+  AppPort:
+    Default: 5933
+    Type: Number
+
+  AppSocketPort:
+    Default: 5941
+    Type: Number
+
+  ApiV1VirtualCPUs:
+    Default: 128
+    Type: Number
+
+  ApiV1MemoryMin:
+    Default: 128
+    Type: Number
+
+  ApiV1MemoryMax:
+    Type: String
+    Default: 'LIMITLESS'
+
+  ApiV2VirtualCPUs:
+    Default: 128
+    Type: Number
+
+  ApiV2MemoryMin:
+    Default: 128
+    Type: Number
+
+  ApiV2MemoryMax:
+    Type: String
+    Default: 'LIMITLESS'
+
+  CronV2VirtualCPUs:
+    Default: 128
+    Type: Number
+
+  CronV2MemoryMin:
+    Default: 128
+    Type: Number
+
+  CronV2MemoryMax:
+    Type: String
+    Default: 'LIMITLESS'
+
+  NginxVirtualCPUs:
+    Default: 128
+    Type: Number
+
+  NginxMemoryMin:
+    Default: 128
+    Type: Number
+
+  NginxMemoryMax:
+    Type: String
+    Default: 'LIMITLESS'
+
+Conditions:
+  hasOnlyOneTask: !Equals [!Ref EcsTasksNumber, "1"]
+  apiV1HasMemoryLimit: !Not [!Equals [!Ref ApiV1MemoryMax, "LIMITLESS"]]
+  apiV2HasMemoryLimit: !Not [!Equals [!Ref ApiV2MemoryMax, "LIMITLESS"]]
+  cronV2HasMemoryLimit: !Not [!Equals [!Ref CronV2MemoryMax, "LIMITLESS"]]
+  nginxHasMemoryLimit: !Not [!Equals [!Ref NginxMemoryMax, "LIMITLESS"]]
+
+Resources:
+  serviceECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster:
+        'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-ECSCluster
+      # Role:
+      #   'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-ECSRoleArn
+      TaskDefinition: !Ref servicetaskdefinition
+      DesiredCount: !Ref EcsTasksNumber
+      DeploymentConfiguration:
+        MinimumHealthyPercent: !If [hasOnlyOneTask, 100, 50]
+        MaximumPercent: !If [hasOnlyOneTask, 200, 100]
+      LoadBalancers:
+        - ContainerName: !Sub Nginx__${ClusterName}_${Stage}_${TypeProject}
+          ContainerPort: !Ref NginxPort
+          TargetGroupArn:
+            'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-${TypeProject}-tg
+        - ContainerName: !Sub Api_V1__${ClusterName}_${Stage}_${TypeProject}
+          ContainerPort: !Ref AppSocketPort
+          TargetGroupArn:
+            'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-${TypeProject}-ws
+      HealthCheckGracePeriodSeconds: !Ref AlbHealthCheckStartPeriod
+      PlacementConstraints:
+        - Type: memberOf
+          Expression: "attribute:cluster_type == web"
+
+  servicetaskdefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub ${ClusterName}
+      NetworkMode: !Ref ContainerNetworkMode
+      ContainerDefinitions:
+        - Name: !Sub Nginx__${ClusterName}_${Stage}_${TypeProject}
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-nginx:${BuildNumber}
+          Essential: true
+          PortMappings:
+            - HostPort: 0
+              ContainerPort: !Ref NginxPort
+          MemoryReservation: !Ref NginxMemoryMin
+          Memory: !If [nginxHasMemoryLimit, !Ref NginxMemoryMax, !Ref 'AWS::NoValue']
+          Cpu: !Ref NginxVirtualCPUs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /ecs-cluster/${ClusterName}-${Stage}
+              awslogs-stream-prefix: /ecs-task-output
+              awslogs-region: !Ref AWS::Region
+          Links:
+            - !Sub Api_V1__${ClusterName}_${Stage}_${TypeProject}
+            - !Sub Api_V2__${ClusterName}_${Stage}_${TypeProject}
+        - Name: !Sub Api_V1__${ClusterName}_${Stage}_${TypeProject}
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-api-v1:${BuildNumber}
+          Essential: true
+          PortMappings:
+            - HostPort: 0
+              ContainerPort: !Ref AppSocketPort
+          MemoryReservation: !Ref ApiV1MemoryMin
+          Memory: !If [apiV1HasMemoryLimit, !Ref ApiV1MemoryMax, !Ref 'AWS::NoValue']
+          Cpu: !Ref ApiV1VirtualCPUs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /ecs-cluster/${ClusterName}-${Stage}
+              awslogs-stream-prefix: /ecs-task-output
+              awslogs-region: !Ref AWS::Region
+          Environment:
+            - Name: NODE_ENV
+              Value: !Sub "${Stage}"
+            - Name: SECRET
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SECRET}}"
+            - Name: WEB_URL
+              Value: !Sub https://${SiteBackend}/
+            - Name: WEB_FRONTEND_URL
+              Value: !Sub https://${Site}/
+            - Name: EMAIL_FROM
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/EMAIL_FROM}}"
+            - Name: SMTP_SERVICE
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_SERVICE}}"
+            - Name: SMTP_HOST
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_HOST}}"
+            - Name: SMTP_SECURE
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_SECURE}}"
+            - Name: SMTP_PORT
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_PORT}}"
+            - Name: SMTP_AUTH_USER
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_AUTH_USER}}"
+            - Name: SMTP_AUTH_PASS
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SMTP_AUTH_PASS}}"
+            - Name: DB_CONNECTION_URL
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_CONNECTION_URL}}"
+            - Name: DB_NAME
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_NAME}}"
+            - Name: DB_HOST
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_HOST}}"
+            - Name: DB_PORT
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_PORT}}"
+            - Name: DB_USERNAME
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_USERNAME}}"
+            - Name: DB_PASSWORD
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_PASSWORD}}"
+            - Name: AWS_ACCESS_KEY_ID
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/AWS_ACCESS_KEY_ID}}"
+            - Name: AWS_SECRET_ACCESS_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/AWS_SECRET_ACCESS_KEY}}"
+            - Name: S3_BUCKET
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/S3_BUCKET}}"
+            - Name: S3_PATH
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/S3_PATH}}"
+            - Name: S3_HOST
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/S3_HOST}}"
+            - Name: NOTIFICATION_ANDROID_PUSH_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/NOTIFICATION_ANDROID_PUSH_KEY}}"
+            - Name: NOTIFICATION_IOS_PUSH_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/NOTIFICATION_IOS_PUSH_KEY}}"
+            - Name: REDIS_HOST
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/REDIS_HOST}}"
+            - Name: REDIS_PORT
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/REDIS_PORT}}"
+            - Name: PORT
+              Value: !Sub "${AppPort}"
+            - Name: SOCKET_PORT
+              Value: !Sub "${AppSocketPort}"
+            - Name:  DD_PROFILING_ENABLED
+              Value: 'true'
+            - Name:  DD_ENV
+              Value: !Sub '${Stage}'
+            - Name:  DD_SERVICE
+              Value: !Sub '${ClusterName}-${Stage}-${TypeProject}'
+            - Name:  DD_VERSION
+              Value: '1.0.3'
+            - Name: DATADOG_SITE
+              Value: 'datadoghq.com'
+            - Name: DATADOG_API_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DD_API_KEY}}"
+        - Name: !Sub Api_V2__${ClusterName}_${Stage}_${TypeProject}
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-api-v2:${BuildNumber}
+          Essential: true
+          # PortMappings:
+          #   - HostPort: 0
+          #     ContainerPort: !Ref AppSocketPort
+          MemoryReservation: !Ref ApiV2MemoryMin
+          Memory: !If [apiV2HasMemoryLimit, !Ref ApiV2MemoryMax, !Ref 'AWS::NoValue']
+          Cpu: !Ref ApiV2VirtualCPUs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /ecs-cluster/${ClusterName}-${Stage}
+              awslogs-stream-prefix: /ecs-task-output
+              awslogs-region: !Ref AWS::Region
+          Environment:
+            - Name: NODE_ENV
+              Value: !Sub "${Stage}"
+            - Name: PORT
+              Value: !Sub "${AppPort}"
+            - Name: DB_CONNECTION_URL
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_CONNECTION_URL}}"
+            - Name: JWT_SECRET_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SECRET}}"
+        - Name: !Sub Cron_V2__${ClusterName}_${Stage}_${TypeProject}
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-cron-v2:${BuildNumber}
+          Essential: true
+          # PortMappings:
+          #   - HostPort: 0
+          #     ContainerPort: !Ref AppSocketPort
+          MemoryReservation: !Ref CronV2MemoryMin
+          Memory: !If [cronV2HasMemoryLimit, !Ref CronV2MemoryMax, !Ref 'AWS::NoValue']
+          Cpu: !Ref CronV2VirtualCPUs
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /ecs-cluster/${ClusterName}-${Stage}
+              awslogs-stream-prefix: /ecs-task-output
+              awslogs-region: !Ref AWS::Region
+          Environment:
+            - Name: NODE_ENV
+              Value: !Sub "${Stage}"
+            - Name: PORT
+              Value: !Sub "${AppPort}"
+            - Name: DB_CONNECTION_URL
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_CONNECTION_URL}}"
+            - Name: JWT_SECRET_KEY
+              Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SECRET}}"

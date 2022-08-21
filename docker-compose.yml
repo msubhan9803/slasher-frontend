@@ -2,15 +2,17 @@ version: "3.9"
 
 services:
   api-v1:
+    container_name: slasher-web-new-api-v1
     restart: on-failure
     build: ./api-v1
-    hostname: api-v1
+    #hostname: api-v1
     ports:
       - '4001:5933'
       - '5001:5941'
     networks:
       - api-v1-network
   api-v2:
+    container_name: slasher-web-new-api-v2
     restart: on-failure
     build:
       context: ./api-v2
@@ -46,7 +48,13 @@ services:
       - api-v2-network
       - cron-v2-network
   nginx:
-    build: ./docker/nginx
+    build:
+      context: ./docker/nginx
+      args:
+        API_V1_APP_NAME: slasher-web-new-api-v1
+        API_V2_APP_NAME: slasher-web-new-api-v2
+        API_V1_APP_PORT: 5933
+        API_V2_APP_PORT: 4000
     restart: on-failure
     ports:
       - '80:80'

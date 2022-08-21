@@ -1,4 +1,4 @@
-image: node:16.13.1
+image: atlassian/default-image:3
 
 definitions:
   caches:
@@ -6,6 +6,7 @@ definitions:
   steps:
     - step: &api-v2-lint-test-build
         name: Lint, test, and build
+        image: node:16.13.1
         caches:
           - node
         script:
@@ -20,18 +21,201 @@ definitions:
     - step: &deploy
         name: Deploy
         caches:
-          - node
+          - docker
+        services:
+          - docker
         script:
           # Load environment variables from appropriate deployment env file
           - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
-          # TODO: Run deployment
+
+          # Set tag variables
+          - DOCKER_NGINX_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-nginx"
+          - DOCKER_API_V2_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v2"
+          - DOCKER_CRON_V2_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-cron-v2"
+          - DOCKER_API_v1_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v1"
+
+          # Build containers
+          - >
+            cd ${BITBUCKET_CLONE_DIR}/docker/nginx &&
+            docker build --tag $DOCKER_NGINX_TAG --file Dockerfile .
+            --build-arg API_V1_APP_NAME=Api_V1__${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}
+            --build-arg API_V2_APP_NAME=Api_V2__${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}
+            --build-arg API_V1_APP_PORT=${APP_PORT}
+            --build-arg API_V2_APP_PORT=${APP_PORT}
+          - >
+            cd ${BITBUCKET_CLONE_DIR}/api-v2 &&
+            docker build --tag $DOCKER_API_V2_TAG --file app.Dockerfile .
+          - >
+            cd ${BITBUCKET_CLONE_DIR}/api-v2 &&
+            docker build --tag $DOCKER_CRON_V2_TAG --file cron.Dockerfile .
+          - >
+            cd ${BITBUCKET_CLONE_DIR}/api-v1 &&
+            docker build --tag $DOCKER_API_v1_TAG --file Dockerfile .
+
+          # Push containers to Amazon ECR
+          - pipe: atlassian/aws-ecr-push-image:1.5.0
+            variables:
+              IMAGE_NAME: "$DOCKER_NGINX_TAG"
+              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
+              #DEBUG: "true"
+          - pipe: atlassian/aws-ecr-push-image:1.5.0
+            variables:
+              IMAGE_NAME: "$DOCKER_API_V2_TAG"
+              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
+              #DEBUG: "true"
+          - pipe: atlassian/aws-ecr-push-image:1.5.0
+            variables:
+              IMAGE_NAME: "$DOCKER_CRON_V2_TAG"
+              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
+              #DEBUG: "true"
+          - pipe: atlassian/aws-ecr-push-image:1.5.0
+            variables:
+              IMAGE_NAME: "$DOCKER_API_v1_TAG"
+              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
+              #DEBUG: "true"
+
+          # Deploy the AWS Elastic Load Balancing service
+          - cd ${BITBUCKET_CLONE_DIR}
+          - pipe: atlassian/aws-cloudformation-deploy:0.13.0
+            variables:
+              STACK_NAME: '${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-service-elb'
+              TEMPLATE: 'deploy/cloudformation/service/service-elb.yml'
+              WAIT: 'true'
+              STACK_PARAMETERS: >
+                [
+                  {
+                    "ParameterKey": "ClusterName",
+                    "ParameterValue": "${CLUSTER_NAME}"
+                  },
+                  {
+                    "ParameterKey": "Stage",
+                    "ParameterValue": "${STAGE}"
+                  },
+                  {
+                    "ParameterKey": "TypeProject",
+                    "ParameterValue": "${TYPE_PROJECT}"
+                  },
+                  {
+                    "ParameterKey": "NginxPort",
+                    "ParameterValue": "${NGINX_PORT}"
+                  },
+                  {
+                    "ParameterKey": "DefaultAcmCertificateArn",
+                    "ParameterValue": "${CERTIFICATE_ARN}"
+                  },
+                  {
+                    "ParameterKey": "SiteName",
+                    "ParameterValue": "${SITE_NAME}"
+                  }
+                ]
+              #DEBUG: "true"
+
+          # Deploy the AWS Elastic Container Service
+          - cd ${BITBUCKET_CLONE_DIR}
+          - pipe: atlassian/aws-cloudformation-deploy:0.13.0
+            variables:
+              STACK_NAME: '${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-service-ecs'
+              TEMPLATE: 'deploy/cloudformation/service/service-ecs.yml'
+              WAIT: 'true'
+              STACK_PARAMETERS: >
+                [
+                  {
+                    "ParameterKey": "BuildNumber",
+                    "ParameterValue": "${BITBUCKET_BUILD_NUMBER}"
+                  },
+                  {
+                    "ParameterKey": "ClusterName",
+                    "ParameterValue": "${CLUSTER_NAME}"
+                  },
+                  {
+                    "ParameterKey": "Stage",
+                    "ParameterValue": "${STAGE}"
+                  },
+                  {
+                    "ParameterKey": "TypeProject",
+                    "ParameterValue": "${TYPE_PROJECT}"
+                  },
+                  {
+                    "ParameterKey": "SiteBackend",
+                    "ParameterValue": "${SITE_NAME}"
+                  },
+                  {
+                    "ParameterKey": "Site",
+                    "ParameterValue": "${SITE_FRONTEND_NAME}"
+                  },
+                  {
+                    "ParameterKey": "EcsTasksNumber",
+                    "ParameterValue": "${ECS_TASKS_NUMBER}"
+                  },
+                  {
+                    "ParameterKey": "NginxPort",
+                    "ParameterValue": "${NGINX_PORT}"
+                  },
+                  {
+                    "ParameterKey": "AppPort",
+                    "ParameterValue": "${APP_PORT}"
+                  },
+                  {
+                    "ParameterKey": "AppSocketPort",
+                    "ParameterValue": "${APP_SOCKET_PORT}"
+                  },
+                  {
+                    "ParameterKey": "ApiV1VirtualCPUs",
+                    "ParameterValue": "${API_V1_CPU}"
+                  },
+                  {
+                    "ParameterKey": "ApiV1MemoryMin",
+                    "ParameterValue": "${API_V1_MEMORY_MIN}"
+                  },
+                  {
+                    "ParameterKey": "ApiV1MemoryMax",
+                    "ParameterValue": "${API_V1_MEMORY_MAX}"
+                  },
+                  {
+                    "ParameterKey": "ApiV2VirtualCPUs",
+                    "ParameterValue": "${API_V2_CPU}"
+                  },
+                  {
+                    "ParameterKey": "ApiV2MemoryMin",
+                    "ParameterValue": "${API_V2_MEMORY_MIN}"
+                  },
+                  {
+                    "ParameterKey": "ApiV2MemoryMax",
+                    "ParameterValue": "${API_V2_MEMORY_MAX}"
+                  },
+                  {
+                    "ParameterKey": "CronV2VirtualCPUs",
+                    "ParameterValue": "${CRON_V2_CPU}"
+                  },
+                  {
+                    "ParameterKey": "CronV2MemoryMin",
+                    "ParameterValue": "${CRON_V2_MEMORY_MIN}"
+                  },
+                  {
+                    "ParameterKey": "CronV2MemoryMax",
+                    "ParameterValue": "${CRON_V2_MEMORY_MAX}"
+                  },
+                  {
+                    "ParameterKey": "NginxVirtualCPUs",
+                    "ParameterValue": "${NGNINX_CPU}"
+                  },
+                  {
+                    "ParameterKey": "NginxMemoryMin",
+                    "ParameterValue": "${NGNINX_MEMORY_MIN}"
+                  },
+                  {
+                    "ParameterKey": "NginxMemoryMax",
+                    "ParameterValue": "${NGNINX_MEMORY_MAX}"
+                  }
+                ]
+              DEBUG: 'true'
 
 pipelines:
   branches:
     main:
       - step: *api-v2-lint-test-build
     deploy/staging:
-      - step: *api-v2-lint-test-build
+      #- step: *api-v2-lint-test-build
       - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request

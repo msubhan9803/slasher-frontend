@@ -27,7 +27,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
 `;
 function CommentInput() {
   return (
-    <Row className="pt-2 order-last order-sm-0">
+    <Row className="ps-3 pt-2 order-last order-sm-0">
       <Col xs="auto" className="pe-0">
         <UserProfileImage src="https://i.pravatar.cc/300?img=56" className="me-3 rounded-circle bg-secondary" />
       </Col>

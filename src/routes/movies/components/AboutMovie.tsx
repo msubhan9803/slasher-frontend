@@ -28,20 +28,20 @@ const StyledMoviePoster = styled.div`
 `;
 const MovieIconList = [
   {
-    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.445rem', height: '1.445rem', addMovie: false,
+    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,
   },
   {
-    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.445rem', height: '1.033rem', addMovie: false,
+    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
   },
   {
-    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.498rem', height: '1.265rem', addMovie: true,
+    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: true,
   },
   {
-    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addMovie: false,
+    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
   },
 ];
 const StyleTabs = styled(Tabs)`
-border-bottom: 0.2rem solid var(--bs-dark);
+border-bottom: 0.188rem solid var(--bs-dark);
 overflow-x: auto;
 overflow-y: hidden;
 .nav-link {
@@ -54,7 +54,7 @@ overflow-y: hidden;
   &.active {
     color: var(--bs-primary);
     background-color: transparent;
-    border-bottom:  0.2rem solid var(--bs-primary);
+    border-bottom:  0.188rem solid var(--bs-primary);
   }
 }
 `;
@@ -65,7 +65,7 @@ const FollowStyledButton = styled(RoundButton)`
     border: 0.063rem solid #3A3B46;
   }
 `;
-function AboutMovie() {
+function AboutMovie({ setSelectedScreen }: any) {
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
   const handleMovieAddRemove = (labelName: string) => {
@@ -84,11 +84,11 @@ function AboutMovie() {
       <div className="bg-dark my-3 p-4 pb-0 rounded-2">
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <StyledMoviePoster className="mx-md-4">
+            <StyledMoviePoster className="mx-4">
               <Image src={MovieDetailPoster} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
             <div className="d-none d-xl-block mt-3">
-              <small>Your lists</small>
+              <p className="fs-5">Your lists</p>
               <div className="mt-2 d-flex justify-content-between">
                 {movieIconListData.map((iconList: MovieIconProps) => (
                   <ListIcon
@@ -105,7 +105,7 @@ function AboutMovie() {
               </div>
             </div>
             <div className="d-none d-xl-block">
-              <StyleTabs className="fs-3 justify-content-between px-2 border-0">
+              <StyleTabs onSelect={(e) => setSelectedScreen(e)} className="fs-3 justify-content-between px-2 border-0">
                 <Tab eventKey="details" title="Details" />
                 <Tab eventKey="posts" title="Posts" />
                 <Tab eventKey="edit" title="Edit" />
@@ -138,14 +138,14 @@ function AboutMovie() {
         <Row className="d-lg-none mt-3 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this movie</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
+            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
               {bgColor ? 'Follow' : 'Unfollow'}
             </FollowStyledButton>
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">
           <Col sm={5}>
-            <div className="align-items-center d-flex justify-content-center">
+            <div className="align-items-center d-flex justify-content-evenly">
               <span className="mb-2">Push notifications</span>
               <Switch id="pushNotificationsSwitch" className="ms-4" />
             </div>
@@ -153,7 +153,7 @@ function AboutMovie() {
         </Row>
         <Row className="d-xl-none">
           <Col xl={5}>
-            <StyleTabs className="fs-3 justify-content-between mt-3 px-2 border-0">
+            <StyleTabs onSelect={(e) => setSelectedScreen(e)} className="fs-3 justify-content-between mt-3 px-2 border-0">
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="posts" title="Posts" />
               <Tab eventKey="edit" title="Edit" />

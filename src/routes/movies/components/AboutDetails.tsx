@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon from './WorthWatchIcon';
+import MoviesModal from './MoviesModal';
 
 const StyledRateBorder = styled.div`
   @media (min-width: 89.938rem) {
@@ -73,6 +74,7 @@ const StyleBorderButton = styled(RoundButton)`
   }
 `;
 function AboutDetails() {
+  const [show, setShow] = useState(false);
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -97,10 +99,10 @@ function AboutDetails() {
             <FontAwesomeIcon icon={solid('star')} size="xs" className="star mb-2 mt-1" />
             <div className="d-flex">
               <p className="fw-bold m-0 mx-2">3.3/5</p>
-              <p className="m-0 text-light me-xxl-2">(10K)</p>
+              <p className="m-0 text-light">(10K)</p>
             </div>
           </span>
-          <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2" variant="lg">
+          <StyleBorderButton onClick={() => setShow(true)} className="d-flex align-items-center rate-btn bg-black py-2" variant="lg">
             <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
             <p className="fs-3 fw-bold m-0">Rate</p>
           </StyleBorderButton>
@@ -132,6 +134,7 @@ function AboutDetails() {
           </StyleBorderButton>
         </Col>
       </Row>
+      <MoviesModal show={show} setShow={setShow} ButtonType="rate" />
     </AboutMovieDetails>
   );
 }

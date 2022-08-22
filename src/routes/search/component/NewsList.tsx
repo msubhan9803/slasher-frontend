@@ -90,7 +90,7 @@ function NewsList({
               </OverlayTrigger>
             </StyledPopover>
           </Card.Header>
-          <Card.Body className="px-0 pt-2">
+          <Card.Body className="px-0 pt-3 pb-2">
             <Row>
               <Col>
                 <span className="fs-4">
@@ -110,55 +110,67 @@ function NewsList({
             <StyledPostImage className="mt-3">
               <Image src={postImage} className="w-100 h-100" />
             </StyledPostImage>
-            <Row className="d-flex justify-content-evenly pt-3 px-3">
-              <Col>
-                <LinearIcon uniqueId="like-button-news">
-                  <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-                  12K
-                </LinearIcon>
+            <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
+              <Col className="align-self-center">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <LinearIcon uniqueId="like-button">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                    12K
+                  </LinearIcon>
+                </Button>
               </Col>
               <Col className="text-center">
-                <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-                10
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                  10
+                </Button>
               </Col>
               <Col className="text-end">
-                <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                25
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                  25
+                </Button>
               </Col>
               <svg width="0" height="0">
-                <linearGradient id="like-button-news" x1="00%" y1="0%" x2="0%" y2="100%">
+                <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
                   <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
                 </linearGradient>
               </svg>
             </Row>
           </Card.Body>
-          <CardFooter className="p-0">
-            <Row className=" d-flex justify-content-evenly py-3 px-3">
-              <Col role="button" onClick={() => onLikeClick(id)}>
-                {like && (id === iD) ? (
-                  <LinearIcon uniqueId="like-button-footer">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    Like
-                  </LinearIcon>
-                )
-                  : (
-                    <>
-                      <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+          <CardFooter className="p-0 ps-1">
+            <Row className=" d-flex justify-content-evenly py-2">
+              <Col>
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => onLikeClick(id)}>
+                  {like && (id === iD) ? (
+                    <LinearIcon uniqueId="like-news-button-footer">
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                       Like
-                    </>
-                  )}
+                    </LinearIcon>
+                  )
+                    : (
+                      <>
+                        <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                        Like
+                      </>
+                    )}
+                </Button>
               </Col>
-              <Col className="text-center" role="button">
-                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                Comment
+              <Col className="text-center">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                  Comment
+                </Button>
               </Col>
               <Col className="text-end" role="button">
-                <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                Share
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                  Share
+                </Button>
               </Col>
               <svg width="0" height="0">
-                <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
+                <linearGradient id="like-news-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
                   <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
                 </linearGradient>

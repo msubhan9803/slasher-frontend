@@ -101,6 +101,10 @@ definitions:
                     "ParameterValue": "${NGINX_PORT}"
                   },
                   {
+                    "ParameterKey": "AppSocketPort",
+                    "ParameterValue": "${APP_SOCKET_PORT}"
+                  },
+                  {
                     "ParameterKey": "DefaultAcmCertificateArn",
                     "ParameterValue": "${CERTIFICATE_ARN}"
                   },
@@ -207,6 +211,22 @@ definitions:
                   {
                     "ParameterKey": "NginxMemoryMax",
                     "ParameterValue": "${NGNINX_MEMORY_MAX}"
+                  },
+                  {
+                    "ParameterKey": "NginxContainerName",
+                    "ParameterValue": "${DOCKER_NGINX_TAG}"
+                  },
+                  {
+                    "ParameterKey": "ApiV2ContainerName",
+                    "ParameterValue": "${DOCKER_API_V2_TAG}"
+                  },
+                  {
+                    "ParameterKey": "CronV2ContainerName",
+                    "ParameterValue": "${DOCKER_CRON_V2_TAG}"
+                  },
+                  {
+                    "ParameterKey": "ApiV1ContainerName",
+                    "ParameterValue": "${DOCKER_API_V1_TAG}"
                   }
                 ]
               DEBUG: 'true'

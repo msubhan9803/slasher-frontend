@@ -16,9 +16,13 @@ Parameters:
   DefaultAcmCertificateArn:
     Type: String
 
-  ContainerPort:
-    Type: String
+  NginxPort:
+    Type: Number
     Default: 80
+
+  AppSocketPort:
+    Type: Number
+    Default: 5941
 
   AlbHealthCheckInterval:
     Type: String
@@ -60,7 +64,7 @@ Resources:
         'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-VPC
       Protocol: HTTP
       TargetType: 'instance'
-      Port: !Ref ContainerPort
+      Port: !Ref NginxPort
       Matcher:
         HttpCode: '200,401'
       HealthCheckIntervalSeconds: !Ref AlbHealthCheckInterval
@@ -82,7 +86,7 @@ Resources:
         'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-VPC
       Protocol: HTTP
       TargetType: 'instance'
-      Port: 5941
+      Port: !Ref AppSocketPort
       Matcher:
         HttpCode: '200,401,404'
       HealthCheckIntervalSeconds: !Ref AlbHealthCheckInterval

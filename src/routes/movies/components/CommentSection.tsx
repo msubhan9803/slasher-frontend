@@ -100,7 +100,7 @@ function CommentSection({
             <div className="d-block pe-0">
               <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="bg-transparent border-0 pt-0 pe-0">
+                  <Button className="text-white bg-transparent shadow-none border-0 pt-0 pe-0">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>
@@ -113,13 +113,16 @@ function CommentSection({
           <CommentMessage className="mb-0 fs-4">
             {commentMsg}
           </CommentMessage>
-          {commentImg
+          {
+            commentImg
             && (
               <div>
                 <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
-            )}
-          {likes
+            )
+          }
+          {
+            likes
             && (
               <Likes className="rounded d-flex justify-content-end position-absolute">
                 <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
@@ -135,9 +138,10 @@ function CommentSection({
                   </linearGradient>
                 </svg>
               </Likes>
-            )}
+            )
+          }
         </CommentBox>
-        <div className="my-md-3 mt-3 mb-4 ms-md-3 ms-4">
+        <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon
@@ -157,7 +161,7 @@ function CommentSection({
                 )
             }
             <Button variant="link" className="text-decoration-none shadow-none">
-              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2 ms-4" />
+              <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>
           </div>

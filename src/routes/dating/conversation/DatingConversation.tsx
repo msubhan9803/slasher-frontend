@@ -44,8 +44,9 @@ function DatingConversation() {
 
   return (
     <DatingPageWrapper>
-      <h1 className="h3 mb-3">Messages</h1>
-      <Chat messages={messages} />
+      <div className="mt-5 pt-5 mt-lg-0 pt-lg-0">
+        <Chat messages={messages} />
+      </div>
     </DatingPageWrapper>
   );
 }

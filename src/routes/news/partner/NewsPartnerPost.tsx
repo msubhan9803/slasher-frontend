@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Image, Row,
+  Button, Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';

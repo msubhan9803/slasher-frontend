@@ -39,8 +39,8 @@ definitions:
             cd ${BITBUCKET_CLONE_DIR}/docker/nginx &&
             docker build --tag $DOCKER_NGINX_TAG --file Dockerfile .
             --build-arg NGINX_PORT=${NGINX_PORT}
-            --build-arg API_V1_APP_NAME=Api_V1__${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}
-            --build-arg API_V2_APP_NAME=Api_V2__${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}
+            --build-arg API_V1_APP_NAME=v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v1
+            --build-arg API_V2_APP_NAME=v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v2
             --build-arg API_V1_APP_PORT=${APP_PORT}
             --build-arg API_V2_APP_PORT=${APP_PORT}
           - >

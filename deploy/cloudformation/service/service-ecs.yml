@@ -134,11 +134,11 @@ Resources:
         MinimumHealthyPercent: !If [hasOnlyOneTask, 100, 50]
         MaximumPercent: !If [hasOnlyOneTask, 200, 100]
       LoadBalancers:
-        - ContainerName: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-nginx
+        - ContainerName: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-nginx
           ContainerPort: !Ref NginxPort
           TargetGroupArn:
             'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-${TypeProject}-tg
-        - ContainerName: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-api-v1
+        - ContainerName: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-api-v1
           ContainerPort: !Ref AppSocketPort
           TargetGroupArn:
             'Fn::ImportValue': !Sub ${ClusterName}-${Stage}-${TypeProject}-ws
@@ -153,8 +153,8 @@ Resources:
       Family: !Sub ${ClusterName}
       NetworkMode: !Ref ContainerNetworkMode
       ContainerDefinitions:
-        - Name: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-nginx
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}_${TypeProject}-nginx:${BuildNumber}
+        - Name: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-nginx
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-nginx:${BuildNumber}
           Essential: true
           PortMappings:
             - HostPort: 0
@@ -169,10 +169,10 @@ Resources:
               awslogs-stream-prefix: /ecs-task-output
               awslogs-region: !Ref AWS::Region
           Links:
-            - !Sub v2-${ClusterName}-${Stage}_${TypeProject}-api-v1
-            - !Sub v2-${ClusterName}-${Stage}_${TypeProject}-api-v2
-        - Name: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-api-v1
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}_${TypeProject}-api-v1:${BuildNumber}
+            - !Sub v2-${ClusterName}-${Stage}-${TypeProject}-api-v1
+            - !Sub v2-${ClusterName}-${Stage}-${TypeProject}-api-v2
+        - Name: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-api-v1
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-api-v1:${BuildNumber}
           Essential: true
           PortMappings:
             - HostPort: 0
@@ -255,8 +255,8 @@ Resources:
               Value: 'datadoghq.com'
             - Name: DATADOG_API_KEY
               Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DD_API_KEY}}"
-        - Name: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-api-v2
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}_${TypeProject}-api-v2:${BuildNumber}
+        - Name: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-api-v2
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-api-v2:${BuildNumber}
           Essential: true
           # PortMappings:
           #   - HostPort: 0
@@ -279,8 +279,8 @@ Resources:
               Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/DB_CONNECTION_URL}}"
             - Name: JWT_SECRET_KEY
               Value: !Sub "{{resolve:ssm:/ECS-CLUSTER/${ClusterName}-${Stage}/SECRET}}"
-        - Name: !Sub v2-${ClusterName}-${Stage}_${TypeProject}-cron-v2
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}_${TypeProject}-cron-v2:${BuildNumber}
+        - Name: !Sub v2-${ClusterName}-${Stage}-${TypeProject}-cron-v2
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/v2-${ClusterName}-${Stage}-${TypeProject}-cron-v2:${BuildNumber}
           Essential: true
           # PortMappings:
           #   - HostPort: 0

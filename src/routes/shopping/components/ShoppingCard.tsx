@@ -56,11 +56,11 @@ function ShoppingCard({ listDetail }: ShoppingCardProps) {
               </div>
               <div className="fs-4 mt-1 d-md-flex d-lg-block d-xl-flex align-items-center">
                 <p className="m-0">
-                  Offer code:&nbsp;
+                  <span className="fw-semibold">Offer code: </span>
                   {listDetail.offerCode}
                 </p>
                 <p className="m-0 ms-md-5 ms-lg-0 ms-xl-5">
-                  Expires:&nbsp;
+                  <span className="fw-semibold">Expires: </span>
                   {listDetail.expireDate}
                 </p>
               </div>

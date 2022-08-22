@@ -4,7 +4,7 @@ import { Col, Image, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ShoppingHeader from '../ShoppingHeader';
-import SlasherLogo from '../../../images/slasher-logo-medium.png';
+import SlasherShoppingBanner from '../../../images/shopping-banner.png';
 import ShoppingFeaturePoster from '../components/ShoppingFeaturePoster';
 import ShoppingPhotos from '../../../images/shopping-photos.png';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -54,9 +54,8 @@ function AllShopping() {
 
         <ShoppingHeader tabKey="all" changeTab={changeTab} />
         <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
-        <ShoppingBanner id="banner" className="order-3 order-lg-1 d-flex flex-column justify-content-center bg-dark align-items-center mt-4 rounded">
-          <Image src={SlasherLogo} alt="Shopping Banner" />
-          <h1 className="h2 fw-bold">Support the horror community</h1>
+        <ShoppingBanner id="banner" className="order-3 order-lg-1 mt-4 rounded">
+          <Image src={SlasherShoppingBanner} alt="Shopping Banner" className="w-100 h-100" />
         </ShoppingBanner>
         <div id="featured" className="order-2 order-lg-2 bg-dark mt-4 p-4 rounded">
           <div className="d-flex justify-content-between align-items-center mb-3">

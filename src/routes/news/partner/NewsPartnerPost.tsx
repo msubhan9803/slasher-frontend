@@ -101,20 +101,26 @@ function NewsPartnerPost() {
                 <ImageContainer className="mt-3">
                   <Image src={postImage} className="w-100 h-100" />
                 </ImageContainer>
-                <Row className="fs-3 d-flex justify-content-evenly pt-3 px-3">
-                  <Col>
-                    <LinearIcon uniqueId="like-button">
-                      <FontAwesomeIcon role="button" icon={solid('heart')} size="lg" className="me-2" />
-                      12K
-                    </LinearIcon>
+                <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
+                  <Col className="align-self-center">
+                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                      <LinearIcon uniqueId="like-button">
+                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                        12K
+                      </LinearIcon>
+                    </Button>
                   </Col>
                   <Col className="text-center">
-                    <FontAwesomeIcon role="button" icon={regular('comment-dots')} size="lg" className="me-2" />
-                    10
+                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                      <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                      10
+                    </Button>
                   </Col>
                   <Col className="text-end">
-                    <FontAwesomeIcon role="button" icon={solid('share-nodes')} size="lg" className="me-2" />
-                    25
+                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                      <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                      25
+                    </Button>
                   </Col>
                   <svg width="0" height="0">
                     <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">

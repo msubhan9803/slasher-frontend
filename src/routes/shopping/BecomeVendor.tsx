@@ -27,7 +27,6 @@ const AddIcon = styled.div`
 `;
 const noteList = [
   'A listing in the book database with your cover art, description, link to buy your book, and more.',
-  'A second listing in the Slasher Indie section.',
   'Create posts and updates about your book that also appear on the timeline.',
   'People on Slasher can follow your book and get notifIed of new posts.',
 ];

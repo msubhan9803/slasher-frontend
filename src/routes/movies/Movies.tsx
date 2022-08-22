@@ -8,8 +8,8 @@ function Movies() {
   return (
     <Routes>
       <Route path="/:id" element={<MovieData />} />
+      <Route path="1/:id" element={<MovieDetails />} />
       <Route path="add" element={<AddYourMovie />} />
-      <Route path="details" element={<MovieDetails />} />
     </Routes>
   );
 }

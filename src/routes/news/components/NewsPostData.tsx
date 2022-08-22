@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Card, Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -76,7 +77,7 @@ function NewsPostData() {
           <Card.Header className="border-0 px-0">
             <NewPostHeader userName={post.userName} postDate={post.postDate} />
           </Card.Header>
-          <Card.Body className="px-0 pt-3">
+          <Card.Body className="px-0 pt-3 pb-2">
             <div>
               <p className="mb-0 fs-4">{post.content}</p>
               {post.hashTag?.map((hashtag: string) => (
@@ -90,20 +91,26 @@ function NewsPostData() {
             <Row className="mt-3">
               <PostImage src={postImage} className="w-100" />
             </Row>
-            <Row className="fs-3 d-flex justify-content-evenly pt-3 px-3">
-              <Col>
-                <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
-                  <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                  12K
-                </LinearIcon>
+            <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
+              <Col className="align-self-center">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => openDialogue('like')}>
+                  <LinearIcon uniqueId="like-button">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                    12K
+                  </LinearIcon>
+                </Button>
               </Col>
-              <Col className="text-center" role="button" onClick={() => commentSection()}>
-                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                10
+              <Col className="text-center">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => commentSection()}>
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                  10
+                </Button>
               </Col>
-              <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
-                <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                25
+              <Col className="text-end">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => openDialogue('share')}>
+                  <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                  25
+                </Button>
               </Col>
               <svg width="0" height="0">
                 <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
@@ -113,38 +120,44 @@ function NewsPostData() {
               </svg>
             </Row>
           </Card.Body>
-          <CardFooter className="p-0">
-            <Row className="fs-3 d-flex justify-content-evenly pt-3 pb-2 px-3">
-              <Col role="button" onClick={() => onLikeClick(post.id)}>
-                {post.likeIcon ? (
-                  <LinearIcon uniqueId="like-button-footer">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    Like
-                  </LinearIcon>
-                )
-                  : (
-                    <>
-                      <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+          <CardFooter className="p-0 ps-1">
+            <Row className="fs-3 d-flex justify-content-evenly pt-2">
+              <Col>
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => onLikeClick(post.id)}>
+                  {post.likeIcon ? (
+                    <LinearIcon uniqueId="like-button-footer">
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" role="button" onClick={() => onLikeClick(post.id)} />
                       Like
-                    </>
-                  )}
+                    </LinearIcon>
+                  )
+                    : (
+                      <>
+                        <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" role="button" onClick={() => onLikeClick(post.id)} />
+                        Like
+                      </>
+                    )}
+                </Button>
               </Col>
-              <Col className="text-center" role="button">
-                <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                Comment
+              <Col className="text-center">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                  Comment
+                </Button>
               </Col>
-              <Col className="text-end" role="button">
-                <CustomDropDown>
-                  <Dropdown.Toggle className="bg-transparent pt-1 pe-0" variant="link">
-                    <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                    Share
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="bg-black">
-                    <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
-                    <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
-                    <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
-                  </Dropdown.Menu>
-                </CustomDropDown>
+              <Col className="text-end">
+                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                  <CustomDropDown>
+                    <Dropdown.Toggle className="bg-transparent pt-1 pe-0" variant="link">
+                      <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                      Share
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="bg-black">
+                      <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
+                      <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
+                      <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </CustomDropDown>
+                </Button>
               </Col>
               <svg width="0" height="0">
                 <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

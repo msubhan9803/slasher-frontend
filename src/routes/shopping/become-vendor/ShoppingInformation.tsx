@@ -21,7 +21,7 @@ function ShoppingInformation({
       <Form.Group className="mt-3 fs-5" controlId="Overview">
         <Form.Control
           maxLength={113}
-          rows={8}
+          rows={5}
           as="textarea"
           value={description}
           onChange={handleMessageChange}

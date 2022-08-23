@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { ChangeEvent, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../components/ui/RoundButton';
-import Packages from './components/Packages';
-import ShoppingInformation from './components/ShoppingInformation';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../components/ui/RoundButton';
+import Packages from './Packages';
+import ShoppingInformation from './ShoppingInformation';
 
 const ImageContainer = styled.div`
   height: 9.688rem;
@@ -26,9 +26,9 @@ const AddIcon = styled.div`
   right: -0.35rem;
 `;
 const noteList = [
-  'A listing in the book database with your cover art, description, link to buy your book, and more.',
-  'Create posts and updates about your book that also appear on the timeline.',
-  'People on Slasher can follow your book and get notifIed of new posts.',
+  'A listing in the Shopping area of Slasher with your logo, description, link to your website, and more.',
+  'Create posts and updates about your shop that also appear on the timeline.',
+  'People on Slasher can follow your shop and get notifIed of new posts.',
 ];
 function BecomeVendor() {
   const [imageUpload, setImageUpload] = useState<string>('');

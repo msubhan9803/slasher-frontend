@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import BecomeVendor from './BecomeVendor';
+import BecomeVendor from './become-vendor/BecomeVendor';
 
 function Shopping() {
   return (

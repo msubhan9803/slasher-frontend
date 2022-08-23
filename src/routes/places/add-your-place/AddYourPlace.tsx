@@ -5,10 +5,10 @@ import {
   Col, Row, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../components/ui/RoundButton';
-import Packages from './components/Packages';
-import PlaceInformation from './components/PlaceInformation';
+import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import RoundButton from '../../../components/ui/RoundButton';
+import Packages from './Packages';
+import PlaceInformation from './PlaceInformation';
 
 const ImageContainer = styled.div`
   height: 9.688rem;
@@ -52,7 +52,7 @@ function AddYourPlace() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div className="bg-dark px-md-4 py-4 rounded-3 bg-mobile-transparent">
-        <h1 className="h2 mb-0 fw-bold">Add your shop and reach horror fans on Slasher more easily!</h1>
+        <h1 className="h2 mb-0 fw-bold">Add your destination and reach horror fans on Slasher more easily!</h1>
         <div className="my-3 text-light">
           <p className="mb-0 fs-4">Save time and build your audience by listing your place.</p>
           <p className="mb-0 fs-4">Here’s what you get:</p>
@@ -122,7 +122,7 @@ function AddYourPlace() {
             <p className="fs-5 text-light">(jpg, png)</p>
           </div>
         </div>
-        <h2 className="mb-4 mt-4 pt-3 fw-bold">Place information</h2>
+        <h2 className="mb-4 mt-4 pt-3 fw-bold">Information</h2>
         <PlaceInformation
           description={description}
           charCount={charCount}

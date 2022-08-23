@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Add your shop and reach horror fans on Slasher more easily!/);
+    await expect(page.locator('main')).toHaveText(/Add your destination and reach horror fans on Slasher more easily!/);
   });
 });

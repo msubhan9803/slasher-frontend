@@ -34,7 +34,7 @@ function PlaceInformation({
       </Row>
       <Form.Group className="mt-3 fs-5" controlId="Overview">
         <Form.Control
-          maxLength={113}
+          maxLength={1000}
           rows={8}
           as="textarea"
           value={description}
@@ -43,7 +43,7 @@ function PlaceInformation({
           style={{ resize: 'none' }}
           className="fs-4"
         />
-        <CustomSpan className="float-end fs-4">{`${charCount}/${113} characters`}</CustomSpan>
+        <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
       </Form.Group>
       <Form.Control type="text" placeholder="Website" className="fs-4 mt-3" />
       <Row>

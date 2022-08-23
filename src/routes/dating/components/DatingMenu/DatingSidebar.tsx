@@ -26,7 +26,7 @@ function DatingSidebar() {
           <IconWithTextNavLink label="Likes" icon={regular('heart')} iconSize="2x" to="/" badge={6} />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/" badgeIconClassName="text-primary" />
+          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/dating/setup/additional-preferences" />
         </Col>
         <Col />
       </Row>

@@ -93,7 +93,10 @@ function DatingAdditionalPreferences() {
             <h2 className="mb-4 mb-lg-0">Age range</h2>
           </div>
           <div className="d-flex justify-content-lg-end">
-            <p className="mb-0 fs-5 text-primary">{`${age[0]} to ${age[1]}`}</p>
+            <p className="mb-0 fs-5 text-primary">
+              {`${age[0]} to ${age[1]}`}
+              {age[1] === 55 && '+'}
+            </p>
           </div>
         </div>
 

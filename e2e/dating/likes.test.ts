@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Likes received/);
+    await expect(page.locator('main')).toHaveText(/Matches/);
   });
 });

@@ -16,7 +16,7 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
   const closeModal = () => {
     setShow(false);
   };
-  const blockOptions = ['Inappropriate profile', 'Fake photo', 'Spam', 'Other'];
+  const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<Set<string>>(new Set<string>());
   const [otherReport, setOtherReport] = useState('');
 
@@ -45,14 +45,23 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
       )}
       {slectedDropdownValue === 'Unmatch' && (
         <Modal.Body className="d-flex flex-column align-items-center text-center p-4 pt-2">
-          <h3 className="text-primary m-3 mt-0"> Are you sure you want to unmatch? </h3>
+          <h3 className="text-primary m-3 mt-0"> Ate you sure you want to unmatch? </h3>
           <RoundButton className="mb-3 w-100">Yes</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>No</RoundButton>
         </Modal.Body>
       )}
-      {slectedDropdownValue === 'Block & Report' && (
+      {slectedDropdownValue === 'Block user' && (
+        <Modal.Body className="d-flex flex-column align-items-center text-center p-4 pt-2">
+          <h3 className="text-primary m-3 mt-0"> Block this person? </h3>
+          <p>You will no longer recieve messages from this contact.</p>
+          <RoundButton className="mb-3 w-100">Yes, please block</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>No, don’t block</RoundButton>
+        </Modal.Body>
+      )}
+      {slectedDropdownValue === 'Report' && (
         <Modal.Body className="d-flex flex-column pt-2">
-          <h3 className="text-primary mb-3 text-center"> Block &#38; Report </h3>
+          <h3 className="text-primary mb-3 text-center"> Report </h3>
+          <p>Why are you reporting this?</p>
           <Form className="mb-4">
             {blockOptions.map((label: string, index: number) => (
               <Form.Check
@@ -72,13 +81,13 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
                 as="textarea"
                 value={otherReport}
                 onChange={(other) => setOtherReport(other.target.value)}
-                placeholder="Describe the issue."
+                placeholder="Please describe the issue"
                 className="mt-3"
               />
             )}
           </Form>
-          <RoundButton className="mb-3 w-100">Yes</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>No</RoundButton>
+          <RoundButton className="mb-3 w-100">Send report</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
         </Modal.Body>
       )}
     </CustomModal>

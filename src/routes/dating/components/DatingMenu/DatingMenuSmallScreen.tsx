@@ -24,7 +24,7 @@ function DatingMenuSmallScreen() {
         <IconWithTextNavLink label="Messages" icon={regular('comments')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/" iconSize="lg" badgeIconClassName="text-primary" />
+        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/dating/likes?user=subscriber" iconSize="lg" />
       </Col>
       <Col className="my-2">
         <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/" iconSize="lg" />

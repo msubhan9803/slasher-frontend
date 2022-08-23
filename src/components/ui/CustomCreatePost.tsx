@@ -22,7 +22,7 @@ function CustomCreatePost() {
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
         <div className="align-self-center me-2">
-          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
+          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="text-white" />
         </div>
       </StyledDiv>
     </RoundButton>

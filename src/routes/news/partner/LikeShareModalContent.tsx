@@ -57,16 +57,16 @@ function LikeShareModalContent() {
           {data.sendMessage
             ? (
               <RoundButton
-                className="bg-black fw-bold"
+                className="bg-black fw-bold text-white"
               >
-                <p className="mb-0">Send message</p>
+                Send message
               </RoundButton>
             )
             : (
               <RoundButton
                 className="fw-bold"
               >
-                <p className="mb-0">Add friend</p>
+                Add friend
               </RoundButton>
             )}
         </div>

@@ -48,8 +48,8 @@ function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
         <Col className="text-end" role="button">
           <CustomDropDown>
             <Dropdown.Toggle className=" bg-transparent p-0">
-              <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-              <span className="fs-3">Share</span>
+              <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2 text-white" />
+              <span className="fs-3 text-white fw-normal">Share</span>
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">
               <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>

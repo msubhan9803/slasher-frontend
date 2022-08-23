@@ -7,6 +7,13 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import RoundButton from '../../components/ui/RoundButton';
 
+interface Props {
+  id: number;
+  profileImage: string;
+  userName: string;
+  addFriend: boolean;
+
+}
 const ProfileImage = styled(Image)`
   height:6.25rem;
   width:6.25rem;
@@ -27,6 +34,9 @@ const CancelRequestButton = styled(RoundButton)`
   display: inline-block;
   white-space: nowrap;
   border: 0.063rem solid #3A3B46;
+  &:hover {
+  border: 0.063rem solid #3A3B46;
+  }
 `;
 const ButtonContainer = styled.div`
   width:100%;
@@ -68,7 +78,7 @@ const slideFriendLeft = () => {
 function SuggestedFriend() {
   const [friendListData, setFriendListData] = useState(friendList);
   const toggleAddFriendButton = (id: number) => {
-    const data = friendListData.map((datas: any) => {
+    const data = friendListData.map((datas: Props) => {
       if (datas.id === id) {
         return { ...datas, addFriend: !datas.addFriend };
       }
@@ -79,15 +89,15 @@ function SuggestedFriend() {
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
       <div className="d-flex align-items-center">
-        <Button className="d-none d-md-block ps-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
-          <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
+        <Button className="d-block ps-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
+          <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
         </Button>
         <StyleFriend
           id="slideFriend"
           className="d-flex flex-nowrap w-100"
         >
           {friendListData.map((user: any) => (
-            <Col xs={6} md={3} lg={6} xl={3} xxl={4} key={user.id}>
+            <Col xs={6} md={3} lg={6} xl={4} xxl={3} key={user.id}>
               <div className="bg-dark rounded p-3">
                 <div className=" d-flex justify-content-center position-relative">
                   <ProfileImage src={user.profileImage} className="rounded-circle" />
@@ -99,7 +109,7 @@ function SuggestedFriend() {
                 {user.addFriend
                   ? (
                     <ButtonContainer>
-                      <CancelRequestButton className="bg-black fs-3 w-100 text-center px-2" onClick={() => toggleAddFriendButton(user.id)}>
+                      <CancelRequestButton className="bg-black fs-3 w-100 text-center text-white px-2" onClick={() => toggleAddFriendButton(user.id)}>
                         Cancel Request
                       </CancelRequestButton>
                     </ButtonContainer>
@@ -113,8 +123,8 @@ function SuggestedFriend() {
             </Col>
           ))}
         </StyleFriend>
-        <Button className="d-none d-md-block pe-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
-          <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
+        <Button className="d-block pe-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
+          <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
         </Button>
       </div>
     </div>

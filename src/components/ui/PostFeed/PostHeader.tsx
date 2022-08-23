@@ -68,7 +68,7 @@ function PostHeader({
         <StyledPopover>
           <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
             <Button className="bg-transparent shadow-none border-0 pe-1">
-              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
+              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" className="text-white" />
             </Button>
           </OverlayTrigger>
         </StyledPopover>

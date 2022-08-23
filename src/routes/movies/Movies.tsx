@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AddYourMovie from './AddYourMovie';
 import MovieData from './MovieData';
-import MovieDetails from './MovieDetails';
+import MovieDetails from './MoviesDetails/MovieDetails';
 
 function Movies() {
   return (

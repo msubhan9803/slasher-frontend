@@ -31,13 +31,12 @@ const StyleFriend = styled(Row)`
 }
 `;
 const CancelRequestButton = styled(RoundButton)`
-  display: inline-block;
-  white-space: nowrap;
   border: 0.063rem solid #3A3B46;
   &:hover {
   border: 0.063rem solid #3A3B46;
   }
 `;
+
 const ButtonContainer = styled.div`
   width:100%;
   text-align: center;
@@ -97,7 +96,7 @@ function SuggestedFriend() {
           className="d-flex flex-nowrap w-100"
         >
           {friendListData.map((user: any) => (
-            <Col xs={6} md={3} lg={6} xl={4} xxl={3} key={user.id}>
+            <Col xs={6} md={3} lg={4} key={user.id}>
               <div className="bg-dark rounded p-3">
                 <div className=" d-flex justify-content-center position-relative">
                   <ProfileImage src={user.profileImage} className="rounded-circle" />

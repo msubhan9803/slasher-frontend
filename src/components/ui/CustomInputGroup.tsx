@@ -20,12 +20,15 @@ const StyledInputGroup = styled(InputGroup)`
 interface Props {
   addonContent: React.ReactNode;
   label: string;
+  size: string;
   inputType?: string;
 }
 
-function CustomInputGroup({ addonContent, label, inputType = 'text' }: Props) {
+function CustomInputGroup({
+  size, addonContent, label, inputType = 'text',
+}: Props) {
   return (
-    <StyledInputGroup className="mb-3">
+    <StyledInputGroup className="mb-3" size={size}>
       <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>
       <FormControl
         placeholder={label}

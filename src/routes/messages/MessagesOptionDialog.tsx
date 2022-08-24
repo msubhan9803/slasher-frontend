@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import ModalContainer from '../../components/ui/CustomModal';
+import CustomModal from '../../components/ui/CustomModal';
 import RoundButton from '../../components/ui/RoundButton';
 
 interface Props {
@@ -14,7 +14,7 @@ function MessagesOptionDialog({ show, setShow, slectedMessageDropdownValue }: Pr
     setShow(false);
   };
   return (
-    <ModalContainer
+    <CustomModal
       show={show}
       centered
       onHide={closeModal}
@@ -42,7 +42,7 @@ function MessagesOptionDialog({ show, setShow, slectedMessageDropdownValue }: Pr
           </Modal.Body>
         </>
       )}
-    </ModalContainer>
+    </CustomModal>
   );
 }
 

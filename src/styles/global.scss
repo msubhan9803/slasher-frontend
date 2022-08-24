@@ -1,16 +1,21 @@
 @import './bootstrap-variables.scss';
 @import "~bootstrap/scss/bootstrap";
 
+:root {
+  --slasher-comments-bg-color: #{$slasher-comments-bg-color};
+  --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
+}
+
 * {
   /* Foreground, Background */
-  scrollbar-color: #3A3B46 #1F1F1F;
+  scrollbar-color: $stroke-and-line-separator-color #1F1F1F;
 }
 *::-webkit-scrollbar {
   width: 8px; /* Mostly for vertical scrollbars */
   height: 6px; /* Mostly for horizontal scrollbars */
 }
 *::-webkit-scrollbar-thumb { /* Foreground */
-  background: #3A3B46;
+  background: $stroke-and-line-separator-color;
   border-radius: 6px;
 }
 *::-webkit-scrollbar-track { /* Background */
@@ -58,9 +63,9 @@ a {
   @include button-variant(
     $background: $primary,
     $border: #FF1700,
-    $color: #ffffff,
-    $hover-color: #ffffff,
-    $active-color: #ffffff
+    $color: #000000,
+    $hover-color: #000000,
+    $active-color: #000000
   );
 }
 
@@ -92,7 +97,7 @@ a {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
   @include button-variant(
     $background: #1f1f1f,
-    $border: #3A3B46,
+    $border: $stroke-and-line-separator-color,
     $color: #ffffff,
     $hover-background: #1f1f1f,
     $hover-color: #ffffff,
@@ -101,19 +106,21 @@ a {
   );
 }
 
-// Commenting this out for now because it's unused.  Might get rid of it later.
-// .btn-sidebar {
-//   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-//   @include button-variant(
-//     $background: #1f1f1f,
-//     $border: #1f1f1f,
-//     $color: $light,
-//     $hover-background: #333333,
-//     $hover-color: #ffffff,
-//     $active-background: #333333,
-//     $active-color: #ffffff,
-//   );
-// }
+.btn-black {
+  // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
+  @include button-variant(
+    $background: #000000,
+    $border: $stroke-and-line-separator-color,
+    $color: #ffffff,
+    $hover-color: #ffffff,
+    $hover-border: lighten($stroke-and-line-separator-color, 10%),
+    $active-color: #ffffff
+  );
+}
+
+.btn-link {
+  text-decoration: none;
+}
 
 html {
   height: 100%;
@@ -146,8 +153,4 @@ input:hover {
 
 .form-control:focus {
   box-shadow: none;
-}
-
-.btn-lg {
-  font-weight: 500;
 }

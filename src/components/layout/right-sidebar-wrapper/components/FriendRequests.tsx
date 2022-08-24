@@ -10,7 +10,7 @@ const friendRequests = [
 
 function FriendRequests() {
   return (
-    <div>
+    <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo="/" />
       {friendRequests.map((request, i) => (
         <FriendRequestItem

@@ -55,14 +55,14 @@ function ShoppingDetails() {
 
   const changeTab = (tab: string) => {
     if (!queryParam || queryParam !== 'self') {
-      navigate(`/shopping/1/${tab}`);
+      navigate(`/shopping/${params.id}/${tab}`);
     } else {
-      navigate(`/shopping/1/${tab}?view=self`);
+      navigate(`/shopping/${params.id}/${tab}?view=self`);
     }
   };
   useEffect(() => {
-    if (params.id === 'edit' && queryParam !== 'self') {
-      navigate(`/shopping/1/${tabs[0].value}`);
+    if ((params.summary === 'edit' || params.summary === 'shopping-offer') && queryParam !== 'self') {
+      navigate(`/shopping/${params.id}/posts`);
     }
   }, [params, queryParam]);
 
@@ -135,14 +135,14 @@ function ShoppingDetails() {
           )}
         <Row>
           <Col md={5} lg={12} xl={6}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.id} className="justify-content-around justify-content-md-start" />
+            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-md-start" />
           </Col>
         </Row>
       </div>
-      {params.id === 'posts' && <ShoppingPosts />}
-      {params.id === 'photos' && <ShoppingPhotos />}
-      {params.id === 'edit' && <ShoppingEdit />}
-      {params.id === 'shopping-offer' && <ShoppingSpecialOffer />}
+      {params.summary === 'posts' && <ShoppingPosts />}
+      {params.summary === 'photos' && <ShoppingPhotos />}
+      {params.summary === 'edit' && <ShoppingEdit />}
+      {params.summary === 'shopping-offer' && <ShoppingSpecialOffer />}
     </AuthenticatedPageWrapper>
   );
 }

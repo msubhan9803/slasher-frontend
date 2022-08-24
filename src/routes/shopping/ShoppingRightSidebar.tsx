@@ -12,9 +12,9 @@ function ShoppingRightSidebar() {
   return (
     <>
       <Link to="/shopping/all">
-        <RoundButton className={`w-100 mb-4 fs-4 ${queryParam === 'self' && ' mb-3'}`}>Become a vendor</RoundButton>
+        <RoundButton className="w-100 mb-4 fs-4">Become a vendor</RoundButton>
       </Link>
-      {queryParam !== 'self'
+      {queryParam === 'self'
         && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

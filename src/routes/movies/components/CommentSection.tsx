@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button, Image } from 'react-bootstrap';
 import styled from 'styled-components';
-import CustomPopover from '../../../../components/ui/CustomPopover';
+import CustomPopover from '../../../components/ui/CustomPopover';
+import ReportModal from '../../../components/ui/ReportModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -19,8 +20,6 @@ interface Props {
   commentImg?: string;
   onIconClick: (value: number) => void;
   likeIcon: boolean;
-  popoverOption: string[];
-  onPopoverClick: (value: string) => void;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
@@ -35,16 +34,16 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const LikesButton = styled.div`
-  width: 3.81rem;
+  width: 3.81rem; 
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
-    background-color: #383838;
+    background-color: #383838; 
   }
 `;
 const CommentBox = styled.div`
-background-color: var(--slasher-comments-bg-color);
+background-color: #171717;
 `;
 const Likes = styled.div`
   right:.063rem;
@@ -53,12 +52,17 @@ const CommentImage = styled(Image)`
   height: 2.5rem;
   width: 2.5rem;
 `;
-
 function CommentSection({
-  id, image, name, time, commentMention,
-  commentMsg, commentImg, likes, onIconClick,
-  likeIcon, popoverOption, onPopoverClick,
+  id, image, name, time, commentMention, commentMsg, commentImg, likes, onIconClick, likeIcon,
 }: Props) {
+  const popoverOption = ['Report', 'Delete'];
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
+
+  const handleMoviesOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -72,7 +76,8 @@ function CommentSection({
               <p className="fs-6 text-light mb-0">{time}</p>
             </div>
             <div className="d-block pe-0">
-              <CustomPopover popoverOptions={popoverOption} onPopoverClick={onPopoverClick} />
+              <CustomPopover popoverOptions={popoverOption} onPopoverClick={handleMoviesOption} />
+              <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
             </div>
           </div>
           <span className="text-primary">
@@ -81,13 +86,16 @@ function CommentSection({
           <CommentMessage className="mb-0 fs-4">
             {commentMsg}
           </CommentMessage>
-          {commentImg
+          {
+            commentImg
             && (
               <div>
                 <CommentReplyImage src={commentImg} className="mt-2 rounded" />
               </div>
-            )}
-          {likes
+            )
+          }
+          {
+            likes
             && (
               <Likes className="rounded d-flex justify-content-end position-absolute">
                 <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
@@ -103,7 +111,8 @@ function CommentSection({
                   </linearGradient>
                 </svg>
               </Likes>
-            )}
+            )
+          }
         </CommentBox>
         <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">

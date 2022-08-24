@@ -13,14 +13,14 @@ import RoundButton from '../../../components/ui/RoundButton';
 import BookSummary from './BookSummary';
 
 interface QueryParamProps {
-  queryParam: boolean
+  queryparam: string
 }
 const StyleTabs = styled(Tabs) <QueryParamProps>`
 border-bottom: 0.2rem solid var(--bs-dark);
   overflow-x: auto;
   overflow-y: hidden;
   .nav-item {
-    ${(props) => !props.queryParam && 'margin-right: 2rem; flex-grow: 0;'};
+    ${(props) => props.queryparam === 'false' && 'margin-right: 2rem; flex-grow: 0;'};
     .nav-link {
       padding-bottom: 1rem !important;
       border: none;
@@ -35,16 +35,16 @@ border-bottom: 0.2rem solid var(--bs-dark);
         border-bottom:  0.222rem solid var(--bs-primary);
       }
       .btn {
-        ${(props) => !props.queryParam && 'width: max-content;'};
+        ${(props) => props.queryparam === 'false' && 'width: max-content;'};
       }
     }
   }
 
   @media (max-width: 992px) {
     .nav-item {
-      ${(props) => !props.queryParam && 'margin-right: 0; flex-grow: 1;'};
+      ${(props) => props.queryparam === 'false' && 'margin-right: 0; flex-grow: 1;'};
       .btn {
-        ${(props) => (!props.queryParam ? 'width: 100%;' : 'width: 75%')};
+        ${(props) => (props.queryparam === 'false' ? 'width: 100%;' : 'width: 75%')};
       } 
     }
   }
@@ -133,7 +133,7 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
               </div>
             </div>
             <div className="d-none d-xl-block">
-              <StyleTabs justify queryParam={queryParam === 'self'} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between' : 'justify-content-center justify-content-xl-start'} fs-3 px-2 border-0`}>
+              <StyleTabs justify queryparam={(queryParam === 'self').toString()} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between' : 'justify-content-center justify-content-xl-start'} fs-3 px-2 border-0`}>
                 <Tab eventKey="details" title="Details" />
                 <Tab eventKey="posts" title="Posts" />
                 {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
@@ -181,7 +181,7 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
         </Row>
         <Row className="mt-4 d-xl-none justify-content-center">
           <Col xs={queryParam === 'self' ? 10 : 12} sm={6} md={5} lg={8} xl={4}>
-            <StyleTabs justify queryParam={queryParam === 'self'} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between mx-3' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
+            <StyleTabs justify queryparam={(queryParam === 'self').toString()} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between mx-3' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="posts" title="Posts" />
               {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}

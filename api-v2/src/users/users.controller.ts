@@ -1,22 +1,17 @@
 import {
   Body,
   Controller,
-  Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
-  Query,
-  Req,
-  Request,
 } from '@nestjs/common';
-import { Device, User } from '../schemas/user.schema';
+import { ActiveStatus, Device } from '../schemas/user.schema';
 import { UserLoginDto } from './dto/user-login.dto';
-import { UsersService } from './users.service';
+import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
-import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsService } from '../notifications/providers/notifications.service';
 
 @Controller('users')
 export class UsersController {
@@ -25,23 +20,6 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
   ) {}
-
-  // TODO: Remove this if not used
-  @Get()
-  async index(
-    @Query('page') page: number,
-    @Query('perPage') perPage: number,
-  ): Promise<User[]> {
-    page ||= 0;
-    perPage ||= 10;
-    return this.usersService.findAll(page, perPage);
-  }
-
-  // TODO: Remove this if not used
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
-  }
 
   @Post('login')
   async login(@Body() userLoginDto: UserLoginDto) {
@@ -68,9 +46,16 @@ export class UsersController {
       );
     }
 
-    if (user.status == '0') {
+    if (user.status != ActiveStatus.Active) {
+      if (user.status == ActiveStatus.Inactive) {
+        throw new HttpException(
+          'User account not yet activated.',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
       throw new HttpException(
-        'User account not yet activated.',
+        'User account has been deactivated.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -92,32 +77,23 @@ export class UsersController {
 
     // During successful login, update certain fields and re-save the object:
     user.last_login = new Date();
-    user.token = `Bearer ${token}`;
+    // TODO: Is there any reason we need to store the JWT in the db?
+    // It's done in the old API, but it may not actually be necessary.
+    // We'll keep this commented out for now, and uncomment later if needed.
+    // user.token = `Bearer ${token}`;
     user.addOrUpdateDeviceEntry(deviceEntry);
     user.save();
 
     // Only return the subset of useful fields
-    return pick(user, [
-      'userName',
-      'email',
-      'firstName',
-      'token',
-      'createdAt',
-      'updatedAt',
-    ]);
-  }
-
-  @Get(':id/notifications')
-  async notifications(@Param('id') id: string, @Req() request: Request) {
-    // TODO: Only allow retrieval of notifications for current user.
-    // Maybe it would make more sense to have this at the /notifications path
-    // instead of /users/:id/notifications
-
-    const user = (request as any).user as User; // TODO: Is there a better way to do this?
-    console.log(user.userName);
-
-    return (await this.notificationsService.findAllByUserId(id)).map(
-      (notification) => pick(notification, ['notificationMsg', 'createdAt']),
+    return Object.assign(
+      {},
+      pick(user, [
+        'userName',
+        'email',
+        'firstName',
+        // 'token',
+      ]),
+      { token },
     );
   }
 }

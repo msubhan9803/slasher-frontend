@@ -1,9 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
+import * as bcrypt from 'bcryptjs';
 
-@Schema()
+export enum ActiveStatus {
+  Inactive = '0',
+  Active = '1',
+  Deactivated = '2',
+}
+
+export enum UserType {
+  Regular = '1',
+  Admin = '2',
+}
+
+@Schema({ toJSON: { virtuals: true } })
 export class Device {
   @Prop({ trim: true, default: '' })
   device_token: string;
@@ -27,8 +38,7 @@ const DeviceSchema = SchemaFactory.createForClass(Device);
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
-  _id: mongoose.Schema.Types.ObjectId;
+  readonly id: string;
 
   @Prop({ required: true, trim: true })
   userName: string;
@@ -48,11 +58,29 @@ export class User {
   @Prop({ required: true, default: false })
   userBanned: boolean;
 
-  @Prop({ required: true, enum: ['1', '2'], default: 1 }) // 1 == regular user, 2 == admin
-  userType: string;
+  // '1' == regular user, '2' == admin
+  // Note: It's unfortunate that these are strings rather than numbers, but we need to keep them
+  // as strings in the database to be compatible with the old API.
+  @Prop({
+    required: true,
+    enum: [UserType.Regular, UserType.Admin],
+    default: UserType.Regular,
+  })
+  userType: UserType;
 
-  @Prop({ required: true, enum: ['0', '1', '2'], default: 0 }) // 0 == inactive, 1 == active, 2 == deactivated
-  status: string;
+  // '0' == inactive, '1' == active, '2' == deactivated
+  // Note: It's unfortunate that these are strings rather than numbers, but we need to keep them
+  // as strings in the database to be compatible with the old API.
+  @Prop({
+    required: true,
+    enum: [
+      ActiveStatus.Inactive,
+      ActiveStatus.Active,
+      ActiveStatus.Deactivated,
+    ],
+    default: ActiveStatus.Inactive,
+  })
+  status: ActiveStatus;
 
   @Prop({ type: [DeviceSchema] })
   userDevices: Device[];
@@ -60,10 +88,12 @@ export class User {
   @Prop({ trim: true, default: null })
   last_login: Date; // Device login date
 
-  @Prop({ required: true, default: null })
+  // NOTE: token is required in old API (v1),
+  // but we may not need to store in in this new API (v2).
+  @Prop({ default: null })
   token: string;
 
-  @Prop({ default: null }) // TODO: Make this required once it's been set on all user documents
+  @Prop({ default: null })
   passwordChangedAt: Date;
 
   @Prop()
@@ -72,9 +102,27 @@ export class User {
   @Prop()
   updatedAt: Date;
 
+  @Prop({ default: '', trim: true })
+  firstName: string;
+
+  @Prop({ default: '', trim: true })
+  securityQuestion: string;
+
+  @Prop({ default: '', trim: true })
+  securityAnswer: string;
+
+  constructor(options?: Partial<User>) {
+    if (!options) {
+      return;
+    }
+    Object.keys(options).forEach((key) => {
+      this[key] = options[key];
+    });
+  }
+
   generateNewJwtToken(jwtSecretKey: string) {
     const jwtPayload = {
-      userId: this._id.toString(),
+      userId: this.id.toString(),
       userType: this.userType,
       passwordChangedAt: this.passwordChangedAt?.toISOString(),
     };
@@ -99,6 +147,12 @@ export class User {
     // If not, add a new entry.
     this.userDevices.push(deviceEntry);
   }
+
+  setUnhashedPassword(unhashedPassword: string) {
+    const salt = bcrypt.genSaltSync(10);
+    this.password = bcrypt.hashSync(unhashedPassword, salt);
+    this.passwordChangedAt = new Date();
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -109,5 +163,6 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.methods.generateNewJwtToken = User.prototype.generateNewJwtToken;
 UserSchema.methods.addOrUpdateDeviceEntry =
   User.prototype.addOrUpdateDeviceEntry;
+UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;
 
 export type UserDocument = User & Document;

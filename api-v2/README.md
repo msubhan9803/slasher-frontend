@@ -1,25 +1,42 @@
 # api-v2 (a NestJS app)
 
-## Installation
+## Initial setup
 
 ```bash
+# Install dependencies
 $ npm install
+
+# Copy dev env template file to .env.dev (required during development)
+$ cp .env.dev.template .env.dev
+
+# Copy test env template file to .env.test (required to run tests)
+$ cp .env.test.template .env.test
 ```
 
-## Running the app
+## Development and testing
+
+In the development/test environments, you'll need to use docker compose to run the development dependencies (right now, that's just MongoDB).  In a separate terminal window, run this from inside of the `api-v2` directory:
 
 ```bash
-# development
-$ npm run start
+docker compose --file docker-compose.devtest.yml up --build
+```
 
+Note that the command above includes `--build`, and it will rebuild the compose setup if needed, in case the associated compose yml file has changed since you last ran it.
+
+When you are done developing, you can stop docker compose by pressing ctrl+c, and then to clean up the images you can run:
+
+```bash
+docker compose down
+```
+
+Then, to start the app in development mode (with automatic watching of file changes), run:
+
+```bash
 # watch mode
 $ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
-## Test
+And to run tests:
 
 ```bash
 # unit tests
@@ -27,23 +44,10 @@ $ npm run test
 
 # e2e tests
 $ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Building and running a Docker image
+You can also run the linter (and this step doesn't require docker):
 
-The commands below will build the image and then run it:
-```
-# Build the image and give it the tag "latest"
-docker build -f app.Dockerfile -t slasher-web-new-api-v2:latest .
-
-# Run the image
-docker run --env-file .env -p 4000:4000 --rm -d slasher-web-new-api-v2:latest
-
-# Explanation of above options:
-# --env-file .env (read in the local .env file and set environment variables in the container)
-# -p 4000:3000 (map host port 4000 to container port 4000, and expose port 4000 internally)
-# --rm (delete the container after it is stopped)
+```bash
+npm run lint
 ```

@@ -1,13 +1,22 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../schemas/user.schema';
-import { escapeStringRegexp } from '../utils/escape-utils';
+import { User, UserDocument } from '../../schemas/user.schema';
+import { escapeStringRegexp } from '../../utils/escape-utils';
 import * as EmailValidator from 'email-validator';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async create(
+    userOptions: Partial<User>,
+    unhashedPassword: string,
+  ): Promise<UserDocument> {
+    const user = new User(userOptions);
+    user.setUnhashedPassword(unhashedPassword);
+    return this.userModel.create(user);
+  }
 
   // TODO: Remove this if not used
   async findAll(page: number, perPage: number): Promise<UserDocument[]> {

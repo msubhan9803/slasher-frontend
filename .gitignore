@@ -1,6 +1,6 @@
 # Ignore all env files other than .env.template and .env.deploy/
 .env*
-!.env.template
+!.env.*.template
 !.env.deploy/
 
 # OS

@@ -6,11 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { APP_PIPE } from '@nestjs/core';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
@@ -22,6 +23,7 @@ import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication
       inject: [ConfigService],
     }),
     UsersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,7 +38,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthenticationMiddleware)
-      .exclude('/users/login') // don't require login for the login endpoint!
+      .exclude('/', '/users/login')
       .forRoutes('*');
   }
 }

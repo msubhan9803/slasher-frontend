@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   Notification,
   NotificationDocument,
-} from '../schemas/notification.schema';
+} from '../../schemas/notification.schema';
 
 @Injectable()
 export class NotificationsService {

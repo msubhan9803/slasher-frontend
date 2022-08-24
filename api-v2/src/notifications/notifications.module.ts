@@ -4,7 +4,7 @@ import {
   Notification,
   NotificationSchema,
 } from '../schemas/notification.schema';
-import { NotificationsService } from './notifications.service';
+import { NotificationsService } from './providers/notifications.service';
 
 @Module({
   imports: [

@@ -39,7 +39,7 @@ function FavoriteBooks() {
         setSearch={setSearch}
         search={search}
       />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 py-lg-4">
+      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
         <div className="m-md-2">
           <PosterCardList dataList={filteredBooks} />
         </div>

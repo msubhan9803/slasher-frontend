@@ -6,6 +6,7 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from '../components/CommentSection/CommentSection';
+import ReportModal from '../../../components/ui/ReportModal';
 
 interface Props {
   id: number;
@@ -17,6 +18,8 @@ interface Props {
   commentReplySection: Values[];
   onIconClick: (value: number) => void;
   likeIcon: boolean;
+  popoverOption: string[];
+  onPopoverClick: (value: string) => void;
 }
 interface Values {
   id: number;
@@ -29,6 +32,9 @@ interface Values {
   commentMsg: string;
   commentImg?: string;
   onIconClick: (value: number) => void;
+  popoverOption: string;
+  onPopoverClick: (value: string) => void;
+
 }
 const commentSection = [
   {
@@ -71,29 +77,7 @@ const commentSection = [
     likeIcon: false,
     profileDateTime: '06/19/2022 12:10 AM',
     userMessage: ' It is a long established fact that a reader will be distracted bythe readable content of a page.',
-    commentReplySection:
-      [
-        {
-          id: 5,
-          image: 'https://i.pravatar.cc/300?img=45',
-          name: 'Austin Joe',
-          time: '06/19/2022 12:10 AM',
-          like: 20,
-          likeIcon: false,
-          commentMention: '@Mari Ferrer ',
-          commentMsg: ' eque porro quisquam est qui dolorem ipsum',
-        },
-        {
-          id: 6,
-          image: 'https://i.pravatar.cc/300?img=25',
-          name: 'Rohma Mxud',
-          time: '06/19/2022 12:10 AM',
-          likeIcon: false,
-          commentMention: '@Austin Joe ',
-          commentMsg: ' Lorem Ipsum has been the industry standard dummy',
-          commentImg: 'https://i.pravatar.cc/100?img=56',
-        },
-      ],
+    commentReplySection: [],
   },
 ];
 const UserProfileImage = styled.img`
@@ -116,8 +100,15 @@ const StyledCommentInputGroup = styled(InputGroup)`
   }
 `;
 function NewsPartnerComments() {
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const [postData, setPostData] = useState<any[]>(commentSection);
+  const options = ['Report', 'Block user'];
 
+  const handlePopover = (selectedOption: string) => {
+    setShow(true);
+    setDropDownValue(selectedOption);
+  };
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...postData];
     tempData.map((data: any) => {
@@ -168,6 +159,8 @@ function NewsPartnerComments() {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
+                  popoverOption={options}
+                  onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
@@ -183,6 +176,8 @@ function NewsPartnerComments() {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
+                        popoverOption={options}
+                        onPopoverClick={handlePopover}
                       />
                     </div>
                   </div>
@@ -192,6 +187,7 @@ function NewsPartnerComments() {
           </Col>
         </Row>
       ))}
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );
 }

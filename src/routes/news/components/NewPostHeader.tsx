@@ -1,40 +1,15 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, OverlayTrigger, Popover, Row,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import ReportModal from '../../../components/ui/ReportModal';
+import CustomPopover from '../../../components/ui/CustomPopover';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;
   width:3.125rem;
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
-  }
-`;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
 `;
 interface Props {
   userName: string;
@@ -43,16 +18,13 @@ interface Props {
 function NewPostHeader({ userName, postDate }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const PopoverOption = ['Report'];
 
   const handleNewsOption = (newsValue: string) => {
     setShow(true);
     setDropDownValue(newsValue);
   };
-  const popover = (
-    <CustomPopover id="popover-basic" className="fs-3 py-2 rounded-2">
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button" onClick={() => handleNewsOption('report')}>Report</PopoverText>
-    </CustomPopover>
-  );
+
   return (
     <>
       <Row className="justify-content-between">
@@ -70,19 +42,10 @@ function NewPostHeader({ userName, postDate }: Props) {
           </Row>
         </Col>
         <Col xs="auto" className="d-block">
-          <StyledPopover>
-            <OverlayTrigger trigger="focus" placement="left" overlay={popover}>
-              <Button variant="link" className="bg-transparent shadow-none border-0 pe-1">
-                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-              </Button>
-            </OverlayTrigger>
-          </StyledPopover>
+          <CustomPopover popoverOptions={PopoverOption} onPopoverClick={handleNewsOption} />
         </Col>
       </Row>
-      {
-        dropDownValue === 'report'
-        && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-      }
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );
 }

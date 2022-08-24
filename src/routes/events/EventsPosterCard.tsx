@@ -1,0 +1,52 @@
+import React from 'react';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Card } from 'react-bootstrap';
+import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
+
+interface Props {
+  listDetail: EventCardProps
+}
+
+interface EventCardProps {
+  id: number;
+  image: string;
+  location: string;
+  eventName: string;
+  date: string;
+}
+
+const EventsCardStyle = styled(Card)`
+  background: #1F1F1F;
+  img {
+    aspect-ratio: 1.78;
+  }
+  margin-bottom: 0.75rem;
+  margin-top: 0.75rem;
+`;
+
+function EventsPosterCard({ listDetail }: Props) {
+  const navigate = useNavigate();
+
+  const handleEventDetail = (id: number) => {
+    navigate(`/events/${id}`);
+  };
+  return (
+    <EventsCardStyle className="rounded-3 px-3 pt-4 pb-2">
+      <Card.Img variant="top" src={listDetail.image} className="mb-2" onClick={() => handleEventDetail(listDetail.id)} />
+      <Card.Body className="p-0 mt-2">
+        <div className="d-flex justify-content-between align-items-center">
+          <p className="fs-5 m-0 mt-2 text-light">
+            {listDetail.date}
+          </p>
+        </div>
+        <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
+        <span className="fs-3">{listDetail.location}</span>
+        <h2 className="my-3">{listDetail.eventName}</h2>
+      </Card.Body>
+    </EventsCardStyle>
+  );
+}
+
+export default EventsPosterCard;

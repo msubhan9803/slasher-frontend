@@ -12,11 +12,12 @@ import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/Righ
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
 import MovieSidebar from '../../../../routes/movies/components/MovieSidebar';
 import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
+import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
 import BooksRigthSideNav from '../../../../routes/books/BooksRigthSideNav';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -60,6 +61,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     dating: <DatingSidebar />,
     movie: <MovieSidebar />,
     news: <NewsRightSideNav />,
+    shopping: <ShoppingRightSidebar />,
     book: <BooksRigthSideNav />,
   }[type]);
 

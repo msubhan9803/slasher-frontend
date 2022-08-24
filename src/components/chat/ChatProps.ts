@@ -1,7 +1,6 @@
 export interface ChatProps {
-  messages: MessageProps[];
+  messages?: MessageProps[];
 }
-
 interface MessageProps {
   id: number
   participant: string;

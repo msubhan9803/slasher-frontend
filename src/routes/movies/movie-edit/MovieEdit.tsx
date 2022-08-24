@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
-import MoviesModal from './MoviesModal';
+import MoviesModal from '../components/MoviesModal';
 import UploadCoverArt from './UploadCoverArt';
 
 const StyleButton = styled.div`
@@ -51,7 +51,6 @@ function MovieEdit() {
           </div>
         </div>
         <Form.Control type="text" placeholder="Title" className="fs-5 mb-4" />
-        {/* <div> */}
         <Form.Control
           maxLength={1000}
           rows={4}

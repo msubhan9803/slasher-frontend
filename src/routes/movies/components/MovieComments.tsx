@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import {
-  Col, Form, InputGroup, Row,
-} from 'react-bootstrap';
-import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import CommentSection from '../components/CommentSection/CommentSection';
-import ReportModal from '../../../components/ui/ReportModal';
+import { Col, Row } from 'react-bootstrap';
+import CommentSection from './CommentSection';
+import CommentInput from './CommentInput';
 
 interface Props {
   id: number;
@@ -18,8 +13,6 @@ interface Props {
   commentReplySection: Values[];
   onIconClick: (value: number) => void;
   likeIcon: boolean;
-  popoverOption: string[];
-  onPopoverClick: (value: string) => void;
 }
 interface Values {
   id: number;
@@ -32,9 +25,6 @@ interface Values {
   commentMsg: string;
   commentImg?: string;
   onIconClick: (value: number) => void;
-  popoverOption: string;
-  onPopoverClick: (value: string) => void;
-
 }
 const commentSection = [
   {
@@ -77,38 +67,34 @@ const commentSection = [
     likeIcon: false,
     profileDateTime: '06/19/2022 12:10 AM',
     userMessage: ' It is a long established fact that a reader will be distracted bythe readable content of a page.',
-    commentReplySection: [],
+    commentReplySection:
+      [
+        {
+          id: 5,
+          image: 'https://i.pravatar.cc/300?img=45',
+          name: 'Austin Joe',
+          time: '06/19/2022 12:10 AM',
+          like: 20,
+          likeIcon: false,
+          commentMention: '@Mari Ferrer ',
+          commentMsg: ' eque porro quisquam est qui dolorem ipsum',
+        },
+        {
+          id: 6,
+          image: 'https://i.pravatar.cc/300?img=25',
+          name: 'Rohma Mxud',
+          time: '06/19/2022 12:10 AM',
+          likeIcon: false,
+          commentMention: '@Austin Joe ',
+          commentMsg: ' Lorem Ipsum has been the industry standard dummy',
+          commentImg: 'https://i.pravatar.cc/100?img=56',
+        },
+      ],
   },
 ];
-const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
-`;
-const StyledCommentInputGroup = styled(InputGroup)`
-  .form-control {
-    border-radius: 1.875rem;
-    border-bottom-right-radius: 0rem;
-    border-top-right-radius: 0rem;
-  }
-  .input-group-text {
-    background-color: rgb(31, 31, 31);
-    border-color: #3a3b46;
-    border-radius: 1.875rem;
-  }
-  svg {
-    min-width: 1.875rem;
-  }
-`;
-function NewsPartnerComments() {
-  const [show, setShow] = useState<boolean>(false);
-  const [dropDownValue, setDropDownValue] = useState<string>('');
-  const [postData, setPostData] = useState<any[]>(commentSection);
-  const options = ['Report', 'Block user'];
 
-  const handlePopover = (selectedOption: string) => {
-    setShow(true);
-    setDropDownValue(selectedOption);
-  };
+function MovieComments() {
+  const [postData, setPostData] = useState<any[]>(commentSection);
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...postData];
     tempData.map((data: any) => {
@@ -128,23 +114,9 @@ function NewsPartnerComments() {
     setPostData(tempData);
   };
   return (
-    <>
-      <Row className="ps-3 pt-2 order-last order-sm-0">
-        <Col xs="auto" className="pe-0">
-          <UserProfileImage src="https://i.pravatar.cc/300?img=56" className="me-3 rounded-circle bg-secondary" />
-        </Col>
-        <Col className="ps-0 pe-4">
-          <StyledCommentInputGroup className="mb-4">
-            <Form.Control
-              placeholder="Write a comment"
-              className="fs-5 border-end-0"
-            />
-            <InputGroup.Text>
-              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />
-            </InputGroup.Text>
-          </StyledCommentInputGroup>
-        </Col>
-      </Row>
+    <div className="bg-dark p-3 rounded-2 mt-3">
+      <h1 className="h2 fw-bold ps-3 py-2">Comments (28)</h1>
+      <CommentInput />
       {postData.map((data: Props) => (
         <Row className="ps-md-4 pt-md-1" key={data.id}>
           <Col>
@@ -159,8 +131,6 @@ function NewsPartnerComments() {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
-                  popoverOption={options}
-                  onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
@@ -176,8 +146,6 @@ function NewsPartnerComments() {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
-                        popoverOption={options}
-                        onPopoverClick={handlePopover}
                       />
                     </div>
                   </div>
@@ -187,8 +155,7 @@ function NewsPartnerComments() {
           </Col>
         </Row>
       ))}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-    </>
+    </div>
   );
 }
-export default NewsPartnerComments;
+export default MovieComments;

@@ -42,7 +42,7 @@ export const slasherIndieMovies = [
   },
 ];
 
-export const favoritesMovieList = [
+export const favoritesMovies = [
   {
     id: 1, name: 'Dreamcatcher: Get ready for a killer night out', image: `${MoviePoster}`, year: '2022', liked: true,
   },

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
-import { favoritesMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
+import { favoritesMovies } from '../components/MovieList';
 
 function FavoriteMovies() {
   const navigate = useNavigate();
@@ -16,14 +16,14 @@ function FavoriteMovies() {
   };
   const searchData = () => {
     let searchResult;
-    const newFilter = favoritesMovieList;
+    const newFilter = favoritesMovies;
     if (search) {
       searchResult = newFilter && newFilter.length > 0
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
       setFilteredMovies(searchResult);
     } else {
-      setFilteredMovies(favoritesMovieList);
+      setFilteredMovies(favoritesMovies);
     }
   };
   useEffect(() => {
@@ -39,7 +39,7 @@ function FavoriteMovies() {
         setSearch={setSearch}
         search={search}
       />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 py-lg-4">
+      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
         <div className="m-md-2">
           <PosterCardList dataList={filteredMovies} />
         </div>

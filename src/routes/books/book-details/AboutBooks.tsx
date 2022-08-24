@@ -1,55 +1,22 @@
-import React, { useState } from 'react';
-import {
-  Col, Image, Row, Tab, Tabs,
-} from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import ListIcon from './ListIcon';
+import ListIcon from '../components/ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
 import RoundButton from '../../../components/ui/RoundButton';
 import BookSummary from './BookSummary';
+import TabLinks from '../../../components/ui/Tabs/TabLinks';
+import { BookIconProps } from '../components/BookProps';
+import BookEdit from '../book-edit/BookEdit';
+import CreatePostInput from '../book-posts/CreatePostInput';
+import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import postImage from '../../../images/book-post-image.jpg';
+import BookOverview from './BookOverview';
+import BookComments from '../components/BookComments';
 
-interface QueryParamProps {
-  queryparam: string
-}
-const StyleTabs = styled(Tabs) <QueryParamProps>`
-border-bottom: 0.2rem solid var(--bs-dark);
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-item {
-    ${(props) => props.queryparam === 'false' && 'margin-right: 2rem; flex-grow: 0;'};
-    .nav-link {
-      padding-bottom: 1rem !important;
-      border: none;
-      color: #ffffff;
-      &:hover {
-        border-color: transparent;
-        color: var(--bs-primary);
-      }
-      &.active {
-        color: var(--bs-primary);
-        background-color: transparent;
-        border-bottom:  0.222rem solid var(--bs-primary);
-      }
-      .btn {
-        ${(props) => props.queryparam === 'false' && 'width: max-content;'};
-      }
-    }
-  }
-
-  @media (max-width: 992px) {
-    .nav-item {
-      ${(props) => props.queryparam === 'false' && 'margin-right: 0; flex-grow: 1;'};
-      .btn {
-        ${(props) => (props.queryparam === 'false' ? 'width: 100%;' : 'width: 75%')};
-      } 
-    }
-  }
-
-`;
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
   img{
@@ -77,20 +44,43 @@ const BookIconList = [
     label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addBook: false,
   },
 ];
-interface BookIconProps {
-  label: string;
-  icon: IconDefinition;
-  iconColor: string;
-  margin?: string;
-  width: string;
-  height: string;
-  addBook: boolean;
-}
-interface AboutBooksProps {
-  setSelectedTab: (value: string) => void;
-  selectedTab?: string;
-}
-function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
+const tabsForSelf = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
+  { value: 'edit', label: 'Edit' },
+];
+const tabsForViewer = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
+];
+const postData = [
+  {
+    id: 1,
+    userName: 'Aly khan',
+    profileImage: 'https://i.pravatar.cc/300?img=12',
+    postDate: '06/18/2022 11:10 PM',
+    content: 'A retired cop battles a murderer who never gets his hands dirty when he kills. And a man stumbles into a league of immortal assassins, who kill to protect their.',
+    postUrl: postImage,
+    likeIcon: false,
+  },
+];
+const popoverOptions = ['Edit', 'Delete'];
+function AboutBooks() {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
+  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
+  const navigate = useNavigate();
+  const params = useParams();
+  const changeTab = (tab: string) => {
+    if (!queryParam || queryParam !== 'self') {
+      navigate(`/books/${params.id}/${tab}`);
+    } else {
+      navigate(`/books/${params.id}/${tab}?view=self`);
+    }
+  };
+  useEffect(() => {
+    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
+  });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [bookIconListData, setbookIconListData] = useState(BookIconList);
   const handleBookAddRemove = (labelName: string) => {
@@ -104,8 +94,6 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
     });
     setbookIconListData(tempBookIconList);
   };
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
 
   return (
     <div>
@@ -131,13 +119,6 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
                   />
                 ))}
               </div>
-            </div>
-            <div className="d-none d-xl-block">
-              <StyleTabs justify queryparam={(queryParam === 'self').toString()} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between' : 'justify-content-center justify-content-xl-start'} fs-3 px-2 border-0`}>
-                <Tab eventKey="details" title="Details" />
-                <Tab eventKey="posts" title="Posts" />
-                {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
-              </StyleTabs>
             </div>
           </Col>
           <Col xl={7}>
@@ -179,16 +160,25 @@ function AboutBooks({ setSelectedTab, selectedTab }: AboutBooksProps) {
             </div>
           </Col>
         </Row>
-        <Row className="mt-4 d-xl-none justify-content-center">
-          <Col xs={queryParam === 'self' ? 10 : 12} sm={6} md={5} lg={8} xl={4}>
-            <StyleTabs justify queryparam={(queryParam === 'self').toString()} activeKey={selectedTab} onSelect={(tab: any) => setSelectedTab(tab)} className={`${queryParam === 'self' ? 'justify-content-between mx-3' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
-              <Tab eventKey="details" title="Details" />
-              <Tab eventKey="posts" title="Posts" />
-              {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
-            </StyleTabs>
+        <Row className="justify-content-center justify-content-xl-start">
+          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
+            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
           </Col>
         </Row>
       </div>
+      {params.summary === 'details' && (
+        <>
+          <BookOverview />
+          <BookComments />
+        </>
+      )}
+      {params.summary === 'posts' && (
+        <>
+          <CreatePostInput />
+          <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
+        </>
+      )}
+      {queryParam === 'self' && params.summary === 'edit' && <BookEdit />}
     </div>
   );
 }

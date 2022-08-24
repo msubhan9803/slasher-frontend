@@ -13,7 +13,7 @@ import DatingSidebar from '../../../../routes/dating/components/DatingMenu/Datin
 import MovieSidebar from '../../../../routes/movies/components/MovieSidebar';
 import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
 import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
-import BooksRigthSideNav from '../../../../routes/books/BooksRigthSideNav';
+import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSideNav';
 
 interface Props {
   children: React.ReactNode;

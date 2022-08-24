@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
@@ -8,6 +8,7 @@ import LikeDislike from '../../../components/ui/LikeDislike';
 import ShareButton from '../../../components/ui/ShareButton';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthContent from '../../../components/ui/WorthContent';
+import BooksModal from '../components/BooksModal';
 
 const StyledRateBorder = styled.div`
   @media (min-width: 89.938rem) {
@@ -69,6 +70,10 @@ const AboutBookDetails = styled.div`
   
 `;
 function BookSummary() {
+  const [show, setShow] = useState(false);
+  const changeRating = () => {
+    setShow(true);
+  };
   return (
     <AboutBookDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -105,7 +110,7 @@ function BookSummary() {
               <p className="m-0 text-light"> 272423118X</p>
             </span>
           </div>
-          <Ratings />
+          <Ratings changeRating={changeRating} />
         </div>
         <div className="my-2 mb-xl-0 mt-xxl-3 d-none d-xxl-flex align-items-center">
           <span className="d-lg-flex">
@@ -157,6 +162,7 @@ function BookSummary() {
           <RoundButton className="bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
         </Col>
       </Row>
+      <BooksModal show={show} setShow={setShow} ButtonType="rate" />
     </AboutBookDetails>
   );
 }

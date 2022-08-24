@@ -84,7 +84,7 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
               className="fs-5 border-end-0"
             />
             <InputGroup.Text>
-              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />
+              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
             </InputGroup.Text>
           </StyledCommentInputGroup>
         </Col>

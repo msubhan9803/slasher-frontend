@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../components/ui/RoundButton';
-import UploadCoverArt from './components/UploadCoverArt';
+import RoundButton from '../../../components/ui/RoundButton';
+import BooksModal from '../components/BooksModal';
+import UploadCoverArt from './UploadCoverArt';
 
 const StyleButton = styled.div`
   .deactivate-btn {
@@ -27,6 +28,7 @@ const CustomForm = styled(Form)`
 `;
 
 function BookEdit() {
+  const [show, setShow] = useState(false);
   const [message, setMessage] = useState('');
   const [charCount, setCharCount] = useState(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,10 +86,11 @@ function BookEdit() {
         <Form.Control type="text" placeholder="Where to buy (Website link)" className="fs-5 mb-4" />
         <StyleButton className="mt-4 mb-1 d-block d-md-flex justify-content-between align-items-center">
           <RoundButton className="update-btn fs-3 fw-bold px-5">Update</RoundButton>
-          <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black">
+          <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black text-white" onClick={() => setShow(true)}>
             Deactivate listing
           </RoundButton>
         </StyleButton>
+        <BooksModal show={show} setShow={setShow} ButtonType="deactivate" />
       </CustomForm>
     </div>
   );

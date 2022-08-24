@@ -9,10 +9,10 @@ const Advertisement = styled.div`
 
 function AdvertisementBox() {
   return (
-    <>
+    <div className="mt-5">
       <h2 className="mb-3">Advertisment</h2>
       <Advertisement className="mx-auto" />
-    </>
+    </div>
   );
 }
 

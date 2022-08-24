@@ -2,7 +2,7 @@ import React from 'react';
 
 function BookOverview() {
   return (
-    <div className="mt-3">
+    <div className="mt-4">
       <div className="bg-dark p-4 rounded-2">
         <h1 className="h2 mb-3 fw-bold">Overview</h1>
         <p className="fs-4 text-light">

@@ -18,8 +18,8 @@ import Search from './routes/search/Search';
 import Movies from './routes/movies/Movies';
 import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewer';
 import Books from './routes/books/Books';
-import ProfileEdit from './routes/profile/ProfileEdit';
 import Shopping from './routes/shopping/Shopping';
+import ProfileEdit from './routes/profile/ProfileEdit';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in

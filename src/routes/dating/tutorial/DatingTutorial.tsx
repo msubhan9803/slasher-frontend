@@ -7,6 +7,7 @@ import TutorialPassDeck from './TutorialPassDeck';
 import TutorialProfile from './TutorialProfile';
 import TutorialDatingLikes from './TutorialDatingLikes';
 import TutorialUndo from './TutorialUndo';
+import TutorialPreferences from './TutorialPreferences';
 
 function DatingTutorial() {
   return (
@@ -17,6 +18,7 @@ function DatingTutorial() {
       <Route path="like" element={<TutorialLike />} />
       <Route path="dating-messages" element={<TutorialDatingMessages />} />
       <Route path="dating-likes" element={<TutorialDatingLikes />} />
+      <Route path="preferences" element={<TutorialPreferences />} />
       <Route path="profile" element={<TutorialProfile />} />
     </Routes>
   );

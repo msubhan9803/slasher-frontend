@@ -24,7 +24,7 @@ function TutorialDatingLikes() {
             </p>
           </Col>
         </Row>
-        <TutorialButtons nextLink="profile" />
+        <TutorialButtons nextLink="preferences" />
       </div>
     </DatingPageWrapper>
   );

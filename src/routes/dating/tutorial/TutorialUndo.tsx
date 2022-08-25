@@ -1,8 +1,8 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import PassDeckDesktop from '../../../images/pass-deck-desktop.png';
-import PassDeckMobile from '../../../images/pass-deck-mobile.png';
+import TutorialUndoDesktop from '../../../images/tutorial-undo-desktop.png';
+import TutorialUndoMobile from '../../../images/tutorial-undo-mobile.png';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import TutorialButtons from './components/TutorialButtons';
 import TutorialHeader from './components/TutorialHeader';
@@ -14,7 +14,7 @@ function TutorialUndo() {
     <DatingPageWrapper>
       <div className="text-center p-3 mt-5 pt-5 mt-lg-0 pt-lg-3">
         <TutorialHeader />
-        <TutorialPhotos desktopImage={PassDeckDesktop} mobileImage={PassDeckMobile} />
+        <TutorialPhotos desktopImage={TutorialUndoDesktop} mobileImage={TutorialUndoMobile} />
         <Row className="justify-content-center">
           <Col xs={8}>
             <TutorialIcon tutorialIcon={solid('rotate-left')} iconColor="#FF8A00" uniqueId="undo-icon" />

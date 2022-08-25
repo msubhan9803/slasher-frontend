@@ -26,7 +26,7 @@ Note that the command above includes `--build`, and it will rebuild the compose 
 When you are done developing, you can stop docker compose by pressing ctrl+c, and then to clean up the images you can run:
 
 ```bash
-docker compose down
+docker compose --file docker-compose.devtest.yml down
 ```
 
 Then, to start the app in development mode (with automatic watching of file changes), run:

@@ -20,6 +20,7 @@ import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewe
 import Books from './routes/books/Books';
 import ProfileEdit from './routes/profile/ProfileEdit';
 import Shopping from './routes/shopping/Shopping';
+import Notifications from './routes/notifications/Notifications';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -50,6 +51,7 @@ function App() {
       <Route path="/books/*" element={<Books />} />
       <Route path="/shopping/*" element={<Shopping />} />
       <Route path="/:userName/edit" element={<ProfileEdit />} />
+      <Route path="/notifications" element={<Notifications />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>

@@ -96,7 +96,7 @@ function SuggestedFriend() {
           className="d-flex flex-nowrap w-100"
         >
           {friendListData.map((user: any) => (
-            <Col xs={6} md={3} lg={4} key={user.id}>
+            <Col xs={6} md={3} lg={4} xl={3} key={user.id}>
               <div className="bg-dark rounded p-3">
                 <div className=" d-flex justify-content-center position-relative">
                   <ProfileImage src={user.profileImage} className="rounded-circle" />

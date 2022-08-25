@@ -16,8 +16,8 @@ Also make sure that you're using a version of NPM that's at least 8.2.0.
 # Install dependencies
 $ npm install
 
-# Copy dev env template file to .env.dev (required during development)
-$ cp .env.dev.template .env.dev
+# Copy dev env template file to .env.development (required during development)
+$ cp .env.development.template .env.development
 
 # Copy test env template file to .env.test (required to run tests)
 $ cp .env.test.template .env.test

@@ -65,7 +65,7 @@ function DeleteAccountDialog({ show, setShow }: Props) {
                 If you would like to return to Slasher in the future,
                 you will need to create a new account.
               </p>
-              <CustomRoundButton className="h-3 w-100 text-center text-white border-0 px-2 my-3" onClick={closeConfirmModal}>
+              <CustomRoundButton className="h-3 fw-bold w-100 text-center border-0 px-2 my-3" onClick={closeConfirmModal}>
                 Close
               </CustomRoundButton>
             </Modal.Body>

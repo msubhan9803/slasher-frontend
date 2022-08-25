@@ -8,6 +8,7 @@ import ProfilePhotos from './ProfilePhotos/ProfilePhotos';
 import ProfilePostDetail from './ProfilePostDetail.tsx/ProfilePostDetail';
 import ProfilePosts from './ProfilePosts/ProfilePosts';
 import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
+import ProfileEdit from './ProfileEdit/ProfileEdit';
 
 function Profile() {
   return (
@@ -19,6 +20,7 @@ function Profile() {
       <Route path="/about" element={<ProfileAbout />} />
       <Route path="/photos" element={<ProfilePhotos />} />
       <Route path="/watched-list" element={<ProfileWatchList />} />
+      <Route path="/edit" element={<ProfileEdit />} />
     </Routes>
   );
 }

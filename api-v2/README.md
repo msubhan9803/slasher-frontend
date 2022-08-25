@@ -1,5 +1,15 @@
 # api-v2 (a NestJS app)
 
+## Node version notes
+
+This project currently uses Node 16. It's recommended that you install Node via NVM because it makes management of multiple Node versions easier.
+
+See: https://github.com/nvm-sh/nvm
+
+Specifically, were targeting Node 16.13.1 (as indicated by the .nvmrc file).
+
+Also make sure that you're using a version of NPM that's at least 8.2.0.
+
 ## Initial setup
 
 ```bash

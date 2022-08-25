@@ -24,7 +24,7 @@ function SubscriberLikes({ MatchesList, LikesList, handleLikesOption }: Subscrib
         <h1 className="h2 fw-semibold mb-3">Matches</h1>
         <Row>
           {MatchesList.map((likesDetail: LikesListProps) => (
-            <Col md={4} lg={6} xl={4} key={likesDetail.id}>
+            <Col sm={6} md={4} lg={6} xl={4} key={likesDetail.id}>
               <LikesUserCard
                 likesDetail={likesDetail}
                 popoverOptions={matchesOptions}
@@ -38,7 +38,7 @@ function SubscriberLikes({ MatchesList, LikesList, handleLikesOption }: Subscrib
         <h1 className="h2 fw-semibold mb-3">Likes</h1>
         <Row>
           {LikesList && LikesList.length > 0 && LikesList.map((likesDetail: any) => (
-            <Col md={4} lg={6} xl={4} key={likesDetail.id}>
+            <Col sm={6} md={4} lg={6} xl={4} key={likesDetail.id}>
               <LikesUserCard
                 likesDetail={likesDetail}
                 popoverOptions={likesOptions}

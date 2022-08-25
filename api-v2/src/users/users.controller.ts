@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ActiveStatus, Device } from '../schemas/user.schema';
 import { UserLoginDto } from './dto/user-login.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -95,5 +96,14 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Post('register')
+  async register(@Body() userRegisterDto: UserRegisterDto) {
+    console.log(`register`)
+    const user = userRegisterDto
+    console.log(`user = `, user)
+
+    // user.save()
   }
 }

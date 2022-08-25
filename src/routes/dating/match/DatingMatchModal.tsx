@@ -1,10 +1,10 @@
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { Image, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import ModalContainer from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
+import questionMark from '../../../images/question-mark.png';
+import userProfile from '../../../images/dating-match.png';
 
 interface ModalProps {
   show: boolean;
@@ -16,7 +16,6 @@ interface Props {
 }
 const ImageContainer = styled.div<Props>`
   aspect-ratio:1;
-  border: 0.143rem solid #FFFFFF;
   margin-right:${(props) => (props.user && '-1.571rem')};
   z-index: ${(props) => (props.user && '1')};
   position: ${(props) => (props.user && 'relative')} ;
@@ -38,17 +37,17 @@ function DatingMatchModal({ show, setShow, isSubscriber }: ModalProps) {
         <h1 className="mb-0">It’s a match!</h1>
         <div className="d-flex mt-5">
           <ImageContainer className="rounded-circle" user>
-            <Image src="https://i.pravatar.cc/300?img=12" className="rounded-circle w-100 h-100" />
+            <Image src={userProfile} className="rounded-circle w-100 h-100" />
           </ImageContainer>
           {isSubscriber === 'Subscriber'
             ? (
               <ImageContainer className="rounded-circle">
-                <Image src="https://i.pravatar.cc/300?img=47" className="rounded-circle  w-100 h-100" />
+                <Image src={userProfile} className="rounded-circle  w-100 h-100" />
               </ImageContainer>
             )
             : (
-              <ImageContainer className=" d-flex align-items-center justify-content-center rounded-circle">
-                <FontAwesomeIcon icon={solid('question')} className="me-1 h-100 w-100" />
+              <ImageContainer className="rounded-circle">
+                <Image src={questionMark} className="w-100 h-100 rounded-circle" />
               </ImageContainer>
             )}
         </div>

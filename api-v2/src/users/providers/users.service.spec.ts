@@ -36,4 +36,34 @@ describe('UsersService', () => {
   it('should be defined', () => {
     expect(usersService).toBeDefined();
   });
+
+  describe('#create', () => {
+    it('successfully creates a user', () => {
+      // TODO
+    });
+  });
+
+  describe('#findAll', () => {
+    it('finds the expected set of users', () => {
+      // TODO
+    });
+  });
+
+  describe('#findByEmail', () => {
+    it('finds the expected user', () => {
+      // TODO
+    });
+  });
+
+  describe('#findByUsername', () => {
+    it('finds the expected user', () => {
+      // TODO
+    });
+  });
+
+  describe('#findByEmailOrUsername', () => {
+    it('finds the expected user', () => {
+      // TODO
+    });
+  });
 });

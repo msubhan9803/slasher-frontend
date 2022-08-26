@@ -13,7 +13,6 @@ export class UsersService {
     return this.userModel.create(user);
   }
 
-  // TODO: Remove this if not used
   async findAll(page: number, perPage: number): Promise<UserDocument[]> {
     return this.userModel
       .find({})
@@ -22,7 +21,6 @@ export class UsersService {
       .exec();
   }
 
-  // TODO: Remove this if not used
   async findById(id: string): Promise<UserDocument> {
     return this.userModel.findById(id).exec();
   }

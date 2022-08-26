@@ -57,7 +57,7 @@ describe('Users (e2e)', () => {
     );
   });
 
-  describe('GET /users/login', () => {
+  describe('POST /users/login', () => {
     describe('An active user', () => {
       it('can successfully log in with a username and password OR email and password', async () => {
         const postBodyScenarios: UserLoginDto[] = [

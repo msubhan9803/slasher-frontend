@@ -12,6 +12,7 @@ import { UserLoginDto } from '../../src/users/dto/user-login.dto';
 import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { truncateAllCollections } from '../test-helpers';
+import { userFactory } from '../factories/user.factory';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -49,12 +50,10 @@ describe('Users (e2e)', () => {
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(
-      {
-        userName: 'ActiveUser',
-        email: 'active@example.com',
-        status: ActiveStatus.Active,
-      },
-      activeUserUnhashedPassword,
+      userFactory.build(
+        { status: ActiveStatus.Active },
+        { transient: { unhashedPassword: activeUserUnhashedPassword } },
+      ),
     );
   });
 
@@ -88,13 +87,12 @@ describe('Users (e2e)', () => {
       it('receives an error message when attempting to log in', async () => {
         const inactiveUserUnhashedPassword = 'TestPassword';
         const inactiveUser = await usersService.create(
-          {
-            userName: 'InactiveUser',
-            email: 'inactive@example.com',
-            status: ActiveStatus.Inactive,
-          },
-          inactiveUserUnhashedPassword,
+          userFactory.build(
+            { status: ActiveStatus.Inactive },
+            { transient: { unhashedPassword: inactiveUserUnhashedPassword } },
+          ),
         );
+
         const postBody: UserLoginDto = {
           emailOrUsername: inactiveUser.userName,
           password: inactiveUserUnhashedPassword,
@@ -115,12 +113,12 @@ describe('Users (e2e)', () => {
       it('receives an error message when attempting to log in', async () => {
         const deactivatedUserUnhashedPassword = 'TestPassword';
         const deactivatedUser = await usersService.create(
-          {
-            userName: 'DeactivatedUser',
-            email: 'deactivated@example.com',
-            status: ActiveStatus.Deactivated,
-          },
-          deactivatedUserUnhashedPassword,
+          userFactory.build(
+            { status: ActiveStatus.Deactivated },
+            {
+              transient: { unhashedPassword: deactivatedUserUnhashedPassword },
+            },
+          ),
         );
         const postBody: UserLoginDto = {
           emailOrUsername: deactivatedUser.userName,

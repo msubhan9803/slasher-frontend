@@ -4,8 +4,7 @@ import mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Notification {
-  @Prop({ required: true })
-  _id: mongoose.Schema.Types.ObjectId;
+  readonly _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true })
   userId: mongoose.Schema.Types.ObjectId;
@@ -17,7 +16,16 @@ export class Notification {
   createdAt: Date; // this is the date when the notification was created
 
   @Prop()
-  updatedAt: Date; // this value updates when a notification is read (or modified in any other way)
+  updatedAt: Date; // this value should be updated when a notification is read (or modified in any other way)
+
+  constructor(options?: Partial<Notification>) {
+    if (!options) {
+      return;
+    }
+    Object.keys(options).forEach((key) => {
+      this[key] = options[key];
+    });
+  }
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

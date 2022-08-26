@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 
@@ -38,7 +38,7 @@ const DeviceSchema = SchemaFactory.createForClass(Device);
 
 @Schema({ timestamps: true })
 export class User {
-  readonly id: string;
+  readonly _id: mongoose.Schema.Types.ObjectId;
 
   @Prop({ required: true, trim: true })
   userName: string;
@@ -122,7 +122,7 @@ export class User {
 
   generateNewJwtToken(jwtSecretKey: string) {
     const jwtPayload = {
-      userId: this.id.toString(),
+      userId: this._id.toString(),
       userType: this.userType,
       passwordChangedAt: this.passwordChangedAt?.toISOString(),
     };

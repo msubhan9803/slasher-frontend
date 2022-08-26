@@ -9,12 +9,7 @@ import * as EmailValidator from 'email-validator';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(
-    userOptions: Partial<User>,
-    unhashedPassword: string,
-  ): Promise<UserDocument> {
-    const user = new User(userOptions);
-    user.setUnhashedPassword(unhashedPassword);
+  async create(user: Partial<User>) {
     return this.userModel.create(user);
   }
 

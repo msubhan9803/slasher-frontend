@@ -22,8 +22,8 @@ import { NotificationsModule } from './notifications/notifications.module';
       }),
       inject: [ConfigService],
     }),
-    UsersModule,
     NotificationsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

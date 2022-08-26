@@ -61,3 +61,35 @@ You can also run the linter (and this step doesn't require docker):
 ```bash
 npm run lint
 ```
+
+
+## Scripts
+
+### Local scripts
+
+There's a top level `scripts/local` directory for creating custom scripts for testing, generating reports, or running manual data transformations.  Scripts in this directory are git ignored and aren't committed to the repository, so this is where you can put script that you only need for yourself. Here's an example script, which you could place at `scripts/local/testing.ts`:
+
+```typescript
+import { createApp } from '../createApp';
+import { UsersService } from '../../src/users/providers/users.service';
+
+(async () => {
+  const app = await createApp();
+  const usersService = await app.get<UsersService>(UsersService);
+  console.log(`How many users are there? ${(await usersService.findAll(1, 9999)).length}`);
+  app.close();
+})();
+```
+
+And here's how you would run that script:
+```
+NODE_ENV=development npx ts-node ./scripts/local/testing.ts
+```
+
+### Committed scripts
+
+Scripts added directly under the `scripts` directory are NOT git ignored, and we should only commit these if they are beneficial for the team.  There is currently one script in there – `createSampleData.ts` – which can be helpful during development.  It adds some sample data to the development environment.  You can run it like this:
+
+```
+NODE_ENV=development npx ts-node ./scripts/createSampleData.ts
+```

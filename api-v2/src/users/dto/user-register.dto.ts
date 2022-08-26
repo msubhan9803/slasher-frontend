@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsEmail, Length, MinLength, Matches } from 'class-validator';
+import { Match } from './match.decorator'
 
 export class UserRegisterDto {
   @IsNotEmpty()
@@ -9,7 +10,7 @@ export class UserRegisterDto {
   userName: string;
 
   @IsNotEmpty()
-//   @IsEmail
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
@@ -17,6 +18,7 @@ export class UserRegisterDto {
   password: string;
 
   @IsNotEmpty()
+  @Match('password')
   passwordConfirmation: string;
 
   @IsNotEmpty()

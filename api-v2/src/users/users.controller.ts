@@ -5,7 +5,7 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ActiveStatus, Device } from '../schemas/user.schema';
+import { ActiveStatus, Device, User, UserDocument } from '../schemas/user.schema';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -14,12 +14,16 @@ import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
+    @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
   @Post('login')
@@ -100,10 +104,22 @@ export class UsersController {
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
-    console.log(`register`)
-    const user = userRegisterDto
-    console.log(`user = `, user)
 
-    // user.save()
+    let user = await this.usersService.findByUsername(
+      userRegisterDto.userName
+    );
+    if (user) throw new HttpException('Username already exist.', HttpStatus.UNPROCESSABLE_ENTITY);
+      
+    user = await this.usersService.findByEmail(
+      userRegisterDto.email
+    );
+    if (user) throw new HttpException('Email already exist.', HttpStatus.UNPROCESSABLE_ENTITY);
+
+    try {
+      const userToAdd = new this.userModel(userRegisterDto);
+      return userToAdd.save()
+    } catch (error) {
+      console.log(`error while adding user = `, error)
+    }
   }
 }

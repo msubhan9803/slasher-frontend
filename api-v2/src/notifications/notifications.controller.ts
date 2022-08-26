@@ -3,15 +3,15 @@ import { UserDocument } from '../schemas/user.schema';
 import { pick } from '../utils/object-utils';
 import { NotificationsService } from './providers/notifications.service';
 
-@Controller('users')
-export class UsersController {
+@Controller('notifications')
+export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @Get()
   async index(@Req() request: Request) {
     const user: UserDocument = (request as any).user;
 
-    return (await this.notificationsService.findAllByUserId(user.id)).map(
+    return (await this.notificationsService.findAllByUserId(user._id)).map(
       (notification) => pick(notification, ['notificationMsg', 'createdAt']),
     );
   }

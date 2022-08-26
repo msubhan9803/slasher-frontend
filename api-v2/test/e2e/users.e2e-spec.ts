@@ -3,21 +3,16 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
 import { UsersService } from '../../src/users/providers/users.service';
-import {
-  ActiveStatus,
-  User,
-  UserDocument,
-} from '../../src/schemas/user.schema';
+import { ActiveStatus, User } from '../../src/schemas/user.schema';
 import { UserLoginDto } from '../../src/users/dto/user-login.dto';
-import { Model } from 'mongoose';
-import { getModelToken } from '@nestjs/mongoose';
-import { truncateAllCollections } from '../test-helpers';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { userFactory } from '../factories/user.factory';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
+  let connection: Connection;
   let usersService: UsersService;
-  let userModel: Model<UserDocument>;
   let activeUser: User;
   let activeUserUnhashedPassword: string;
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
@@ -33,9 +28,9 @@ describe('Users (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+    connection = await moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    userModel = moduleRef.get<Model<UserDocument>>(getModelToken(User.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -45,8 +40,8 @@ describe('Users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    // Truncate all db collections so we start fresh before each test
-    await truncateAllCollections(userModel);
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(

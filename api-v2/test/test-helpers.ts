@@ -1,7 +1,9 @@
 import { Model } from 'mongoose';
 
-export async function truncateAllCollections(anyModel: Model<any>) {
+export const truncateAllCollections = async (anyModel: Model<any>) => {
   for (const collection of Object.values(anyModel.db.collections)) {
-    await collection.deleteMany({});
+    if (collection) {
+      await collection.deleteMany({});
+    }
   }
-}
+};

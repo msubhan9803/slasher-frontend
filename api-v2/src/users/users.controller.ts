@@ -108,12 +108,12 @@ export class UsersController {
     let user = await this.usersService.findByUsername(
       userRegisterDto.userName
     );
-    if (user) throw new HttpException('Username already exist.', HttpStatus.UNPROCESSABLE_ENTITY);
-      
+    if (user) throw new HttpException('Username already exist', HttpStatus.UNPROCESSABLE_ENTITY);
+
     user = await this.usersService.findByEmail(
       userRegisterDto.email
     );
-    if (user) throw new HttpException('Email already exist.', HttpStatus.UNPROCESSABLE_ENTITY);
+    if (user) throw new HttpException('Email already exist', HttpStatus.UNPROCESSABLE_ENTITY);
 
     try {
       const userToAdd = new this.userModel(userRegisterDto);

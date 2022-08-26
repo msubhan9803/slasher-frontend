@@ -1,24 +1,21 @@
 import { INestApplication } from '@nestjs/common';
-import { getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../app.module';
-import { UserDocument, User } from '../../schemas/user.schema';
 import { UsersService } from './users.service';
-import { Model } from 'mongoose';
-import { truncateAllCollections } from '../../../test/test-helpers';
+import { Connection } from 'mongoose';
 
 describe('UsersService', () => {
   let app: INestApplication;
+  let connection: Connection;
   let usersService: UsersService;
-  let userModel: Model<UserDocument>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    connection = await moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
-    userModel = moduleRef.get<Model<UserDocument>>(getModelToken(User.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -29,8 +26,8 @@ describe('UsersService', () => {
   });
 
   beforeEach(async () => {
-    // Truncate all db collections so we start fresh before each test
-    await truncateAllCollections(userModel);
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
   });
 
   it('should be defined', () => {

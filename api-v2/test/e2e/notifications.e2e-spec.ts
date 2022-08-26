@@ -3,13 +3,9 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { AppModule } from '../../src/app.module';
 import { NotificationsService } from '../../src/notifications/providers/notifications.service';
-import {
-  Notification,
-  NotificationDocument,
-} from '../../src/schemas/notification.schema';
-import { Model } from 'mongoose';
-import { getModelToken } from '@nestjs/mongoose';
-import { truncateAllCollections } from '../test-helpers';
+import { NotificationDocument } from '../../src/schemas/notification.schema';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { UsersService } from '../../src/users/providers/users.service';
 import { User, ActiveStatus } from '../../src/schemas/user.schema';
 import { userFactory } from '../factories/user.factory';
@@ -18,8 +14,8 @@ import { ConfigService } from '@nestjs/config';
 
 describe('Notifications (e2e)', () => {
   let app: INestApplication;
+  let connection: Connection;
   let notificationsService: NotificationsService;
-  let notificationModel: Model<NotificationDocument>;
   let usersService: UsersService;
   let configService: ConfigService;
   let activeUser: User;
@@ -30,12 +26,10 @@ describe('Notifications (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+    connection = await moduleRef.get<Connection>(getConnectionToken());
 
     notificationsService =
       moduleRef.get<NotificationsService>(NotificationsService);
-    notificationModel = moduleRef.get<Model<NotificationDocument>>(
-      getModelToken(Notification.name),
-    );
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
@@ -47,8 +41,8 @@ describe('Notifications (e2e)', () => {
   });
 
   beforeEach(async () => {
-    // Truncate all db collections so we start fresh before each test
-    await truncateAllCollections(notificationModel);
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(

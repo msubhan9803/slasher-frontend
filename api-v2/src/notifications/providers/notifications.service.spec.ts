@@ -1,14 +1,9 @@
 import { INestApplication } from '@nestjs/common';
-import { getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../app.module';
-import {
-  NotificationDocument,
-  Notification,
-} from '../../schemas/notification.schema';
 import { NotificationsService } from './notifications.service';
-import { Model } from 'mongoose';
-import { truncateAllCollections } from '../../../test/test-helpers';
+import { Connection } from 'mongoose';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { notificationFactory } from '../../../test/factories/notification.factory';
@@ -16,21 +11,18 @@ import { UserDocument } from '../../schemas/user.schema';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
+  let connection: Connection;
   let notificationsService: NotificationsService;
   let usersService: UsersService;
-  let notificationModel: Model<NotificationDocument>;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    connection = await moduleRef.get<Connection>(getConnectionToken());
     notificationsService =
       moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
-    notificationModel = moduleRef.get<Model<NotificationDocument>>(
-      getModelToken(Notification.name),
-    );
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -41,8 +33,8 @@ describe('NotificationsService', () => {
   });
 
   beforeEach(async () => {
-    // Truncate all db collections so we start fresh before each test
-    await truncateAllCollections(notificationModel);
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
   });
 
   it('should be defined', () => {

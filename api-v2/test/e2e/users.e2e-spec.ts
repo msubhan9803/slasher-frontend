@@ -1,24 +1,19 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../src/app.module';
 import { UsersService } from '../../src/users/providers/users.service';
-import {
-  ActiveStatus,
-  User,
-  UserDocument,
-} from '../../src/schemas/user.schema';
+import { ActiveStatus, User } from '../../src/schemas/user.schema';
 import { UserLoginDto } from '../../src/users/dto/user-login.dto';
 import { UserRegisterDto } from '../../src/users/dto/user-register.dto';
-import { Model } from 'mongoose';
-import { getModelToken } from '@nestjs/mongoose';
-import { truncateAllCollections } from '../test-helpers';
 import { userFactory } from '../factories/user.factory';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
+  let connection: Connection;
   let usersService: UsersService;
-  let userModel: Model<UserDocument>;
   let activeUser: User;
   let activeUserUnhashedPassword: string;
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
@@ -31,22 +26,22 @@ describe('Users (e2e)', () => {
   };
 
   const sampleUserRegisterObject = {
-    'firstName': 'user',
-    'userName': 'TestUser',
-    'email': 'testuser@gmail.com',
-    'password': 'TestUser@123',
-    'passwordConfirmation': 'TestUser@123',
-    'securityQuestion': 'What is favourite food?',
-    'securityAnswer': 'Pizza'
-  }
+    firstName: 'user',
+    userName: 'TestUser',
+    email: 'testuser@gmail.com',
+    password: 'TestUser@123',
+    passwordConfirmation: 'TestUser@123',
+    securityQuestion: 'What is favourite food?',
+    securityAnswer: 'Pizza',
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
+    connection = await moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    userModel = moduleRef.get<Model<UserDocument>>(getModelToken(User.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -56,8 +51,8 @@ describe('Users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    // Truncate all db collections so we start fresh before each test
-    await truncateAllCollections(userModel);
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(
@@ -152,203 +147,221 @@ describe('Users (e2e)', () => {
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
         return request(app.getHttpServer())
           .post('/users/register')
           .send(postBody)
-          .expect(HttpStatus.CREATED)
+          .expect(HttpStatus.CREATED);
       });
     });
 
     describe('Validation', () => {
       it('firstName should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.firstName = ''
+        postBody.firstName = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('firstName should not be empty');
+        expect(response.body.message).toContain(
+          'firstName should not be empty',
+        );
       });
 
       it('userName should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.userName = ''
+        postBody.userName = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('userName should not be empty');
       });
 
       it('userName is not longer than 30 characters', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.userName = 'TestUserTestUserTestUserTestUser'
+        postBody.userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('userName must be shorter than or equal to 30 characters');
+        expect(response.body.message).toContain(
+          'userName must be shorter than or equal to 30 characters',
+        );
       });
 
       it('email should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.email = ''
+        postBody.email = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email should not be empty');
       });
 
       it('email is a proper-form email', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.email = 'testusergmail.com'
+        postBody.email = 'testusergmail.com';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email must be an email');
       });
 
       it('password should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.password = ''
+        postBody.password = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('password should not be empty');  
+        expect(response.body.message).toContain('password should not be empty');
       });
 
       it('password should match pattern', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.password = 'testuser123'
+        postBody.password = 'testuser123';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('password must match /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/ regular expression');  
+        expect(response.body.message).toContain(
+          'password must match /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/ regular expression',
+        );
       });
 
       it('passwordConfirmation should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.passwordConfirmation = ''
+        postBody.passwordConfirmation = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('passwordConfirmation should not be empty');
+        expect(response.body.message).toContain(
+          'passwordConfirmation should not be empty',
+        );
       });
 
       it('password and passwordConfirmation match', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.passwordConfirmation = 'TestUser@1234'
+        postBody.passwordConfirmation = 'TestUser@1234';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('passwordConfirmation must match password exactly');
+        expect(response.body.message).toContain(
+          'passwordConfirmation must match password exactly',
+        );
       });
 
       it('securityQuestion should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.securityQuestion = ''
+        postBody.securityQuestion = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('securityQuestion should not be empty');
+        expect(response.body.message).toContain(
+          'securityQuestion should not be empty',
+        );
       });
 
       it('securityQuestion is at least 10 characters long', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.securityQuestion = 'Nickname?'
+        postBody.securityQuestion = 'Nickname?';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('securityQuestion must be longer than or equal to 10 characters');
+        expect(response.body.message).toContain(
+          'securityQuestion must be longer than or equal to 10 characters',
+        );
       });
 
       it('securityAnswer should not be empty', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.securityAnswer = ''
+        postBody.securityAnswer = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('securityAnswer should not be empty');
+        expect(response.body.message).toContain(
+          'securityAnswer should not be empty',
+        );
       });
 
       it('securityAnswer is at least 5 characters long', async () => {
         const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+          ...sampleUserRegisterObject,
         };
-        postBody.securityAnswer = 'Nick'
+        postBody.securityAnswer = 'Nick';
         const response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('securityAnswer must be longer than or equal to 5 characters');
+        expect(response.body.message).toContain(
+          'securityAnswer must be longer than or equal to 5 characters',
+        );
       });
     });
 
     describe('User exist', () => {
       it('userName already exists', async () => {
-        let postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+        const postBody: UserRegisterDto = {
+          ...sampleUserRegisterObject,
         };
         let response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
         response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain('Username already exist');
       });
 
       it('email already exists', async () => {
-        let postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject
+        const postBody: UserRegisterDto = {
+          ...sampleUserRegisterObject,
         };
         let response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
-        postBody.userName = 'TestUser2'
+        postBody.userName = 'TestUser2';
         response = await request(app.getHttpServer())
           .post('/users/register')
-          .send(postBody)
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain('Email already exist');
       });

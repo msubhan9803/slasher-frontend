@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
-  Button, Col, Image, Row,
+  Button, Image, Row,
 } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -36,8 +36,13 @@ const CancelRequestButton = styled(RoundButton)`
   border: 0.063rem solid #3A3B46;
   }
 `;
-
+const Card = styled.div`
+  height:12.857rem;
+  width:11.71rem;
+`;
 const ButtonContainer = styled.div`
+  display: inline-block;
+  white-space: nowrap;
   width:100%;
   text-align: center;
 `;
@@ -96,8 +101,8 @@ function SuggestedFriend() {
           className="d-flex flex-nowrap w-100"
         >
           {friendListData.map((user: any) => (
-            <Col xs={6} md={3} lg={4} xl={3} key={user.id}>
-              <div className="bg-dark rounded p-3">
+            <Card key={user.id}>
+              <div className="bg-dark rounded p-2">
                 <div className=" d-flex justify-content-center position-relative">
                   <ProfileImage src={user.profileImage} className="rounded-circle" />
                   <div className="position-absolute" style={{ right: '0' }}>
@@ -119,7 +124,7 @@ function SuggestedFriend() {
                     </RoundButton>
                   )}
               </div>
-            </Col>
+            </Card>
           ))}
         </StyleFriend>
         <Button className="d-block pe-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>

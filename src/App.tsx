@@ -21,6 +21,7 @@ import Movies from './routes/movies/Movies';
 import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewer';
 import Books from './routes/books/Books';
 import Shopping from './routes/shopping/Shopping';
+import Places from './routes/places/Places';
 import Profile from './routes/profile/Profile';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
       <Route path="/movies/*" element={<Movies />} />
       <Route path="/books/*" element={<Books />} />
       <Route path="/shopping/*" element={<Shopping />} />
+      <Route path="/places/*" element={<Places />} />
       <Route path="/:userName/*" element={<Profile />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

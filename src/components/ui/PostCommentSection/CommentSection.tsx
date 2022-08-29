@@ -7,7 +7,6 @@ import {
 import styled from 'styled-components';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import { useSearchParams } from 'react-router-dom';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -26,7 +25,7 @@ interface Props {
   popoverOptions: string[];
 }
 const CommentMessage = styled.span`
- color: #CCCCCC;
+  color: #CCCCCC;
 `;
 const CommentReplyImage = styled(Image)`
   height : 5.625rem;
@@ -84,18 +83,9 @@ function CommentSection({
   id, image, name, time, commentMention,
   commentMsg, commentImg, likes, onIconClick, likeIcon, popoverOptions,
 }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const popover = (
     <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      {queryParam !== 'self'
-        ? (
-          <>
-            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
-            <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Block user</PopoverText>
-          </>
-        )
-        : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
+      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (
@@ -113,7 +103,7 @@ function CommentSection({
             <div className="d-block pe-0">
               <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="bg-transparent shadow-none border-0 pt-0 pe-0">
+                  <Button className="text-white bg-transparent shadow-none border-0 pt-0 pe-0">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>

@@ -17,7 +17,6 @@ interface Props {
   commentReplySection?: Values[];
   onIconClick: (value: number) => void;
   likeIcon: boolean;
-  popoverOptions: string[];
 }
 interface Values {
   id: number;
@@ -30,7 +29,6 @@ interface Values {
   commentMsg: string;
   commentImg?: string;
   onIconClick: (value: number) => void;
-  popoverOptions: string[];
 }
 
 const UserProfileImage = styled.img`
@@ -52,9 +50,8 @@ const StyledCommentInputGroup = styled(InputGroup)`
     min-width: 1.875rem;
   }
 `;
-const MainCommentOption = ['Edit', 'Delete'];
-const ReplyCommentOption = ['Delete', 'Report', 'Block user'];
-function PostCommentSection({ commentSectionData, commentImage }: any) {
+
+function PostCommentSection({ commentSectionData, commentImage, popoverOption }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...commentData];
@@ -87,7 +84,7 @@ function PostCommentSection({ commentSectionData, commentImage }: any) {
               className="fs-5 border-end-0"
             />
             <InputGroup.Text>
-              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="" />
+              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
             </InputGroup.Text>
           </StyledCommentInputGroup>
         </Col>
@@ -106,7 +103,7 @@ function PostCommentSection({ commentSectionData, commentImage }: any) {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
-                  popoverOptions={MainCommentOption}
+                  popoverOptions={popoverOption}
                 />
                 {data.commentReplySection && data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
@@ -122,7 +119,7 @@ function PostCommentSection({ commentSectionData, commentImage }: any) {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
-                        popoverOptions={ReplyCommentOption}
+                        popoverOptions={popoverOption}
                       />
                     </div>
                   </div>

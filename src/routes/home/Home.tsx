@@ -29,6 +29,7 @@ function Home() {
         <PostFeed
           postFeedData={postData}
           popoverOptions={popoverOptions}
+          isCommentSection={false}
         />
       </div>
     </AuthenticatedPageWrapper>

@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Row, Image, Col, Tabs, Tab,
+  Row, Image, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
 import MovieDetailPoster from '../../../images/movie-detail-poster.jpg';
+import TabLinks from '../../../components/ui/Tabs/TabLinks';
+import MovieOverview from './MovieOverview';
+import MovieCasts from './MovieCasts';
+import MovieTrailers from './MovieTrailers';
+import MovieComments from '../components/MovieComments';
+import MovieEdit from '../movie-edit/MovieEdit';
 
 interface MovieIconProps {
   label: string;
@@ -40,24 +47,15 @@ const MovieIconList = [
     label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
   },
 ];
-const StyleTabs = styled(Tabs)`
-border-bottom: 0.188rem solid var(--bs-dark);
-overflow-x: auto;
-overflow-y: hidden;
-.nav-link {
-  border: none;
-  color: white;
-  &:hover {
-    border-color: transparent;
-    color: var(--bs-primary);
-  }
-  &.active {
-    color: var(--bs-primary);
-    background-color: transparent;
-    border-bottom:  0.188rem solid var(--bs-primary);
-  }
-}
-`;
+const tabsForSelf = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
+  { value: 'edit', label: 'Edit' },
+];
+const tabsForViewer = [
+  { value: 'details', label: 'Details' },
+  { value: 'posts', label: 'Posts' },
+];
 const FollowStyledButton = styled(RoundButton)`
   width: 21.125rem;
   border: 0.063rem solid #3A3B46;
@@ -65,7 +63,22 @@ const FollowStyledButton = styled(RoundButton)`
     border: 0.063rem solid #3A3B46;
   }
 `;
-function AboutMovie({ setSelectedScreen }: any) {
+function AboutMovie() {
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('view');
+  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
+  const navigate = useNavigate();
+  const params = useParams();
+  const changeTab = (tab: string) => {
+    if (!queryParam || queryParam !== 'self') {
+      navigate(`/movies/${params.id}/${tab}`);
+    } else {
+      navigate(`/movies/${params.id}/${tab}?view=self`);
+    }
+  };
+  useEffect(() => {
+    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/movies/${params.id}/details`); }
+  });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
   const handleMovieAddRemove = (labelName: string) => {
@@ -103,13 +116,6 @@ function AboutMovie({ setSelectedScreen }: any) {
                   />
                 ))}
               </div>
-            </div>
-            <div className="d-none d-xl-block">
-              <StyleTabs onSelect={(e) => setSelectedScreen(e)} className="fs-3 justify-content-between px-2 border-0">
-                <Tab eventKey="details" title="Details" />
-                <Tab eventKey="posts" title="Posts" />
-                <Tab eventKey="edit" title="Edit" />
-              </StyleTabs>
             </div>
           </Col>
           <Col xl={7}>
@@ -151,16 +157,23 @@ function AboutMovie({ setSelectedScreen }: any) {
             </div>
           </Col>
         </Row>
-        <Row className="d-xl-none">
-          <Col xl={5}>
-            <StyleTabs onSelect={(e) => setSelectedScreen(e)} className="fs-3 justify-content-between mt-3 px-2 border-0">
-              <Tab eventKey="details" title="Details" />
-              <Tab eventKey="posts" title="Posts" />
-              <Tab eventKey="edit" title="Edit" />
-            </StyleTabs>
+        <Row className="justify-content-center justify-content-xl-start">
+          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
+            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
           </Col>
         </Row>
       </div>
+      {
+        params.summary === 'details' && (
+          <>
+            <MovieOverview />
+            <MovieCasts />
+            <MovieTrailers />
+            <MovieComments />
+          </>
+        )
+      }
+      {queryParam === 'self' && params.summary === 'edit' && <MovieEdit />}
     </div>
   );
 }

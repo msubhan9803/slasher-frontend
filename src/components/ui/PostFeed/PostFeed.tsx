@@ -5,9 +5,11 @@ import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useNavigate, useParams } from 'react-router-dom';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
+import PostCommentSection from '../PostCommentSection/PostCommentSection';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -26,6 +28,7 @@ interface PostProps {
 interface Props {
   popoverOptions: string[],
   postFeedData: PostProps[],
+  isCommentSection: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -38,8 +41,12 @@ const PostImage = styled(Image)`
 const Content = styled.span`
   white-space: pre-line;
 `;
-
-function PostFeed({ postFeedData, popoverOptions }: Props) {
+const StyledBorder = styled.div`
+  border-top: .063rem solid #3A3B46
+`;
+function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
+  const navigate = useNavigate();
+  const params = useParams();
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -57,12 +64,14 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
     });
     setPostData(likeData);
   };
-
+  const handleDetailPage = (id: number) => {
+    navigate(`/${params.userName}/posts/${id}`);
+  };
   return (
     <>
       {postData.map((post: PostProps) => (
         <div key={post.id}>
-          <Card className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+          <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0">
               <PostHeader
                 userName={post.userName}
@@ -83,7 +92,7 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
               </div>
               {post?.postUrl && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl} className="w-100" />
+                  <PostImage src={post?.postUrl} className="w-100" onClick={() => handleDetailPage(post.id)} />
                 </div>
               )}
               <Row className="pt-3 px-md-3">
@@ -94,7 +103,7 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" onClick={() => handleDetailPage(post.id)} />
                   <span className="fs-3">10</span>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
@@ -114,6 +123,18 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
               id={post.id}
               onLikeClick={() => onLikeClick(post.id)}
             />
+            {
+              isCommentSection
+              && (
+                <>
+                  <StyledBorder className="d-md-block d-none mb-4" />
+                  <PostCommentSection
+                    commentSectionData={post.comment}
+                    commentImage={post.profileImage}
+                  />
+                </>
+              )
+            }
           </Card>
         </div>
 

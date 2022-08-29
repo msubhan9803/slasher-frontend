@@ -5,7 +5,7 @@ import PlacePosterCardList from '../components/PlacePosterCardList';
 import { favorites } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 
-function PlaceCategory() {
+function PlaceFavorites() {
   const navigate = useNavigate();
   const changeTab = (tab: string) => {
     navigate(`/places/${tab}`);
@@ -20,4 +20,4 @@ function PlaceCategory() {
   );
 }
 
-export default PlaceCategory;
+export default PlaceFavorites;

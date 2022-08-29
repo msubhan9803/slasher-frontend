@@ -13,10 +13,10 @@ const StyleBorderButton = styled(RoundButton)`
 function NotificationSetting() {
   const [bgColor, setBgColor] = useState<boolean>(false);
   return (
-    <div className="bg-dark m-2 p-3 rounded-3">
+    <div className="bg-dark p-3 mb-5 rounded-3">
       <Row>
         <Col xs={6}>
-          <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
+          <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'}`}>
             {bgColor ? 'Follow' : 'Unfollow'}
           </StyleBorderButton>
         </Col>

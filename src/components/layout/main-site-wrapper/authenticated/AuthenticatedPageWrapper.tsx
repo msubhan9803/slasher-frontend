@@ -10,10 +10,10 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
-import MovieSidebar from '../../../../routes/movies/components/MovieSidebar';
 import BooksSidebar from '../../../../routes/books/components/BooksSidebar';
 import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
 import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
+import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
 
 interface Props {
   children: React.ReactNode;
@@ -59,7 +59,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     'profile-self': <RightSidebarSelf />,
     'profile-other-user': <RightSidebarViewer />,
     dating: <DatingSidebar />,
-    movie: <MovieSidebar />,
+    movie: <MovieRightSideNav />,
     book: <BooksSidebar />,
     news: <NewsRightSideNav />,
     shopping: <ShoppingRightSidebar />,

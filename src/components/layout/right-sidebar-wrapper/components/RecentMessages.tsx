@@ -16,7 +16,7 @@ function RecentMessages() {
     },
   ];
   return (
-    <div>
+    <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />
       <UserMessageList className="mb-4">
         {recentMessageDetails.map((recentMessageDetail) => (

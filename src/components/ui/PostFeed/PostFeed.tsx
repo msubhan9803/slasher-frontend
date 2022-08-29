@@ -5,7 +5,6 @@ import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
@@ -19,7 +18,7 @@ interface PostProps {
   userName: string;
   postDate: string;
   content: string;
-  hashTag: string[];
+  hashTag?: string[];
   likeIcon: boolean;
   postUrl?: string;
   profileImage: string;
@@ -45,8 +44,6 @@ const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
 function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
-  const navigate = useNavigate();
-  const params = useParams();
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -64,9 +61,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
     });
     setPostData(likeData);
   };
-  const handleDetailPage = (id: number) => {
-    navigate(`/${params.userName}/posts/${id}`);
-  };
+
   return (
     <>
       {postData.map((post: PostProps) => (
@@ -92,7 +87,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
               </div>
               {post?.postUrl && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl} className="w-100" onClick={() => handleDetailPage(post.id)} />
+                  <PostImage src={post?.postUrl} className="w-100" />
                 </div>
               )}
               <Row className="pt-3 px-md-3">
@@ -103,7 +98,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" onClick={() => handleDetailPage(post.id)} />
+                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                   <span className="fs-3">10</span>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
@@ -152,4 +147,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
     </>
   );
 }
+PostFeed.default = {
+  hastags: [],
+};
 export default PostFeed;

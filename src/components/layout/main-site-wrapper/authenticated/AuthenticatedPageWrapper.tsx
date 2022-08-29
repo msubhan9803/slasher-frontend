@@ -10,9 +10,9 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
-import BooksSidebar from '../../../../routes/books/components/BooksSidebar';
 import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
 import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
+import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSideNav';
 import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
 
 interface Props {
@@ -60,9 +60,9 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     'profile-other-user': <RightSidebarViewer />,
     dating: <DatingSidebar />,
     movie: <MovieRightSideNav />,
-    book: <BooksSidebar />,
     news: <NewsRightSideNav />,
     shopping: <ShoppingRightSidebar />,
+    book: <BooksRigthSideNav />,
   }[type]);
 
   return (

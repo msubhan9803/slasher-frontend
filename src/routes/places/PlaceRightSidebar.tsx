@@ -8,7 +8,7 @@ import AdvertisementBox from '../../components/layout/right-sidebar-wrapper/comp
 function PlaceRightSidebar() {
   return (
     <>
-      <Link to="/places/category">
+      <Link to="/places/add">
         <RoundButton className="w-100 mb-4 fs-4">Add your place</RoundButton>
       </Link>
       <AdvertisementBox />

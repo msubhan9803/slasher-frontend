@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PlacePosterCardList from '../components/PlacePosterCardList';
-import category from '../PlaceData';
+import { category } from '../PlaceData';
 import PlaceHeader from '../PlaceHeader';
 
 function PlaceCategory() {

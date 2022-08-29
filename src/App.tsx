@@ -42,7 +42,6 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
-      <Route path="/messages/conversation/1" element={<Conversation />} />
       <Route path="/messages" element={<Messages />} />
       <Route path="/messages/conversation/1" element={<Conversation />} />
       <Route path="/news/*" element={<News />} />

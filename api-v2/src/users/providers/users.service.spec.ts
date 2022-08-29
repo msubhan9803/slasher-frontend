@@ -4,6 +4,8 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
 import { Connection } from 'mongoose';
+import { userFactory } from '../../../test/factories/user.factory';
+import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -35,32 +37,75 @@ describe('UsersService', () => {
   });
 
   describe('#create', () => {
-    it('successfully creates a user', () => {
-      // TODO
+    it('successfully creates a user', async () => {
+      const newUser = userFactory.build(
+        { status: ActiveStatus.Active },
+        { transient: { unhashedPassword: 'TestPassword' } },
+      );
+      const userDetail = await usersService.create(newUser);
+      expect(userDetail.email).toBe(newUser.email);
     });
   });
 
   describe('#findAll', () => {
-    it('finds the expected set of users', () => {
-      // TODO
+    beforeEach(async () => {
+      await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+      await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+    });
+    it('finds the expected set of users', async () => {
+      expect(await usersService.findAll(1, 10)).toHaveLength(2);
     });
   });
 
   describe('#findByEmail', () => {
-    it('finds the expected user', () => {
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+    });
+    it('finds the expected user', async () => {
       // TODO
+      expect((await usersService.findByEmail(user.email))._id).toEqual(
+        user._id,
+      );
     });
   });
 
   describe('#findByUsername', () => {
-    it('finds the expected user', () => {
-      // TODO
+    let user: UserDocument;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+    });
+    it('finds the expected user', async () => {
+      expect((await usersService.findByUsername(user.userName))._id).toEqual(
+        user._id,
+      );
     });
   });
 
   describe('#findByEmailOrUsername', () => {
-    it('finds the expected user', () => {
-      // TODO
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+    });
+    it('finds the expected user by email', async () => {
+      expect(
+        (await usersService.findByEmailOrUsername(user.email))._id,
+      ).toEqual(user._id);
+    });
+    it('finds the expected user by userName', async () => {
+      expect(
+        (await usersService.findByEmailOrUsername(user.userName))._id,
+      ).toEqual(user._id);
     });
   });
 });

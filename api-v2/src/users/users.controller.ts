@@ -117,6 +117,7 @@ export class UsersController {
 
     try {
       const userToAdd = new this.userModel(userRegisterDto);
+      userToAdd.password = bcrypt.hashSync(userToAdd.password, bcrypt.genSaltSync(10))
       return userToAdd.save()
     } catch (error) {
       console.log(`error while adding user = `, error)

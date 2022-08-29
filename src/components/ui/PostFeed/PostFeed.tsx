@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
+import PostCommentSection from '../PostCommentSection/PostCommentSection';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -15,16 +16,18 @@ interface LinearIconProps {
 interface PostProps {
   id: number;
   userName: string;
-  profileImage: string;
   postDate: string;
   content: string;
-  postUrl?: string;
+  hashTag?: string[];
   likeIcon: boolean;
-  hashTag: string[];
+  postUrl?: string;
+  profileImage: string;
+  comment?: any;
 }
 interface Props {
   popoverOptions: string[],
   postFeedData: PostProps[],
+  isCommentSection: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -37,8 +40,10 @@ const PostImage = styled(Image)`
 const Content = styled.span`
   white-space: pre-line;
 `;
-
-function PostFeed({ postFeedData, popoverOptions }: Props) {
+const StyledBorder = styled.div`
+  border-top: .063rem solid #3A3B46
+`;
+function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -113,6 +118,18 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
               id={post.id}
               onLikeClick={() => onLikeClick(post.id)}
             />
+            {
+              isCommentSection
+              && (
+                <>
+                  <StyledBorder className="d-md-block d-none mb-4" />
+                  <PostCommentSection
+                    commentSectionData={post.comment}
+                    commentImage={post.profileImage}
+                  />
+                </>
+              )
+            }
           </Card>
         </div>
 
@@ -130,4 +147,7 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
     </>
   );
 }
+PostFeed.default = {
+  hastags: [],
+};
 export default PostFeed;

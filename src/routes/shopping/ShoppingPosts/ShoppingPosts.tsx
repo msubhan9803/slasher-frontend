@@ -31,7 +31,7 @@ function ShoppingPosts() {
   return (
     <div className="mt-4">
       {queryParam === 'self' && <CustomCreatePost imageUrl={profileImage} />}
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
+      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection={false} />
     </div>
   );
 }

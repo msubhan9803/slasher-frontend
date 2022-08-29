@@ -28,7 +28,7 @@ function CustomDatePicker({ date, setDate, label }: Props) {
             borderRadius: '0.625rem',
             outline: 'none',
             boxShadow: 'none',
-            fontSize: '0.938rem',
+            fontSize: '1rem',
             '& fieldset': {
               borderColor: '#3A3B46 !important',
             },

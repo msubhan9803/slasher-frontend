@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
+import PostCommentSection from '../PostCommentSection/PostCommentSection';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -21,10 +22,12 @@ interface PostProps {
   likeIcon: boolean;
   postUrl?: string;
   profileImage: string;
+  comment?: any;
 }
 interface Props {
   popoverOptions: string[],
-  postFeedData: PostProps[]
+  postFeedData: PostProps[],
+  isCommentSection: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -37,7 +40,10 @@ const PostImage = styled(Image)`
 const Content = styled.span`
   white-space: pre-line;
 `;
-function PostFeed({ postFeedData, popoverOptions }: Props) {
+const StyledBorder = styled.div`
+  border-top: .063rem solid #3A3B46
+`;
+function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -60,7 +66,7 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
     <>
       {postData.map((post: PostProps) => (
         <div key={post.id}>
-          <Card className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+          <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0">
               <PostHeader
                 userName={post.userName}
@@ -88,16 +94,16 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
                 <Col>
                   <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">12K</span>
+                    <span className="fs-3">12K</span>
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                  <span className="fs-5">10</span>
+                  <span className="fs-3">10</span>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                  <span className="fs-5">25</span>
+                  <span className="fs-3">25</span>
                 </Col>
                 <svg width="0" height="0">
                   <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
@@ -112,6 +118,18 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
               id={post.id}
               onLikeClick={() => onLikeClick(post.id)}
             />
+            {
+              isCommentSection
+              && (
+                <>
+                  <StyledBorder className="d-md-block d-none mb-4" />
+                  <PostCommentSection
+                    commentSectionData={post.comment}
+                    commentImage={post.profileImage}
+                  />
+                </>
+              )
+            }
           </Card>
         </div>
 

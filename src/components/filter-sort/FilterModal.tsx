@@ -6,12 +6,12 @@ import RoundButton from '../ui/RoundButton';
 import SortData from './SortData';
 
 interface FilterDialogProps {
-  showKeys: any;
-  setShowKeys: any;
+  showKeys: boolean;
+  setShowKeys: (val: boolean) => void;
 }
 const KeyboardButtons = styled(Button)`
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
 `;
 function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);

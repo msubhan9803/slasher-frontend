@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import AboutMovie from './AboutMovie';
 import PlayMovie from './PlayMovie';
 import RoundButton from '../../../components/ui/RoundButton';
+import AboutMovie from './AboutMovie';
 
 function MovieDetails() {
   return (

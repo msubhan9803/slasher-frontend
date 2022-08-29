@@ -8,6 +8,7 @@ import MyBooks from './my-books/MyBooks';
 import ReadBooks from './read-books/ReadBooks';
 import ReadingListBooks from './reading-list-books/ReadingListBooks';
 import SlasherIndieBooks from './slasher-indie-books/SlasherIndieBooks';
+import AddYourBook from './AddYourBook';
 
 function Books() {
   return (
@@ -20,6 +21,7 @@ function Books() {
       <Route path="reading-list" element={<ReadingListBooks />} />
       <Route path="buy-list" element={<BuyListBooks />} />
       <Route path="my-books" element={<MyBooks />} />
+      <Route path="add" element={<AddYourBook />} />
       <Route path="/:id/:summary" element={<BookDetails />} />
     </Routes>
   );

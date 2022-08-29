@@ -175,7 +175,11 @@ function AboutBooks() {
       {params.summary === 'posts' && (
         <>
           <CreatePostInput />
-          <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
+          <PostFeed
+            postFeedData={postData}
+            popoverOptions={popoverOptions}
+            isCommentSection={false}
+          />
         </>
       )}
       {queryParam === 'self' && params.summary === 'edit' && <BookEdit />}

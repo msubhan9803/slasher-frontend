@@ -25,7 +25,7 @@ interface Props {
   popoverOptions: string[];
 }
 const CommentMessage = styled.span`
- color: #CCCCCC;
+  color: #CCCCCC;
 `;
 const CommentReplyImage = styled(Image)`
   height : 5.625rem;

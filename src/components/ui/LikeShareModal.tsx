@@ -5,7 +5,7 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import LikeShareModalContent from '../../routes/news/partner/LikeShareModalContent';
+import LikeShareModalContent from '../../routes/books/components/LikeShareModalContent';
 
 interface Props {
   show: boolean;

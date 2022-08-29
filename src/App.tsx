@@ -23,7 +23,6 @@ import Books from './routes/books/Books';
 import Shopping from './routes/shopping/Shopping';
 import Places from './routes/places/Places';
 import Profile from './routes/profile/Profile';
-import ProfileEdit from './routes/profile/ProfileEdit';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -54,7 +53,6 @@ function App() {
       <Route path="/books/*" element={<Books />} />
       <Route path="/shopping/*" element={<Shopping />} />
       <Route path="/places/*" element={<Places />} />
-      <Route path="/:userName/edit" element={<ProfileEdit />} />
       <Route path="/:userName/*" element={<Profile />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

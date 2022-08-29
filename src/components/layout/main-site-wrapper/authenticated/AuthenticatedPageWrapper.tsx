@@ -10,13 +10,15 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
-import MovieSidebar from '../../../../routes/movies/components/MovieSidebar';
-import BooksSidebar from '../../../../routes/books/components/BooksSidebar';
 import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
+import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
+import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSideNav';
+import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
+import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -58,9 +60,11 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     'profile-self': <RightSidebarSelf />,
     'profile-other-user': <RightSidebarViewer />,
     dating: <DatingSidebar />,
-    movie: <MovieSidebar />,
-    book: <BooksSidebar />,
+    movie: <MovieRightSideNav />,
     news: <NewsRightSideNav />,
+    shopping: <ShoppingRightSidebar />,
+    book: <BooksRigthSideNav />,
+    place: <PlaceRightSidebar />,
   }[type]);
 
   return (

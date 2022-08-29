@@ -1,5 +1,7 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import {
+  Routes, Route, Navigate,
+} from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
 import Home from './routes/home/Home';
@@ -18,7 +20,9 @@ import Search from './routes/search/Search';
 import Movies from './routes/movies/Movies';
 import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewer';
 import Books from './routes/books/Books';
-import ProfileEdit from './routes/profile/ProfileEdit';
+import Shopping from './routes/shopping/Shopping';
+import Places from './routes/places/Places';
+import Profile from './routes/profile/Profile';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -39,15 +43,17 @@ function App() {
       <Route path="/home" element={<Home />} />
       <Route path="/search" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
-      <Route path="/messages/conversation/1" element={<Conversation />} />
       <Route path="/messages" element={<Messages />} />
+      <Route path="/messages/conversation/1" element={<Conversation />} />
       <Route path="/news/*" element={<News />} />
       <Route path="/events/*" element={<Events />} />
       <Route path="/posts/*" element={<Posts />} />
       <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
       <Route path="/movies/*" element={<Movies />} />
       <Route path="/books/*" element={<Books />} />
-      <Route path="/:userName/edit" element={<ProfileEdit />} />
+      <Route path="/shopping/*" element={<Shopping />} />
+      <Route path="/places/*" element={<Places />} />
+      <Route path="/:userName/*" element={<Profile />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>

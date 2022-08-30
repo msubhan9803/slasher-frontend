@@ -1,0 +1,187 @@
+import React, {
+  useState, ChangeEvent,
+} from 'react';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  Col, Form, Image, Row,
+} from 'react-bootstrap';
+import styled from 'styled-components';
+import RoundButton from '../../../components/ui/RoundButton';
+import CustomDatePicker from '../../../components/ui/CustomDatePicker';
+
+const ImageContainer = styled.div`
+  height: 12.5rem;
+  width:12.5rem;
+  background-color: #1F1F1F;
+  border: 0.125rem solid #3A3B46 !important;
+  cursor:pointer;
+`;
+const CustomSpan = styled(Form.Text)`
+  margin-top: -1.43rem;
+  margin-right: .5rem;
+`;
+const CustomCol = styled(Col)`
+  width: 13.125rem !important;
+`;
+const CustomText = styled.p`
+  color: #A6A6A6
+`;
+const StyleButton = styled.div`
+  .deactivate-btn {
+    border: 0.063rem solid #3A3B46;
+  &:hover {
+    border: 0.063rem solid #3A3B46;
+    }
+  }
+  @media (max-width: 767px) {
+    .update-btn{
+      width: 100%;
+    }
+    .deactivate-btn{
+      width: 100%;
+    }
+  }
+`;
+function PlacesEdit() {
+  const [description, setDescription] = useState<string>('');
+  const [charCount, setCharCount] = useState<number>(0);
+  const [imageUpload, setImageUpload] = useState<string>('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCharCount(e.target.value.length);
+    setDescription(e.target.value);
+  };
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target) return;
+    if (e.target?.name === 'file' && e?.target?.files?.length) {
+      setImageUpload(URL.createObjectURL(e.target.files[0]));
+      e.target.value = '';
+    }
+  };
+  return (
+    <div className="bg-dark bg-mobile-transparent p-md-4 pb-0 pb-md-4 mt-3">
+      <Row>
+        <Col className="h-100">
+          <Row className="h-100">
+            <CustomCol xs={12} md={3} className="mx-auto mx-md-0">
+              <label htmlFor="file-upload" className="d-inline">
+                {imageUpload.length === 0
+                  && (
+                    <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
+                      <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
+                      <FontAwesomeIcon
+                        icon={solid('plus')}
+                        size="sm"
+                        role="button"
+                        className="position-absolute bg-primary text-white rounded-circle"
+                        style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
+                      />
+                    </ImageContainer>
+                  )}
+              </label>
+              {imageUpload.length > 0
+                && (
+                  <ImageContainer className="position-relative d-flex align-items-center rounded border-0">
+                    <Image
+                      src={imageUpload}
+                      alt="Places profile photograph"
+                      className="w-100 h-100 img-fluid rounded"
+                    />
+                    <FontAwesomeIcon
+                      icon={solid('times')}
+                      size="sm"
+                      role="button"
+                      className="position-absolute bg-white text-primary rounded-circle"
+                      style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
+                      onClick={() => setImageUpload('')}
+                    />
+                  </ImageContainer>
+                )}
+              <input
+                id="file-upload"
+                type="file"
+                name="file"
+                className="d-none"
+                accept="image/*"
+                onChange={(e) => {
+                  handleFileChange(e);
+                }}
+              />
+            </CustomCol>
+            <Col xs={12} md={7}>
+              <h2 className="text-center text-md-start  mb-1 mt-3 ms-3 mt-md-0">Change cover photo</h2>
+              <CustomText className="text-light text-center text-md-start ms-3 fs-5 mb-0">Recommended size: 830x467 pixels</CustomText>
+              <CustomText className="text-light text-center text-md-start ms-3 fs-5">(jpg, png)</CustomText>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+      <h2 className="d-md-block mt-4">Place information</h2>
+      <Row>
+        <Col md={6} className="mt-3">
+          <Form.Select aria-label="Category" defaultValue="" className="fs-4">
+            <option value="" disabled>Category</option>
+          </Form.Select>
+        </Col>
+        <Col md={6} className="mt-3">
+          <Form.Control type="text" placeholder="Business name" className="fs-4" />
+        </Col>
+      </Row>
+      <Row className="mt-3">
+        <Col>
+          <Form.Group className="mb-3" controlId="Place description">
+            <Form.Control
+              maxLength={1000}
+              rows={7}
+              as="textarea"
+              value={description}
+              onChange={handleMessageChange}
+              placeholder="Place description"
+              style={{ resize: 'none' }}
+              className="fs-4"
+            />
+            <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
+          </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+        <Col><Form.Control type="text" placeholder="Website" className="fs-4" /></Col>
+      </Row>
+      <Row>
+        <Col md={6} className="mt-3">
+          <CustomDatePicker date={startDate} setDate={setStartDate} label="Start date" />
+        </Col>
+        <Col md={6} className="mt-3">
+          <CustomDatePicker date={endDate} setDate={setEndDate} label="End date" />
+        </Col>
+      </Row>
+      <Row>
+        <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street" className="fs-4" /></Col>
+        <Col md={6} className="mt-3">
+          <Form.Control type="text" placeholder="City" className="fs-4" />
+        </Col>
+      </Row>
+      <Row>
+        <Col md={6} className="mt-3">
+          <Form.Select aria-label="State/Province" defaultValue="" className="fs-4">
+            <option value="" disabled>State/Province</option>
+          </Form.Select>
+        </Col>
+        <Col md={6} className="mt-3">
+          <Form.Select aria-label="Country" defaultValue="" className="fs-4">
+            <option value="" disabled>Country</option>
+          </Form.Select>
+        </Col>
+      </Row>
+      <StyleButton className="mt-4 mb-1 d-block d-md-flex justify-content-between align-items-center">
+        <RoundButton className="update-btn fs-3 fw-bold px-5">Update place</RoundButton>
+        <RoundButton className="deactivate-btn mt-4 mt-md-0 fs-3 fw-bold px-4 bg-black text-white">
+          Deactivate listing
+        </RoundButton>
+      </StyleButton>
+    </div>
+  );
+}
+export default PlacesEdit;

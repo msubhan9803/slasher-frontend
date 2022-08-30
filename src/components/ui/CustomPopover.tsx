@@ -37,7 +37,7 @@ function CustomPopover({ popoverOptions, onPopoverClick }: Props) {
   const popover = (
     <Custompopover id="popover-basic" className="fs-3 py-2 rounded-2">
       {popoverOptions.map((option: string) => (
-        <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0" role="button" onClick={() => onPopoverClick(option)}>{option}</PopoverText>
+        <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button" onClick={() => onPopoverClick(option)}>{option}</PopoverText>
       ))}
     </Custompopover>
   );

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -72,14 +72,9 @@ const popover = (
   </CustomPopover>
 );
 function ProfileHeader({ tabKey }: any) {
-  const navigate = useNavigate();
   const params = useParams();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
-
-  const changeTab = (tab: string) => {
-    navigate(`/${params.userName}/${tab}`);
-  };
 
   return (
     <div className="bg-dark bg-mobile-transparent rounded">
@@ -182,7 +177,7 @@ function ProfileHeader({ tabKey }: any) {
         )}
 
       <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
+      <TabLinks tabLink={tabs} toLink={`/${params.userName}`} selectedTab={tabKey} />
     </div>
   );
 }

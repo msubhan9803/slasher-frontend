@@ -11,7 +11,7 @@ function Places() {
       <Route path="add" element={<AddYourPlace />} />
       <Route path="favorites" element={<PlaceFavorites />} />
       <Route path="by-category" element={<PlaceCategory />} />
-      <Route path="/1/:id" element={<PlacesDetails />} />
+      <Route path="/:id/:summary" element={<PlacesDetails />} />
     </Routes>
   );
 }

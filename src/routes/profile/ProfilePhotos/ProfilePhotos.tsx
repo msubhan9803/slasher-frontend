@@ -35,7 +35,6 @@ const CustomPopover = styled(Popover)`
   .popover-arrow{
     &:after{
       border-bottom-color:rgb(56,56,56) !important;
-     
     }
   }
 `;

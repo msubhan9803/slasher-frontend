@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Col, Image, Row,
 } from 'react-bootstrap';
@@ -40,24 +40,19 @@ const tabsForViewer = [
 ];
 
 function PlacesDetails() {
+  const navigate = useNavigate();
   const [isFavorite, setFavorite] = useState<boolean>(false);
   const [bgColor, setBgColor] = useState<boolean>(false);
-
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
-  const navigate = useNavigate();
   const params = useParams();
-  const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/places/1/${tab}`);
-    } else {
-      navigate(`/places/1/${tab}?view=self`);
-    }
-  };
   const handleToggle = () => {
     setFavorite(!isFavorite);
   };
+  useEffect(() => {
+    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/places/${params.id}/posts`); }
+  });
   return (
     <AuthenticatedPageWrapper rightSidebarType="place">
       <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your place</RoundButton>
@@ -84,35 +79,35 @@ function PlacesDetails() {
         <PlaceAbout />
         {queryParam !== 'self'
           && (
-          <>
-            <StyledBorder className="d-block d-lg-none my-4" />
-            <Row className="mt-3 mb-2 text-center d-lg-none">
-              <Col xs={12}>
-                <p className="text-center fw-bold">Get updates for this book</p>
-                <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
-                  {bgColor ? 'Follow' : 'Unfollow'}
-                </FollowStyledButton>
-              </Col>
-            </Row>
-            <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
-              <Col sm={5}>
-                <div className="align-items-center d-flex justify-content-center">
-                  <span className="mb-2">Push notifications</span>
-                  <Switch id="pushNotificationsSwitch" className="ms-4" />
-                </div>
-              </Col>
-            </Row>
-          </>
+            <>
+              <StyledBorder className="d-block d-lg-none my-4" />
+              <Row className="mt-3 mb-2 text-center d-lg-none">
+                <Col xs={12}>
+                  <p className="text-center fw-bold">Get updates for this book</p>
+                  <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
+                    {bgColor ? 'Follow' : 'Unfollow'}
+                  </FollowStyledButton>
+                </Col>
+              </Row>
+              <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
+                <Col sm={5}>
+                  <div className="align-items-center d-flex justify-content-center">
+                    <span className="mb-2">Push notifications</span>
+                    <Switch id="pushNotificationsSwitch" className="ms-4" />
+                  </div>
+                </Col>
+              </Row>
+            </>
           )}
         <Row>
           <Col md={4} lg={12} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.id} className="justify-content-around justify-content-md-start" />
+            <TabLinks tabLink={tabs} toLink={`/places/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
-      {params.id === 'posts' && <PlacesPosts />}
-      {params.id === 'photos' && <PlacesPhotos />}
-      {params.id === 'edit' && <PlacesEdit />}
+      {params.summary === 'posts' && <PlacesPosts />}
+      {params.summary === 'photos' && <PlacesPhotos />}
+      {params.summary === 'edit' && <PlacesEdit />}
     </AuthenticatedPageWrapper>
   );
 }

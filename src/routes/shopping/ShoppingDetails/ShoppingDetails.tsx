@@ -52,14 +52,6 @@ function ShoppingDetails() {
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-
-  const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/shopping/${params.id}/${tab}`);
-    } else {
-      navigate(`/shopping/${params.id}/${tab}?view=self`);
-    }
-  };
   useEffect(() => {
     if ((params.summary === 'edit' || params.summary === 'shopping-offer') && queryParam !== 'self') {
       navigate(`/shopping/${params.id}/posts`);
@@ -135,7 +127,7 @@ function ShoppingDetails() {
           )}
         <Row>
           <Col md={5} lg={12} xl={6}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-md-start" />
+            <TabLinks tabLink={tabs} toLink={`/shopping/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

@@ -23,6 +23,7 @@ import Books from './routes/books/Books';
 import Shopping from './routes/shopping/Shopping';
 import Places from './routes/places/Places';
 import Profile from './routes/profile/Profile';
+import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
       <Route path="/shopping/*" element={<Shopping />} />
       <Route path="/places/*" element={<Places />} />
       <Route path="/:userName/*" element={<Profile />} />
+      <Route path="/notifications" element={<Notifications />} />
       <Route path="/account/*" element={<Account />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />

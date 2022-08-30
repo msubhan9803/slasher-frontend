@@ -31,23 +31,23 @@ function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
           {likeIcon ? (
             <LinearIcon uniqueId="like-button-footer">
               <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              <span className="fs-5">Like</span>
+              <span className="fs-3">Like</span>
             </LinearIcon>
           )
             : (
               <>
                 <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                <span className="fs-5">Like</span>
+                <span className="fs-3">Like</span>
               </>
             )}
         </Col>
         <Col className="text-center" role="button">
           <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-          <span className="fs-5">Comment</span>
+          <span className="fs-3">Comment</span>
         </Col>
         <Col className="text-end" role="button">
           <CustomDropDown>
-            <Dropdown.Toggle variant="link" className="bg-transparent p-0">
+            <Dropdown.Toggle className=" bg-transparent p-0 text-white">
               <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>

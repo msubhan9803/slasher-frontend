@@ -42,7 +42,7 @@ const CustomModal = styled(Modal)`
     background-color: #000000;
   }
   .btn-close {
-   display:none;
+    display:none;
   }
 `;
 const CustomModalHeader = styled(Modal.Header)`

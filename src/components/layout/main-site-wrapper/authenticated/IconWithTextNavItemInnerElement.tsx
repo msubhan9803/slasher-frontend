@@ -8,7 +8,8 @@ interface Props {
   icon: IconDefinition;
   iconSize: SizeProp;
   badge?: number;
-  badgeIconClassName?: string
+  badgeIconClassName?: string;
+  active?: boolean;
 }
 
 const BadgeSpan = styled.span`
@@ -16,18 +17,18 @@ const BadgeSpan = styled.span`
 `;
 
 function IconWithTextNavItemInnerElement({
-  label, icon, iconSize, badge, badgeIconClassName,
+  label, icon, iconSize, badge, badgeIconClassName, active,
 }: Props) {
   return (
     <div className="d-flex flex-column justify-content-evenly text-center text-white position-relative ">
-      <FontAwesomeIcon icon={icon} size={iconSize} className={badgeIconClassName} />
+      <FontAwesomeIcon icon={icon} size={iconSize} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
       {badge
         && (
           <BadgeSpan className="top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
             {badge}
           </BadgeSpan>
         )}
-      <p className="mb-0 text-center mt-2">{label}</p>
+      <p className={`mb-0 text-center mt-2 ${active ? 'text-primary' : 'text-white'} `}>{label}</p>
     </div>
   );
 }
@@ -35,6 +36,7 @@ function IconWithTextNavItemInnerElement({
 IconWithTextNavItemInnerElement.defaultProps = {
   badgeIconClassName: '',
   badge: null,
+  active: false,
 };
 
 export default IconWithTextNavItemInnerElement;

@@ -5,7 +5,6 @@ import {
   Button, Col, Image, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useSearchParams } from 'react-router-dom';
 
 interface PostHeaderProps {
   userName: string;
@@ -45,13 +44,9 @@ const CustomPopover = styled(Popover)`
 function PostHeader({
   userName, postDate, profileImage, popoverOptions,
 }: PostHeaderProps) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const popover = (
     <CustomPopover id="popover-basic" className="py-2 rounded-2">
-      {queryParam !== 'self'
-        ? <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
-        : popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
+      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (
@@ -72,7 +67,7 @@ function PostHeader({
       <Col xs="auto" className="d-block">
         <StyledPopover>
           <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-            <Button variant="link" className="shadow-none border-0 pe-1">
+            <Button className="bg-transparent shadow-none border-0 pe-1 text-white">
               <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
             </Button>
           </OverlayTrigger>

@@ -37,7 +37,7 @@ function ProfilePosts() {
       {queryParam === 'self'
         && (
           <div className="mt-4">
-            <CustomCreatePost />
+            <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
           </div>
         )}
       <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection={false} />

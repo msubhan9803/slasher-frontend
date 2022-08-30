@@ -38,12 +38,12 @@ describe('UsersService', () => {
 
   describe('#create', () => {
     it('successfully creates a user', async () => {
-      const newUser = userFactory.build(
+      const user = userFactory.build(
         { status: ActiveStatus.Active },
         { transient: { unhashedPassword: 'TestPassword' } },
       );
-      const userDetail = await usersService.create(newUser);
-      expect(userDetail.email).toBe(newUser.email);
+      const userDocument = await usersService.create(user);
+      expect(await usersService.findById(userDocument._id)).toBeTruthy();
     });
   });
 

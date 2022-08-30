@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
+import PostCommentSection from '../PostCommentSection/PostCommentSection';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -15,16 +16,18 @@ interface LinearIconProps {
 interface PostProps {
   id: number;
   userName: string;
-  profileImage: string;
   postDate: string;
   content: string;
-  postUrl?: string;
+  hashTag?: string[];
   likeIcon: boolean;
-  hashTag: string[];
+  postUrl?: string;
+  profileImage: string;
+  comment?: any;
 }
 interface Props {
   popoverOptions: string[],
   postFeedData: PostProps[],
+  isCommentSection?: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -37,8 +40,22 @@ const PostImage = styled(Image)`
 const Content = styled.span`
   white-space: pre-line;
 `;
+const StyledBorder = styled.div`
+  border-top: .063rem solid #3A3B46
+`;
 
-function PostFeed({ postFeedData, popoverOptions }: Props) {
+const StyledPostFeed = styled.div`
+  @media(max-width: 767px) {
+    .post {
+      border-bottom: 1px solid #3A3B46;
+    }
+    .post:last-child {
+      border-bottom: none;
+    }
+  }
+`;
+
+function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -58,9 +75,9 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
   };
 
   return (
-    <>
+    <StyledPostFeed>
       {postData.map((post: PostProps) => (
-        <div key={post.id}>
+        <div key={post.id} className="post">
           <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0">
               <PostHeader
@@ -113,6 +130,18 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
               id={post.id}
               onLikeClick={() => onLikeClick(post.id)}
             />
+            {
+              isCommentSection
+              && (
+                <>
+                  <StyledBorder className="d-md-block d-none mb-4" />
+                  <PostCommentSection
+                    commentSectionData={post.comment}
+                    commentImage={post.profileImage}
+                  />
+                </>
+              )
+            }
           </Card>
         </div>
 
@@ -127,7 +156,10 @@ function PostFeed({ postFeedData, popoverOptions }: Props) {
           />
         )
       }
-    </>
+    </StyledPostFeed>
   );
 }
+PostFeed.defaultProps = {
+  isCommentSection: false,
+};
 export default PostFeed;

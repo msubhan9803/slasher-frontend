@@ -5,7 +5,6 @@ import {
   Card, Col, Dropdown, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
 import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
 
 interface LinearIconProps {
@@ -25,11 +24,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
-  const navigate = useNavigate();
-  const params = useParams();
-  const handleDetailPage = (postId: number) => {
-    navigate(`/${params.userName}/posts/${postId}`);
-  };
   return (
     <CardFooter className="p-0">
       <Row className=" d-flex justify-content-evenly py-3 px-md-3">
@@ -47,7 +41,7 @@ function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
               </>
             )}
         </Col>
-        <Col className="text-center" role="button" onClick={() => handleDetailPage(id)}>
+        <Col className="text-center" role="button">
           <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
           <span className="fs-3">Comment</span>
         </Col>

@@ -9,6 +9,7 @@ import ProfilePostDetail from './ProfilePostDetail.tsx/ProfilePostDetail';
 import ProfilePosts from './ProfilePosts/ProfilePosts';
 import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
+import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 
 function Profile() {
   return (
@@ -17,6 +18,7 @@ function Profile() {
       <Route path="/posts" element={<ProfilePosts />} />
       <Route path="/posts/:id" element={<ProfilePostDetail />} />
       <Route path="/friends" element={<ProfileFriends />} />
+      <Route path="/friends/:id" element={<ProfileFriendRequest />} />
       <Route path="/about" element={<ProfileAbout />} />
       <Route path="/photos" element={<ProfilePhotos />} />
       <Route path="/watched-list" element={<ProfileWatchList />} />

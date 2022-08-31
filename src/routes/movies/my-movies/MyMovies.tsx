@@ -17,6 +17,8 @@ function MyMovies() {
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
       setFilteredMovies(searchResult);
+    } else {
+      setFilteredMovies(myMovies);
     }
   };
   useEffect(() => {

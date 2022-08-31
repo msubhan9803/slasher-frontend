@@ -18,6 +18,8 @@ function ReadingListBooks() {
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
       setFilteredBooks(searchResult);
+    } else {
+      setFilteredBooks(readingListBooks);
     }
   };
   useEffect(() => {

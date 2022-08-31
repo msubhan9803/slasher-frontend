@@ -17,6 +17,8 @@ function AllBooks() {
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
       setFilteredBooks(searchResult);
+    } else {
+      setFilteredBooks(allBooks);
     }
   };
   useEffect(() => {

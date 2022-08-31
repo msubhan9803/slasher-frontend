@@ -3,19 +3,27 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface TabLinksProps {
   tabLink: TabProps[];
   selectedTab?: string;
   toLink: string;
   params?: string;
+  display?: string;
 }
 interface TabProps {
   value: string;
   label: string;
 }
+const StyleTabs = styled.div`
+  .tab-border {
+    border-top: 2px solid #3A3B46;
+    margin-top: -2px;
+  }
+`;
 function TabLinks({
-  tabLink, selectedTab, toLink, params,
+  tabLink, selectedTab, toLink, params, display,
 }: TabLinksProps) {
   const color = '#ffffff';
   const theme = createTheme({
@@ -53,7 +61,7 @@ function TabLinks({
   });
   return (
     <ThemeProvider theme={theme}>
-      <div className="bg-dark bg-mobile-transparent rounded-3">
+      <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
         <Tabs
           value={(selectedTab)}
           variant="scrollable"
@@ -71,7 +79,8 @@ function TabLinks({
             />
           ))}
         </Tabs>
-      </div>
+        {display === 'underline' && <div className="tab-border" />}
+      </StyleTabs>
     </ThemeProvider>
   );
 }
@@ -79,6 +88,7 @@ function TabLinks({
 TabLinks.defaultProps = {
   selectedTab: 'all',
   params: '',
+  display: 'default',
 };
 
 export default TabLinks;

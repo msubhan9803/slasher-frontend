@@ -17,6 +17,8 @@ function SlasherIndieMovies() {
         ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
         : [];
       setFilteredMovies(searchResult);
+    } else {
+      setFilteredMovies(slasherIndieMovies);
     }
   };
   useEffect(() => {

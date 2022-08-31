@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import AddYourPlace from './add-your-place/AddYourPlace';
 import PlaceFavorites from './PlaceFavorites/PlaceFavorites';
 import PlaceCategory from './PlaceCategory/PlaceCategory';
+import PlaceLocation from './Placelocation/PlaceLocation';
 import PlacesDetails from './PlacesDetails/PlacesDetails';
 
 function Places() {
@@ -11,6 +12,7 @@ function Places() {
       <Route path="add" element={<AddYourPlace />} />
       <Route path="favorites" element={<PlaceFavorites />} />
       <Route path="by-category" element={<PlaceCategory />} />
+      <Route path="by-location" element={<PlaceLocation />} />
       <Route path="/:id/:summary" element={<PlacesDetails />} />
     </Routes>
   );

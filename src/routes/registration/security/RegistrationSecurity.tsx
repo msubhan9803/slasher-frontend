@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Col, Form, Row,
+  Button,
+  Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
@@ -14,27 +16,44 @@ const dayOptions = generateDayOptions(1, 31);
 interface Props {
   activeStep: number;
 }
+const CustomVisibilityButton = styled(Button)`
+  background-color: rgb(31, 31, 31);
+  border-color: #3a3b46 !important;
+  &:hover {
+    background-color: rgb(31, 31, 31);
+  }
+  &:focus {
+    background-color: rgb(31, 31, 31);
+  }
+`;
 
 function RegistrationSecurity({ activeStep }: Props) {
   const navigate = useNavigate();
   const handleStep = () => {
     navigate('/registration/terms');
   };
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <Row className="justify-content-center">
         <Col sm={12} md={9}>
           <Row>
             <Col sm={12} md={6} className="order-first">
-              <Form.Group controlId="formBasicPassword">
-                <Form.Control type="text" placeholder="Password" />
-              </Form.Group>
+              <InputGroup>
+                <Form.Control type={showPassword ? 'text' : 'password'} placeholder="Password" className="border-end-0" />
+                <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? 'Hide' : 'Show'}
+                </CustomVisibilityButton>
+              </InputGroup>
             </Col>
             <Col sm={12} md={6} className="order-last">
-              <Form.Group controlId="formBasicPasswordConfirmation">
-                <Form.Control type="text" placeholder="Confirm Password" />
-              </Form.Group>
+              <InputGroup>
+                <Form.Control type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" className="border-end-0" />
+                <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? 'Hide' : 'Show'}
+                </CustomVisibilityButton>
+              </InputGroup>
             </Col>
             <Col className="order-md-last">
               <p className="text-light mt-3">

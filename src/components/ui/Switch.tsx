@@ -34,7 +34,7 @@ const SwitchStyledLabel = styled.label`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #1F1F1F;
+    background-color: #0D0D0E;
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 6.25rem;

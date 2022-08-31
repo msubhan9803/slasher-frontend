@@ -10,7 +10,7 @@ export default function SliderThumbComponent({ children, ...other }: Props) {
   return (
     <SliderThumb {...other}>
       {children}
-      <FontAwesomeIcon icon={solid('chevron-right')} size="xs" color="white " />
+      <FontAwesomeIcon icon={solid('chevron-right')} size="xs" color="black" />
     </SliderThumb>
   );
 }

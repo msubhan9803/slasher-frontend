@@ -7,9 +7,10 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 interface PlaceHeaderProps {
   tabKey: string;
   changeTab: (value: string) => void;
+
 }
 const tabs = [
-  { value: 'location', label: 'By location' },
+  { value: 'by-location', label: 'By location' },
   { value: 'by-category', label: 'By category' },
   { value: 'newest', label: 'Newest' },
   { value: 'favorites', label: 'Favorites' },

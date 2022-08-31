@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconDefinition, SizeProp } from '@fortawesome/fontawesome-svg-core';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 
 interface Props {
@@ -17,6 +17,8 @@ interface Props {
 function IconWithTextNavLink({
   label, icon, iconSize, to, badge, badgeIconClassName, className, children,
 }: Props) {
+  const location = useLocation();
+  const path = location.pathname;
   return (
     <Link to={to} className={className}>
       <IconWithTextNavItemInnerElement
@@ -25,6 +27,7 @@ function IconWithTextNavLink({
         iconSize={iconSize}
         badge={badge}
         badgeIconClassName={badgeIconClassName}
+        active={path === to}
       />
       {children}
     </Link>

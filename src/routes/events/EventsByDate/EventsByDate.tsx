@@ -11,67 +11,100 @@ import EventPoster from '../../../images/events-poster.png';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
-    background: transparent !important;
+    background: transparent;
   }
 
   .react-calendar__tile {
-    color: var(--bs-white) !important;
+    color: var(--bs-white);
   }
 
   .react-calendar__navigation button {
-    color: var(--bs-white) !important;
+    color: var(--bs-white);
   }
 
   .highlight {
-    color: var(--bs-primary) !important;
+    color: var(--bs-primary);
+    &::after {
+      content: "\\A•";
+      white-space: pre;
+    }
   }
 
-  button:enabled:hover {
-    background-color: var(--bs-black) !important;
+  .react-calendar__tile:enabled:hover{
+    background-color: transparent  !important;
   }
 
   .react-calendar__tile--active {
-    background-color: transparent !important;
+    background-color: transparent  !important;
   }
 
   .react-calendar__tile--active abbr {
-    color: var(--bs-white) !important;
-    background: var(--bs-black) !important;
-    padding: 7px 10px !important;
-    border-radius: 50% !important;
-    border: 1px solid #3A3B46 !important;
+    width:2.5rem;
+    height:2.5rem;
+    border-radius:50%;
+    background-color:var(--bs-black);
+    color:var(--bs-white);
+    display:inline-flex;
+    justify-content: center;
+    align-items:center;
+    border: 0.071rem solid #3A3B46;
   }
-
+  .react-calendar__tile{
+    width:3.571rem !important;
+    height:3.571rem !important; 
+  }
   .react-calendar__month-view__weekdays__weekday abbr {
-    text-decoration: none !important;
+    text-decoration: none;
   }
 
   .react-calendar__navigation button:enabled:hover,
   .react-calendar__navigation button:enabled:focus {
-    background-color: var(--bs-black) !important;
+    background-color: transparent;
   }
 
   .react-calendar__navigation button:disabled {
-    background-color: var(--bs-black) !important;
-    pointer-events: none !important;
+    background-color: transparent;
+    pointer-events: none;
   }
 
   .react-calendar__decade-view__decades__decade {
-    pointer-events: none !important;
+    pointer-events: none;
   }
 
   .react-calendar__navigation {
-    display: flex !important;
-    justify-content: center !important;
+    display: flex;
+    justify-content: center;
   }
 
   .react-calendar__navigation__label {
     flex-grow: 0 !important;
   }
   .react-calendar__tile--hasActive{
-    background: var(-bs--black) !important;
+    background: var(-bs--black);
   }
-
+  .react-calendar__navigation__prev-button{
+    background : var(--bs-white);
+    color:var(--bs-black) !important;
+    border-radius:50%;
+    font-size: x-large;
+    width: 2.143rem !important;
+    min-width: 2.143rem !important;
+  }
+  .react-calendar__navigation__next-button{
+    background : var(--bs-white);
+    color:var(--bs-black) !important;
+    border-radius:50%;
+    font-size: x-large;    
+    width: 2.143rem !important;
+    min-width: 2.143rem !important;
+  }
+  .react-calendar__navigation__label{
+    margin-left: 1.429rem;
+    margin-right: 1.429rem;
+  }
+  .react-calendar__navigation{
+    height : 2.143rem;
+  }
 `;
 const eventsList = [
   {
@@ -82,9 +115,9 @@ const eventsList = [
   },
 ];
 const mark = [
-  '11-08-2022',
-  '13-08-2022',
-  '23-08-2022',
+  '11-09-2022',
+  '13-09-2022',
+  '23-09-2022',
 ];
 function EventsByDate() {
   const [value, onChange] = useState(new Date());
@@ -96,7 +129,9 @@ function EventsByDate() {
           className="w-100 p-4 bg-dark border-0 text-white"
           onChange={onChange}
           value={value}
-          minDetail="decade"
+          minDetail="year"
+          prev2Label={null}
+          next2Label={null}
           tileClassName={({ date }: CalendarTileProperties) => {
             if (mark.find((x: any) => x === moment(date).format('DD-MM-YYYY'))) {
               return 'highlight';

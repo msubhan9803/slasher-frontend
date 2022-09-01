@@ -60,7 +60,7 @@ function AccountBlockedUser() {
       <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
         <Row>
           {friendList.map((friend) => (
-            <Col md={4} lg={6} xl={4} key={friend.id}>
+            <Col sm={6} md={4} lg={6} xl={4} key={friend.id}>
               <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
                 <div>
                   <div className="d-flex align-items-center">

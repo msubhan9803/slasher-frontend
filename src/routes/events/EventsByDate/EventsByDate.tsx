@@ -27,6 +27,8 @@ const EventCalender = styled(Calendar)`
     &::after {
       content: "\\A•";
       white-space: pre;
+      position: absolute;
+      left: 48%;
     }
   }
 
@@ -50,24 +52,27 @@ const EventCalender = styled(Calendar)`
     border: 0.071rem solid #3A3B46;
   }
   .react-calendar__tile{
-    width:3.571rem !important;
-    height:3.571rem !important; 
+    width:4rem !important;
+    height:4rem !important; 
+    position: relative;
   }
   .react-calendar__month-view__weekdays__weekday abbr {
     text-decoration: none;
   }
 
-  .react-calendar__navigation button:enabled:hover,
+  .react-calendar__navigation button:enabled:hover
+ {
+    background-color: black;
+    color:white !important;
+  }
+ 
   .react-calendar__navigation button:enabled:focus {
-    background-color: transparent;
+    background-color: white;
+    color:black !important;
   }
 
   .react-calendar__navigation button:disabled {
     background-color: transparent;
-    pointer-events: none;
-  }
-
-  .react-calendar__decade-view__decades__decade {
     pointer-events: none;
   }
 
@@ -80,31 +85,28 @@ const EventCalender = styled(Calendar)`
     flex-grow: 0 !important;
   }
   .react-calendar__tile--hasActive{
-    background: var(-bs--black);
+    background-color: var(-bs--black) !important;
   }
-  .react-calendar__navigation__prev-button{
+  .react-calendar__navigation__prev-button,.react-calendar__navigation__next-button{
     background : var(--bs-white);
     color:var(--bs-black) !important;
     border-radius:50%;
     font-size: x-large;
     width: 2.143rem !important;
     min-width: 2.143rem !important;
-  }
-  .react-calendar__navigation__next-button{
-    background : var(--bs-white);
-    color:var(--bs-black) !important;
-    border-radius:50%;
-    font-size: x-large;    
-    width: 2.143rem !important;
-    min-width: 2.143rem !important;
+    padding-bottom: 0.214rem;
   }
   .react-calendar__navigation__label{
     margin-left: 1.429rem;
     margin-right: 1.429rem;
   }
+ 
   .react-calendar__navigation{
     height : 2.143rem;
   }
+  .react-calendar__tile--active::after {
+    visibility: hidden;
+}
 `;
 const eventsList = [
   {
@@ -115,7 +117,7 @@ const eventsList = [
   },
 ];
 const mark = [
-  '11-09-2022',
+  '04-09-2022',
   '13-09-2022',
   '23-09-2022',
 ];
@@ -124,9 +126,9 @@ function EventsByDate() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="event">
       <EventHeader tabKey="by-date" />
-      <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
+      <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
         <EventCalender
-          className="w-100 p-4 bg-dark border-0 text-white"
+          className="w-100 p-4 pb-0 bg-dark border-0 text-white"
           onChange={onChange}
           value={value}
           minDetail="year"

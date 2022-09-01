@@ -9,12 +9,12 @@ import MoviesModal from '../components/MoviesModal';
 
 const StyledRateBorder = styled.div`
   @media (min-width: 89.938rem) {
-    border-bottom: 0.063rem solid #3A3B46;
+    border-bottom: 1px solid #3A3B46;
   }
   @media (max-width: 89.938rem) {
     .rating {
-      border-bottom: 0.063rem solid #3A3B46;
-      border-top: 0.063rem solid #3A3B46;
+      border-bottom: 1px solid #3A3B46;
+      border-top: 1px solid #3A3B46;
     }
   }
 `;
@@ -23,7 +23,7 @@ const StyledWorth = styled.div`
   div {
     width: 2.5rem;
     height: 2.5rem;
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     background: #1F1F1F;
   }
   FontAwesomeIcon {
@@ -68,9 +68,9 @@ const AboutMovieDetails = styled.div`
 
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 function AboutDetails() {

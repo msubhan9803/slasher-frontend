@@ -36,7 +36,7 @@ function MovieTrailers() {
     <div className="bg-dark p-3 pb-4 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Trailers</h1>
       <div className="d-flex align-items-center mt-3">
-        <Button className="prev bg-transparent border-0 shadow-none text-white" onClick={slideTrailerLeft}>
+        <Button variant="link" className="prev bg-transparent text-white" onClick={slideTrailerLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </Button>
         <StyledMovieTrailer
@@ -58,7 +58,7 @@ function MovieTrailers() {
             </Col>
           ))}
         </StyledMovieTrailer>
-        <Button className="next bg-transparent border-0 shadow-none text-white" onClick={slideTrailerRight}>
+        <Button variant="link" className="next bg-transparent text-white" onClick={slideTrailerRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </Button>
       </div>

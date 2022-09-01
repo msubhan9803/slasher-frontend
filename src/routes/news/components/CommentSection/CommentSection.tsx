@@ -111,20 +111,20 @@ function CommentSection({
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                    <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
                       <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                       <span className="fs-5">Like</span>
                     </Button>
                   </LinearIcon>
                 )
                 : (
-                  <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                  <Button variant="link" className="me-2" onClick={() => onIconClick(id)}>
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
                     <span className="fs-5">Like</span>
                   </Button>
                 )
             }
-            <Button variant="link" className="text-decoration-none shadow-none">
+            <Button variant="link">
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>

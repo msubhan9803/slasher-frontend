@@ -17,15 +17,17 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
   return (
     <>
       <Button
+        variant="link"
         onClick={() => setShowKeys(!showKeys)}
-        className={`fs-3 bg-transparent border-0 d-none d-lg-inline shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`fs-3 bg-transparent d-none d-lg-inline ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />
       </Button>
       <Button
+        variant="link"
         onClick={() => setShowKeys(!showKeys)}
-        className={`py-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`py-3 bg-transparent d-lg-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         <span className="fs-3">Sort/Filter</span>
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />

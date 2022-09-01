@@ -92,9 +92,10 @@ function MoviesModal({ show, setShow, ButtonType }: MovieDetaisProps) {
                 <RatingStar className="star-rating my-3">
                   {[...Array(5)].map((star, index) => (
                     <Button
+                      variant="link"
                       type="button"
                       key={star}
-                      className="px-2 bg-transparent border-0 shadow-none"
+                      className="px-2 bg-transparent"
                       onClick={() => setRating(index)}
                     >
                       {index <= rating ? (

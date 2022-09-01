@@ -88,7 +88,7 @@ function Notifications() {
         <div>
           {todayNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
-              <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+              <Button variant="link" className="px-0 text-white text-start d-flex align-items-center bg-transparent border-0">
                 <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
                 </ProfileImage>
@@ -120,7 +120,7 @@ function Notifications() {
           <h1 className="h3 fw-semibold mt-5 mb-3">This week</h1>
           {thisWeekNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
-              <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+              <Button variant="link" className="px-0 text-white text-start d-flex align-items-center bg-transparent">
                 <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
                 </ProfileImage>
@@ -152,7 +152,7 @@ function Notifications() {
           <h1 className="h3 fw-semibold mt-5 mb-3">This month</h1>
           {thisMonthNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
-              <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+              <Button variant="link" className="px-0 text-white text-start d-flex align-items-center bg-transparent">
                 <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
                 </ProfileImage>

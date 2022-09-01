@@ -40,7 +40,7 @@ function ForgotPassword() {
           <Form className="row d-flex flex-column align-items-center mt-4">
             <div className="col-10 col-sm-8 col-lg-6">
               <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
-              <Button size="lg" className="mt-4 w-100">Send</Button>
+              <Button variant="link" size="lg" className="mt-4 w-100">Send</Button>
             </div>
           </Form>
 

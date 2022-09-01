@@ -2,9 +2,10 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, OverlayTrigger, Popover, Row,
+  Button, Col, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
   userName: string;
@@ -12,10 +13,6 @@ interface PostHeaderProps {
   profileImage: string;
   popoverOptions: string[];
 }
-const ProfileImage = styled(Image)`
-  height:3.313rem;
-  width:3.313rem;
-`;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
     svg{
@@ -55,7 +52,7 @@ function PostHeader({
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
             <div className="rounded-circle">
-              <ProfileImage src={profileImage} className="rounded-circle bg-secondary" />
+              <UserCircleImage width="3.313rem" height="3.313rem" src={profileImage} className="rounded-circle bg-secondary" />
             </div>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">

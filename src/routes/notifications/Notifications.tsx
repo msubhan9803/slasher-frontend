@@ -16,7 +16,7 @@ interface NotificationProps {
   response?: string;
   timeStamp: string;
 }
-const ProfileImage = styled.div`
+const UserCircleImageContainer = styled.div`
   background-color: #171717;
   img {
     height: 50px;
@@ -89,9 +89,9 @@ function Notifications() {
           {todayNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">
@@ -121,9 +121,9 @@ function Notifications() {
           {thisWeekNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">
@@ -153,9 +153,9 @@ function Notifications() {
           {thisMonthNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">

@@ -7,10 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
-
-const UserCircleImage = styled.img`
-  height:1.25em;
-`;
+import UserCircleImage from '../../ui/UserCircleImage';
 
 const SpecificHeightLink = styled(Link)`
   display: flex;
@@ -29,7 +26,7 @@ function MobileOnlySidebarContent({ className }: Props) {
         <Row>
           <Col xs={4}>
             <SpecificHeightLink to="/" className="btn btn-sidebar w-100 pt-2">
-              <UserCircleImage className="rounded-circle mb-1" src={userProfileIconPlaceholder} alt="User icon" />
+              <UserCircleImage height="1.25em" className="rounded-circle mb-1" src={userProfileIconPlaceholder} alt="User icon" />
               Me
             </SpecificHeightLink>
           </Col>

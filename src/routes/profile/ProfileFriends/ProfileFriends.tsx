@@ -2,18 +2,15 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, OverlayTrigger, Popover, Row,
+  Button, Col, OverlayTrigger, Popover, Row,
 } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
-const ProfileImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
-`;
 const StyledPopover = styled.div`
   .btn[aria-describedby="popover-basic"]{
     svg{
@@ -128,7 +125,7 @@ function ProfileFriends() {
                   <div>
                     <div className="d-flex align-items-center">
                       <div>
-                        <ProfileImage src={friend.imageUrl} className="rounded-circle me-2" />
+                        <UserCircleImage width="3.125rem" height="3.125rem" src={friend.imageUrl} className="rounded-circle me-2" />
                       </div>
                       <div>
                         <h1 className="h3 mb-0">{friend.name}</h1>

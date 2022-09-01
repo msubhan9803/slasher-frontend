@@ -1,18 +1,15 @@
 import React from 'react';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import AccountHeader from '../AccountHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 const Container = styled.div`
   @media (min-width: 992px) {
     background: #1F1F1F;
   }
-`;
-const ProfileImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
 `;
 const friendList = [
   {
@@ -65,7 +62,7 @@ function AccountBlockedUser() {
                 <div>
                   <div className="d-flex align-items-center">
                     <div>
-                      <ProfileImage src={friend.imageUrl} className="rounded-circle me-2" />
+                      <UserCircleImage width="3.125rem" height="3.125rem" src={friend.imageUrl} className="rounded-circle me-2" />
                     </div>
                     <div>
                       <h1 className="h3 mb-0">{friend.name}</h1>

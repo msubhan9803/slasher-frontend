@@ -11,7 +11,7 @@ function PlaceRightSidebar() {
   const queryParam = searchParams.get('view');
   return (
     <>
-      <Link to="/places/posts">
+      <Link to="/places/add">
         <RoundButton className={`w-100 fs-4 ${queryParam === 'self' && ' mb-3'}`}>Add your place</RoundButton>
       </Link>
       {queryParam !== 'self'

@@ -1,42 +1,15 @@
 import React, { useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, Image, OverlayTrigger, Popover, Row,
-} from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { Col, Image, Row } from 'react-bootstrap';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
+import CustomPopover from '../../../components/ui/CustomPopover';
 
 const ProfileImage = styled(Image)`
   height: 3.125rem;
   width: 3.125rem;
-`;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
-  }
-`;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
 `;
 const Container = styled.div`
   background: #1F1F1F;
@@ -92,22 +65,13 @@ function ProfileFriends() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [search, setSearch] = useState<string>('');
-  const vieweOptions = ['View profile', 'Report', 'Block user'];
+  const viewerOptions = ['View profile', 'Report', 'Block user'];
   const selfOptions = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
-
-  const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
-      {queryParam === 'self'
-        ? selfOptions.map((option) => (
-          <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>
-
-        ))
-        : vieweOptions.map((option) => (
-          <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>
-
-        ))}
-    </CustomPopover>
-  );
+  const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
+  const navigate = useNavigate();
+  const handlePopoverOption = (value: string) => {
+    navigate(`/home/${value}`);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="friends" />
@@ -137,13 +101,10 @@ function ProfileFriends() {
                     </div>
                   </div>
                   <div className="d-flex align-self-center">
-                    <StyledPopover>
-                      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 pe-0 text-white">
-                          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                        </Button>
-                      </OverlayTrigger>
-                    </StyledPopover>
+                    <CustomPopover
+                      popoverOptions={popoverOption}
+                      onPopoverClick={handlePopoverOption}
+                    />
                   </div>
                 </Container>
               </Col>

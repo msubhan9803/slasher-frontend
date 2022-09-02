@@ -2,13 +2,14 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, OverlayTrigger, Popover, Row,
+  Button, Col, Image, Row,
 } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import postImage from '../../images/about-post.jpg';
+import CustomPopover from '../../components/ui/CustomPopover';
 
 const ProfileImage = styled(Image)`
   height:3.125rem;
@@ -22,31 +23,6 @@ const AboutProfileImage = styled(Image)`
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
-  }
-`;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
-`;
-
 const tabs = [
   { value: 'about', label: 'About' },
   { value: 'posts', label: 'Posts' },
@@ -65,18 +41,15 @@ const RoundDiv = styled.div`
   border-top-left-radius:50%;
   border-top-right-radius:50%;
 `;
-const popover = (
-  <CustomPopover id="popover-basic" className="py-2 rounded-2">
-    <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Report</PopoverText>
-    <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">Block user</PopoverText>
-  </CustomPopover>
-);
 function ProfileHeader({ tabKey }: any) {
   const navigate = useNavigate();
   const params = useParams();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
-
+  const popoverOption = ['Report', 'Block user'];
+  const handlePopoverOption = (value: string) => {
+    navigate(`/home/${value}`);
+  };
   const changeTab = (tab: string) => {
     navigate(`/${params.userName}/${tab}`);
   };
@@ -96,13 +69,10 @@ function ProfileHeader({ tabKey }: any) {
                 <AboutProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
                 {queryParam !== 'self'
                   && (
-                    <StyledPopover className="d-block d-md-none d-lg-block d-xl-none position-absolute" style={{ top: '55px', right: '0px' }}>
-                      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 pe-3 mt-2">
-                          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" className="ps-0" />
-                        </Button>
-                      </OverlayTrigger>
-                    </StyledPopover>
+                    <CustomPopover
+                      popoverOptions={popoverOption}
+                      onPopoverClick={handlePopoverOption}
+                    />
                   )}
               </CustomCol>
               <Col className="w-100 mt-md-4">
@@ -127,13 +97,10 @@ function ProfileHeader({ tabKey }: any) {
                           <Button className="btn btn-form bg-black rounded-5 d-flex px-4 me-2">
                             <h3 className="mb-0">Unfriend</h3>
                           </Button>
-                          <StyledPopover className="d-none d-md-block d-lg-none d-xl-block">
-                            <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1 text-white">
-                                <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} className="text-white" size="lg" />
-                              </Button>
-                            </OverlayTrigger>
-                          </StyledPopover>
+                          <CustomPopover
+                            popoverOptions={popoverOption}
+                            onPopoverClick={handlePopoverOption}
+                          />
                         </div>
                       )}
                   </Col>
@@ -168,13 +135,10 @@ function ProfileHeader({ tabKey }: any) {
                     <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 text-white">
                       <h3 className="mb-0">Unfriend</h3>
                     </Button>
-                    <StyledPopover>
-                      <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 text-white">
-                          <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                        </Button>
-                      </OverlayTrigger>
-                    </StyledPopover>
+                    <CustomPopover
+                      popoverOptions={popoverOption}
+                      onPopoverClick={handlePopoverOption}
+                    />
                   </div>
                 )}
             </div>

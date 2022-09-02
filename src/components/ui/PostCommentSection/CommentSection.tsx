@@ -5,8 +5,8 @@ import {
   Button, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import { useNavigate } from 'react-router-dom';
+import CustomPopover from '../CustomPopover';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -55,39 +55,14 @@ const CommentImage = styled(Image)`
   height: 2.5rem;
   width: 2.5rem;
 `;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: .063rem solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: var(--bs-primary);
-  }
-`;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
 function CommentSection({
   id, image, name, time, commentMention,
   commentMsg, commentImg, likes, onIconClick, likeIcon, popoverOptions,
 }: Props) {
-  const popover = (
-    <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
-    </CustomPopover>
-  );
+  const navigate = useNavigate();
+  const handlePopoverOption = (value: string) => {
+    navigate(`/home/${value}`);
+  };
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -101,13 +76,7 @@ function CommentSection({
               <p className="fs-6 text-light mb-0">{time}</p>
             </div>
             <div className="d-block pe-0">
-              <StyledPopover>
-                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="text-white bg-transparent shadow-none border-0 pt-0 pe-0">
-                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                  </Button>
-                </OverlayTrigger>
-              </StyledPopover>
+              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={handlePopoverOption} />
             </div>
           </div>
           <span className="text-primary">

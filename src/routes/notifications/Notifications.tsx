@@ -1,8 +1,8 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Button, Image } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomPopover from '../../components/ui/CustomPopover';
@@ -67,11 +67,10 @@ const thisMonthNotifications: NotificationProps[] = [
   },
 ];
 function Notifications() {
-  const navigate = useNavigate();
   const popoverOption = ['Settings'];
 
   const handleLikesOption = (likeValue: string) => {
-    navigate(`/navigations/${likeValue}`);
+    <Link to={`/navigations/${likeValue}`} />;
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="notification">

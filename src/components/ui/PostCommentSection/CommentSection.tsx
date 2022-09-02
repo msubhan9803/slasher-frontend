@@ -165,7 +165,7 @@ function CommentSection({
             }
             <Button variant="link" className="shadow-none">
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-              <span className="fs-5">cReply</span>
+              <span className="fs-5">Reply</span>
             </Button>
           </div>
         </div>

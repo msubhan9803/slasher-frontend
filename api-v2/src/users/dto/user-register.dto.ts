@@ -1,5 +1,11 @@
-import { IsNotEmpty, IsEmail, Length, MinLength, Matches } from 'class-validator';
-import { Match } from './match.decorator'
+import {
+  IsNotEmpty,
+  IsEmail,
+  Length,
+  MinLength,
+  Matches,
+} from 'class-validator';
+import { Match } from '../../app/decorators/class-validator/match.decorator';
 
 export class UserRegisterDto {
   @IsNotEmpty()
@@ -14,7 +20,9 @@ export class UserRegisterDto {
   email: string;
 
   @IsNotEmpty()
-  @Matches(/^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/)
+  @Matches(
+    /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/,
+  )
   password: string;
 
   @IsNotEmpty()
@@ -28,5 +36,4 @@ export class UserRegisterDto {
   @IsNotEmpty()
   @MinLength(5)
   securityAnswer: string;
-
 }

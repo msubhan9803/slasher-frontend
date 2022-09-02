@@ -5,25 +5,19 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ActiveStatus, Device, User, UserDocument } from '../schemas/user.schema';
+import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
-import { NotificationsService } from '../notifications/providers/notifications.service';
-
-import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
   @Post('login')
@@ -104,23 +98,22 @@ export class UsersController {
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
-
-    let user = await this.usersService.findByUsername(
-      userRegisterDto.userName
-    );
-    if (user) throw new HttpException('Username already exist', HttpStatus.UNPROCESSABLE_ENTITY);
-
-    user = await this.usersService.findByEmail(
-      userRegisterDto.email
-    );
-    if (user) throw new HttpException('Email already exist', HttpStatus.UNPROCESSABLE_ENTITY);
-
-    try {
-      const userToAdd = new this.userModel(userRegisterDto);
-      userToAdd.password = bcrypt.hashSync(userToAdd.password, bcrypt.genSaltSync(10))
-      return userToAdd.save()
-    } catch (error) {
-      console.log(`error while adding user = `, error)
+    if (await this.usersService.userNameExists(userRegisterDto.userName)) {
+      throw new HttpException(
+        'Username is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
+
+    if (await this.usersService.emailExists(userRegisterDto.email)) {
+      throw new HttpException(
+        'Email address is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const user = new User(userRegisterDto);
+    user.setUnhashedPassword(userRegisterDto.password);
+    return this.usersService.create(user);
   }
 }

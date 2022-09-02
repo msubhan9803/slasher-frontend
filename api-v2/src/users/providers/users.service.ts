@@ -48,4 +48,26 @@ export class UsersService {
       return this.findByUsername(emailOrUsername);
     }
   }
+
+  async userNameExists(username: string): Promise<boolean> {
+    const usernameEscapedForRegexp = escapeStringRegexp(username);
+
+    return (
+      (await this.userModel
+        .findOne({ userName: new RegExp(`^${usernameEscapedForRegexp}$`, 'i') }) // case insensitive search
+        .count()
+        .exec()) > 0
+    );
+  }
+
+  async emailExists(email: string): Promise<boolean> {
+    const emailEscapedForRegexp = escapeStringRegexp(email);
+
+    return (
+      (await this.userModel
+        .findOne({ email: new RegExp(`^${emailEscapedForRegexp}$`, 'i') }) // case insensitive search
+        .count()
+        .exec()) > 0
+    );
+  }
 }

@@ -9,6 +9,7 @@ import { ActiveStatus, User } from '../../src/schemas/user.schema';
 import { UserLoginDto } from '../../src/users/dto/user-login.dto';
 import { UserRegisterDto } from '../../src/users/dto/user-register.dto';
 import { userFactory } from '../factories/user.factory';
+import * as bcrypt from 'bcryptjs';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -143,16 +144,28 @@ describe('Users (e2e)', () => {
     });
   });
 
-  describe('GET /users/register', () => {
+  describe('POST /users/register', () => {
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
         const postBody: UserRegisterDto = {
           ...sampleUserRegisterObject,
         };
-        return request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
+        const registeredUser = await usersService.findById(response.body._id);
+
+        expect(postBody.firstName).toEqual(registeredUser.firstName);
+        expect(postBody.userName).toEqual(registeredUser.userName);
+        expect(postBody.email).toEqual(registeredUser.email);
+        expect(postBody.securityQuestion).toEqual(
+          registeredUser.securityQuestion,
+        );
+        expect(postBody.securityAnswer).toEqual(registeredUser.securityAnswer);
+        expect(
+          bcrypt.compareSync(postBody.password, registeredUser.password),
+        ).toEqual(true);
       });
     });
 
@@ -346,7 +359,9 @@ describe('Users (e2e)', () => {
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Username already exist');
+        expect(response.body.message).toContain(
+          'Username is already associated with an existing user.',
+        );
       });
 
       it('email already exists', async () => {
@@ -363,7 +378,9 @@ describe('Users (e2e)', () => {
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Email already exist');
+        expect(response.body.message).toContain(
+          'Email address is already associated with an existing user.',
+        );
       });
     });
   });

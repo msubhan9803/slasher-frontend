@@ -120,7 +120,11 @@ a {
 
 .btn.btn-link {
   text-decoration: none;
-  box-shadow: none !important;
+
+  &:active, &:focus {
+    box-shadow: none !important;
+    color: var(--bs-primary);
+  }
 }
 
 html {

@@ -6,7 +6,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../src/app.module';
 import { UsersService } from '../../src/users/providers/users.service';
 import { ActiveStatus, User } from '../../src/schemas/user.schema';
-import { UserLoginDto } from '../../src/users/dto/user-login.dto';
+import { UserSignInDto } from '../../src/users/dto/user-sign-in.dto';
 import { UserRegisterDto } from '../../src/users/dto/user-register.dto';
 import { userFactory } from '../factories/user.factory';
 import * as bcrypt from 'bcryptjs';
@@ -18,7 +18,7 @@ describe('Users (e2e)', () => {
   let activeUser: User;
   let activeUserUnhashedPassword: string;
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
-  const deviceAndAppVersionPlaceholderLoginFields = {
+  const deviceAndAppVersionPlaceholderSignInFields = {
     device_id: 'sample-device-id',
     device_token: 'sample-device-token',
     device_type: 'sample-device-type',
@@ -64,26 +64,26 @@ describe('Users (e2e)', () => {
     );
   });
 
-  describe('POST /users/login', () => {
+  describe('POST /users/sign-in', () => {
     describe('An active user', () => {
-      it('can successfully log in with a username and password OR email and password', async () => {
-        const postBodyScenarios: UserLoginDto[] = [
+      it('can successfully sign in with a username and password OR email and password', async () => {
+        const postBodyScenarios: UserSignInDto[] = [
           {
             emailOrUsername: activeUser.userName,
             password: activeUserUnhashedPassword,
-            ...deviceAndAppVersionPlaceholderLoginFields,
+            ...deviceAndAppVersionPlaceholderSignInFields,
           },
           {
             emailOrUsername: activeUser.email,
             password: activeUserUnhashedPassword,
-            ...deviceAndAppVersionPlaceholderLoginFields,
+            ...deviceAndAppVersionPlaceholderSignInFields,
           },
         ];
         for (const postBody of postBodyScenarios) {
           const response = await request(app.getHttpServer())
-            .post('/users/login')
+            .post('/users/sign-in')
             .send(postBody);
-          expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new login session was created
+          expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
           expect(response.body.email).toEqual(activeUser.email);
           expect(response.body.token).toMatch(simpleJwtRegex);
         }
@@ -91,7 +91,7 @@ describe('Users (e2e)', () => {
     });
 
     describe('An inactive user', () => {
-      it('receives an error message when attempting to log in', async () => {
+      it('receives an error message when attempting to sign in', async () => {
         const inactiveUserUnhashedPassword = 'TestPassword';
         const inactiveUser = await usersService.create(
           userFactory.build(
@@ -100,13 +100,13 @@ describe('Users (e2e)', () => {
           ),
         );
 
-        const postBody: UserLoginDto = {
+        const postBody: UserSignInDto = {
           emailOrUsername: inactiveUser.userName,
           password: inactiveUserUnhashedPassword,
-          ...deviceAndAppVersionPlaceholderLoginFields,
+          ...deviceAndAppVersionPlaceholderSignInFields,
         };
         return request(app.getHttpServer())
-          .post('/users/login')
+          .post('/users/sign-in')
           .send(postBody)
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({
@@ -117,7 +117,7 @@ describe('Users (e2e)', () => {
     });
 
     describe('A deactivated user', () => {
-      it('receives an error message when attempting to log in', async () => {
+      it('receives an error message when attempting to sign in', async () => {
         const deactivatedUserUnhashedPassword = 'TestPassword';
         const deactivatedUser = await usersService.create(
           userFactory.build(
@@ -127,13 +127,13 @@ describe('Users (e2e)', () => {
             },
           ),
         );
-        const postBody: UserLoginDto = {
+        const postBody: UserSignInDto = {
           emailOrUsername: deactivatedUser.userName,
           password: deactivatedUserUnhashedPassword,
-          ...deviceAndAppVersionPlaceholderLoginFields,
+          ...deviceAndAppVersionPlaceholderSignInFields,
         };
         return request(app.getHttpServer())
-          .post('/users/login')
+          .post('/users/sign-in')
           .send(postBody)
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({

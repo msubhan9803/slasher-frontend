@@ -20,10 +20,10 @@ export class UsersController {
     private readonly config: ConfigService,
   ) {}
 
-  @Post('login')
-  async login(@Body() userLoginDto: UserLoginDto) {
+  @Post('sign-in')
+  async signIn(@Body() userSignInDto: UserSignInDto) {
     const user = await this.usersService.findByEmailOrUsername(
-      userLoginDto.emailOrUsername,
+      userSignInDto.emailOrUsername,
     );
 
     if (!user || user.deleted) {
@@ -38,7 +38,7 @@ export class UsersController {
       throw new HttpException('User banned.', HttpStatus.UNAUTHORIZED);
     }
 
-    if (!bcrypt.compareSync(userLoginDto.password, user.password)) {
+    if (!bcrypt.compareSync(userSignInDto.password, user.password)) {
       throw new HttpException(
         'Incorrect username or password.',
         HttpStatus.UNAUTHORIZED,
@@ -64,17 +64,17 @@ export class UsersController {
       this.config.get<string>('JWT_SECRET_KEY'),
     );
 
-    // Generate a device entry for this login
+    // Generate a device entry for this session
     const deviceEntry: Device = {
       login_date: new Date(),
-      device_token: userLoginDto.device_token,
-      device_type: userLoginDto.device_type,
-      app_version: userLoginDto.app_version,
-      device_version: userLoginDto.device_version,
-      device_id: userLoginDto.device_id,
+      device_token: userSignInDto.device_token,
+      device_type: userSignInDto.device_type,
+      app_version: userSignInDto.app_version,
+      device_version: userSignInDto.device_version,
+      device_id: userSignInDto.device_id,
     };
 
-    // During successful login, update certain fields and re-save the object:
+    // During successful sign-in, update certain fields and re-save the object:
     user.last_login = new Date();
     // TODO: Is there any reason we need to store the JWT in the db?
     // It's done in the old API, but it may not actually be necessary.

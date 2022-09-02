@@ -59,7 +59,7 @@ function ListIcon({
   return (
     <div className="position-relative">
       <LinearIcon width={width} height={height} uniqueId={uniqueId} className="d-flex flex-column align-items-center">
-        <Button variant="link" onClick={() => onClickIcon(label)} className="detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
+        <Button onClick={() => onClickIcon(label)} className="border-0 shadow-none detail-movie-icon align-items-center bg-white d-flex justify-content-center rounded-circle">
           <FontAwesomeIcon icon={icon} />
         </Button>
         <h6 className="mt-2 mb-0">{label}</h6>

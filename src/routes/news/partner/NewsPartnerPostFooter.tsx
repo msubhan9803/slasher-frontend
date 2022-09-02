@@ -28,7 +28,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
     <CardFooter className="p-0 ps-1 pb-md-4">
       <Row className="fs-3 d-flex justify-content-evenly py-2">
         <Col>
-          <Button variant="link" className="bg-transparent text-white fw-normal fs-3" onClick={() => onLikeClick(id)}>
+          <Button variant="link" className="shadow-none fw-normal fs-3" onClick={() => onLikeClick(id)}>
             {likeIcon ? (
               <LinearIcon uniqueId="like-button-footer">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
@@ -44,13 +44,13 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
           </Button>
         </Col>
         <Col className="text-center" role="button">
-          <Button variant="link" className="bg-transparent text-white fw-normal fs-3">
+          <Button variant="link" className="shadow-none fw-normal fs-3">
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
             Comment
           </Button>
         </Col>
         <Col className="text-end" role="button">
-          <Button variant="link" className="bg-transparent text-white fw-normal fs-3">
+          <Button variant="link" className="shadow-none fw-normal fs-3">
             <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
             Share
           </Button>

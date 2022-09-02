@@ -19,7 +19,7 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
       <Button
         variant="link"
         onClick={() => setShowKeys(!showKeys)}
-        className={`fs-3 bg-transparent d-none d-lg-inline ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`fs-3 shadow-none d-none d-lg-inline ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />
@@ -27,7 +27,7 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
       <Button
         variant="link"
         onClick={() => setShowKeys(!showKeys)}
-        className={`py-3 bg-transparent d-lg-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`py-3 shadow-none d-lg-none ${showKeys ? 'text-primary' : 'text-white'}`}
       >
         <span className="fs-3">Sort/Filter</span>
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />

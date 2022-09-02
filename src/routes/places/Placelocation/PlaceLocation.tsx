@@ -90,7 +90,7 @@ function PlaceLocation() {
             <p className="fs-3 text-primary">Get featured</p>
           </div>
           <div className="d-flex align-items-center mt-3">
-            <Button variant="link" className="d-none d-md-block ps-0 prev bg-transparent text-white" onClick={slideLocationLeft}>
+            <Button variant="link" className="d-none d-md-block ps-0 prev shadow-none" onClick={slideLocationLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
             </Button>
             <StyledLocation
@@ -107,7 +107,7 @@ function PlaceLocation() {
                 </Col>
               ))}
             </StyledLocation>
-            <Button variant="link" className="d-none d-md-block pe-0 next bg-transparent text-white" onClick={slideLocationRight}>
+            <Button variant="link" className="d-none d-md-block pe-0 next shadow-none" onClick={slideLocationRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
             </Button>
           </div>
@@ -144,7 +144,7 @@ function PlaceLocation() {
             <p className="fs-3 text-primary">Get featured</p>
           </div>
           <div className="d-flex align-items-center mt-3">
-            <Button variant="link" className="d-none d-md-block ps-0 prev bg-transparent text-white" onClick={slideLocationLeft}>
+            <Button variant="link" className="d-none d-md-block ps-0 prev shadow-none" onClick={slideLocationLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
             </Button>
             <StyledLocation
@@ -161,7 +161,7 @@ function PlaceLocation() {
                 </Col>
               ))}
             </StyledLocation>
-            <Button variant="link" className="d-none d-md-block pe-0 next bg-transparent text-white" onClick={slideLocationRight}>
+            <Button variant="link" className="d-none d-md-block pe-0 next shadow-none" onClick={slideLocationRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
             </Button>
           </div>

@@ -115,7 +115,7 @@ function AuthenticatedPageHeader(
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
     <StyledPopover key="me">
       <OverlayTrigger trigger="focus" placement="bottom" overlay={popover}>
-        <Button variant="link" className="pe-1 pt-1">
+        <Button variant="link" className="shadow-none pe-1 pt-1">
           <UserCircle src={userProfileIconPlaceholder} className="rounded-circle" />
           <p className="mb-0 text-center mt-2 fs-6">Me</p>
         </Button>

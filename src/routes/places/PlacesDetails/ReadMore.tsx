@@ -16,7 +16,7 @@ function ReadMore({ children }: any) {
         ? (
           <>
             {isReadMore ? text.slice(0, 252) : text}
-            <Button variant="link" role="button" onClick={toggleReadMore} className="bg-transparent text-primary ps-1">
+            <Button variant="link" onClick={toggleReadMore} className="shadow-none text-primary ps-1">
               {isReadMore ? '...Read more' : ' Show less'}
             </Button>
           </>

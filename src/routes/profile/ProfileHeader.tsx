@@ -170,7 +170,7 @@ function ProfileHeader({ tabKey }: any) {
                     </Button>
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button variant="link" className="bg-transparent py-0 text-white">
+                        <Button variant="link" className="shadow-none py-0">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>

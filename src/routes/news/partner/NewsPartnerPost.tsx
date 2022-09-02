@@ -103,7 +103,7 @@ function NewsPartnerPost() {
                 </ImageContainer>
                 <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
                   <Col className="align-self-center">
-                    <Button variant="link" className="bg-transparent text-white fw-normal fs-3">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <LinearIcon uniqueId="like-button">
                         <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                         12K
@@ -111,13 +111,13 @@ function NewsPartnerPost() {
                     </Button>
                   </Col>
                   <Col className="text-center">
-                    <Button variant="link" className="bg-transparent text-white fw-normal fs-3">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                       10
                     </Button>
                   </Col>
                   <Col className="text-end">
-                    <Button variant="link" className="bg-transparent text-white fw-normal fs-3">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                       25
                     </Button>

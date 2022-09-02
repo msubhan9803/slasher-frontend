@@ -48,7 +48,7 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
               variant="link"
               key={keys}
               onClick={() => setKey(keys)}
-              className={`text-white fs-3 align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+              className={`fs-3 align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
             >
               {keys}
             </KeyboardButtons>

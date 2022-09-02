@@ -85,7 +85,7 @@ function ProfilePhotos() {
                 <ProfilePhoto src={data.photoUrl} className="rounded mt-4 w-100" key={data.id} />
                 <StyledPopover className="position-absolute">
                   <OverlayTrigger trigger="click" placement="bottom" rootClose overlay={popover}>
-                    <Button variant="link" className="bg-transparent text-white">
+                    <Button variant="link" className="shadow-none">
                       <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                     </Button>
                   </OverlayTrigger>

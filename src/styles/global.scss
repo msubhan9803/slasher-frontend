@@ -118,8 +118,9 @@ a {
   );
 }
 
-.btn-link {
+.btn.btn-link {
   text-decoration: none;
+  box-shadow: none !important;
 }
 
 html {

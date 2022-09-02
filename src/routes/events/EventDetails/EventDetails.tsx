@@ -68,11 +68,11 @@ function EventDetails() {
           </Col>
         </Row>
         <Row className="my-md-4 mt-2">
-          <Col md={7} lg={12} xl={7} className="align-self-center">
+          <Col md={7} lg={12} xl={6} className="align-self-center">
             <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
             <span className="fs-3">1 Main St, New York, NY USA</span>
           </Col>
-          <Col md={5}>
+          <Col md={5} xl={6}>
             <div className="d-flex justify-content-between align-items-center">
               <p className="mb-0">www.websitename.com</p>
               <StyleBorderButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn bg-black py-2" variant="lg">

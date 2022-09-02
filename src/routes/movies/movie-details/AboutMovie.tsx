@@ -17,6 +17,7 @@ import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
 import MovieComments from '../components/MovieComments';
 import MovieEdit from '../movie-edit/MovieEdit';
+import MoviePosts from '../movie-posts/MoviePosts';
 
 interface MovieIconProps {
   label: string;
@@ -173,6 +174,7 @@ function AboutMovie() {
           </>
         )
       }
+      {params.summary === 'posts' && <MoviePosts />}
       {queryParam === 'self' && params.summary === 'edit' && <MovieEdit />}
     </div>
   );

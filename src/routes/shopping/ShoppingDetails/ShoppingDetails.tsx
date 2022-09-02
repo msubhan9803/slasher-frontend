@@ -57,7 +57,7 @@ function ShoppingDetails() {
     if (!queryParam || queryParam !== 'self') {
       navigate(`/shopping/${params.id}/${tab}`);
     } else {
-      navigate(`/shopping/${params.id}/${tab}shopping/${params.id}/${tab}?view=self`);
+      navigate(`/shopping/${params.id}/${tab}?view=self`);
     }
   };
   useEffect(() => {

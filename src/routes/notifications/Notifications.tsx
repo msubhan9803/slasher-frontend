@@ -34,9 +34,9 @@ const StyledBorder = styled.div`
   }
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 const todayNotifications: NotificationProps[] = [

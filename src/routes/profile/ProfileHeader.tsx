@@ -15,7 +15,7 @@ const ProfileImage = styled(Image)`
   width:3.125rem;
 `;
 const AboutProfileImage = styled(Image)`
-  border:0.25rem solid #1B1B1B;
+  border: 4px solid #1B1B1B;
   height:11.25rem;
   width:11.25rem;
 `;

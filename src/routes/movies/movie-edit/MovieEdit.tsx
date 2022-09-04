@@ -23,6 +23,8 @@ const StyleButton = styled.div`
   }
 `;
 function MovieEdit() {
+  // TODO: If user does not own this movie listing, redirect to details view instead of edit view
+
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState('');
   const [charCount, setCharCount] = useState(0);

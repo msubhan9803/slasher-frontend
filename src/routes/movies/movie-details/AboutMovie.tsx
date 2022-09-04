@@ -5,7 +5,10 @@ import {
 import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  Navigate,
+  Route, Routes, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
@@ -66,19 +69,15 @@ const FollowStyledButton = styled(RoundButton)`
 `;
 function AboutMovie() {
   const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
-  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
+  const selfView = searchParams.get('view') === 'self';
+  const tabs = selfView ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
   const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/movies/${params.id}/${tab}`);
-    } else {
-      navigate(`/movies/${params.id}/${tab}?view=self`);
-    }
+    navigate(`/movies/${params.id}/${tab}${selfView ? '?view=self' : ''}`);
   };
   useEffect(() => {
-    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/movies/${params.id}/details`); }
+    if (params.summary === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -159,23 +158,28 @@ function AboutMovie() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
+          <Col xs={selfView ? 12 : 5} md={4} lg={selfView ? 7 : 6} xl={5}>
             <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
           </Col>
         </Row>
       </div>
-      {
-        params.summary === 'details' && (
-          <>
-            <MovieOverview />
-            <MovieCasts />
-            <MovieTrailers />
-            <MovieComments />
-          </>
-        )
-      }
-      {params.summary === 'posts' && <MoviePosts />}
-      {queryParam === 'self' && params.summary === 'edit' && <MovieEdit />}
+
+      <Routes>
+        <Route path="/" element={<Navigate to="details" replace />} />
+        <Route
+          path="details"
+          element={(
+            <>
+              <MovieOverview />
+              <MovieCasts />
+              <MovieTrailers />
+              <MovieComments />
+            </>
+          )}
+        />
+        <Route path="posts" element={<MoviePosts />} />
+        <Route path="edit" element={<MovieEdit />} />
+      </Routes>
     </div>
   );
 }

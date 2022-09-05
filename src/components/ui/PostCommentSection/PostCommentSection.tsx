@@ -6,6 +6,7 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
+import UserCircleImage from '../UserCircleImage';
 
 interface Props {
   id: number;
@@ -31,10 +32,6 @@ interface Values {
   onIconClick: (value: number) => void;
 }
 
-const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
-`;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
@@ -75,7 +72,7 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
     <>
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserProfileImage src={commentImage} className="me-3 rounded-circle bg-secondary" />
+          <UserCircleImage src={commentImage} className="me-3 rounded-circle bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-4">

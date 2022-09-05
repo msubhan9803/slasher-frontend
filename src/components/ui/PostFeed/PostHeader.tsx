@@ -52,7 +52,7 @@ function PostHeader({
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
             <div className="rounded-circle">
-              <UserCircleImage width="3.313rem" height="3.313rem" src={profileImage} className="rounded-circle bg-secondary" />
+              <UserCircleImage size="3.313rem" src={profileImage} className="rounded-circle bg-secondary" />
             </div>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">

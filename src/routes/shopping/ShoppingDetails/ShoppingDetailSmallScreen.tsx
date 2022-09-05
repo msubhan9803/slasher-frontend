@@ -2,11 +2,12 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, Row,
+  Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import profileImage from '../../../images/shopping-profile.png';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -28,10 +29,8 @@ const LinearIcon = styled.div<LinearIconProps>`
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
-const PlaceProfileImage = styled(Image)`
+const PlaceProfileImage = styled(UserCircleImage)`
   border:0.25rem solid #1B1B1B;
-  height:11.25rem;
-  width:11.25rem;
 `;
 const StyleBorderButton = styled(RoundButton)`
   border: 0.063rem solid #3A3B46;
@@ -59,7 +58,7 @@ function ShoppingDetailSmallScreen({ toggle, onToggleClick }: Props) {
   return (
     <Row className="d-flex">
       <CustomCol className="text-center position-relative">
-        <PlaceProfileImage src={profileImage} className="rounded-circle" />
+        <PlaceProfileImage size="11.25rem" src={profileImage} className="rounded-circle" />
         <div className="mt-2 mt-md-0 ps-md-0">
           <h1>Cavity Colors</h1>
         </div>

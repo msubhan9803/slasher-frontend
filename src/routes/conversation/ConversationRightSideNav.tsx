@@ -2,9 +2,10 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import UserMessageList from '../../components/ui/UserMessageList/UserMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
+import UserCircleImage from '../../components/ui/UserCircleImage';
 
 const AdvertisementBox = styled.div`
   height: 11.25rem;
@@ -16,11 +17,6 @@ const friendRequest = [
   { id: 2, image: 'https://i.pravatar.cc/300?img=13', userName: 'Joe V. Awls' },
   { id: 3, image: 'https://i.pravatar.cc/300?img=15', userName: 'Perry Scope' },
 ];
-const FriendRequestImage = styled(Image)`
-  height: 2.5rem;
-  width: 2.5rem;
-`;
-
 const AcceptRequestStyled = styled(FontAwesomeIcon)`
   padding: 0.25rem 0.313rem;
 `;
@@ -73,7 +69,7 @@ function ConversationRightSideNav() {
         friendRequest.map((request) => (
           <div key={request.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
             <div className="d-flex align-items-center">
-              <FriendRequestImage src={request.image} className="me-2 rounded-circle bg-secondary position-relative" />
+              <UserCircleImage size="2.5rem" src={request.image} className="me-2 rounded-circle bg-secondary position-relative" />
               <p className="mb-0">{request.userName}</p>
             </div>
             <div className="align-self-center d-flex">

@@ -26,7 +26,7 @@ function NewPostHeader({ userName, postDate }: Props) {
           <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
               <Link to="/news/partner/1" className="rounded-circle">
-                <UserCircleImage width="3.125rem" height="3.125rem" src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
+                <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
               </Link>
             </Col>
             <Col xs="auto" className="ps-0 align-self-center">

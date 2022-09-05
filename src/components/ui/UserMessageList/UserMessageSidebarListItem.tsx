@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import UserCircleImage from '../UserCircleImage';
 
 interface Props {
   userName: string;
@@ -7,10 +8,6 @@ interface Props {
   image: string;
   count?: number;
 }
-
-const RecentMessageImage = styled.img`
-  height: 3.625rem;
-`;
 
 const MessageSnippet = styled.p`
   white-space: nowrap;
@@ -35,7 +32,7 @@ function UserMessageListItem({
   return (
     <StyledItem className="px-2 py-3 d-flex align-items-center">
       <div>
-        <RecentMessageImage src={image} className="rounded-circle" />
+        <UserCircleImage size="3.625rem" src={image} className="rounded-circle" />
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
         <p className="mb-0">

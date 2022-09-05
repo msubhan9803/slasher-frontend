@@ -2,18 +2,16 @@ import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface UserCircleImageProps {
-  width?: string;
-  height?: string;
+  size?: string;
 }
 
 const UserCircleImage = styled(Image) <UserCircleImageProps>`
-  width: ${(props) => props.height};
-  height: ${(props) => props.height};
+  width: ${(props) => props.size};
+  height: ${(props) => props.size};
 `;
 
 UserCircleImage.defaultProps = {
-  width: '',
-  height: '',
+  size: '3.125rem',
 };
 
 export default UserCircleImage;

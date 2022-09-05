@@ -62,7 +62,7 @@ function AccountBlockedUser() {
                 <div>
                   <div className="d-flex align-items-center">
                     <div>
-                      <UserCircleImage width="3.125rem" height="3.125rem" src={friend.imageUrl} className="rounded-circle me-2" />
+                      <UserCircleImage src={friend.imageUrl} className="rounded-circle me-2" />
                     </div>
                     <div>
                       <h1 className="h3 mb-0">{friend.name}</h1>

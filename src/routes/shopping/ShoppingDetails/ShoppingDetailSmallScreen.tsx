@@ -30,12 +30,12 @@ const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
-  border:0.25rem solid #1B1B1B;
+  border: 0.25rem solid #1B1B1B;
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 const StyledStar = styled(FontAwesomeIcon)`
@@ -48,7 +48,7 @@ const FavoriteIconDiv = styled.div`
   margin-left: 3.214rem;
   width: 1.5rem;
   height: 1.5rem;
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46

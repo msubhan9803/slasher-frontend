@@ -11,7 +11,7 @@ import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 const ImageContainer = styled.div`
   height: 18.75rem;
   background-color: #1F1F1F;
-  border: 0.125rem solid #3A3B46;
+  border: 2px solid #3A3B46;
   cursor:pointer;
 `;
 const CustomCol = styled(Col)`

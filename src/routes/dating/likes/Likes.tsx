@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
@@ -45,7 +45,6 @@ const CustomDropDown = styled(Dropdown)`
   }
 `;
 function Likes() {
-  const navigate = useNavigate();
   const subscriberOptions = [
     { label: 'Yes', value: 'yes' },
     { label: 'No', value: 'no' },
@@ -94,7 +93,7 @@ function Likes() {
 
   const handleLikesOption = (likeValue: string) => {
     if (likeValue === 'message') {
-      navigate('/dating/conversation');
+      <Link to="/dating/conversation" />;
     } else {
       setShow(true);
     }

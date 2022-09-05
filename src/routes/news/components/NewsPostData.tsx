@@ -5,7 +5,7 @@ import {
   Button,
   Card, Col, Dropdown, Image, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
 import postImage from '../../../images/news-post.jpg';
@@ -46,7 +46,6 @@ const intialPostdata = [
 ];
 
 function NewsPostData() {
-  const navigate = useNavigate();
   const [postData, setPostData] = useState<PostProps[]>(intialPostdata);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -64,12 +63,7 @@ function NewsPostData() {
     });
     setPostData(likeData);
   };
-  const onHashtagClick = (hashtagValue: string) => {
-    navigate('/search', { state: { hashtag: hashtagValue } });
-  };
-  const commentSection = () => {
-    navigate('/news/partner/posts/1');
-  };
+
   return (
     <>
       {postData.map((post: PostProps) => (
@@ -81,10 +75,10 @@ function NewsPostData() {
             <div>
               <p className="mb-0 fs-4">{post.content}</p>
               {post.hashTag?.map((hashtag: string) => (
-                <span role="button" tabIndex={0} key={hashtag} className="fs-4 text-primary me-1" aria-hidden="true" onClick={() => onHashtagClick(hashtag)}>
+                <Link key={hashtag} className="fs-4 text-primary me-1" to="/search" state={{ hashtag }}>
                   #
                   {hashtag}
-                </span>
+                </Link>
               ))}
               ☠️
             </div>
@@ -101,10 +95,10 @@ function NewsPostData() {
                 </Button>
               </Col>
               <Col className="text-center">
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => commentSection()}>
+                <Link className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" to="/news/partner/posts/1">
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                   10
-                </Button>
+                </Link>
               </Col>
               <Col className="text-end">
                 <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => openDialogue('share')}>

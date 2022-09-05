@@ -29,12 +29,12 @@ const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
-  border:0.25rem solid #1B1B1B;
+  border: 0.25rem solid #1B1B1B;
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 const StyledStar = styled(FontAwesomeIcon)`
@@ -47,7 +47,7 @@ const StyledWorth = styled.div`
   div {
     width: 2.5rem;
     height: 2.5rem;
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     background: #1F1F1F;
   }
   FontAwesomeIcon {
@@ -60,7 +60,7 @@ const FavoriteIconDiv = styled.div`
   left: 6.5rem;
   width: 1.5rem;
   height: 1.5rem;
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
 `;
 function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
   return (

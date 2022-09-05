@@ -49,7 +49,7 @@ const Likes = styled.div`
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);
-  border: .063rem solid rgb(56,56,56);
+  border: 1px solid rgb(56,56,56);
   position:absolute;
   top: 0px !important;
   .popover-arrow{

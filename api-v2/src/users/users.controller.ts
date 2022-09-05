@@ -6,7 +6,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
-import { UserLoginDto } from './dto/user-login.dto';
+import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
@@ -114,6 +114,7 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
-    return this.usersService.create(user);
+    const registeredUser = await this.usersService.create(user);
+    return { id: registeredUser.id }
   }
 }

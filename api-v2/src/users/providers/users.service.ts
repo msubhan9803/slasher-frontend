@@ -2,7 +2,6 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../../schemas/user.schema';
-import { escapeStringRegexp } from '../../utils/escape-utils';
 import * as EmailValidator from 'email-validator';
 
 @Injectable()
@@ -26,18 +25,16 @@ export class UsersService {
   }
 
   async findByEmail(email: string): Promise<UserDocument> {
-    const emailEscapedForRegexp = escapeStringRegexp(email);
-
     return this.userModel
-      .findOne({ email: new RegExp(`^${emailEscapedForRegexp}$`, 'i') }) // case insensitive search
+      .findOne({ email: email })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
   }
 
-  async findByUsername(username: string): Promise<UserDocument> {
-    const usernameEscapedForRegexp = escapeStringRegexp(username);
-
+  async findByUsername(userName: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ userName: new RegExp(`^${usernameEscapedForRegexp}$`, 'i') }) // case insensitive search
+      .findOne({ userName: userName })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
   }
 

@@ -157,6 +157,20 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+// Indexes for collection
+
+// To support case-insensitive userName search
+UserSchema.index(
+  { userName: 1 },
+  { name: 'caseInsensitiveUserName', collation: { locale: 'en', strength: 2 } },
+);
+
+// To support case-insensitive email search
+UserSchema.index(
+  { email: 1 },
+  { name: 'caseInsensitiveEmail', collation: { locale: 'en', strength: 2 } },
+);
+
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.
 

@@ -12,12 +12,12 @@ const HeaderProfileImage = styled.img`
   width: 11.25rem;
 `;
 const CustomButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:focus {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 function NewsPartnerDetail() {

@@ -27,4 +27,15 @@ module.exports = {
     ],
     'no-console': ['warn'],
   },
+  overrides: [
+    {
+      files: ['*.spec.ts', '*.e2e-spec.ts'],
+      rules: {
+        'max-lines': [
+          'error',
+          { max: 350, skipBlankLines: true, skipComments: true },
+        ],
+      },
+    },
+  ],
 };

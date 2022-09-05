@@ -82,7 +82,7 @@ function CommentSection({
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 rounded-circle bg-secondary" />
+        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
       </div>
       <div className="w-100">
         <CommentBox className="ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative">

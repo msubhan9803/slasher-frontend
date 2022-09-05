@@ -88,7 +88,7 @@ function ProfileHeader({ tabKey }: any) {
             </Col>
             <Row className="d-flex ms-3">
               <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-                <AboutProfileImage size="11.25rem" src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
+                <AboutProfileImage size="11.25rem" src="https://i.pravatar.cc/300?img=12" />
                 {queryParam !== 'self'
                   && (
                     <StyledPopover className="d-block d-md-none d-lg-block d-xl-none position-absolute" style={{ top: '55px', right: '0px' }}>
@@ -141,7 +141,7 @@ function ProfileHeader({ tabKey }: any) {
           <RoundDiv className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
-                <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-2" />
+                <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-2" />
               </div>
               <div>
                 <p className="fs-3 mb-0">@aly-khan</p>

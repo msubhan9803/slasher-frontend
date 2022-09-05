@@ -72,7 +72,7 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
   return (
     <Row className="d-flex">
       <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-        <PlaceProfileImage size="11.25rem" src={postImage} className="rounded-circle" />
+        <PlaceProfileImage size="11.25rem" src={postImage} />
         <div className="d-md-none text-center text-md-start text-lg-center text-xl-start  mt-3 mt-md-0 ps-md-0">
           <p className="fs-5">July 28,2022  - July 28,2022 </p>
           <h1 className="h2">High Desert Haunted House</h1>

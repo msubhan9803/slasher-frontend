@@ -18,7 +18,7 @@ function CreatePostInput() {
     <RoundButton variant="dark" className="w-100 border-0 my-4 p-md-0 pb-4">
       <StyledDiv className="d-flex justify-content-between px-2 py-2">
         <div>
-          <UserCircleImage size="2.5rem" src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
+          <UserCircleImage size="2.5rem" src="https://i.pravatar.cc/300?img=12" />
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
         <div className="align-self-center me-2 mt-1">

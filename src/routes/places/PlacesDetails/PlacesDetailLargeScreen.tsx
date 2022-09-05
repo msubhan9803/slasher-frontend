@@ -67,7 +67,7 @@ function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
 
     <Row className="d-flex ms-3">
       <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-        <PlaceProfileImage size="11.25rem" src={postImage} className="rounded-circle" />
+        <PlaceProfileImage size="11.25rem" src={postImage} />
         <div className="position-relative">
           <LinearIcon role="button" uniqueId="favorite-lg" className="d-flex flex-column align-items-center mt-4">
             <div className="favorite-icon d-flex align-items-center bg-white d-flex justify-content-center rounded-circle ">

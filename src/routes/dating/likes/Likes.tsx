@@ -125,7 +125,7 @@ function Likes() {
               <Col key={likeDetails.id} lg={6} className="pb-4 px-4">
                 <Row className="bg-dark p-3 rounded">
                   <Col xs={2} className="p-0">
-                    <UserCircleImage src={likeDetails.profileImage} className="rounded-circle me-3" />
+                    <UserCircleImage src={likeDetails.profileImage} className="me-3" />
                   </Col>
                   <Col xs={9} className="ps-0 ps-md-4 align-self-center">
                     <h2 className="h6 mb-0 rounded-circle">
@@ -155,7 +155,7 @@ function Likes() {
               <Col key={likeDetails.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
                 <Row className="align-items-center border-bottom border-dark pb-3">
                   <Col xs={1} className="p-0">
-                    <UserCircleImage src={likeDetails.profileImage} className="rounded-circle me-3" />
+                    <UserCircleImage src={likeDetails.profileImage} className="me-3" />
                   </Col>
                   <Col xs={11} className="ps-4">
                     <h2 className="h6 mb-0 rounded-circle">

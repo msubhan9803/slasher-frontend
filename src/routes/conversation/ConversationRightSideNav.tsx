@@ -69,7 +69,7 @@ function ConversationRightSideNav() {
         friendRequest.map((request) => (
           <div key={request.id} className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-dark mt-3">
             <div className="d-flex align-items-center">
-              <UserCircleImage size="2.5rem" src={request.image} className="me-2 rounded-circle bg-secondary position-relative" />
+              <UserCircleImage size="2.5rem" src={request.image} className="me-2 bg-secondary position-relative" />
               <p className="mb-0">{request.userName}</p>
             </div>
             <div className="align-self-center d-flex">

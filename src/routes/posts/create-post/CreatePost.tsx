@@ -56,7 +56,7 @@ function CreatePost() {
       <Form className="bg-dark px-4 py-4 rounded-2">
         <Form.Group controlId="about-me">
           <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
-            <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-3" />
+            <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-3" />
             <h2 className="h3 mb-0 align-self-center">
               Aly Khan
             </h2>

@@ -71,7 +71,7 @@ function NewsPartnerPost() {
                     <Row className="d-flex">
                       <Col className="my-auto rounded-circle" xs="auto">
                         <div className="rounded-circle">
-                          <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
+                          <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="bg-secondary" />
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">

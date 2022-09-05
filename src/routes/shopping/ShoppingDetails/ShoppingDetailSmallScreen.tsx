@@ -58,7 +58,7 @@ function ShoppingDetailSmallScreen({ toggle, onToggleClick }: Props) {
   return (
     <Row className="d-flex">
       <CustomCol className="text-center position-relative">
-        <PlaceProfileImage size="11.25rem" src={profileImage} className="rounded-circle" />
+        <PlaceProfileImage size="11.25rem" src={profileImage} />
         <div className="mt-2 mt-md-0 ps-md-0">
           <h1>Cavity Colors</h1>
         </div>

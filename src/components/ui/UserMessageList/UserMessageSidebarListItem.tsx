@@ -32,7 +32,7 @@ function UserMessageListItem({
   return (
     <StyledItem className="px-2 py-3 d-flex align-items-center">
       <div>
-        <UserCircleImage size="3.625rem" src={image} className="rounded-circle" />
+        <UserCircleImage size="3.625rem" src={image} />
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
         <p className="mb-0">

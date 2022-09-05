@@ -17,7 +17,7 @@ function CustomCreatePost({ imageUrl }: Props) {
     <RoundButton className="w-100 bg-transparent border-0 p-md-0 pb-4 ">
       <StyledDiv className="d-flex justify-content-between px-2 py-2 bg-dark">
         <div>
-          <UserCircleImage size="2.5rem" src={imageUrl} className="rounded-circle" />
+          <UserCircleImage size="2.5rem" src={imageUrl} />
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
         <div className="align-self-center me-2 text-white">

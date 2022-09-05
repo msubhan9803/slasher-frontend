@@ -42,7 +42,7 @@ function LikeShareModalContent() {
       {modalData.map((data: Props) => (
         <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={data.id}>
           <div>
-            <UserCircleImage src={data.profile} className="rounded-circle" />
+            <UserCircleImage src={data.profile} />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
             <p className="mb-0">

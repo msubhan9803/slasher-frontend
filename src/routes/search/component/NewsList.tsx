@@ -56,7 +56,7 @@ function NewsList({
           <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={id}>
             <Card.Header className="d-flex justify-content-between border-0 px-0 bg-mobile-transparent bg-dark">
               <div className="d-flex align-items-center">
-                <UserCircleImage src={image} className="rounded-circle bg-secondary" />
+                <UserCircleImage src={image} className="bg-secondary" />
                 <div className="ms-3">
                   <h1 className="mb-0 h3 fw-bold">{name}</h1>
                   <span className="mb-0 text-light fs-6">{date}</span>

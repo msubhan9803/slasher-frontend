@@ -3,6 +3,7 @@ import {
   Controller,
   HttpException,
   HttpStatus,
+  Param,
   Post,
 } from '@nestjs/common';
 import { ActiveStatus, Device } from '../schemas/user.schema';
@@ -12,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { NotificationsService } from '../notifications/providers/notifications.service';
+import { validateEmail } from '../utils/email-utils';
 
 @Controller('users')
 export class UsersController {
@@ -95,5 +97,31 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Post('checkEmail/:email')
+  async checkEmail(@Param('email') email: string) {
+    const emailValidation = validateEmail(email);
+    if (!emailValidation) {
+      return {
+        message: 'email must be an email',
+        valid: false,
+        exists: false,
+      };
+    }
+    const userData = await this.usersService.checkEmail(email);
+    if (userData) {
+      return {
+        message: 'Email is already exists',
+        exists: true,
+        valid: true,
+      };
+    } else {
+      return {
+        message: 'Email is not exists',
+        exists: false,
+        valid: true,
+      };
+    }
   }
 }

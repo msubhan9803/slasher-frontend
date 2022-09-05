@@ -45,4 +45,8 @@ export class UsersService {
       return this.findByUsername(emailOrUsername);
     }
   }
+
+  async checkEmail(email: string): Promise<UserDocument> {
+    return this.userModel.findOne({ email: email }).exec();
+  }
 }

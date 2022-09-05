@@ -60,13 +60,22 @@ const postData = [
     ],
   },
 ];
-const popoverOptions = ['Edit', 'Delete'];
+
 function ProfilePostDetail() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  let popoverOptions = ['Report', 'Block user'];
+  if (queryParam === 'self') {
+    popoverOptions = ['Edit', 'Delete'];
+  }
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection />
+      <PostFeed
+        postFeedData={postData}
+        popoverOptions={popoverOptions}
+        isCommentSection
+      />
     </AuthenticatedPageWrapper>
   );
 }

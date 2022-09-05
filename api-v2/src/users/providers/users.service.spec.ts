@@ -68,11 +68,23 @@ describe('UsersService', () => {
         userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
       );
     });
-    it('finds the expected user', async () => {
-      // TODO
+
+    it('finds the expected user using the same-case email', async () => {
       expect((await usersService.findByEmail(user.email))._id).toEqual(
         user._id,
       );
+    });
+
+    it('finds the expected user using a lower-case variant of the email', async () => {
+      expect(
+        (await usersService.findByEmail(user.email.toLowerCase()))._id,
+      ).toEqual(user._id);
+    });
+
+    it('finds the expected user using an upper-case variant of the email', async () => {
+      expect(
+        (await usersService.findByEmail(user.email.toUpperCase()))._id,
+      ).toEqual(user._id);
     });
   });
 
@@ -83,10 +95,23 @@ describe('UsersService', () => {
         userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
       );
     });
-    it('finds the expected user', async () => {
+
+    it('finds the expected user using the same-case userName', async () => {
       expect((await usersService.findByUsername(user.userName))._id).toEqual(
         user._id,
       );
+    });
+
+    it('finds the expected user using a lower-case variant of the userName', async () => {
+      expect(
+        (await usersService.findByUsername(user.userName.toLowerCase()))._id,
+      ).toEqual(user._id);
+    });
+
+    it('finds the expected user using an upper-case variant of the userName', async () => {
+      expect(
+        (await usersService.findByUsername(user.userName.toUpperCase()))._id,
+      ).toEqual(user._id);
     });
   });
 

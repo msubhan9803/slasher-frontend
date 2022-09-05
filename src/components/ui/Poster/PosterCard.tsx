@@ -25,14 +25,14 @@ const PosterCardStyle = styled(Card)`
   .fa-thumbs-up {
     color: #00FF0A;
     background-color: #1F1F1F;
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     width: 0.847rem;
     height: 0.808rem;
   }
   .fa-thumbs-down {
     color: #FF1800;
     background-color: #1F1F1F;
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     transform: rotateY(180deg);
     width: 0.847rem;
     height: 0.808rem;
@@ -44,7 +44,7 @@ const RatingDiv = styled.div`
 const StyledLikeButton = styled.div`
   width: 1.514rem;
   height: 1.514rem;
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   background-color: #1F1F1F;
   .fa-thumbs-up {
     color: #00FF0A;

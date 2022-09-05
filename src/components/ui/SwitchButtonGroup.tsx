@@ -6,7 +6,7 @@ import { ValueLabelPair } from '../../types';
 const StyledButtonGroup = styled(ButtonGroup)`
   --switch-button-group-border-radius: 50px;
 
-  border:1px solid #3A3B46;
+  border: 1px solid #3A3B46;
   background-color: #1f1f1f;
   border-radius: var(--switch-button-group-border-radius);
   .btn-check + .btn {

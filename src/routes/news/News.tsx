@@ -9,7 +9,7 @@ function News() {
     <Routes>
       <Route path="/" element={<NewsIndex />} />
       <Route path="/partner/:partnerId" element={<NewsPartnerDetail />} />
-      <Route path="/partner/posts/:postId" element={<NewsPartnerPost />} />
+      <Route path="/partner/:partnerId/posts/:postId" element={<NewsPartnerPost />} />
     </Routes>
   );
 }

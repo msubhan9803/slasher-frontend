@@ -18,7 +18,7 @@ const UserCircleImage = styled(Image)`
 const ImageContainer = styled.div`
   width:7.25rem;
   height:7.25rem;
-  border: 0.125rem solid #3A3B46
+  border: 2px solid #3A3B46
 `;
 const AddPhotosButton = styled(RoundButton)`
   background-color: #1F1F1F !important;

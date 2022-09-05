@@ -37,7 +37,7 @@ const LinearIcon = styled.div<LinearIconProps>`
 const StyledRemoveWatchlist = styled.div`
   top: -0.4rem;
   left: 2.1rem;
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   width: 1.5rem;
   height: 1.5rem;
 

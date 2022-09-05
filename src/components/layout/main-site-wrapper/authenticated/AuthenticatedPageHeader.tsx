@@ -3,7 +3,7 @@ import {
   Navbar, Container, Nav, Image, Col, Row, OverlayTrigger, Popover, Button,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
@@ -82,14 +82,14 @@ const desktopTopNavIconWidth = '6.7rem';
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
-  const navigate = useNavigate();
-  const handleNavigate = (path: string) => {
-    navigate(path);
-  };
   const popover = (
     <Custompopover id="popover-basic" className="fs-3 py-2 rounded-2">
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button" onClick={() => handleNavigate('/profile')}>My profile</PopoverText>
-      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button" onClick={() => handleNavigate('/account/settings')}>Settings</PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button">
+        <Link to="/profile">My profile</Link>
+      </PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button">
+        <Link to="/account/settings">Settings</Link>
+      </PopoverText>
     </Custompopover>
   );
   const mobileNavLinkElements = [

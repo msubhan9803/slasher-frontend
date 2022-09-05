@@ -23,6 +23,7 @@ interface Props {
   onIconClick: (value: number) => void;
   likeIcon: boolean;
   popoverOptions: string[];
+  onPopoverClick: (value: string) => void;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
@@ -58,7 +59,7 @@ const CommentImage = styled(Image)`
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
+  border: .063rem solid rgb(56,56,56);
   position:absolute;
   top: 0px !important;
   .popover-arrow{
@@ -80,12 +81,12 @@ const StyledPopover = styled.div`
   }
 `;
 function CommentSection({
-  id, image, name, time, commentMention,
-  commentMsg, commentImg, likes, onIconClick, likeIcon, popoverOptions,
+  id, image, name, time, commentMention, commentMsg, commentImg,
+  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
 }: Props) {
   const popover = (
     <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
+      {popoverOptions.map((option) => <PopoverText role="button" onClick={() => onPopoverClick(option)} key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (

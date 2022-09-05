@@ -3,6 +3,7 @@ import {
   Controller,
   HttpException,
   HttpStatus,
+  Param,
   Post,
 } from '@nestjs/common';
 import { ActiveStatus, Device } from '../schemas/user.schema';
@@ -12,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { NotificationsService } from '../notifications/providers/notifications.service';
+import { sleep } from '../utils/timer-utils';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +21,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {
@@ -95,5 +97,31 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Post('checkUserName/:userName')
+  async checkUserName(@Param('userName') userName: string) {
+    await sleep(1000);
+    if (!(userName.length > 0 && userName.length <= 30)) {
+      return {
+        message: 'userName is not longer than 30 characters',
+        exists: false,
+        valid: false,
+      };
+    }
+    const userData = await this.usersService.checkUserName(userName);
+    if (userData) {
+      return {
+        message: 'userName is already exists',
+        exists: true,
+        valid: true,
+      };
+    } else {
+      return {
+        message: 'userName is not exists',
+        exists: false,
+        valid: true,
+      };
+    }
   }
 }

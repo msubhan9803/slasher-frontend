@@ -10,15 +10,10 @@ import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import postImage from '../../images/about-post.jpg';
 import CustomPopover from '../../components/ui/CustomPopover';
+import UserCircleImage from '../../components/ui/UserCircleImage';
 
-const ProfileImage = styled(Image)`
-  height:3.125rem;
-  width:3.125rem;
-`;
-const AboutProfileImage = styled(Image)`
-  border: 4px solid #1B1B1B;
-  height:11.25rem;
-  width:11.25rem;
+const AboutProfileImage = styled(UserCircleImage)`
+  border: 0.25rem solid #1B1B1B;
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
@@ -35,7 +30,7 @@ const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const ImageContainer = styled.div`
-  aspectRatio: '1.78'
+  acpect-ratio: '1.78'
 `;
 const RoundDiv = styled.div`
   border-top-left-radius:50%;
@@ -66,7 +61,7 @@ function ProfileHeader({ tabKey }: any) {
             </Col>
             <Row className="d-flex ms-3">
               <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-                <AboutProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle" />
+                <AboutProfileImage size="11.25rem" src="https://i.pravatar.cc/300?img=12" />
                 {queryParam !== 'self'
                   && (
                     <CustomPopover
@@ -113,7 +108,7 @@ function ProfileHeader({ tabKey }: any) {
           <RoundDiv className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
-                <ProfileImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-2" />
+                <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-2" />
               </div>
               <div>
                 <p className="fs-3 mb-0">@aly-khan</p>

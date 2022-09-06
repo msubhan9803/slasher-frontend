@@ -17,7 +17,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 
 const ImageContainer = styled.div`
-  aspectRatio: '1.78'
+  acpect-ratio: '1.78'
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
@@ -84,25 +84,25 @@ function PlacesDetails() {
         <PlaceAbout />
         {queryParam !== 'self'
           && (
-          <>
-            <StyledBorder className="d-block d-lg-none my-4" />
-            <Row className="mt-3 mb-2 text-center d-lg-none">
-              <Col xs={12}>
-                <p className="text-center fw-bold">Get updates for this book</p>
-                <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
-                  {bgColor ? 'Follow' : 'Unfollow'}
-                </FollowStyledButton>
-              </Col>
-            </Row>
-            <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
-              <Col sm={5}>
-                <div className="align-items-center d-flex justify-content-center">
-                  <span className="mb-2">Push notifications</span>
-                  <Switch id="pushNotificationsSwitch" className="ms-4" />
-                </div>
-              </Col>
-            </Row>
-          </>
+            <>
+              <StyledBorder className="d-block d-lg-none my-4" />
+              <Row className="mt-3 mb-2 text-center d-lg-none">
+                <Col xs={12}>
+                  <p className="text-center fw-bold">Get updates for this book</p>
+                  <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
+                    {bgColor ? 'Follow' : 'Unfollow'}
+                  </FollowStyledButton>
+                </Col>
+              </Row>
+              <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">
+                <Col sm={5}>
+                  <div className="align-items-center d-flex justify-content-center">
+                    <span className="mb-2">Push notifications</span>
+                    <Switch id="pushNotificationsSwitch" className="ms-4" />
+                  </div>
+                </Col>
+              </Row>
+            </>
           )}
         <Row>
           <Col md={4} lg={12} xl={5}>

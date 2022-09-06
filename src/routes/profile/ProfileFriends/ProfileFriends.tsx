@@ -6,6 +6,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 const ProfileImage = styled(Image)`
   height: 3.125rem;
@@ -92,7 +93,7 @@ function ProfileFriends() {
                   <div>
                     <div className="d-flex align-items-center">
                       <div>
-                        <ProfileImage src={friend.imageUrl} className="rounded-circle me-2" />
+                        <UserCircleImage src={friend.imageUrl} className="me-2" />
                       </div>
                       <div>
                         <h1 className="h3 mb-0">{friend.name}</h1>

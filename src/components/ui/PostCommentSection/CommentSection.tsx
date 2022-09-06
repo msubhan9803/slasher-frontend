@@ -1,12 +1,11 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import {
-  Button, Image,
-} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import CustomPopover from '../CustomPopover';
+import UserCircleImage from '../UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -23,13 +22,10 @@ interface Props {
   onIconClick: (value: number) => void;
   likeIcon: boolean;
   popoverOptions: string[];
+  onPopoverClick: (value: string) => void;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
-`;
-const CommentReplyImage = styled(Image)`
-  height : 5.625rem;
-  width: 5.625rem;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -37,12 +33,12 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const LikesButton = styled.div`
-  width: 3.81rem; 
+  width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
-    background-color: #383838; 
+    background-color: #383838;
   }
 `;
 const CommentBox = styled.div`
@@ -56,8 +52,8 @@ const CommentImage = styled(Image)`
   width: 2.5rem;
 `;
 function CommentSection({
-  id, image, name, time, commentMention,
-  commentMsg, commentImg, likes, onIconClick, likeIcon, popoverOptions,
+  id, image, name, time, commentMention, commentMsg, commentImg,
+  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
 }: Props) {
   const navigate = useNavigate();
   const handlePopoverOption = (value: string) => {
@@ -66,7 +62,7 @@ function CommentSection({
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <CommentImage src={image} className="me-0 me-md-3 rounded-circle bg-secondary" />
+        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
       </div>
       <div className="w-100">
         <CommentBox className="ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative">
@@ -89,7 +85,7 @@ function CommentSection({
             commentImg
             && (
               <div>
-                <CommentReplyImage src={commentImg} className="mt-2 rounded" />
+                <UserCircleImage size="5.625rem" src={commentImg} className="mt-2 rounded" />
               </div>
             )
           }

@@ -7,7 +7,7 @@ import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 
 const ProfilePhoto = styled(Image)`
-  aspectRatio:1;
+  acpect-ratio:1;
 `;
 const photosData = [
   { id: 1, photoUrl: 'https://i.pravatar.cc/300?img=02' },

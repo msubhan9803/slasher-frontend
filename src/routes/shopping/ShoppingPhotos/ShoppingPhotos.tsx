@@ -6,7 +6,7 @@ import CustomPopover from '../../../components/ui/CustomPopover';
 import shoppingPhoto from '../../../images/shopping-photos.png';
 
 const ProfilePhoto = styled(Image)`
-  aspectRatio:1;
+  acpect-ratio:1;
 `;
 const photosData = [
   { id: 1, photoUrl: shoppingPhoto },

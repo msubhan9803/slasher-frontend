@@ -5,9 +5,9 @@ import RoundButton from '../../../ui/RoundButton';
 import Switch from '../../../ui/Switch';
 
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover, &:focus{
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 function NotificationSetting() {

@@ -5,8 +5,9 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import CommentSection from '../components/CommentSection/CommentSection';
 import ReportModal from '../../../components/ui/ReportModal';
+import CommentSection from '../../../components/ui/PostCommentSection/CommentSection';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface Props {
   id: number;
@@ -80,10 +81,6 @@ const commentSection = [
     commentReplySection: [],
   },
 ];
-const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
-`;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
@@ -103,7 +100,7 @@ function NewsPartnerComments() {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [postData, setPostData] = useState<any[]>(commentSection);
-  const options = ['Report', 'Block user'];
+  const popoverOptions = ['Report', 'Block user'];
 
   const handlePopover = (selectedOption: string) => {
     setShow(true);
@@ -131,7 +128,7 @@ function NewsPartnerComments() {
     <>
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserProfileImage src="https://i.pravatar.cc/300?img=56" className="me-3 rounded-circle bg-secondary" />
+          <UserCircleImage src="https://i.pravatar.cc/300?img=56" className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-4">
@@ -159,7 +156,7 @@ function NewsPartnerComments() {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
-                  popoverOption={options}
+                  popoverOptions={popoverOptions}
                   onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection.map((comment: Values) => (
@@ -176,7 +173,7 @@ function NewsPartnerComments() {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
-                        popoverOption={options}
+                        popoverOptions={popoverOptions}
                         onPopoverClick={handlePopover}
                       />
                     </div>

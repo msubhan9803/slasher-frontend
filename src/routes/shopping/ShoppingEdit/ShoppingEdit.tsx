@@ -11,9 +11,9 @@ const CustomSpan = styled(Form.Text)`
 
 const StyleButton = styled.div`
   .deactivate-btn {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     }
   }
   @media (max-width: 767px) {

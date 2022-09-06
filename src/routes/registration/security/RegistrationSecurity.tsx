@@ -3,7 +3,7 @@ import {
   Button,
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
@@ -28,10 +28,6 @@ const CustomVisibilityButton = styled(Button)`
 `;
 
 function RegistrationSecurity({ activeStep }: Props) {
-  const navigate = useNavigate();
-  const handleStep = () => {
-    navigate('/registration/terms');
-  };
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   return (
@@ -127,8 +123,8 @@ function RegistrationSecurity({ activeStep }: Props) {
       </Row>
       <Row className="justify-content-center my-5">
         <Col sm={4}>
-          <RoundButton onClick={handleStep} className="w-100" type="submit">
-            Next step
+          <RoundButton className="w-100" variant="primary" type="submit">
+            <Link to="/registration/terms">Next step</Link>
           </RoundButton>
         </Col>
       </Row>

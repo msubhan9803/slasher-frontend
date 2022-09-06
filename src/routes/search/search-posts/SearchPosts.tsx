@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import ReportModal from '../../../components/ui/ReportModal';
 import SearchHeader from '../SearchHeader';
 import { posts } from '../SearchResult';
 
@@ -18,6 +19,8 @@ const popoverOptions = ['Report'];
 function SearchPosts() {
   const [search, setSearch] = useState<string>('');
   const [searchPosts, setSearchPosts] = useState<SearchPostsProps[]>(posts);
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
   const searchData = () => {
     let searchResult;
     const newFilter = posts;
@@ -33,6 +36,11 @@ function SearchPosts() {
   useEffect(() => {
     searchData();
   }, [search]);
+
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <SearchHeader
@@ -44,7 +52,9 @@ function SearchPosts() {
         postFeedData={searchPosts}
         popoverOptions={popoverOptions}
         isCommentSection={false}
+        onPopoverClick={handlePopoverOption}
       />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

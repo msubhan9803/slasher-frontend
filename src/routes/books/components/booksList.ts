@@ -1,3 +1,4 @@
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import BookPoster from '../../../images/book-poster.jpg';
 
 export const allBooks = [
@@ -126,5 +127,20 @@ export const myBooks = [
   },
   {
     id: 3, name: 'Papá rico, papá pobre', image: `${BookPoster}`, year: '2022', liked: true,
+  },
+];
+
+export const BookIconList = [
+  {
+    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.445rem', height: '1.445rem', addBook: false,
+  },
+  {
+    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.445rem', height: '1.033rem', addBook: false,
+  },
+  {
+    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.498rem', height: '1.265rem', addBook: true,
+  },
+  {
+    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addBook: false,
   },
 ];

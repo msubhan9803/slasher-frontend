@@ -38,7 +38,7 @@ export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthenticationMiddleware)
-      .exclude('/', '/users/sign-in')
+      .exclude('/', '/users/sign-in', 'users/checkEmail/:email')
       .forRoutes('*');
   }
 }

@@ -9,16 +9,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
-const UserCircleImage = styled(Image)`
-  height:3.125rem;
-  width:3.125rem;
-`;
-
-const ImageContainer = styled.div`
-  width:7.25rem;
-  height:7.25rem;
-  border: 2px solid #3A3B46
+const PostImageContainer = styled.div`
+  width: 7.25rem;
+  height: 7.25rem;
+  border: 0.125rem solid #3A3B46
 `;
 const AddPhotosButton = styled(RoundButton)`
   background-color: #1F1F1F !important;
@@ -60,7 +56,7 @@ function CreatePost() {
       <Form className="bg-dark px-4 py-4 rounded-2">
         <Form.Group controlId="about-me">
           <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
-            <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="rounded-circle me-3" />
+            <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-3" />
             <h2 className="h3 mb-0 align-self-center">
               Aly Khan
             </h2>
@@ -91,7 +87,7 @@ function CreatePost() {
             <Row>
               {uploadPost.map((post: string) => (
                 <Col xs="auto" key={post} className="mb-1">
-                  <ImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
+                  <PostImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
                     <Image
                       src={post}
                       alt="Dating profile photograph"
@@ -109,7 +105,7 @@ function CreatePost() {
                       }}
                       onClick={() => handleRemoveFile(post)}
                     />
-                  </ImageContainer>
+                  </PostImageContainer>
                 </Col>
               ))}
             </Row>

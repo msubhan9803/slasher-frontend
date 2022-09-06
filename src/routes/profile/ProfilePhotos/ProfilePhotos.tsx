@@ -10,7 +10,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ProfileHeader from '../ProfileHeader';
 
 const ProfilePhoto = styled(Image)`
-  aspectRatio:1;
+  acpect-ratio:1;
 `;
 const StyledPopover = styled.div`
   top:1.563rem;

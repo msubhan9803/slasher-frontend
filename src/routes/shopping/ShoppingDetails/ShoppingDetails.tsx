@@ -20,16 +20,16 @@ import ShoppingSpecialOffer from '../ShoppingSpecialOffer/ShoppingSpecialOffer';
 import ShoppingDetailSmallScreen from './ShoppingDetailSmallScreen';
 
 const ImageContainer = styled.div`
-  aspectRatio: '1.78'
+  acpect-ratio: '1.78'
 `;
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
 const FollowStyledButton = styled(RoundButton)`
 width: 21.125rem;
-border: 0.063rem solid #3A3B46;
+border: 1px solid #3A3B46;
   &: hover, &:focus{
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
 }
 `;
 const tabsForSelf = [

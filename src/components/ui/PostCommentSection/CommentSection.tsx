@@ -1,12 +1,11 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import {
-  Button, Image,
-} from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
 import Popover from 'react-bootstrap/Popover';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import UserCircleImage from '../UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -23,13 +22,10 @@ interface Props {
   onIconClick: (value: number) => void;
   likeIcon: boolean;
   popoverOptions: string[];
+  onPopoverClick: (value: string) => void;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
-`;
-const CommentReplyImage = styled(Image)`
-  height : 5.625rem;
-  width: 5.625rem;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -37,12 +33,12 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const LikesButton = styled.div`
-  width: 3.81rem; 
+  width: 3.81rem;
   height: 1.875rem;
   background-color: #383838;
   border: none;
   &:hover {
-    background-color: #383838; 
+    background-color: #383838;
   }
 `;
 const CommentBox = styled.div`
@@ -51,14 +47,10 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
-const CommentImage = styled(Image)`
-  height: 2.5rem;
-  width: 2.5rem;
-`;
 const CustomPopover = styled(Popover)`
   z-index :1;
   background:rgb(27,24,24);
-  border: .063rem solid rgb(56,56,56);
+  border: 1px solid rgb(56,56,56);
   position:absolute;
   top: 0px !important;
   .popover-arrow{
@@ -80,18 +72,18 @@ const StyledPopover = styled.div`
   }
 `;
 function CommentSection({
-  id, image, name, time, commentMention,
-  commentMsg, commentImg, likes, onIconClick, likeIcon, popoverOptions,
+  id, image, name, time, commentMention, commentMsg, commentImg,
+  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
 }: Props) {
   const popover = (
     <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
+      {popoverOptions.map((option) => <PopoverText role="button" onClick={() => onPopoverClick(option)} key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light">{option}</PopoverText>)}
     </CustomPopover>
   );
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <CommentImage src={image} className="me-0 me-md-3 rounded-circle bg-secondary" />
+        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
       </div>
       <div className="w-100">
         <CommentBox className="ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative">
@@ -120,7 +112,7 @@ function CommentSection({
             commentImg
             && (
               <div>
-                <CommentReplyImage src={commentImg} className="mt-2 rounded" />
+                <UserCircleImage size="5.625rem" src={commentImg} className="mt-2 rounded" />
               </div>
             )
           }

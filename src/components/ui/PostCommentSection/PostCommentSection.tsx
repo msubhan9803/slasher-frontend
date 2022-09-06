@@ -6,6 +6,8 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
+import ReportModal from '../ReportModal';
+import UserCircleImage from '../UserCircleImage';
 
 interface Props {
   id: number;
@@ -31,10 +33,6 @@ interface Values {
   onIconClick: (value: number) => void;
 }
 
-const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
-`;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
@@ -53,6 +51,8 @@ const StyledCommentInputGroup = styled(InputGroup)`
 
 function PostCommentSection({ commentSectionData, commentImage, popoverOption }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...commentData];
     tempData.map((data: any) => {
@@ -71,11 +71,19 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
     });
     setCommentData(tempData);
   };
+
+  const handlePopover = (value: string) => {
+    if (value !== 'Edit') {
+      setShow(true);
+      setDropDownValue(value);
+    }
+  };
+
   return (
     <>
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserProfileImage src={commentImage} className="me-3 rounded-circle bg-secondary" />
+          <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-4">
@@ -104,6 +112,7 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
                   popoverOptions={popoverOption}
+                  onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection && data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
@@ -120,6 +129,7 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
                         popoverOptions={popoverOption}
+                        onPopoverClick={handlePopover}
                       />
                     </div>
                   </div>
@@ -129,6 +139,7 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
           </Col>
         </Row>
       ))}
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );
 }

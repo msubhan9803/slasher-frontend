@@ -25,9 +25,9 @@ aspect - ratio: 0.67;
 `;
 const FollowStyledButton = styled(RoundButton)`
 width: 21.125rem;
-border: 0.063rem solid #3A3B46;
+border: 1px solid #3A3B46;
   &: hover, &:focus{
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
 }
 `;
 const BookIconList = [

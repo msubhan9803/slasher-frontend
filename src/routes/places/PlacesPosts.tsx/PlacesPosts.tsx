@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import ReportModal from '../../../components/ui/ReportModal';
 import postImage from '../../../images/place-post.jpg';
 
 const postData = [
@@ -34,11 +35,21 @@ function PlacesPosts() {
   } else {
     popoverOptions = ['Report post'];
   }
-
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <div className="mt-4">
       {queryParam === 'self' && <CustomCreatePost imageUrl={postImage} />}
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} />
+      <PostFeed
+        postFeedData={postData}
+        popoverOptions={popoverOptions}
+        onPopoverClick={handlePopoverOption}
+      />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

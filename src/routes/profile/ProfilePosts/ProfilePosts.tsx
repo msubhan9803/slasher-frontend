@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import postImage from '../../../images/news-post.svg';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
+import ReportModal from '../../../components/ui/ReportModal';
 
 const postData = [
   {
@@ -31,6 +32,12 @@ const popoverOptions = ['Edit', 'Delete'];
 function ProfilePosts() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" />
@@ -40,7 +47,13 @@ function ProfilePosts() {
             <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
           </div>
         )}
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection={false} />
+      <PostFeed
+        postFeedData={postData}
+        popoverOptions={popoverOptions}
+        isCommentSection={false}
+        onPopoverClick={handlePopoverOption}
+      />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

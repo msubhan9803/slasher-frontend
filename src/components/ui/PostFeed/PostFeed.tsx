@@ -35,7 +35,7 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const PostImage = styled(Image)`
-  aspectRatio : 1.9;
+  acpect-ratio: 1.9;
 `;
 const Content = styled.span`
   white-space: pre-line;

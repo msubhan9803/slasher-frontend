@@ -59,7 +59,7 @@ const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const ImageContainer = styled.div`
-  aspectRatio: '1.78'
+  acpect-ratio: '1.78'
 `;
 const RoundDiv = styled.div`
   border-top-left-radius:50%;

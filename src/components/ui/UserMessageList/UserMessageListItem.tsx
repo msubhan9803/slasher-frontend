@@ -36,6 +36,10 @@ const StyledItem = styled.div`
     background-color: #282828;
   }
 
+  a {
+    text-decoration: none;
+  }
+
   .message-bottom-border {
     border-bottom: 1px solid #383838;
   }

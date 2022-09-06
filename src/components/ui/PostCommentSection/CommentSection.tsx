@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
@@ -47,18 +46,10 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
-const CommentImage = styled(Image)`
-  height: 2.5rem;
-  width: 2.5rem;
-`;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
 }: Props) {
-  const navigate = useNavigate();
-  const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
-  };
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -72,7 +63,7 @@ function CommentSection({
               <p className="fs-6 text-light mb-0">{time}</p>
             </div>
             <div className="d-block pe-0">
-              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={handlePopoverOption} />
+              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
             </div>
           </div>
           <span className="text-primary">

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CustomPopover from '../../../components/ui/CustomPopover';
+import ReportModal from '../../../components/ui/ReportModal';
 import shoppingPhoto from '../../../images/shopping-photos.png';
 
 const ProfilePhoto = styled(Image)`
   acpect-ratio:1;
+`;
+const StyledPopover = styled.div`
+  top: 25px;
+  right: 8px;
 `;
 const photosData = [
   { id: 1, photoUrl: shoppingPhoto },
@@ -26,12 +31,14 @@ const photosData = [
 const selfOptions = ['Edit image', 'Delete image'];
 const viewerOptions = ['Report image'];
 function ShoppingPhotos() {
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
-  const navigate = useNavigate();
   const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
+    setShow(true);
+    setDropDownValue(value);
   };
   return (
     <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
@@ -40,11 +47,17 @@ function ShoppingPhotos() {
           <Col xs={4} md={3} key={data.id}>
             <div className="position-relative">
               <ProfilePhoto src={data.photoUrl} className="rounded mt-4 w-100" key={data.id} />
-              <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopoverOption} />
+              <StyledPopover className="position-absolute">
+                <CustomPopover
+                  popoverOptions={popoverOption}
+                  onPopoverClick={handlePopoverOption}
+                />
+              </StyledPopover>
             </div>
           </Col>
         ))}
       </Row>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

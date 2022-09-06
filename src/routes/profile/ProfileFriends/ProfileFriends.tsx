@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -7,11 +7,8 @@ import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import ReportModal from '../../../components/ui/ReportModal';
 
-const ProfileImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
-`;
 const Container = styled.div`
   background: #1F1F1F;
 `;
@@ -66,12 +63,19 @@ function ProfileFriends() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [search, setSearch] = useState<string>('');
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
   const viewerOptions = ['View profile', 'Report', 'Block user'];
   const selfOptions = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
   const navigate = useNavigate();
   const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
+    if (value === 'View profile') {
+      navigate('/profile/friends');
+    } else {
+      setShow(true);
+      setDropDownValue(value);
+    }
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -113,6 +117,7 @@ function ProfileFriends() {
           </Row>
         </div>
       </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

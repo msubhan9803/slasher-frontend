@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,6 +11,7 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 import postImage from '../../images/about-post.jpg';
 import CustomPopover from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
+import ReportModal from '../../components/ui/ReportModal';
 
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -36,14 +37,21 @@ const RoundDiv = styled.div`
   border-top-left-radius:50%;
   border-top-right-radius:50%;
 `;
+const StyledPopoverContainer = styled.div`
+  top: 70px;
+  right: 10px;
+`;
 function ProfileHeader({ tabKey }: any) {
   const navigate = useNavigate();
   const params = useParams();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
   const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
+    setShow(true);
+    setDropDownValue(value);
   };
   const changeTab = (tab: string) => {
     navigate(`/${params.userName}/${tab}`);
@@ -64,10 +72,12 @@ function ProfileHeader({ tabKey }: any) {
                 <AboutProfileImage size="11.25rem" src="https://i.pravatar.cc/300?img=12" />
                 {queryParam !== 'self'
                   && (
-                    <CustomPopover
-                      popoverOptions={popoverOption}
-                      onPopoverClick={handlePopoverOption}
-                    />
+                    <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
+                      <CustomPopover
+                        popoverOptions={popoverOption}
+                        onPopoverClick={handlePopoverOption}
+                      />
+                    </StyledPopoverContainer>
                   )}
               </CustomCol>
               <Col className="w-100 mt-md-4">
@@ -92,10 +102,12 @@ function ProfileHeader({ tabKey }: any) {
                           <Button className="btn btn-form bg-black rounded-5 d-flex px-4 me-2">
                             <h3 className="mb-0">Unfriend</h3>
                           </Button>
-                          <CustomPopover
-                            popoverOptions={popoverOption}
-                            onPopoverClick={handlePopoverOption}
-                          />
+                          <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
+                            <CustomPopover
+                              popoverOptions={popoverOption}
+                              onPopoverClick={handlePopoverOption}
+                            />
+                          </StyledPopoverContainer>
                         </div>
                       )}
                   </Col>
@@ -142,6 +154,7 @@ function ProfileHeader({ tabKey }: any) {
 
       <StyledBorder className="d-md-block d-none" />
       <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

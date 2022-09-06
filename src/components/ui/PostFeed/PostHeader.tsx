@@ -1,27 +1,19 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Col, Image, Row } from 'react-bootstrap';
-import styled from 'styled-components';
+import { Col, Row } from 'react-bootstrap';
 import CustomPopover from '../CustomPopover';
+import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
   userName: string;
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
+  onPopoverClick: (value: string) => void;
 }
-const ProfileImage = styled(Image)`
-  height:3.313rem;
-  width:3.313rem;
-`;
 
 function PostHeader({
-  userName, postDate, profileImage, popoverOptions,
+  userName, postDate, profileImage, popoverOptions, onPopoverClick,
 }: PostHeaderProps) {
-  const navigate = useNavigate();
-  const handlePopoverOption = (value: string) => {
-    navigate(`/${value}`);
-  };
   return (
     <Row className="justify-content-between">
       <Col xs="auto">
@@ -38,7 +30,7 @@ function PostHeader({
         </Row>
       </Col>
       <Col xs="auto" className="d-block">
-        <CustomPopover popoverOptions={popoverOptions} onPopoverClick={handlePopoverOption} />
+        <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
       </Col>
     </Row>
   );

@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
+import ReportModal from '../../../components/ui/ReportModal';
 
 const ProfilePhoto = styled(Image)`
   acpect-ratio:1;
+`;
+const StyledPopover = styled.div`
+  top: 25px;
+  right: 8px;
 `;
 const photosData = [
   { id: 1, photoUrl: 'https://i.pravatar.cc/300?img=02' },
@@ -27,12 +32,14 @@ const photosData = [
 function ProfilePhotos() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
   const viewerOptions = ['Unfriend', 'Block user', 'Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
   const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
-  const navigate = useNavigate();
   const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
+    setShow(true);
+    setDropDownValue(value);
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -43,15 +50,18 @@ function ProfilePhotos() {
             <Col xs={4} md={3} key={data.id}>
               <div className="position-relative">
                 <ProfilePhoto src={data.photoUrl} className="rounded mt-4 w-100" key={data.id} />
-                <CustomPopover
-                  popoverOptions={popoverOption}
-                  onPopoverClick={handlePopoverOption}
-                />
+                <StyledPopover className="position-absolute">
+                  <CustomPopover
+                    popoverOptions={popoverOption}
+                    onPopoverClick={handlePopoverOption}
+                  />
+                </StyledPopover>
               </div>
             </Col>
           ))}
         </Row>
       </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

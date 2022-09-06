@@ -16,13 +16,16 @@ interface Props {
   userProfileIcon?: string;
 }
 const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
+.btn[aria-describedby="popover-basic"]{
+  svg{
+    color: var(--bs-primary);
   }
+}
 `;
-const Custompopover = styled(Popover)`
+interface CustomPopoverProps {
+  arrowPlacement: string;
+}
+const Custompopover = styled(Popover) <CustomPopoverProps>`
   z-index :1;
   background:rgb(27,24,24);
   border: 1px solid rgb(56,56,56);
@@ -30,7 +33,7 @@ const Custompopover = styled(Popover)`
   top: 0px !important;
   .popover-arrow{
     &:after{
-      border-left-color:rgb(56,56,56);
+      border-${((props) => props.arrowPlacement)}-color:rgb(56,56,56);
     }
   }
 `;
@@ -44,7 +47,7 @@ function CustomPopover({
   popoverOptions, onPopoverClick, userProfileIcon,
 }: Props) {
   const popover = (
-    <Custompopover id="popover-basic" className="fs-3 py-2 rounded-2">
+    <Custompopover arrowPlacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
       {popoverOptions && popoverOptions.length > 0 && popoverOptions.map((option: string) => (
         <PopoverText
           key={option}

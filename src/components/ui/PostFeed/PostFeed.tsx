@@ -5,7 +5,6 @@ import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-// import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';

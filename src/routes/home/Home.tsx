@@ -23,7 +23,7 @@ function Home() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div>
-        <CustomCreatePost />
+        <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
         <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
         <PostFeed

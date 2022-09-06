@@ -39,6 +39,12 @@ const CancelRequestButton = styled(RoundButton)`
 const Card = styled.div`
   height:12.857rem;
   width:11.71rem;
+  &:first-child {
+    padding-left: 0rem;
+  }
+  &:last-child {
+    padding-right: 0rem;
+  }
 `;
 const ButtonContainer = styled.div`
   display: inline-block;
@@ -64,6 +70,9 @@ const friendList = [
   },
   {
     id: 6, profileImage: 'https://i.pravatar.cc/300?img=22', userName: 'Olive Yew', addFriend: false,
+  },
+  {
+    id: 7, profileImage: 'https://i.pravatar.cc/300?img=28', userName: 'Olive Yew', addFriend: false,
   },
 ];
 
@@ -93,12 +102,12 @@ function SuggestedFriend() {
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
       <div className="d-flex align-items-center">
-        <Button className="d-block ps-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
+        <Button className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
         </Button>
         <StyleFriend
           id="slideFriend"
-          className="d-flex flex-nowrap w-100"
+          className="d-flex flex-nowrap w-100 mx-3"
         >
           {friendListData.map((user: any) => (
             <Card key={user.id}>
@@ -127,7 +136,7 @@ function SuggestedFriend() {
             </Card>
           ))}
         </StyleFriend>
-        <Button className="d-block pe-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
+        <Button className="d-block p-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
         </Button>
       </div>

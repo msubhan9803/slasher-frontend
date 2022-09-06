@@ -17,17 +17,16 @@ interface Props {
 function IconWithTextNavLink({
   label, icon, iconSize, to, badge, badgeIconClassName, className, children,
 }: Props) {
-  const location = useLocation();
-  const path = location.pathname;
+  const { pathname } = useLocation();
   return (
-    <Link to={to} className={className}>
+    <Link to={to} className={`text-decoration-none ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
         icon={icon}
         iconSize={iconSize}
         badge={badge}
         badgeIconClassName={badgeIconClassName}
-        active={path === to}
+        active={pathname.startsWith(to)}
       />
       {children}
     </Link>

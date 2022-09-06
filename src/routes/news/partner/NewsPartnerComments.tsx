@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from '../components/CommentSection/CommentSection';
 import ReportModal from '../../../components/ui/ReportModal';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface Props {
   id: number;
@@ -80,10 +81,6 @@ const commentSection = [
     commentReplySection: [],
   },
 ];
-const UserProfileImage = styled.img`
-  height:3.125rem;
-  width:3.125rem;
-`;
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
@@ -131,7 +128,7 @@ function NewsPartnerComments() {
     <>
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserProfileImage src="https://i.pravatar.cc/300?img=56" className="me-3 rounded-circle bg-secondary" />
+          <UserCircleImage src="https://i.pravatar.cc/300?img=56" className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <StyledCommentInputGroup className="mb-4">

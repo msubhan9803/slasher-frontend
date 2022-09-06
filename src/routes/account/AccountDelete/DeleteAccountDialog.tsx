@@ -11,9 +11,9 @@ interface Props {
 const CustomRoundButton = styled(RoundButton)`
   display: inline-block;
   white-space: nowrap;
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
 }
 `;
 function DeleteAccountDialog({ show, setShow }: Props) {

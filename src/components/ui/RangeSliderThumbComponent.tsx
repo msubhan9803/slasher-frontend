@@ -14,14 +14,14 @@ export default function RangeSliderThumbComponent({ children, ...other }: Props)
     return (
       <SliderThumb {...other}>
         {children}
-        <FontAwesomeIcon icon={solid('chevron-left')} size="xs" color="white " />
+        <FontAwesomeIcon icon={solid('chevron-left')} size="xs" color="black" />
       </SliderThumb>
     );
   }
   return (
     <SliderThumb {...other}>
       {children}
-      <FontAwesomeIcon icon={solid('chevron-right')} size="xs" color="white " />
+      <FontAwesomeIcon icon={solid('chevron-right')} size="xs" color="black" />
     </SliderThumb>
   );
 }

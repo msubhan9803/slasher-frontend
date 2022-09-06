@@ -6,12 +6,12 @@ import RoundButton from '../ui/RoundButton';
 import SortData from './SortData';
 
 interface FilterDialogProps {
-  showKeys: any;
-  setShowKeys: any;
+  showKeys: boolean;
+  setShowKeys: (val: boolean) => void;
 }
 const KeyboardButtons = styled(Button)`
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
 `;
 function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
@@ -47,7 +47,7 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
             <KeyboardButtons
               key={keys}
               onClick={() => setKey(keys)}
-              className={`fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+              className={`text-white fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
             >
               {keys}
             </KeyboardButtons>

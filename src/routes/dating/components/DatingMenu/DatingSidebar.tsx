@@ -12,13 +12,13 @@ function DatingSidebar() {
       <h2 className="mb-4">Dating Menu</h2>
       <Row className="my-4">
         <Col md={4}>
-          <IconWithTextNavLink label="My Profile" icon={regular('user')} iconSize="2x" to="/" />
+          <IconWithTextNavLink label="My Profile" icon={regular('user')} iconSize="2x" to="/dating/profile" />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} iconSize="2x" to="/" />
+          <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} iconSize="2x" to="/dating/deck" />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Messages" icon={regular('comments')} iconSize="2x" to="/" badge={12} />
+          <IconWithTextNavLink label="Messages" icon={regular('comments')} iconSize="2x" to="/dating/messages" badge={12} />
         </Col>
       </Row>
       <Row className="mb-4">
@@ -26,7 +26,7 @@ function DatingSidebar() {
           <IconWithTextNavLink label="Likes" icon={regular('heart')} iconSize="2x" to="/dating/likes" badge={6} />
         </Col>
         <Col md={4}>
-          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/" />
+          <IconWithTextNavLink label="Preferences" icon={solid('sliders')} iconSize="2x" to="/dating/setup/additional-preferences" />
         </Col>
         <Col />
       </Row>

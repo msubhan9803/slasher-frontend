@@ -14,8 +14,8 @@ import ShoppingCardList from '../components/ShoppingCardList';
 const ShoppingBanner = styled.div`
   aspect-ratio: 3.56;
   img {
-    width: 175px;
-    height: 80px;
+    width: 10.938rem;
+    height: 5rem;
   }
 `;
 const featuredVendors = [

@@ -69,13 +69,7 @@ function AboutMovie() {
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/movies/${params.id}/${tab}`);
-    } else {
-      navigate(`/movies/${params.id}/${tab}?view=self`);
-    }
-  };
+
   useEffect(() => {
     if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/movies/${params.id}/details`); }
   });
@@ -158,8 +152,8 @@ function AboutMovie() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
+          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
+            <TabLinks tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

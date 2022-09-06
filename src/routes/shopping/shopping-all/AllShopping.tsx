@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Col, Image, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ShoppingHeader from '../ShoppingHeader';
 import SlasherShoppingBanner from '../../../images/shopping-banner.png';
@@ -44,15 +43,11 @@ const allShopping = [
   },
 ];
 function AllShopping() {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/shopping/${tab}`);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
       <div className="d-flex flex-column">
 
-        <ShoppingHeader tabKey="all" changeTab={changeTab} />
+        <ShoppingHeader tabKey="all" />
         <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
         <ShoppingBanner id="banner" className="order-3 order-lg-1 mt-4 rounded">
           <Image src={SlasherShoppingBanner} alt="Shopping Banner" className="w-100 h-100" />

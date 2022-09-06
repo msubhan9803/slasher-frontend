@@ -58,19 +58,13 @@ function AboutBooks() {
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/books/${params.id}/${tab}`);
-    } else {
-      navigate(`/books/${params.id}/${tab}?view=self`);
-    }
-  };
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
   };
+
   useEffect(() => {
     if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
   });
@@ -153,8 +147,8 @@ function AboutBooks() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
+          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
+            <TabLinks tabLink={tabs} toLink={`/books/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

@@ -93,7 +93,7 @@ function ProfileHeader({ tabKey }: any) {
                   && (
                     <StyledPopover className="d-block d-md-none d-lg-block d-xl-none position-absolute" style={{ top: '55px', right: '0px' }}>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 pe-3 mt-2">
+                        <Button variant="link" className="bg-transparent py-0 pe-3 mt-2">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" className="ps-0" />
                         </Button>
                       </OverlayTrigger>
@@ -124,7 +124,7 @@ function ProfileHeader({ tabKey }: any) {
                           </Button>
                           <StyledPopover className="d-none d-md-block d-lg-none d-xl-block">
                             <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                              <Button className="bg-transparent shadow-none border-0 py-0 pe-1 text-white">
+                              <Button variant="link" className="bg-transparent py-0 pe-1 text-white">
                                 <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} className="text-white" size="lg" />
                               </Button>
                             </OverlayTrigger>
@@ -165,7 +165,7 @@ function ProfileHeader({ tabKey }: any) {
                     </Button>
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 py-0 text-white">
+                        <Button variant="link" className="shadow-none py-0">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>

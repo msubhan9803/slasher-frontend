@@ -39,7 +39,7 @@
   "scripts": {
     "build": "CI=false react-scripts build",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx,.json",
+    "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",
     "start": "react-scripts start",
     "serve-build": "serve -s build",
     "test": "react-scripts test --watchAll=false",

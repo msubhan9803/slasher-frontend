@@ -95,7 +95,7 @@ function CommentSection({
             <div className="d-block pe-0">
               <StyledPopover>
                 <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="text-white bg-transparent shadow-none border-0 pt-0 pe-0">
+                  <Button variant="link" className="text-white bg-transparent pt-0 pe-0">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>
@@ -142,20 +142,20 @@ function CommentSection({
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                    <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
                       <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                       <span className="fs-5">Like</span>
                     </Button>
                   </LinearIcon>
                 )
                 : (
-                  <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                  <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
                     <span className="fs-5">Like</span>
                   </Button>
                 )
             }
-            <Button variant="link" className="text-decoration-none shadow-none">
+            <Button variant="link" className="shadow-none">
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>

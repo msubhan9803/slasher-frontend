@@ -64,7 +64,7 @@ function ShoppingDetailSmallScreen({ toggle, onToggleClick }: Props) {
         </div>
         <div className="d-flex justify-content-center position-relative ">
           <LinearIcon role="button" uniqueId="favorite" className="d-flex flex-column align-items-center mt-3">
-            <Button onClick={() => onToggleClick(!toggle)} className="favorite-icon d-flex border-0  shadow-none align-items-center bg-white d-flex justify-content-center rounded-circle ">
+            <Button onClick={() => onToggleClick(!toggle)} className="favorite-icon d-flex align-items-center bg-white d-flex justify-content-center rounded-circle ">
               <FontAwesomeIcon icon={solid('heart')} size="2x" />
             </Button>
             <h1 className="h5 mt-2 mb-0">Favorite</h1>

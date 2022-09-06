@@ -17,7 +17,7 @@ function ProfileFriends() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
       <ProfileHeader tabKey="friends" />
-      <div className="mt-3">
+      <div className="mt-2">
         <div className="d-md-flex d-block justify-content-between">
           <div>
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
@@ -27,7 +27,7 @@ function ProfileFriends() {
           </div>
         </div>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          <Row className="mt-4">
+          <Row className="mt-2">
             {friendList.map((friend: any) => (
               <Col md={4} lg={6} xl={4} key={friend.id}>
                 <FriendsProfileCard

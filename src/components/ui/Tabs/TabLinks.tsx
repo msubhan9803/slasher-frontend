@@ -1,5 +1,6 @@
 import React from 'react';
-import { Tab, Tabs } from 'react-bootstrap';
+import { Badge, Tab, Tabs } from 'react-bootstrap';
+import styled from 'styled-components';
 import CustomTabs from './CustomTabs';
 
 interface TabLinksProps {
@@ -11,7 +12,14 @@ interface TabLinksProps {
 interface TabProps {
   value: string;
   label: string;
+  badge?: number;
 }
+
+const StyledBadge = styled(Badge)`
+  width: 24px;
+  height: 24px;
+  line-height: 2;
+`;
 
 function TabLinks({
   tabLink, setSelectedTab, selectedTab, className,
@@ -19,8 +27,21 @@ function TabLinks({
   return (
     <CustomTabs className="bg-dark bg-mobile-transparent rounded-3">
       <Tabs activeKey={selectedTab} className={`border-0 flex-nowrap mt-3 fs-3 ${className}`} onSelect={(tab: any) => setSelectedTab(tab)}>
-        {tabLink.map(({ value, label }) => (
-          <Tab key={value} eventKey={value} title={label} />
+        {tabLink.map(({ value, label, badge }) => (
+          <Tab
+            key={value}
+            eventKey={value}
+            title={
+              badge
+                ? (
+                  <>
+                    {label}
+                    <StyledBadge className="bg-primary ms-2 p-0 rounded-circle text-black">{badge}</StyledBadge>
+                  </>
+                )
+                : label
+            }
+          />
         ))}
       </Tabs>
     </CustomTabs>
@@ -28,7 +49,7 @@ function TabLinks({
 }
 
 TabLinks.defaultProps = {
-  selectedTab: 'all-books',
+  selectedTab: 'all',
   className: '',
 };
 

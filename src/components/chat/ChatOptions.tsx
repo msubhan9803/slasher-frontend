@@ -7,14 +7,14 @@ function ChatOptions() {
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['Delete', 'Block user', 'Report'];
 
-  const handleLikesOption = (likeValue: string) => {
+  const handlePopoverOption = (value: string) => {
     setShow(true);
-    setDropDownValue(likeValue);
+    setDropDownValue(value);
   };
 
   return (
     <>
-      <CustomPopover popoverOptions={popoverOption} onPopoverClick={handleLikesOption} />
+      <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopoverOption} />
       <ChatOptionDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
 

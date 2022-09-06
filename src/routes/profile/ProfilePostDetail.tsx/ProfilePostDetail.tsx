@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import ReportModal from '../../../components/ui/ReportModal';
 import postImage from '../../../images/news-post.svg';
 
 const postData = [
@@ -60,13 +61,29 @@ const postData = [
     ],
   },
 ];
-const popoverOptions = ['Edit', 'Delete'];
+
 function ProfilePostDetail() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  let popoverOptions = ['Report', 'Block user'];
+  if (queryParam === 'self') {
+    popoverOptions = ['Edit', 'Delete'];
+  }
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <PostFeed postFeedData={postData} popoverOptions={popoverOptions} isCommentSection />
+      <PostFeed
+        postFeedData={postData}
+        popoverOptions={popoverOptions}
+        isCommentSection
+        onPopoverClick={handlePopoverOption}
+      />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

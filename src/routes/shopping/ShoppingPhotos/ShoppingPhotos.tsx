@@ -79,7 +79,7 @@ function ShoppingPhotos() {
               <ProfilePhoto src={data.photoUrl} className="rounded mt-4 w-100" key={data.id} />
               <StyledPopover className="position-absolute">
                 <OverlayTrigger trigger="click" placement="bottom" rootClose overlay={popover}>
-                  <Button className="bg-transparent shadow-none border-0 text-white">
+                  <Button variant="link" className="shadow-none">
                     <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                   </Button>
                 </OverlayTrigger>

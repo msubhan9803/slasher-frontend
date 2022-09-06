@@ -136,7 +136,7 @@ function ProfileFriends() {
                   <div className="d-flex align-self-center">
                     <StyledPopover>
                       <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                        <Button className="bg-transparent shadow-none border-0 pe-0 text-white">
+                        <Button variant="link" className="shadow-none pe-0">
                           <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
                         </Button>
                       </OverlayTrigger>

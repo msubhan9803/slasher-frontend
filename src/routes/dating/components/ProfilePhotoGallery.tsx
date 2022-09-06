@@ -8,7 +8,7 @@ import RemoveProfileDialog from '../profile/edit/RemoveProfileDialog';
 const ImageContainer = styled.div`
   height: 10.313rem;
   background-color: #1F1F1F;
-  border: 0.125rem solid #3A3B46
+  border: 2px solid #3A3B46
 `;
 
 const ImageAddIconStyle = styled(FontAwesomeIcon)`

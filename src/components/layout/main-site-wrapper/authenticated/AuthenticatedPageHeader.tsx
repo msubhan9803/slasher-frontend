@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Image, Col, Row,
+  Navbar, Container, Nav, Image, Col, Row, OverlayTrigger, Popover, Button,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -10,19 +10,12 @@ import userProfileIconPlaceholder from '../../../../placeholder-images/placehold
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 
-const UserCircleImageContainer = styled.div`
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  img {
-    width: 2rem;
-    height: 2rem;
-    position: relative;
-    top: -1.09em;
-  }
+const UserCircle = styled(Image)`
+  width: 2rem;
+  height: 2rem;
 `;
 const StyledNavbar = styled(Navbar)`
+  z-index:1;
   background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
@@ -54,7 +47,30 @@ const StyledNav = styled(Nav)`
     visibility: hidden;
   }
 `;
-
+const StyledPopover = styled.div`
+  .btn[aria-describedby="popover-basic"]{
+    svg{
+      color: var(--bs-primary);
+    }
+  }
+`;
+const Custompopover = styled(Popover)`
+  z-index :1;
+  background:rgb(27,24,24);
+  border: 1px solid rgb(56,56,56);
+  position:absolute;
+  top: 0px !important;
+  .popover-arrow{
+    &:after{
+      border-bottom-color:rgb(56,56,56);
+    }
+  }
+`;
+const PopoverText = styled.p`
+  &:hover {
+    background: red;
+  }
+`;
 interface Props {
   onToggleClick: () => void;
   offcanvasSidebarExpandBreakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -66,6 +82,16 @@ const desktopTopNavIconWidth = '6.7rem';
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
+  const popover = (
+    <Custompopover id="popover-basic" className="fs-3 py-2 rounded-2">
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button">
+        <Link to="/profile">My profile</Link>
+      </PopoverText>
+      <PopoverText className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light" role="button">
+        <Link to="/account/settings">Settings</Link>
+      </PopoverText>
+    </Custompopover>
+  );
   const mobileNavLinkElements = [
     <IconWithTextNavButton
       key="Menu"
@@ -75,34 +101,26 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" iconSize="lg" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
 
   const desktopNavLinkElements = [
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink
-      key="Me"
-      label="Me"
-      icon={solid('circle')}
-      to="/profile"
-      className="nav-link position-relative profile-link"
-      iconSize="2x"
-    >
-      <UserCircleImageContainer className="position-absolute d-flex">
-        <img
-          className="rounded-circle m-auto"
-          src={userProfileIconPlaceholder}
-          alt="User icon"
-        />
-      </UserCircleImageContainer>
-    </IconWithTextNavLink>,
+    <StyledPopover key="me">
+      <OverlayTrigger trigger="focus" placement="bottom" overlay={popover}>
+        <Button variant="link" className="bg-transparent shadow-none border-0 pe-1 pt-1">
+          <UserCircle src={userProfileIconPlaceholder} className="rounded-circle" />
+          <p className="mb-0 text-center mt-2 fs-6">Me</p>
+        </Button>
+      </OverlayTrigger>
+    </StyledPopover>,
   ];
 
   return (

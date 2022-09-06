@@ -6,98 +6,129 @@ import {
   InputGroup,
   Row,
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import CustomSlider from '../../../components/ui/CustomSlider';
 import SliderThumbComponent from '../../../components/ui/SliderThumbComponent';
 import RangeSliderThumbComponent from '../../../components/ui/RangeSliderThumbComponent';
+import Switch from '../../../components/ui/Switch';
 
+const CustomButton = styled(Button)`
+  &.active{
+    color: black !important;
+    font-weight: bold !important;
+  }
+`;
 const genderList = ['Men', 'Women', 'Both'];
 
 function DatingAdditionalPreferences() {
-  const [selectedGender, setSelectedGender] = useState('');
+  const [selectedGender, setSelectedGender] = useState('Women');
   const [distType, setDistType] = useState('mi');
   const [distance, setDistance] = useState(50);
   const [age, setAge] = useState([20, 26]);
   return (
     <>
-      <h2 className="h4 mb-0">
-        I am looking for
-      </h2>
-      <Row className="my-4 pt-2">
+      <h1 className="h2 mb-5 d-none d-md-block">Dating Preferences</h1>
+      <h2 className="mt-3">I am looking for</h2>
+      <Row className="mb-4 pt-2">
         {genderList.map((gender: string) => (
           <Col key={gender} xs={4}>
-            <Button
+            <CustomButton
               variant="form"
               size="lg"
-              className="w-100 fs-6 p-2"
+              className="w-100 fs-3 fw-normal p-2"
               name={gender}
               active={selectedGender === gender}
-              onClick={(e) => setSelectedGender((e.target as HTMLButtonElement).name)}
+              onClick={(e: any) => setSelectedGender((e.target as HTMLButtonElement).name)}
             >
               {gender}
-            </Button>
+            </CustomButton>
           </Col>
         ))}
       </Row>
 
-      <Row className="mb-4 mt-5 align-items-center">
-        <Col lg={6}>
-          <h2 className="h4 mb-4 mb-lg-0">Maximum Distance</h2>
-        </Col>
-        <Col xs={12} lg={6} className="d-flex">
-          <InputGroup className="input-group-sm">
-            <InputGroup.Text className="bg-secondary fs-5 border-0 pe-3 text-primary">
-              {distance}
-            </InputGroup.Text>
-            <Form.Select
-              aria-label="Distance unit"
-              className="no-shadow rounded-3"
-              value={distType}
-              onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
-            >
-              <option value="mi">{distance === 1 ? 'mile' : 'miles'}</option>
-              <option value="km">{distance === 1 ? 'kilometer' : 'kilometers'}</option>
-            </Form.Select>
-          </InputGroup>
-        </Col>
-      </Row>
+      <Row className="mb-3 mt-4 align-items-center">
+        <Row className=" mb-4 align-items-center justify-content-between pe-0">
+          <Col md={6}>
+            <h3 className="h2 mb-4 mb-lg-0">Maximum Distance</h3>
+          </Col>
+          <Col xs={4} md="auto" className="pe-0">
+            <InputGroup className="input-group-sm">
+              <InputGroup.Text className="bg-transparent fw-bold border-0 pe-3 text-primary">
+                {distance}
+              </InputGroup.Text>
+              <Form.Select
+                aria-label="Distance unit"
+                className="no-shadow rounded-3"
+                value={distType}
+                onChange={(e) => setDistType((e.target as HTMLSelectElement).value)}
+              >
+                <option value="mi">{distance === 1 ? 'Mile' : 'Miles'}</option>
+                <option value="km">{distance === 1 ? 'Kilometer' : 'Kilometers'}</option>
+              </Form.Select>
+            </InputGroup>
+          </Col>
+        </Row>
 
-      <Row>
-        <Col className="d-flex mt-3 align-items-center">
-          <p className="mb-0 me-4">01</p>
-          <CustomSlider
-            value={distance}
-            onChange={(e) => setDistance((e.target as any).value)}
-            aria-labelledby="input-slider"
-            min={1}
-            max={200}
-            components={{ Thumb: SliderThumbComponent }}
-          />
-          <p className="mb-0 ms-4">200</p>
-        </Col>
-      </Row>
+        <div>
+          <div className="d-flex mt-3 align-items-center mb-2">
+            <p className="mb-0 me-4 d-none d-md-block">01</p>
+            <CustomSlider
+              value={distance}
+              onChange={(e) => setDistance((e.target as any).value)}
+              aria-labelledby="input-slider"
+              min={1}
+              max={200}
+              components={{ Thumb: SliderThumbComponent }}
+            />
+            <p className="mb-0 ms-4 d-none d-md-block">200</p>
+          </div>
+          <div className="d-flex d-md-none justify-content-between">
+            <p className="mb-0 me-4">01</p>
+            <p className="mb-0 ms-4">200</p>
+          </div>
+        </div>
 
-      <Row className="mb-4 mt-5 align-items-center">
-        <Col lg={6}>
-          <h2 className="h4 mb-4 mb-lg-0">Age Range</h2>
-        </Col>
-        <Col lg={6} className="d-flex justify-content-lg-end">
-          <p className="mb-0 fs-5 text-primary">{`Between ${age[0]} to ${age[1]} years`}</p>
-        </Col>
-      </Row>
+        <div className="mb-4 mt-4 d-md-flex d-block align-items-center justify-content-between">
+          <div>
+            <h2 className="mb-4 mb-lg-0">Age range</h2>
+          </div>
+          <div className="d-flex justify-content-lg-end">
+            <p className="mb-0 fs-5 text-primary">
+              {`${age[0]} to ${age[1]}`}
+              {age[1] === 55 && '+'}
+            </p>
+          </div>
+        </div>
 
-      <Row>
-        <Col className="d-flex mt-3 align-items-center">
-          <p className="mb-0 me-4">18</p>
-          <CustomSlider
-            value={age}
-            min={18}
-            max={55}
-            onChange={(e) => setAge((e.target as any).value)}
-            aria-labelledby="input-slider"
-            components={{ Thumb: RangeSliderThumbComponent }}
-          />
-          <p className="mb-0 ms-4">55+</p>
-        </Col>
+        <div>
+          <div className="d-flex my-2 align-items-center">
+            <p className="mb-0 me-4 d-none d-md-block">18</p>
+            <CustomSlider
+              value={age}
+              min={18}
+              max={55}
+              onChange={(e) => setAge((e.target as any).value)}
+              aria-labelledby="input-slider"
+              components={{ Thumb: RangeSliderThumbComponent }}
+            />
+            <p className="mb-0 ms-4 d-none d-md-block">55+</p>
+          </div>
+          <div className="d-flex d-md-none justify-content-between">
+            <p className="mb-0 me-4">18</p>
+            <p className="mb-0 ms-4">55+</p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <h4 className="h2">Notifications</h4>
+          <p className="fs-4 text-light mt-2">When you receive likes or messages, we will notify you by:</p>
+          <Row className="lh-lg d-flex justify-content-between justify-content-md-start">
+            <Col md={5} lg={7} xl={5} className="d-flex justify-content-between">
+              <p className="fs-3">Push notifications</p>
+              <Switch id="pushNotificationsSwitch" className="ms-0 me-md-5" />
+            </Col>
+          </Row>
+        </div>
       </Row>
     </>
   );

@@ -20,7 +20,8 @@ function IconWithTextNavItemInnerElement({
   label, icon, iconSize, badge, badgeIconClassName, active,
 }: Props) {
   return (
-    <div className="d-flex flex-column justify-content-evenly text-center text-white position-relative ">
+    <div className="d-flex flex-column justify-content-between text-center position-relative text-decoration-none fs-5">
+      {/* <div className="d-flex flex-column position-relative fs-5"> */}
       <FontAwesomeIcon icon={icon} size={iconSize} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
       {badge
         && (
@@ -28,7 +29,7 @@ function IconWithTextNavItemInnerElement({
             {badge}
           </BadgeSpan>
         )}
-      <p className={`mb-0 text-center mt-2 ${active ? 'text-primary' : 'text-white'} `}>{label}</p>
+      <p className={`mb-0 text-center mt-2 ${active ? 'text-primary' : 'text-white'} text-truncate`}>{label}</p>
     </div>
   );
 }

@@ -3,12 +3,10 @@ import {
   Col,
   Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import CommunityStandardsAndRules from '../../../components/terms-and-policies/CommunityStandardsAndRules';
 import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
-import RoundButton from '../../../components/ui/RoundButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
@@ -17,11 +15,6 @@ interface Props {
 }
 
 function RegistrationTerms({ activeStep }: Props) {
-  const navigate = useNavigate();
-  const handleStep = () => {
-    navigate('/registration/final');
-  };
-
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
@@ -45,9 +38,9 @@ function RegistrationTerms({ activeStep }: Props) {
           </RoundButtonLink>
         </Col>
         <Col sm={4} md={3}>
-          <RoundButton onClick={handleStep} className="w-100" type="submit">
+          <RoundButtonLink to="/registration/final" className="w-100" variant="primary">
             Sign up
-          </RoundButton>
+          </RoundButtonLink>
         </Col>
       </Row>
     </RegistrationPageWrapper>

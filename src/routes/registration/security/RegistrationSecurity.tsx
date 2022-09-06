@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Col, Form, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
@@ -16,11 +16,6 @@ interface Props {
 }
 
 function RegistrationSecurity({ activeStep }: Props) {
-  const navigate = useNavigate();
-  const handleStep = () => {
-    navigate('/registration/terms');
-  };
-
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <Row className="justify-content-center">
@@ -108,8 +103,8 @@ function RegistrationSecurity({ activeStep }: Props) {
       </Row>
       <Row className="justify-content-center my-5">
         <Col sm={4}>
-          <RoundButton onClick={handleStep} className="w-100" type="submit">
-            Next step
+          <RoundButton className="w-100" variant="primary" type="submit">
+            <Link to="/registration/terms">Next step</Link>
           </RoundButton>
         </Col>
       </Row>

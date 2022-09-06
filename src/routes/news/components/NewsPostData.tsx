@@ -87,7 +87,7 @@ function NewsPostData() {
             </Row>
             <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
               <Col className="align-self-center">
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => openDialogue('like')}>
+                <Button variant="link" className="shadow-none fw-normal fs-3" onClick={() => openDialogue('like')}>
                   <LinearIcon uniqueId="like-button">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                     12K
@@ -101,7 +101,7 @@ function NewsPostData() {
                 </Link>
               </Col>
               <Col className="text-end">
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => openDialogue('share')}>
+                <Button variant="link" className="shadow-none fw-normal fs-3" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                   25
                 </Button>
@@ -117,7 +117,7 @@ function NewsPostData() {
           <CardFooter className="p-0 ps-1">
             <Row className="fs-3 d-flex justify-content-evenly pt-2">
               <Col>
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" onClick={() => onLikeClick(post.id)}>
+                <Button variant="link" className="shadow-none fw-normal fs-3" onClick={() => onLikeClick(post.id)}>
                   {post.likeIcon ? (
                     <LinearIcon uniqueId="like-button-footer">
                       <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" role="button" onClick={() => onLikeClick(post.id)} />
@@ -133,13 +133,13 @@ function NewsPostData() {
                 </Button>
               </Col>
               <Col className="text-center">
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                <Button variant="link" className="shadow-none fw-normal fs-3">
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                   Comment
                 </Button>
               </Col>
               <Col className="text-end">
-                <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                <Button variant="link" className="shadow-none fw-normal fs-3">
                   <CustomDropDown>
                     <Dropdown.Toggle className="bg-transparent pt-1 pe-0" variant="link">
                       <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />

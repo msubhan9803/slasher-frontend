@@ -22,11 +22,11 @@ const sortoptions = [
   { value: 'userRating', label: 'User Rating' },
 ];
 function BooksHeader({
-  tabKey, changeTab, showKeys, setShowKeys, setSearch, search,
+  tabKey, showKeys, setShowKeys, setSearch, search,
 }: any) {
   return (
     <>
-      <TabLinks tabLink={bookTabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
+      <TabLinks tabLink={bookTabs} toLink="/books" selectedTab={tabKey} />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

@@ -1,35 +1,94 @@
 import React from 'react';
-import { Tab, Tabs } from 'react-bootstrap';
-import CustomTabs from './CustomTabs';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import { createTheme, ThemeProvider } from '@mui/material';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface TabLinksProps {
   tabLink: TabProps[];
-  setSelectedTab: (value: string) => void;
   selectedTab?: string;
-  className?: string;
+  toLink: string;
+  params?: string;
+  display?: string;
 }
 interface TabProps {
   value: string;
   label: string;
 }
-
+const StyleTabs = styled.div`
+  .tab-border {
+    border-top: 2px solid #3A3B46;
+    margin-top: -2px;
+  }
+`;
 function TabLinks({
-  tabLink, setSelectedTab, selectedTab, className,
+  tabLink, selectedTab, toLink, params, display,
 }: TabLinksProps) {
+  const color = '#ffffff';
+  const theme = createTheme({
+    components: {
+      MuiTabs: {
+        styleOverrides: {
+          flexContainer: {
+            justifyContent: tabLink.length > 3 ? 'space-between' : 'start',
+            '@media (max-width:1199px)': {
+              justifyContent: tabLink.length > 2 ? 'space-between' : 'center',
+            },
+          },
+          indicator: {
+            backgroundColor: 'var(--bs-primary) !important',
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            color,
+            textTransform: 'none',
+            fontSize: '1.06667rem',
+            fontFamily: 'Roboto',
+            '&.Mui-selected ': {
+              color: 'var(--bs-primary) !important',
+            },
+            '&:hover': {
+              color: 'var(--bs-primary) !important',
+            },
+          },
+        },
+      },
+    },
+  });
   return (
-    <CustomTabs className="bg-dark bg-mobile-transparent rounded-3">
-      <Tabs activeKey={selectedTab} className={`border-0 flex-nowrap mt-3 fs-3 ${className}`} onSelect={(tab: any) => setSelectedTab(tab)}>
-        {tabLink.map(({ value, label }) => (
-          <Tab key={value} eventKey={value} title={label} />
-        ))}
-      </Tabs>
-    </CustomTabs>
+    <ThemeProvider theme={theme}>
+      <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
+        <Tabs
+          value={(selectedTab)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          aria-label="scrollable auto tabs example"
+        >
+          {tabLink.map(({ value, label }) => (
+            <Tab
+              key={value}
+              value={value}
+              label={label}
+              component={Link}
+              to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
+            />
+          ))}
+        </Tabs>
+        {display === 'underline' && <div className="tab-border" />}
+      </StyleTabs>
+    </ThemeProvider>
   );
 }
 
 TabLinks.defaultProps = {
-  selectedTab: 'all-books',
-  className: '',
+  selectedTab: 'all',
+  params: '',
+  display: 'default',
 };
 
 export default TabLinks;

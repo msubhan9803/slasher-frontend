@@ -52,9 +52,6 @@ function ProfileHeader({ tabKey }: any) {
     setShow(true);
     setDropDownValue(value);
   };
-  const changeTab = (tab: string) => {
-    navigate(`/${params.userName}/${tab}`);
-  };
 
   return (
     <div className="bg-dark bg-mobile-transparent rounded">

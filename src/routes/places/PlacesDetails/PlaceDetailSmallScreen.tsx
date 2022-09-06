@@ -2,12 +2,13 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Image, Row,
+  Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import postImage from '../../../images/places-post.jpg';
 import LikeDislike from './LikeDislike';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -29,10 +30,8 @@ const LinearIcon = styled.div<LinearIconProps>`
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
-const PlaceProfileImage = styled(Image)`
-  border: 4px solid #1B1B1B;
-  height: 11.25rem;
-  width: 11.25rem;
+const PlaceProfileImage = styled(UserCircleImage)`
+  border: 0.25rem solid #1B1B1B;
 `;
 const StyleBorderButton = styled(RoundButton)`
   border: 1px solid #3A3B46;
@@ -73,7 +72,7 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
   return (
     <Row className="d-flex">
       <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-        <PlaceProfileImage src={postImage} className="rounded-circle" />
+        <PlaceProfileImage size="11.25rem" src={postImage} />
         <div className="d-md-none text-center text-md-start text-lg-center text-xl-start  mt-3 mt-md-0 ps-md-0">
           <p className="fs-5">July 28,2022  - July 28,2022 </p>
           <h1 className="h2">High Desert Haunted House</h1>

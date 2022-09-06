@@ -5,8 +5,8 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import CommentSection from '../components/CommentSection/CommentSection';
 import ReportModal from '../../../components/ui/ReportModal';
+import CommentSection from '../../../components/ui/PostCommentSection/CommentSection';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface Props {
@@ -100,7 +100,7 @@ function NewsPartnerComments() {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [postData, setPostData] = useState<any[]>(commentSection);
-  const options = ['Report', 'Block user'];
+  const popoverOptions = ['Report', 'Block user'];
 
   const handlePopover = (selectedOption: string) => {
     setShow(true);
@@ -156,7 +156,7 @@ function NewsPartnerComments() {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
-                  popoverOption={options}
+                  popoverOptions={popoverOptions}
                   onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection.map((comment: Values) => (
@@ -173,7 +173,7 @@ function NewsPartnerComments() {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
-                        popoverOption={options}
+                        popoverOptions={popoverOptions}
                         onPopoverClick={handlePopover}
                       />
                     </div>

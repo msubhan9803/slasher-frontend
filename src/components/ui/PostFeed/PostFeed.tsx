@@ -138,6 +138,7 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
                   <PostCommentSection
                     commentSectionData={post.comment}
                     commentImage={post.profileImage}
+                    popoverOption={popoverOptions}
                   />
                 </>
               )

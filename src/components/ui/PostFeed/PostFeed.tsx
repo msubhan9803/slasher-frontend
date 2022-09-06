@@ -28,7 +28,7 @@ interface PostProps {
 interface Props {
   popoverOptions: string[],
   postFeedData: PostProps[],
-  isCommentSection: boolean,
+  isCommentSection?: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -36,7 +36,7 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const PostImage = styled(Image)`
-  aspectRatio : 1.9;
+  acpect-ratio: 1.9;
 `;
 const Content = styled.span`
   white-space: pre-line;
@@ -44,6 +44,18 @@ const Content = styled.span`
 const StyledBorder = styled.div`
   border-top: .063rem solid #3A3B46
 `;
+
+const StyledPostFeed = styled.div`
+  @media(max-width: 767px) {
+    .post {
+      border-bottom: 1px solid #3A3B46;
+    }
+    .post:last-child {
+      border-bottom: none;
+    }
+  }
+`;
+
 function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -64,9 +76,9 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
   };
 
   return (
-    <>
+    <StyledPostFeed>
       {postData.map((post: PostProps) => (
-        <div key={post.id}>
+        <div key={post.id} className="post">
           <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0">
               <PostHeader
@@ -145,10 +157,10 @@ function PostFeed({ postFeedData, popoverOptions, isCommentSection }: Props) {
           />
         )
       }
-    </>
+    </StyledPostFeed>
   );
 }
-PostFeed.default = {
-  hastags: [],
+PostFeed.defaultProps = {
+  isCommentSection: false,
 };
 export default PostFeed;

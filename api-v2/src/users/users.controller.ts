@@ -21,7 +21,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
-  ) { }
+  ) {}
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {

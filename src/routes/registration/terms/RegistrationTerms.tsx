@@ -3,12 +3,10 @@ import {
   Col,
   Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import CommunityStandardsAndRules from '../../../components/terms-and-policies/CommunityStandardsAndRules';
 import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
-import RoundButton from '../../../components/ui/RoundButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
@@ -40,9 +38,9 @@ function RegistrationTerms({ activeStep }: Props) {
           </RoundButtonLink>
         </Col>
         <Col sm={4} md={3}>
-          <RoundButton className="w-100" variant="primary" type="submit">
-            <Link to="/registration/final"> Sign up</Link>
-          </RoundButton>
+          <RoundButtonLink to="/registration/final" className="w-100" variant="primary">
+            Sign up
+          </RoundButtonLink>
         </Col>
       </Row>
     </RegistrationPageWrapper>

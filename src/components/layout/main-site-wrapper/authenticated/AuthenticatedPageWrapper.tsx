@@ -70,7 +70,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   }[type]);
 
   return (
-    <>
+    <div className="page-wrapper full">
       <AuthenticatedPageHeader
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
@@ -114,7 +114,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         </StyledOffcanvas>
       )}
 
-    </>
+    </div>
   );
 }
 

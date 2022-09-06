@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import shoppingPhoto from '../../../images/shopping-photos.png';
 
 const ProfilePhoto = styled(Image)`
-  aspectRatio:1;
+  acpect-ratio:1;
 `;
 const StyledPopover = styled.div`
   top:1.563rem;
@@ -34,7 +34,7 @@ const CustomPopover = styled(Popover)`
   .popover-arrow{
     &:after{
       border-bottom-color:rgb(56,56,56) !important;
-     
+
     }
   }
 `;

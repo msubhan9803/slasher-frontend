@@ -33,25 +33,7 @@ export const allBooks = [
   },
 ];
 
-export const myBooks = [
-  {
-    id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
-  },
-  {
-    id: 2, name: "The Viking's revenge", image: `${BookPoster}`, year: '2022', liked: false,
-  },
-  {
-    id: 3, name: 'Papá rico, papá pobre', image: `${BookPoster}`, year: '2022', liked: true,
-  },
-  {
-    id: 4, name: 'The Kite Runner', image: `${BookPoster}`, year: '2022', liked: true,
-  },
-  {
-    id: 5, name: 'Carrie', image: `${BookPoster}`, year: '2022', liked: true,
-  },
-];
-
-export const slasherIndie = [
+export const slasherIndieBooks = [
   {
     id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
   },
@@ -60,7 +42,7 @@ export const slasherIndie = [
   },
 ];
 
-export const favoritesList = [
+export const favoriteBooks = [
   {
     id: 1, name: 'The ExorcistNot Once But Twice', image: `${BookPoster}`, year: '2022', liked: true,
   },
@@ -81,7 +63,7 @@ export const favoritesList = [
   },
 ];
 
-export const read = [
+export const readBooks = [
   {
     id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
   },
@@ -102,7 +84,7 @@ export const read = [
   },
 ];
 
-export const readingList = [
+export const readingListBooks = [
   {
     id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
   },
@@ -120,7 +102,7 @@ export const readingList = [
   },
 ];
 
-export const buyList = [
+export const buyListBooks = [
   {
     id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
   },
@@ -132,5 +114,17 @@ export const buyList = [
   },
   {
     id: 4, name: 'The Kite Runner', image: `${BookPoster}`, year: '2022', liked: true,
+  },
+];
+
+export const myBooks = [
+  {
+    id: 1, name: 'Home Sweet Horror', image: `${BookPoster}`, year: '2022', liked: true,
+  },
+  {
+    id: 2, name: "The Viking's revenge", image: `${BookPoster}`, year: '2022', liked: false,
+  },
+  {
+    id: 3, name: 'Papá rico, papá pobre', image: `${BookPoster}`, year: '2022', liked: true,
   },
 ];

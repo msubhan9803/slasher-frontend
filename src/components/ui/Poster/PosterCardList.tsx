@@ -26,7 +26,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
           />
         </Col>
       )) : (
-        <h1 className="h4 text-center mb-0">No data found</h1>
+        <h1 className="h2 text-center mb-0">No data found</h1>
       )}
     </Row>
   );

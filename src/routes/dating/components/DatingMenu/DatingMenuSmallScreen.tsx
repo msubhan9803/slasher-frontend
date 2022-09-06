@@ -27,7 +27,7 @@ function DatingMenuSmallScreen() {
         <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/" iconSize="lg" />
+        <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/dating/setup/additional-preferences" iconSize="lg" />
       </Col>
     </DatingMenuList>
   );

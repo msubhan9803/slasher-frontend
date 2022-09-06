@@ -47,22 +47,20 @@ export class UsersService {
   }
 
   async userNameExists(username: string): Promise<boolean> {
-    const usernameEscapedForRegexp = escapeStringRegexp(username);
-
     return (
       (await this.userModel
-        .findOne({ userName: new RegExp(`^${usernameEscapedForRegexp}$`, 'i') }) // case insensitive search
+        .findOne({ userName: username })
+        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
         .count()
         .exec()) > 0
     );
   }
 
   async emailExists(email: string): Promise<boolean> {
-    const emailEscapedForRegexp = escapeStringRegexp(email);
-
     return (
       (await this.userModel
-        .findOne({ email: new RegExp(`^${emailEscapedForRegexp}$`, 'i') }) // case insensitive search
+        .findOne({ email })
+        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
         .count()
         .exec()) > 0
     );

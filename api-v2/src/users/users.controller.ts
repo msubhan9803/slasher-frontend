@@ -12,6 +12,7 @@ import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
+import { sleep } from '../utils/timer-utils';
 
 @Controller('users')
 export class UsersController {
@@ -98,6 +99,7 @@ export class UsersController {
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
+    await sleep(1000);
     if (await this.usersService.userNameExists(userRegisterDto.userName)) {
       throw new HttpException(
         'Username is already associated with an existing user.',
@@ -115,6 +117,6 @@ export class UsersController {
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
     const registeredUser = await this.usersService.create(user);
-    return { id: registeredUser.id }
+    return { id: registeredUser.id };
   }
 }

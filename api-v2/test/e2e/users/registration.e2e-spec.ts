@@ -5,17 +5,13 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { ActiveStatus, User } from '../../../src/schemas/user.schema';
 import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
-import { userFactory } from '../../factories/user.factory';
 import * as bcrypt from 'bcryptjs';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
-  let activeUser: User;
-  let activeUserUnhashedPassword: string;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -45,14 +41,6 @@ describe('Users (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
-
-    activeUserUnhashedPassword = 'TestPassword';
-    activeUser = await usersService.create(
-      userFactory.build(
-        { status: ActiveStatus.Active },
-        { transient: { unhashedPassword: activeUserUnhashedPassword } },
-      ),
-    );
   });
 
   describe('POST /users/register', () => {

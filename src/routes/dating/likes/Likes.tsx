@@ -1,24 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Col, Container, Dropdown, Image, Row,
+  Col, Container, Dropdown, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import SwitchButtonGroup from '../../../components/ui/SwitchButtonGroup';
 import DatingLikesDialog from './DatingLikeDialog';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
-const DatingLikeUserCircleImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
-`;
-const UnsubscribeLikeUserImage = styled(Image)`
-  height: 3.125rem;
-  width: 3.125rem;
-  filter: opacity(0.6) drop-shadow(0 0 0 rgba(0, 0, 0, 0.85)) blur(2px);
-`;
 const CustomDropDown = styled(Dropdown)`
   .dropdown-toggle {
     border: none;
@@ -53,7 +45,6 @@ const CustomDropDown = styled(Dropdown)`
   }
 `;
 function Likes() {
-  const navigate = useNavigate();
   const subscriberOptions = [
     { label: 'Yes', value: 'yes' },
     { label: 'No', value: 'no' },
@@ -102,7 +93,7 @@ function Likes() {
 
   const handleLikesOption = (likeValue: string) => {
     if (likeValue === 'message') {
-      navigate('/dating/conversation');
+      <Link to="/dating/conversation" />;
     } else {
       setShow(true);
     }
@@ -134,7 +125,7 @@ function Likes() {
               <Col key={likeDetails.id} lg={6} className="pb-4 px-4">
                 <Row className="bg-dark p-3 rounded">
                   <Col xs={2} className="p-0">
-                    <DatingLikeUserCircleImage src={likeDetails.profileImage} className="rounded-circle me-3" />
+                    <UserCircleImage src={likeDetails.profileImage} className="me-3" />
                   </Col>
                   <Col xs={9} className="ps-0 ps-md-4 align-self-center">
                     <h2 className="h6 mb-0 rounded-circle">
@@ -164,7 +155,7 @@ function Likes() {
               <Col key={likeDetails.id} xs={12} className="mb-2" onClick={() => setShow(true)}>
                 <Row className="align-items-center border-bottom border-dark pb-3">
                   <Col xs={1} className="p-0">
-                    <UnsubscribeLikeUserImage src={likeDetails.profileImage} className="rounded-circle me-3" />
+                    <UserCircleImage src={likeDetails.profileImage} className="me-3" />
                   </Col>
                   <Col xs={11} className="ps-4">
                     <h2 className="h6 mb-0 rounded-circle">

@@ -1,8 +1,8 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Button, Image } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomPopover from '../../components/ui/CustomPopover';
@@ -16,7 +16,7 @@ interface NotificationProps {
   response?: string;
   timeStamp: string;
 }
-const ProfileImage = styled.div`
+const UserCircleImageContainer = styled.div`
   background-color: #171717;
   img {
     height: 50px;
@@ -34,9 +34,9 @@ const StyledBorder = styled.div`
   }
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 const todayNotifications: NotificationProps[] = [
@@ -67,11 +67,10 @@ const thisMonthNotifications: NotificationProps[] = [
   },
 ];
 function Notifications() {
-  const navigate = useNavigate();
   const popoverOption = ['Settings'];
 
   const handleLikesOption = (likeValue: string) => {
-    navigate(`/navigations/${likeValue}`);
+    <Link to={`/navigations/${likeValue}`} />;
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="notification">
@@ -89,9 +88,9 @@ function Notifications() {
           {todayNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">
@@ -121,9 +120,9 @@ function Notifications() {
           {thisWeekNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">
@@ -153,9 +152,9 @@ function Notifications() {
           {thisMonthNotifications.map((likesDetail) => (
             <StyledBorder key={likesDetail.id} className="d-flex justify-content-between py-3">
               <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                <ProfileImage className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
                   <Image src={likesDetail.userProfile} alt="user profile" className="rounded-circle" />
-                </ProfileImage>
+                </UserCircleImageContainer>
                 <div>
                   <div className="d-flex align-items-center">
                     <h3 className="h4 mb-0 fw-bold me-1">

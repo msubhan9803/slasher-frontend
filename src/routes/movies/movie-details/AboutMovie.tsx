@@ -77,6 +77,7 @@ function AboutMovie() {
     navigate(`/movies/${params.id}/${tab}${selfView ? '?view=self' : ''}`);
   };
   useEffect(() => {
+    console.log('params', params['*']);
     if (params.summary === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
@@ -159,7 +160,7 @@ function AboutMovie() {
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
           <Col xs={selfView ? 12 : 5} md={4} lg={selfView ? 7 : 6} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
+            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params['*']} className="justify-content-around justify-content-xl-start" />
           </Col>
         </Row>
       </div>

@@ -77,7 +77,6 @@ function EventDetails() {
               <a
                 href="https://google.com"
                 target="_blank"
-                className="text-decoration-none"
                 rel="noopener noreferrer"
               >
                 www.websitename.com

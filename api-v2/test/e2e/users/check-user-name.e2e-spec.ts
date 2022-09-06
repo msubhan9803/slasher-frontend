@@ -4,26 +4,21 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../../../src/app.module';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { userFactory } from '../../factories/user.factory';
 
 describe('Users Name (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
-
-  const sampleUserRegisterObject = {
-    firstName: 'user',
-    userName: 'TestUser',
-    email: 'testuser@gmail.com',
-    password: 'TestUser@123',
-    passwordConfirmation: 'TestUser@123',
-    securityQuestion: 'What is favourite food?',
-    securityAnswer: 'Pizza',
-  };
+  let usersService: UsersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
+    usersService = moduleRef.get<UsersService>(UsersService);
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -68,17 +63,15 @@ describe('Users Name (e2e)', () => {
       });
 
       it('userName is already exists', async () => {
-        const postBody = {
-          ...sampleUserRegisterObject,
-        };
-        await request(app.getHttpServer())
-          .post('/users/register')
-          .send(postBody);
-        const userNameObject = {
-          userName: 'TestUser',
-        };
+        const user = await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: 'password' } },
+          ),
+        );
+
         const response = await request(app.getHttpServer())
-          .post(`/users/checkUserName/${userNameObject.userName}`)
+          .post(`/users/checkUserName/${user.userName}`)
           .send();
         expect(response.body).toEqual({
           message: 'userName is already exists',

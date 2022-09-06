@@ -12,9 +12,9 @@ import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 
 const ImageContainer = styled.div`
   height: 12.5rem;
-  width:12.5rem;
+  width: 12.5rem;
   background-color: #1F1F1F;
-  border: 0.125rem solid #3A3B46 !important;
+  border: 2px solid #3A3B46 !important;
   cursor:pointer;
 `;
 const CustomSpan = styled(Form.Text)`
@@ -29,9 +29,9 @@ const CustomText = styled.p`
 `;
 const StyleButton = styled.div`
   .deactivate-btn {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
     }
   }
   @media (max-width: 767px) {

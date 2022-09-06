@@ -33,7 +33,7 @@ const postData = [
               like: 24,
               likeIcon: false,
               commentMention: '@Aly Khan',
-              commentMsg: ' eque porro quisquam est qui dolorem ipsum',
+              commentMsg: 'eque porro quisquam est qui dolorem ipsum',
             },
             {
               id: 23,

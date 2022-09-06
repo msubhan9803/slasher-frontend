@@ -41,10 +41,6 @@ html {
 }
 
 body {
-  @media (min-width: 992px) {
-    padding-top: 125px; // To account for fixed top navbar on desktop views
-  }
-
   &::-webkit-scrollbar {
     width: 10px;
     /* Mostly for vertical scrollbars */
@@ -53,8 +49,29 @@ body {
   }
 }
 
-a {
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &.full {
+    @media (min-width: 992px) {
+      padding-top: 125px; // To account for fixed top navbar on desktop views
+    }
+  }
+}
+
+a:not(.btn) {
   text-decoration: underline;
+}
+
+.btn-link {
+  text-decoration: none;
+  border: none;
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
 }
 
 // This class is often used with flex box and truncated (ellipsis) text
@@ -119,10 +136,6 @@ a {
     $active-color: #ffffff);
 }
 
-.btn-link {
-  text-decoration: none;
-}
-
 html {
   height: 100%;
 }
@@ -138,16 +151,6 @@ body {
   /* FF3.6+ */
   background-image: linear-gradient(to bottom, #161618 0%, #0B0B0B 1200px, transparent 700px);
   background-attachment: fixed;
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-a {
-  text-decoration: none;
 }
 
 input:hover {

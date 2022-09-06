@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import CommentSection from './CommentSection';
+import CommentSection from '../../../components/ui/PostCommentSection/CommentSection';
+import ReportModal from '../../../components/ui/ReportModal';
 import CommentInput from './CommentInput';
 
 interface Props {
@@ -95,6 +96,9 @@ const commentSection = [
 
 function MovieComments() {
   const [postData, setPostData] = useState<any[]>(commentSection);
+  const popoverOption = ['Report', 'Delete'];
+  const [show, setShow] = useState<boolean>(false);
+  const [dropDownValue, setDropDownValue] = useState<string>('');
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...postData];
     tempData.map((data: any) => {
@@ -112,6 +116,10 @@ function MovieComments() {
       return tempData;
     });
     setPostData(tempData);
+  };
+  const handlePopover = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
   };
   return (
     <div className="bg-dark p-3 rounded-2 mt-3">
@@ -131,6 +139,8 @@ function MovieComments() {
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
+                  popoverOptions={popoverOption}
+                  onPopoverClick={handlePopover}
                 />
                 {data.commentReplySection.map((comment: Values) => (
                   <div key={comment.id} className="ms-5 ps-2">
@@ -146,6 +156,8 @@ function MovieComments() {
                         commentMention={comment.commentMention}
                         commentImg={comment.commentImg}
                         onIconClick={() => handleLikeIcon(comment.id)}
+                        popoverOptions={popoverOption}
+                        onPopoverClick={handlePopover}
                       />
                     </div>
                   </div>
@@ -155,6 +167,7 @@ function MovieComments() {
           </Col>
         </Row>
       ))}
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

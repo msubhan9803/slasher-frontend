@@ -5,9 +5,9 @@ import styled from 'styled-components';
 import RoundButton from './RoundButton';
 
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 function ShareButton() {

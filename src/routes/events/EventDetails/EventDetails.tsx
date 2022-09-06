@@ -35,8 +35,8 @@ const StyledBorder = styled.div`
 function EventDetails() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="event">
-      <Row className="justify-content-end my-4 d-lg-none">
-        <Col md={4}>
+      <Row className="justify-content-center my-4 d-lg-none">
+        <Col md={6}>
           <Link to="/events/suggestion">
             <RoundButton className="w-100 fs-4">Suggest event</RoundButton>
           </Link>
@@ -74,7 +74,14 @@ function EventDetails() {
           </Col>
           <Col md={5} xl={6}>
             <div className="d-flex justify-content-between align-items-center">
-              <p className="mb-0">www.websitename.com</p>
+              <a
+                href="https://google.com"
+                target="_blank"
+                className="text-decoration-none"
+                rel="noopener noreferrer"
+              >
+                www.websitename.com
+              </a>
               <StyleBorderButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn bg-black py-2" variant="lg">
                 <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
                 <h1 className="h3 m-0">Share</h1>

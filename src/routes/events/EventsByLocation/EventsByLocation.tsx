@@ -19,6 +19,7 @@ import 'leaflet/dist/leaflet.css';
 const Map = styled(MapContainer)`
   height: 400px !important;
   width: 100% !important;
+  z-index:0;
   .leaflet-div-icon {
     background: transparent !important;
     border: none !important;
@@ -65,7 +66,6 @@ function EventsByLocation() {
       <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
         <Map
           key={`${center[0]}-${center[1]}`}
-          style={{ height: '400px !important', width: '100% !important' }}
           center={center}
           zoom={ZOOM_LEVEL}
           ref={mapRef}

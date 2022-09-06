@@ -20,8 +20,8 @@ function EventHeader({ tabKey }: EventHeaderProps) {
   return (
     <>
       <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
-      <Row className="justify-content-end mt-4 d-lg-none">
-        <Col md={4}>
+      <Row className="justify-content-center mt-4 d-lg-none">
+        <Col md={6}>
           <Link to="/events/suggestion">
             <RoundButton className="w-100 fs-4">Suggest event</RoundButton>
           </Link>

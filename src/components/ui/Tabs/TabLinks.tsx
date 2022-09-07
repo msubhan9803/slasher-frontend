@@ -23,6 +23,10 @@ const StyleTabs = styled.div`
     margin-top: -2px;
   }
 `;
+const StyledBadge = styled.div`
+  width: 24px;
+  height: 24px;
+`;
 function TabLinks({
   tabLink, selectedTab, toLink, params, display,
 }: TabLinksProps) {
@@ -70,11 +74,21 @@ function TabLinks({
           allowScrollButtonsMobile
           aria-label="scrollable auto tabs example"
         >
-          {tabLink.map(({ value, label }) => (
+          {tabLink.map(({ value, label, badge }) => (
             <Tab
               key={value}
               value={value}
-              label={label}
+              iconPosition="end"
+              label={badge
+                ? (
+                  <>
+                    {label}
+                    <StyledBadge className="h6 mb-0 d-flex justify-content-center align-items-center bg-primary ms-2 p-0 rounded-circle text-black">
+                      {badge}
+                    </StyledBadge>
+                  </>
+                )
+                : label}
               component={Link}
               to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
               className="text-decoration-none"

@@ -12,6 +12,9 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { NotificationsService } from '../notifications/providers/notifications.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from '../services/mail.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('users')
 export class UsersController {
@@ -19,6 +22,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   @Post('sign-in')
@@ -95,5 +99,29 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    try {
+      const userData = await this.usersService.findByEmail(
+        forgotPasswordDto.email,
+      );
+      if (!userData)
+        throw new HttpException(
+          'Invalid email',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      const generateRandomToken = uuidv4();
+      await this.mailService.sendForgotPasswordEmail(
+        userData.email,
+        generateRandomToken,
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Something wen wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

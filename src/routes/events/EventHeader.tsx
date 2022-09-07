@@ -1,6 +1,6 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 
@@ -13,13 +13,9 @@ const tabs = [
   { value: 'favorites', label: 'Favorites' },
 ];
 function EventHeader({ tabKey }: EventHeaderProps) {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/events/${tab}`);
-  };
   return (
     <>
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
+      <TabLinks tabLink={tabs} toLink="/events" selectedTab={tabKey} tabsClass="space-between" />
       <Row className="justify-content-center mt-4 d-lg-none">
         <Col md={6}>
           <Link to="/events/suggestion">

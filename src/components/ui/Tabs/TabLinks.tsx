@@ -76,6 +76,7 @@ function TabLinks({
               label={label}
               component={Link}
               to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
+              className="text-decoration-none "
             />
           ))}
         </Tabs>

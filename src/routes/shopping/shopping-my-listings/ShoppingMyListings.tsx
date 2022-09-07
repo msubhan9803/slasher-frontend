@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ShoppingCardList from '../components/ShoppingCardList';
 import ShoppingSelect from '../components/ShoppingSelect';
@@ -18,10 +17,6 @@ const myListings = [
   },
 ];
 function ShoppingMyListings() {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/shopping/${tab}`);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
       <ShoppingHeader tabKey="my-listings" changeTab={changeTab} />

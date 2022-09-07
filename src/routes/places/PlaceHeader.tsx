@@ -6,8 +6,6 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 interface PlaceHeaderProps {
   tabKey: string;
-  changeTab: (value: string) => void;
-
 }
 const tabs = [
   { value: 'by-location', label: 'By location' },
@@ -21,10 +19,10 @@ const sortoptions = [
   { value: 'releaseDate', label: 'Release Date' },
   { value: 'userRating', label: 'User Rating' },
 ];
-function PlaceHeader({ tabKey, changeTab }: PlaceHeaderProps) {
+function PlaceHeader({ tabKey }: PlaceHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4 justify-content-between" />
+      <TabLinks tabLink={tabs} toLink="/places" selectedTab={tabKey} />
       <Row className="mt-4 mb-lg-3 justify-content-between align-items-center">
         <Col md={4} lg={5} className="mt-4 mt-md-0">
           <SortData type="select" className="rounded-5" />

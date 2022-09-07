@@ -1,10 +1,6 @@
 import React from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, OverlayTrigger, Popover, Row,
-} from 'react-bootstrap';
-import styled from 'styled-components';
+import { Col, Row } from 'react-bootstrap';
+import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
@@ -12,40 +8,12 @@ interface PostHeaderProps {
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
+  onPopoverClick: (value: string) => void;
 }
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: red;
-  }
-`;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
-`;
 
 function PostHeader({
-  userName, postDate, profileImage, popoverOptions,
+  userName, postDate, profileImage, popoverOptions, onPopoverClick,
 }: PostHeaderProps) {
-  const popover = (
-    <CustomPopover id="popover-basic" className="py-2 rounded-2">
-      {popoverOptions.map((option) => <PopoverText key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light" role="button">{option}</PopoverText>)}
-    </CustomPopover>
-  );
   return (
     <Row className="justify-content-between">
       <Col xs="auto">
@@ -62,13 +30,7 @@ function PostHeader({
         </Row>
       </Col>
       <Col xs="auto" className="d-block">
-        <StyledPopover>
-          <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-            <Button variant="link" className="pe-1 shadow-none">
-              <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-            </Button>
-          </OverlayTrigger>
-        </StyledPopover>
+        <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
       </Col>
     </Row>
   );

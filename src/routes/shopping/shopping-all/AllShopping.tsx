@@ -44,10 +44,6 @@ const allShopping = [
   },
 ];
 function AllShopping() {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/shopping/${tab}`);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
       <div className="d-flex flex-column">

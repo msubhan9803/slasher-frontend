@@ -1,6 +1,6 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import {
   Dropdown,
 } from 'react-bootstrap';

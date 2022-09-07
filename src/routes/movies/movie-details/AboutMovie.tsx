@@ -5,7 +5,10 @@ import {
 import styled from 'styled-components';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  Navigate,
+  Route, Routes, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
@@ -17,6 +20,7 @@ import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
 import MovieComments from '../components/MovieComments';
 import MovieEdit from '../movie-edit/MovieEdit';
+import MoviePosts from '../movie-posts/MoviePosts';
 
 interface MovieIconProps {
   label: string;
@@ -65,13 +69,13 @@ const FollowStyledButton = styled(RoundButton)`
 `;
 function AboutMovie() {
   const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
-  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
+  const selfView = searchParams.get('view') === 'self';
+  const tabs = selfView ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
 
   useEffect(() => {
-    if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/movies/${params.id}/details`); }
+    if (params.summary === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -152,22 +156,28 @@ function AboutMovie() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
-            <TabLinks tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
+          <Col xs={12} md={6} lg={selfView ? 10 : 12} xl={9}>
+            <TabLinks tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params.summary} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
-      {
-        params.summary === 'details' && (
-          <>
-            <MovieOverview />
-            <MovieCasts />
-            <MovieTrailers />
-            <MovieComments />
-          </>
-        )
-      }
-      {queryParam === 'self' && params.summary === 'edit' && <MovieEdit />}
+
+      <Routes>
+        <Route path="/" element={<Navigate to="details" replace />} />
+        <Route
+          path="details"
+          element={(
+            <>
+              <MovieOverview />
+              <MovieCasts />
+              <MovieTrailers />
+              <MovieComments />
+            </>
+          )}
+        />
+        <Route path="posts" element={<MoviePosts />} />
+        <Route path="edit" element={<MovieEdit />} />
+      </Routes>
     </div>
   );
 }

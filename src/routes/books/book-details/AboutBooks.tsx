@@ -10,13 +10,10 @@ import BookSummary from './BookSummary';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { BookIconProps } from '../components/BookProps';
 import BookEdit from '../book-edit/BookEdit';
-import CreatePostInput from '../book-posts/CreatePostInput';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
-import postImage from '../../../images/book-post-image.jpg';
 import BookOverview from './BookOverview';
 import BookComments from '../components/BookComments';
-import ReportModal from '../../../components/ui/ReportModal';
 import { BookIconList } from '../components/booksList';
+import BookPosts from '../book-posts/BookPosts';
 
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
@@ -40,31 +37,13 @@ const tabsForViewer = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts' },
 ];
-const postData = [
-  {
-    id: 1,
-    userName: 'Aly khan',
-    profileImage: 'https://i.pravatar.cc/300?img=12',
-    postDate: '06/18/2022 11:10 PM',
-    content: 'A retired cop battles a murderer who never gets his hands dirty when he kills. And a man stumbles into a league of immortal assassins, who kill to protect their.',
-    postUrl: postImage,
-    likeIcon: false,
-  },
-];
-const popoverOptions = ['Edit', 'Delete'];
+
 function AboutBooks() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const [show, setShow] = useState(false);
-  const [dropDownValue, setDropDownValue] = useState('');
-  const handlePopoverOption = (value: string) => {
-    setShow(true);
-    setDropDownValue(value);
-  };
-
   useEffect(() => {
     if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
   });
@@ -158,19 +137,8 @@ function AboutBooks() {
           <BookComments />
         </>
       )}
-      {params.summary === 'posts' && (
-        <>
-          <CreatePostInput />
-          <PostFeed
-            postFeedData={postData}
-            popoverOptions={popoverOptions}
-            isCommentSection={false}
-            onPopoverClick={handlePopoverOption}
-          />
-        </>
-      )}
+      {params.summary === 'posts' && <BookPosts />}
       {queryParam === 'self' && params.summary === 'edit' && <BookEdit />}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }

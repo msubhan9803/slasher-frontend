@@ -11,6 +11,7 @@ interface TabLinksProps {
   toLink: string;
   params?: string;
   display?: string;
+  tabsClass?: string;
 }
 interface TabProps {
   value: string;
@@ -28,7 +29,7 @@ const StyledBadge = styled.div`
   height: 24px;
 `;
 function TabLinks({
-  tabLink, selectedTab, toLink, params, display,
+  tabLink, selectedTab, toLink, params, display, tabsClass,
 }: TabLinksProps) {
   const color = '#ffffff';
   const theme = createTheme({
@@ -105,6 +106,7 @@ TabLinks.defaultProps = {
   selectedTab: 'all',
   params: '',
   display: 'default',
+  tabsClass: '',
 };
 
 export default TabLinks;

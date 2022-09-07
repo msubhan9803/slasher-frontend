@@ -9,7 +9,7 @@ interface Props {
   imageUrl: string
 }
 const StyledDiv = styled.div`
-  border : 0.071rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   border-radius: 6.25rem;
 `;
 function CustomCreatePost({ imageUrl }: Props) {
@@ -20,8 +20,8 @@ function CustomCreatePost({ imageUrl }: Props) {
           <UserCircleImage size="2.5rem" src={imageUrl} />
           <span className="ms-2 text-light fs-5">Create a post</span>
         </div>
-        <div className="align-self-center me-2 text-white">
-          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
+        <div className="align-self-center me-2">
+          <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" className="text-white" />
         </div>
       </StyledDiv>
     </RoundButton>

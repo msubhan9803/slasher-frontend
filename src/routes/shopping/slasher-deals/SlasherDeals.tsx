@@ -1,6 +1,5 @@
 import React from 'react';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
 import ShoppingCardList from '../components/ShoppingCardList';
 import ShoppingSelect from '../components/ShoppingSelect';
 import ShoppingHeader from '../ShoppingHeader';
@@ -18,7 +17,6 @@ function SlasherDeals() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
       <ShoppingHeader tabKey="slasher-deals" />
-      <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
       <div className="order-4 my-4">
         <ShoppingSelect />
       </div>

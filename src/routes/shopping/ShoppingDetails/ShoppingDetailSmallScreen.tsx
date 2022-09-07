@@ -51,7 +51,7 @@ const FavoriteIconDiv = styled.div`
   border: 1px solid #3A3B46;
 `;
 const StyledBorder = styled.div`
-  border-top: .063rem solid #3A3B46
+  border-top: 1px solid #3A3B46
 `;
 
 function ShoppingDetailSmallScreen({ toggle, onToggleClick }: Props) {

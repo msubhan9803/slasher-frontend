@@ -26,7 +26,7 @@ const SelectedHashtagButton = styled(Button)`
 `;
 const SelectedHashtagContainer = styled.div`
   background-color: #1B1B1B;
-  border : .063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   min-height: 6.5rem;
 `;
 const HashtagText = styled.p`

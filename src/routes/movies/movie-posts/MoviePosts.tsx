@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
-import CreatePostInput from './CreatePostInput';
+import CreatePostInput from '../../../components/ui/CreatePostInput';
 import postImage from '../../../images/movie-post.jpg';
+import ReportModal from '../../../components/ui/ReportModal';
 
 const selfPostData = [
   {
@@ -43,6 +44,12 @@ function MoviePosts() {
   const queryParam = searchParams.get('view');
   const popoverOptions = queryParam === 'self' ? selfOptions : viewerOptions;
   const postData = queryParam === 'self' ? selfPostData : viewerPostData;
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
+  };
   return (
     <>
       {queryParam === 'self' && <CreatePostInput />}
@@ -50,7 +57,9 @@ function MoviePosts() {
         postFeedData={postData}
         popoverOptions={popoverOptions}
         isCommentSection={false}
+        onPopoverClick={handlePopoverOption}
       />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </>
   );
 }

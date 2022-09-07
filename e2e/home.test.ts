@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/This is a placeholder home page!/);
+    await expect(page.locator('main')).toHaveText(/Suggested friends/);
   });
 });

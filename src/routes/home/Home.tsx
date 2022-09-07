@@ -1,28 +1,48 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import CustomCreatePost from '../../components/ui/CustomCreatePost';
+import postImage from '../../images/news-post.svg';
+import PostFeed from '../../components/ui/PostFeed/PostFeed';
+import SuggestedFriend from './SuggestedFriend';
+import ReportModal from '../../components/ui/ReportModal';
+
+const postData = [
+  {
+    id: 1,
+    userName: 'Maureen Biologist',
+    profileImage: 'https://i.pravatar.cc/300?img=12',
+    postDate: '06/18/2022 11:10 PM',
+    content: 'Hell is empty and all the devils are here. \n',
+    hashTag: ['horror', 'slasher', 'horroroasis'],
+    postUrl: postImage,
+    likeIcon: false,
+  },
+];
+const popoverOptions = ['Edit', 'Delete'];
 
 function Home() {
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    if (value === 'Delete') {
+      setShow(true);
+      setDropDownValue(value);
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <h1 className="h3 mb-3">Home</h1>
-      <p>This is a placeholder home page!</p>
-      <p>Here are a few sample links for testing:</p>
-      <p>
-        <Link to="/sign-in">Sign in</Link>
-        <br />
-        <Link to="/forgot-password">Forgot password</Link>
-        <br />
-        <Link to="/verification-email-not-received">Verification Email Not Received</Link>
-        <br />
-        <Link to="/registration">Registration</Link>
-        <br />
-        <Link to="/dating/setup/identity">Dating Setup - Identity</Link>
-        <br />
-        <Link to="/dating/preferences">Dating Preferences</Link>
-        <br />
-        <Link to="/right-nav-viewer">Right Nav Viewer</Link>
-      </p>
+      <div>
+        <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+        <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
+        <SuggestedFriend />
+        <PostFeed
+          postFeedData={postData}
+          popoverOptions={popoverOptions}
+          isCommentSection={false}
+          onPopoverClick={handlePopoverOption}
+        />
+      </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

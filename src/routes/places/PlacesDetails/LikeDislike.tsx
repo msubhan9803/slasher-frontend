@@ -12,10 +12,10 @@ const StyledOnLikedIcon = styled(RoundButton)`
   &:hover {
     color: #00FF0A;
     border: 1px solid #00FF0A;
-  }  
+  }
   svg {
     margin-left: 0.125rem;
-    margin-top: -0.063rem;
+    margin-top: -1px;
   }
 `;
 const StyledLikeIcon = styled(RoundButton)`
@@ -29,7 +29,7 @@ const StyledLikeIcon = styled(RoundButton)`
   }
   svg {
     margin-left: 0.125rem;
-    margin-top: -0.063rem;
+    margin-top: -1px;
   }
 `;
 const StyledOnDisLikeIcon = styled(RoundButton)`
@@ -41,9 +41,9 @@ const StyledOnDisLikeIcon = styled(RoundButton)`
   &:hover {
     color: #FF1800;
     border: 1px solid #FF1800;
-  } 
+  }
   svg {
-    margin-left: -0.063rem;
+    margin-left: -1px;
   }
 `;
 const StyledDisLikeIcon = styled(RoundButton)`
@@ -55,9 +55,9 @@ const StyledDisLikeIcon = styled(RoundButton)`
   &:hover {
     color: #FF1800;
     border: 1px solid #3A3B46;
-  } 
+  }
   svg {
-    margin-left: -0.063rem;
+    margin-left: -1px;
   }
 `;
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`

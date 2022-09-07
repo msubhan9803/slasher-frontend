@@ -17,7 +17,7 @@ interface Props {
 const ProfileImage = styled(Image)`
   height:6.25rem;
   width:6.25rem;
-  border:.12rem solid #FFFFFF;
+  border:2px solid #FFFFFF;
 `;
 
 const StyleFriend = styled(Row)`
@@ -29,12 +29,6 @@ const StyleFriend = styled(Row)`
   &::-webkit-scrollbar {
     display: none;
 }
-`;
-const CancelRequestButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
-  &:hover {
-  border: 0.063rem solid #3A3B46;
-  }
 `;
 const Card = styled.div`
   height:12.857rem;
@@ -121,11 +115,9 @@ function SuggestedFriend() {
                 <p className="text-center my-2">{user.userName}</p>
                 {user.addFriend
                   ? (
-                    <ButtonContainer>
-                      <CancelRequestButton className="bg-black fs-3 w-100 text-center text-white px-2" onClick={() => toggleAddFriendButton(user.id)}>
-                        Cancel Request
-                      </CancelRequestButton>
-                    </ButtonContainer>
+                    <RoundButton variant="black" className="w-100 fs-3" onClick={() => toggleAddFriendButton(user.id)}>
+                      Cancel Request
+                    </RoundButton>
                   )
                   : (
                     <RoundButton className="w-100 fs-3" onClick={() => toggleAddFriendButton(user.id)}>

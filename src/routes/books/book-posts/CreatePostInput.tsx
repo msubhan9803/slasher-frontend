@@ -6,7 +6,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 const StyledDiv = styled.div`
-  border : 0.063rem solid #3A3B46;
+  border : 1px solid #3A3B46;
   border-radius: 6.25rem;
 `;
 const CameraIcon = styled(FontAwesomeIcon)`

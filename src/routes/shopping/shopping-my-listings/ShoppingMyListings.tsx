@@ -19,7 +19,7 @@ const myListings = [
 function ShoppingMyListings() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="my-listings" changeTab={changeTab} />
+      <ShoppingHeader tabKey="my-listings" />
       <div className="order-4 my-4">
         <ShoppingSelect />
       </div>

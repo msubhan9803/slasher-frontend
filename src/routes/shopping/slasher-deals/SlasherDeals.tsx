@@ -16,7 +16,7 @@ const slasherDeals = [
 function SlasherDeals() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="slasher-deals" changeTab={changeTab} />
+      <ShoppingHeader tabKey="slasher-deals" />
       <div className="order-4 my-4">
         <ShoppingSelect />
       </div>

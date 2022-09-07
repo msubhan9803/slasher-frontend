@@ -1,8 +1,8 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import SortData from '../../../components/filter-sort/SortData';
-import RoundButton from '../../../components/ui/RoundButton';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 const sortoptions = [
   { value: 'alphabetical', label: 'Alphabetical' },
@@ -20,9 +20,9 @@ function ShoppingSelect() {
         <SortData title="Sort: " sortoptions={sortoptions} type="sort" className="rounded-5" />
       </Col>
       <Col className={`d-lg-none mt-3 mt-md-0 mb-3 mb-md-0 order-md-3 order-first ${params['*'] === 'all' && 'd-none'}`}>
-        <Link to="/shopping/all">
-          <RoundButton className="w-100 fs-4">Become a vendor</RoundButton>
-        </Link>
+        <RoundButtonLink to="/shopping/all" className="w-100" variant="primary">
+          Become a vendor
+        </RoundButtonLink>
       </Col>
     </Row>
   );

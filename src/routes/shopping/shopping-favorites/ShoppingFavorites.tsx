@@ -19,7 +19,7 @@ const favorites = [
 function ShoppingFavorites() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="favorites" changeTab={changeTab} />
+      <ShoppingHeader tabKey="favorites" />
       <div className="order-4 my-4">
         <ShoppingSelect />
       </div>

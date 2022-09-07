@@ -3,7 +3,6 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 interface ShoppingHeaderProps {
   tabKey: string;
-  changeTab: (value: string) => void;
 }
 const tabs = [
   { value: 'all', label: 'All' },
@@ -11,9 +10,9 @@ const tabs = [
   { value: 'favorites', label: 'Favorites' },
   { value: 'my-listings', label: 'My listings' },
 ];
-function ShoppingHeader({ tabKey, changeTab }: ShoppingHeaderProps) {
+function ShoppingHeader({ tabKey }: ShoppingHeaderProps) {
   return (
-    <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={tabKey} className="px-md-4" />
+    <TabLinks tabLink={tabs} toLink="/shopping" selectedTab={tabKey} />
   );
 }
 

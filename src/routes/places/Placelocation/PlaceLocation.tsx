@@ -7,7 +7,6 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PlaceHeader from '../PlaceHeader';
 import MapImage from '../../../images/place-map.jpg';
@@ -61,7 +60,6 @@ const locationList = [
 
 function PlaceLocation() {
   const [search, setSearch] = useState<string>('');
-  const navigate = useNavigate();
 
   const slideLocationLeft = () => {
     const slider = document.getElementById('slideLocation');
@@ -76,13 +74,9 @@ function PlaceLocation() {
     }
   };
 
-  const changeTab = (tab: string) => {
-    navigate(`/places/${tab}`);
-  };
-
   return (
     <AuthenticatedPageWrapper rightSidebarType="place">
-      <PlaceHeader tabKey="by-location" changeTab={changeTab} />
+      <PlaceHeader tabKey="by-location" />
       <div className="mt-4">
         <div className="bg-dark p-4 pb-0 mt-3  rounded-3 mb-3 d-block d-md-none">
           <div className="d-flex justify-content-between">
@@ -90,7 +84,7 @@ function PlaceLocation() {
             <p className="fs-3 text-primary">Get featured</p>
           </div>
           <div className="d-flex align-items-center mt-3">
-            <Button className="d-none d-md-block ps-0 prev bg-transparent border-0 shadow-none text-white" onClick={slideLocationLeft}>
+            <Button variant="link" className="d-none d-md-block ps-0 prev shadow-none" onClick={slideLocationLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
             </Button>
             <StyledLocation
@@ -107,7 +101,7 @@ function PlaceLocation() {
                 </Col>
               ))}
             </StyledLocation>
-            <Button className="d-none d-md-block pe-0 next bg-transparent border-0 shadow-none text-white" onClick={slideLocationRight}>
+            <Button variant="link" className="d-none d-md-block pe-0 next shadow-none" onClick={slideLocationRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
             </Button>
           </div>
@@ -144,7 +138,7 @@ function PlaceLocation() {
             <p className="fs-3 text-primary">Get featured</p>
           </div>
           <div className="d-flex align-items-center mt-3">
-            <Button className="d-none d-md-block ps-0 prev bg-transparent border-0 shadow-none text-white" onClick={slideLocationLeft}>
+            <Button variant="link" className="d-none d-md-block ps-0 prev shadow-none" onClick={slideLocationLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
             </Button>
             <StyledLocation
@@ -161,7 +155,7 @@ function PlaceLocation() {
                 </Col>
               ))}
             </StyledLocation>
-            <Button className="d-none d-md-block pe-0 next bg-transparent border-0 shadow-none text-white" onClick={slideLocationRight}>
+            <Button variant="link" className="d-none d-md-block pe-0 next shadow-none" onClick={slideLocationRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
             </Button>
           </div>

@@ -9,7 +9,7 @@ interface Props {
   imageUrl: string
 }
 const StyledDiv = styled.div`
-  border : 0.071rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   border-radius: 6.25rem;
 `;
 function CustomCreatePost({ imageUrl }: Props) {

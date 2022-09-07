@@ -16,10 +16,11 @@ import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSid
 import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
 import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
 import NotificationsRIghtSideNav from '../../../../routes/notifications/NotificationsRIghtSideNav';
+import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -67,6 +68,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     book: <BooksRigthSideNav />,
     place: <PlaceRightSidebar />,
     notification: <NotificationsRIghtSideNav />,
+    event: <EventRightSidebar />,
   }[type]);
 
   return (

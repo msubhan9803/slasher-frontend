@@ -13,7 +13,7 @@ const ProfileImage = styled(Image)`
   width: 3.125rem;
 `;
 function FriendsProfileCard({
-  friend, popoverOption, handleFriendsOption, friendsType,
+  friend, popoverOption, handlePopoverOption, friendsType,
 }: any) {
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
@@ -29,13 +29,13 @@ function FriendsProfileCard({
         </div>
       </div>
       <div className="d-flex align-self-center">
-        {friendsType === 'my-friends' ? (
-          <CustomPopover popoverOptions={popoverOption} onPopoverClick={handleFriendsOption} />
-        ) : (
+        {friendsType === 'requested' ? (
           <>
             <CircleButton variant="black" className="me-2 text-success" icon={solid('check')} />
             <CircleButton variant="black" className="me-2 text-primary" icon={solid('times')} />
           </>
+        ) : (
+          <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopoverOption} />
         )}
       </div>
     </Container>
@@ -43,7 +43,7 @@ function FriendsProfileCard({
 }
 
 FriendsProfileCard.defaultProps = {
-  friendsType: '',
+  friendsType: 'my-friends',
 };
 
 export default FriendsProfileCard;

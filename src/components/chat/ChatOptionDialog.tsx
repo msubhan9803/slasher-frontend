@@ -41,7 +41,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
           <h1 className="h3 mb-0 text-primary">Delete</h1>
           <p className="px-3">Are you sure you want to delete this conversation?</p>
           <RoundButton className="mb-3 w-100">Yes</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
       {slectedDropdownValue === 'Block user' && (
@@ -49,7 +49,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
           <h1 className="h3 mb-0 text-primary">Block</h1>
           <p className="px-3">Are you sure you want to block this user?</p>
           <RoundButton className="mb-3 w-100">Yes</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
       {slectedDropdownValue === 'Report' && (
@@ -81,7 +81,7 @@ function ChatOptionDialog({ show, setShow, slectedDropdownValue }: Props) {
             )}
           </StyledTextarea>
           <RoundButton className="mb-3 w-100">Send report</RoundButton>
-          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none" onClick={closeModal}>Cancel report</RoundButton>
+          <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
         </Modal.Body>
       )}
     </ModalContainer>

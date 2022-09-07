@@ -3,6 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
+import ReportModal from '../../../../components/ui/ReportModal';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import ProfileHeader from '../../ProfileHeader';
 import { friendList, friendRequestList } from '../friends-data';
@@ -12,25 +13,29 @@ function ProfileFriendRequest() {
   const navigate = useNavigate();
   const params = useParams();
   const [search, setSearch] = useState<string>('');
-  const selfOptions = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const friendsTabs = [
     { value: 'all', label: 'All friends' },
     { value: 'friend-request', label: 'Friend requests', badge: friendRequestList.length },
   ];
-  const changeTab = (tab: string) => {
-    navigate(`/${params.userName}/friends/${tab}?view=self`);
-  };
   useEffect(() => {
     navigate(`/${params.userName}/friends/${friendsTabs[0].value}?view=self`);
   }, []);
-  const handleFriendsOption = (value: string) => {
-    navigate(`/${value}`);
+  const handlePopoverOption = (value: string) => {
+    if (value === 'Report' || value === 'Block user') {
+      setShow(true);
+      setDropDownValue(value);
+    } else {
+      navigate('/profile/friends/all?view=self');
+    }
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <ProfileHeader tabKey="friends" />
       <div className="mt-3">
-        <div className="d-md-flex d-block justify-content-between">
+        <div className="d-sm-flex d-block justify-content-between">
           <div>
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
           </div>
@@ -41,20 +46,15 @@ function ProfileFriendRequest() {
           )}
         </div>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          <TabLinks
-            tabLink={friendsTabs}
-            setSelectedTab={changeTab}
-            selectedTab={params.id}
-            className="justify-content-center justify-content-md-start"
-          />
+          <TabLinks tabLink={friendsTabs} toLink="/profile/friends" selectedTab={params.id} params="?view=self" />
           {params.id === 'friend-request' ? (
             <Row className="mt-4">
               {friendRequestList.map((friend: any) => (
                 <Col sm={6} lg={12} xl={6} key={friend.id}>
                   <FriendsProfileCard
                     friend={friend}
-                    popoverOption={selfOptions}
-                    handleFriendsOption={handleFriendsOption}
+                    popoverOption={popoverOption}
+                    handlePopoverOption={handlePopoverOption}
                     friendsType="requested"
                   />
                 </Col>
@@ -66,8 +66,8 @@ function ProfileFriendRequest() {
                 <Col md={4} lg={6} xl={4} key={friend.id}>
                   <FriendsProfileCard
                     friend={friend}
-                    popoverOption={selfOptions}
-                    handleFriendsOption={handleFriendsOption}
+                    popoverOption={popoverOption}
+                    handlePopoverOption={handlePopoverOption}
                     friendsType="my-friends"
                   />
                 </Col>
@@ -76,6 +76,7 @@ function ProfileFriendRequest() {
           )}
         </div>
       </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

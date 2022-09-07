@@ -4,15 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
-import FriendsProfileCard from './FriendsProfileCard';
+import ReportModal from '../../../components/ui/ReportModal';
 import { friendList } from './friends-data';
+import FriendsProfileCard from './FriendsProfileCard';
 
 function ProfileFriends() {
   const navigate = useNavigate();
   const [search, setSearch] = useState<string>('');
-  const vieweOptions = ['View profile', 'Report', 'Block user'];
-  const handleFriendsOption = (value: string) => {
-    navigate(`/${value}`);
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const popoverOption = ['View profile', 'Report', 'Block user'];
+  const handlePopoverOption = (value: string) => {
+    if (value === 'View profile') {
+      navigate('/profile/friends');
+    } else {
+      setShow(true);
+      setDropDownValue(value);
+    }
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
@@ -32,14 +40,15 @@ function ProfileFriends() {
               <Col md={4} lg={6} xl={4} key={friend.id}>
                 <FriendsProfileCard
                   friend={friend}
-                  popoverOption={vieweOptions}
-                  handleFriendsOption={handleFriendsOption}
+                  popoverOption={popoverOption}
+                  handlePopoverOption={handlePopoverOption}
                 />
               </Col>
             ))}
           </Row>
         </div>
       </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

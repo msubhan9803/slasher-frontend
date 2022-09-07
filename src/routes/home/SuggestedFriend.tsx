@@ -40,12 +40,6 @@ const Card = styled.div`
     padding-right: 0rem;
   }
 `;
-const ButtonContainer = styled.div`
-  display: inline-block;
-  white-space: nowrap;
-  width:100%;
-  text-align: center;
-`;
 const friendList = [
   {
     id: 1, profileImage: 'https://i.pravatar.cc/300?img=23', userName: 'Olive Yew', addFriend: false,

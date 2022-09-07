@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import postImage from '../../images/news-post.svg';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
+import ReportModal from '../../components/ui/ReportModal';
 
 const postData = [
   {
@@ -20,6 +21,14 @@ const postData = [
 const popoverOptions = ['Edit', 'Delete'];
 
 function Home() {
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    if (value === 'Delete') {
+      setShow(true);
+      setDropDownValue(value);
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div>
@@ -30,8 +39,10 @@ function Home() {
           postFeedData={postData}
           popoverOptions={popoverOptions}
           isCommentSection={false}
+          onPopoverClick={handlePopoverOption}
         />
       </div>
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );
 }

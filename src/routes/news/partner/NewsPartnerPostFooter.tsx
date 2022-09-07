@@ -15,7 +15,7 @@ interface Props {
   onLikeClick: (val: number) => void
 }
 const CardFooter = styled(Card.Footer)`
-  border-top: .063rem solid #3A3B46;
+  border-top: 1px solid #3A3B46;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {

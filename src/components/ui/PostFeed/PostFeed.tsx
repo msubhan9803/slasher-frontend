@@ -42,7 +42,7 @@ const Content = styled.span`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
-  border-top: .063rem solid #3A3B46
+  border-top: 1px solid #3A3B46
 `;
 
 const StyledPostFeed = styled.div`

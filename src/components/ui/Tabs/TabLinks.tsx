@@ -11,6 +11,7 @@ interface TabLinksProps {
   toLink: string;
   params?: string;
   display?: string;
+  tabsClass?: string;
 }
 interface TabProps {
   value: string;
@@ -23,7 +24,7 @@ const StyleTabs = styled.div`
   }
 `;
 function TabLinks({
-  tabLink, selectedTab, toLink, params, display,
+  tabLink, selectedTab, toLink, params, display, tabsClass,
 }: TabLinksProps) {
   const color = '#ffffff';
   const theme = createTheme({
@@ -31,9 +32,9 @@ function TabLinks({
       MuiTabs: {
         styleOverrides: {
           flexContainer: {
-            justifyContent: tabLink.length > 3 ? 'space-between' : 'start',
+            justifyContent: tabsClass,
             '@media (max-width:1199px)': {
-              justifyContent: tabLink.length > 2 ? 'space-between' : 'center',
+              justifyContent: tabsClass,
             },
           },
           indicator: {
@@ -76,7 +77,7 @@ function TabLinks({
               label={label}
               component={Link}
               to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
-              className="text-decoration-none "
+              className="text-decoration-none"
             />
           ))}
         </Tabs>
@@ -90,6 +91,7 @@ TabLinks.defaultProps = {
   selectedTab: 'all',
   params: '',
   display: 'default',
+  tabsClass: '',
 };
 
 export default TabLinks;

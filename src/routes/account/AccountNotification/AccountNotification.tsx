@@ -80,7 +80,7 @@ function AccountNotification() {
         <div className="mt-5">
           <h1 className="h3 mb-3">Mentions</h1>
           <div className="fs-3  d-flex justify-content-between">
-            <span className="fs-4">Mention on post, comment, reply</span>
+            <span className="fs-4">Mention on post/comment/reply</span>
             <Switch id="11" className="ms-0 ms-md-3" />
           </div>
         </div>

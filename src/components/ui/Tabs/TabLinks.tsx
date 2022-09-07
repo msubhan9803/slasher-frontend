@@ -37,9 +37,9 @@ function TabLinks({
       MuiTabs: {
         styleOverrides: {
           flexContainer: {
-            justifyContent: tabLink.length > 3 ? 'space-between' : 'start',
-            '@media (max-width:600px)': {
-              justifyContent: tabLink.length > 2 ? 'space-between' : 'center',
+            justifyContent: tabsClass,
+            '@media (max-width:1199px)': {
+              justifyContent: tabsClass,
             },
           },
           indicator: {

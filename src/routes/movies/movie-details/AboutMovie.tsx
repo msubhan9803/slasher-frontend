@@ -73,11 +73,8 @@ function AboutMovie() {
   const tabs = selfView ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const changeTab = (tab: string) => {
-    navigate(`/movies/${params.id}/${tab}${selfView ? '?view=self' : ''}`);
-  };
+
   useEffect(() => {
-    console.log('params', params['*']);
     if (params.summary === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
@@ -159,8 +156,8 @@ function AboutMovie() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={selfView ? 12 : 5} md={4} lg={selfView ? 7 : 6} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params['*']} className="justify-content-around justify-content-xl-start" />
+          <Col xs={12} md={6} lg={selfView ? 10 : 12} xl={9}>
+            <TabLinks tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params.summary} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

@@ -1,7 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import RoundButton from '../../../components/ui/RoundButton';
 import ShoppingCardList from '../components/ShoppingCardList';
 import ShoppingSelect from '../components/ShoppingSelect';
 import ShoppingHeader from '../ShoppingHeader';
@@ -16,14 +14,9 @@ const slasherDeals = [
   },
 ];
 function SlasherDeals() {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/shopping/${tab}`);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="slasher-deals" changeTab={changeTab} />
-      <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
+      <ShoppingHeader tabKey="slasher-deals" />
       <div className="order-4 my-4">
         <ShoppingSelect />
       </div>

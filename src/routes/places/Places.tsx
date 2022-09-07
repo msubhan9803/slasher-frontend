@@ -17,7 +17,7 @@ function Places() {
       <Route path="by-location" element={<PlaceLocation />} />
       <Route path="my-places" element={<PlaceMyplaces />} />
       <Route path="newest" element={<PlaceNewest />} />
-      <Route path="/1/:id" element={<PlacesDetails />} />
+      <Route path="/:id/:summary" element={<PlacesDetails />} />
     </Routes>
   );
 }

@@ -3,8 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
-import Popover from 'react-bootstrap/Popover';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface LinearIconProps {
@@ -47,39 +46,10 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
-const CustomPopover = styled(Popover)`
-  z-index :1;
-  background:rgb(27,24,24);
-  border: 1px solid rgb(56,56,56);
-  position:absolute;
-  top: 0px !important;
-  .popover-arrow{
-    &:after{
-      border-left-color:rgb(56,56,56);
-    }
-  }
-`;
-const PopoverText = styled.p`
-  &:hover {
-    background: var(--bs-primary);
-  }
-`;
-const StyledPopover = styled.div`
-  .btn[aria-describedby="popover-basic"]{
-    svg{
-      color: var(--bs-primary);
-    }
-  }
-`;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
 }: Props) {
-  const popover = (
-    <CustomPopover id="popover-basic" className="fs-5 py-2 rounded-2">
-      {popoverOptions.map((option) => <PopoverText role="button" onClick={() => onPopoverClick(option)} key={option} className="ps-4 pb-2 pe-5 pt-2 mb-0 fs-5 text-light">{option}</PopoverText>)}
-    </CustomPopover>
-  );
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -93,13 +63,7 @@ function CommentSection({
               <p className="fs-6 text-light mb-0">{time}</p>
             </div>
             <div className="d-block pe-0">
-              <StyledPopover>
-                <OverlayTrigger trigger="click" placement="left" rootClose overlay={popover}>
-                  <Button className="text-white bg-transparent shadow-none border-0 pt-0 pe-0">
-                    <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-                  </Button>
-                </OverlayTrigger>
-              </StyledPopover>
+              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
             </div>
           </div>
           <span className="text-primary">
@@ -142,20 +106,20 @@ function CommentSection({
               likeIcon
                 ? (
                   <LinearIcon uniqueId="like-button-comment">
-                    <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                    <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
                       <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                       <span className="fs-5">Like</span>
                     </Button>
                   </LinearIcon>
                 )
                 : (
-                  <Button variant="link" className="text-decoration-none me-2 shadow-none" onClick={() => onIconClick(id)}>
+                  <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
                     <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
                     <span className="fs-5">Like</span>
                   </Button>
                 )
             }
-            <Button variant="link" className="text-decoration-none shadow-none">
+            <Button variant="link" className="shadow-none">
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>

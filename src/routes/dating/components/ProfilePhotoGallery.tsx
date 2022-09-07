@@ -6,7 +6,7 @@ import { Form } from 'react-bootstrap';
 import RemoveProfileDialog from '../profile/edit/RemoveProfileDialog';
 
 const ImageContainer = styled.div`
-  height: 10.313rem;
+  aspect-ratio: 1;
   background-color: #1F1F1F;
   border: 2px solid #3A3B46
 `;
@@ -69,7 +69,7 @@ function ProfilePhotoGallery({
     }
   };
   return (
-    <div>
+    <div className="text-start">
       {
         image.image === ''
           ? (
@@ -117,6 +117,14 @@ function ProfilePhotoGallery({
           handleFileChange(e, imageIndex);
           e.target.value = '';
         }}
+      />
+      <Form.Check
+        inline
+        label="Make primary photo"
+        name="primary-photo"
+        type="radio"
+        id={`primary-photo-radio-${imageIndex}`}
+        className="mt-2"
       />
       <RemoveProfileDialog
         show={show}

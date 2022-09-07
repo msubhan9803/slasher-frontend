@@ -17,7 +17,7 @@ const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
 `;
 const StyledBorder = styled.div`
-  border-top: .063rem solid #3A3B46
+  border-top: 1px solid #3A3B46
 `;
 const tabs = [
   { value: 'about', label: 'About' },

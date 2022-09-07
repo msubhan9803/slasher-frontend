@@ -24,13 +24,13 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
+  border: 1px solid #3A3B46;
   &:hover {
-    border: 0.063rem solid #3A3B46;
+    border: 1px solid #3A3B46;
   }
 `;
 const StyledBorder = styled.div`
-  border-top: .063rem solid #3A3B46
+  border-top: 1px solid #3A3B46
 `;
 function EventDetails() {
   return (

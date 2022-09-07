@@ -21,7 +21,7 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 const CardFooter = styled(Card.Footer)`
-  border-top: .063rem solid #242424
+  border-top: 1px solid #242424
 `;
 const StyledPostImage = styled(Row)`
   aspect-ratio: 1.64;

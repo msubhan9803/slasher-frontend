@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
@@ -7,11 +7,15 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signIn from '../../images/sign-in.svg';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
-import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
+import CustomInputGroup from '../../components/ui/CustomInputGroup';
 
 function SignIn() {
+  const [showPassword, setShowPassword] = useState(false);
+  const passwordVisiblility = () => {
+    setShowPassword(!showPassword);
+  };
   return (
     <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
@@ -26,7 +30,14 @@ function SignIn() {
               <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
               <Form>
                 <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
-                <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />} label="Password" inputType="password" />
+                <CustomInputGroup
+                  size="lg"
+                  addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
+                  label="Password"
+                  inputType={showPassword ? 'text' : 'password'}
+                  showPassword={showPassword}
+                  passwordVisiblility={passwordVisiblility}
+                />
 
                 <p className="text-center fs-5">
                   Forgot your password?&nbsp;

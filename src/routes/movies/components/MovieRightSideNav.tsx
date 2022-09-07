@@ -11,7 +11,7 @@ function MovieRightSideNav() {
   return (
     <>
       <Link to="/movies/add">
-        <RoundButton className="w-100 mb-4 fs-3 fw-bold">Add your book</RoundButton>
+        <RoundButton className="w-100 mb-4 fs-3 fw-bold">Add your movie</RoundButton>
       </Link>
       {params.id && params.summary && <NotificationSetting />}
       <AdvertisementBox />

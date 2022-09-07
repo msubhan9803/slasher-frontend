@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { slasherIndieMovies } from '../components/MovieList';
@@ -7,13 +6,9 @@ import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 
 function SlasherIndieMovies() {
-  const navigate = useNavigate();
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
-  const changeTab = (tab: string) => {
-    navigate(`/movies/${tab}`);
-  };
+  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(slasherIndieMovies);
   const searchData = () => {
     let searchResult;
     const newFilter = slasherIndieMovies;
@@ -33,7 +28,6 @@ function SlasherIndieMovies() {
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <MoviesHeader
         tabKey="slasher-indie"
-        changeTab={changeTab}
         showKeys={showKeys}
         setShowKeys={setShowKeys}
         setSearch={setSearch}

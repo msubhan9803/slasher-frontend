@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import ListIcon from '../components/ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
@@ -16,6 +15,8 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import postImage from '../../../images/book-post-image.jpg';
 import BookOverview from './BookOverview';
 import BookComments from '../components/BookComments';
+import ReportModal from '../../../components/ui/ReportModal';
+import { BookIconList } from '../components/booksList';
 
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
@@ -30,20 +31,6 @@ border: 1px solid #3A3B46;
   border: 1px solid #3A3B46;
 }
 `;
-const BookIconList = [
-  {
-    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.445rem', height: '1.445rem', addBook: false,
-  },
-  {
-    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.445rem', height: '1.033rem', addBook: false,
-  },
-  {
-    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.498rem', height: '1.265rem', addBook: true,
-  },
-  {
-    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.098rem', height: '1.265rem', addBook: false,
-  },
-];
 const tabsForSelf = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts' },
@@ -71,13 +58,13 @@ function AboutBooks() {
   const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
   const params = useParams();
-  const changeTab = (tab: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/books/${params.id}/${tab}`);
-    } else {
-      navigate(`/books/${params.id}/${tab}?view=self`);
-    }
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const handlePopoverOption = (value: string) => {
+    setShow(true);
+    setDropDownValue(value);
   };
+
   useEffect(() => {
     if (params.summary === 'edit' && queryParam !== 'self') { navigate(`/books/${params.id}/details`); }
   });
@@ -94,7 +81,6 @@ function AboutBooks() {
     });
     setbookIconListData(tempBookIconList);
   };
-
   return (
     <div>
       <div className="bg-dark p-4 pb-0 rounded-2">
@@ -161,8 +147,8 @@ function AboutBooks() {
           </Col>
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={queryParam === 'self' ? 12 : 5} md={4} lg={queryParam === 'self' ? 7 : 6} xl={5}>
-            <TabLinks tabLink={tabs} setSelectedTab={changeTab} selectedTab={params.summary} className="justify-content-around justify-content-xl-start" />
+          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
+            <TabLinks tabLink={tabs} toLink={`/books/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
@@ -179,15 +165,16 @@ function AboutBooks() {
             postFeedData={postData}
             popoverOptions={popoverOptions}
             isCommentSection={false}
+            onPopoverClick={handlePopoverOption}
           />
         </>
       )}
       {queryParam === 'self' && params.summary === 'edit' && <BookEdit />}
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }
 AboutBooks.defaultProps = {
   selectedTab: '',
 };
-
 export default AboutBooks;

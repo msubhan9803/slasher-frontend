@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import ShoppingCardList from '../components/ShoppingCardList';
@@ -19,13 +18,9 @@ const myListings = [
   },
 ];
 function ShoppingMyListings() {
-  const navigate = useNavigate();
-  const changeTab = (tab: string) => {
-    navigate(`/shopping/${tab}`);
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="my-listings" changeTab={changeTab} />
+      <ShoppingHeader tabKey="my-listings" />
       <RoundButton className="mt-4 mt-0 py-2 d-lg-none w-100">Become a vendor</RoundButton>
       <div className="order-4 my-4">
         <ShoppingSelect />

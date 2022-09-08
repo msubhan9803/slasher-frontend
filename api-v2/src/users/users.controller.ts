@@ -1,25 +1,25 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
+  Query,
 } from '@nestjs/common';
-import { ActiveStatus, Device } from '../schemas/user.schema';
+import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
-import { NotificationsService } from '../notifications/providers/notifications.service';
 import { sleep } from '../utils/timer-utils';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
   ) {}
 
@@ -99,12 +99,12 @@ export class UsersController {
     );
   }
 
-  @Post('checkUserName/:userName')
-  async checkUserName(@Param('userName') userName: string) {
+  @Get('check-user-name')
+  async checkUserName(@Query('userName') userName: string) {
     await sleep(1000);
     if (!(userName.length > 0 && userName.length <= 30)) {
       return {
-        message: 'userName is not longer than 30 characters',
+        message: ['userName cannot be longer than 30 characters'],
         exists: false,
         valid: false,
       };
@@ -112,16 +112,37 @@ export class UsersController {
     const userData = await this.usersService.checkUserName(userName);
     if (userData) {
       return {
-        message: 'userName is already exists',
         exists: true,
         valid: true,
       };
     } else {
       return {
-        message: 'userName is not exists',
         exists: false,
         valid: true,
       };
     }
+  }
+
+  @Post('register')
+  async register(@Body() userRegisterDto: UserRegisterDto) {
+    await sleep(1000);
+    if (await this.usersService.userNameExists(userRegisterDto.userName)) {
+      throw new HttpException(
+        'Username is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (await this.usersService.emailExists(userRegisterDto.email)) {
+      throw new HttpException(
+        'Email address is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const user = new User(userRegisterDto);
+    user.setUnhashedPassword(userRegisterDto.password);
+    const registeredUser = await this.usersService.create(user);
+    return { id: registeredUser.id };
   }
 }

@@ -6,6 +6,7 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
+import { exists } from 'fs';
 
 describe('Users Name (e2e)', () => {
   let app: INestApplication;
@@ -32,37 +33,32 @@ describe('Users Name (e2e)', () => {
     await connection.dropDatabase();
   });
 
-  describe('POST /users/checkUserName/:userName', () => {
-    describe('Check userName exits', () => {
-      it('userName is not longer than 30 characters', async () => {
-        const postParams = {
-          userName: 'TestUserTestUserTestUserTestUser',
-        };
+  describe('GET /users/check-user-name', () => {
+    describe('Check if userName exists and is valid', () => {
+      it('when userName does not exist, but is invalid, it returns error message explaining why', async () => {
+        const userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
-          .post(`/users/checkUserName/${postParams.userName}`)
+          .get(`/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body).toEqual({
-          message: 'userName is not longer than 30 characters',
+          message: ['userName cannot be longer than 30 characters'],
           exists: false,
           valid: false,
         });
       });
 
-      it('userName is not exists', async () => {
-        const sampleUserNameObject = {
-          userName: 'usertestuser',
-        };
+      it('when username is valid and does not exist, it returns the expected response', async () => {
+        const userName = 'usertestuser';
         const response = await request(app.getHttpServer())
-          .post(`/users/checkUserName/${sampleUserNameObject.userName}`)
+          .get(`/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body).toEqual({
-          message: 'userName is not exists',
           exists: false,
           valid: true,
         });
       });
 
-      it('userName is already exists', async () => {
+      it('when username is valid, but does exists, it returns the expected response', async () => {
         const user = await usersService.create(
           userFactory.build(
             {},
@@ -71,10 +67,9 @@ describe('Users Name (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-          .post(`/users/checkUserName/${user.userName}`)
+          .get(`/users/check-user-name?userName=${user.userName}`)
           .send();
         expect(response.body).toEqual({
-          message: 'userName is already exists',
           exists: true,
           valid: true,
         });

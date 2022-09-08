@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -118,5 +120,17 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
+  }
+
+  @Get('validate-password-reset-token')
+  async validatePasswordResetToken(
+    @Query('email') email: string,
+    @Query('resetPasswordToken') resetPasswordToken: string,
+  ) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      email,
+      resetPasswordToken,
+    );
+    return { valid: isValid };
   }
 }

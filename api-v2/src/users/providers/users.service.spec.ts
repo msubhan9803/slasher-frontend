@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -131,6 +132,57 @@ describe('UsersService', () => {
       expect(
         (await usersService.findByEmailOrUsername(user.userName))._id,
       ).toEqual(user._id);
+    });
+  });
+
+  describe('#validatePasswordResetToken', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData['resetPasswordToken'] = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('finds the expected user by email and resetPasswordToken', async () => {
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          user.resetPasswordToken,
+        ),
+      ).toEqual(true);
+    });
+
+    it('when email is not exists', async () => {
+      const userEmail = 'userTEWST@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          user.resetPasswordToken,
+        ),
+      ).toEqual(false);
+    });
+
+    it('when resetPasswordToken is not exists', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          userResetPasswordToken,
+        ),
+      ).toEqual(false);
+    });
+
+    it('when resetPasswordToken or email is not exists', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'userTEWST@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          userResetPasswordToken,
+        ),
+      ).toEqual(false);
     });
   });
 });

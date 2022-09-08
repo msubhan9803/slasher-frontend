@@ -6,7 +6,7 @@ import * as EmailValidator from 'email-validator';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);
@@ -64,5 +64,15 @@ export class UsersService {
         .count()
         .exec()) > 0
     );
+  }
+
+  async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email: email }, { resetPasswordToken: resetPasswordToken }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return isValid ? true : false;
   }
 }

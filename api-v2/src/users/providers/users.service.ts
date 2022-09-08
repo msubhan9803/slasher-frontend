@@ -45,4 +45,24 @@ export class UsersService {
       return this.findByUsername(emailOrUsername);
     }
   }
+
+  async userNameExists(username: string): Promise<boolean> {
+    return (
+      (await this.userModel
+        .findOne({ userName: username })
+        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .count()
+        .exec()) > 0
+    );
+  }
+
+  async emailExists(email: string): Promise<boolean> {
+    return (
+      (await this.userModel
+        .findOne({ email })
+        .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+        .count()
+        .exec()) > 0
+    );
+  }
 }

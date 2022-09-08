@@ -1,16 +1,10 @@
 import React from 'react';
-import { Image } from 'react-bootstrap';
-import styled from 'styled-components';
-
-const ChatProfileStyleImage = styled(Image)`
-  height: 3.334rem;
-  width: 3.334rem;
-`;
+import UserCircleImage from '../ui/UserCircleImage';
 
 function ChatUserStatus() {
   return (
     <div className="ps-3 ps-lg-0 align-items-center d-flex">
-      <ChatProfileStyleImage src="https://i.pravatar.cc/300?img=19" className="ms-0 me-3 rounded-circle bg-secondary" />
+      <UserCircleImage size="3.334rem" src="https://i.pravatar.cc/300?img=19" className="ms-0 me-3 bg-secondary" />
       <h1 className="h3 mb-0">Eliza Williams</h1>
     </div>
   );

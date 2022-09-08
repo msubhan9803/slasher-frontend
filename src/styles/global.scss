@@ -10,15 +10,22 @@
   /* Foreground, Background */
   scrollbar-color: $stroke-and-line-separator-color #1F1F1F;
 }
+
 *::-webkit-scrollbar {
-  width: 8px; /* Mostly for vertical scrollbars */
-  height: 6px; /* Mostly for horizontal scrollbars */
+  width: 8px;
+  /* Mostly for vertical scrollbars */
+  height: 6px;
+  /* Mostly for horizontal scrollbars */
 }
-*::-webkit-scrollbar-thumb { /* Foreground */
+
+*::-webkit-scrollbar-thumb {
+  /* Foreground */
   background: $stroke-and-line-separator-color;
   border-radius: 6px;
 }
-*::-webkit-scrollbar-track { /* Background */
+
+*::-webkit-scrollbar-track {
+  /* Background */
   background: #1F1F1F;
 }
 
@@ -27,23 +34,44 @@ html {
   // Everything else will be in rems (relative to this base size)
   // or ems (relative to parent element font size).
   font-size: 14px;
+
   @media (min-width: 992px) {
     font-size: 15px;
   }
 }
 
 body {
-  @media (min-width: 992px) {
-    padding-top: 125px; // To account for fixed top navbar on desktop views
-  }
   &::-webkit-scrollbar {
-    width: 10px; /* Mostly for vertical scrollbars */
-    height: 10px; /* Mostly for horizontal scrollbars */
+    width: 10px;
+    /* Mostly for vertical scrollbars */
+    height: 10px;
+    /* Mostly for horizontal scrollbars */
   }
 }
 
-a {
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  &.full {
+    @media (min-width: 992px) {
+      padding-top: 125px; // To account for fixed top navbar on desktop views
+    }
+  }
+}
+
+a:not(.btn) {
   text-decoration: underline;
+}
+
+.btn-link {
+  text-decoration: none;
+  border: none;
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
 }
 
 // This class is often used with flex box and truncated (ellipsis) text
@@ -60,66 +88,52 @@ a {
 
 .btn-primary {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-  @include button-variant(
-    $background: $primary,
+  @include button-variant($background: $primary,
     $border: #FF1700,
     $color: #000000,
     $hover-color: #000000,
-    $active-color: #000000
-  );
+    $active-color: #000000);
 }
 
 .btn-secondary {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-  @include button-variant(
-    $background: $secondary,
+  @include button-variant($background: $secondary,
     $border: #333333,
     $color: #ffffff,
     $hover-color: #ffffff,
-    $active-color: #ffffff
-  );
+    $active-color: #ffffff);
 }
 
 .btn-dark {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-  @include button-variant(
-    $background: $dark,
+  @include button-variant($background: $dark,
     $border: $dark,
     $color: $light,
     $hover-background: #333,
     $hover-color: #ffffff,
     $active-background: #333,
-    $active-color: #ffffff
-  );
+    $active-color: #ffffff);
 }
 
 .btn-form {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-  @include button-variant(
-    $background: #1f1f1f,
+  @include button-variant($background: #1f1f1f,
     $border: $stroke-and-line-separator-color,
     $color: #ffffff,
     $hover-background: #1f1f1f,
     $hover-color: #ffffff,
     $active-background: $primary,
-    $active-color: #ffffff
-  );
+    $active-color: #ffffff);
 }
 
 .btn-black {
   // See: https://getbootstrap.com/docs/5.2/components/buttons/#sass-mixins
-  @include button-variant(
-    $background: #000000,
+  @include button-variant($background: #000000,
     $border: $stroke-and-line-separator-color,
     $color: #ffffff,
     $hover-color: #ffffff,
     $hover-border: lighten($stroke-and-line-separator-color, 10%),
-    $active-color: #ffffff
-  );
-}
-
-.btn-link {
-  text-decoration: none;
+    $active-color: #ffffff);
 }
 
 html {
@@ -129,21 +143,14 @@ html {
 body {
   background-color: #0B0B0B;
   background-repeat: no-repeat;
-  background-image: -webkit-gradient(linear, top, bottom, color-stop(0%, #161618), color-stop(1200px, #0B0B0B), color-stop(100%, transparent)); /* Chrome, Safari4+ */
-  background-image: -webkit-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px); /* Chrome10+, Safari5.1+ */
-  background-image: -moz-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);    /* FF3.6+ */
+  background-image: -webkit-gradient(linear, top, bottom, color-stop(0%, #161618), color-stop(1200px, #0B0B0B), color-stop(100%, transparent));
+  /* Chrome, Safari4+ */
+  background-image: -webkit-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
+  /* Chrome10+, Safari5.1+ */
+  background-image: -moz-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
+  /* FF3.6+ */
   background-image: linear-gradient(to bottom, #161618 0%, #0B0B0B 1200px, transparent 700px);
   background-attachment: fixed;
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-a {
-  text-decoration: none;
 }
 
 input:hover {

@@ -11,6 +11,7 @@ import NewsPartnerPostFooter from './NewsPartnerPostFooter';
 import postImage from '../../../images/news-partner-detail.jpg';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -26,11 +27,7 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const ProfileImage = styled(Image)`
-  height:3.125rem;
-  width:3.125rem;
-`;
-const ImageContainer = styled(Row)`
+const PostImageContainer = styled(Row)`
   aspect-ratio: 1.9
   svg {
     object-fit: cover;
@@ -74,7 +71,7 @@ function NewsPartnerPost() {
                     <Row className="d-flex">
                       <Col className="my-auto rounded-circle" xs="auto">
                         <div className="rounded-circle">
-                          <ProfileImage src="https://i.pravatar.cc/300?img=11" className="rounded-circle bg-secondary" />
+                          <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="bg-secondary" />
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
@@ -98,12 +95,12 @@ function NewsPartnerPost() {
                     <p className="text-primary fs-4 mb-0"> #horrorday #slasher #horroroasis ☠️</p>
                   </Col>
                 </Row>
-                <ImageContainer className="mt-3">
+                <PostImageContainer className="mt-3">
                   <Image src={postImage} className="w-100 h-100" />
-                </ImageContainer>
+                </PostImageContainer>
                 <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
                   <Col className="align-self-center">
-                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <LinearIcon uniqueId="like-button">
                         <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                         12K
@@ -111,13 +108,13 @@ function NewsPartnerPost() {
                     </Button>
                   </Col>
                   <Col className="text-center">
-                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                       10
                     </Button>
                   </Col>
                   <Col className="text-end">
-                    <Button className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none">
+                    <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
                       25
                     </Button>

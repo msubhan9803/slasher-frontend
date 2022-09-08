@@ -6,7 +6,6 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { exists } from 'fs';
 
 describe('Users Name (e2e)', () => {
   let app: INestApplication;

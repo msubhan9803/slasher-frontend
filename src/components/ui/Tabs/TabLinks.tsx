@@ -1,0 +1,97 @@
+import React from 'react';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import { createTheme, ThemeProvider } from '@mui/material';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
+interface TabLinksProps {
+  tabLink: TabProps[];
+  selectedTab?: string;
+  toLink: string;
+  params?: string;
+  display?: string;
+  tabsClass?: string;
+}
+interface TabProps {
+  value: string;
+  label: string;
+}
+const StyleTabs = styled.div`
+  .tab-border {
+    border-top: 2px solid #3A3B46;
+    margin-top: -2px;
+  }
+`;
+function TabLinks({
+  tabLink, selectedTab, toLink, params, display, tabsClass,
+}: TabLinksProps) {
+  const color = '#ffffff';
+  const theme = createTheme({
+    components: {
+      MuiTabs: {
+        styleOverrides: {
+          flexContainer: {
+            justifyContent: tabsClass,
+            '@media (max-width:1199px)': {
+              justifyContent: tabsClass,
+            },
+          },
+          indicator: {
+            backgroundColor: 'var(--bs-primary) !important',
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            color,
+            textTransform: 'none',
+            fontSize: '1.06667rem',
+            fontFamily: 'Roboto',
+            '&.Mui-selected ': {
+              color: 'var(--bs-primary) !important',
+            },
+            '&:hover': {
+              color: 'var(--bs-primary) !important',
+            },
+          },
+        },
+      },
+    },
+  });
+  return (
+    <ThemeProvider theme={theme}>
+      <StyleTabs className={`${display === 'underline' ? '' : 'bg-dark bg-mobile-transparent rounded-3'}`}>
+        <Tabs
+          value={(selectedTab)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          aria-label="scrollable auto tabs example"
+        >
+          {tabLink.map(({ value, label }) => (
+            <Tab
+              key={value}
+              value={value}
+              label={label}
+              component={Link}
+              to={params ? `${toLink}/${value}${params}` : `${toLink}/${value}`}
+              className="text-decoration-none"
+            />
+          ))}
+        </Tabs>
+        {display === 'underline' && <div className="tab-border" />}
+      </StyleTabs>
+    </ThemeProvider>
+  );
+}
+
+TabLinks.defaultProps = {
+  selectedTab: 'all',
+  params: '',
+  display: 'default',
+  tabsClass: '',
+};
+
+export default TabLinks;

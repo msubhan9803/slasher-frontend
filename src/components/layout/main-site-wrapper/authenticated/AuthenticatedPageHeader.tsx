@@ -3,26 +3,16 @@ import {
   Navbar, Container, Nav, Image, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
+import CustomPopover from '../../../ui/CustomPopover';
 
-const UserCircleImageContainer = styled.div`
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  img {
-    width: 2rem;
-    height: 2rem;
-    position: relative;
-    top: -1.09em;
-  }
-`;
 const StyledNavbar = styled(Navbar)`
+  z-index:1;
   background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
@@ -30,7 +20,6 @@ const StyledNavbar = styled(Navbar)`
     padding-right: .25rem;
   }
 `;
-
 const StyledLogoImage = styled(Image)`
   height: 6.6rem;
 `;
@@ -41,7 +30,6 @@ const MobileNavbar = styled(Navbar)`
     font-size: .8rem;
   }
 `;
-
 const StyledNav = styled(Nav)`
   font-size: .875em;
   @media (min-width: 992px) {
@@ -54,7 +42,6 @@ const StyledNav = styled(Nav)`
     visibility: hidden;
   }
 `;
-
 interface Props {
   onToggleClick: () => void;
   offcanvasSidebarExpandBreakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -66,6 +53,17 @@ const desktopTopNavIconWidth = '6.7rem';
 function AuthenticatedPageHeader(
   { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
 ) {
+  const navigate = useNavigate();
+  const popoverOption = ['My profile', 'Settings'];
+  const handleNavigate = (selectedOption: string) => {
+    if (selectedOption === 'My profile') {
+      navigate('/profile');
+    }
+    if (selectedOption === 'Settings') {
+      navigate('/account/settings');
+    }
+  };
+
   const mobileNavLinkElements = [
     <IconWithTextNavButton
       key="Menu"
@@ -75,34 +73,25 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" iconSize="lg" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" iconSize="lg" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
 
   const desktopNavLinkElements = [
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink
-      key="Me"
-      label="Me"
-      icon={solid('circle')}
-      to="/profile"
-      className="nav-link position-relative profile-link"
-      iconSize="2x"
-    >
-      <UserCircleImageContainer className="position-absolute d-flex">
-        <img
-          className="rounded-circle m-auto"
-          src={userProfileIconPlaceholder}
-          alt="User icon"
-        />
-      </UserCircleImageContainer>
-    </IconWithTextNavLink>,
+    <div key="me">
+      <CustomPopover
+        popoverOptions={popoverOption}
+        onPopoverClick={handleNavigate}
+        userProfileIcon={userProfileIconPlaceholder}
+      />
+    </div>,
   ];
 
   return (

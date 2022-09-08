@@ -12,6 +12,6 @@ test('renders the expected text', () => {
       <Home />
     </Router>,
   );
-  const linkElement = screen.getByText(/This is a placeholder home page/i);
+  const linkElement = screen.getByText(/Suggested friends/i);
   expect(linkElement).toBeInTheDocument();
 });

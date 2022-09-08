@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Form,
   Row,
@@ -12,12 +12,6 @@ interface Props {
 }
 
 function RegistrationIdentity({ activeStep }: Props) {
-  const navigate = useNavigate();
-
-  const handleStep = () => {
-    navigate('/registration/security');
-  };
-
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <Form>
@@ -53,8 +47,8 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
 
           <div className="col-md-4 my-5">
-            <RoundButton onClick={handleStep} className="w-100" variant="primary" type="submit">
-              Next step
+            <RoundButton className="w-100" variant="primary" type="submit">
+              <Link to="/registration/security">Next step</Link>
             </RoundButton>
           </div>
           <div className="text-center fs-5">

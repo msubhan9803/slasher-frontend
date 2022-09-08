@@ -1,171 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  Col, Row, Tab, Tabs,
-} from 'react-bootstrap';
-import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import SearchInput from './SearchInput';
-import Hashtags from './component/Hashtags';
-import {
-  events, hashtags, myMovies, people, posts, news,
-} from './SearchResult';
-import People from './component/People';
-import Movies from './component/Movies';
-import Events from './component/Events';
-import Posts from './component/Posts';
-import { SearchProps } from './SearchInterface';
-import NewsList from './component/NewsList';
-
-const StyleTabs = styled(Tabs)`
-  border-bottom: 0.188rem solid var(--bs-dark);
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-link {
-    border: none;
-    color: white;
-    &:hover {
-      border-color: transparent;
-      color: var(--bs-primary);
-    }
-    &.active {
-      color: var(--bs-primary);
-      background-color: transparent;
-      border-bottom:  0.188rem solid var(--bs-primary);
-    }
-  }
-`;
+  Navigate, Route, Routes,
+} from 'react-router-dom';
+import SearchMovies from './search-movies/SearchMovies';
+import SearchEvents from './search-events/SearchEvents';
+import SearchNews from './search-news/SearchNews';
+import SearchHashtags from './search-hashtags/SearchHashtags';
+import SearchPosts from './search-posts/SearchPosts';
+import SearchPeople from './search-people/SearchPeople';
+import SearchBooks from './search-books/SearchBooks';
 
 function Search() {
-  const [data, setData] = useState<SearchProps[]>(people);
-  const [filtered, setFiltered] = useState<SearchProps[]>(people);
-  const [selectedTab, setSelectedTab] = useState('People');
-  const [message, setMessage] = useState('');
-
-  const handleTabs = (tab: any) => {
-    const setTab = tab.target.innerText;
-    setSelectedTab(setTab);
-    if (setTab === 'People') { setFiltered(people); setData(people); }
-    if (setTab === 'Posts') { setFiltered(posts); setData(posts); }
-    if (setTab === 'Hashtags') { setFiltered(hashtags); setData(hashtags); }
-    if (setTab === 'News') { setFiltered(news); setData(news); }
-    if (setTab === 'Events') { setFiltered(events); setData(events); }
-    if (setTab === 'Movies') { setFiltered(myMovies); setData(myMovies); }
-  };
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <div className="d-lg-none d-flex align-items-center mb-3">
-        <FontAwesomeIcon icon={solid('arrow-left')} size="lg" />
-        <h1 className="h4 text-center mb-0 mx-auto">Search</h1>
-      </div>
-      <SearchInput
-        filtered={filtered}
-        setFiltered={setFiltered}
-        data={data}
-        selectedTab={selectedTab}
-        setMessage={setMessage}
-      />
-      <StyleTabs onClick={handleTabs} onKeyDown={handleTabs} className="justify-content-between flex-nowrap">
-        <Tab eventKey="people" title="People">
-          <Row>
-            {filtered && filtered.length > 0 ? (filtered?.map((peopleDetail) => (
-              <Col md={6} key={peopleDetail.id}>
-                <People
-                  id={peopleDetail.id}
-                  name={peopleDetail.name}
-                  image={peopleDetail.image}
-                  email={peopleDetail.email}
-                />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-        <Tab eventKey="posts" title="Posts">
-          <Row>
-            {filtered && filtered.length > 0 ? (filtered.map((postDetail) => (
-              <Col xs={12} key={postDetail.id}>
-                <Posts
-                  id={postDetail.id}
-                  name={postDetail.name}
-                  image={postDetail.image}
-                  date={postDetail.date}
-                  content={postDetail.content}
-                  hashTag={postDetail.hashTag}
-                />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-        <Tab eventKey="hashtags" title="Hashtags">
-          <Row>
-            {filtered && filtered.length > 0 ? (filtered.map((hashtagDetail) => (
-              <Col md={6} key={hashtagDetail.id}>
-                <Hashtags id={hashtagDetail.id} name={hashtagDetail.name} />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-        <Tab eventKey="news" title="News">
-          <Row>
-            {filtered && filtered.length > 0 ? (filtered.map((newsdetail) => (
-              <Col xs={12} key={newsdetail.id}>
-                <NewsList
-                  id={newsdetail.id}
-                  name={newsdetail.name}
-                  image={newsdetail.image}
-                  date={newsdetail.date}
-                  content={newsdetail.content}
-                  hashTag={newsdetail.hashTag}
-                />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-        <Tab eventKey="events" title="Events">
-          <Row className="justify-content-center mx-3 mx-sm-0">
-            {filtered && filtered.length > 0 ? (filtered.map((eventDetail) => (
-              <Col sm={6} key={eventDetail.id}>
-                <Events
-                  id={eventDetail.id}
-                  name={eventDetail.name}
-                  image={eventDetail.image}
-                  date={eventDetail.date}
-                  address={eventDetail.address}
-                />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-        <Tab eventKey="movies" title="Movies">
-          <Row className="my-3 mx-0">
-            {filtered && filtered.length > 0 ? (filtered.map((movieDetail) => (
-              <Col xs={4} sm={3} lg={3} key={movieDetail.id}>
-                <Movies
-                  id={movieDetail.id}
-                  name={movieDetail.name}
-                  year={movieDetail.year}
-                  liked={movieDetail.liked}
-                />
-              </Col>
-            ))) : (
-              <h1 className="h4 my-5 text-center">{message}</h1>
-            )}
-          </Row>
-        </Tab>
-      </StyleTabs>
-
-    </AuthenticatedPageWrapper>
+    <Routes>
+      <Route path="/*" element={<Navigate to="people" replace />} />
+      <Route path="people" element={<SearchPeople />} />
+      <Route path="posts" element={<SearchPosts />} />
+      <Route path="hashtags" element={<SearchHashtags />} />
+      <Route path="news" element={<SearchNews />} />
+      <Route path="events" element={<SearchEvents />} />
+      <Route path="movies" element={<SearchMovies />} />
+      <Route path="books" element={<SearchBooks />} />
+    </Routes>
   );
 }
 

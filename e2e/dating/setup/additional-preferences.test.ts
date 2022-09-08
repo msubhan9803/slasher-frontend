@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/On this screen, you can set your filters/);
+    await expect(page.locator('main')).toHaveText(/Dating Preferences/);
   });
 });

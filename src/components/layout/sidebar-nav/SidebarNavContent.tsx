@@ -57,10 +57,10 @@ function SidebarNavContent() {
         />
       ))}
       <ul className="list-inline mt-4 link-hover-underline fs-6">
-        <li><Link className="text-light" to="/">Download the app</Link></li>
-        <li><Link className="text-light" to="/">Advertise on Slasher</Link></li>
-        <li><Link className="text-light" to="/">Terms &amp; Policies</Link></li>
-        <li className="text-light">&copy; 2022 Slasher Corp</li>
+        <li><Link className="text-light text-decoration-none" to="/">Download the app</Link></li>
+        <li><Link className="text-light text-decoration-none" to="/">Advertise on Slasher</Link></li>
+        <li><Link className="text-light text-decoration-none" to="/">Terms &amp; Policies</Link></li>
+        <li className="text-light text-decoration-none">&copy; 2022 Slasher Corp</li>
       </ul>
       <br />
     </Nav>

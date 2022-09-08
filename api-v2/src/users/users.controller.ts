@@ -5,13 +5,14 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { ActiveStatus, Device } from '../schemas/user.schema';
+import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
+import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
-import { NotificationsService } from '../notifications/providers/notifications.service';
+import { sleep } from '../utils/timer-utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../services/mail.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +21,6 @@ import { v4 as uuidv4 } from 'uuid';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
   ) {}
@@ -99,6 +99,29 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Post('register')
+  async register(@Body() userRegisterDto: UserRegisterDto) {
+    await sleep(1000);
+    if (await this.usersService.userNameExists(userRegisterDto.userName)) {
+      throw new HttpException(
+        'Username is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (await this.usersService.emailExists(userRegisterDto.email)) {
+      throw new HttpException(
+        'Email address is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const user = new User(userRegisterDto);
+    user.setUnhashedPassword(userRegisterDto.password);
+    const registeredUser = await this.usersService.create(user);
+    return { id: registeredUser.id };
   }
 
   @Post('forgot-password')

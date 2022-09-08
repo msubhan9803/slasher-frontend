@@ -102,14 +102,23 @@ export class User {
   @Prop()
   updatedAt: Date;
 
-  @Prop({ default: '', trim: true })
+  @Prop({ required: true, default: '', trim: true })
   firstName: string;
 
-  @Prop({ default: '', trim: true })
+  @Prop({ required: true, default: '', trim: true })
   securityQuestion: string;
 
-  @Prop({ default: '', trim: true })
+  @Prop({ required: true, default: '', trim: true })
   securityAnswer: string;
+
+  @Prop({ trim: true, default: null })
+  resetPasswordToken: string;
+
+  @Prop({ trim: true, default: null })
+  verification_token: string; // NOTE: This is pascal_case insteaed of camelCase for old-API compatibility
+
+  @Prop({ default: null })
+  lastPasswordResetTime: string;
 
   constructor(options?: Partial<User>) {
     if (!options) {

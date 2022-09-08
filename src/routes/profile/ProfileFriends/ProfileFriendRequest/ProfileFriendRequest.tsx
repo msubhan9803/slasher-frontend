@@ -68,7 +68,7 @@ function ProfileFriendRequest() {
           ) : (
             <Row className="mt-4">
               {friendList.map((friend: any) => (
-                <Col md={4} lg={6} xl={4} key={friend.id}>
+                <Col sm={6} md={4} lg={12} xl={4} key={friend.id}>
                   <FriendsProfileCard
                     friend={friend}
                     popoverOption={popoverOption}

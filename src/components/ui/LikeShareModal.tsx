@@ -46,7 +46,7 @@ const CustomModal = styled(Modal)`
   }
 `;
 const CustomModalHeader = styled(Modal.Header)`
-border-bottom: .063rem solid #3A3B46;
+border-bottom: 1px solid #3A3B46;
 `;
 
 function LikeShareModal({ show, setShow, click }: Props) {

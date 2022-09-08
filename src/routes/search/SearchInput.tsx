@@ -17,7 +17,7 @@ interface SearchPropss {
 }
 const SearchInputGroup = styled(InputGroup)`
   .form-control {
-    border-left: .06rem solid var(--bs-input-border-color);
+    border-left: 1px solid var(--bs-input-border-color);
     border-top-right-radius: 1.56rem !important;
     border-bottom-right-radius: 1.56rem !important;
     padding: 0rem;

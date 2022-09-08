@@ -1,6 +1,8 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 import SortData from '../../../components/filter-sort/SortData';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 const sortoptions = [
   { value: 'alphabetical', label: 'Alphabetical' },
@@ -8,6 +10,7 @@ const sortoptions = [
   { value: 'userRating', label: 'User Rating' },
 ];
 function ShoppingSelect() {
+  const params = useParams();
   return (
     <Row className="justify-content-between align-items-center">
       <Col md={4} lg={5} className="">
@@ -15,6 +18,11 @@ function ShoppingSelect() {
       </Col>
       <Col md={3} lg={5} xl={4} className="mt-4 mt-md-0">
         <SortData title="Sort: " sortoptions={sortoptions} type="sort" className="rounded-5" />
+      </Col>
+      <Col className={`d-lg-none mt-3 mt-md-0 mb-3 mb-md-0 order-md-3 order-first ${params['*'] === 'all' && 'd-none'}`}>
+        <RoundButtonLink to="/shopping/all" className="w-100" variant="primary">
+          Become a vendor
+        </RoundButtonLink>
       </Col>
     </Row>
   );

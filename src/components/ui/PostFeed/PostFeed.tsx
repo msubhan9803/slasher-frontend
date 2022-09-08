@@ -5,10 +5,10 @@ import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import PostHeader from './PostHeader';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
+import PostHeader from './PostHeader';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -42,7 +42,7 @@ const Content = styled.span`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
-  border-top: .063rem solid #3A3B46
+  border-top: 1px solid #3A3B46
 `;
 
 const StyledPostFeed = styled.div`

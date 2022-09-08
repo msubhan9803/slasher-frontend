@@ -26,10 +26,10 @@ function DatingSetupAddPhotos() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="dating">
-      <Container className="py-5 my-5 py-md-0 my-md-0">
+      <Container fluid>
         <Row className="justify-content-center text-center">
-          <Col lg={8}>
-            <h3>Add Photos</h3>
+          <Col md={9} xl={7}>
+            <h1>Add Photos</h1>
             <p className="fw-normal">
               You must add at least one photo to your dating profile, otherwise
               <br />
@@ -54,7 +54,7 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
         <Row className="justify-content-center text-center h-auto">
-          <Col lg={8} className="h-100">
+          <Col md={9} className="h-100">
             <Row className="h-100">
               {imageUpload.map((image, imageIndex) => (
                 <Col key={image.id} xs={4} className="my-3">
@@ -71,7 +71,7 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
         <Row className="justify-content-center">
-          <Col md={5} className="mt-3">
+          <Col md={7} className="mt-3">
             <RoundButton
               variant="primary"
               type="submit"

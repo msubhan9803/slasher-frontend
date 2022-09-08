@@ -1,7 +1,7 @@
 import React from 'react';
+import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
-import UserCircleImage from '../../../components/ui/UserCircleImage';
+import RoundButton from '../../components/ui/RoundButton';
 
 interface Props {
   id: number;
@@ -10,6 +10,10 @@ interface Props {
   email: string;
   sendMessage: boolean;
 }
+const ProfileImage = styled(Image)`
+  height: 3.125rem;
+  width: 3.125rem;
+`;
 const SmallText = styled.p`
   font-size: .75rem;
 `;
@@ -42,7 +46,7 @@ function LikeShareModalContent() {
       {modalData.map((data: Props) => (
         <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={data.id}>
           <div>
-            <UserCircleImage src={data.profile} />
+            <ProfileImage src={data.profile} className="rounded-circle" />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
             <p className="mb-0">
@@ -53,16 +57,16 @@ function LikeShareModalContent() {
           {data.sendMessage
             ? (
               <RoundButton
-                className="bg-black fw-bold text-white"
+                className="bg-black fw-bold"
               >
-                Send message
+                <p className="mb-0">Send message</p>
               </RoundButton>
             )
             : (
               <RoundButton
                 className="fw-bold"
               >
-                Add friend
+                <p className="mb-0">Add friend</p>
               </RoundButton>
             )}
         </div>

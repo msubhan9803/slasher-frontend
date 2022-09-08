@@ -13,7 +13,6 @@ import WatchedListMovies from './watched-list-movies/WatchedListMovies';
 function Movies() {
   return (
     <Routes>
-      <Route path="/*" element={<Navigate to="all" replace />} />
       <Route path="all" element={<AllMovies />} />
       <Route path="slasher-indie" element={<SlasherIndieMovies />} />
       <Route path="favorites" element={<FavoriteMovies />} />
@@ -21,8 +20,9 @@ function Movies() {
       <Route path="watched-list" element={<WatchedListMovies />} />
       <Route path="buy-list" element={<BuyMovieList />} />
       <Route path="my-movies" element={<MyMovies />} />
-      <Route path="/:id/:summary" element={<MovieDetails />} />
       <Route path="add" element={<AddYourMovie />} />
+      <Route path=":id/*" element={<MovieDetails />} />
+      <Route path="*" element={<Navigate to="all" replace />} />
     </Routes>
   );
 }

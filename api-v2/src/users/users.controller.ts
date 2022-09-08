@@ -15,6 +15,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -132,5 +133,26 @@ export class UsersController {
       resetPasswordToken,
     );
     return { valid: isValid };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      resetPasswordDto.email,
+      resetPasswordDto.resetPasswordToken,
+    );
+    if (isValid == false) {
+      throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      resetPasswordDto.email,
+    );
+    userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
+    userDetails.resetPasswordToken = null;
+    userDetails.lastPasswordResetTime = Date.now();
+    userDetails.save();
+    return {
+      message: 'Password reset successfully',
+    };
   }
 }

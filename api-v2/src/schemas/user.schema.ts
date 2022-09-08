@@ -118,7 +118,7 @@ export class User {
   verification_token: string; // NOTE: This is pascal_case insteaed of camelCase for old-API compatibility
 
   @Prop({ default: null })
-  lastPasswordResetTime: string;
+  lastPasswordResetTime: number;
 
   constructor(options?: Partial<User>) {
     if (!options) {

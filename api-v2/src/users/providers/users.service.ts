@@ -6,7 +6,7 @@ import * as EmailValidator from 'email-validator';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);

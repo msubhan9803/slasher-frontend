@@ -42,7 +42,7 @@ export class AppModule {
         '/',
         '/users/sign-in',
         '/users/register',
-        'users/validate-password-reset-token',
+        '/users/validate-password-reset-token',
       )
       .forRoutes('*');
   }

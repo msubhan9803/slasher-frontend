@@ -10,11 +10,18 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
+import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
+import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
+import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSideNav';
+import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
+import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
+import NotificationsRIghtSideNav from '../../../../routes/notifications/NotificationsRIghtSideNav';
+import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'podcast';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event' | 'podcast';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -56,11 +63,18 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     'profile-self': <RightSidebarSelf />,
     'profile-other-user': <RightSidebarViewer />,
     dating: <DatingSidebar />,
+    movie: <MovieRightSideNav />,
+    news: <NewsRightSideNav />,
+    shopping: <ShoppingRightSidebar />,
+    book: <BooksRigthSideNav />,
+    place: <PlaceRightSidebar />,
+    notification: <NotificationsRIghtSideNav />,
+    event: <EventRightSidebar />,
     podcast: <PodcastsSidebar />,
   }[type]);
 
   return (
-    <>
+    <div className="page-wrapper full">
       <AuthenticatedPageHeader
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
@@ -104,7 +118,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         </StyledOffcanvas>
       )}
 
-    </>
+    </div>
   );
 }
 

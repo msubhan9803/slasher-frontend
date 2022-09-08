@@ -1,11 +1,12 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import {
   Dropdown,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import UserCircleImage from '../UserCircleImage';
 
 interface Props {
   userName: string;
@@ -15,10 +16,6 @@ interface Props {
   timeStamp?: string;
   handleDropdownOption?: (value: string) => void;
 }
-
-const RecentMessageImage = styled.img`
-  height: 3.125rem;
-`;
 
 const TrucatedText = styled.p`
   white-space: nowrap;
@@ -34,6 +31,10 @@ const DateDisplay = styled.div`
 const StyledItem = styled.div`
   &:hover {
     background-color: #282828;
+  }
+
+  a {
+    text-decoration: none;
   }
 
   .message-bottom-border {
@@ -100,7 +101,7 @@ function UserMessageListItem({
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
         <StyledLink to="/" className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>
-            <RecentMessageImage src={image} className="rounded-circle" />
+            <UserCircleImage src={image} />
           </div>
           <div className="flex-grow-1 min-width-0 ps-3">
             <div className="d-flex justify-content-between align-items-center">

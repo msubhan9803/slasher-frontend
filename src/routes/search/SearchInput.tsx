@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormControl, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
+import { SearchProps } from './SearchInterface';
 
+interface SearchPropss {
+  setFiltered: (val: any) => void;
+  filtered: SearchProps[];
+  data: SearchProps[];
+  selectedTab: string;
+  setMessage: (val: string) => void;
+  search: string;
+  setSearch: (val: string) => void;
+  isRedirect: boolean;
+}
 const SearchInputGroup = styled(InputGroup)`
   .form-control {
-    border-left: .06rem solid var(--bs-input-border-color);
+    border-left: 1px solid var(--bs-input-border-color);
     border-top-right-radius: 1.56rem !important;
     border-bottom-right-radius: 1.56rem !important;
     padding: 0rem;
@@ -25,9 +36,30 @@ const SearchInputGroup = styled(InputGroup)`
   }
 `;
 function SearchInput({
-  setFiltered, filtered, data, selectedTab, setMessage,
-}: any) {
-  const [search, setSearch] = useState<string>('');
+  setFiltered, filtered, data, selectedTab, setMessage, search, setSearch, isRedirect,
+}: SearchPropss) {
+  const searchString = (str: string) => {
+    const prevFilter = filtered;
+    let errMsg = 'No data Found';
+    if (str) {
+      const result = prevFilter.filter(
+        (findHashtag: any) => findHashtag.name.toLowerCase().startsWith(str),
+      );
+      setFiltered(result);
+      errMsg = `No ${selectedTab} found`;
+    } else {
+      prevFilter.length = 0;
+      setFiltered(data);
+    }
+    setMessage(errMsg);
+  };
+
+  useEffect(() => {
+    if (isRedirect === true) {
+      searchString(search);
+    }
+  }, [isRedirect]);
+
   const searchData = (query: any) => {
     const searchQuery = query.target.value;
     let searchResult;

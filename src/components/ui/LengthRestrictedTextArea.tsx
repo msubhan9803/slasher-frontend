@@ -6,9 +6,10 @@ interface Props {
   placeholder?: string;
   maxLength: number;
   setContentDetail: (value: string) => void;
+  rows?: number;
 }
 function LengthRestrictedTextArea({
-  contentDetail, placeholder, maxLength, setContentDetail,
+  contentDetail, placeholder, maxLength, setContentDetail, rows,
 }: Props) {
   const [charCount, setCharCount] = useState(0);
 
@@ -20,7 +21,7 @@ function LengthRestrictedTextArea({
     <>
       <Form.Control
         maxLength={maxLength}
-        rows={10}
+        rows={rows}
         as="textarea"
         value={contentDetail}
         onChange={handleMessageChange}
@@ -35,5 +36,6 @@ function LengthRestrictedTextArea({
 }
 LengthRestrictedTextArea.defaultProps = {
   placeholder: 'Type here...',
+  rows: 10,
 };
 export default LengthRestrictedTextArea;

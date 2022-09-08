@@ -1,10 +1,14 @@
 import React from 'react';
-import { InputGroup, FormControl } from 'react-bootstrap';
+import { InputGroup, FormControl, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
 const StyledInputGroup = styled(InputGroup)`
   .form-control {
     border-left: 1px solid var(--bs-input-border-color);
+  }
+  .btn {
+    background-color: rgb(31, 31, 31);
+    border-color: #3a3b46 !important;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -20,25 +24,38 @@ const StyledInputGroup = styled(InputGroup)`
 interface Props {
   addonContent: React.ReactNode;
   label: string;
+  size: string;
   inputType?: string;
+  showPassword?: boolean;
+  passwordVisiblility?: () => void;
 }
 
-function CustomInputGroup({ addonContent, label, inputType = 'text' }: Props) {
+function CustomInputGroup({
+  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility,
+}: Props) {
   return (
-    <StyledInputGroup className="mb-3">
+    <StyledInputGroup className="mb-3" size={size}>
       <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>
       <FormControl
         placeholder={label}
         aria-label={label}
         aria-describedby="addon-label"
         type={inputType}
+        className={`${label === 'Password' ? 'border-end-0' : 0}`}
       />
+      {label === 'Password' && (
+        <Button className="fs-5 text-light border border-start-0 shadow-none" onClick={passwordVisiblility}>
+          {showPassword ? 'Hide' : 'Show'}
+        </Button>
+      )}
     </StyledInputGroup>
   );
 }
 
 CustomInputGroup.defaultProps = {
   inputType: 'text',
+  showPassword: false,
+  passwordVisiblility: () => { },
 };
 
 export default CustomInputGroup;

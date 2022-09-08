@@ -1,20 +1,16 @@
+import React, { useEffect, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
-import {
-  Col, Image, Row, Tab, Tabs,
-} from 'react-bootstrap';
+import { Col, Image, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../components/ui/RoundButton';
 import Switch from '../../components/ui/Switch';
+import TabLinks from '../../components/ui/Tabs/TabLinks';
 import PodcastPoster from '../../images/podcast-poster.jpg';
 import PodcastEpisodes from './PodcastEpisodes';
 
-interface QueryParamProps {
-  queryParam: boolean
-}
 const StyledPodcastPoster = styled(Image)`
   aspect-ratio: 1;
 `;
@@ -30,41 +26,6 @@ const StyledIcons = styled(FontAwesomeIcon)`
     width: 1.638rem;
     height: 1.563rem;
   }
-`;
-const StyleTabs = styled(Tabs) <QueryParamProps>`
-  border-bottom: 0.2rem solid var(--bs-dark);
-  overflow-x: auto;
-  overflow-y: hidden;
-  .nav-item {
-    ${(props) => !props.queryParam && 'margin-right: 2rem; flex-grow: 0;'};
-    .nav-link {
-      padding-bottom: 1rem !important;
-      border: none;
-      color: #ffffff;
-      &:hover {
-        border-color: transparent;
-        color: var(--bs-primary);
-      }
-      &.active {
-        color: var(--bs-primary);
-        background-color: transparent;
-        border-bottom:  0.222rem solid var(--bs-primary);
-      }
-      .btn {
-        ${(props) => !props.queryParam && 'width: max-content;'};
-      }
-    }
-  }
-
-  @media (max-width: 992px) {
-    .nav-item {
-      ${(props) => !props.queryParam && 'margin-right: 0; flex-grow: 1;'};
-      .btn {
-        ${(props) => (!props.queryParam ? 'width: 100%;' : 'width: 75%')};
-      } 
-    }
-  }
-
 `;
 const episodeData = [
   {
@@ -88,30 +49,25 @@ const episodeData = [
     likeIcon: false,
   },
 ];
-
+const tabsForSelf = [
+  { value: 'episodes', label: 'Episodes' },
+  { value: 'posts', label: 'Posts' },
+  { value: 'edit', label: 'Edit' },
+];
+const tabsForViewer = [
+  { value: 'episodes', label: 'Episodes' },
+  { value: 'posts', label: 'Posts' },
+];
 function PodcastDetail() {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [bgColor, setBgColor] = useState<boolean>(false);
+  const tabs = queryParam === 'self' ? tabsForSelf : tabsForViewer;
   const navigate = useNavigate();
-  const path = useParams();
-  const [selectedTab, setSelectedTab] = useState<string>();
-  const changeTab = (value: string) => {
-    if (!queryParam || queryParam !== 'self') {
-      navigate(`/podcasts/1/${value}`);
-    } else {
-      navigate(`/podcasts/1/${value}?view=self`);
-    }
-    setSelectedTab(value);
-  };
+  const params = useParams();
   useEffect(() => {
-    if (path && path.id) {
-      setSelectedTab(path.id);
-    } else {
-      setSelectedTab('episodes');
-    }
-    if (path.id === 'edit' && queryParam !== 'self') { navigate('/podcasts/1/episodes'); }
-  }, [path]);
+    if (params.podcastId === 'edit' && queryParam !== 'self') { navigate(`/podcasts/${params.podcastId}/episodes`); }
+  }, [params]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="podcast">
       <div className="bg-dark rounded p-4 pb-0">
@@ -176,18 +132,14 @@ function PodcastDetail() {
             </div>
           </div>
         </div>
-        <Row className="mt-4 justify-content-center justify-content-xl-start">
-          <Col xs={queryParam === 'self' ? 10 : 12} sm={6} md={5} lg={8} xl={5}>
-            <StyleTabs activeKey={selectedTab} onSelect={(tab: any) => changeTab(tab)} justify queryParam={queryParam === 'self'} className={`${queryParam === 'self' ? 'justify-content-between mx-3 mx-xl-0' : 'justify-content-center justify-content-xl-start'} fs-3 border-0`}>
-              <Tab eventKey="episodes" title="Episodes" />
-              <Tab eventKey="posts" title="Posts" />
-              {queryParam === 'self' && <Tab eventKey="edit" title="Edit" />}
-            </StyleTabs>
+        <Row className="justify-content-center justify-content-xl-start">
+          <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/podcasts/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
 
-      {selectedTab === 'episodes' && <PodcastEpisodes episodeData={episodeData} />}
+      {params.summary === 'episodes' && <PodcastEpisodes episodeData={episodeData} />}
     </AuthenticatedPageWrapper>
   );
 }

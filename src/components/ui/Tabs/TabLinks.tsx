@@ -12,6 +12,7 @@ interface TabLinksProps {
   params?: string;
   display?: string;
   tabsClass?: string;
+  tabsClassSmall?: string;
 }
 interface TabProps {
   value: string;
@@ -24,7 +25,7 @@ const StyleTabs = styled.div`
   }
 `;
 function TabLinks({
-  tabLink, selectedTab, toLink, params, display, tabsClass,
+  tabLink, selectedTab, toLink, params, display, tabsClass, tabsClassSmall,
 }: TabLinksProps) {
   const color = '#ffffff';
   const theme = createTheme({
@@ -34,7 +35,7 @@ function TabLinks({
           flexContainer: {
             justifyContent: tabsClass,
             '@media (max-width:1199px)': {
-              justifyContent: tabsClass,
+              justifyContent: tabsClassSmall,
             },
           },
           indicator: {
@@ -91,7 +92,8 @@ TabLinks.defaultProps = {
   selectedTab: 'all',
   params: '',
   display: 'default',
-  tabsClass: '',
+  tabsClass: 'space-between',
+  tabsClassSmall: 'space-between',
 };
 
 export default TabLinks;

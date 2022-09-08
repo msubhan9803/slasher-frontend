@@ -44,11 +44,13 @@ describe('Users (e2e)', () => {
   });
 
   describe('POST /users/register', () => {
+    let postBody: UserRegisterDto;
+    beforeEach(() => {
+      postBody = { ...sampleUserRegisterObject };
+    });
+
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody)
@@ -70,9 +72,6 @@ describe('Users (e2e)', () => {
 
     describe('Validation', () => {
       it('firstName should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.firstName = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -84,9 +83,6 @@ describe('Users (e2e)', () => {
       });
 
       it('userName should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.userName = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -96,9 +92,6 @@ describe('Users (e2e)', () => {
       });
 
       it('userName is not longer than 30 characters', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -110,9 +103,6 @@ describe('Users (e2e)', () => {
       });
 
       it('email should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.email = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -122,9 +112,6 @@ describe('Users (e2e)', () => {
       });
 
       it('email is a proper-form email', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.email = 'testusergmail.com';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -134,9 +121,6 @@ describe('Users (e2e)', () => {
       });
 
       it('password should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.password = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -146,23 +130,17 @@ describe('Users (e2e)', () => {
       });
 
       it('password should match pattern', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.password = 'testuser123';
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'password must match /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/ regular expression',
+          'Password must at least 8 characters long, contain at least one (1) capital letter, and contain at least one (1) special character.',
         );
       });
 
       it('passwordConfirmation should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.passwordConfirmation = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -174,9 +152,6 @@ describe('Users (e2e)', () => {
       });
 
       it('password and passwordConfirmation match', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.passwordConfirmation = 'TestUser@1234';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -188,9 +163,6 @@ describe('Users (e2e)', () => {
       });
 
       it('securityQuestion should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.securityQuestion = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -202,9 +174,6 @@ describe('Users (e2e)', () => {
       });
 
       it('securityQuestion is at least 10 characters long', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.securityQuestion = 'Nickname?';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -216,9 +185,6 @@ describe('Users (e2e)', () => {
       });
 
       it('securityAnswer should not be empty', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.securityAnswer = '';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -230,9 +196,6 @@ describe('Users (e2e)', () => {
       });
 
       it('securityAnswer is at least 5 characters long', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
         postBody.securityAnswer = 'Nick';
         const response = await request(app.getHttpServer())
           .post('/users/register')
@@ -244,16 +207,14 @@ describe('Users (e2e)', () => {
       });
     });
 
-    describe('User exist', () => {
-      it('userName already exists', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
+    describe('Existing username or email check', () => {
+      it('returns an error when userName already exists', async () => {
         let response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
+        postBody.email = 'different' + postBody.email;
         response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
@@ -263,16 +224,13 @@ describe('Users (e2e)', () => {
         );
       });
 
-      it('email already exists', async () => {
-        const postBody: UserRegisterDto = {
-          ...sampleUserRegisterObject,
-        };
+      it('returns an error when email already exists', async () => {
         let response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
-        postBody.userName = 'TestUser2';
+        postBody.userName = 'Different' + postBody.userName;
         response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);

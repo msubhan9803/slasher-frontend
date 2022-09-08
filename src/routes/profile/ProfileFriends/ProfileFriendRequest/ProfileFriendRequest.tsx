@@ -40,13 +40,18 @@ function ProfileFriendRequest() {
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
           </div>
           {params.id === 'all' && (
-            <div className="d-flex align-self-center mt-3 mt-md-0">
+            <div className="d-none d-sm-flex align-self-center mt-3 mt-md-0">
               <p className="fs-3 text-primary me-3 my-auto">310 friends</p>
             </div>
           )}
         </div>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          <TabLinks tabLink={friendsTabs} toLink="/profile/friends" selectedTab={params.id} params="?view=self" />
+          <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink="/profile/friends" selectedTab={params.id} params="?view=self" />
+          {params.id === 'all' && (
+            <div className="d-sm-none align-self-center mt-3 mt-md-0">
+              <p className="fs-3 text-primary me-3 my-auto">310 friends</p>
+            </div>
+          )}
           {params.id === 'friend-request' ? (
             <Row className="mt-4">
               {friendRequestList.map((friend: any) => (

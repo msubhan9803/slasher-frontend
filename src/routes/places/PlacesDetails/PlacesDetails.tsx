@@ -99,9 +99,9 @@ function PlacesDetails() {
               </Row>
             </>
           )}
-        <Row>
+        <Row className="justify-content-center justify-content-xl-start">
           <Col md={4} lg={12} xl={5}>
-            <TabLinks tabLink={tabs} toLink={`/places/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/places/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

@@ -127,7 +127,7 @@ function AboutBooks() {
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
           <Col xs={12} md={6} lg={queryParam === 'self' ? 10 : 12} xl={9}>
-            <TabLinks tabLink={tabs} toLink={`/books/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/books/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

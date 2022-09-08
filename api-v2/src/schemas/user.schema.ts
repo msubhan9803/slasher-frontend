@@ -114,6 +114,9 @@ export class User {
   @Prop({ trim: true, default: null })
   resetPasswordToken: string;
 
+  @Prop({ trim: true, default: null })
+  verification_token: string; // NOTE: This is pascal_case insteaed of camelCase for old-API compatibility
+
   @Prop({ default: null })
   lastPasswordResetTime: string;
 

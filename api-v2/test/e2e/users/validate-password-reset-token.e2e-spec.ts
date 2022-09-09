@@ -90,5 +90,38 @@ describe('Users validate password reset token (e2e)', () => {
         });
       });
     });
+
+    describe('Validation', () => {
+      it('email must be a valid-format email', async () => {
+        const email = 'usertestgmail.com';
+        const response = await request(app.getHttpServer())
+          .get(
+            `/users/validate-password-reset-token?email=${email}&resetPasswordToken=${user.resetPasswordToken}`,
+          )
+          .send();
+        expect(response.body.message).toEqual([
+          'Not a valid-format email address.',
+        ]);
+      });
+
+      it('email should not be empty', async () => {
+        user.email = '';
+        const response = await request(app.getHttpServer())
+          .get(`/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`)
+          .send();
+        expect(response.body.message).toContain('email should not be empty');
+      });
+
+      it('resetPasswordToken should not be empty', async () => {
+        user.resetPasswordToken = '';
+        const response = await request(app.getHttpServer())
+          .get(`/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`)
+          .send();
+        expect(response.body.message).toContain(
+          'resetPasswordToken should not be empty',
+        );
+      });
+
+    });
   });
 });

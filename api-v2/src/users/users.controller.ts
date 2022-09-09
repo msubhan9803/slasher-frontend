@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -16,13 +17,15 @@ import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {
@@ -125,12 +128,12 @@ export class UsersController {
 
   @Get('validate-password-reset-token')
   async validatePasswordResetToken(
-    @Query('email') email: string,
-    @Query('resetPasswordToken') resetPasswordToken: string,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidatePasswordResetTokenDto,
   ) {
     const isValid = await this.usersService.resetPasswordTokenIsValid(
-      email,
-      resetPasswordToken,
+      query.email,
+      query.resetPasswordToken,
     );
     return { valid: isValid };
   }

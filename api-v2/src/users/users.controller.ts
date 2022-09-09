@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -15,6 +16,8 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { CheckUserNameDto } from './dto/check-user-name.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -100,27 +103,14 @@ export class UsersController {
   }
 
   @Get('check-user-name')
-  async checkUserName(@Query('userName') userName: string) {
+  async checkUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckUserNameDto,
+  ) {
     await sleep(1000);
-    if (!(userName.length > 0 && userName.length <= 30)) {
-      return {
-        message: ['userName cannot be longer than 30 characters'],
-        exists: false,
-        valid: false,
-      };
-    }
-    const userData = await this.usersService.checkUserName(userName);
-    if (userData) {
-      return {
-        exists: true,
-        valid: true,
-      };
-    } else {
-      return {
-        exists: false,
-        valid: true,
-      };
-    }
+    return {
+      exists: await this.usersService.userNameExists(query.userName),
+    };
   }
 
   @Post('register')

@@ -34,18 +34,6 @@ describe('Users Name (e2e)', () => {
 
   describe('GET /users/check-user-name', () => {
     describe('Check if userName exists and is valid', () => {
-      it('when userName does not exist, but is invalid, it returns error message explaining why', async () => {
-        const userName = 'TestUserTestUserTestUserTestUser';
-        const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
-          .send();
-        expect(response.body).toEqual({
-          message: ['userName cannot be longer than 30 characters'],
-          exists: false,
-          valid: false,
-        });
-      });
-
       it('when username is valid and does not exist, it returns the expected response', async () => {
         const userName = 'usertestuser';
         const response = await request(app.getHttpServer())
@@ -53,7 +41,6 @@ describe('Users Name (e2e)', () => {
           .send();
         expect(response.body).toEqual({
           exists: false,
-          valid: true,
         });
       });
 
@@ -70,8 +57,27 @@ describe('Users Name (e2e)', () => {
           .send();
         expect(response.body).toEqual({
           exists: true,
-          valid: true,
         });
+      });
+    });
+
+    describe('Validation', () => {
+      it('userName should not be empty', async () => {
+        const userName = '';
+        const response = await request(app.getHttpServer())
+          .get(`/users/check-user-name?userName=${userName}`)
+          .send();
+        expect(response.body.message).toContain('userName should not be empty');
+      });
+
+      it('userName is not longer than 30 characters', async () => {
+        const userName = 'TestUserTestUserTestUserTestUser';
+        const response = await request(app.getHttpServer())
+          .get(`/users/check-user-name?userName=${userName}`)
+          .send();
+        expect(response.body.message).toContain(
+          'userName must be shorter than or equal to 30 characters',
+        );
       });
     });
   });

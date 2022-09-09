@@ -25,7 +25,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
-  ) { }
+  ) {}
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {

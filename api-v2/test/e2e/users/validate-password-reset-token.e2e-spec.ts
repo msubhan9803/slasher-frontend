@@ -107,7 +107,9 @@ describe('Users validate password reset token (e2e)', () => {
       it('email should not be empty', async () => {
         user.email = '';
         const response = await request(app.getHttpServer())
-          .get(`/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`)
+          .get(
+            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+          )
           .send();
         expect(response.body.message).toContain('email should not be empty');
       });
@@ -115,13 +117,14 @@ describe('Users validate password reset token (e2e)', () => {
       it('resetPasswordToken should not be empty', async () => {
         user.resetPasswordToken = '';
         const response = await request(app.getHttpServer())
-          .get(`/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`)
+          .get(
+            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+          )
           .send();
         expect(response.body.message).toContain(
           'resetPasswordToken should not be empty',
         );
       });
-
     });
   });
 });

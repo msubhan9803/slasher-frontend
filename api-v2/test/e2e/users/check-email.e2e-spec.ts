@@ -32,31 +32,26 @@ describe('Users Check Email (e2e)', () => {
     await connection.dropDatabase();
   });
 
-  describe('POST /users/checkEmail/:email', () => {
+  describe('GET /users/check-email', () => {
     describe('Check email exits', () => {
       it('email must be an email', async () => {
-        const postParams = {
-          email: 'usertestgmail.com',
-        };
+        const email = 'usertestgmail.com';
         const response = await request(app.getHttpServer())
-          .post(`/users/checkEmail/${postParams.email}`)
+          .get(`/users/check-email?email=${email}`)
           .send();
         expect(response.body).toEqual({
-          message: 'email must be an email',
+          message: ['Not a valid-format email address.'],
           exists: false,
           valid: false,
         });
       });
 
       it('Email is not exists', async () => {
-        const sampleUserEmailObject = {
-          email: 'usertestuser@gmail.com',
-        };
+        const email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
-          .post(`/users/checkEmail/${sampleUserEmailObject.email}`)
+          .get(`/users/check-email?email=${email}`)
           .send();
         expect(response.body).toEqual({
-          message: 'Email is not exists',
           exists: false,
           valid: true,
         });
@@ -71,10 +66,9 @@ describe('Users Check Email (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-          .post(`/users/checkEmail/${user.email}`)
+          .get(`/users/check-email?email=${user.email}`)
           .send();
         expect(response.body).toEqual({
-          message: 'Email is already exists',
           exists: true,
           valid: true,
         });

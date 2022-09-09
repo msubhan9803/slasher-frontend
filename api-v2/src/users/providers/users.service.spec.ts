@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -42,6 +43,7 @@ describe('UsersService', () => {
         { status: ActiveStatus.Active },
         { transient: { unhashedPassword: 'TestPassword' } },
       );
+      user.verification_token = uuidv4();
       const userDocument = await usersService.create(user);
       expect(await usersService.findById(userDocument._id)).toBeTruthy();
     });

@@ -13,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('users')
 export class UsersController {
@@ -116,6 +117,7 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
+    user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
   }

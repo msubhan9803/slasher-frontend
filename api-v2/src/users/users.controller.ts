@@ -1,11 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Req,
 } from '@nestjs/common';
-import { ActiveStatus, Device, User } from '../schemas/user.schema';
+import {
+  ActiveStatus,
+  Device,
+  User,
+  UserDocument,
+} from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -13,7 +20,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
-
+import { Request } from 'express';
 @Controller('users')
 export class UsersController {
   constructor(
@@ -118,5 +125,11 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
+  }
+
+  @Get('suggested-friends')
+  async suggestedFriends(@Req() request: Request) {
+    const user: UserDocument = (request as any).user;
+    return await this.usersService.getSuggestedFriends(user, 7);
   }
 }

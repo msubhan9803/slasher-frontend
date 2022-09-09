@@ -65,4 +65,12 @@ export class UsersService {
         .exec()) > 0
     );
   }
+
+  async getSuggestedFriends(user: UserDocument, limit: number) {
+    return await this.userModel
+      .find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
 }

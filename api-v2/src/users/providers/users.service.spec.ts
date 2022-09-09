@@ -6,6 +6,7 @@ import { UsersService } from './users.service';
 import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
+import { v4 as uuidv4 } from 'uuid';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -131,6 +132,57 @@ describe('UsersService', () => {
       expect(
         (await usersService.findByEmailOrUsername(user.userName))._id,
       ).toEqual(user._id);
+    });
+  });
+
+  describe('#verificationTokenIsValid', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData['verification_token'] = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('finds the expected user by email and verification_token', async () => {
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          user.verification_token,
+        ),
+      ).toEqual(true);
+    });
+
+    it('when email is not exists', async () => {
+      const userEmail = 'userTEWST@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          user.verification_token,
+        ),
+      ).toEqual(false);
+    });
+
+    it('when verification_token is not exists', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          userVerificationToken,
+        ),
+      ).toEqual(false);
+    });
+
+    it('when verification_token or email is not exists', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'userTEWST@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          userVerificationToken,
+        ),
+      ).toEqual(false);
     });
   });
 });

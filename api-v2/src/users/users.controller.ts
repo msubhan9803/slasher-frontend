@@ -13,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { ActivateAccountDto } from './dto/user-activate-account.dto';
 
 @Controller('users')
 export class UsersController {
@@ -118,5 +119,25 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
+  }
+
+  @Post('activate-account')
+  async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
+    const isValid = await this.usersService.verificationTokenIsValid(
+      activateAccountDto.email,
+      activateAccountDto.verification_token,
+    );
+    if (isValid == false) {
+      throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      activateAccountDto.email,
+    );
+    userDetails.status = ActiveStatus.Active;
+    userDetails.verification_token = null;
+    userDetails.save();
+    return {
+      success: true,
+    };
   }
 }

@@ -65,4 +65,14 @@ export class UsersService {
         .exec()) > 0
     );
   }
+
+  async verificationTokenIsValid(email: string, verification_token: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email: email }, { verification_token: verification_token }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return isValid ? true : false;
+  }
 }

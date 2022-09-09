@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -14,8 +15,9 @@ import { UsersService } from './providers/users.service';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
-import { validateEmail } from '../utils/email-utils';
 import { sleep } from '../utils/timer-utils';
+import { CheckEmailQueryDto } from './dto/check-email-query.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -101,27 +103,14 @@ export class UsersController {
   }
 
   @Get('check-email')
-  async checkEmail(@Query('email') email: string) {
-    const emailValidation = validateEmail(email);
-    if (!emailValidation) {
-      return {
-        message: ['Not a valid-format email address.'],
-        valid: false,
-        exists: false,
-      };
-    }
-    const userData = await this.usersService.checkEmail(email);
-    if (userData) {
-      return {
-        exists: true,
-        valid: true,
-      };
-    } else {
-      return {
-        exists: false,
-        valid: true,
-      };
-    }
+  async checkEmail(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckEmailQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.emailExists(query.email),
+    };
   }
 
   @Post('register')

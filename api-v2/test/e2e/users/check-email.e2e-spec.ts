@@ -34,30 +34,28 @@ describe('Users Check Email (e2e)', () => {
 
   describe('GET /users/check-email', () => {
     describe('Check email exits', () => {
-      it('email must be an email', async () => {
+      it('email must be a valid-format email', async () => {
         const email = 'usertestgmail.com';
         const response = await request(app.getHttpServer())
           .get(`/users/check-email?email=${email}`)
           .send();
-        expect(response.body).toEqual({
-          message: ['Not a valid-format email address.'],
-          exists: false,
-          valid: false,
-        });
+        expect(response.body.error).toEqual('Bad Request');
+        expect(response.body.message).toEqual([
+          'Not a valid-format email address.',
+        ]);
       });
 
-      it('Email is not exists', async () => {
+      it('returns expected response when email does NOT exist', async () => {
         const email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
           .get(`/users/check-email?email=${email}`)
           .send();
         expect(response.body).toEqual({
           exists: false,
-          valid: true,
         });
       });
 
-      it('Email is already exists', async () => {
+      it('returns expected response when email DOES exist', async () => {
         const user = await usersService.create(
           userFactory.build(
             {},
@@ -70,7 +68,6 @@ describe('Users Check Email (e2e)', () => {
           .send();
         expect(response.body).toEqual({
           exists: true,
-          valid: true,
         });
       });
     });

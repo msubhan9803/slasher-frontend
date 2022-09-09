@@ -46,14 +46,10 @@ export class UsersService {
     }
   }
 
-  async checkEmail(email: string): Promise<UserDocument> {
-    return this.userModel.findOne({ email: email }).exec();
-  }
-
-  async userNameExists(username: string): Promise<boolean> {
+  async userNameExists(userName: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ userName: username })
+        .findOne({ userName: userName })
         .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
         .count()
         .exec()) > 0

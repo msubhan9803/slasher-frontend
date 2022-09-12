@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { MailService } from '../services/mail.service';
+import { MailService } from '../providers/mail.service';
 import { v4 as uuidv4 } from 'uuid';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';

@@ -4,7 +4,7 @@ import DatingPageWrapper from '../components/DatingPageWrapper';
 import TutorialHeader from './components/TutorialHeader';
 import TutorialMonsterLikeDesktop from '../../../images/tutorial-monster-like-desktop.png';
 import TutorialMonsterLikeMobile from '../../../images/tutorial-monster-like-mobile.png';
-import MonsterLikeIcon from '../../../images/monstre-like-bat-icon.svg';
+import MonsterLikeIcon from '../../../images/monster-like-bat-icon.svg';
 import TutorialIcon from './components/TutorialIcon';
 import TutorialPhotos from './components/TutorialPhotos';
 import TutorialButtons from './components/TutorialButtons';

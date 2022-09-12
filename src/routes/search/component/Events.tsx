@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
-import EventPost from '../../../images/event-post.svg';
+import EventPost from '../../../images/event-post.jpg';
 
 const EventsCardStyle = styled(Card)`
   img {

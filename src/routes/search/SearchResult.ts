@@ -1,5 +1,5 @@
 import MoviePoster from '../../images/movies-poster.jpg';
-import EventPost from '../../images/event-post.svg';
+import EventPost from '../../images/event-post.jpg';
 import postImage from '../../images/book-post-image.jpg';
 import BookPoster from '../../images/book-poster.jpg';
 

@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
-import postImage from '../../../images/news-post.svg';
+import postImage from '../../../images/post-image.jpg';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
 import UserCircleImage from '../../../components/ui/UserCircleImage';

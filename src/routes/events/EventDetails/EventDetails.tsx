@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-import EventsBanner from '../../../images/event-banner.svg';
+import EventsBanner from '../../../images/event-post.jpg';
 
 interface LinearIconProps {
   uniqueId?: string

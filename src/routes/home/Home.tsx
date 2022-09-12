@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
-import postImage from '../../images/news-post.svg';
+import postImage from '../../images/post-image.jpg';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';

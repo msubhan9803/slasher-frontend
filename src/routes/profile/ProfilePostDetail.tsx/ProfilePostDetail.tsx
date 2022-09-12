@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
-import postImage from '../../../images/news-post.svg';
+import postImage from '../../../images/post-image.jpg';
 
 const postData = [
   {

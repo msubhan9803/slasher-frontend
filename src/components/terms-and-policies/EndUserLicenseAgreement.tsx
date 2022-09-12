@@ -22,22 +22,20 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <p>
         This Agreement is a legal agreement between you (either an individual
-        or a single entity) and Premier Audio Video Designs Inc and it governs
-        your use of the Application made available to you by Premier Audio
-        Video Designs Inc.
+        or a single entity) and Slasher Corp and it governs
+        your use of the Application made available to you by Slasher Corp.
       </p>
       <p>
         If you do not agree to the terms of this Agreement, do not click on
         the “I Agree” button and do not download or use the Application.
       </p>
       <p>
-        The Application is licensed, not sold, to you by Premier Audio Video
-        Designs Inc for use strictly in accordance with the terms of this
-        Agreement.
+        The Application is licensed, not sold, to you by Slasher Corp for use strictly
+        in accordance with the terms of this Agreement.
       </p>
       <h3>License</h3>
       <p>
-        Premier Audio Video Designs Inc grants you a revocable, non-exclusive,
+        Slasher Corp grants you a revocable, non-exclusive,
         non-transferable, limited license to download, install and use the
         Application solely for your personal, non-commercial purposes strictly
         in accordance with the terms of this Agreement.
@@ -59,45 +57,44 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <p className="ms-3">
         remove, alter or obscure any proprietary notice (including any notice
-        of copyright or trademark) of Premier Audio Video Designs Inc or its
+        of copyright or trademark) of Slasher Corp or its
         affiliates, partners, suppliers or the licensors of the Application.
       </p>
       <h3>Intellectual Property</h3>
       <p>
         The Application, including without limitation all copyrights, patents,
         trademarks, trade secrets and other intellectual property rights are,
-        and shall remain, the sole and exclusive property of Premier Audio
-        Video Designs Inc.
+        and shall remain, the sole and exclusive property of Slasher Corp.
       </p>
       <h3>Your Suggestions</h3>
       <p>
         Any feedback, comments, ideas, improvements or suggestions
-        (collectively, “Suggestions”) provided by you to Premier Audio Video
-        Designs Inc with respect to the Application shall remain the sole and
-        exclusive property of Premier Audio Video Designs Inc.
+        (collectively, “Suggestions”) provided by you to Slasher Corp
+        with respect to the Application shall remain the sole and
+        exclusive property of Slasher Corp.
       </p>
       <p>
-        Premier Audio Video Designs Inc shall be free to use, copy, modify,
+        Slasher Corp shall be free to use, copy, modify,
         publish, or redistribute the Suggestions for any purpose and in any
         way without any credit or any compensation to you.
       </p>
       <h3>Modifications to Application</h3>
       <p>
-        Premier Audio Video Designs Inc reserves the right to modify, suspend
+        Slasher Corp reserves the right to modify, suspend
         or discontinue, temporarily or permanently, the Application or any
         service to which it connects, with or without notice and without
         liability to you.
       </p>
       <h3>Updates to Application</h3>
       <p>
-        Premier Audio Video Designs Inc may from time to time provide
+        Slasher Corp may from time to time provide
         enhancements or improvements to the features/functionality of the
         Application, which may include patches, bug fixes, updates, upgrades
         and other modifications (“Updates”).
       </p>
       <p>
         Updates may modify or delete certain features and/or functionalities
-        of the Application. You agree that Premier Audio Video Designs Inc has
+        of the Application. You agree that Slasher Corp has
         no obligation to (i) provide any Updates, or (ii) continue to provide
         or enable any particular features and/or functionalities of the
         Application to you.
@@ -115,11 +112,11 @@ function EndUserLicenseAgreement({ className }: Props) {
         (“Third-Party Services”).
       </p>
       <p>
-        You acknowledge and agree that Premier Audio Video Designs Inc shall
+        You acknowledge and agree that Slasher Corp shall
         not be responsible for any Third-Party Services, including their
         accuracy, completeness, timeliness, validity, copyright compliance,
-        legality, decency, quality or any other aspect thereof. Premier Audio
-        Video Designs Inc does not assume and shall not have any liability or
+        legality, decency, quality or any other aspect thereof. Slasher Corp
+        does not assume and shall not have any liability or
         responsibility to you or any other person or entity for any
         Third-Party Services.
       </p>
@@ -130,7 +127,7 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <h3>Privacy Policy</h3>
       <p>
-        Premier Audio Video Designs Inc collects, stores, maintains, and
+        Slasher Corp collects, stores, maintains, and
         shares information about you in accordance with its Privacy Policy,
         which is available at www.slasher.tv/privacy. By accepting this
         Agreement, you acknowledge that you hereby agree and consent to the
@@ -139,16 +136,16 @@ function EndUserLicenseAgreement({ className }: Props) {
       <h3>Term and Termination</h3>
       <p>
         This Agreement shall remain in effect until terminated by you or
-        Premier Audio Video Designs Inc.
+        Slasher Corp.
       </p>
       <p>
-        Premier Audio Video Designs Inc may, in its sole discretion, at any
+        Slasher Corp may, in its sole discretion, at any
         time and for any or no reason, suspend or terminate this Agreement
         with or without prior notice.
       </p>
       <p>
         This Agreement will terminate immediately, without prior notice from
-        Premier Audio Video Designs Inc, in the event that you fail to comply
+        Slasher Corp, in the event that you fail to comply
         with any provision of this Agreement. You may also terminate this
         Agreement by deleting the Application and all copies thereof from your
         mobile device or from your computer.
@@ -159,8 +156,8 @@ function EndUserLicenseAgreement({ className }: Props) {
         device or from your computer.
       </p>
       <p>
-        Termination of this Agreement will not limit any of Premier Audio
-        Video Designs Inc&apos;s rights or remedies at law or in equity in case of
+        Termination of this Agreement will not limit any of Slasher Corp&apos;s
+        rights or remedies at law or in equity in case of
         breach by you (during the term of this Agreement) of any of your
         obligations under the present Agreement.
       </p>
@@ -176,7 +173,7 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <h3>Indemnification</h3>
       <p>
-        You agree to indemnify and hold Premier Audio Video Designs Inc and
+        You agree to indemnify and hold Slasher Corp and
         its parents, subsidiaries, affiliates, officers, employees, agents,
         partners and licensors (if any) harmless from any claim or demand,
         including reasonable attorneys&apos; fees, due to or arising out of your:
@@ -187,15 +184,15 @@ function EndUserLicenseAgreement({ className }: Props) {
       <p>
         The Application is provided to you “AS IS” and “AS AVAILABLE” and with
         all faults and defects without warranty of any kind. To the maximum
-        extent permitted under applicable law, Premier Audio Video Designs
-        Inc, on its own behalf and on behalf of its affiliates and its and
+        extent permitted under applicable law, Slasher Corp, on its own behalf
+        and on behalf of its affiliates and its and
         their respective licensors and service providers, expressly disclaims
         all warranties, whether express, implied, statutory or otherwise, with
         respect to the Application, including all implied warranties of
         merchantability, fitness for a particular purpose, title and
         non-infringement, and warranties that may arise out of course of
         dealing, course of performance, usage or trade practice. Without
-        limitation to the foregoing, Premier Audio Video Designs Inc provides
+        limitation to the foregoing, Slasher Corp provides
         no warranty or undertaking, and makes no representation of any kind
         that the Application will meet your requirements, achieve any intended
         results, be compatible or work with any other software, applications,
@@ -204,16 +201,15 @@ function EndUserLicenseAgreement({ className }: Props) {
         errors or defects can or will be corrected.
       </p>
       <p>
-        Without limiting the foregoing, neither Premier Audio Video Designs
-        Inc nor any Premier Audio Video Designs Inc&apos;s provider makes any
-        representation or warranty of any kind, express or implied: (i) as to
+        Without limiting the foregoing, neither Slasher Corp nor any Slasher Corp&apos;s provider
+        makes any representation or warranty of any kind, express or implied: (i) as to
         the operation or availability of the Application, or the information,
         content, and materials or products included thereon; (ii) that the
         Application will be uninterrupted or error-free; (iii) as to the
         accuracy, reliability, or currency of any information or content
         provided through the Application; or (iv) that the Application, its
-        servers, the content, or e-mails sent from or on behalf of Premier
-        Audio Video Designs Inc are free of viruses, scripts, trojan horses,
+        servers, the content, or e-mails sent from or on behalf of Slasher Corp
+        are free of viruses, scripts, trojan horses,
         worms, malware, timebombs or other harmful components.
       </p>
       <p>
@@ -225,22 +221,22 @@ function EndUserLicenseAgreement({ className }: Props) {
       <h3>Limitation of Liability</h3>
       <p>
         Notwithstanding any damages that you might incur, the entire liability
-        of Premier Audio Video Designs Inc and any of its suppliers under any
+        of Slasher Corp and any of its suppliers under any
         provision of this Agreement and your exclusive remedy for all of the
         foregoing shall be limited to the amount actually paid by you for the
         Application.
       </p>
       <p>
         To the maximum extent permitted by applicable law, in no event shall
-        Premier Audio Video Designs Inc or its suppliers be liable for any
+        Slasher Corp or its suppliers be liable for any
         special, incidental, indirect, or consequential damages whatsoever
         (including, but not limited to, damages for loss of profits, for loss
         of data or other information, for business interruption, for personal
         injury, for loss of privacy arising out of or in any way related to
         the use of or inability to use the Application, third-party software
         and/or third-party hardware used with the Application, or otherwise in
-        connection with any provision of this Agreement), even if Premier
-        Audio Video Designs Inc or any supplier has been advised of the
+        connection with any provision of this Agreement), even if Slasher Corp
+        or any supplier has been advised of the
         possibility of such damages and even if the remedy fails of its
         essential purpose.
       </p>
@@ -298,7 +294,7 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <h3>Amendments to this Agreement</h3>
       <p>
-        Premier Audio Video Designs Inc reserves the right, at its sole
+        Slasher Corp reserves the right, at its sole
         discretion, to modify or replace this Agreement at any time. If a
         revision is material we will provide at least 30 days&apos; notice prior to
         any new terms taking effect. What constitutes a material change will
@@ -327,15 +323,15 @@ function EndUserLicenseAgreement({ className }: Props) {
       </p>
       <h3>Entire Agreement</h3>
       <p>
-        The Agreement constitutes the entire agreement between you and Premier
-        Audio Video Designs Inc regarding your use of the Application and
+        The Agreement constitutes the entire agreement between you and Slasher Corp
+        regarding your use of the Application and
         supersedes all prior and contemporaneous written or oral agreements
-        between you and Premier Audio Video Designs Inc.
+        between you and Slasher Corp.
       </p>
       <p>
         You may be subject to additional terms and conditions that apply when
-        you use or purchase other Premier Audio Video Designs Inc&apos;s services,
-        which Premier Audio Video Designs Inc will provide to you at the time
+        you use or purchase other Slasher Corp&apos;s services,
+        which Slasher Corp will provide to you at the time
         of such use or purchase.
       </p>
     </div>

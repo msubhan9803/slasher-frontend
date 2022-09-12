@@ -14,7 +14,7 @@ function TermsAndConditions({ className }: Props) {
         Please read these Terms and Conditions (“Terms”, “Terms and Conditions”)
         carefully before using the http://www.slasher.tv website and the Slasher
         mobile application (together, or individually, the “Service”) operated
-        by Premier Audio Video Designs Inc (“us”, “we”, or “our”).
+        by Slasher Corp (“us”, “we”, or “our”).
       </p>
       <p>
         Your access to and use of the Service is conditioned upon your
@@ -99,30 +99,30 @@ function TermsAndConditions({ className }: Props) {
       </p>
       <p>
         At the end of each Billing Cycle, your Subscription will automatically
-        renew under the exact same conditions unless you cancel it or Premier
-        Audio Video Designs Inc cancels it. You may cancel your Subscription
+        renew under the exact same conditions unless you cancel it or Slasher Corp
+        cancels it. You may cancel your Subscription
         renewal either through your online account management page or by
-        contacting Premier Audio Video Designs Inc customer support team.
+        contacting Slasher Corp customer support team.
       </p>
       <p>
         A valid payment method, based on the options we offer, is required to
-        process the payment for your Subscription. You shall provide Premier
-        Audio Video Designs Inc with accurate and complete billing information
+        process the payment for your Subscription. You shall provide Slasher Corp
+        with accurate and complete billing information
         including full name, address, state, zip code, telephone number, and a
         valid payment method information. By submitting such payment
-        information, you automatically authorize Premier Audio Video Designs Inc
+        information, you automatically authorize Slasher Corp
         to charge all Subscription fees incurred through your account to any
         such payment instruments.
       </p>
       <p>
-        Should automatic billing fail to occur for any reason, Premier Audio
-        Video Designs Inc will issue an electronic invoice indicating that you
+        Should automatic billing fail to occur for any reason, Slasher Corp
+        will issue an electronic invoice indicating that you
         must proceed manually, within a certain deadline date, with the full
         payment corresponding to the billing period as indicated on the invoice.
       </p>
       <h3>Free Trial</h3>
       <p>
-        Premier Audio Video Designs Inc may, at its sole discretion, offer a
+        Slasher Corp may, at its sole discretion, offer a
         Subscription with a free trial for a limited period of time (“Free
         Trial”).
       </p>
@@ -132,26 +132,26 @@ function TermsAndConditions({ className }: Props) {
       </p>
       <p>
         If you do enter your billing information when signing up for the Free
-        Trial, you will not be charged by Premier Audio Video Designs Inc until
+        Trial, you will not be charged by Slasher Corp until
         the Free Trial has expired. On the last day of the Free Trial period,
         unless you cancelled your Subscription, you will be automatically
         charged the applicable Subscription fees for the type of Subscription
         you have selected.
       </p>
       <p>
-        At any time and without notice, Premier Audio Video Designs Inc reserves
+        At any time and without notice, Slasher Corp reserves
         the right to (i) modify the terms and conditions of the Free Trial
         offer, or (ii) cancel such Free Trial offer.
       </p>
       <h3>Fee Changes</h3>
       <p>
-        Premier Audio Video Designs Inc, in its sole discretion and at any time,
+        Slasher Corp, in its sole discretion and at any time,
         may modify the Subscription fees for the Subscriptions. Any Subscription
         fee change will become effective at the end of the then-current Billing
         Cycle.
       </p>
       <p>
-        Premier Audio Video Designs Inc will provide you with a reasonable prior
+        Slasher Corp will provide you with a reasonable prior
         notice of any change in Subscription fees to give you an opportunity to
         terminate your Subscription before such change becomes effective.
       </p>
@@ -201,12 +201,12 @@ function TermsAndConditions({ className }: Props) {
         these Terms.
       </p>
       <p>
-        Premier Audio Video Designs Inc has the right but not the obligation to
+        Slasher Corp has the right but not the obligation to
         monitor and edit all Content provided by users.
       </p>
       <p>
         In addition, Content found on or through this Service are the property
-        of Premier Audio Video Designs Inc or used with permission. You may not
+        of Slasher Corp or used with permission. You may not
         distribute, modify, transmit, reuse, download, repost, copy, or use said
         Content, whether in whole or in part, for commercial purposes or for
         personal gain, without express advance written permission from us.
@@ -298,25 +298,25 @@ function TermsAndConditions({ className }: Props) {
       <p>
         The Service and its original content (excluding Content provided by
         users), features and functionality are and will remain the exclusive
-        property of Premier Audio Video Designs Inc and its licensors. The
+        property of Slasher Corp and its licensors. The
         Service is protected by copyright, trademark, and other laws of both the
         United States and foreign countries. Our trademarks and trade dress may
         not be used in connection with any product or service without the prior
-        written consent of Premier Audio Video Designs Inc.
+        written consent of Slasher Corp.
       </p>
       <h3>Links To Other Web Sites</h3>
       <p>
         Our Service may contain links to third party web sites or services that
-        are not owned or controlled by Premier Audio Video Designs Inc
+        are not owned or controlled by Slasher Corp
       </p>
       <p>
-        Premier Audio Video Designs Inc has no control over, and assumes no
+        Slasher Corp has no control over, and assumes no
         responsibility for the content, privacy policies, or practices of any
         third party web sites or services. We do not warrant the offerings of
         any of these entities/individuals or their websites.
       </p>
       <p>
-        You acknowledge and agree that Premier Audio Video Designs Inc shall not
+        You acknowledge and agree that Slasher Corp shall not
         be responsible or liable, directly or indirectly, for any damage or loss
         caused or alleged to be caused by or in connection with use of or
         reliance on any such content, goods or services available on or through
@@ -345,8 +345,8 @@ function TermsAndConditions({ className }: Props) {
       </p>
       <h3>Indemnification</h3>
       <p>
-        You agree to defend, indemnify and hold harmless Premier Audio Video
-        Designs Inc and its licensee and licensors, and their employees,
+        You agree to defend, indemnify and hold harmless Slasher Corp and
+        its licensee and licensors, and their employees,
         contractors, agents, officers and directors, from and against any and
         all claims, damages, obligations, losses, liabilities, costs or debt,
         and expenses (including but not limited to attorney&apos;s fees), resulting
@@ -356,7 +356,7 @@ function TermsAndConditions({ className }: Props) {
       </p>
       <h3>Limitation Of Liability</h3>
       <p>
-        In no event shall Premier Audio Video Designs Inc, nor its directors,
+        In no event shall Slasher Corp, nor its directors,
         employees, partners, agents, suppliers, or affiliates, be liable for any
         indirect, incidental, special, consequential or punitive damages,
         including without limitation, loss of profits, data, use, goodwill, or
@@ -378,7 +378,7 @@ function TermsAndConditions({ className }: Props) {
         particular purpose, non-infringement or course of performance.
       </p>
       <p>
-        Premier Audio Video Designs Inc its subsidiaries, affiliates, and its
+        Slasher Corp its subsidiaries, affiliates, and its
         licensors do not warrant that a) the Service will function
         uninterrupted, secure or available at any particular time or location;
         b) any errors or defects will be corrected; c) the Service is free of

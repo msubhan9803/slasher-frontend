@@ -6,6 +6,7 @@ import {
 } from 'react-bootstrap';
 import RoundButton from '../../../components/ui/RoundButton';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 interface Props {
   activeStep: number;
@@ -47,9 +48,9 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
 
           <div className="col-md-4 my-5">
-            <RoundButton className="w-100" variant="primary" type="submit">
-              <Link to="/registration/security">Next step</Link>
-            </RoundButton>
+            <RoundButtonLink to="/registration/security" variant="primary" className="w-100">
+              Next step
+            </RoundButtonLink>
           </div>
           <div className="text-center fs-5">
             Already have an account?

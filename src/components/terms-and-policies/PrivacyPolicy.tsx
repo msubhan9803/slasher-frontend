@@ -11,7 +11,7 @@ function PrivacyPolicy({ className }: Props) {
       <h2 className="border-bottom pb-2">Privacy Policy</h2>
       <p>Last updated: May 24, 2019</p>
       <p>
-        Premier Audio Video Designs Inc (“us”, “we”, or “our”) operates the
+        Slasher Corp (“us”, “we”, or “our”) operates the
         www.slasher.tv website and the Slasher mobile application (hereinafter
         referred to as the “Service”).
       </p>
@@ -34,7 +34,7 @@ function PrivacyPolicy({ className }: Props) {
         </p>
         <p>
           Service means the www.slasher.tv website and the Slasher mobile
-          application operated by Premier Audio Video Designs Inc
+          application operated by Slasher Corp
         </p>
         <p>
           <strong>Personal Data</strong>
@@ -172,7 +172,7 @@ function PrivacyPolicy({ className }: Props) {
       </ul>
       <h3>Use of Data</h3>
       <p>
-        Premier Audio Video Designs Inc uses the collected data for various
+        Slasher Corp uses the collected data for various
         purposes:
       </p>
       <ul>
@@ -229,7 +229,7 @@ function PrivacyPolicy({ className }: Props) {
         information represents your agreement to that transfer.
       </p>
       <p>
-        Premier Audio Video Designs Inc will take all the steps reasonably
+        Slasher Corp will take all the steps reasonably
         necessary to ensure that your data is treated securely and in accordance
         with this Privacy Policy and no transfer of your Personal Data will take
         place to an organisation or a country unless there are adequate controls
@@ -239,21 +239,21 @@ function PrivacyPolicy({ className }: Props) {
       <h3>Disclosure of Data</h3>
       <h4>Business Transaction</h4>
       <p>
-        If Premier Audio Video Designs Inc is involved in a merger, acquisition
+        If Slasher Corp is involved in a merger, acquisition
         or asset sale, your Personal Data may be transferred. We will provide
         notice before your Personal Data is transferred and becomes subject to a
         different Privacy Policy.
       </p>
       <h4>Disclosure for Law Enforcement</h4>
       <p>
-        Under certain circumstances, Premier Audio Video Designs Inc may be
+        Under certain circumstances, Slasher Corp may be
         required to disclose your Personal Data if required to do so by law or
         in response to valid requests by public authorities (e.g. a court or a
         government agency).
       </p>
       <h4>Legal Requirements</h4>
       <p>
-        Premier Audio Video Designs Inc may disclose your Personal Data in the
+        Slasher Corp may disclose your Personal Data in the
         good faith belief that such action is necessary to:
       </p>
       <ul>
@@ -262,8 +262,7 @@ function PrivacyPolicy({ className }: Props) {
         </li>
         <li>
           <p>
-            To protect and defend the rights or property of Premier Audio Video
-            Designs Inc
+            To protect and defend the rights or property of Slasher Corp
           </p>
         </li>
         <li>
@@ -387,7 +386,7 @@ function PrivacyPolicy({ className }: Props) {
       </p>
       <h3>Behavioral Remarketing</h3>
       <p>
-        Premier Audio Video Designs Inc uses remarketing services to advertise
+        Slasher Corp uses remarketing services to advertise
         on third party websites to you after you visited our Service. We and our
         third-party vendors use cookies to inform, optimise and serve ads based
         on your past visits to our Service.

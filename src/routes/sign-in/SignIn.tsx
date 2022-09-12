@@ -38,7 +38,7 @@ function SignIn() {
       device_version: '2.9',
     };
 
-    fetch('http://192.168.1.15:4001/users/sign-in', {
+    fetch(`${process.env.REACT_APP_API_URL}users/sign-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

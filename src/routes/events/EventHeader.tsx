@@ -15,7 +15,7 @@ const tabs = [
 function EventHeader({ tabKey }: EventHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={tabs} toLink="/events" selectedTab={tabKey} tabsClass="space-between" />
+      <TabLinks tabLink={tabs} toLink="/events" selectedTab={tabKey} />
       <Row className="justify-content-center mt-4 d-lg-none">
         <Col md={6}>
           <Link to="/events/suggestion">

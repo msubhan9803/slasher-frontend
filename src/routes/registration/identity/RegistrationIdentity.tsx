@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Form,
   Row,
@@ -12,19 +12,48 @@ interface Props {
 }
 
 function RegistrationIdentity({ activeStep }: Props) {
+  const { state }: any = useLocation();
+
+  const [registerInfo, setRegiterInfo] = useState<any>(
+    {
+      firstName: state?.firstName || '',
+      userName: state?.userName || '',
+      email: state?.email || '',
+      password: state?.password || '',
+      passwordConfirmation: state?.passwordConfirmation || '',
+      securityQuestion: state?.securityQuestion || '',
+      securityAnswer: state?.securityAnswer || '',
+    },
+  );
+
+  const handleChange = (value: string, key: string) => {
+    const registerInfoTemp = { ...registerInfo };
+    (registerInfoTemp as any)[key] = value;
+    setRegiterInfo(registerInfoTemp);
+  };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <Form>
         <Row className="justify-content-center">
           <Form.Group className="col-md-4 mb-3 text-start">
-            <Form.Control type="text" placeholder="First Name" />
+            <Form.Control
+              type="text"
+              placeholder="First Name"
+              value={registerInfo.firstName}
+              onChange={(e: any) => handleChange(e.target.value, 'firstName')}
+            />
             <p className="pt-2">
               This is how your first name will appear in your profile.
             </p>
           </Form.Group>
 
           <Form.Group className="col-md-4 mb-3 text-start">
-            <Form.Control type="text" placeholder="Username" />
+            <Form.Control
+              type="text"
+              placeholder="Username"
+              value={registerInfo.userName}
+              onChange={(e: any) => handleChange(e.target.value, 'userName')}
+            />
             <p className="pt-2">
               You can use letters (case sensitive), numbers, and the
               following special characters: “.”, “-”, or “_”.
@@ -38,7 +67,12 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
 
           <Form.Group className="col-md-4 mb-3 text-start">
-            <Form.Control type="email" placeholder="Email address" />
+            <Form.Control
+              type="email"
+              placeholder="Email address"
+              value={registerInfo.email}
+              onChange={(e: any) => handleChange(e.target.value, 'email')}
+            />
             <p className="pt-2">
               We will send an email with an account activation link to this email address.
               Be sure to click the link in the email to activate your Slasher account. If
@@ -47,7 +81,12 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
 
           <div className="col-md-4 my-5">
-            <RoundButtonLink to="/registration/security" variant="primary" className="w-100">
+            <RoundButtonLink
+              to="/registration/security"
+              state={registerInfo}
+              variant="primary"
+              className="w-100"
+            >
               Next step
             </RoundButtonLink>
           </div>

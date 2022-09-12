@@ -2,14 +2,10 @@ import React, { useState } from 'react';
 import {
   Button, Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-
-const yearOptions = generate18OrOlderYearList();
-const monthOptions = generateMonthOptions();
-const dayOptions = generateDayOptions(1, 31);
 
 interface Props {
   activeStep: number;
@@ -25,9 +21,36 @@ const CustomVisibilityButton = styled(Button)`
   }
 `;
 
+const securityQuestionList = [
+  'The number of the first house you lived in',
+  'Your favorite color',
+  'The brand of the first car you owned',
+  'Your favorite movie',
+  'The name of the first street you lived on',
+  'The first name of your best friend in high school',
+  'The first name of the person you went on your first date with',
+  'Your favorite band',
+  'Your favorite book',
+];
+
 function RegistrationSecurity({ activeStep }: Props) {
+  const { state }: any = useLocation();
+  const [registerInfo, setRegisterInfo] = useState({
+    ...state,
+    password: state.password || '',
+    passwordConfirmation: state.passwordConfirmation || '',
+    securityQuestion: state.securityQuestion || '',
+    securityAnswer: state.securityAnswer || '',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleChange = (value: string, key: string) => {
+    const registerInfoTemp = { ...registerInfo };
+    (registerInfoTemp as any)[key] = value;
+    setRegisterInfo(registerInfoTemp);
+  };
+
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <Row className="justify-content-center">
@@ -35,7 +58,13 @@ function RegistrationSecurity({ activeStep }: Props) {
           <Row>
             <Col sm={12} md={6} className="order-first">
               <InputGroup>
-                <Form.Control type={showPassword ? 'text' : 'password'} placeholder="Password" className="border-end-0" />
+                <Form.Control
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Password"
+                  className="border-end-0"
+                  value={registerInfo.password}
+                  onChange={(e: any) => handleChange(e.target.value, 'password')}
+                />
                 <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? 'Hide' : 'Show'}
                 </CustomVisibilityButton>
@@ -43,7 +72,13 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Col>
             <Col sm={12} md={6} className="order-last">
               <InputGroup>
-                <Form.Control type={showConfirmPassword ? 'text' : 'password'} placeholder="Confirm Password" className="border-end-0" />
+                <Form.Control
+                  value={registerInfo.passwordConfirmation}
+                  onChange={(e: any) => handleChange(e.target.value, 'passwordConfirmation')}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Confirm Password"
+                  className="border-end-0"
+                />
                 <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? 'Hide' : 'Show'}
                 </CustomVisibilityButton>
@@ -58,17 +93,16 @@ function RegistrationSecurity({ activeStep }: Props) {
           </Row>
         </Col>
         <Col sm={12} md={9} className="mt-4">
-          <Form.Select aria-label="Security question selection" defaultValue="">
+          <Form.Select
+            value={registerInfo.securityQuestion}
+            onChange={(e: any) => handleChange(e.target.value, 'securityQuestion')}
+            aria-label="Security question selection"
+            defaultValue=""
+          >
             <option value="" disabled className="text-light">Select a security question</option>
-            <option value="1">The number of the first house you lived in</option>
-            <option value="2">Your favorite color</option>
-            <option value="4">The brand of the first car you owned</option>
-            <option value="5">Your favorite movie</option>
-            <option value="6">The name of the first street you lived on</option>
-            <option value="7">The first name of your best friend in high school</option>
-            <option value="8">The first name of the person you went on your first date with</option>
-            <option value="9">Your favorite band</option>
-            <option value="10">Your favorite book</option>
+            {securityQuestionList.map((securityQuestion) => (
+              <option key={securityQuestion} value={securityQuestion}>{securityQuestion}</option>
+            ))}
           </Form.Select>
           <p className="mt-3 text-light">
             By selecting a security question, you will be able to verify that
@@ -78,50 +112,34 @@ function RegistrationSecurity({ activeStep }: Props) {
         </Col>
         <Col sm={12} md={9} className="mt-4">
           <Form.Group controlId="formBasicAnswer">
-            <Form.Control type="text" placeholder="Security answer" />
+            <Form.Control
+              type="text"
+              placeholder="Security answer"
+              value={registerInfo.securityAnswer}
+              onChange={(e: any) => handleChange(e.target.value, 'securityAnswer')}
+            />
           </Form.Group>
           <p className="text-light mt-3">Not case sensitive.</p>
         </Col>
       </Row>
-      <Row className="justify-content-center mt-4">
-        <Col sm={12} md={9} className="order-xs-1 ">
-          <p>Date of birth</p>
-        </Col>
-        <Col sm={12} md={9} className="order-3">
-          <Row>
-            <Col sm={12} md={4}>
-              <Form.Select aria-label="Month selection" defaultValue="">
-                <option value="" disabled className="text-light">Month</option>
-                {monthOptions.map((month) => (
-                  <option key={month.value} value={month.value}>{month.label}</option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Col sm={12} md={4} className="my-2 my-md-0">
-              <Form.Select aria-label="Day selection" defaultValue="">
-                <option value="" disabled className="text-light">Day</option>
-                {dayOptions.map((day) => (
-                  <option key={day} value={day}>{day}</option>
-                ))}
-              </Form.Select>
-            </Col>
-            <Col sm={12} md={4}>
-              <Form.Select aria-label="Year selection" defaultValue="">
-                <option value="" disabled className="text-light">Year</option>
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </Form.Select>
-            </Col>
-          </Row>
-        </Col>
-        <Col sm={12} md={9} className="order-md-3">
-          <p className="mb-3 mt-md-3 mb-md-0 text-light">Your age will not be shown in your profile and you cannot change your date of birth later.</p>
-        </Col>
-      </Row>
       <Row className="justify-content-center my-5">
-        <Col sm={4}>
-          <RoundButtonLink to="/registration/terms" variant="primary" className="w-100">
+        <Col sm={4} md={3} className="mb-sm-0 mb-3">
+          <RoundButtonLink
+            state={state}
+            to="/registration/identity"
+            className="w-100"
+            variant="secondary"
+          >
+            Previous step
+          </RoundButtonLink>
+        </Col>
+        <Col sm={4} md={3}>
+          <RoundButtonLink
+            state={registerInfo}
+            to="/registration/terms"
+            variant="primary"
+            className="w-100"
+          >
             Next step
           </RoundButtonLink>
         </Col>

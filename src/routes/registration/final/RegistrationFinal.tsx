@@ -1,9 +1,12 @@
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 
 function RegistrationFinal() {
+  const { state }: any = useLocation();
+
   return (
     <UnauthenticatedPageWrapper>
       <div className="text-center">
@@ -11,7 +14,7 @@ function RegistrationFinal() {
         <h2 className="mt-4">One more step!</h2>
         <h3 className="mb-4">Verify your email</h3>
         <p>We have sent an email to</p>
-        <p className="fs-3 text-primary fw-bold my-3">jzb@upwork.com</p>
+        <p className="fs-3 text-primary fw-bold my-3">{state?.email}</p>
         <p>
           Click or tap the button in the email to activate your
           Slasher account.

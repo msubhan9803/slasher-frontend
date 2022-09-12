@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -13,6 +16,8 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { CheckEmailQueryDto } from './dto/check-email-query.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -95,6 +100,17 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Get('check-email')
+  async checkEmail(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckEmailQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.emailExists(query.email),
+    };
   }
 
   @Post('register')

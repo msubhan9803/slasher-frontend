@@ -8,7 +8,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
 import * as bcrypt from 'bcryptjs';
 
-describe('Users (e2e)', () => {
+describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;

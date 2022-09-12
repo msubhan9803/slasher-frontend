@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
@@ -144,21 +145,23 @@ export class UsersController {
   }
 
   @Post('forgot-password')
+  @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     try {
       const userData = await this.usersService.findByEmail(
         forgotPasswordDto.email,
       );
-      if (!userData)
-        throw new HttpException(
-          'Invalid email',
-          HttpStatus.UNPROCESSABLE_ENTITY,
+      if (userData) {
+        userData.resetPasswordToken = uuidv4();
+        userData.save();
+        await this.mailService.sendForgotPasswordEmail(
+          userData.email,
+          userData.resetPasswordToken,
         );
-      const generateRandomToken = uuidv4();
-      await this.mailService.sendForgotPasswordEmail(
-        userData.email,
-        generateRandomToken,
-      );
+      }
+      return {
+        success: true,
+      };
     } catch (error) {
       throw new HttpException(
         'Something wen wrong',

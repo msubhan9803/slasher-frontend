@@ -17,10 +17,11 @@ import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSi
 import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
 import NotificationsRIghtSideNav from '../../../../routes/notifications/NotificationsRIghtSideNav';
 import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
+import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event' | 'podcasts';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -69,6 +70,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     place: <PlaceRightSidebar />,
     notification: <NotificationsRIghtSideNav />,
     event: <EventRightSidebar />,
+    podcasts: <PodcastsSidebar />,
   }[type]);
 
   return (

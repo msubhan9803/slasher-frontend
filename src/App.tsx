@@ -25,6 +25,7 @@ import Places from './routes/places/Places';
 import Profile from './routes/profile/Profile';
 import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
+import Podcasts from './routes/podcasts/Podcasts';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -52,6 +53,7 @@ function App() {
       <Route path="/posts/*" element={<Posts />} />
       <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
       <Route path="/movies/*" element={<Movies />} />
+      <Route path="/podcasts/*" element={<Podcasts />} />
       <Route path="/books/*" element={<Books />} />
       <Route path="/shopping/*" element={<Shopping />} />
       <Route path="/places/*" element={<Places />} />

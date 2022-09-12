@@ -21,7 +21,7 @@ import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSide
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event' | 'podcasts';
+  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event' | 'podcast';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -70,7 +70,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     place: <PlaceRightSidebar />,
     notification: <NotificationsRIghtSideNav />,
     event: <EventRightSidebar />,
-    podcasts: <PodcastsSidebar />,
+    podcast: <PodcastsSidebar />,
   }[type]);
 
   return (

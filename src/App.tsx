@@ -60,6 +60,7 @@ function App() {
       <Route path="/:userName/*" element={<Profile />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/account/*" element={<Account />} />
+      <Route path="/podcasts/*" element={<Podcasts />} />
       {/* Fallback */}
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>

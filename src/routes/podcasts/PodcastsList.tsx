@@ -8,7 +8,7 @@ import PodcastsPoster from './components/PodcastsPoster';
 
 function PodcastsList() {
   return (
-    <AuthenticatedPageWrapper rightSidebarType="podcasts">
+    <AuthenticatedPageWrapper rightSidebarType="podcast">
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4">
         <Link to="/podcasts" className="d-lg-none">
           <RoundButton className="w-100 fs-3 fw-bold">Add my podcast</RoundButton>

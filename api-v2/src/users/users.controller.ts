@@ -37,7 +37,10 @@ export class UsersController {
     );
 
     if (!user || user.deleted) {
-      throw new HttpException('User does not exist.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Incorrect username or password.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (user.userSuspended) {

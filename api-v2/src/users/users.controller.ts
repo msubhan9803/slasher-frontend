@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
   Post,
+  Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
@@ -16,6 +19,8 @@ import { sleep } from '../utils/timer-utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../services/mail.service';
 import { v4 as uuidv4 } from 'uuid';
+import { CheckEmailQueryDto } from './dto/check-email-query.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -99,6 +104,17 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Get('check-email')
+  async checkEmail(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckEmailQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.emailExists(query.email),
+    };
   }
 
   @Post('register')

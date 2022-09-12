@@ -5,17 +5,63 @@ import {
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useFormik } from 'formik';
 import signIn from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
+import CustomAlertMessage from '../../components/ui/CustomAlertMessage';
+
+interface UserSignIn {
+  emailOrUsername: string;
+  password: string;
+}
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
+  const [errorMessage, setErrorMessage] = useState({
+    message: '',
+    type: 'primary',
+  });
+
+  const userSignIn = (userInfo: UserSignIn) => {
+    const body = {
+      ...userInfo,
+      device_id: '1',
+      device_token: 'wewewewew',
+      device_type: 'mobile',
+      app_version: '1.0',
+      device_version: '2.9',
+    };
+
+    fetch('http://192.168.1.15:4001/users/sign-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.statusCode === 401) {
+          setErrorMessage({ ...errorMessage, message: data.message });
+        } else {
+          setErrorMessage({ message: '', type: '' });
+        }
+      });
+  };
+  const formik = useFormik({
+    enableReinitialize: true,
+    initialValues: {
+      emailOrUsername: '',
+      password: '',
+    },
+    onSubmit: (values: UserSignIn) => {
+      userSignIn(values);
+    },
+  });
   return (
     <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
@@ -28,15 +74,24 @@ function SignIn() {
           <Row className="mt-3 mt-sm-0">
             <div>
               <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
-              <Form>
-                <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
+              <Form onSubmit={formik.handleSubmit}>
+                <CustomInputGroup
+                  size="lg"
+                  addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />}
+                  label="Username or email"
+                  inputType="email"
+                  name="emailOrUsername"
+                  formik={formik}
+                />
                 <CustomInputGroup
                   size="lg"
                   addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
                   label="Password"
                   inputType={showPassword ? 'text' : 'password'}
                   showPassword={showPassword}
+                  name="password"
                   passwordVisiblility={passwordVisiblility}
+                  formik={formik}
                 />
 
                 <p className="text-center fs-5">
@@ -45,8 +100,8 @@ function SignIn() {
                     Click here
                   </Link>
                 </p>
-
-                <RoundButton className="w-100 my-3" variant="primary" type="submit">
+                {errorMessage.message && <CustomAlertMessage errorMessage={errorMessage} />}
+                <RoundButton type="submit" className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

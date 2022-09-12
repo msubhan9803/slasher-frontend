@@ -28,10 +28,12 @@ interface Props {
   inputType?: string;
   showPassword?: boolean;
   passwordVisiblility?: () => void;
+  name?: string;
+  formik?: any;
 }
 
 function CustomInputGroup({
-  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility,
+  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, formik, name,
 }: Props) {
   return (
     <StyledInputGroup className="mb-3" size={size}>
@@ -41,6 +43,8 @@ function CustomInputGroup({
         aria-label={label}
         aria-describedby="addon-label"
         type={inputType}
+        name={name}
+        onChange={formik?.handleChange}
         className={`${label === 'Password' ? 'border-end-0' : 0}`}
       />
       {label === 'Password' && (
@@ -54,8 +58,10 @@ function CustomInputGroup({
 
 CustomInputGroup.defaultProps = {
   inputType: 'text',
+  name: '',
   showPassword: false,
   passwordVisiblility: () => { },
+  formik: undefined,
 };
 
 export default CustomInputGroup;

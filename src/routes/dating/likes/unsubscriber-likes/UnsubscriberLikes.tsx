@@ -21,7 +21,7 @@ const UnsubscribeProfileImage = styled.div`
 `;
 const StyledBorder = styled.div`
   border-bottom: 1px solid #3A3B46;
-  &:last-child {
+  &:last-of-type {
     border-bottom: none !important;
     padding-bottom: 0 !important;
   }

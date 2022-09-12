@@ -5,6 +5,7 @@ import SlasherDeals from './slasher-deals/SlasherDeals';
 import ShoppingFavorites from './shopping-favorites/ShoppingFavorites';
 import ShoppingMyListings from './shopping-my-listings/ShoppingMyListings';
 import ShoppingDetails from './ShoppingDetails/ShoppingDetails';
+import BecomeVendor from './become-vendor/BecomeVendor';
 
 function Shopping() {
   return (
@@ -15,6 +16,7 @@ function Shopping() {
       <Route path="favorites" element={<ShoppingFavorites />} />
       <Route path="my-listings" element={<ShoppingMyListings />} />
       <Route path="/:id/:summary" element={<ShoppingDetails />} />
+      <Route path="/vendor" element={<BecomeVendor />} />
     </Routes>
   );
 }

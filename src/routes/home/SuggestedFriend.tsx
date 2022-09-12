@@ -33,10 +33,10 @@ const StyleFriend = styled(Row)`
 const Card = styled.div`
   height:12.857rem;
   width:11.71rem;
-  &:first-child {
+  &:first-of-type {
     padding-left: 0rem;
   }
-  &:last-child {
+  &:last-of-type {
     padding-right: 0rem;
   }
 `;

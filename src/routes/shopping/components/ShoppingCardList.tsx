@@ -18,7 +18,7 @@ interface ShoppingData {
 }
 const StyledShoppingCard = styled.div`
   border-bottom: 1px solid #3A3B46 !important;
-  &:last-child {
+  &:last-of-type {
     border-bottom: none !important;
   }
 `;

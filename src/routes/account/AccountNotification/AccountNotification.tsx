@@ -6,11 +6,11 @@ import AccountHeader from '../AccountHeader';
 
 const StyledBorder = styled.div`
   border-bottom: 1px solid #3A3B46;
-  &:first-child {
+  &:first-of-type {
   border-bottom: 1px solid #3A3B46;
     padding-top: 0 !important;
   }
-  &:last-child {
+  &:last-of-type {
     border-bottom: none;
     padding-bottom: 0 !important;
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import FriendRequests from '../../../components/layout/right-sidebar-wrapper/components/FriendRequests';
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
@@ -7,12 +7,13 @@ import RecentMessages from '../../../components/layout/right-sidebar-wrapper/com
 import RoundButton from '../../../components/ui/RoundButton';
 
 function PodcastsSidebar() {
+  const params = useParams();
   return (
     <>
       <Link to="/podcasts">
         <RoundButton className="w-100 mb-4 fs-3 fw-bold">Add my podcast</RoundButton>
       </Link>
-      <NotificationSetting />
+      {params.podcastId && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />

@@ -125,9 +125,9 @@ function ShoppingDetails() {
               </Col>
             </Row>
           )}
-        <Row>
+        <Row className="justify-content-center justify-content-xl-start">
           <Col md={5} lg={12} xl={6}>
-            <TabLinks tabLink={tabs} toLink={`/shopping/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/shopping/${params.id}`} selectedTab={params.summary} params={queryParam === 'self' ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

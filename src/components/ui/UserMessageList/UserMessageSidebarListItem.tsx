@@ -17,10 +17,10 @@ const MessageSnippet = styled.p`
 
 const StyledItem = styled.div`
   border-bottom: 1px solid var(--bs-dark);
-  &:first-child {
+  &:first-of-type {
     padding-top: 0 !important;
   }
-  &:last-child {
+  &:last-of-type {
     border-bottom: none;
     padding-bottom: 0 !important;
   }

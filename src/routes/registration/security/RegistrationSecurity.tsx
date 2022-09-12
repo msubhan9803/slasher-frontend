@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import {
-  Button,
-  Col, Form, InputGroup, Row,
+  Button, Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
@@ -123,9 +121,9 @@ function RegistrationSecurity({ activeStep }: Props) {
       </Row>
       <Row className="justify-content-center my-5">
         <Col sm={4}>
-          <RoundButton className="w-100" variant="primary" type="submit">
-            <Link to="/registration/terms">Next step</Link>
-          </RoundButton>
+          <RoundButtonLink to="/registration/terms" variant="primary" className="w-100">
+            Next step
+          </RoundButtonLink>
         </Col>
       </Row>
     </RegistrationPageWrapper>

@@ -53,6 +53,7 @@ function App() {
       <Route path="/posts/*" element={<Posts />} />
       <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
       <Route path="/movies/*" element={<Movies />} />
+      <Route path="/podcasts/*" element={<Podcasts />} />
       <Route path="/books/*" element={<Books />} />
       <Route path="/shopping/*" element={<Shopping />} />
       <Route path="/places/*" element={<Places />} />

@@ -11,7 +11,7 @@ function ShoppingRightSidebar() {
   const queryParam = searchParams.get('view');
   return (
     <>
-      <Link to="/shopping/all">
+      <Link to="/shopping/vendor">
         <RoundButton className="w-100 mb-4 fs-4">Become a vendor</RoundButton>
       </Link>
       {queryParam === 'self'

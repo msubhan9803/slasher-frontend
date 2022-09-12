@@ -8,15 +8,7 @@ export class MailService {
 
   async sendForgotPasswordEmail(email: string, token: string) {
     return new Promise((resolve, reject) => {
-      const mailTransporter = nodemailer.createTransport({
-        host: this.config.get<string>('DEFAULT_SMTP_HOST'),
-        port: this.config.get<number>('DEFAULT_SMTP_PORT'),
-        secureConnection: true,
-        auth: {
-          user: this.config.get<string>('DEFAULT_SMTP_AUTH_USER'),
-          pass: this.config.get<string>('DEFAULT_SMTP_AUTH_PASS'),
-        },
-      });
+      const mailTransporter = this.createMailTransporter();
       const mailDetails = {
         to: email,
         from: this.config.get<string>('DEFAULT_SMTP_AUTH_USER'),
@@ -30,6 +22,18 @@ export class MailService {
           resolve(data);
         }
       });
+    });
+  }
+
+  createMailTransporter() {
+    return nodemailer.createTransport({
+      host: this.config.get<string>('DEFAULT_SMTP_HOST'),
+      port: this.config.get<number>('DEFAULT_SMTP_PORT'),
+      secureConnection: true,
+      auth: {
+        user: this.config.get<string>('DEFAULT_SMTP_AUTH_USER'),
+        pass: this.config.get<string>('DEFAULT_SMTP_AUTH_PASS'),
+      },
     });
   }
 }

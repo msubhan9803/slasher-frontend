@@ -7,7 +7,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { ForgotPasswordDto } from '../../../src/users/dto/forgot-password.dto';
 import { userFactory } from '../../factories/user.factory';
-import { MailService } from '../../../src/services/mail.service';
+import { MailService } from '../../../src/providers/mail.service';
 import { validUuidV4Regex } from '../../helpers/regular-expressions';
 
 describe('Users / Forgot Password (e2e)', () => {

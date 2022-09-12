@@ -4,7 +4,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { User, UserSchema } from '../schemas/user.schema';
 import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
-import { MailService } from '../services/mail.service';
+import { MailService } from '../providers/mail.service';
 
 @Module({
   imports: [

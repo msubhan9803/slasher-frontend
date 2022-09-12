@@ -41,11 +41,11 @@ const StyledItem = styled.div`
     border-bottom: 1px solid #383838;
   }
 
-  &:first-child {
+  &:first-of-type {
     border-radius: var(--bs-border-radius-lg) var(--bs-border-radius-lg) 0 0;
   }
 
-  &:last-child {
+  &:last-of-type {
     border-radius: 0 0 var(--bs-border-radius-lg) var(--bs-border-radius-lg);
     .message-bottom-border {
       border-bottom: none !important;

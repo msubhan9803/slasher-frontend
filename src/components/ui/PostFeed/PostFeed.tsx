@@ -50,7 +50,7 @@ const StyledPostFeed = styled.div`
     .post {
       border-bottom: 1px solid #3A3B46;
     }
-    .post:last-child {
+    .post:last-of-type {
       border-bottom: none;
     }
   }

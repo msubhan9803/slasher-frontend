@@ -4,7 +4,6 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import RoundButton from '../../../components/ui/RoundButton';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 

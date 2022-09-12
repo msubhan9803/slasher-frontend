@@ -28,7 +28,7 @@ const StyledBorder = styled.div`
   svg {
     width: 8px;
   }
-  &:last-child {
+  &:last-of-type {
     border-bottom: none !important;
     padding-bottom: 0 !important
   }

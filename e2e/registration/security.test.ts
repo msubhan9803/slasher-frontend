@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Your age will not be shown in your profile and you cannot change your date of birth later./);
+    await expect(page.locator('main')).toHaveText(/Not case sensitive./);
   });
 });

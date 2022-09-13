@@ -7,7 +7,7 @@ interface StyleInputProps {
 }
 const StyledInputGroup = styled(InputGroup) <StyleInputProps>`
   .form-control {
-    ${((props) => props.addoncontent !== undefined && 'border-left: 1px solid var(--bs-input-border-color)')}
+    ${((props) => props.addoncontent && 'border-left: 1px solid var(--bs-input-border-color)')}
   }
   .btn {
     background-color: rgb(31, 31, 31);
@@ -25,7 +25,7 @@ const StyledInputGroup = styled(InputGroup) <StyleInputProps>`
 `;
 
 interface Props {
-  addonContent: React.ReactNode;
+  addonContent?: React.ReactNode;
   label: string;
   size: string;
   inputType?: string;
@@ -61,6 +61,7 @@ CustomInputGroup.defaultProps = {
   password: false,
   showPassword: false,
   passwordVisiblility: () => { },
+  addonContent: null,
 };
 
 export default CustomInputGroup;

@@ -67,6 +67,9 @@ describe('Users / Register (e2e)', () => {
         expect(
           bcrypt.compareSync(postBody.password, registeredUser.password),
         ).toEqual(true);
+        expect(registeredUser.verification_token).toMatch(
+          /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        );
       });
     });
 

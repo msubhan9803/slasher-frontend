@@ -5,13 +5,12 @@ import {
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useFormik } from 'formik';
 import signIn from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
-import CustomAlertMessage from '../../components/ui/CustomAlertMessage';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 interface UserSignIn {
   emailOrUsername: string;
@@ -20,17 +19,23 @@ interface UserSignIn {
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState<UserSignIn>({
+    emailOrUsername: '',
+    password: '',
+  });
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
-  const [errorMessage, setErrorMessage] = useState({
-    message: '',
-    type: 'primary',
-  });
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
 
-  const userSignIn = (userInfo: UserSignIn) => {
+  const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const userInfo = { ...user, [event.target.name]: event.target.value };
+    setUser(userInfo);
+  };
+
+  const userSignIn = () => {
     const body = {
-      ...userInfo,
+      ...user,
       device_id: '1',
       device_token: 'wewewewew',
       device_type: 'mobile',
@@ -38,7 +43,7 @@ function SignIn() {
       device_version: '2.9',
     };
 
-    fetch(`${process.env.REACT_APP_API_URL}users/sign-in`, {
+    fetch(`${process.env.BASE_API_URL}users/sign-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -46,22 +51,13 @@ function SignIn() {
       .then((response) => response.json())
       .then((data) => {
         if (data && data.statusCode === 401) {
-          setErrorMessage({ ...errorMessage, message: data.message });
+          setErrorMessage(data.message);
         } else {
-          setErrorMessage({ message: '', type: '' });
+          setErrorMessage([]);
         }
       });
   };
-  const formik = useFormik({
-    enableReinitialize: true,
-    initialValues: {
-      emailOrUsername: '',
-      password: '',
-    },
-    onSubmit: (values: UserSignIn) => {
-      userSignIn(values);
-    },
-  });
+
   return (
     <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
@@ -74,14 +70,15 @@ function SignIn() {
           <Row className="mt-3 mt-sm-0">
             <div>
               <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
-              <Form onSubmit={formik.handleSubmit}>
+              <Form>
                 <CustomInputGroup
                   size="lg"
                   addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />}
                   label="Username or email"
                   inputType="email"
                   name="emailOrUsername"
-                  formik={formik}
+                  value={user.emailOrUsername}
+                  onChangeValue={handleSignIn}
                 />
                 <CustomInputGroup
                   size="lg"
@@ -91,7 +88,8 @@ function SignIn() {
                   showPassword={showPassword}
                   name="password"
                   passwordVisiblility={passwordVisiblility}
-                  formik={formik}
+                  value={user.password}
+                  onChangeValue={handleSignIn}
                 />
 
                 <p className="text-center fs-5">
@@ -100,8 +98,8 @@ function SignIn() {
                     Click here
                   </Link>
                 </p>
-                {errorMessage.message && <CustomAlertMessage errorMessage={errorMessage} />}
-                <RoundButton type="submit" className="w-100 my-3" variant="primary">
+                {errorMessage.length > 0 && <ErrorMessageList errorMessages={errorMessage} />}
+                <RoundButton onClick={userSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Col,
   Row,
 } from 'react-bootstrap';
@@ -9,6 +8,7 @@ import CommunityStandardsAndRules from '../../../components/terms-and-policies/C
 import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
@@ -16,17 +16,33 @@ import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 interface Props {
   activeStep: number;
 }
-
+interface Registration {
+  firstName: string;
+  userName: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  securityQuestion: string;
+  securityAnswer: string;
+  month: string;
+  year: string;
+  day: string;
+  dob: string;
+}
 function RegistrationTerms({ activeStep }: Props) {
-  const navigate = useNavigate();
   const { state }: any = useLocation();
-  const [errorMessage, setErrorMessage] = useState<any>();
-
-  const submitRegister = (registerInfo: any) => {
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const navigate = useNavigate();
+  const submitRegister = (registerInfo: Registration) => {
+    const dobDate = `${registerInfo.year}-${registerInfo.month}-${registerInfo.day}`;
+    const registerInfoTemp = { ...registerInfo, dob: dobDate };
+    const {
+      day, month, year, ...otherInfo
+    } = registerInfoTemp;
     fetch(`${process.env.REACT_APP_API_URL}users/register`, {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(registerInfo),
+      body: JSON.stringify(otherInfo),
     })
       .then((response) => response.json())
       .then((res) => {
@@ -52,13 +68,9 @@ function RegistrationTerms({ activeStep }: Props) {
         with our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      {errorMessage && errorMessage.map((errors: any) => (
-        <Alert key="danger" variant="danger">
-          {errors}
-        </Alert>
-      ))}
+      {errorMessage && <ErrorMessageList errorMessages={errorMessage} />}
       <Row className="justify-content-center my-5">
-        <Col sm={4} md={3} className="mb-sm-0 mb-3">
+        <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
             state={state}
             to="/registration/security"
@@ -68,7 +80,7 @@ function RegistrationTerms({ activeStep }: Props) {
             Previous step
           </RoundButtonLink>
         </Col>
-        <Col sm={4} md={3}>
+        <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
           <RoundButton className="mb-3 w-100" onClick={() => submitRegister(state)}>Sign up</RoundButton>
         </Col>
       </Row>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Form,
@@ -10,11 +10,23 @@ import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 interface Props {
   activeStep: number;
 }
+interface Registration {
+  firstName: string;
+  userName: string;
+  email: string;
+  password: string;
+  passwordConfirmation: string;
+  securityQuestion: string;
+  securityAnswer: string;
+  day: string;
+  month: string;
+  year: string;
+}
 
 function RegistrationIdentity({ activeStep }: Props) {
   const { state }: any = useLocation();
 
-  const [registerInfo, setRegiterInfo] = useState<any>(
+  const [registerInfo, setRegiterInfo] = useState<Registration>(
     {
       firstName: state?.firstName || '',
       userName: state?.userName || '',
@@ -23,6 +35,9 @@ function RegistrationIdentity({ activeStep }: Props) {
       passwordConfirmation: state?.passwordConfirmation || '',
       securityQuestion: state?.securityQuestion || '',
       securityAnswer: state?.securityAnswer || '',
+      day: state?.day || '',
+      month: state?.month || '',
+      year: state?.year || '',
     },
   );
 
@@ -40,7 +55,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               type="text"
               placeholder="First Name"
               value={registerInfo.firstName}
-              onChange={(e: any) => handleChange(e.target.value, 'firstName')}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'firstName')}
             />
             <p className="pt-2">
               This is how your first name will appear in your profile.
@@ -52,7 +67,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               type="text"
               placeholder="Username"
               value={registerInfo.userName}
-              onChange={(e: any) => handleChange(e.target.value, 'userName')}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'userName')}
             />
             <p className="pt-2">
               You can use letters (case sensitive), numbers, and the
@@ -71,7 +86,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               type="email"
               placeholder="Email address"
               value={registerInfo.email}
-              onChange={(e: any) => handleChange(e.target.value, 'email')}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'email')}
             />
             <p className="pt-2">
               We will send an email with an account activation link to this email address.
@@ -92,9 +107,7 @@ function RegistrationIdentity({ activeStep }: Props) {
           </div>
           <div className="text-center fs-5">
             Already have an account?
-            {' '}
             <Link to="/sign-in" className="text-primary">Click here</Link>
-            {' '}
             to go to the sign in screen.
           </div>
         </Row>

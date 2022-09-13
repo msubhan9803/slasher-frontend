@@ -89,7 +89,6 @@ describe('Users / Check User Name (e2e)', () => {
           'Cannot start and end with any special character, Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
         );
       });
-
     });
   });
 });

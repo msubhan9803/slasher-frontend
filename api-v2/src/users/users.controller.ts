@@ -20,6 +20,7 @@ import { sleep } from '../utils/timer-utils';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
 import { v4 as uuidv4 } from 'uuid';
+import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
@@ -110,6 +111,17 @@ export class UsersController {
     );
   }
 
+  @Get('check-user-name')
+  async checkUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckUserNameQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.userNameExists(query.userName),
+    };
+  }
+
   @Get('check-email')
   async checkEmail(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -140,6 +152,7 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
+    user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
   }

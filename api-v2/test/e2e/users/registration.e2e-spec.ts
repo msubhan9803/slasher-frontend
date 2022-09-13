@@ -21,6 +21,7 @@ describe('Users / Register (e2e)', () => {
     passwordConfirmation: 'TestUser@123',
     securityQuestion: 'What is favourite food?',
     securityAnswer: 'Pizza',
+    dob: new Date(),
   };
 
   beforeAll(async () => {
@@ -204,6 +205,15 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain(
           'securityAnswer must be longer than or equal to 5 characters',
         );
+      });
+
+      it('dob is under age', async () => {
+        postBody.dob = new Date('2005-02-21');
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('You are not eligble');
       });
     });
 

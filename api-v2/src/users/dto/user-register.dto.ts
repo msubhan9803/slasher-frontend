@@ -6,6 +6,7 @@ import {
   Matches,
 } from 'class-validator';
 import { Match } from '../../app/decorators/class-validator/match.decorator';
+import { IsOnlyDate } from '../../app/decorators/class-validator/date.decorator';
 
 export class UserRegisterDto {
   @IsNotEmpty()
@@ -40,4 +41,8 @@ export class UserRegisterDto {
   @IsNotEmpty()
   @MinLength(5)
   securityAnswer: string;
+
+  @IsNotEmpty()
+  @IsOnlyDate()
+  dob: Date;
 }

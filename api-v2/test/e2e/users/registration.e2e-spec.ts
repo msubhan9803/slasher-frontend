@@ -102,6 +102,17 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
+      it('userName should match pattern', async () => {
+        postBody.userName = '_testuser';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'Cannot start and end with any special character, Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+        );
+      });
+
       it('email should not be empty', async () => {
         postBody.email = '';
         const response = await request(app.getHttpServer())

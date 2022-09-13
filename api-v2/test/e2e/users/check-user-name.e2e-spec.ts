@@ -79,6 +79,17 @@ describe('Users / Check User Name (e2e)', () => {
           'userName must be shorter than or equal to 30 characters',
         );
       });
+
+      it('userName should match pattern', async () => {
+        const userName = '_testuser';
+        const response = await request(app.getHttpServer())
+          .get(`/users/check-user-name?userName=${userName}`)
+          .send();
+        expect(response.body.message).toContain(
+          'Cannot start and end with any special character, Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+        );
+      });
+
     });
   });
 });

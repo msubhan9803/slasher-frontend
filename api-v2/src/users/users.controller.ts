@@ -16,6 +16,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
@@ -103,6 +104,17 @@ export class UsersController {
       ]),
       { token },
     );
+  }
+
+  @Get('check-user-name')
+  async checkUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckUserNameQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.userNameExists(query.userName),
+    };
   }
 
   @Get('check-email')

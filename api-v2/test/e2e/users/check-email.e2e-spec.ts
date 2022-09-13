@@ -4,10 +4,10 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../../../src/app.module';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
+import { UsersService } from '../../../src/users/providers/users.service';
 
-describe('Users / Check User Name (e2e)', () => {
+describe('Users / Check Email (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -32,19 +32,31 @@ describe('Users / Check User Name (e2e)', () => {
     await connection.dropDatabase();
   });
 
-  describe('GET /users/check-user-name', () => {
-    describe('Check if userName exists and is valid', () => {
-      it('when username is valid and does not exist, it returns the expected response', async () => {
-        const userName = 'usertestuser';
+  describe('GET /users/check-email', () => {
+    it('it responds with error message when an invalid-format email supplied', async () => {
+      const email = 'usertestgmail.com';
+      const response = await request(app.getHttpServer())
+        .get(`/users/check-email?email=${email}`)
+        .send();
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['Not a valid-format email address.'],
+        statusCode: 400,
+      });
+    });
+
+    describe('When a valid-format email address is supplied', () => {
+      it('returns { exists: false } when the email address is NOT associated with a registered user', async () => {
+        const email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/users/check-email?email=${email}`)
           .send();
         expect(response.body).toEqual({
           exists: false,
         });
       });
 
-      it('when username is valid, but does exists, it returns the expected response', async () => {
+      it('returns { exists: true } when the email address IS associated with a registered user', async () => {
         const user = await usersService.create(
           userFactory.build(
             {},
@@ -53,31 +65,11 @@ describe('Users / Check User Name (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${user.userName}`)
+          .get(`/users/check-email?email=${user.email}`)
           .send();
         expect(response.body).toEqual({
           exists: true,
         });
-      });
-    });
-
-    describe('Validation', () => {
-      it('userName should not be empty', async () => {
-        const userName = '';
-        const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
-          .send();
-        expect(response.body.message).toContain('userName should not be empty');
-      });
-
-      it('userName is not longer than 30 characters', async () => {
-        const userName = 'TestUserTestUserTestUserTestUser';
-        const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
-          .send();
-        expect(response.body.message).toContain(
-          'userName must be shorter than or equal to 30 characters',
-        );
       });
     });
   });

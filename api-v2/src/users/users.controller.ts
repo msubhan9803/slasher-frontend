@@ -16,7 +16,8 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
-import { CheckUserNameDto } from './dto/check-user-name.dto';
+import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
+import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
@@ -33,7 +34,10 @@ export class UsersController {
     );
 
     if (!user || user.deleted) {
-      throw new HttpException('User does not exist.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Incorrect username or password.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (user.userSuspended) {
@@ -105,11 +109,22 @@ export class UsersController {
   @Get('check-user-name')
   async checkUserName(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: CheckUserNameDto,
+    query: CheckUserNameQueryDto,
   ) {
     await sleep(1000);
     return {
       exists: await this.usersService.userNameExists(query.userName),
+    };
+  }
+
+  @Get('check-email')
+  async checkEmail(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckEmailQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.emailExists(query.email),
     };
   }
 

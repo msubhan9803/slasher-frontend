@@ -43,7 +43,7 @@ function SignIn() {
       device_version: '2.9',
     };
 
-    fetch(`${process.env.BASE_API_URL}users/sign-in`, {
+    fetch(`${process.env.REACT_APP_API_URL}users/sign-in`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

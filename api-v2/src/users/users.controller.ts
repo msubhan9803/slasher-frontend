@@ -9,12 +9,13 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
-import * as bcrypt from 'bcryptjs';
-import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -22,7 +23,6 @@ import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-tok
 import { ActivateAccountDto } from './dto/user-activate-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
-import { v4 as uuidv4 } from 'uuid';
 import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -33,7 +33,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {
@@ -63,8 +63,8 @@ export class UsersController {
       );
     }
 
-    if (user.status != ActiveStatus.Active) {
-      if (user.status == ActiveStatus.Inactive) {
+    if (user.status !== ActiveStatus.Active) {
+      if (user.status === ActiveStatus.Inactive) {
         throw new HttpException(
           'User account not yet activated.',
           HttpStatus.UNAUTHORIZED,
@@ -102,16 +102,16 @@ export class UsersController {
     user.save();
 
     // Only return the subset of useful fields
-    return Object.assign(
-      {},
-      pick(user, [
+    return {
+
+      ...pick(user, [
         'userName',
         'email',
         'firstName',
         // 'token',
       ]),
-      { token },
-    );
+      token,
+    };
   }
 
   @Get('check-user-name')
@@ -178,7 +178,7 @@ export class UsersController {
       resetPasswordDto.email,
       resetPasswordDto.resetPasswordToken,
     );
-    if (isValid == false) {
+    if (isValid === false) {
       throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
     }
     const userDetails = await this.usersService.findByEmail(
@@ -192,13 +192,14 @@ export class UsersController {
       message: 'Password reset successfully',
     };
   }
+
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
     const isValid = await this.usersService.verificationTokenIsValid(
       activateAccountDto.email,
       activateAccountDto.verification_token,
     );
-    if (isValid == false) {
+    if (isValid === false) {
       throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
     }
     const userDetails = await this.usersService.findByEmail(

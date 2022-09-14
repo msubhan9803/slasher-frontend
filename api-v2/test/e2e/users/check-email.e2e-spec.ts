@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { AppModule } from '../../../src/app.module';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { AppModule } from '../../../src/app.module';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 
@@ -33,7 +33,7 @@ describe('Users / Check Email (e2e)', () => {
   });
 
   describe('GET /users/check-email', () => {
-    it('it responds with error message when an invalid-format email supplied', async () => {
+    it('responds with error message when an invalid-format email supplied', async () => {
       const email = 'usertestgmail.com';
       const response = await request(app.getHttpServer())
         .get(`/users/check-email?email=${email}`)

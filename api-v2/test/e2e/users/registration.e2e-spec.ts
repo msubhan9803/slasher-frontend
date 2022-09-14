@@ -3,10 +3,10 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import * as bcrypt from 'bcryptjs';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
-import * as bcrypt from 'bcryptjs';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -67,7 +67,7 @@ describe('Users / Register (e2e)', () => {
         expect(postBody.securityAnswer).toEqual(registeredUser.securityAnswer);
         expect(
           bcrypt.compareSync(postBody.password, registeredUser.password),
-        ).toEqual(true);
+        ).toBe(true);
         expect(registeredUser.verification_token).toMatch(
           /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
         );
@@ -140,7 +140,8 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Password must at least 8 characters long, contain at least one (1) capital letter, and contain at least one (1) special character.',
+          'Password must at least 8 characters long, contain at least one (1) capital letter, '
+          + 'and contain at least one (1) special character.',
         );
       });
 
@@ -227,7 +228,7 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
-        postBody.email = 'different' + postBody.email;
+        postBody.email = `different${postBody.email}`;
         response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
@@ -243,7 +244,7 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
 
-        postBody.userName = 'Different' + postBody.userName;
+        postBody.userName = `Different${postBody.userName}`;
         response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);

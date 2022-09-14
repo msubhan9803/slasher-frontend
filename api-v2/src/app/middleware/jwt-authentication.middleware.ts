@@ -5,6 +5,7 @@ import {
   NestMiddleware,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { UsersService } from '../../users/providers/users.service';
@@ -14,7 +15,7 @@ export class JwtAuthenticationMiddleware implements NestMiddleware {
   constructor(
     private usersService: UsersService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
 
   // eslint-disable-next-line class-methods-use-this
   async use(req: Request, res: Response, next: NextFunction) {
@@ -51,7 +52,7 @@ export class JwtAuthenticationMiddleware implements NestMiddleware {
 
     // When the user changes their password, the check below will treat all of their previous
     // JWT tokens as expired because the passwordChangedAt values won't match.
-    if (passwordChangedAt != user.passwordChangedAt?.toISOString()) {
+    if (passwordChangedAt !== user.passwordChangedAt?.toISOString()) {
       throw new HttpException('Expired token', HttpStatus.UNAUTHORIZED);
     }
 

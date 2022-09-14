@@ -3,11 +3,11 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import { ActivateAccountDto } from 'src/users/dto/user-activate-account.dto';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { v4 as uuidv4 } from 'uuid';
-import { ActivateAccountDto } from 'src/users/dto/user-activate-account.dto';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -42,7 +42,7 @@ describe('Users activate account (e2e)', () => {
         {},
         { transient: { unhashedPassword: 'password' } },
       );
-      userData['verification_token'] = uuidv4();
+      userData.verification_token = uuidv4();
       user = await usersService.create(userData);
       postBody = {
         email: user.email,
@@ -65,7 +65,7 @@ describe('Users activate account (e2e)', () => {
           .post('/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toEqual('Token is not valid');
+        expect(response.body.message).toBe('Token is not valid');
       });
 
       it('when email does exist, but verification_token does not exist, it returns the expected response', async () => {
@@ -74,7 +74,7 @@ describe('Users activate account (e2e)', () => {
           .post('/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toEqual('Token is not valid');
+        expect(response.body.message).toBe('Token is not valid');
       });
 
       it('when neither email nor verification_token exist, it returns the expected response', async () => {
@@ -84,7 +84,7 @@ describe('Users activate account (e2e)', () => {
           .post('/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toEqual('Token is not valid');
+        expect(response.body.message).toBe('Token is not valid');
       });
     });
 

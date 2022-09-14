@@ -4,9 +4,9 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +21,7 @@ describe('Users / Register (e2e)', () => {
     passwordConfirmation: 'TestUser@123',
     securityQuestion: 'What is favourite food?',
     securityAnswer: 'Pizza',
-    dob: new Date(),
+    dob: '2000-02-21',
   };
 
   beforeAll(async () => {
@@ -45,7 +45,7 @@ describe('Users / Register (e2e)', () => {
   });
 
   describe('POST /users/register', () => {
-    let postBody: UserRegisterDto;
+    let postBody: any;
     beforeEach(() => {
       postBody = { ...sampleUserRegisterObject };
     });
@@ -57,6 +57,8 @@ describe('Users / Register (e2e)', () => {
           .send(postBody)
           .expect(HttpStatus.CREATED);
         const registeredUser = await usersService.findById(response.body.id);
+        postBody.dob = DateTime.fromISO(postBody.dob, { zone: 'utc' });
+        registeredUser.dob = DateTime.fromISO(registeredUser.dob, { zone: 'utc' });
 
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
@@ -71,6 +73,7 @@ describe('Users / Register (e2e)', () => {
         expect(registeredUser.verification_token).toMatch(
           /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
         );
+        expect(String(postBody.dob)).toEqual(registeredUser.dob.toISOString());
       });
     });
 
@@ -211,8 +214,17 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
+      it('dob should not be empty', async () => {
+        postBody.dob = '';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('dob should not be empty');
+      });
+
       it('dob is under age', async () => {
-        postBody.dob = new Date('2005-02-21');
+        postBody.dob = '2005-02-21';
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);

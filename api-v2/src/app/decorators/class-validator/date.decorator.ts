@@ -5,7 +5,7 @@ export function IsOnlyDate(validationOptions?: ValidationOptions) {
     registerDecorator({
       name: 'IsOnlyDate',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       constraints: [],
       options: {
         message: 'You are not eligble',
@@ -18,10 +18,10 @@ export function IsOnlyDate(validationOptions?: ValidationOptions) {
           let age = today.getFullYear() - birthDate.getFullYear();
           const month = today.getMonth() - birthDate.getMonth();
           if (
-            month < 0 ||
-            (month === 0 && today.getDate() < birthDate.getDate())
+            month < 0
+            || (month === 0 && today.getDate() < birthDate.getDate())
           ) {
-            age--;
+            age -= 1;
           }
           return age >= 18;
         },

@@ -43,6 +43,10 @@ export class AppModule {
         '/users/sign-in',
         '/users/register',
         '/users/activate-account',
+        '/users/forgot-password',
+        '/users/register',
+        '/users/check-user-name',
+        'users/check-email',
       )
       .forRoutes('*');
   }

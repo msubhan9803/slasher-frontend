@@ -43,6 +43,7 @@ describe('UsersService', () => {
         { status: ActiveStatus.Active },
         { transient: { unhashedPassword: 'TestPassword' } },
       );
+      user.verification_token = uuidv4();
       const userDocument = await usersService.create(user);
       expect(await usersService.findById(userDocument._id)).toBeTruthy();
     });

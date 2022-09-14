@@ -85,6 +85,7 @@ function SignIn() {
                   addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
                   label="Password"
                   inputType={showPassword ? 'text' : 'password'}
+                  password
                   showPassword={showPassword}
                   name="password"
                   passwordVisiblility={passwordVisiblility}

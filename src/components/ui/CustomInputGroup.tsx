@@ -2,9 +2,12 @@ import React from 'react';
 import { InputGroup, FormControl, Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
-const StyledInputGroup = styled(InputGroup)`
+interface StyleInputProps {
+  addoncontent: React.ReactNode
+}
+const StyledInputGroup = styled(InputGroup) <StyleInputProps>`
   .form-control {
-    border-left: 1px solid var(--bs-input-border-color);
+    ${((props) => props.addoncontent && 'border-left: 1px solid var(--bs-input-border-color)')}
   }
   .btn {
     background-color: rgb(31, 31, 31);
@@ -22,10 +25,11 @@ const StyledInputGroup = styled(InputGroup)`
 `;
 
 interface Props {
-  addonContent: React.ReactNode;
+  addonContent?: React.ReactNode;
   label: string;
   size: string;
   inputType?: string;
+  password?: boolean;
   showPassword?: boolean;
   passwordVisiblility?: () => void;
   name?: string;
@@ -34,11 +38,11 @@ interface Props {
 }
 
 function CustomInputGroup({
-  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, onChangeValue, name, value,
+  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password, onChangeValue, name, value,
 }: Props) {
   return (
-    <StyledInputGroup className="mb-3" size={size}>
-      <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>
+    <StyledInputGroup addoncontent={addonContent} className="mb-3" size={size}>
+      {addonContent && <InputGroup.Text id="addon-label text-primary">{addonContent}</InputGroup.Text>}
       <FormControl
         placeholder={label}
         aria-label={label}
@@ -47,9 +51,9 @@ function CustomInputGroup({
         name={name}
         value={value}
         onChange={onChangeValue}
-        className={`${label === 'Password' ? 'border-end-0' : 0}`}
+        className={`${password && 'border-end-0'}`}
       />
-      {label === 'Password' && (
+      {password && (
         <Button className="fs-5 text-light border border-start-0 shadow-none" onClick={passwordVisiblility}>
           {showPassword ? 'Hide' : 'Show'}
         </Button>
@@ -62,8 +66,10 @@ CustomInputGroup.defaultProps = {
   inputType: 'text',
   name: '',
   value: '',
+  password: false,
   showPassword: false,
   passwordVisiblility: () => { },
+  addonContent: null,
 };
 
 export default CustomInputGroup;

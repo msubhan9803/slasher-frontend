@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/books/1/details?view=self';
+const pagePath = '/reset-password';
 
 test.describe(pagePath, () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +8,6 @@ test.describe(pagePath, () => {
   });
 
   test('should display the expected content', async ({ page }) => {
-    await expect(page.locator('main')).toHaveText(/Overview/);
+    await expect(page.locator('main')).toHaveText(/Reset Your Password/);
   });
 });

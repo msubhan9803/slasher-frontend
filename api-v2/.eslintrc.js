@@ -23,7 +23,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     'max-lines': [
       'error',
-      { max: 200, skipBlankLines: true, skipComments: true },
+      { max: 250, skipBlankLines: true, skipComments: true },
     ],
     'no-console': ['warn'],
   },

@@ -136,6 +136,56 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#validatePasswordResetToken', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData['resetPasswordToken'] = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('returns true when user email and resetPasswordToken are found', async () => {
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          user.resetPasswordToken,
+        ),
+      ).toEqual(true);
+    });
+
+    it('returns true when user email does not exist', async () => {
+      const userEmail = 'non-existing@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          user.resetPasswordToken,
+        ),
+      ).toEqual(false);
+    });
+    it('returns false when resetPasswordToken does not exist', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          userResetPasswordToken,
+        ),
+      ).toEqual(false);
+    });
+
+    it('returns false when neither user nor resetPasswordToken exist', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'non-existing@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          userResetPasswordToken,
+        ),
+      ).toEqual(false);
+    });
+  });
+
   describe('#verificationTokenIsValid', () => {
     let user;
     beforeEach(async () => {

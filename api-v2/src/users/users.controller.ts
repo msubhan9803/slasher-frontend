@@ -17,6 +17,8 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
 import { ActivateAccountDto } from './dto/user-activate-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
@@ -158,6 +160,38 @@ export class UsersController {
     return { id: registeredUser.id };
   }
 
+  @Get('validate-password-reset-token')
+  async validatePasswordResetToken(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidatePasswordResetTokenDto,
+  ) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      query.email,
+      query.resetPasswordToken,
+    );
+    return { valid: isValid };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      resetPasswordDto.email,
+      resetPasswordDto.resetPasswordToken,
+    );
+    if (isValid == false) {
+      throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      resetPasswordDto.email,
+    );
+    userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
+    userDetails.resetPasswordToken = null;
+    userDetails.lastPasswordResetTime = new Date();
+    userDetails.save();
+    return {
+      message: 'Password reset successfully',
+    };
+  }
   @Post('activate-account')
   async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
     const isValid = await this.usersService.verificationTokenIsValid(
@@ -181,26 +215,19 @@ export class UsersController {
   @Post('forgot-password')
   @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    try {
-      const userData = await this.usersService.findByEmail(
-        forgotPasswordDto.email,
-      );
-      if (userData) {
-        userData.resetPasswordToken = uuidv4();
-        userData.save();
-        await this.mailService.sendForgotPasswordEmail(
-          userData.email,
-          userData.resetPasswordToken,
-        );
-      }
-      return {
-        success: true,
-      };
-    } catch (error) {
-      throw new HttpException(
-        'Something wen wrong',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    const userData = await this.usersService.findByEmail(
+      forgotPasswordDto.email,
+    );
+    if (userData) {
+      userData.resetPasswordToken = uuidv4();
+      userData.save();
+      await this.mailService.sendForgotPasswordEmail(
+        userData.email,
+        userData.resetPasswordToken,
       );
     }
+    return {
+      success: true,
+    };
   }
 }

@@ -66,6 +66,16 @@ export class UsersService {
     );
   }
 
+  async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email: email }, { resetPasswordToken: resetPasswordToken }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return isValid ? true : false;
+  }
+
   async verificationTokenIsValid(email: string, verification_token: string) {
     const isValid = await this.userModel
       .findOne({

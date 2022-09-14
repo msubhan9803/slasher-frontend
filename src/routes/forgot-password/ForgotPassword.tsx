@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Button,
@@ -6,8 +6,39 @@ import {
   Row,
 } from 'react-bootstrap';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
+
+interface Password {
+  email: string;
+}
 
 function ForgotPassword() {
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+  const [forgotPassword, setForgotPassword] = useState<Password>({
+    email: '',
+  });
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const userInfo = { ...forgotPassword, [event.target.name]: event.target.value };
+    setForgotPassword(userInfo);
+  };
+
+  const handleForgotPassword = () => {
+    fetch(`${process.env.REACT_APP_API_URL}users/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(forgotPassword),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.statusCode === 401) {
+          setErrorMessage(data.message);
+        } else {
+          setErrorMessage([]);
+        }
+      });
+  };
+
   return (
     <UnauthenticatedPageWrapper>
       <Row className="justify-content-center">
@@ -39,8 +70,16 @@ function ForgotPassword() {
           </p>
           <Form className="row d-flex flex-column align-items-center mt-4">
             <div className="col-10 col-sm-8 col-lg-6">
-              <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
-              <Button size="lg" className="mt-4 w-100">Send</Button>
+              <Form.Control
+                className="text-white shadow-none"
+                type="email"
+                placeholder="Email address"
+                name="email"
+                value={forgotPassword.email}
+                onChange={handlePasswordChange}
+              />
+              {errorMessage.length > 0 && <ErrorMessageList errorMessages={errorMessage} />}
+              <Button onClick={handleForgotPassword} size="lg" className="mt-4 w-100">Send</Button>
             </div>
           </Form>
 

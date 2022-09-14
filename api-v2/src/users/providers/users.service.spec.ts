@@ -146,7 +146,7 @@ describe('UsersService', () => {
       userData['resetPasswordToken'] = uuidv4();
       user = await usersService.create(userData);
     });
-    it('finds the expected user by email and resetPasswordToken', async () => {
+    it('returns true when user email and resetPasswordToken are found', async () => {
       expect(
         await usersService.resetPasswordTokenIsValid(
           user.email,
@@ -155,8 +155,8 @@ describe('UsersService', () => {
       ).toEqual(true);
     });
 
-    it('when email is not exists', async () => {
-      const userEmail = 'userTEWST@gmail.com';
+    it('returns true when user email does not exist', async () => {
+      const userEmail = 'non-existing@gmail.com';
       expect(
         await usersService.resetPasswordTokenIsValid(
           userEmail,
@@ -164,7 +164,7 @@ describe('UsersService', () => {
         ),
       ).toEqual(false);
     });
-    it('when resetPasswordToken is not exists', async () => {
+    it('returns false when resetPasswordToken does not exist', async () => {
       const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
       expect(
         await usersService.resetPasswordTokenIsValid(
@@ -174,9 +174,9 @@ describe('UsersService', () => {
       ).toEqual(false);
     });
 
-    it('when resetPasswordToken or email is not exists', async () => {
+    it('returns false when neither user nor resetPasswordToken exist', async () => {
       const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
-      const userEmail = 'userTEWST@gmail.com';
+      const userEmail = 'non-existing@gmail.com';
       expect(
         await usersService.resetPasswordTokenIsValid(
           userEmail,

@@ -31,7 +31,7 @@ function ForgotPassword() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data && data.statusCode === 401) {
+        if (data && data.statusCode === 400) {
           setErrorMessage(data.message);
         } else {
           setErrorMessage([]);

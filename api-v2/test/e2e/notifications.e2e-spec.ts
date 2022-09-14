@@ -1,16 +1,16 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../src/app.module';
 import { NotificationsService } from '../../src/notifications/providers/notifications.service';
 import { NotificationDocument } from '../../src/schemas/notification.schema';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
 import { UsersService } from '../../src/users/providers/users.service';
 import { User, ActiveStatus } from '../../src/schemas/user.schema';
 import { userFactory } from '../factories/user.factory';
 import { notificationFactory } from '../factories/notification.factory';
-import { ConfigService } from '@nestjs/config';
 
 describe('Notifications (e2e)', () => {
   let app: INestApplication;
@@ -28,8 +28,7 @@ describe('Notifications (e2e)', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
 
-    notificationsService =
-      moduleRef.get<NotificationsService>(NotificationsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();

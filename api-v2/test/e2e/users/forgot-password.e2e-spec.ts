@@ -42,13 +42,13 @@ describe('Users / Forgot Password (e2e)', () => {
     let postBody: ForgotPasswordDto;
     beforeEach(() => {
       email = 'someone@example.com';
-      postBody = { email: email };
+      postBody = { email };
     });
 
-    it('it responds with error message when an invalid-format email supplied', async () => {
+    it('responds with error message when an invalid-format email supplied', async () => {
       postBody.email = 'invalidemailaddress.com';
       const response = await request(app.getHttpServer())
-        .post(`/users/forgot-password`)
+        .post('/users/forgot-password')
         .send(postBody)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
@@ -62,7 +62,7 @@ describe('Users / Forgot Password (e2e)', () => {
       it('returns { success: true } when the email address IS associated with a registered user', async () => {
         await usersService.create(
           userFactory.build(
-            { email: email },
+            { email },
             { transient: { unhashedPassword: 'password' } },
           ),
         );
@@ -70,7 +70,7 @@ describe('Users / Forgot Password (e2e)', () => {
         jest.spyOn(mailService, 'sendForgotPasswordEmail').mockImplementation();
 
         const response = await request(app.getHttpServer())
-          .post(`/users/forgot-password`)
+          .post('/users/forgot-password')
           .send(postBody)
           .expect(HttpStatus.OK);
         expect(response.body).toEqual({
@@ -83,9 +83,11 @@ describe('Users / Forgot Password (e2e)', () => {
         );
       });
 
-      it('returns { success: true } even when the email address is NOT associated with a registered user (to avoid revealing whether email address exists)', async () => {
+      // Test below makes sure we avoid revealing whether email address exists when user submits
+      // a forgot-password recovery attempt.
+      it('returns { success: true } even when the email address is NOT associated with a registered user', async () => {
         const response = await request(app.getHttpServer())
-          .post(`/users/forgot-password`)
+          .post('/users/forgot-password')
           .send(postBody)
           .expect(HttpStatus.OK);
         expect(response.body).toEqual({

@@ -4,5 +4,5 @@
  * @returns A promise. Awaiting this promise in an async function will delay code execution for the duration supplied in param ms.
  */
 export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => { setTimeout(resolve, ms); });
 }

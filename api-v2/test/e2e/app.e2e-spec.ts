@@ -20,11 +20,9 @@ describe('App (e2e)', () => {
   });
 
   describe('GET /', () => {
-    it('returns the expected result', () => {
-      return request(app.getHttpServer())
-        .get('/')
-        .expect(200)
-        .expect({ appVersion: process.env.npm_package_version });
-    });
+    it('returns the expected result', () => request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect({ appVersion: process.env.npm_package_version }));
   });
 });

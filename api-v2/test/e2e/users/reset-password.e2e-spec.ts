@@ -3,11 +3,11 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import { ResetPasswordDto } from 'src/users/dto/reset-password.dto';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { v4 as uuidv4 } from 'uuid';
-import { ResetPasswordDto } from 'src/users/dto/reset-password.dto';
 
 describe('Users reset password (e2e)', () => {
   let app: INestApplication;
@@ -42,7 +42,7 @@ describe('Users reset password (e2e)', () => {
         {},
         { transient: { unhashedPassword: 'password' } },
       );
-      userData['resetPasswordToken'] = uuidv4();
+      userData.resetPasswordToken = uuidv4();
       user = await usersService.create(userData);
       postBody = {
         email: user.email,
@@ -117,7 +117,8 @@ describe('Users reset password (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'newPassword must at least 8 characters long, contain at least one (1) capital letter, and contain at least one (1) special character.',
+          'newPassword must at least 8 characters long, contain at least one (1) '
+          + 'capital letter, and contain at least one (1) special character.',
         );
       });
 

@@ -11,7 +11,7 @@ export class NotificationsService {
   constructor(
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
-  ) {}
+  ) { }
 
   async create(notification: Partial<Notification>) {
     return this.notificationModel.create(notification);
@@ -28,7 +28,7 @@ export class NotificationsService {
     perPage = 10,
   ): Promise<NotificationDocument[]> {
     return this.notificationModel
-      .find({ userId: userId })
+      .find({ userId })
       .sort({ createdAt: -1 })
       .skip((page - 1) * perPage)
       .limit(perPage)

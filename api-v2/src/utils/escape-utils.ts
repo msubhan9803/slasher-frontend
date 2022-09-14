@@ -5,5 +5,5 @@
  */
 export const escapeStringRegexp = function (str: string) {
   // From https://stackoverflow.com/a/3561711
-  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // $& means the whole matched string
+  return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'); // $& means the whole matched string
 };

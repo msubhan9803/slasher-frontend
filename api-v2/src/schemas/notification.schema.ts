@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export enum NotificationType {
   Match = 1,
@@ -142,9 +141,9 @@ export class Notification {
   @Prop({ default: null, ref: 'rssFeedComments' })
   rssFeedCommentId: mongoose.Schema.Types.ObjectId;
 
-  /***********
+  /** *********
    * Methods *
-   ***********/
+   ********** */
 
   constructor(options?: Partial<Notification>) {
     if (!options) {

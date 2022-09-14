@@ -26,6 +26,7 @@ import Profile from './routes/profile/Profile';
 import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import Podcasts from './routes/podcasts/Podcasts';
+import ResetPassword from './routes/reset-password/ResetPassword';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -38,6 +39,7 @@ function App() {
       {/* Unauthenticated routes */}
       <Route path="/sign-in" element={<SignIn />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
       <Route path="/registration/*" element={<Registration />} />
       <Route path="/onboarding/*" element={<Onboarding />} />

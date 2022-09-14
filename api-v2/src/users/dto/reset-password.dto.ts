@@ -14,7 +14,8 @@ export class ResetPasswordDto {
     /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/,
     {
       message:
-        'newPassword must at least 8 characters long, contain at least one (1) capital letter, and contain at least one (1) special character.',
+        'newPassword must at least 8 characters long, contain at least one (1) capital letter, '
+        + 'and contain at least one (1) special character.',
     },
   )
   newPassword: string;

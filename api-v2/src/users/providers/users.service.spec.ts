@@ -1,12 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import { Connection } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
-import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
-import { v4 as uuidv4 } from 'uuid';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -143,7 +143,7 @@ describe('UsersService', () => {
         {},
         { transient: { unhashedPassword: 'password' } },
       );
-      userData['resetPasswordToken'] = uuidv4();
+      userData.resetPasswordToken = uuidv4();
       user = await usersService.create(userData);
     });
     it('returns true when user email and resetPasswordToken are found', async () => {
@@ -152,7 +152,7 @@ describe('UsersService', () => {
           user.email,
           user.resetPasswordToken,
         ),
-      ).toEqual(true);
+      ).toBe(true);
     });
 
     it('returns true when user email does not exist', async () => {
@@ -162,7 +162,7 @@ describe('UsersService', () => {
           userEmail,
           user.resetPasswordToken,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
     it('returns false when resetPasswordToken does not exist', async () => {
       const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
@@ -171,7 +171,7 @@ describe('UsersService', () => {
           user.email,
           userResetPasswordToken,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
 
     it('returns false when neither user nor resetPasswordToken exist', async () => {
@@ -182,7 +182,7 @@ describe('UsersService', () => {
           userEmail,
           userResetPasswordToken,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
   });
 
@@ -193,7 +193,7 @@ describe('UsersService', () => {
         {},
         { transient: { unhashedPassword: 'password' } },
       );
-      userData['verification_token'] = uuidv4();
+      userData.verification_token = uuidv4();
       user = await usersService.create(userData);
     });
     it('finds the expected user by email and verification_token', async () => {
@@ -202,7 +202,7 @@ describe('UsersService', () => {
           user.email,
           user.verification_token,
         ),
-      ).toEqual(true);
+      ).toBe(true);
     });
 
     it('returns false when email does not exist', async () => {
@@ -212,7 +212,7 @@ describe('UsersService', () => {
           userEmail,
           user.verification_token,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
 
     it('returns false when verification_token does not exist', async () => {
@@ -222,7 +222,7 @@ describe('UsersService', () => {
           user.email,
           userVerificationToken,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
 
     it('when verification_token or email is not exists', async () => {
@@ -233,7 +233,7 @@ describe('UsersService', () => {
           userEmail,
           userVerificationToken,
         ),
-      ).toEqual(false);
+      ).toBe(false);
     });
   });
 });

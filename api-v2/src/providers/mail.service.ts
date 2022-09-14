@@ -4,7 +4,7 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MailService {
-  constructor(private readonly config: ConfigService) {}
+  constructor(private readonly config: ConfigService) { }
 
   async sendForgotPasswordEmail(email: string, token: string) {
     return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ export class MailService {
         subject: 'Forgot password',
         text: `This is the forgot password email with token: ${token}`,
       };
-      mailTransporter.sendMail(mailDetails, function (err, data) {
+      mailTransporter.sendMail(mailDetails, (err, data) => {
         if (err) {
           reject(err);
         } else {

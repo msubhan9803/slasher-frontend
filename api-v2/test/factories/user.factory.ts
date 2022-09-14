@@ -16,8 +16,8 @@ export const userFactory = Factory.define<Partial<User>, UserTransientParams>(
       firstName: `First name ${sequence}`,
       email: `User${sequence}@Example.com`,
       status: ActiveStatus.Active, // even though a new user is inactive, it's useful in this factory to default to active
-      securityQuestion: `Where does the general keep his armies?`,
-      securityAnswer: `In his sleevies!`,
+      securityQuestion: 'Where does the general keep his armies?',
+      securityAnswer: 'In his sleevies!',
     });
   },
 );

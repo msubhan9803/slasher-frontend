@@ -7,6 +7,6 @@
  */
 export const pick = (obj: object, properties: string[]) => {
   const newObj = {};
-  properties.forEach((property) => (newObj[property] = obj[property]));
+  properties.forEach((property) => { newObj[property] = obj[property]; });
   return newObj;
 };

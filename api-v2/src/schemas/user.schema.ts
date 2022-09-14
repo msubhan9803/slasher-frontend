@@ -243,7 +243,7 @@ export class User {
   defaultId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })
-  lastPasswordResetTime: string;
+  lastPasswordResetTime: Date;
 
   // NOT USED
   @Prop({ default: null, lowercase: true, trim: true })

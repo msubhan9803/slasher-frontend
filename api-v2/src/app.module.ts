@@ -40,9 +40,13 @@ export class AppModule {
       .apply(JwtAuthenticationMiddleware)
       .exclude(
         '/',
-        '/users/sign-in',
-        '/users/register',
+        '/users/activate-account',
         '/users/check-user-name',
+        '/users/forgot-password',
+        '/users/register',
+        '/users/reset-password',
+        '/users/sign-in',
+        '/users/validate-password-reset-token',
         'users/check-email',
       )
       .forRoutes('*');

@@ -135,4 +135,55 @@ describe('UsersService', () => {
       ).toEqual(user._id);
     });
   });
+
+  describe('#verificationTokenIsValid', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData['verification_token'] = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('finds the expected user by email and verification_token', async () => {
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          user.verification_token,
+        ),
+      ).toEqual(true);
+    });
+
+    it('returns false when email does not exist', async () => {
+      const userEmail = 'non-existinging-user@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          user.verification_token,
+        ),
+      ).toEqual(false);
+    });
+
+    it('returns false when verification_token does not exist', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          userVerificationToken,
+        ),
+      ).toEqual(false);
+    });
+
+    it('when verification_token or email is not exists', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'non-existinging-user@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          userVerificationToken,
+        ),
+      ).toEqual(false);
+    });
+  });
 });

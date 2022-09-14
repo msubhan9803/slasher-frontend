@@ -17,6 +17,7 @@ import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { ActivateAccountDto } from './dto/user-activate-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from '../providers/mail.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -155,6 +156,26 @@ export class UsersController {
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
+  }
+
+  @Post('activate-account')
+  async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
+    const isValid = await this.usersService.verificationTokenIsValid(
+      activateAccountDto.email,
+      activateAccountDto.verification_token,
+    );
+    if (isValid == false) {
+      throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      activateAccountDto.email,
+    );
+    userDetails.status = ActiveStatus.Active;
+    userDetails.verification_token = null;
+    userDetails.save();
+    return {
+      success: true,
+    };
   }
 
   @Post('forgot-password')

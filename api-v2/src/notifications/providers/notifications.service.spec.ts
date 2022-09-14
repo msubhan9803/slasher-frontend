@@ -1,9 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { NotificationsService } from './notifications.service';
-import { Connection } from 'mongoose';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { notificationFactory } from '../../../test/factories/notification.factory';
@@ -20,8 +20,7 @@ describe('NotificationsService', () => {
       imports: [AppModule],
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
-    notificationsService =
-      moduleRef.get<NotificationsService>(NotificationsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
@@ -52,10 +51,10 @@ describe('NotificationsService', () => {
         userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
       );
       // Create some sample notifications
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i += 1) {
         await notificationsService.create(
           notificationFactory.build({
-            userId: i % 3 == 0 ? user1._id : user2._id,
+            userId: i % 3 === 0 ? user1._id : user2._id,
           }),
         );
       }

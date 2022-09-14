@@ -1,12 +1,12 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../../schemas/user.schema';
 import * as EmailValidator from 'email-validator';
+import { User, UserDocument } from '../../schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);
@@ -26,14 +26,14 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ email: email })
+      .findOne({ email })
       .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
   }
 
   async findByUsername(userName: string): Promise<UserDocument> {
     return this.userModel
-      .findOne({ userName: userName })
+      .findOne({ userName })
       .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();
   }
@@ -41,15 +41,14 @@ export class UsersService {
   async findByEmailOrUsername(emailOrUsername: string): Promise<UserDocument> {
     if (EmailValidator.validate(emailOrUsername)) {
       return this.findByEmail(emailOrUsername);
-    } else {
-      return this.findByUsername(emailOrUsername);
     }
+    return this.findByUsername(emailOrUsername);
   }
 
-  async userNameExists(username: string): Promise<boolean> {
+  async userNameExists(userName: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ userName: username })
+        .findOne({ userName })
         .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
         .count()
         .exec()) > 0
@@ -64,6 +63,26 @@ export class UsersService {
         .count()
         .exec()) > 0
     );
+  }
+
+  async resetPasswordTokenIsValid(email: string, resetPasswordToken: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email }, { resetPasswordToken }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return !!isValid;
+  }
+
+  async verificationTokenIsValid(email: string, verification_token: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email }, { verification_token }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return !!isValid;
   }
 
   async getSuggestedFriends(user: UserDocument, limit: number) {

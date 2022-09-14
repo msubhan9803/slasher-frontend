@@ -1,10 +1,9 @@
 import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from './users/users.module';
 import { APP_PIPE } from '@nestjs/core';
+import { AppController } from './app.controller';
+import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
 
@@ -27,7 +26,6 @@ import { NotificationsModule } from './notifications/notifications.module';
   ],
   controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
@@ -35,14 +33,20 @@ import { NotificationsModule } from './notifications/notifications.module';
   ],
 })
 export class AppModule {
+  // eslint-disable-next-line class-methods-use-this
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(JwtAuthenticationMiddleware)
       .exclude(
         '/',
-        '/users/sign-in',
+        '/users/activate-account',
+        '/users/check-user-name',
+        '/users/forgot-password',
         '/users/register',
-        '/users/suggested-friends',
+        '/users/reset-password',
+        '/users/sign-in',
+        '/users/validate-password-reset-token',
+        'users/check-email',
       )
       .forRoutes('*');
   }

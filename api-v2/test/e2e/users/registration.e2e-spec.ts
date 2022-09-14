@@ -8,7 +8,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
 import * as bcrypt from 'bcryptjs';
 
-describe('Users (e2e)', () => {
+describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -67,6 +67,9 @@ describe('Users (e2e)', () => {
         expect(
           bcrypt.compareSync(postBody.password, registeredUser.password),
         ).toEqual(true);
+        expect(registeredUser.verification_token).toMatch(
+          /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
+        );
       });
     });
 

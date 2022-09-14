@@ -46,10 +46,10 @@ export class UsersService {
     }
   }
 
-  async userNameExists(username: string): Promise<boolean> {
+  async userNameExists(userName: string): Promise<boolean> {
     return (
       (await this.userModel
-        .findOne({ userName: username })
+        .findOne({ userName: userName })
         .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
         .count()
         .exec()) > 0
@@ -70,6 +70,16 @@ export class UsersService {
     const isValid = await this.userModel
       .findOne({
         $and: [{ email: email }, { resetPasswordToken: resetPasswordToken }],
+      })
+      .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
+      .exec();
+    return isValid ? true : false;
+  }
+
+  async verificationTokenIsValid(email: string, verification_token: string) {
+    const isValid = await this.userModel
+      .findOne({
+        $and: [{ email: email }, { verification_token: verification_token }],
       })
       .collation({ locale: 'en', strength: 2 }) // using case insensitive search index
       .exec();

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
@@ -17,14 +18,21 @@ import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
+import { ActivateAccountDto } from './dto/user-activate-account.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from '../providers/mail.service';
+import { v4 as uuidv4 } from 'uuid';
+import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
+import { CheckEmailQueryDto } from './dto/check-email-query.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   @Post('sign-in')
@@ -34,7 +42,10 @@ export class UsersController {
     );
 
     if (!user || user.deleted) {
-      throw new HttpException('User does not exist.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException(
+        'Incorrect username or password.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (user.userSuspended) {
@@ -103,6 +114,28 @@ export class UsersController {
     );
   }
 
+  @Get('check-user-name')
+  async checkUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckUserNameQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.userNameExists(query.userName),
+    };
+  }
+
+  @Get('check-email')
+  async checkEmail(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: CheckEmailQueryDto,
+  ) {
+    await sleep(1000);
+    return {
+      exists: await this.usersService.emailExists(query.email),
+    };
+  }
+
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
     await sleep(1000);
@@ -122,6 +155,7 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
+    user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
   }
@@ -152,10 +186,48 @@ export class UsersController {
     );
     userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
     userDetails.resetPasswordToken = null;
-    userDetails.lastPasswordResetTime = Date.now();
+    userDetails.lastPasswordResetTime = new Date();
     userDetails.save();
     return {
       message: 'Password reset successfully',
+    };
+  }
+  @Post('activate-account')
+  async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
+    const isValid = await this.usersService.verificationTokenIsValid(
+      activateAccountDto.email,
+      activateAccountDto.verification_token,
+    );
+    if (isValid == false) {
+      throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      activateAccountDto.email,
+    );
+    userDetails.status = ActiveStatus.Active;
+    userDetails.verification_token = null;
+    userDetails.save();
+    return {
+      success: true,
+    };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    const userData = await this.usersService.findByEmail(
+      forgotPasswordDto.email,
+    );
+    if (userData) {
+      userData.resetPasswordToken = uuidv4();
+      userData.save();
+      await this.mailService.sendForgotPasswordEmail(
+        userData.email,
+        userData.resetPasswordToken,
+      );
+    }
+    return {
+      success: true,
     };
   }
 }

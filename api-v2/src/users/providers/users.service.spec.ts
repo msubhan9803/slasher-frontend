@@ -236,4 +236,24 @@ describe('UsersService', () => {
       ).toBe(false);
     });
   });
+
+  describe('#getSuggestedFriends', () => {
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+      );
+      for (let i = 0; i < 7; i += 1) {
+        await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: 'password' } },
+          ),
+        );
+      }
+    });
+    it('finds the expected users', async () => {
+      expect(await usersService.getSuggestedFriends(user, 7)).toHaveLength(7);
+    });
+  });
 });

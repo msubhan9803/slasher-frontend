@@ -94,6 +94,17 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain('userName should not be empty');
       });
 
+      it('userName is minimum 3 characters long', async () => {
+        const userName = 'Te';
+        const response = await request(app.getHttpServer())
+          .get(`/users/check-user-name?userName=${userName}`)
+          .send();
+        expect(response.body.message).toContain(
+          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
+          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+        );
+      });
+
       it('userName is not longer than 30 characters', async () => {
         postBody.userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())

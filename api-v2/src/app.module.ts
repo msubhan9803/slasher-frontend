@@ -41,6 +41,7 @@ export class AppModule {
       .exclude(
         '/',
         '/users/sign-in',
+        '/users/forgot-password',
         '/users/register',
         '/users/check-user-name',
         'users/check-email',

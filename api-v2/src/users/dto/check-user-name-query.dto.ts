@@ -1,11 +1,8 @@
-import { IsNotEmpty, Length, Matches } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
+import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 
 export class CheckUserNameQueryDto {
   @IsNotEmpty()
-  @Length(3, 30)
-  @Matches(/^[a-zA-Z0-9]([a-zA-Z0-9_.-]+)[a-zA-Z0-9]$/, {
-    message:
-      'Cannot start and end with any special character, Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
-  })
+  @IsValidUsername()
   userName: string;
 }

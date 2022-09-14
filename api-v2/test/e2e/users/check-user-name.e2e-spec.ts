@@ -76,7 +76,8 @@ describe('Users / Check User Name (e2e)', () => {
           .get(`/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
-          'userName must be shorter than or equal to 30 characters',
+          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
+          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
         );
       });
 
@@ -86,7 +87,8 @@ describe('Users / Check User Name (e2e)', () => {
           .get(`/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
-          'Cannot start and end with any special character, Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
+          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
         );
       });
     });

@@ -13,11 +13,11 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import { Request } from 'express';
 import {
   ActiveStatus,
   Device,
   User,
-  UserDocument,
 } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
@@ -32,7 +32,6 @@ import { MailService } from '../providers/mail.service';
 import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -241,7 +240,7 @@ export class UsersController {
 
   @Get('suggested-friends')
   async suggestedFriends(@Req() request: Request) {
-    const user: UserDocument = (request as any).user;
-    return await this.usersService.getSuggestedFriends(user, 7);
+    const { user } = request as any;
+    return this.usersService.getSuggestedFriends(user, 7);
   }
 }

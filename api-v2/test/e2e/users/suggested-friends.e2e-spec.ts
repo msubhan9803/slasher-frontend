@@ -3,14 +3,19 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
+import { User } from '../../../src/schemas/user.schema';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let activeUserAuthToken: string;
+  let activeUser: User;
+  let configService: ConfigService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -19,6 +24,7 @@ describe('Users suggested friends (e2e)', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -33,22 +39,72 @@ describe('Users suggested friends (e2e)', () => {
   });
 
   describe('GET /users/suggested-friends', () => {
-    beforeEach(async () => {
-      for (let i = 0; i < 7; i++) {
-        await usersService.create(
-          userFactory.build(
-            {},
-            { transient: { unhashedPassword: 'password' } },
-          ),
+    describe('Get Suggested Friends', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 7; i += 1) {
+          activeUser = await usersService.create(
+            userFactory.build(
+              {},
+              { transient: { unhashedPassword: 'password' } },
+            ),
+          );
+        }
+        activeUserAuthToken = activeUser.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
         );
-      }
-    });
-    describe('Suggested Friends', () => {
-      it('Get all suggested friends successfully', async () => {
+      });
+      it('returns the expected response less than or equal to limit', async () => {
         const response = await request(app.getHttpServer())
           .get('/users/suggested-friends')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.length).toBeLessThanOrEqual(7);
+      });
+    });
+
+    describe('Get all suggested friends when users more than limit', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 10; i += 1) {
+          activeUser = await usersService.create(
+            userFactory.build(
+              {},
+              { transient: { unhashedPassword: 'password' } },
+            ),
+          );
+        }
+        activeUserAuthToken = activeUser.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+      });
+      it('returns the expected response equal to limit', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/users/suggested-friends')
+          .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(7);
+      });
+    });
+
+    describe('Get all suggested friends when users less than limit', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 5; i += 1) {
+          activeUser = await usersService.create(
+            userFactory.build(
+              {},
+              { transient: { unhashedPassword: 'password' } },
+            ),
+          );
+        }
+        activeUserAuthToken = activeUser.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+      });
+      it('returns the expected response equal to limit', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/users/suggested-friends')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.length).toBeLessThan(10);
       });
     });
   });

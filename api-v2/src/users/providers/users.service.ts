@@ -86,8 +86,8 @@ export class UsersService {
   }
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
-    return await this.userModel
-      .find()
+    return this.userModel
+      .find({ _id: { $ne: user._id } })
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

@@ -50,8 +50,8 @@ describe('Users activate account (e2e)', () => {
       };
     });
 
-    describe('Email and verification_token does exists', () => {
-      it('when email and verification_token does exists, it returns the expected response', async () => {
+    describe('Email and verification_token existence cases', () => {
+      it('when email and verification_token both exist, it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
           .post('/users/activate-account')
           .send(postBody);
@@ -59,7 +59,7 @@ describe('Users activate account (e2e)', () => {
         expect(response.body).toEqual({ success: true });
       });
 
-      it('when email is does not exist, but verification_token does exists it returns the expected response', async () => {
+      it('when email does not exist, but verification_token does exist, it returns the expected response', async () => {
         postBody.email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
           .post('/users/activate-account')
@@ -68,7 +68,7 @@ describe('Users activate account (e2e)', () => {
         expect(response.body.message).toEqual('Token is not valid');
       });
 
-      it('when verification_token is does not exist, but email does exists it returns the expected response', async () => {
+      it('when email does exist, but verification_token does not exist, it returns the expected response', async () => {
         postBody.verification_token = uuidv4();
         const response = await request(app.getHttpServer())
           .post('/users/activate-account')
@@ -77,7 +77,7 @@ describe('Users activate account (e2e)', () => {
         expect(response.body.message).toEqual('Token is not valid');
       });
 
-      it('when email and verification_token is does not exist, it returns the expected response', async () => {
+      it('when neither email nor verification_token exist, it returns the expected response', async () => {
         postBody.email = 'postBodytestuser@gmail.com';
         postBody.verification_token = uuidv4();
         const response = await request(app.getHttpServer())
@@ -115,7 +115,9 @@ describe('Users activate account (e2e)', () => {
           .post('/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('email must be an email');
+        expect(response.body.message).toContain(
+          'email must be a valid-format email',
+        );
       });
     });
   });

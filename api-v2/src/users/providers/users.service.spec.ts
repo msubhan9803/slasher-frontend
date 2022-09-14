@@ -155,8 +155,8 @@ describe('UsersService', () => {
       ).toEqual(true);
     });
 
-    it('when email is not exists', async () => {
-      const userEmail = 'userTEWST@gmail.com';
+    it('returns false when email does not exist', async () => {
+      const userEmail = 'non-existinging-user@gmail.com';
       expect(
         await usersService.verificationTokenIsValid(
           userEmail,
@@ -165,7 +165,7 @@ describe('UsersService', () => {
       ).toEqual(false);
     });
 
-    it('when verification_token is not exists', async () => {
+    it('returns false when verification_token does not exist', async () => {
       const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
       expect(
         await usersService.verificationTokenIsValid(
@@ -177,7 +177,7 @@ describe('UsersService', () => {
 
     it('when verification_token or email is not exists', async () => {
       const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
-      const userEmail = 'userTEWST@gmail.com';
+      const userEmail = 'non-existinging-user@gmail.com';
       expect(
         await usersService.verificationTokenIsValid(
           userEmail,

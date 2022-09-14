@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsEmail,
@@ -6,7 +7,7 @@ import {
   Matches,
 } from 'class-validator';
 import { Match } from '../../app/decorators/class-validator/match.decorator';
-import { IsOnlyDate } from '../../app/decorators/class-validator/date.decorator';
+import { MinYearsBeforeToday } from '../../app/decorators/class-validator/min-years-before-today.decorator';
 
 export class UserRegisterDto {
   @IsNotEmpty()
@@ -44,6 +45,7 @@ export class UserRegisterDto {
   securityAnswer: string;
 
   @IsNotEmpty()
-  @IsOnlyDate()
+  @MinYearsBeforeToday(18, { message: 'You must be at least 18 to register' })
+  @Type((typeOptions) => (typeOptions.object[typeOptions.property] === '' ? null : Date))
   dob: Date;
 }

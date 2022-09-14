@@ -12,7 +12,6 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { DateTime } from 'luxon';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
@@ -156,7 +155,6 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
-    user.dob = DateTime.fromISO(userRegisterDto.dob, { zone: 'utc' });
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };

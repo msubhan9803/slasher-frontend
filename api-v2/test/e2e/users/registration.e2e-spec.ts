@@ -7,6 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +22,7 @@ describe('Users / Register (e2e)', () => {
     passwordConfirmation: 'TestUser@123',
     securityQuestion: 'What is favourite food?',
     securityAnswer: 'Pizza',
-    dob: '2000-02-21',
+    dob: DateTime.now().minus({ years: 18 }).toISODate(),
   };
 
   beforeAll(async () => {
@@ -57,8 +58,6 @@ describe('Users / Register (e2e)', () => {
           .send(postBody)
           .expect(HttpStatus.CREATED);
         const registeredUser = await usersService.findById(response.body.id);
-        postBody.dob = DateTime.fromISO(postBody.dob, { zone: 'utc' });
-        registeredUser.dob = DateTime.fromISO(registeredUser.dob, { zone: 'utc' });
 
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
@@ -70,10 +69,8 @@ describe('Users / Register (e2e)', () => {
         expect(
           bcrypt.compareSync(postBody.password, registeredUser.password),
         ).toBe(true);
-        expect(registeredUser.verification_token).toMatch(
-          /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-        );
-        expect(String(postBody.dob)).toEqual(registeredUser.dob.toISOString());
+        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
+        expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
       });
     });
 
@@ -224,12 +221,12 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('dob is under age', async () => {
-        postBody.dob = '2005-02-21';
+        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('You are not eligble');
+        expect(response.body.message).toContain('You must be at least 18 to register');
       });
     });
 

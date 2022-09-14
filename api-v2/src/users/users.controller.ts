@@ -2,20 +2,27 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
   Query,
   ValidationPipe,
 } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 import { ActiveStatus, Device, User } from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
-import * as bcrypt from 'bcryptjs';
-import { ConfigService } from '@nestjs/config';
 import { pick } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
+import { ActivateAccountDto } from './dto/user-activate-account.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from '../providers/mail.service';
 import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -25,7 +32,8 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
-  ) {}
+    private readonly mailService: MailService,
+  ) { }
 
   @Post('sign-in')
   async signIn(@Body() userSignInDto: UserSignInDto) {
@@ -55,8 +63,8 @@ export class UsersController {
       );
     }
 
-    if (user.status != ActiveStatus.Active) {
-      if (user.status == ActiveStatus.Inactive) {
+    if (user.status !== ActiveStatus.Active) {
+      if (user.status === ActiveStatus.Inactive) {
         throw new HttpException(
           'User account not yet activated.',
           HttpStatus.UNAUTHORIZED,
@@ -94,16 +102,16 @@ export class UsersController {
     user.save();
 
     // Only return the subset of useful fields
-    return Object.assign(
-      {},
-      pick(user, [
+    return {
+
+      ...pick(user, [
         'userName',
         'email',
         'firstName',
         // 'token',
       ]),
-      { token },
-    );
+      token,
+    };
   }
 
   @Get('check-user-name')
@@ -147,7 +155,80 @@ export class UsersController {
 
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
+    user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
     return { id: registeredUser.id };
+  }
+
+  @Get('validate-password-reset-token')
+  async validatePasswordResetToken(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidatePasswordResetTokenDto,
+  ) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      query.email,
+      query.resetPasswordToken,
+    );
+    return { valid: isValid };
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    const isValid = await this.usersService.resetPasswordTokenIsValid(
+      resetPasswordDto.email,
+      resetPasswordDto.resetPasswordToken,
+    );
+    if (isValid === false) {
+      throw new HttpException('User does not exists.', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      resetPasswordDto.email,
+    );
+    userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
+    userDetails.resetPasswordToken = null;
+    userDetails.lastPasswordResetTime = new Date();
+    userDetails.save();
+    return {
+      message: 'Password reset successfully',
+    };
+  }
+
+  @Post('activate-account')
+  async activateAccount(@Body() activateAccountDto: ActivateAccountDto) {
+    const isValid = await this.usersService.verificationTokenIsValid(
+      activateAccountDto.email,
+      activateAccountDto.verification_token,
+    );
+    if (isValid === false) {
+      throw new HttpException('Token is not valid', HttpStatus.BAD_REQUEST);
+    }
+    const userDetails = await this.usersService.findByEmail(
+      activateAccountDto.email,
+    );
+    userDetails.status = ActiveStatus.Active;
+    userDetails.verification_token = null;
+    userDetails.save();
+    return {
+      success: true,
+    };
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    const userData = await this.usersService.findByEmail(
+      forgotPasswordDto.email,
+    );
+    if (userData) {
+      userData.resetPasswordToken = uuidv4();
+      userData.save();
+      await this.mailService.sendForgotPasswordEmail(
+        userData.email,
+        userData.resetPasswordToken,
+      );
+    }
+    return {
+      success: true,
+    };
   }
 }

@@ -1,9 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import { Connection } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
-import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus, UserDocument } from '../../schemas/user.schema';
 
@@ -42,6 +43,7 @@ describe('UsersService', () => {
         { status: ActiveStatus.Active },
         { transient: { unhashedPassword: 'TestPassword' } },
       );
+      user.verification_token = uuidv4();
       const userDocument = await usersService.create(user);
       expect(await usersService.findById(userDocument._id)).toBeTruthy();
     });
@@ -131,6 +133,107 @@ describe('UsersService', () => {
       expect(
         (await usersService.findByEmailOrUsername(user.userName))._id,
       ).toEqual(user._id);
+    });
+  });
+
+  describe('#validatePasswordResetToken', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData.resetPasswordToken = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('returns true when user email and resetPasswordToken are found', async () => {
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          user.resetPasswordToken,
+        ),
+      ).toBe(true);
+    });
+
+    it('returns true when user email does not exist', async () => {
+      const userEmail = 'non-existing@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          user.resetPasswordToken,
+        ),
+      ).toBe(false);
+    });
+    it('returns false when resetPasswordToken does not exist', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          user.email,
+          userResetPasswordToken,
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false when neither user nor resetPasswordToken exist', async () => {
+      const userResetPasswordToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'non-existing@gmail.com';
+      expect(
+        await usersService.resetPasswordTokenIsValid(
+          userEmail,
+          userResetPasswordToken,
+        ),
+      ).toBe(false);
+    });
+  });
+
+  describe('#verificationTokenIsValid', () => {
+    let user;
+    beforeEach(async () => {
+      const userData = userFactory.build(
+        {},
+        { transient: { unhashedPassword: 'password' } },
+      );
+      userData.verification_token = uuidv4();
+      user = await usersService.create(userData);
+    });
+    it('finds the expected user by email and verification_token', async () => {
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          user.verification_token,
+        ),
+      ).toBe(true);
+    });
+
+    it('returns false when email does not exist', async () => {
+      const userEmail = 'non-existinging-user@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          user.verification_token,
+        ),
+      ).toBe(false);
+    });
+
+    it('returns false when verification_token does not exist', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      expect(
+        await usersService.verificationTokenIsValid(
+          user.email,
+          userVerificationToken,
+        ),
+      ).toBe(false);
+    });
+
+    it('when verification_token or email is not exists', async () => {
+      const userVerificationToken = '9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d';
+      const userEmail = 'non-existinging-user@gmail.com';
+      expect(
+        await usersService.verificationTokenIsValid(
+          userEmail,
+          userVerificationToken,
+        ),
+      ).toBe(false);
     });
   });
 });

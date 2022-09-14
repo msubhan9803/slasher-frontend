@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable max-lines */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
@@ -243,7 +244,7 @@ export class User {
   defaultId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })
-  lastPasswordResetTime: string;
+  lastPasswordResetTime: Date;
 
   // NOT USED
   @Prop({ default: null, lowercase: true, trim: true })
@@ -261,9 +262,9 @@ export class User {
   @Prop({ default: 0 })
   temp_email_verification_token_exp: number;
 
-  /**************************
+  /** ************************
    * Ban and suspend fields *
-   **************************/
+   ************************* */
 
   // NOT USED
   @Prop({ type: [ImageSchema] })
@@ -280,9 +281,9 @@ export class User {
   @Prop({ default: 0 })
   suspended_created_at: number;
 
-  /***********
+  /** *********
    * Methods *
-   ***********/
+   ********** */
 
   constructor(options?: Partial<User>) {
     if (!options) {
@@ -304,8 +305,6 @@ export class User {
   }
 
   addOrUpdateDeviceEntry(deviceEntry: Device) {
-    this.userDevices;
-
     // Check if a device already exists with the given device_id.
     const searchResult = this.userDevices.find(
       (device) => device.device_id === deviceEntry.device_id,
@@ -348,8 +347,7 @@ UserSchema.index(
 // be available on the schema documents.
 
 UserSchema.methods.generateNewJwtToken = User.prototype.generateNewJwtToken;
-UserSchema.methods.addOrUpdateDeviceEntry =
-  User.prototype.addOrUpdateDeviceEntry;
+UserSchema.methods.addOrUpdateDeviceEntry = User.prototype.addOrUpdateDeviceEntry;
 UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;
 
 export type UserDocument = User & Document;

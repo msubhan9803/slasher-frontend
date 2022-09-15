@@ -101,8 +101,8 @@ describe('Users / Register (e2e)', () => {
           .get(`/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
-          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
-          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
         );
       });
 
@@ -113,8 +113,8 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
-          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
         );
       });
 
@@ -125,8 +125,8 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Can contain userName length between 3 to 30, Cannot start and end with any special character,'
-          + 'Can only include letters, numbers, and the following special characters: [".", "-", "_"].',
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
         );
       });
 

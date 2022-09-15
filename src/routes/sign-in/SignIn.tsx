@@ -10,12 +10,54 @@ import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrappe
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
+
+interface UserSignIn {
+  emailOrUsername: string;
+  password: string;
+}
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState<UserSignIn>({
+    emailOrUsername: '',
+    password: '',
+  });
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+
+  const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const userInfo = { ...user, [event.target.name]: event.target.value };
+    setUser(userInfo);
+  };
+
+  const userSignIn = () => {
+    const body = {
+      ...user,
+      device_id: '1',
+      device_token: 'wewewewew',
+      device_type: 'mobile',
+      app_version: '1.0',
+      device_version: '2.9',
+    };
+
+    fetch(`${process.env.REACT_APP_API_URL}users/sign-in`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.statusCode === 401) {
+          setErrorMessage(data.message);
+        } else {
+          setErrorMessage([]);
+        }
+      });
+  };
+
   return (
     <UnauthenticatedPageWrapper hideTopLogo>
       <Row className="align-items-center">
@@ -29,7 +71,15 @@ function SignIn() {
             <div>
               <h1 className="h2 text-center mb-4 mt-5">Sign In</h1>
               <Form>
-                <CustomInputGroup size="lg" addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />} label="Username or email" />
+                <CustomInputGroup
+                  size="lg"
+                  addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />}
+                  label="Username or email"
+                  inputType="email"
+                  name="emailOrUsername"
+                  value={user.emailOrUsername}
+                  onChangeValue={handleSignIn}
+                />
                 <CustomInputGroup
                   size="lg"
                   addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
@@ -37,7 +87,10 @@ function SignIn() {
                   inputType={showPassword ? 'text' : 'password'}
                   password
                   showPassword={showPassword}
+                  name="password"
                   passwordVisiblility={passwordVisiblility}
+                  value={user.password}
+                  onChangeValue={handleSignIn}
                 />
 
                 <p className="text-center fs-5">
@@ -46,8 +99,8 @@ function SignIn() {
                     Click here
                   </Link>
                 </p>
-
-                <RoundButton className="w-100 my-3" variant="primary" type="submit">
+                {errorMessage.length > 0 && <ErrorMessageList errorMessages={errorMessage} />}
+                <RoundButton onClick={userSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

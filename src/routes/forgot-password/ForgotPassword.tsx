@@ -72,20 +72,12 @@ function ForgotPassword() {
                 value={forgotPasswordEmail.email}
                 onChangeValue={handlePasswordChange}
               />
-              {/* <Form.Control
-                className="text-white shadow-none"
-                type="email"
-                placeholder="Email address"
-                name="email"
-                value={forgotPasswordEmail.email}
-                onChange={handlePasswordChange}
-              /> */}
               {errorMessage && errorMessage.length > 0 && (
-                <div className="mt-4 text-start">
+                <div className="mt-3 text-start">
                   <ErrorMessageList errorMessages={errorMessage} />
                 </div>
               )}
-              <RoundButton onClick={handleForgotPassword} className="mt-4 w-100" variant="primary">
+              <RoundButton onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
                 Send
               </RoundButton>
             </Col>

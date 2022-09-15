@@ -117,7 +117,7 @@ describe('Users reset password (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Password must at least 8 characters long, contain at least one (1) '
+          'Password must be at least 8 characters long, contain at least one (1) '
           + 'capital letter, and contain at least one (1) special character.',
         );
       });

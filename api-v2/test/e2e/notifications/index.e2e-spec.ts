@@ -4,15 +4,15 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from '../../src/app.module';
-import { NotificationsService } from '../../src/notifications/providers/notifications.service';
-import { NotificationDocument } from '../../src/schemas/notification.schema';
-import { UsersService } from '../../src/users/providers/users.service';
-import { User, ActiveStatus } from '../../src/schemas/user.schema';
-import { userFactory } from '../factories/user.factory';
-import { notificationFactory } from '../factories/notification.factory';
+import { AppModule } from '../../../src/app.module';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationDocument } from '../../../src/schemas/notification.schema';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { User, ActiveStatus } from '../../../src/schemas/user.schema';
+import { userFactory } from '../../factories/user.factory';
+import { notificationFactory } from '../../factories/notification.factory';
 
-describe('Notifications (e2e)', () => {
+describe('Notifications index (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let notificationsService: NotificationsService;

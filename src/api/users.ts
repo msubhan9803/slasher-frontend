@@ -1,11 +1,11 @@
 import { apiUrl } from './constants';
 
-export default function signIn(emailOrUsername: string, password: string) {
+export function signIn(emailOrUsername: string, password: string) {
   const body = {
     emailOrUsername,
     password,
-    device_id: '',
-    device_token: '',
+    device_id: '1',
+    device_token: 'wewewewew',
     device_type: 'browser',
     app_version: `web-${process.env.REACT_APP_VERSION}`,
     device_version: window.navigator.userAgent,
@@ -39,6 +39,18 @@ export function register(
     dob,
   };
   return fetch(`${apiUrl}users/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then((response) => response.json());
+}
+
+export function forgotPassword(email: string) {
+  const body = {
+    email,
+  };
+
+  return fetch(`${apiUrl}users/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

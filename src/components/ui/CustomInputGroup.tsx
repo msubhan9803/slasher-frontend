@@ -32,10 +32,13 @@ interface Props {
   password?: boolean;
   showPassword?: boolean;
   passwordVisiblility?: () => void;
+  name?: string;
+  value?: string;
+  onChangeValue: (val: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function CustomInputGroup({
-  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password,
+  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password, onChangeValue, name, value,
 }: Props) {
   return (
     <StyledInputGroup addoncontent={addonContent} className="mb-3" size={size}>
@@ -45,6 +48,9 @@ function CustomInputGroup({
         aria-label={label}
         aria-describedby="addon-label"
         type={inputType}
+        name={name}
+        value={value}
+        onChange={onChangeValue}
         className={`${password && 'border-end-0'}`}
       />
       {password && (
@@ -58,6 +64,8 @@ function CustomInputGroup({
 
 CustomInputGroup.defaultProps = {
   inputType: 'text',
+  name: '',
+  value: '',
   password: false,
   showPassword: false,
   passwordVisiblility: () => { },

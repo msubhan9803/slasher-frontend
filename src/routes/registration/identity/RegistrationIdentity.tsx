@@ -1,11 +1,13 @@
-import React, { ChangeEvent, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { ChangeEvent } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Form,
   Row,
 } from 'react-bootstrap';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setIdentityFields } from '../../../redux/slices/registrationSlice';
 
 interface Props {
   activeStep: number;
@@ -24,27 +26,13 @@ interface Registration {
 }
 
 function RegistrationIdentity({ activeStep }: Props) {
-  const { state }: any = useLocation();
-
-  const [registerInfo, setRegiterInfo] = useState<Registration>(
-    {
-      firstName: state?.firstName || '',
-      userName: state?.userName || '',
-      email: state?.email || '',
-      password: state?.password || '',
-      passwordConfirmation: state?.passwordConfirmation || '',
-      securityQuestion: state?.securityQuestion || '',
-      securityAnswer: state?.securityAnswer || '',
-      day: state?.day || '',
-      month: state?.month || '',
-      year: state?.year || '',
-    },
-  );
+  const dispatch = useAppDispatch();
+  const identityInfo = useAppSelector((state) => state.registration);
 
   const handleChange = (value: string, key: string) => {
-    const registerInfoTemp = { ...registerInfo };
+    const registerInfoTemp = { ...identityInfo };
     (registerInfoTemp as any)[key] = value;
-    setRegiterInfo(registerInfoTemp);
+    dispatch(setIdentityFields(registerInfoTemp));
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -54,7 +42,7 @@ function RegistrationIdentity({ activeStep }: Props) {
             <Form.Control
               type="text"
               placeholder="First Name"
-              value={registerInfo.firstName}
+              value={identityInfo.firstName}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'firstName')}
             />
             <p className="pt-2">
@@ -66,7 +54,7 @@ function RegistrationIdentity({ activeStep }: Props) {
             <Form.Control
               type="text"
               placeholder="Username"
-              value={registerInfo.userName}
+              value={identityInfo.userName}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'userName')}
             />
             <p className="pt-2">
@@ -85,7 +73,7 @@ function RegistrationIdentity({ activeStep }: Props) {
             <Form.Control
               type="email"
               placeholder="Email address"
-              value={registerInfo.email}
+              value={identityInfo.email}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'email')}
             />
             <p className="pt-2">
@@ -98,7 +86,6 @@ function RegistrationIdentity({ activeStep }: Props) {
           <div className="col-md-4 my-5">
             <RoundButtonLink
               to="/registration/security"
-              state={registerInfo}
               variant="primary"
               className="w-100"
             >

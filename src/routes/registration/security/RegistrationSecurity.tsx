@@ -5,7 +5,9 @@ import {
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { generate18OrOlderYearList, generateDayOptions, generateMonthOptions } from '../../../utils/date-utils';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setSecurityFields } from '../../../redux/slices/registrationSlice';
+import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RegistartionSecurityList from '../components/RegistrationSecurityList';
 
@@ -40,10 +42,13 @@ function RegistrationSecurity({ activeStep }: Props) {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const dispatch = useAppDispatch();
+  const securityInfo = useAppSelector((state) => state.registration);
+
   const handleChange = (value: string, key: string) => {
-    const registerInfoTemp = { ...registerInfo };
+    const registerInfoTemp = { ...securityInfo };
     (registerInfoTemp as any)[key] = value;
-    setRegisterInfo(registerInfoTemp);
+    dispatch(setSecurityFields(registerInfoTemp));
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -56,7 +61,7 @@ function RegistrationSecurity({ activeStep }: Props) {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   className="border-end-0"
-                  value={registerInfo.password}
+                  value={securityInfo.password}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'password')}
                 />
                 <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowPassword(!showPassword)}>
@@ -67,7 +72,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={6} className="order-last">
               <InputGroup>
                 <Form.Control
-                  value={registerInfo.passwordConfirmation}
+                  value={securityInfo.passwordConfirmation}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'passwordConfirmation')}
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Confirm Password"
@@ -88,7 +93,7 @@ function RegistrationSecurity({ activeStep }: Props) {
         </Col>
         <Col sm={12} md={9} className="mt-4">
           <Form.Select
-            value={registerInfo.securityQuestion}
+            value={securityInfo.securityQuestion}
             onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'securityQuestion')}
             aria-label="Security question selection"
           >
@@ -108,7 +113,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Form.Control
               type="text"
               placeholder="Security answer"
-              value={registerInfo.securityAnswer}
+              value={securityInfo.securityAnswer}
               onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'securityAnswer')}
             />
           </Form.Group>
@@ -126,7 +131,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Col>
             <Col sm={12} md={4}>
               <Form.Select
-                value={registerInfo.month}
+                value={securityInfo.month}
                 onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'month')}
                 aria-label="Month selection"
               >
@@ -138,7 +143,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             </Col>
             <Col sm={12} md={4} className="my-2 my-md-0">
               <Form.Select
-                value={registerInfo.day}
+                value={securityInfo.day}
                 onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'day')}
                 aria-label="Day selection"
               >
@@ -151,7 +156,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={4}>
 
               <Form.Select
-                value={registerInfo.year}
+                value={securityInfo.year}
                 onChange={(e: ChangeEvent<{ value: string }>) => handleChange(e.target.value, 'year')}
                 aria-label="Year selection"
               >
@@ -167,7 +172,6 @@ function RegistrationSecurity({ activeStep }: Props) {
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
-            state={state}
             to="/registration/identity"
             className="w-100"
             variant="secondary"
@@ -177,7 +181,6 @@ function RegistrationSecurity({ activeStep }: Props) {
         </Col>
         <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
           <RoundButtonLink
-            state={registerInfo}
             to="/registration/terms"
             variant="primary"
             className="w-100"

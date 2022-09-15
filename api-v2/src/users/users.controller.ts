@@ -32,6 +32,7 @@ import { MailService } from '../providers/mail.service';
 import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { getUserFromRequest } from '../utils/request-utils';
 
 @Controller('users')
 export class UsersController {
@@ -240,7 +241,7 @@ export class UsersController {
 
   @Get('suggested-friends')
   async suggestedFriends(@Req() request: Request) {
-    const { user } = request as any;
-    return this.usersService.getSuggestedFriends(user, 7);
+    const user = getUserFromRequest(request);
+    return this.usersService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 }

@@ -39,44 +39,17 @@ describe('Users suggested friends (e2e)', () => {
   });
 
   describe('GET /users/suggested-friends', () => {
-    describe('Get Suggested Friends', () => {
+    describe('When the endpoint limit is equal to the number of available suggested friends in the database', () => {
       beforeEach(async () => {
         for (let i = 0; i < 7; i += 1) {
-          activeUser = await usersService.create(
-            userFactory.build(
-              {},
-              { transient: { unhashedPassword: 'password' } },
-            ),
-          );
+          await usersService.create(userFactory.build());
         }
+        activeUser = await usersService.create(userFactory.build());
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );
       });
-      it('returns the expected response less than or equal to limit', async () => {
-        const response = await request(app.getHttpServer())
-          .get('/users/suggested-friends')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.body.length).toBeLessThanOrEqual(7);
-      });
-    });
-
-    describe('Get all suggested friends when users more than limit', () => {
-      beforeEach(async () => {
-        for (let i = 0; i < 10; i += 1) {
-          activeUser = await usersService.create(
-            userFactory.build(
-              {},
-              { transient: { unhashedPassword: 'password' } },
-            ),
-          );
-        }
-        activeUserAuthToken = activeUser.generateNewJwtToken(
-          configService.get<string>('JWT_SECRET_KEY'),
-        );
-      });
-      it('returns the expected response equal to limit', async () => {
+      it('returns the expected number of suggested friends', async () => {
         const response = await request(app.getHttpServer())
           .get('/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -85,26 +58,41 @@ describe('Users suggested friends (e2e)', () => {
       });
     });
 
-    describe('Get all suggested friends when users less than limit', () => {
+    describe('When the endpoint limit is lower than than number of available suggested friends', () => {
       beforeEach(async () => {
-        for (let i = 0; i < 5; i += 1) {
-          activeUser = await usersService.create(
-            userFactory.build(
-              {},
-              { transient: { unhashedPassword: 'password' } },
-            ),
-          );
+        for (let i = 0; i < 10; i += 1) {
+          await usersService.create(userFactory.build());
         }
+        activeUser = await usersService.create(userFactory.build());
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );
       });
-      it('returns the expected response equal to limit', async () => {
+      it('returns the number equal to the limit', async () => {
         const response = await request(app.getHttpServer())
           .get('/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.length).toBeLessThan(10);
+        expect(response.body).toHaveLength(7);
+      });
+    });
+
+    describe('When the endpoint limit is higher than than number of available suggested friends', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 5; i += 1) {
+          await usersService.create(userFactory.build());
+        }
+        activeUser = await usersService.create(userFactory.build());
+        activeUserAuthToken = activeUser.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+      });
+      it('returns the number of suggested friends that are available', async () => {
+        const response = await request(app.getHttpServer())
+          .get('/users/suggested-friends')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toHaveLength(5);
       });
     });
   });

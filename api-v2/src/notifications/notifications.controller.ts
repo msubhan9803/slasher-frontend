@@ -1,6 +1,7 @@
 import {
-  Controller, Get, Req, Request,
+  Controller, Get, Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { UserDocument } from '../schemas/user.schema';
 import { pick } from '../utils/object-utils';
 import { getUserFromRequest } from '../utils/request-utils';

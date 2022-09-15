@@ -252,8 +252,21 @@ describe('UsersService', () => {
         );
       }
     });
-    it('finds the expected users', async () => {
-      expect(await usersService.getSuggestedFriends(user, 7)).toHaveLength(7);
+    it('finds the expected number of users when the requested number is higher than the number available, '
+      + 'and does not incude passed-in user among the set', async () => {
+        const suggestedFriends = await usersService.getSuggestedFriends(user, 9); // ask for up to 9 users
+        expect(suggestedFriends).toHaveLength(7); // but there should only be 7 returned
+        expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
+      });
+
+    it('returns the expected number of users when the requested number equals the number available', async () => {
+      const suggestedFriends = await usersService.getSuggestedFriends(user, 7);
+      expect(suggestedFriends).toHaveLength(7);
+    });
+
+    it('returns the expected number of users when the requested number is lower than the number available', async () => {
+      const suggestedFriends = await usersService.getSuggestedFriends(user, 5);
+      expect(suggestedFriends).toHaveLength(5);
     });
   });
 });

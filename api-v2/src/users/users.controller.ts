@@ -8,11 +8,17 @@ import {
   Post,
   Query,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { ActiveStatus, Device, User } from '../schemas/user.schema';
+import { Request } from 'express';
+import {
+  ActiveStatus,
+  Device,
+  User,
+} from '../schemas/user.schema';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -26,6 +32,7 @@ import { MailService } from '../providers/mail.service';
 import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { getUserFromRequest } from '../utils/request-utils';
 
 @Controller('users')
 export class UsersController {
@@ -230,5 +237,11 @@ export class UsersController {
     return {
       success: true,
     };
+  }
+
+  @Get('suggested-friends')
+  async suggestedFriends(@Req() request: Request) {
+    const user = getUserFromRequest(request);
+    return this.usersService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 }

@@ -262,9 +262,9 @@ export class User {
   @Prop({ default: 0 })
   temp_email_verification_token_exp: number;
 
-  /** ************************
+  /**************************
    * Ban and suspend fields *
-   ************************* */
+   **************************/
 
   // NOT USED
   @Prop({ type: [ImageSchema] })
@@ -281,9 +281,9 @@ export class User {
   @Prop({ default: 0 })
   suspended_created_at: number;
 
-  /** *********
+  /***********
    * Methods *
-   ********** */
+   ***********/
 
   constructor(options?: Partial<User>) {
     if (!options) {
@@ -329,7 +329,9 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Indexes for collection
+/***********
+ * Indexes *
+ ***********/
 
 // To support case-insensitive userName search
 UserSchema.index(
@@ -341,6 +343,11 @@ UserSchema.index(
 UserSchema.index(
   { email: 1 },
   { name: 'caseInsensitiveEmail', collation: { locale: 'en', strength: 2 } },
+);
+
+// To support getSuggestedFriends, sorting by newest user
+UserSchema.index(
+  { createdAt: -1 },
 );
 
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't

@@ -5,7 +5,6 @@ import {
   NestMiddleware,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { UsersService } from '../../users/providers/users.service';

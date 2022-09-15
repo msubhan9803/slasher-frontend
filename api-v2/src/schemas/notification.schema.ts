@@ -141,9 +141,9 @@ export class Notification {
   @Prop({ default: null, ref: 'rssFeedComments' })
   rssFeedCommentId: mongoose.Schema.Types.ObjectId;
 
-  /** *********
+  /***********
    * Methods *
-   ********** */
+   ***********/
 
   constructor(options?: Partial<Notification>) {
     if (!options) {

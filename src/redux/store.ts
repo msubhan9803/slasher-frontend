@@ -1,10 +1,9 @@
-/* eslint-disable import/no-named-as-default */
 import { configureStore } from '@reduxjs/toolkit';
-import registrationSlice from './slices/registrationSlice';
+import registrationReducer from './slices/registrationSlice';
 
 export const store = configureStore({
   reducer: {
-    registration: registrationSlice,
+    registration: registrationReducer,
   },
 });
 

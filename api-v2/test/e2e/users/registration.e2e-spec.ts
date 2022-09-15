@@ -96,10 +96,10 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('userName is minimum 3 characters long', async () => {
-        const userName = 'Te';
+        postBody.userName = 'Te';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
-          .send();
+          .post('/users/register')
+          .send(postBody);
         expect(response.body.message).toContain(
           'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
           + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',

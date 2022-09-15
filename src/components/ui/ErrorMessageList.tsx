@@ -6,7 +6,7 @@ interface MessageProps {
 }
 function ErrorMessageList({ errorMessages }: MessageProps) {
   return (
-    <Alert className="mt-3">
+    <Alert>
       {typeof errorMessages === 'string'
         ? errorMessages
         : (

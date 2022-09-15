@@ -3,13 +3,13 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { AppModule } from '../../src/app.module';
-import { UsersService } from '../../src/users/providers/users.service';
-import { ActiveStatus, User } from '../../src/schemas/user.schema';
-import { UserSignInDto } from '../../src/users/dto/user-sign-in.dto';
-import { userFactory } from '../factories/user.factory';
+import { AppModule } from '../../../src/app.module';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { ActiveStatus, User } from '../../../src/schemas/user.schema';
+import { UserSignInDto } from '../../../src/users/dto/user-sign-in.dto';
+import { userFactory } from '../../factories/user.factory';
 
-describe('Users (e2e)', () => {
+describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;

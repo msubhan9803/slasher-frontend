@@ -4,17 +4,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
-
-export enum ActiveStatus {
-  Inactive = '0',
-  Active = '1',
-  Deactivated = '2',
-}
-
-export enum UserType {
-  Regular = '1',
-  Admin = '2',
-}
+import { UserUnusedFields } from './user.unused-fields';
+import { UserType, ActiveStatus } from './user.enums';
 
 @Schema({ toJSON: { virtuals: true } })
 export class Device {
@@ -38,17 +29,12 @@ export class Device {
 }
 const DeviceSchema = SchemaFactory.createForClass(Device);
 
-// TODO: If the images field in the User schema ends up not being used,
-// this Image class (and the ImageSchema) should be deleted.
-@Schema({ toJSON: { virtuals: true } })
-export class Image {
-  @Prop({ trim: true, default: null })
-  image_path: string;
-}
-const ImageSchema = SchemaFactory.createForClass(Image);
-
 @Schema({ timestamps: true })
-export class User {
+export class User extends UserUnusedFields {
+  /***********
+   * Fields *
+   ***********/
+
   readonly _id: mongoose.Schema.Types.ObjectId;
 
   @Prop()
@@ -66,82 +52,41 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  phoneNumber: string;
-
-  // NOT USED
-  @Prop({ default: 'noUser.jpg', trim: true })
-  profilePic: string;
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  gender: string;
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  facebook: string;
-
-  // NOT USED
-  @Prop({ default: '', trim: true })
-  backup_facebook_id: string;
-
-  // NOT USED
-  @Prop({ default: '', trim: true })
-  fb_email: string;
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  instagram: string;
-
   @Prop({ required: true, default: false })
   deleted: boolean;
 
   @Prop({ required: true, default: false })
   userSuspended: boolean;
 
-  // NOT USED
-  @Prop({ default: null })
-  suspendedUpto: Date; // time when suspension will be over
-
-  // NOT USED
-  @Prop({ default: 0 })
-  suspensionDuration: number; // total suspension hours
-
-  // NOT USED
-  @Prop({ default: null })
-  lastSuspenedId: mongoose.Schema.Types.ObjectId;
-
   @Prop({ required: true, default: false })
   userBanned: boolean;
 
-  // NOT USED
+  @Prop({ trim: true, default: null })
+  last_login: Date; // Device login date
+
   @Prop({ default: null })
-  bannedId: mongoose.Schema.Types.ObjectId;
+  passwordChangedAt: Date;
 
-  // NOT USED
-  @Prop({ default: 0 })
-  unreadCount: number;
+  @Prop({ required: true, default: '', trim: true })
+  firstName: string;
 
-  // NOT USED
-  @Prop({ default: 0 })
-  profile_status: number;
+  @Prop({ default: null })
+  dob: Date;
 
-  // NOT USED
-  // TODO: if we use this, probably more useful to store date of
-  // agreement rather than boolean of agreement.
-  @Prop({ default: false })
-  termCondition: boolean;
+  @Prop({ required: true, default: '', trim: true })
+  securityQuestion: string;
 
-  // NOT USED
-  // TODO: if we use this, probably more useful to store date of
-  // agreement rather than boolean of agreement.
-  @Prop({ default: false })
-  commStandard: boolean;
+  @Prop({ required: true, default: '', trim: true })
+  securityAnswer: string;
 
-  // NOT USED
-  @Prop({ required: true, default: false })
-  userBlocked: boolean;
+  @Prop({ trim: true, default: null })
+  resetPasswordToken: string;
+
+  @Prop({ trim: true, default: null })
+  verification_token: string; // NOTE: This is pascal_case insteaed of camelCase for old-API compatibility
+
+  @Prop({ default: null })
+  lastPasswordResetTime: Date;
 
   // '1' == regular user, '2' == admin
   // Note: It's unfortunate that these are strings rather than numbers, but we need to keep them
@@ -170,122 +115,13 @@ export class User {
   @Prop({ type: [DeviceSchema] })
   userDevices: Device[];
 
-  @Prop({ trim: true, default: null })
-  last_login: Date; // Device login date
-
-  // NOT USED
-  @Prop({ default: null })
-  token: string;
-
-  // NOT USED
-  @Prop({ default: null })
-  dob: Date;
-
-  @Prop({ default: null })
-  passwordChangedAt: Date;
-
-  @Prop({ required: true, default: '', trim: true })
-  firstName: string;
-
-  // NOT USED
-  @Prop({ default: '', trim: true })
-  lastName: string;
-
-  // NOT USED
-  @Prop({ default: '', trim: true })
-  aboutMe: string;
-
-  @Prop({ required: true, default: '', trim: true })
-  securityQuestion: string;
-
-  @Prop({ required: true, default: '', trim: true })
-  securityAnswer: string;
-
-  @Prop({ trim: true, default: null })
-  resetPasswordToken: string;
-
-  @Prop({ trim: true, default: null })
-  verification_token: string; // NOTE: This is pascal_case insteaed of camelCase for old-API compatibility
-
-  // NOT USED
-  @Prop({ default: false })
-  is_email_verified: boolean;
-
-  // NOT USED
-  @Prop({ default: false })
-  profileStatus: boolean;
-
-  // NOT USED
-  @Prop({ default: false })
-  datingStatus: boolean;
-
-  // NOT USED
-  @Prop({ default: false })
-  friendsStatus: boolean;
-
-  // NOT USED
-  @Prop({ default: false })
-  networkStatus: boolean;
-
-  // NOT USED
-  @Prop({ default: [] })
-  profiles: string[];
-
-  // NOT USED
-  @Prop({ default: 0 })
-  postCount: number;
-
-  // NOT USED
-  @Prop({ default: 0 })
-  batchCount: number;
-
-  // NOT USED
-  @Prop({ ref: 'relations', default: null })
-  defaultId: mongoose.Schema.Types.ObjectId;
-
-  @Prop({ default: null })
-  lastPasswordResetTime: Date;
-
-  // NOT USED
-  @Prop({ default: null, lowercase: true, trim: true })
-  temp_email: string;
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  temp_email_verification_token: string;
-
-  // NOT USED
-  @Prop({ default: [] })
-  old_email_arr: string[];
-
-  // NOT USED
-  @Prop({ default: 0 })
-  temp_email_verification_token_exp: number;
-
-  /**************************
-   * Ban and suspend fields *
-   **************************/
-
-  // NOT USED
-  @Prop({ type: [ImageSchema] })
-  images: Image[];
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  note: string;
-
-  // NOT USED
-  @Prop({ default: 0 })
-  ban_created_at: number;
-
-  @Prop({ default: 0 })
-  suspended_created_at: number;
-
   /***********
    * Methods *
    ***********/
 
   constructor(options?: Partial<User>) {
+    super();
+
     if (!options) {
       return;
     }
@@ -328,27 +164,6 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-/***********
- * Indexes *
- ***********/
-
-// To support case-insensitive userName search
-UserSchema.index(
-  { userName: 1 },
-  { name: 'caseInsensitiveUserName', collation: { locale: 'en', strength: 2 } },
-);
-
-// To support case-insensitive email search
-UserSchema.index(
-  { email: 1 },
-  { name: 'caseInsensitiveEmail', collation: { locale: 'en', strength: 2 } },
-);
-
-// To support getSuggestedFriends, sorting by newest user
-UserSchema.index(
-  { createdAt: -1 },
-);
 
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.

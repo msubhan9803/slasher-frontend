@@ -15,7 +15,6 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import {
-  ActiveStatus,
   Device,
   User,
 } from '../schemas/user.schema';
@@ -33,6 +32,7 @@ import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
+import { ActiveStatus } from '../schemas/user.enums';
 
 @Controller('users')
 export class UsersController {

@@ -8,9 +8,10 @@ import { AppModule } from '../../../src/app.module';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { NotificationDocument } from '../../../src/schemas/notification.schema';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { User, ActiveStatus } from '../../../src/schemas/user.schema';
+import { User } from '../../../src/schemas/user.schema';
 import { userFactory } from '../../factories/user.factory';
 import { notificationFactory } from '../../factories/notification.factory';
+import { ActiveStatus } from '../../../src/schemas/user.enums';
 
 describe('Notifications index (e2e)', () => {
   let app: INestApplication;

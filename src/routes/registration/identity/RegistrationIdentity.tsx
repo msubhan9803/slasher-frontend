@@ -6,7 +6,7 @@ import {
 } from 'react-bootstrap';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
 
 interface Props {

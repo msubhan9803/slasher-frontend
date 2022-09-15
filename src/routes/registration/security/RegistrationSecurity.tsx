@@ -4,7 +4,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setSecurityFields } from '../../../redux/slices/registrationSlice';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../utils/date-utils';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';

@@ -130,5 +130,223 @@ describe('Users sign-in (e2e)', () => {
           });
       });
     });
+
+    describe('Validation', () => {
+      it('device_id should not be empty', async () => {
+        const deviceId = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          device_id: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(deviceId);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'device_id should not be empty',
+        );
+      });
+
+      it('device_token should not be empty', async () => {
+        const deviceToken = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          device_token: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(deviceToken);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('device_token should not be empty');
+      });
+
+      it('device_type should not be empty', async () => {
+        const deviceType = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          device_type: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(deviceType);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('device_type should not be empty');
+      });
+
+      it('device_version should not be empty', async () => {
+        const deviceVersion = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          device_version: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(deviceVersion);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'device_version should not be empty',
+        );
+      });
+
+      it('app_version should not be empty', async () => {
+        const deviceAppVersion = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          app_version: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(deviceAppVersion);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'app_version should not be empty',
+        );
+      });
+
+      it('emailOrUsername should not be empty', async () => {
+        const userEmailAndName = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          emailOrUsername: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(userEmailAndName);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('emailOrUsername should not be empty');
+      });
+
+      it('password should not be empty', async () => {
+        const userPassword = {
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          password: '',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(userPassword);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('password should not be empty');
+      });
+    });
+
+    describe('when user was deleted', () => {
+      it('receives an error message when user was deleted', async () => {
+        const userUnhashedPassword = 'TestPassword';
+        const user = await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: userUnhashedPassword } },
+          ),
+        );
+        user.deleted = true;
+        user.save();
+        const postBody: UserSignInDto = {
+          emailOrUsername: user.userName,
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain(
+          'Incorrect username or password.',
+        );
+      });
+    });
+
+    describe('when user was suspended', () => {
+      it('receives an error message when user was suspended', async () => {
+        const userUnhashedPassword = 'TestPassword';
+        const user = await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: userUnhashedPassword } },
+          ),
+        );
+        user.userSuspended = true;
+        user.save();
+        const postBody: UserSignInDto = {
+          emailOrUsername: user.userName,
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain(
+          'User suspended.',
+        );
+      });
+    });
+
+    describe('when user was banned', () => {
+      it('receives an error message when user was banned', async () => {
+        const userUnhashedPassword = 'TestPassword';
+        const user = await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: userUnhashedPassword } },
+          ),
+        );
+        user.userBanned = true;
+        user.save();
+        const postBody: UserSignInDto = {
+          emailOrUsername: user.userName,
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain(
+          'User banned.',
+        );
+      });
+    });
+
+    describe('when user does not exist', () => {
+      it('receives an error message when user does not exist', async () => {
+        const userUnhashedPassword = 'TestPassword';
+        await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: userUnhashedPassword } },
+          ),
+        );
+        const postBody: UserSignInDto = {
+          emailOrUsername: 'testusertestuser',
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain(
+          'Incorrect username or password.',
+        );
+      });
+    });
+
+    describe('when user does exist but password is incorrect', () => {
+      it('receives an error message when user does not exist but password is incorrect', async () => {
+        const userUnhashedPassword = 'TestPassword';
+        const user = await usersService.create(
+          userFactory.build(
+            {},
+            { transient: { unhashedPassword: userUnhashedPassword } },
+          ),
+        );
+        const postBody: UserSignInDto = {
+          emailOrUsername: user.userName,
+          password: 'password',
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain(
+          'Incorrect username or password.',
+        );
+      });
+    });
   });
 });

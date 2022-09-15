@@ -12,18 +12,6 @@ import { setIdentityFields } from '../../../redux/slices/registrationSlice';
 interface Props {
   activeStep: number;
 }
-interface Registration {
-  firstName: string;
-  userName: string;
-  email: string;
-  password: string;
-  passwordConfirmation: string;
-  securityQuestion: string;
-  securityAnswer: string;
-  day: string;
-  month: string;
-  year: string;
-}
 
 function RegistrationIdentity({ activeStep }: Props) {
   const dispatch = useAppDispatch();

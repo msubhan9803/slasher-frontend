@@ -2,7 +2,6 @@ import React, { ChangeEvent, useState } from 'react';
 import {
   Button, Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
@@ -29,17 +28,6 @@ const CustomVisibilityButton = styled(Button)`
 `;
 
 function RegistrationSecurity({ activeStep }: Props) {
-  const { state }: any = useLocation();
-  const [registerInfo, setRegisterInfo] = useState({
-    ...state,
-    password: state?.password || '',
-    passwordConfirmation: state?.passwordConfirmation || '',
-    securityQuestion: state?.securityQuestion || '',
-    securityAnswer: state?.securityAnswer || '',
-    day: state?.day || '',
-    month: state?.month || '',
-    year: state?.year || '',
-  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useAppDispatch();

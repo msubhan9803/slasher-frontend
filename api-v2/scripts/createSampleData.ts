@@ -1,15 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { NotificationsService } from '../src/notifications/providers/notifications.service';
-import { ActiveStatus, User } from '../src/schemas/user.schema';
+import { ActiveStatus } from '../src/schemas/user.enums';
+import { User } from '../src/schemas/user.schema';
 import { UsersService } from '../src/users/providers/users.service';
 import { createApp } from './createApp';
-
-(async () => {
-  const app = await createApp();
-  await createSampleUsers(app);
-  await createSampleNotifications(app);
-  app.close();
-})();
 
 async function createSampleUsers(app: INestApplication) {
   const usersService = await app.get<UsersService>(UsersService);
@@ -59,3 +53,10 @@ async function createSampleNotifications(app: INestApplication) {
     });
   }
 }
+
+(async () => {
+  const app = await createApp();
+  await createSampleUsers(app);
+  await createSampleNotifications(app);
+  app.close();
+})();

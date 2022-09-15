@@ -95,6 +95,17 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain('userName should not be empty');
       });
 
+      it('userName is minimum 3 characters long', async () => {
+        postBody.userName = 'Te';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.body.message).toContain(
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
+        );
+      });
+
       it('userName is not longer than 30 characters', async () => {
         postBody.userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
@@ -102,7 +113,20 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'userName must be shorter than or equal to 30 characters',
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
+        );
+      });
+
+      it('userName should match pattern', async () => {
+        postBody.userName = '_testuser';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
         );
       });
 

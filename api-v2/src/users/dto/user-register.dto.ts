@@ -2,9 +2,9 @@ import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsEmail,
-  Length,
   MinLength,
 } from 'class-validator';
+import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 import { IsValidPassword } from '../../app/decorators/class-validator/valid-password.decorator';
 import { Match } from '../../app/decorators/class-validator/match.decorator';
 import { MinYearsBeforeToday } from '../../app/decorators/class-validator/min-years-before-today.decorator';
@@ -14,7 +14,7 @@ export class UserRegisterDto {
   firstName: string;
 
   @IsNotEmpty()
-  @Length(0, 30)
+  @IsValidUsername()
   userName: string;
 
   @IsNotEmpty()

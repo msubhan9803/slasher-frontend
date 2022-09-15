@@ -4,9 +4,10 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { UserRegisterDto } from '../../../src/users/dto/user-register.dto';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +22,7 @@ describe('Users / Register (e2e)', () => {
     passwordConfirmation: 'TestUser@123',
     securityQuestion: 'What is favourite food?',
     securityAnswer: 'Pizza',
+    dob: DateTime.now().minus({ years: 18 }).toISODate(),
   };
 
   beforeAll(async () => {
@@ -44,7 +46,7 @@ describe('Users / Register (e2e)', () => {
   });
 
   describe('POST /users/register', () => {
-    let postBody: UserRegisterDto;
+    let postBody: any;
     beforeEach(() => {
       postBody = { ...sampleUserRegisterObject };
     });
@@ -67,9 +69,8 @@ describe('Users / Register (e2e)', () => {
         expect(
           bcrypt.compareSync(postBody.password, registeredUser.password),
         ).toBe(true);
-        expect(registeredUser.verification_token).toMatch(
-          /^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,
-        );
+        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
+        expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
       });
     });
 
@@ -163,7 +164,7 @@ describe('Users / Register (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'Password must at least 8 characters long, contain at least one (1) capital letter, '
+          'Password must be at least 8 characters long, contain at least one (1) capital letter, '
           + 'and contain at least one (1) special character.',
         );
       });
@@ -232,6 +233,24 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain(
           'securityAnswer must be longer than or equal to 5 characters',
         );
+      });
+
+      it('dob should not be empty', async () => {
+        postBody.dob = '';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('dob should not be empty');
+      });
+
+      it('dob is under age', async () => {
+        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('You must be at least 18 to register');
       });
     });
 

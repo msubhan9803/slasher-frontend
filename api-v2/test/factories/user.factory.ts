@@ -8,7 +8,7 @@ type UserTransientParams = {
 export const userFactory = Factory.define<Partial<User>, UserTransientParams>(
   ({ sequence, transientParams, afterBuild }) => {
     afterBuild((user) => {
-      user.setUnhashedPassword(transientParams.unhashedPassword);
+      user.setUnhashedPassword(transientParams.unhashedPassword || 'password');
     });
 
     return new User({

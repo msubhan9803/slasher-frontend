@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsValidPassword } from '../../app/decorators/class-validator/valid-password.decorator';
 import { Match } from '../../app/decorators/class-validator/match.decorator';
 
 export class ResetPasswordDto {
@@ -10,14 +11,7 @@ export class ResetPasswordDto {
   resetPasswordToken: string;
 
   @IsNotEmpty()
-  @Matches(
-    /^(?=.*[A-Z])(?=.*[?!@#$%^&*()_+=,-])[a-zA-Z0-9?!@#$%^&*()-_+=,]{8,}$/,
-    {
-      message:
-        'newPassword must at least 8 characters long, contain at least one (1) capital letter, '
-        + 'and contain at least one (1) special character.',
-    },
-  )
+  @IsValidPassword()
   newPassword: string;
 
   @IsNotEmpty()

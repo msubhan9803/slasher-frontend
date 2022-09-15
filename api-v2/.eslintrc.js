@@ -39,7 +39,8 @@ module.exports = {
     "no-underscore-dangle": "off", // need to disable this because of Mongoose _id field
     "no-await-in-loop": "off", // might re-enable later, but disabling for now
     "no-restricted-syntax": "off", // might re-enable later, but disabling for now
-    'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'request.**.expect'] }]
+    'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'request.**.expect'] }],
+    "spaced-comment": "off"
   },
   overrides: [
     {

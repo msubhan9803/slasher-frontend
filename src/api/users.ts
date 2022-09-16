@@ -4,14 +4,14 @@ export default function signIn(emailOrUsername: string, password: string) {
   const body = {
     emailOrUsername,
     password,
-    device_id: '',
-    device_token: '',
+    device_id: 'browser',
+    device_token: 'browser',
     device_type: 'browser',
     app_version: `web-${process.env.REACT_APP_VERSION}`,
     device_version: window.navigator.userAgent,
   };
 
-  return fetch(`${apiUrl}users/sign-in`, {
+  return fetch(`${apiUrl}/users/sign-in`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -38,7 +38,7 @@ export function register(
     securityAnswer,
     dob,
   };
-  return fetch(`${apiUrl}users/register`, {
+  return fetch(`${apiUrl}/users/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

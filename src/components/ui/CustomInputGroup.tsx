@@ -34,11 +34,12 @@ interface Props {
   passwordVisiblility?: () => void;
   name?: string;
   value?: string;
+  autoComplete?: string;
   onChangeValue: (val: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 function CustomInputGroup({
-  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password, onChangeValue, name, value,
+  size, addonContent, label, inputType = 'text', showPassword, passwordVisiblility, password, onChangeValue, name, value, autoComplete,
 }: Props) {
   return (
     <StyledInputGroup addoncontent={addonContent} className="mb-3" size={size}>
@@ -49,6 +50,7 @@ function CustomInputGroup({
         aria-describedby="addon-label"
         type={inputType}
         name={name}
+        autoComplete={autoComplete}
         value={value}
         onChange={onChangeValue}
         className={`${password && 'border-end-0'}`}
@@ -66,6 +68,7 @@ CustomInputGroup.defaultProps = {
   inputType: 'text',
   name: '',
   value: '',
+  autoComplete: '',
   password: false,
   showPassword: false,
   passwordVisiblility: () => { },

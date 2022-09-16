@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
+  Alert,
   Col, Form, Row,
 } from 'react-bootstrap';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
@@ -14,8 +15,8 @@ interface Password {
 }
 
 function ForgotPassword() {
-  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState<Password>({
     email: '',
   });
@@ -29,7 +30,7 @@ function ForgotPassword() {
     e.preventDefault();
     forgotPassword(forgotPasswordEmail.email).then(() => {
       setErrorMessage([]);
-      navigate('/password-reset-sent');
+      setPasswordResetSent(true);
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });
@@ -79,9 +80,20 @@ function ForgotPassword() {
                   <ErrorMessageList errorMessages={errorMessage} />
                 </div>
               )}
-              <RoundButton type="submit" onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
-                Send
-              </RoundButton>
+              {
+                passwordResetSent
+                  ? (
+                    <Alert variant="info">
+                      If a user with that email address exists,
+                      a password reset email has been sent!
+                    </Alert>
+                  )
+                  : (
+                    <RoundButton type="submit" onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
+                      Send
+                    </RoundButton>
+                  )
+              }
             </Col>
           </Form>
 

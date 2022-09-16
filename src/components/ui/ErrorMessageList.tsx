@@ -6,11 +6,11 @@ interface MessageProps {
 }
 function ErrorMessageList({ errorMessages }: MessageProps) {
   return (
-    <Alert>
+    <Alert className="m-0">
       {typeof errorMessages === 'string'
         ? errorMessages
         : (
-          <ul>
+          <ul className="m-0">
             {errorMessages.map((errorMessage: string) => (
               <li key={errorMessage}>
                 {errorMessage}

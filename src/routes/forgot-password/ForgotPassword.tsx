@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Col, Form, Row,
+} from 'react-bootstrap';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import RoundButton from '../../components/ui/RoundButton';
@@ -12,6 +14,7 @@ interface Password {
 }
 
 function ForgotPassword() {
+  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState<Password>({
     email: '',
@@ -22,15 +25,14 @@ function ForgotPassword() {
     setForgotPasswordEmail(userInfo);
   };
 
-  const handleForgotPassword = () => {
-    forgotPassword(forgotPasswordEmail.email)
-      .then((res) => {
-        if (res.message) {
-          setErrorMessage(res.message);
-        } else {
-          setErrorMessage([]);
-        }
-      });
+  const handleForgotPassword = async (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    forgotPassword(forgotPasswordEmail.email).then(() => {
+      setErrorMessage([]);
+      navigate('/password-reset-sent');
+    }).catch((error) => {
+      setErrorMessage(error.response.data.message);
+    });
   };
 
   return (
@@ -66,7 +68,7 @@ function ForgotPassword() {
             <Col sm={7} md={5} lg={8}>
               <CustomInputGroup
                 size="lg"
-                label="Username or email"
+                label="Email address"
                 inputType="email"
                 name="email"
                 value={forgotPasswordEmail.email}
@@ -77,7 +79,7 @@ function ForgotPassword() {
                   <ErrorMessageList errorMessages={errorMessage} />
                 </div>
               )}
-              <RoundButton onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
+              <RoundButton type="submit" onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
                 Send
               </RoundButton>
             </Col>

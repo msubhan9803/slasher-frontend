@@ -1,24 +1,22 @@
+import axios from 'axios';
 import { apiUrl } from './constants';
 
-export function signIn(emailOrUsername: string, password: string) {
-  const body = {
-    emailOrUsername,
-    password,
-    device_id: 'browser',
-    device_token: 'browser',
-    device_type: 'browser',
-    app_version: `web-${process.env.REACT_APP_VERSION}`,
-    device_version: window.navigator.userAgent,
-  };
-
-  return fetch(`${apiUrl}/users/sign-in`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }).then((response) => response.json());
+export async function signIn(emailOrUsername: string, password: string) {
+  return axios.post(
+    `${apiUrl}/users/sign-in`,
+    {
+      emailOrUsername,
+      password,
+      device_id: 'browser',
+      device_token: 'browser',
+      device_type: 'browser',
+      app_version: `web-${process.env.REACT_APP_VERSION}`,
+      device_version: window.navigator.userAgent,
+    },
+  );
 }
 
-export function register(
+export async function register(
   firstName: string,
   userName: string,
   email: string,
@@ -28,31 +26,21 @@ export function register(
   securityAnswer: string,
   dob: string,
 ) {
-  const body = {
-    firstName,
-    userName,
-    email,
-    password,
-    passwordConfirmation,
-    securityQuestion,
-    securityAnswer,
-    dob,
-  };
-  return fetch(`${apiUrl}/users/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }).then((response) => response.json());
+  return axios.post(
+    `${apiUrl}/users/register`,
+    {
+      firstName,
+      userName,
+      email,
+      password,
+      passwordConfirmation,
+      securityQuestion,
+      securityAnswer,
+      dob,
+    },
+  );
 }
 
-export function forgotPassword(email: string) {
-  const body = {
-    email,
-  };
-
-  return fetch(`${apiUrl}users/forgot-password`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }).then((response) => response.json());
+export async function forgotPassword(email: string) {
+  return axios.post(`${apiUrl}/users/forgot-password`, { email });
 }

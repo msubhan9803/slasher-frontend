@@ -13,7 +13,7 @@ import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
 
-interface UserSignIn {
+interface UserCredentials {
   emailOrUsername: string;
   password: string;
 }
@@ -21,7 +21,7 @@ interface UserSignIn {
 function SignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [credentials, setCredentials] = useState<UserSignIn>({
+  const [credentials, setCredentials] = useState<UserCredentials>({
     emailOrUsername: '',
     password: '',
   });
@@ -34,16 +34,15 @@ function SignIn() {
     setCredentials({ ...credentials, [event.target.name]: event.target.value });
   };
 
-  const userSignIn = () => {
-    signIn(credentials.emailOrUsername, credentials.password)
-      .then((data) => {
-        if (data.statusCode !== 201) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage([]);
-          navigate('/home');
-        }
-      });
+  const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+
+    signIn(credentials.emailOrUsername, credentials.password).then(() => {
+      setErrorMessage([]);
+      navigate('/home');
+    }).catch((error) => {
+      setErrorMessage(error.response.data.message);
+    });
   };
 
   return (
@@ -92,7 +91,7 @@ function SignIn() {
                 {errorMessage && errorMessage.length > 0 && (
                   <ErrorMessageList errorMessages={errorMessage} />
                 )}
-                <RoundButton onClick={userSignIn} className="w-100 my-3" variant="primary">
+                <RoundButton type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

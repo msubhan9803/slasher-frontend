@@ -2,60 +2,47 @@ import React, { useState } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import signIn from '../../images/sign-in.png';
+import signInImage from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import { signIn } from '../../api/users';
 
-interface UserSignIn {
+interface UserCredentials {
   emailOrUsername: string;
   password: string;
 }
 
 function SignIn() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [user, setUser] = useState<UserSignIn>({
+  const [credentials, setCredentials] = useState<UserCredentials>({
     emailOrUsername: '',
     password: '',
   });
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
-  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
 
   const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const userInfo = { ...user, [event.target.name]: event.target.value };
-    setUser(userInfo);
+    setCredentials({ ...credentials, [event.target.name]: event.target.value });
   };
 
-  const userSignIn = () => {
-    const body = {
-      ...user,
-      device_id: '1',
-      device_token: 'wewewewew',
-      device_type: 'mobile',
-      app_version: '1.0',
-      device_version: '2.9',
-    };
+  const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
 
-    fetch(`${process.env.REACT_APP_API_URL}users/sign-in`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && data.statusCode === 401) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage([]);
-        }
-      });
+    signIn(credentials.emailOrUsername, credentials.password).then(() => {
+      setErrorMessage([]);
+      navigate('/home');
+    }).catch((error) => {
+      setErrorMessage(error.response.data.message);
+    });
   };
 
   return (
@@ -63,7 +50,7 @@ function SignIn() {
       <Row className="align-items-center">
         <Col sm={12} md={7}>
           <div className="login-img text-center pb-4">
-            <Image src={signIn} className="w-75" />
+            <Image src={signInImage} className="w-75" />
           </div>
         </Col>
         <Col sm={12} md={5} lg={5}>
@@ -77,7 +64,8 @@ function SignIn() {
                   label="Username or email"
                   inputType="email"
                   name="emailOrUsername"
-                  value={user.emailOrUsername}
+                  autoComplete="username"
+                  value={credentials.emailOrUsername}
                   onChangeValue={handleSignIn}
                 />
                 <CustomInputGroup
@@ -88,8 +76,9 @@ function SignIn() {
                   password
                   showPassword={showPassword}
                   name="password"
+                  autoComplete="current-password"
                   passwordVisiblility={passwordVisiblility}
-                  value={user.password}
+                  value={credentials.password}
                   onChangeValue={handleSignIn}
                 />
 
@@ -99,8 +88,10 @@ function SignIn() {
                     Click here
                   </Link>
                 </p>
-                {errorMessage.length > 0 && <ErrorMessageList errorMessages={errorMessage} />}
-                <RoundButton onClick={userSignIn} className="w-100 my-3" variant="primary">
+                {errorMessage && errorMessage.length > 0 && (
+                  <ErrorMessageList errorMessages={errorMessage} />
+                )}
+                <RoundButton type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

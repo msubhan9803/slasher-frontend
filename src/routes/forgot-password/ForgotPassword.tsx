@@ -1,13 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Button,
-  Form,
-  Row,
+  Alert,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import RoundButton from '../../components/ui/RoundButton';
+import { forgotPassword } from '../../api/users';
+import CustomInputGroup from '../../components/ui/CustomInputGroup';
+
+interface Password {
+  email: string;
+}
 
 function ForgotPassword() {
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [passwordResetSent, setPasswordResetSent] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState<Password>({
+    email: '',
+  });
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const userInfo = { ...forgotPasswordEmail, [event.target.name]: event.target.value };
+    setForgotPasswordEmail(userInfo);
+  };
+
+  const handleForgotPassword = async (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    forgotPassword(forgotPasswordEmail.email).then(() => {
+      setErrorMessage([]);
+      setPasswordResetSent(true);
+    }).catch((error) => {
+      setErrorMessage(error.response.data.message);
+    });
+  };
+
   return (
     <UnauthenticatedPageWrapper>
       <Row className="justify-content-center">
@@ -38,10 +66,35 @@ function ForgotPassword() {
             .
           </p>
           <Form className="row d-flex flex-column align-items-center mt-4">
-            <div className="col-10 col-sm-8 col-lg-6">
-              <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
-              <Button size="lg" className="mt-4 w-100">Send</Button>
-            </div>
+            <Col sm={7} md={5} lg={8}>
+              <CustomInputGroup
+                size="lg"
+                label="Email address"
+                inputType="email"
+                name="email"
+                value={forgotPasswordEmail.email}
+                onChangeValue={handlePasswordChange}
+              />
+              {errorMessage && errorMessage.length > 0 && (
+                <div className="mt-3 text-start">
+                  <ErrorMessageList errorMessages={errorMessage} />
+                </div>
+              )}
+              {
+                passwordResetSent
+                  ? (
+                    <Alert variant="info">
+                      If a user with that email address exists,
+                      a password reset email has been sent!
+                    </Alert>
+                  )
+                  : (
+                    <RoundButton type="submit" onClick={handleForgotPassword} className="mt-3 w-100" variant="primary">
+                      Send
+                    </RoundButton>
+                  )
+              }
+            </Col>
           </Form>
 
           <p className="mt-4">

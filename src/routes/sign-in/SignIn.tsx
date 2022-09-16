@@ -5,7 +5,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import signInPhoto from '../../images/sign-in.png';
+import signInImage from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
@@ -21,7 +21,7 @@ interface UserSignIn {
 function SignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [user, setUser] = useState<UserSignIn>({
+  const [credentials, setCredentials] = useState<UserSignIn>({
     emailOrUsername: '',
     password: '',
   });
@@ -31,15 +31,14 @@ function SignIn() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   const handleSignIn = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const userInfo = { ...user, [event.target.name]: event.target.value };
-    setUser(userInfo);
+    setCredentials({ ...credentials, [event.target.name]: event.target.value });
   };
 
   const userSignIn = () => {
-    signIn(user.emailOrUsername, user.password)
-      .then((res) => {
-        if (res.message) {
-          setErrorMessage(res.message);
+    signIn(credentials.emailOrUsername, credentials.password)
+      .then((data) => {
+        if (data.statusCode !== 201) {
+          setErrorMessage(data.message);
         } else {
           setErrorMessage([]);
           navigate('/home');
@@ -52,7 +51,7 @@ function SignIn() {
       <Row className="align-items-center">
         <Col sm={12} md={7}>
           <div className="login-img text-center pb-4">
-            <Image src={signInPhoto} className="w-75" />
+            <Image src={signInImage} className="w-75" />
           </div>
         </Col>
         <Col sm={12} md={5} lg={5}>
@@ -66,7 +65,8 @@ function SignIn() {
                   label="Username or email"
                   inputType="email"
                   name="emailOrUsername"
-                  value={user.emailOrUsername}
+                  autoComplete="username"
+                  value={credentials.emailOrUsername}
                   onChangeValue={handleSignIn}
                 />
                 <CustomInputGroup
@@ -77,8 +77,9 @@ function SignIn() {
                   password
                   showPassword={showPassword}
                   name="password"
+                  autoComplete="current-password"
                   passwordVisiblility={passwordVisiblility}
-                  value={user.password}
+                  value={credentials.password}
                   onChangeValue={handleSignIn}
                 />
 

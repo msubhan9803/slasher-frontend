@@ -27,6 +27,7 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import Podcasts from './routes/podcasts/Podcasts';
 import ResetPassword from './routes/reset-password/ResetPassword';
+import AccountActivated from './routes/account-activated/AccountActivated';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
@@ -43,6 +44,7 @@ function App() {
       <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
       <Route path="/registration/*" element={<Registration />} />
       <Route path="/onboarding/*" element={<Onboarding />} />
+      <Route path="/account-activated" element={<AccountActivated />} />
 
       {/* Authenticated routes */}
       <Route path="/home" element={<Home />} />

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
@@ -53,6 +55,14 @@ const offcanvasId = 'offcanvas-sidebar-nav';
 const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = Cookies.get('sessionToken');
+    if (!token) {
+      navigate('/sign-in');
+    }
+  }, []);
+
   const [show, setShow] = useState(false);
   const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });
 

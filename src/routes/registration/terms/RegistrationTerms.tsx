@@ -39,11 +39,11 @@ function RegistrationTerms({ activeStep }: Props) {
       securityQuestion,
       securityAnswer,
       dobDate,
-    ).then((res) => {
-      if (res.message) setErrorMessage(res.message);
-      if (!res.message) {
-        navigate('/registration/final');
-      }
+    ).then(() => {
+      setErrorMessage([]);
+      navigate('/registration/final');
+    }).catch((error) => {
+      setErrorMessage(error.response.data.message);
     });
   };
   return (

@@ -34,27 +34,63 @@ describe('MailService', () => {
     expect(mailService).toBeDefined();
   });
 
-  describe('#sendForgotPasswordEmail', () => {
-    it('sends the correct mail details to the mail transporter', async () => {
-      const email = 'example@example.com';
-      const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
+  describe('#sendEmail', () => {
+    it('sends the correct mail fields to the mail transporter', async () => {
+      const from = 'exampleFrom@example.com';
+      const to = 'exampleTo@example.com';
+      const subject = 'This is the email subject.';
+      const text = 'This is the email text.';
       const mockTransporter = {
         createTransport: jest.fn(),
         sendMail: jest.fn(),
       };
-      jest
-        .spyOn(mailService, 'createMailTransporter')
-        .mockReturnValue(mockTransporter);
+      (jest.spyOn(mailService, 'createMailTransporter') as jest.Mock).mockReturnValue(mockTransporter);
 
-      mailService.sendForgotPasswordEmail(email, token);
+      mailService.sendEmail(to, from, subject, text);
       expect(mockTransporter.sendMail).toHaveBeenCalledWith(
         {
-          from: email,
-          subject: 'Forgot password',
-          text: `This is the forgot password email with token: ${token}`,
-          to: 'example@example.com',
+          to,
+          from,
+          subject,
+          text,
         },
         expect.anything(),
+      );
+    });
+  });
+
+  describe('#sendForgotPasswordEmail', () => {
+    it('sends the correct mail details to the sendEmail function', async () => {
+      const to = 'example@example.com';
+      const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
+      jest
+        .spyOn(mailService, 'sendEmail')
+        .mockReturnValue(Promise.resolve(null));
+
+      mailService.sendForgotPasswordEmail(to, token);
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        to,
+        mailService.getDefaultSender(),
+        'Forgot password',
+        `This is the forgot password email with token: ${token}`,
+      );
+    });
+  });
+
+  describe('#sendVerificationEmail', () => {
+    it('sends the correct mail details to the sendEmail function', async () => {
+      const to = 'example@example.com';
+      const token = 'd4c70121-1f0b-4e6a-aac9-b8be3720f369';
+      jest
+        .spyOn(mailService, 'sendEmail')
+        .mockReturnValue(Promise.resolve(null));
+
+      mailService.sendVerificationEmail(to, token);
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        to,
+        mailService.getDefaultSender(),
+        'Activate your Slasher account',
+        `Here is the verification token that will be used to activate your slasher account: ${token}`,
       );
     });
   });

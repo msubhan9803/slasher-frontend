@@ -132,15 +132,15 @@ describe('Users sign-in (e2e)', () => {
       });
     });
 
-    describe('Validation', () => {
+    describe('DTO validations', () => {
       it('device_id should not be empty', async () => {
-        const deviceId = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           device_id: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(deviceId);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'device_id should not be empty',
@@ -148,37 +148,37 @@ describe('Users sign-in (e2e)', () => {
       });
 
       it('device_token should not be empty', async () => {
-        const deviceToken = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           device_token: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(deviceToken);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('device_token should not be empty');
       });
 
       it('device_type should not be empty', async () => {
-        const deviceType = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           device_type: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(deviceType);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('device_type should not be empty');
       });
 
       it('device_version should not be empty', async () => {
-        const deviceVersion = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           device_version: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(deviceVersion);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'device_version should not be empty',
@@ -186,13 +186,13 @@ describe('Users sign-in (e2e)', () => {
       });
 
       it('app_version should not be empty', async () => {
-        const deviceAppVersion = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           app_version: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(deviceAppVersion);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'app_version should not be empty',
@@ -200,25 +200,25 @@ describe('Users sign-in (e2e)', () => {
       });
 
       it('emailOrUsername should not be empty', async () => {
-        const userEmailAndName = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           emailOrUsername: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(userEmailAndName);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('emailOrUsername should not be empty');
       });
 
       it('password should not be empty', async () => {
-        const userPassword = {
+        const postBody = {
           ...deviceAndAppVersionPlaceholderSignInFields,
           password: '',
         };
         const response = await request(app.getHttpServer())
           .post('/users/sign-in')
-          .send(userPassword);
+          .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('password should not be empty');
       });
@@ -229,12 +229,10 @@ describe('Users sign-in (e2e)', () => {
         const userUnhashedPassword = 'TestPassword';
         const user = await usersService.create(
           userFactory.build(
-            {},
+            { deleted: true },
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        user.deleted = true;
-        user.save();
         const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
@@ -255,12 +253,10 @@ describe('Users sign-in (e2e)', () => {
         const userUnhashedPassword = 'TestPassword';
         const user = await usersService.create(
           userFactory.build(
-            {},
+            { userSuspended: true },
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        user.userSuspended = true;
-        user.save();
         const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
@@ -281,12 +277,10 @@ describe('Users sign-in (e2e)', () => {
         const userUnhashedPassword = 'TestPassword';
         const user = await usersService.create(
           userFactory.build(
-            {},
+            { userBanned: true },
             { transient: { unhashedPassword: userUnhashedPassword } },
           ),
         );
-        user.userBanned = true;
-        user.save();
         const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
           password: userUnhashedPassword,
@@ -337,7 +331,7 @@ describe('Users sign-in (e2e)', () => {
         );
         const postBody: UserSignInDto = {
           emailOrUsername: user.userName,
-          password: 'password',
+          password: `incorrect${userUnhashedPassword}`,
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())

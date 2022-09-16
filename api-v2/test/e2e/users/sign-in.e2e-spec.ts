@@ -343,5 +343,33 @@ describe('Users sign-in (e2e)', () => {
         );
       });
     });
+
+    describe('after successful sign-in', () => {
+      it('after a successful sign-in,'
+        + 'the user database values for user.last_login and user.userDevices should have been updated', async () => {
+          const userUnhashedPassword = 'TestPassword';
+          const userBefore = await usersService.findByEmail(
+            activeUser.email,
+          );
+          const postBody: any = {
+            emailOrUsername: activeUser.userName,
+            password: userUnhashedPassword,
+            ...deviceAndAppVersionPlaceholderSignInFields,
+          };
+          const response = await request(app.getHttpServer())
+            .post('/users/sign-in')
+            .send(postBody);
+          expect(response.status).toEqual(HttpStatus.CREATED);
+
+          const userAfter = await usersService.findByEmail(
+            response.body.email,
+          );
+
+          expect(userAfter.last_login).not.toBeNull();
+          expect(userAfter.last_login).not.toEqual(userBefore.last_login);
+          expect(userAfter.userDevices).toHaveLength(1);
+          expect(userAfter.userDevices).not.toEqual(userBefore.userDevices);
+        });
+    });
   });
 });

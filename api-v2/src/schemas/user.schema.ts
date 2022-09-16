@@ -152,6 +152,19 @@ export class User extends UserUnusedFields {
       return;
     }
 
+    function sortByDate(a, b) {
+      if (a.login_date < b.login_date) {
+        return 1;
+      }
+      if (a.login_date > b.login_date) {
+        return -1;
+      }
+      return 0;
+    }
+    if (this.userDevices.length === 10) {
+      const sorted = this.userDevices.sort(sortByDate);
+      sorted.pop();
+    }
     // If not, add a new entry.
     this.userDevices.push(deviceEntry);
   }

@@ -126,7 +126,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: CheckUserNameQueryDto,
   ) {
-    await sleep(1000);
+    await sleep(500); // throttle so this endpoint is less likely to be abused
     return {
       exists: await this.usersService.userNameExists(query.userName),
     };
@@ -137,7 +137,7 @@ export class UsersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: CheckEmailQueryDto,
   ) {
-    await sleep(1000);
+    await sleep(500); // throttle so this endpoint is less likely to be abused
     return {
       exists: await this.usersService.emailExists(query.email),
     };
@@ -145,7 +145,7 @@ export class UsersController {
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto) {
-    await sleep(1000);
+    await sleep(500); // throttle so this endpoint is less likely to be abused
     if (await this.usersService.userNameExists(userRegisterDto.userName)) {
       throw new HttpException(
         'Username is already associated with an existing user.',
@@ -223,6 +223,7 @@ export class UsersController {
   @Post('forgot-password')
   @HttpCode(200)
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
     const userData = await this.usersService.findByEmail(
       forgotPasswordDto.email,
     );

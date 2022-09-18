@@ -8,11 +8,13 @@ import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { MailService } from '../../../src/providers/mail.service';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let mailService: MailService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -32,6 +34,8 @@ describe('Users / Register (e2e)', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    mailService = moduleRef.get<MailService>(MailService);
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -53,6 +57,7 @@ describe('Users / Register (e2e)', () => {
 
     describe('Successful Registration', () => {
       it('can successfully register with given user data', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody)
@@ -71,6 +76,10 @@ describe('Users / Register (e2e)', () => {
         ).toBe(true);
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
+        expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
+          registeredUser.email,
+          expect.stringMatching(validUuidV4Regex),
+        );
       });
     });
 

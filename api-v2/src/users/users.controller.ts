@@ -33,6 +33,7 @@ import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
 import { ActiveStatus } from '../schemas/user.enums';
+import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 
 @Controller('users')
 export class UsersController {
@@ -164,6 +165,10 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
+    await this.mailService.sendVerificationEmail(
+      registeredUser.email,
+      registeredUser.verification_token,
+    );
     return { id: registeredUser.id };
   }
 
@@ -244,5 +249,23 @@ export class UsersController {
   async suggestedFriends(@Req() request: Request) {
     const user = getUserFromRequest(request);
     return this.usersService.getSuggestedFriends(user, 7); // for now, always return 7
+  }
+
+  @Post('verification-email-not-received')
+  @HttpCode(200)
+  async verificationEmailNotReceived(@Body() verificationEmailNotReceivedDto: VerificationEmailNotReceivedDto) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
+    const userData = await this.usersService.findByEmail(
+      verificationEmailNotReceivedDto.email,
+    );
+    if (userData) {
+      await this.mailService.sendVerificationEmail(
+        userData.email,
+        userData.verification_token,
+      );
+    }
+    return {
+      success: true,
+    };
   }
 }

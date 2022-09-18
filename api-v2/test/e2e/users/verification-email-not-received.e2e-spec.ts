@@ -1,0 +1,102 @@
+import * as request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
+import { AppModule } from '../../../src/app.module';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { userFactory } from '../../factories/user.factory';
+import { MailService } from '../../../src/providers/mail.service';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { VerificationEmailNotReceivedDto } from '../../../src/users/dto/verification-email-not-recevied.dto';
+
+describe('Users / Verification mail not received (e2e)', () => {
+  let app: INestApplication;
+  let connection: Connection;
+  let usersService: UsersService;
+  let mailService: MailService;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    connection = await moduleRef.get<Connection>(getConnectionToken());
+
+    usersService = moduleRef.get<UsersService>(UsersService);
+    mailService = moduleRef.get<MailService>(MailService);
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
+  });
+
+  describe('POST /users/verification-email-not-received', () => {
+    let email: string;
+    let postBody: VerificationEmailNotReceivedDto;
+    beforeEach(() => {
+      email = 'someone@example.com';
+      postBody = { email };
+    });
+
+    it('responds with error message when an invalid-format email supplied', async () => {
+      postBody.email = 'invalidemailaddress.com';
+      const response = await request(app.getHttpServer())
+        .post('/users/verification-email-not-received')
+        .send(postBody)
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['Not a valid-format email address.'],
+        statusCode: 400,
+      });
+    });
+
+    describe('When a valid-format email address is supplied', () => {
+      it('returns { success: true } when the email address IS associated with a registered user', async () => {
+        const user = await usersService.create(
+          userFactory.build(
+            { email },
+            { transient: { unhashedPassword: 'password' } },
+          ),
+        );
+        user.verification_token = uuidv4();
+        user.save();
+
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+
+        const response = await request(app.getHttpServer())
+          .post('/users/verification-email-not-received')
+          .send(postBody)
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({
+          success: true,
+        });
+
+        expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
+          email,
+          expect.stringMatching(validUuidV4Regex),
+        );
+      });
+
+      // Test below makes sure we avoid revealing whether email address exists when user submits
+      // a verification-email-not-received recovery attempt.
+      it('returns { success: true } even when the email address is NOT associated with a registered user', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/verification-email-not-received')
+          .send(postBody)
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({
+          success: true,
+        });
+      });
+    });
+  });
+});

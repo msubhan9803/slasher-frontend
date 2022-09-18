@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ResetPasswordDto } from 'src/users/dto/reset-password.dto';
 import { AppModule } from '../../../src/app.module';
@@ -38,10 +39,7 @@ describe('Users reset password (e2e)', () => {
     let user;
     let postBody: ResetPasswordDto;
     beforeEach(async () => {
-      const userData = userFactory.build(
-        {},
-        { transient: { unhashedPassword: 'password' } },
-      );
+      const userData = userFactory.build();
       userData.resetPasswordToken = uuidv4();
       user = await usersService.create(userData);
       postBody = {
@@ -53,11 +51,17 @@ describe('Users reset password (e2e)', () => {
     });
 
     describe('Reset Password', () => {
-      it('Password reset successfully', async () => {
+      it('Password reset successfully, and new password is stored in the db', async () => {
         const response = await request(app.getHttpServer())
           .post('/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
+        expect(
+          bcrypt.compareSync(
+            postBody.newPassword,
+            (await usersService.findByEmail(postBody.email)).password,
+          ),
+        ).toBe(true);
       });
 
       it('User does not exists', async () => {

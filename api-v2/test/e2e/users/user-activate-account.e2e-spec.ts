@@ -38,10 +38,7 @@ describe('Users activate account (e2e)', () => {
     let user;
     let postBody: ActivateAccountDto;
     beforeEach(async () => {
-      const userData = userFactory.build(
-        {},
-        { transient: { unhashedPassword: 'password' } },
-      );
+      const userData = userFactory.build();
       userData.verification_token = uuidv4();
       user = await usersService.create(userData);
       postBody = {

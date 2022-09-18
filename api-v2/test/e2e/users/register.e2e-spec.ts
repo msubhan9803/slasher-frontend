@@ -76,9 +76,11 @@ describe('Users / Register (e2e)', () => {
         ).toBe(true);
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
+
+        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
           registeredUser.email,
-          expect.stringMatching(validUuidV4Regex),
+          registeredUser.verification_token,
         );
       });
     });

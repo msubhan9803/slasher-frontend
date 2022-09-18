@@ -8,10 +8,9 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { MailService } from '../../../src/providers/mail.service';
-import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { VerificationEmailNotReceivedDto } from '../../../src/users/dto/verification-email-not-recevied.dto';
 
-describe('Users / Verification mail not received (e2e)', () => {
+describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -60,12 +59,9 @@ describe('Users / Verification mail not received (e2e)', () => {
     });
 
     describe('When a valid-format email address is supplied', () => {
-      it('returns { success: true } when the email address IS associated with a registered user', async () => {
+      it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
         const user = await usersService.create(
-          userFactory.build(
-            { email },
-            { transient: { unhashedPassword: 'password' } },
-          ),
+          userFactory.build({ email }),
         );
         user.verification_token = uuidv4();
         user.save();
@@ -82,21 +78,22 @@ describe('Users / Verification mail not received (e2e)', () => {
 
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
           email,
-          expect.stringMatching(validUuidV4Regex),
+          user.verification_token,
         );
       });
 
       // Test below makes sure we avoid revealing whether email address exists when user submits
       // a verification-email-not-received recovery attempt.
-      it('returns { success: true } even when the email address is NOT associated with a registered user', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/users/verification-email-not-received')
-          .send(postBody)
-          .expect(HttpStatus.OK);
-        expect(response.body).toEqual({
-          success: true,
+      it('returns { success: true } even when the email address is NOT associated with a registered user, '
+        + 'but does not send an email', async () => {
+          const response = await request(app.getHttpServer())
+            .post('/users/verification-email-not-received')
+            .send(postBody)
+            .expect(HttpStatus.OK);
+          expect(response.body).toEqual({
+            success: true,
+          });
         });
-      });
     });
   });
 });

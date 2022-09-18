@@ -59,12 +59,9 @@ describe('Users / Forgot Password (e2e)', () => {
     });
 
     describe('When a valid-format email address is supplied', () => {
-      it('returns { success: true } when the email address IS associated with a registered user', async () => {
-        await usersService.create(
-          userFactory.build(
-            { email },
-            { transient: { unhashedPassword: 'password' } },
-          ),
+      it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
+        let user = await usersService.create(
+          userFactory.build({ email }),
         );
 
         jest.spyOn(mailService, 'sendForgotPasswordEmail').mockImplementation();
@@ -77,23 +74,27 @@ describe('Users / Forgot Password (e2e)', () => {
           success: true,
         });
 
+        user = await usersService.findById(user._id); // reload user from db data
+        expect(user.resetPasswordToken).toMatch(validUuidV4Regex);
+
         expect(mailService.sendForgotPasswordEmail).toHaveBeenCalledWith(
           email,
-          expect.stringMatching(validUuidV4Regex),
+          user.resetPasswordToken,
         );
       });
 
       // Test below makes sure we avoid revealing whether email address exists when user submits
       // a forgot-password recovery attempt.
-      it('returns { success: true } even when the email address is NOT associated with a registered user', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/users/forgot-password')
-          .send(postBody)
-          .expect(HttpStatus.OK);
-        expect(response.body).toEqual({
-          success: true,
+      it('returns { success: true } even when the email address is NOT associated with a registered user, '
+        + 'but does not send an email', async () => {
+          const response = await request(app.getHttpServer())
+            .post('/users/forgot-password')
+            .send(postBody)
+            .expect(HttpStatus.OK);
+          expect(response.body).toEqual({
+            success: true,
+          });
         });
-      });
     });
   });
 });

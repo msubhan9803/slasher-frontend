@@ -58,10 +58,7 @@ describe('Users / Check Email (e2e)', () => {
 
       it('returns { exists: true } when the email address IS associated with a registered user', async () => {
         const user = await usersService.create(
-          userFactory.build(
-            {},
-            { transient: { unhashedPassword: 'password' } },
-          ),
+          userFactory.build(),
         );
 
         const response = await request(app.getHttpServer())

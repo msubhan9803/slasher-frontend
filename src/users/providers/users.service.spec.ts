@@ -40,23 +40,22 @@ describe('UsersService', () => {
 
   describe('#create', () => {
     it('successfully creates a user', async () => {
-      const user = userFactory.build(
+      const userData = userFactory.build(
         { status: ActiveStatus.Active },
-        { transient: { unhashedPassword: 'TestPassword' } },
       );
-      user.verification_token = uuidv4();
-      const userDocument = await usersService.create(user);
-      expect(await usersService.findById(userDocument._id)).toBeTruthy();
+      userData.verification_token = uuidv4();
+      const user = await usersService.create(userData);
+      expect(await usersService.findById(user._id)).toBeTruthy();
     });
   });
 
   describe('#findAll', () => {
     beforeEach(async () => {
       await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
       await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
     });
     it('finds the expected set of users', async () => {
@@ -68,7 +67,7 @@ describe('UsersService', () => {
     let user: UserDocument;
     beforeEach(async () => {
       user = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
     });
 
@@ -95,7 +94,7 @@ describe('UsersService', () => {
     let user: UserDocument;
     beforeEach(async () => {
       user = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
     });
 
@@ -122,7 +121,7 @@ describe('UsersService', () => {
     let user;
     beforeEach(async () => {
       user = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
     });
     it('finds the expected user by email', async () => {
@@ -140,10 +139,7 @@ describe('UsersService', () => {
   describe('#validatePasswordResetToken', () => {
     let user;
     beforeEach(async () => {
-      const userData = userFactory.build(
-        {},
-        { transient: { unhashedPassword: 'password' } },
-      );
+      const userData = userFactory.build();
       userData.resetPasswordToken = uuidv4();
       user = await usersService.create(userData);
     });
@@ -190,10 +186,7 @@ describe('UsersService', () => {
   describe('#verificationTokenIsValid', () => {
     let user;
     beforeEach(async () => {
-      const userData = userFactory.build(
-        {},
-        { transient: { unhashedPassword: 'password' } },
-      );
+      const userData = userFactory.build();
       userData.verification_token = uuidv4();
       user = await usersService.create(userData);
     });
@@ -242,14 +235,11 @@ describe('UsersService', () => {
     let user;
     beforeEach(async () => {
       user = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
       for (let i = 0; i < 7; i += 1) {
         await usersService.create(
-          userFactory.build(
-            {},
-            { transient: { unhashedPassword: 'password' } },
-          ),
+          userFactory.build(),
         );
       }
     });

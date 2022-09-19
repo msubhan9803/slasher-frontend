@@ -4,7 +4,7 @@ definitions:
   caches:
     node: node_modules
   steps:
-    - step: &api-v2-lint-test-build
+    - step: &lint-test-build
         name: Lint, test, and build
         image: node:16.13.1
         services:
@@ -20,8 +20,6 @@ definitions:
             --env MONGO_INITDB_ROOT_USERNAME=root --env MONGO_INITDB_ROOT_PASSWORD=rootpassword
             $(docker build -q ./docker/mongo)
             )
-          # Change to api-v2 directory
-          - cd api-v2
           # Install NPM dependencies
           - npm ci
           # Run linter
@@ -46,49 +44,38 @@ definitions:
           - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
 
           # Set tag variables
-          - DOCKER_NGINX_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-nginx"
-          - DOCKER_API_V2_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v2"
-          - DOCKER_CRON_V2_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-cron-v2"
-          - DOCKER_API_v1_TAG="v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v1"
+          - NGINX_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_nginx"
+          - APP_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_app"
+          - CRON_TAG="${CLUSTER_NAME}_${STAGE}_${TYPE_PROJECT}_cron"
 
           # Build containers
           - >
             cd ${BITBUCKET_CLONE_DIR}/docker/nginx &&
-            docker build --tag $DOCKER_NGINX_TAG --file Dockerfile .
+            docker build --tag $NGINX_TAG --file Dockerfile .
             --build-arg NGINX_PORT=${NGINX_PORT}
-            --build-arg API_V1_APP_NAME=v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v1
-            --build-arg API_V2_APP_NAME=v2-${CLUSTER_NAME}-${STAGE}-${TYPE_PROJECT}-api-v2
-            --build-arg API_V1_APP_PORT=${APP_PORT}
-            --build-arg API_V2_APP_PORT=${APP_PORT}
+            --build-arg APP_HOST_NAME=$APP_TAG
+            --build-arg APP_PORT=${APP_PORT}
           - >
-            cd ${BITBUCKET_CLONE_DIR}/api-v2 &&
-            docker build --tag $DOCKER_API_V2_TAG --file app.Dockerfile .
+            cd ${BITBUCKET_CLONE_DIR} &&
+            docker build --tag $APP_TAG --file app.Dockerfile .
           - >
-            cd ${BITBUCKET_CLONE_DIR}/api-v2 &&
-            docker build --tag $DOCKER_CRON_V2_TAG --file cron.Dockerfile .
-          - >
-            cd ${BITBUCKET_CLONE_DIR}/api-v1 &&
-            docker build --tag $DOCKER_API_v1_TAG --file Dockerfile .
+            cd ${BITBUCKET_CLONE_DIR} &&
+            docker build --tag $CRON_TAG --file cron.Dockerfile .
 
           # Push containers to Amazon ECR
           - pipe: atlassian/aws-ecr-push-image:1.5.0
             variables:
-              IMAGE_NAME: "$DOCKER_NGINX_TAG"
+              IMAGE_NAME: "$NGINX_TAG"
               TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
               #DEBUG: "true"
           - pipe: atlassian/aws-ecr-push-image:1.5.0
             variables:
-              IMAGE_NAME: "$DOCKER_API_V2_TAG"
+              IMAGE_NAME: "$APP_TAG"
               TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
               #DEBUG: "true"
           - pipe: atlassian/aws-ecr-push-image:1.5.0
             variables:
-              IMAGE_NAME: "$DOCKER_CRON_V2_TAG"
-              TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
-              #DEBUG: "true"
-          - pipe: atlassian/aws-ecr-push-image:1.5.0
-            variables:
-              IMAGE_NAME: "$DOCKER_API_v1_TAG"
+              IMAGE_NAME: "$CRON_TAG"
               TAGS: "${BITBUCKET_BUILD_NUMBER} latest"
               #DEBUG: "true"
 
@@ -118,16 +105,12 @@ definitions:
                     "ParameterValue": "${NGINX_PORT}"
                   },
                   {
-                    "ParameterKey": "AppSocketPort",
-                    "ParameterValue": "${APP_SOCKET_PORT}"
-                  },
-                  {
                     "ParameterKey": "DefaultAcmCertificateArn",
                     "ParameterValue": "${CERTIFICATE_ARN}"
                   },
                   {
-                    "ParameterKey": "SiteName",
-                    "ParameterValue": "${SITE_NAME}"
+                    "ParameterKey": "BackendSiteDomain",
+                    "ParameterValue": "${BACKEND_SITE_DOMAIN}"
                   }
                 ]
               #DEBUG: "true"
@@ -158,16 +141,12 @@ definitions:
                     "ParameterValue": "${TYPE_PROJECT}"
                   },
                   {
-                    "ParameterKey": "SiteBackend",
-                    "ParameterValue": "${SITE_NAME}"
+                    "ParameterKey": "BackendSiteDomain",
+                    "ParameterValue": "${BACKEND_SITE_DOMAIN}"
                   },
                   {
-                    "ParameterKey": "Site",
-                    "ParameterValue": "${SITE_FRONTEND_NAME}"
-                  },
-                  {
-                    "ParameterKey": "EcsTasksNumber",
-                    "ParameterValue": "${ECS_TASKS_NUMBER}"
+                    "ParameterKey": "FrontendSiteDomain",
+                    "ParameterValue": "${FRONTEND_SITE_DOMAIN}"
                   },
                   {
                     "ParameterKey": "NginxPort",
@@ -178,72 +157,40 @@ definitions:
                     "ParameterValue": "${APP_PORT}"
                   },
                   {
-                    "ParameterKey": "AppSocketPort",
-                    "ParameterValue": "${APP_SOCKET_PORT}"
+                    "ParameterKey": "AppVirtualCPUs",
+                    "ParameterValue": "${APP_CPU}"
                   },
                   {
-                    "ParameterKey": "ApiV1VirtualCPUs",
-                    "ParameterValue": "${API_V1_CPU}"
+                    "ParameterKey": "AppMemoryMin",
+                    "ParameterValue": "${APP_MEMORY_MIN}"
                   },
                   {
-                    "ParameterKey": "ApiV1MemoryMin",
-                    "ParameterValue": "${API_V1_MEMORY_MIN}"
+                    "ParameterKey": "AppMemoryMax",
+                    "ParameterValue": "${APP_MEMORY_MAX}"
                   },
                   {
-                    "ParameterKey": "ApiV1MemoryMax",
-                    "ParameterValue": "${API_V1_MEMORY_MAX}"
+                    "ParameterKey": "CronVirtualCPUs",
+                    "ParameterValue": "${CRON_CPU}"
                   },
                   {
-                    "ParameterKey": "ApiV2VirtualCPUs",
-                    "ParameterValue": "${API_V2_CPU}"
+                    "ParameterKey": "CronMemoryMin",
+                    "ParameterValue": "${CRON_MEMORY_MIN}"
                   },
                   {
-                    "ParameterKey": "ApiV2MemoryMin",
-                    "ParameterValue": "${API_V2_MEMORY_MIN}"
-                  },
-                  {
-                    "ParameterKey": "ApiV2MemoryMax",
-                    "ParameterValue": "${API_V2_MEMORY_MAX}"
-                  },
-                  {
-                    "ParameterKey": "CronV2VirtualCPUs",
-                    "ParameterValue": "${CRON_V2_CPU}"
-                  },
-                  {
-                    "ParameterKey": "CronV2MemoryMin",
-                    "ParameterValue": "${CRON_V2_MEMORY_MIN}"
-                  },
-                  {
-                    "ParameterKey": "CronV2MemoryMax",
-                    "ParameterValue": "${CRON_V2_MEMORY_MAX}"
+                    "ParameterKey": "CronMemoryMax",
+                    "ParameterValue": "${CRON_MEMORY_MAX}"
                   },
                   {
                     "ParameterKey": "NginxVirtualCPUs",
-                    "ParameterValue": "${NGNINX_CPU}"
+                    "ParameterValue": "${NGINX_CPU}"
                   },
                   {
                     "ParameterKey": "NginxMemoryMin",
-                    "ParameterValue": "${NGNINX_MEMORY_MIN}"
+                    "ParameterValue": "${NGINX_MEMORY_MIN}"
                   },
                   {
                     "ParameterKey": "NginxMemoryMax",
-                    "ParameterValue": "${NGNINX_MEMORY_MAX}"
-                  },
-                  {
-                    "ParameterKey": "NginxContainerName",
-                    "ParameterValue": "${DOCKER_NGINX_TAG}"
-                  },
-                  {
-                    "ParameterKey": "ApiV2ContainerName",
-                    "ParameterValue": "${DOCKER_API_V2_TAG}"
-                  },
-                  {
-                    "ParameterKey": "CronV2ContainerName",
-                    "ParameterValue": "${DOCKER_CRON_V2_TAG}"
-                  },
-                  {
-                    "ParameterKey": "ApiV1ContainerName",
-                    "ParameterValue": "${DOCKER_API_V1_TAG}"
+                    "ParameterValue": "${NGINX_MEMORY_MAX}"
                   }
                 ]
               DEBUG: 'true'
@@ -251,11 +198,11 @@ definitions:
 pipelines:
   branches:
     main:
-      - step: *api-v2-lint-test-build
+      - step: *lint-test-build
     deploy/staging:
-      #- step: *api-v2-lint-test-build
+      #- step: *lint-test-build
       - step: *deploy
   pull-requests:
     # Run for any branch that has an open pull request
     '**':
-      - step: *api-v2-lint-test-build
+      - step: *lint-test-build

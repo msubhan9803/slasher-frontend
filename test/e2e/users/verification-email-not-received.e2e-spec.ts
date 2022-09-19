@@ -3,14 +3,14 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { ForgotPasswordDto } from '../../../src/users/dto/forgot-password.dto';
 import { userFactory } from '../../factories/user.factory';
 import { MailService } from '../../../src/providers/mail.service';
-import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { VerificationEmailNotReceivedDto } from '../../../src/users/dto/verification-email-not-recevied.dto';
 
-describe('Users / Forgot Password (e2e)', () => {
+describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -37,9 +37,9 @@ describe('Users / Forgot Password (e2e)', () => {
     await connection.dropDatabase();
   });
 
-  describe('POST /users/forgot-password', () => {
+  describe('POST /users/verification-email-not-received', () => {
     let email: string;
-    let postBody: ForgotPasswordDto;
+    let postBody: VerificationEmailNotReceivedDto;
     beforeEach(() => {
       email = 'someone@example.com';
       postBody = { email };
@@ -48,7 +48,7 @@ describe('Users / Forgot Password (e2e)', () => {
     it('responds with error message when an invalid-format email supplied', async () => {
       postBody.email = 'invalidemailaddress.com';
       const response = await request(app.getHttpServer())
-        .post('/users/forgot-password')
+        .post('/users/verification-email-not-received')
         .send(postBody)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
@@ -59,41 +59,41 @@ describe('Users / Forgot Password (e2e)', () => {
     });
 
     describe('When a valid-format email address is supplied', () => {
-      it('returns { success: true } when the email address IS associated with a registered user', async () => {
-        await usersService.create(
-          userFactory.build(
-            { email },
-            { transient: { unhashedPassword: 'password' } },
-          ),
+      it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
+        const user = await usersService.create(
+          userFactory.build({ email }),
         );
+        user.verification_token = uuidv4();
+        user.save();
 
-        jest.spyOn(mailService, 'sendForgotPasswordEmail').mockImplementation();
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
 
         const response = await request(app.getHttpServer())
-          .post('/users/forgot-password')
+          .post('/users/verification-email-not-received')
           .send(postBody)
           .expect(HttpStatus.OK);
         expect(response.body).toEqual({
           success: true,
         });
 
-        expect(mailService.sendForgotPasswordEmail).toHaveBeenCalledWith(
+        expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
           email,
-          expect.stringMatching(validUuidV4Regex),
+          user.verification_token,
         );
       });
 
       // Test below makes sure we avoid revealing whether email address exists when user submits
-      // a forgot-password recovery attempt.
-      it('returns { success: true } even when the email address is NOT associated with a registered user', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/users/forgot-password')
-          .send(postBody)
-          .expect(HttpStatus.OK);
-        expect(response.body).toEqual({
-          success: true,
+      // a verification-email-not-received recovery attempt.
+      it('returns { success: true } even when the email address is NOT associated with a registered user, '
+        + 'but does not send an email', async () => {
+          const response = await request(app.getHttpServer())
+            .post('/users/verification-email-not-received')
+            .send(postBody)
+            .expect(HttpStatus.OK);
+          expect(response.body).toEqual({
+            success: true,
+          });
         });
-      });
     });
   });
 });

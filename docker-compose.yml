@@ -1,76 +1,69 @@
 version: "3.9"
 
 services:
-  api-v1:
-    container_name: slasher-web-new-api-v1
-    restart: on-failure
-    build: ./api-v1
-    #hostname: api-v1
-    ports:
-      - '4001:5933'
-      - '5001:5941'
-    networks:
-      - api-v1-network
-  api-v2:
-    container_name: slasher-web-new-api-v2
+  app:
     restart: on-failure
     build:
-      context: ./api-v2
+      context: ./
       dockerfile: app.Dockerfile
     env_file:
-      - ./api-v2/.env
-    hostname: api-v2
+      - ./.env.development
+    environment:
+      # Override DB_CONNECTION_URL env value to point to "mongo" hostname
+      - DB_CONNECTION_URL=mongodb://root:rootpassword@mongo:27017/slasher?authSource=admin
     ports:
-      - '4002:4000'
-      - '5002:4001'
+      - '4000:4000'
     networks:
-      - api-v2-network
-  cron-v2:
+      - app-network
+    depends_on:
+      - mongo
+  cron:
     restart: on-failure
     build:
-      context: ./api-v2
+      context: ./
       dockerfile: cron.Dockerfile
     env_file:
-      - ./api-v2/.env
-    hostname: cron-v2
+      - ./.env.development
+    environment:
+      # Override DB_CONNECTION_URL env value to point to "mongo" hostname
+      - DB_CONNECTION_URL=mongodb://root:rootpassword@mongo:27017/slasher?authSource=admin
     ports:
-      - '4003:4000'
+      - '4001:4000'
     networks:
-      - cron-v2-network
-    tty: true
+      - cron-network
+    depends_on:
+      - mongo
+  mongo:
+    build: ./docker/mongo
+    restart: on-failure
+    ports:
+      - '27017:27017'
+    networks:
+      - app-network
+      - cron-network
   redis:
     build: ./docker/redis
     restart: on-failure
     ports:
       - '6379:6379'
     networks:
-      - api-v1-network
-      - api-v2-network
-      - cron-v2-network
+      - app-network
+      - cron-network
   nginx:
     build:
       context: ./docker/nginx
       args:
         NGINX_PORT: 80
-        API_V1_APP_NAME: slasher-web-new-api-v1
-        API_V2_APP_NAME: slasher-web-new-api-v2
-        API_V1_APP_PORT: 5933
-        API_V2_APP_PORT: 4000
+        APP_HOST_NAME: app
+        APP_PORT: 4000
     restart: on-failure
     ports:
       - '80:80'
-      - '5933:5933'
-      - '5941:5941'
     networks:
-      - api-v1-network
-      - api-v2-network
-      - cron-v2-network
+      - app-network
     depends_on:
-      - api-v1
-      - api-v2
-      - cron-v2
+      - app
 
 networks:
-    api-v1-network:
-    api-v2-network:
-    cron-v2-network:
+    app-network:
+    cron-network:

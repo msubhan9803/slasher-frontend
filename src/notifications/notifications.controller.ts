@@ -2,7 +2,6 @@ import {
   Controller, Get, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { UserDocument } from '../schemas/user.schema';
 import { pick } from '../utils/object-utils';
 import { getUserFromRequest } from '../utils/request-utils';
 import { NotificationsService } from './providers/notifications.service';
@@ -13,7 +12,7 @@ export class NotificationsController {
 
   @Get()
   async index(@Req() request: Request) {
-    const user: UserDocument = getUserFromRequest(request);
+    const user = getUserFromRequest(request);
 
     return (await this.notificationsService.findAllByUserId(user._id)).map(
       (notification) => pick(notification, ['notificationMsg', 'createdAt']),

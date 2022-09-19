@@ -11,7 +11,6 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { User } from '../../../src/schemas/user.schema';
 import { userFactory } from '../../factories/user.factory';
 import { notificationFactory } from '../../factories/notification.factory';
-import { ActiveStatus } from '../../../src/schemas/user.enums';
 
 describe('Notifications index (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +19,6 @@ describe('Notifications index (e2e)', () => {
   let usersService: UsersService;
   let configService: ConfigService;
   let activeUser: User;
-  let activeUserUnhashedPassword: string;
   let activeUserAuthToken: string;
 
   beforeAll(async () => {
@@ -44,12 +42,8 @@ describe('Notifications index (e2e)', () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
 
-    activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(
-      userFactory.build(
-        { status: ActiveStatus.Active },
-        { transient: { unhashedPassword: activeUserUnhashedPassword } },
-      ),
+      userFactory.build(),
     );
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),

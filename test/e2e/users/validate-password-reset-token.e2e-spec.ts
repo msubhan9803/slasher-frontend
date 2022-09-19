@@ -36,10 +36,7 @@ describe('Users validate password reset token (e2e)', () => {
   describe('GET /users/validate-password-reset-token', () => {
     let user;
     beforeEach(async () => {
-      const userData = userFactory.build(
-        {},
-        { transient: { unhashedPassword: 'password' } },
-      );
+      const userData = userFactory.build();
       userData.resetPasswordToken = uuidv4();
       user = await usersService.create(userData);
     });

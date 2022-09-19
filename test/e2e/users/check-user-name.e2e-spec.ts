@@ -46,10 +46,7 @@ describe('Users / Check User Name (e2e)', () => {
 
       it('when username is valid, but does exists, it returns the expected response', async () => {
         const user = await usersService.create(
-          userFactory.build(
-            {},
-            { transient: { unhashedPassword: 'password' } },
-          ),
+          userFactory.build(),
         );
 
         const response = await request(app.getHttpServer())

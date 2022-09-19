@@ -23,7 +23,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.0.0",
-    "@nestjs/mongoose": "^9.0.3",
+    "@nestjs/mongoose": "^9.2.0",
     "@nestjs/platform-express": "^8.0.0",
     "@types/nodemailer": "^6.4.6",
     "bcryptjs": "^2.4.3",

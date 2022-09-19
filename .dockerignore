@@ -9,7 +9,7 @@
 # build so they're guaranteed to be compatible with the container environment.
 node_modules
 
-# Various other files that don't need to be in the container image
+# Various other files and directories that don't need to be in the container image
 bitbucket-pipelines.yml
 *.Dockerfile
 .vscode

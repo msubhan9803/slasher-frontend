@@ -1,4 +1,7 @@
 {
+  "search.exclude": {
+    "dist/": true
+  },
   "yaml.schemas": {
     "https://raw.githubusercontent.com/awslabs/goformation/master/schema/cloudformation.schema.json": [
       "file:///Users/eric/Projects/Slasher/slasher-web-new/deploy/cloudformation/service/service-elb.yml",

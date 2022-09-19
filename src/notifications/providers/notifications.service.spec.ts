@@ -45,10 +45,10 @@ describe('NotificationsService', () => {
     let user2: UserDocument;
     beforeEach(async () => {
       user1 = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
       user2 = await usersService.create(
-        userFactory.build({}, { transient: { unhashedPassword: 'password' } }),
+        userFactory.build(),
       );
       // Create some sample notifications
       for (let i = 0; i < 10; i += 1) {

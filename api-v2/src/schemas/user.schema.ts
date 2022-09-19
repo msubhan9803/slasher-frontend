@@ -152,19 +152,11 @@ export class User extends UserUnusedFields {
       return;
     }
 
-    function sortByDate(a, b) {
-      if (a.login_date < b.login_date) {
-        return 1;
-      }
-      if (a.login_date > b.login_date) {
-        return -1;
-      }
-      return 0;
+    this.userDevices.sort((a, b) => a.login_date.getTime() - b.login_date.getTime()); // sort devices by ascending login_date
+    if (this.userDevices.length >= 10) {
+      this.userDevices.shift(); // remove earliest login_date item
     }
-    if (this.userDevices.length === 10) {
-      const sorted = this.userDevices.sort(sortByDate);
-      sorted.pop();
-    }
+
     // If not, add a new entry.
     this.userDevices.push(deviceEntry);
   }

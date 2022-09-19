@@ -1,4 +1,4 @@
-# Slasher Web New (API V2 + Cron V2) (a NestJS app)
+# Slasher Web V2 (API + Cron) (a NestJS app)
 
 ## Node version notes
 

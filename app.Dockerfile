@@ -25,4 +25,6 @@ COPY --from=builder /source/package*.json ./
 COPY --from=builder /source/node_modules/ ./node_modules/
 COPY --from=builder /source/dist ./dist/
 
-CMD [ "node", "dist/main" ]
+# The line below runs the build in dist, and also makes the process.env.npm_package_version
+# available.  If we just ran `node dist/main`, then the npm_package_version wouldn't be available.
+CMD [ "npm", "run", "start:prod" ]

@@ -9,14 +9,9 @@ volumes:
   mongo-data:
 services:
   mongo:
-    build: ../docker/mongo
-    restart: always
+    build: ./docker/mongo
+    restart: on-failure
     volumes:
       - mongo-data:/data/db
     ports:
       - '27017:27017'
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
-      # As a convenience, set an environment variable in the container with the connection URL
-      - MONGODB_ROOT_CONNECTION_URL='mongodb://root:rootpassword@localhost:27017/example?authSource=admin'

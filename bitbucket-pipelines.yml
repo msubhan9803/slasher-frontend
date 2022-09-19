@@ -20,8 +20,6 @@ definitions:
             --env MONGO_INITDB_ROOT_USERNAME=root --env MONGO_INITDB_ROOT_PASSWORD=rootpassword
             $(docker build -q ./docker/mongo)
             )
-          # Change to api-v2 directory
-          - cd api-v2
           # Install NPM dependencies
           - npm ci
           # Run linter

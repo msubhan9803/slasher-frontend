@@ -271,6 +271,7 @@ export class UsersController {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   @Get('initial-data')
   initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);

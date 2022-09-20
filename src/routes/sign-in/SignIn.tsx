@@ -99,7 +99,7 @@ function SignIn() {
                 {errorMessage && errorMessage.length > 0 && (
                   <ErrorMessageList errorMessages={errorMessage} />
                 )}
-                <RoundButton type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
+                <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

@@ -3,7 +3,7 @@ import { apiUrl } from './constants';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
-    `${apiUrl}/users/sign-in`,
+    'http://localhost:4444/users/sign-in',
     {
       emailOrUsername,
       password,

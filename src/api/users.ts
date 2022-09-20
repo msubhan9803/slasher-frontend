@@ -44,3 +44,11 @@ export async function register(
 export async function forgotPassword(email: string) {
   return axios.post(`${apiUrl}/users/forgot-password`, { email });
 }
+
+export async function checkUserName(userName: string) {
+  return axios.get(`${apiUrl}/users/check-user-name?userName=${userName}`);
+}
+
+export async function checkUserEmail(email: string) {
+  return axios.get(`${apiUrl}/users/check-email?email=${email}`);
+}

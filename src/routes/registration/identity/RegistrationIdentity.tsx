@@ -1,13 +1,15 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Alert,
   Form,
   Row,
 } from 'react-bootstrap';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
+import RoundButton from '../../../components/ui/RoundButton';
+import { checkUserEmail, checkUserName } from '../../../api/users';
 
 interface Props {
   activeStep: number;
@@ -16,11 +18,32 @@ interface Props {
 function RegistrationIdentity({ activeStep }: Props) {
   const dispatch = useAppDispatch();
   const identityInfo = useAppSelector((state) => state.registration);
+  const [data, setData] = useState<any>();
+  const [userErrorMessage, setUserErrorMessage] = useState<string[]>();
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string[]>();
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...identityInfo };
     (registerInfoTemp as any)[key] = value;
+    setData(registerInfoTemp);
     dispatch(setIdentityFields(registerInfoTemp));
+  };
+
+  const checkUserNameEmail = () => {
+    if (data && data.userName) {
+      checkUserName(data.userName)
+        .then(() => setUserErrorMessage([]))
+        .catch((error) => {
+          setUserErrorMessage(error.response.data.message);
+        });
+    }
+    if (data && data.email) {
+      checkUserEmail(data.email)
+        .then(() => setEmailErrorMessage([]))
+        .catch((error) => {
+          setEmailErrorMessage(error.response.data.message);
+        });
+    }
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -70,15 +93,24 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-
+          {((userErrorMessage && userErrorMessage.length)
+            || (emailErrorMessage && emailErrorMessage.length))
+            && (
+              <Alert variant="info" className="m-0">
+                <ul className="m-0">
+                  {userErrorMessage?.map((msg) => <li key={msg}>{msg}</li>)}
+                  {emailErrorMessage?.map((msg) => <li key={msg}>{msg}</li>)}
+                </ul>
+              </Alert>
+            )}
           <div className="col-md-4 my-5">
-            <RoundButtonLink
-              to="/registration/security"
+            <RoundButton
               variant="primary"
               className="w-100"
+              onClick={checkUserNameEmail}
             >
               Next step
-            </RoundButtonLink>
+            </RoundButton>
           </div>
           <div className="text-center fs-5">
             Already have an account?

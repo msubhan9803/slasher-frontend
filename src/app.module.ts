@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
     NotificationsModule,
     UsersModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

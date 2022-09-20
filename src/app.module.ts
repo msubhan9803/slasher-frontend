@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
+import { UploadsModule } from './global/uploads.module';
 
 @Module({
   imports: [
@@ -14,13 +15,14 @@ import { NotificationsModule } from './notifications/notifications.module';
       isGlobal: true,
     }),
     MongooseModule.forRootAsync({
+      inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         uri: config.get<string>('DB_CONNECTION_URL'),
         useNewUrlParser: true, // for MongoDB >= 3.1.0
         useUnifiedTopology: true, // for MongoDB >= 3.1.0
       }),
-      inject: [ConfigService],
     }),
+    UploadsModule,
     NotificationsModule,
     UsersModule,
   ],

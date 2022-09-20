@@ -45,22 +45,11 @@ function RegistrationTerms({ activeStep }: Props) {
           I agree to these terms
         </label>
       </div>
-      {/* <h2 className="my-4 border-bottom pb-2">I agree</h2> */}
       <p>
         By clicking Sign up, you agree that you are at least 17 years of age, and that you agree
         with our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      {/* <label htmlFor="term">
-        <input
-          id="term"
-          type="checkbox"
-          checked={checked}
-          onChange={() => setChecked(!checked)}
-          className="me-2"
-        />
-        I agree to these terms
-      </label> */}
       <div className="mt-2">
         {isAlert && <Alert variant="info">You must agree to the terms if you want to sign up.</Alert>}
       </div>

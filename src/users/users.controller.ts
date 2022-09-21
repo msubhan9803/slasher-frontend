@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
   Body,
   Controller,
@@ -9,6 +10,8 @@ import {
   Query,
   ValidationPipe,
   Req,
+  Param,
+  Patch,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +37,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { getUserFromRequest } from '../utils/request-utils';
 import { ActiveStatus } from '../schemas/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
+import { UpdateUserDto } from './dto/update-user-data.dto';
 
 @Controller('users')
 export class UsersController {
@@ -266,6 +270,19 @@ export class UsersController {
     }
     return {
       success: true,
+    };
+  }
+
+  @Patch(':id')
+  async update(@Req() request: Request, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const user = getUserFromRequest(request);
+    if (user.id !== id) {
+      throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
+    }
+    const userData = await this.usersService.findUserAndUpdate(id, updateUserDto);
+    return {
+      id: user.id,
+      ...pick(userData, Object.keys(updateUserDto)),
     };
   }
 }

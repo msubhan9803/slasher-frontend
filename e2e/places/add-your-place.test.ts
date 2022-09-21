@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 import { performSignIn } from '../e2e-test-helpers';
-import { testSignInRequirement } from '../shared-examples/sign-in';
+import { testSignInRequirement } from '../shared-tests/sign-in';
 
 const pagePath = '/places/add';
 

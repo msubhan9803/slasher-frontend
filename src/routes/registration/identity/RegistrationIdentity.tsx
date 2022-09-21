@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Form,
@@ -16,34 +16,33 @@ interface Props {
 }
 
 function RegistrationIdentity({ activeStep }: Props) {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const identityInfo = useAppSelector((state) => state.registration);
-  const [data, setData] = useState<any>();
-  const [userErrorMessage, setUserErrorMessage] = useState<string[]>();
-  const [emailErrorMessage, setEmailErrorMessage] = useState<string[]>();
+  const [userErrorMessageList, setUserErrorMessageList] = useState<string[]>();
+  const [emailErrorMessageList, setEmailErrorMessageList] = useState<string[]>();
+
+  useEffect(() => {
+    if (emailErrorMessageList?.length === 0 && userErrorMessageList?.length === 0) navigate('/registration/security');
+  }, [emailErrorMessageList, userErrorMessageList]);
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...identityInfo };
     (registerInfoTemp as any)[key] = value;
-    setData(registerInfoTemp);
     dispatch(setIdentityFields(registerInfoTemp));
   };
 
   const checkUserNameEmail = () => {
-    if (data && data.userName) {
-      checkUserName(data.userName)
-        .then(() => setUserErrorMessage([]))
-        .catch((error) => {
-          setUserErrorMessage(error.response.data.message);
-        });
-    }
-    if (data && data.email) {
-      checkUserEmail(data.email)
-        .then(() => setEmailErrorMessage([]))
-        .catch((error) => {
-          setEmailErrorMessage(error.response.data.message);
-        });
-    }
+    checkUserName(identityInfo.userName)
+      .then(() => setUserErrorMessageList([]))
+      .catch((error) => {
+        setUserErrorMessageList(error.response.data.message);
+      });
+    checkUserEmail(identityInfo.email)
+      .then(() => setEmailErrorMessageList([]))
+      .catch((error) => {
+        setEmailErrorMessageList(error.response.data.message);
+      });
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -93,13 +92,17 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-          {((userErrorMessage && userErrorMessage.length)
-            || (emailErrorMessage && emailErrorMessage.length))
+          {((userErrorMessageList && userErrorMessageList.length > 0)
+            || (emailErrorMessageList && emailErrorMessageList.length > 0))
             && (
               <Alert variant="info" className="m-0">
                 <ul className="m-0">
-                  {userErrorMessage?.map((msg) => <li key={msg}>{msg}</li>)}
-                  {emailErrorMessage?.map((msg) => <li key={msg}>{msg}</li>)}
+                  {userErrorMessageList?.map(
+                    (userErrorMessage) => (<li key={userErrorMessage}>{userErrorMessage}</li>),
+                  )}
+                  {emailErrorMessageList?.map(
+                    (emailErrorMessage) => (<li key={emailErrorMessage}>{emailErrorMessage}</li>),
+                  )}
                 </ul>
               </Alert>
             )}

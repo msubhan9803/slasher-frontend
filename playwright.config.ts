@@ -2,6 +2,7 @@ import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
 const port = 4444;
+require('dotenv').config({ path: '.env.test' });
 
 /**
  * Read environment variables from file.

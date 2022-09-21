@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
+import { LocalStorageModule } from './local-storage/local-storage.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UploadsModule } from './global/uploads.module';
     UploadsModule,
     NotificationsModule,
     UsersModule,
+    LocalStorageModule,
   ],
   controllers: [AppController],
   providers: [

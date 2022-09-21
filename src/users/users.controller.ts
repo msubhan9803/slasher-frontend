@@ -280,10 +280,23 @@ export class UsersController {
   @Post('upload-profile-image')
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfileImage(@Req() request: Request, @UploadedFile() file: Express.Multer.File) {
-    const user = getUserFromRequest(request);
-    const storageLocation = `/profile/profile_${file.filename}`;
+    if (!file) {
+      throw new HttpException('Please select the file', HttpStatus.BAD_REQUEST);
+    }
 
-    this.localStorageService.write(storageLocation, file);
+    if (file.mimetype !== 'image/jpeg' && file.mimetype !== 'image/png') {
+      throw new HttpException('Please select the jpg, jpeg or png', HttpStatus.BAD_REQUEST);
+    }
+
+    if (file.size > 2e+7) {
+      throw new HttpException('File size should not larger than 20MB', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = getUserFromRequest(request);
+    const storageLocation = '/profile/';
+    const fileName = `profile_${file.filename}`;
+
+    this.localStorageService.write(storageLocation, fileName, file);
 
     user.profilePic = storageLocation;
     user.save();

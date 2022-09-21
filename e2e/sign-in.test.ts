@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import Cookies from 'js-cookie';
 import { performSignIn } from './e2e-test-helpers';
 
 const pagePath = '/sign-in';

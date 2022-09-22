@@ -8,6 +8,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user.schema';
+import { createTempFile } from '../../helpers/tempfile-helpers';
 
 describe('Users / Upload Profile image (e2e)', () => {
   let app: INestApplication;
@@ -46,49 +47,48 @@ describe('Users / Upload Profile image (e2e)', () => {
       );
     });
     it('responds with true if file upload successful', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/users/upload-profile-image')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .attach('file', './uploads/BlackMarble_2016_928m_asia_east_labeled.png')
-        .expect(HttpStatus.CREATED);
-
-      expect(response.body).toEqual({
-        success: true,
-      });
+      await createTempFile(async (tempPath) => {
+        const response = await request(app.getHttpServer())
+          .post('/users/upload-profile-image')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('file', tempPath)
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
+      }, { extension: 'png' });
     });
 
-    it('responds expected response when file is empty', async () => {
+    it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
         .post('/users/upload-profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .attach('file', null)
         .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toContain('Please select the file');
     });
 
     it('responds expected response when file is not jpg, jpeg or png', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/users/upload-profile-image')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .attach('file', './uploads/14565c4a-fdd0-4797-8e93-efcae9962581.zip')
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(response.body.message).toContain('Please select the jpg, jpeg or png');
+      await createTempFile(async (tempPath) => {
+        const response = await request(app.getHttpServer())
+          .post('/users/upload-profile-image')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('file', tempPath)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Please select the jpg, jpeg or png');
+      }, { extension: 'zip' });
     });
 
     it('responds expected response if file size should not larger than 20MB', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/users/upload-profile-image')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .attach('file', './uploads/a8c933ab-ddba-4535-a23f-c8527f0251fe.png')
-        .expect(HttpStatus.BAD_REQUEST);
-
-      expect(response.body.message).toContain('File size should not larger than 20MB');
+      await createTempFile(async (tempPath) => {
+        const response = await request(app.getHttpServer())
+          .post('/users/upload-profile-image')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('file', tempPath)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('File size should not larger than 20MB');
+      }, { extension: 'jpg', size: 1024 * 1024 * 21 });
     });
   });
 });

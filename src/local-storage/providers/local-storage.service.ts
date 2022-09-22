@@ -20,7 +20,7 @@ export class LocalStorageService {
     if (!existsSync(extraStoragePath)) {
       mkdirSync(extraStoragePath, { recursive: true });
     }
-    copyFileSync(`./${file.path}`, `${extraStoragePath}${fileName}`, constants.COPYFILE_EXCL);
+    copyFileSync(`${file.path}`, `${extraStoragePath}${fileName}`, constants.COPYFILE_EXCL);
   }
 
   /**

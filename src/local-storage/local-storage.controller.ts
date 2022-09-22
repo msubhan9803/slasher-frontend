@@ -1,23 +1,23 @@
 import {
-  Controller, Get, HttpException, HttpStatus, Query, Res, ValidationPipe,
+  Controller, Get, HttpException, HttpStatus, Param, Res, ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { LocationQueryDto } from './dto/location-query.dto';
+import { LocationParamDto } from './dto/location-param.dto';
 import { LocalStorageService } from './providers/local-storage.service';
 
 @Controller('local-storage')
 export class LocalStorageController {
   constructor(private readonly localStorageService: LocalStorageService) { }
 
-  @Get()
+  @Get(':location(*)')
   async getFile(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: LocationQueryDto,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: LocationParamDto,
     @Res() res: Response,
   ) {
-    const filePath = await this.localStorageService.getLocalFilePath(query.location);
+    const filePath = await this.localStorageService.getLocalFilePath(`/${param.location}`);
 
     if (!filePath) throw new HttpException('File not found', HttpStatus.NOT_FOUND);
 

@@ -54,7 +54,6 @@ describe('Local-Storage / Get File (e2e)', () => {
       const fileExtension = 'jpg';
       const storedFileName = `${uuidv4()}.${fileExtension}`;
       await createTempFile(async (tempPath) => {
-
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
         const storagePath = 'profile_test/';
         const fileName = `profile_test_${storedFileName}`;
@@ -65,7 +64,6 @@ describe('Local-Storage / Get File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK);
-          
       }, { extension: 'png' });
     });
 
@@ -77,8 +75,8 @@ describe('Local-Storage / Get File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.NOT_FOUND);
-      
-      expect(response.body.message).toContain('File not found')
+
+      expect(response.body.message).toContain('File not found');
     });
   });
 });

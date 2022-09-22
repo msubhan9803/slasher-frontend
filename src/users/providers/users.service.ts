@@ -93,10 +93,9 @@ export class UsersService {
       .exec();
   }
 
-  async findUserAndUpdate(id: string, updateUserDto: Partial<UserDocument>): Promise<UserDocument> {
+  async update(id: string, updateUserDto: Partial<UserDocument>): Promise<UserDocument> {
     return this.userModel
       .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })
-      .collation({ locale: 'en', strength: 2 })
       .exec();
   }
 }

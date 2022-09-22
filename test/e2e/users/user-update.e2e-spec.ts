@@ -18,7 +18,7 @@ describe('Users / :id (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
 
-  const sampleUserRegisterObject = {
+  const sampleUserUpdateObject = {
     firstName: 'user',
     userName: 'TestUser',
     email: 'testuser@gmail.com',
@@ -53,30 +53,19 @@ describe('Users / :id (e2e)', () => {
   describe('PATCH /users/:id', () => {
     let postBody: UpdateUserDto;
     beforeEach(() => {
-      postBody = { ...sampleUserRegisterObject };
+      postBody = { ...sampleUserUpdateObject };
     });
 
     describe('Successful update', () => {
-      it('when id is different than token id, it returns the expected response', async () => {
-        const userId = '632b3b1e977e7f453003bf61';
-        const response = await request(app.getHttpServer())
-          .patch(`/users/${userId}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(postBody);
-
-        expect(response.status).toBe(HttpStatus.FORBIDDEN);
-        expect(response.body.message).toContain('You are not allowed to do this action');
-      });
-
       it('update the data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
+        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body.firstName).toEqual(postBody.firstName);
-        expect(response.body.userName).toEqual(postBody.userName);
-        expect(response.body.email).toEqual(postBody.email);
+        expect(response.body).toMatchObject(postBody);
+        expect(userDetails).toMatchObject(postBody);
       });
 
       it('update the firstName and userName successful, it returns the expected response', async () => {
@@ -85,9 +74,11 @@ describe('Users / :id (e2e)', () => {
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
+        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body.firstName).toEqual(restPostBody.firstName);
-        expect(response.body.userName).toEqual(restPostBody.userName);
+        expect(response.body.email).toBeUndefined();
+        expect(userDetails).toMatchObject(restPostBody);
+        expect(userDetails.email).toEqual(activeUser.email);
       });
 
       it('update the userName successful, it returns the expected response', async () => {
@@ -96,12 +87,28 @@ describe('Users / :id (e2e)', () => {
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
+        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body.userName).toEqual(postBody.userName);
+        expect(response.body.firstName).toBeUndefined();
+        expect(response.body.email).toBeUndefined();
+
+        expect(userDetails.userName).toEqual(postBody.userName);
+        expect(userDetails.email).toEqual(activeUser.email);
+        expect(userDetails.firstName).toEqual(activeUser.firstName);
       });
     });
 
     describe('Validation', () => {
+      it('when id is different than token id, it returns the expected response', async () => {
+        const userId = '632b3b1e977e7f453003bf61';
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${userId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body.message).toContain('You are not allowed to do this action');
+      });
+
       it('userName is minimum 3 characters long', async () => {
         postBody.userName = 'Te';
         const response = await request(app.getHttpServer())
@@ -148,6 +155,32 @@ describe('Users / :id (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email must be an email');
+      });
+    });
+
+    describe('Existing username or email check', () => {
+      it('returns an error when userName already exists', async () => {
+        postBody.userName = activeUser.userName;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is already associated with an existing user.',
+        );
+      });
+
+      it('returns an error when email already exists', async () => {
+        postBody.email = activeUser.email;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Email address is already associated with an existing user.',
+        );
       });
     });
   });

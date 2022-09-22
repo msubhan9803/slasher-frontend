@@ -273,9 +273,11 @@ describe('UsersService', () => {
         firstName: 'Test1 User',
         userName: 'test1_user',
       };
-      const updatedUserData = await usersService.findUserAndUpdate(user._id, userData);
-      expect(updatedUserData.firstName).toEqual(userData.firstName);
-      expect(updatedUserData.userName).toEqual(userData.userName);
+      const updatedUserData = await usersService.update(user._id, userData);
+      const userDetails = await usersService.findById(updatedUserData._id);
+      expect(userDetails.firstName).toEqual(userData.firstName);
+      expect(userDetails.userName).toEqual(userData.userName);
+      expect(userDetails.email).toEqual(user.email);
     });
   });
 });

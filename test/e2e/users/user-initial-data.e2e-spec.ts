@@ -51,8 +51,45 @@ describe('Users suggested friends (e2e)', () => {
           .get('/users/initial-data')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toEqual(HttpStatus.OK);
-          expect(activeUser.userName).toEqual(response.body.userName);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          userName: activeUser.userName,
+          notificationCount: 6,
+          recentMessages: [
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=47',
+              userName: 'MaureenBiologist',
+              shortMessage: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse interdum, tortor vel consectetur blandit,'
+                + 'justo diam elementum massa, id tincidunt risus turpis non nisi. Integer eu lorem risus.',
+            },
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=56',
+              userName: 'TeriDactyl',
+              shortMessage: 'Maecenas ornare sodales mi, sit amet pretium eros scelerisque quis.'
+                + 'Nunc blandit mi elit, nec varius erat hendrerit ac. Nulla congue sollicitudin eleifend.',
+            },
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=26',
+              userName: 'BobRoss',
+              shortMessage: 'Aenean luctus ac magna lobortis varius. Ut laoreet arcu ac commodo molestie. Nulla facilisi.'
+                + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
+            },
+          ],
+          friendRequests: [
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=12',
+              userName: 'JackSkellington',
+            },
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=19',
+              userName: 'Sally',
+            },
+            {
+              profilePic: 'https://i.pravatar.cc/300?img=17',
+              userName: 'OogieBoogie',
+            },
+          ],
+        });
       });
     });
   });

@@ -69,5 +69,16 @@ describe('LocalStorageService', () => {
 
       expect(filePath).toBeUndefined();
     });
+
+    it('rejects invalid paths', async () => {
+      // reject location that is outside of the local storage directory
+      expect(() => { localStorageService.getLocalFilePath('/../../../something.txt'); }).toThrow('Invalid path');
+
+      // reject location that is inside the local storage directory but contains '/../';
+      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow('Invalid path');
+
+      // reject location that does not start with slash
+      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow('Invalid path');
+    });
   });
 });

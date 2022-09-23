@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   constants, copyFileSync, existsSync, mkdirSync,
 } from 'fs';
+import { resolve } from 'path';
 
 @Injectable()
 export class LocalStorageService {
@@ -29,6 +30,16 @@ export class LocalStorageService {
    */
   getLocalFilePath(location: string): string {
     const localStoragePath = this.config.get<string>('LOCAL_STORAGE_DIR');
+
+    // Ensure that requested location is not outside of localStoragePath (via use of '..')
+    if (
+      !location.startsWith('/')
+      || location.includes('/../')
+      || !resolve(`${localStoragePath}${location}`).toString().startsWith(resolve(localStoragePath).toString())
+    ) {
+      throw Error('Invalid path');
+    }
+
     if (existsSync(`${localStoragePath}${location}`)) {
       //file exists
       return `${localStoragePath}${location}`;

@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { response } from 'express';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -22,6 +23,7 @@ describe('Users / :id (e2e)', () => {
     firstName: 'user',
     userName: 'TestUser',
     email: 'testuser@gmail.com',
+    aboutMe: 'I am a human being',
   };
 
   beforeAll(async () => {
@@ -68,18 +70,19 @@ describe('Users / :id (e2e)', () => {
         expect(userDetails).toMatchObject(postBody);
       });
 
-      it('update the firstName and userName successful, it returns the expected response', async () => {
-        const { email, ...restPostBody } = postBody;
-        const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(restPostBody);
-        const userDetails = await usersService.findById(response.body.id);
-        expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body.email).toBeUndefined();
-        expect(userDetails).toMatchObject(restPostBody);
-        expect(userDetails.email).toEqual(activeUser.email);
-      });
+      it('when the email field is not provided, updated to other fields are still successful '
+        + 'and it returns the expected response', async () => {
+          const { email, ...restPostBody } = postBody;
+          const response = await request(app.getHttpServer())
+            .patch(`/users/${activeUser._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send(restPostBody);
+          const userDetails = await usersService.findById(response.body.id);
+          expect(response.status).toEqual(HttpStatus.OK);
+          expect(response.body.email).toBeUndefined();
+          expect(userDetails).toMatchObject(restPostBody);
+          expect(userDetails.email).toEqual(activeUser.email);
+        });
 
       it('update the userName successful, it returns the expected response', async () => {
         const { firstName, email, ...restPostBody } = postBody;
@@ -207,6 +210,18 @@ describe('Users / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
+      });
+
+      it('aboutMe is not longer than 1000 characters', async () => {
+        postBody.aboutMe = new Array(1002).join('z');
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'About Me cannot be longer than 1000 characters',
+        );
       });
     });
   });

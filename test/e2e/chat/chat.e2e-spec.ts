@@ -29,10 +29,10 @@ describe('Chat (e2e)', () => {
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', chatBody, (data) => {
           expect(data).toBe(`chat message from ${chatBody.senderId} to ${chatBody.receiverId}: ${chatBody.message}`);
-          client.close();
           resolve();
         });
       });
+      client.close();
     });
   });
 });

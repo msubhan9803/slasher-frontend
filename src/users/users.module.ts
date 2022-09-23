@@ -6,6 +6,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
 import { MailService } from '../providers/mail.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
     NotificationsModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, MailService, LocalStorageService],
+  providers: [UsersService, MailService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })
 export class UsersModule { }

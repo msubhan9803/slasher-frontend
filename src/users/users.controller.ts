@@ -44,6 +44,7 @@ import { ActiveStatus } from '../schemas/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 
 @Controller('users')
 export class UsersController {
@@ -52,6 +53,7 @@ export class UsersController {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
+    private readonly s3StorageService: S3StorageService,
   ) { }
 
   @Post('sign-in')
@@ -372,7 +374,11 @@ export class UsersController {
     const storageLocation = '/profile/';
     const fileName = `profile_${file.filename}`;
 
-    this.localStorageService.write(storageLocation, fileName, file);
+    if (this.config.get<string>('FILE_STORAGE') === 's3') {
+      this.s3StorageService.write(storageLocation, fileName, file);
+    } else {
+      this.localStorageService.write(storageLocation, fileName, file);
+    }
 
     user.profilePic = storageLocation;
     user.save();

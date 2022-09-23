@@ -14,6 +14,7 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -355,19 +356,22 @@ export class UsersController {
 
   @Post('upload-profile-image')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadProfileImage(@Req() request: Request, @UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new HttpException('Please select the file', HttpStatus.BAD_REQUEST);
-    }
-
-    if (file.mimetype !== 'image/jpeg' && file.mimetype !== 'image/png') {
-      throw new HttpException('Please select the jpg, jpeg or png', HttpStatus.BAD_REQUEST);
-    }
-
-    if (file.size > 2e+7) {
-      throw new HttpException('File size should not larger than 20MB', HttpStatus.BAD_REQUEST);
-    }
-
+  async uploadProfileImage(
+    @Req() request: Request,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+      .addFileTypeValidator({
+        fileType: /(jpg|jpeg|png)$/,
+      })
+      .addMaxSizeValidator({
+        maxSize: 2e+7,
+      })
+      .build({
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
+    )
+    file: Express.Multer.File
+  ) {
     const user = getUserFromRequest(request);
     const storageLocation = '/profile/';
     const fileName = `profile_${file.filename}`;

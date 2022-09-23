@@ -92,4 +92,10 @@ export class UsersService {
       .limit(limit)
       .exec();
   }
+
+  async update(id: string, updateUserDto: Partial<UserDocument>): Promise<UserDocument> {
+    return this.userModel
+      .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })
+      .exec();
+  }
 }

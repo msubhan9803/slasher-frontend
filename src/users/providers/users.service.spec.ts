@@ -260,4 +260,24 @@ describe('UsersService', () => {
       expect(suggestedFriends).toHaveLength(5);
     });
   });
+
+  describe('#update', () => {
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+    it('finds the expected user and update the details', async () => {
+      const userData = {
+        firstName: 'Test1 User',
+        userName: 'test1_user',
+      };
+      const updatedUser = await usersService.update(user._id, userData);
+      const reloadedUser = await usersService.findById(updatedUser._id);
+      expect(reloadedUser.firstName).toEqual(userData.firstName);
+      expect(reloadedUser.userName).toEqual(userData.userName);
+      expect(reloadedUser.email).toEqual(user.email);
+    });
+  });
 });

@@ -10,6 +10,8 @@ import {
   Query,
   ValidationPipe,
   Req,
+  Param,
+  Patch,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -40,6 +42,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { getUserFromRequest } from '../utils/request-utils';
 import { ActiveStatus } from '../schemas/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
+import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 
 @Controller('users')
@@ -318,6 +321,34 @@ export class UsersController {
           userName: 'OogieBoogie',
         },
       ],
+    };
+  }
+
+  @Patch(':id')
+  async update(@Req() request: Request, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const user = getUserFromRequest(request);
+    if (user.id !== id) {
+      throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
+    }
+
+    if (updateUserDto.userName !== user.userName && await this.usersService.userNameExists(updateUserDto.userName)) {
+      throw new HttpException(
+        'Username is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    if (updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
+      throw new HttpException(
+        'Email address is already associated with an existing user.',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    const userData = await this.usersService.update(id, updateUserDto);
+    return {
+      id: user.id,
+      ...pick(userData, Object.keys(updateUserDto)),
     };
   }
 

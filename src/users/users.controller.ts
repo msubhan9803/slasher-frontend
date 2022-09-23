@@ -367,10 +367,10 @@ export class UsersController {
         maxSize: 2e+7,
       })
       .build({
-        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      })
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      }),
     )
-    file: Express.Multer.File
+    file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
     const storageLocation = '/profile/';

@@ -5,7 +5,7 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { User, UserDocument } from '../../../src/schemas/user.schema';
+import { UserDocument } from '../../../src/schemas/user.schema';
 import { UserSignInDto } from '../../../src/users/dto/user-sign-in.dto';
 import { userFactory } from '../../factories/user.factory';
 import { ActiveStatus } from '../../../src/schemas/user.enums';

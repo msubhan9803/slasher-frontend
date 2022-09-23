@@ -159,8 +159,16 @@ describe('Users / :id (e2e)', () => {
     });
 
     describe('Existing username or email check', () => {
-      it('returns an error when userName already exists', async () => {
-        postBody.userName = activeUser.userName;
+      let otherUser: User;
+      const otherUserUsername = 'DifferentUserl';
+      const otherUserEmail = 'different@exampe.com';
+
+      beforeEach(async () => {
+        otherUser = await usersService.create(userFactory.build({ userName: otherUserUsername, email: otherUserEmail }));
+      });
+
+      it('returns an error when supplied userName is different from current and already exists', async () => {
+        postBody.userName = otherUser.userName;
         const response = await request(app.getHttpServer())
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -171,8 +179,17 @@ describe('Users / :id (e2e)', () => {
         );
       });
 
-      it('returns an error when email already exists', async () => {
-        postBody.email = activeUser.email;
+      it("does not return an error when supplied userName is same as user's current userName", async () => {
+        postBody.userName = activeUser.userName;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+      });
+
+      it('returns an error when supplied email is different from current and already exists', async () => {
+        postBody.email = otherUser.email;
         const response = await request(app.getHttpServer())
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -181,6 +198,15 @@ describe('Users / :id (e2e)', () => {
         expect(response.body.message).toContain(
           'Email address is already associated with an existing user.',
         );
+      });
+
+      it("does not return an error when supplied email is same as user's current email", async () => {
+        postBody.email = activeUser.email;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
       });
     });
   });

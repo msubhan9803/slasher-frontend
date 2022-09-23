@@ -261,7 +261,7 @@ describe('UsersService', () => {
     });
   });
 
-  describe('#findUserAndUpdate', () => {
+  describe('#update', () => {
     let user;
     beforeEach(async () => {
       user = await usersService.create(
@@ -273,11 +273,11 @@ describe('UsersService', () => {
         firstName: 'Test1 User',
         userName: 'test1_user',
       };
-      const updatedUserData = await usersService.update(user._id, userData);
-      const userDetails = await usersService.findById(updatedUserData._id);
-      expect(userDetails.firstName).toEqual(userData.firstName);
-      expect(userDetails.userName).toEqual(userData.userName);
-      expect(userDetails.email).toEqual(user.email);
+      const updatedUser = await usersService.update(user._id, userData);
+      const reloadedUser = await usersService.findById(updatedUser._id);
+      expect(reloadedUser.firstName).toEqual(userData.firstName);
+      expect(reloadedUser.userName).toEqual(userData.userName);
+      expect(reloadedUser.email).toEqual(user.email);
     });
   });
 });

@@ -5,6 +5,8 @@
     "test",
     "dist",
     "**/*spec.ts",
-    "scripts"
+    "scripts",
+    "uploads",
+    "local-storage"
   ]
 }

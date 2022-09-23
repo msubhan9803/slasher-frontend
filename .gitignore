@@ -44,4 +44,12 @@ lerna-debug.log*
 
 # Local scripts
 /scripts/local/*
-!scripts/local/.keep
+!/scripts/local/.keep
+
+# Uploads dir
+/uploads/*
+!/uploads/.keep
+
+# Local storage dir
+/local-storage/*
+!/local-storage/.keep

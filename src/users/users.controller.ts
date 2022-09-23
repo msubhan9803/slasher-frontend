@@ -10,11 +10,15 @@ import {
   Query,
   ValidationPipe,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
 import {
   Device,
   User,
@@ -36,6 +40,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { getUserFromRequest } from '../utils/request-utils';
 import { ActiveStatus } from '../schemas/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
+import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 
 @Controller('users')
 export class UsersController {
@@ -43,6 +48,7 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
+    private readonly localStorageService: LocalStorageService,
   ) { }
 
   @Post('sign-in')
@@ -313,5 +319,34 @@ export class UsersController {
         },
       ],
     };
+  }
+
+  @Post('upload-profile-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfileImage(@Req() request: Request, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new HttpException('Please select the file', HttpStatus.BAD_REQUEST);
+    }
+
+    if (file.mimetype !== 'image/jpeg' && file.mimetype !== 'image/png') {
+      throw new HttpException('Please select the jpg, jpeg or png', HttpStatus.BAD_REQUEST);
+    }
+
+    if (file.size > 2e+7) {
+      throw new HttpException('File size should not larger than 20MB', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = getUserFromRequest(request);
+    const storageLocation = '/profile/';
+    const fileName = `profile_${file.filename}`;
+
+    this.localStorageService.write(storageLocation, fileName, file);
+
+    user.profilePic = storageLocation;
+    user.save();
+
+    // Delete original upload
+    await fs.unlinkSync(file.path);
+    return { success: true };
   }
 }

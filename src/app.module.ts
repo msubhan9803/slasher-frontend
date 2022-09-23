@@ -8,6 +8,7 @@ import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LocalStorageModule } from './local-storage/local-storage.module';
     NotificationsModule,
     UsersModule,
     LocalStorageModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

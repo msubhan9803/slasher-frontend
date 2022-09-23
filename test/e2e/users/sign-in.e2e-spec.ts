@@ -5,7 +5,7 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { User } from '../../../src/schemas/user.schema';
+import { User, UserDocument } from '../../../src/schemas/user.schema';
 import { UserSignInDto } from '../../../src/users/dto/user-sign-in.dto';
 import { userFactory } from '../../factories/user.factory';
 import { ActiveStatus } from '../../../src/schemas/user.enums';
@@ -14,7 +14,7 @@ describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let activeUserUnhashedPassword: string;
   const simpleJwtRegex = /^[\w-]*\.[\w-]*\.[\w-]*$/;
   const deviceAndAppVersionPlaceholderSignInFields = {
@@ -75,6 +75,8 @@ describe('Users sign-in (e2e)', () => {
           expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
           expect(response.body.email).toEqual(activeUser.email);
           expect(response.body.token).toMatch(simpleJwtRegex);
+          expect(response.body.id).toMatch(activeUser.id);
+          expect(response.body.userName).toMatch(activeUser.userName);
         }
       });
     });

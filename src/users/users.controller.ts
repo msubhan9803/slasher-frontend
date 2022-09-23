@@ -124,6 +124,7 @@ export class UsersController {
     return {
 
       ...pick(user, [
+        'id',
         'userName',
         'email',
         'firstName',

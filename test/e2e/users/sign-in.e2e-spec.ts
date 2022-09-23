@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user.schema';
@@ -343,6 +345,115 @@ describe('Users sign-in (e2e)', () => {
         expect(response.body.message).toContain(
           'Incorrect username or password.',
         );
+      });
+    });
+
+    describe('after successful sign-in', () => {
+      it('after a successful sign-in,'
+        + 'the user database values for user.last_login and user.userDevices should have been updated', async () => {
+          const userUnhashedPassword = 'TestPassword';
+          const userBefore = await usersService.findByEmail(
+            activeUser.email,
+          );
+          const postBody: any = {
+            emailOrUsername: activeUser.userName,
+            password: userUnhashedPassword,
+            ...deviceAndAppVersionPlaceholderSignInFields,
+          };
+          const response = await request(app.getHttpServer())
+            .post('/users/sign-in')
+            .send(postBody);
+          expect(response.status).toEqual(HttpStatus.CREATED);
+
+          const userAfter = await usersService.findByEmail(
+            response.body.email,
+          );
+
+          expect(userAfter.last_login).not.toBeNull();
+          expect(userAfter.last_login).not.toEqual(userBefore.last_login);
+          expect(userAfter.userDevices).toHaveLength(1);
+          expect(userAfter.userDevices).not.toEqual(userBefore.userDevices);
+        });
+    });
+
+    describe('check user device length', () => {
+      let user;
+      const userUnhashedPassword = 'password';
+      beforeEach(async () => {
+        const userDevices = [];
+        for (let i = 1; i <= 10; i += 1) {
+          const weekAgo = DateTime.now().minus({ days: i }).toISODate();
+          userDevices.push(
+            {
+              ...deviceAndAppVersionPlaceholderSignInFields,
+              device_id: `${i}`,
+              login_date: weekAgo,
+            },
+          );
+        }
+        const userData = userFactory.build(
+          {},
+          { transient: { unhashedPassword: userUnhashedPassword } },
+        );
+        userData.userDevices = userDevices;
+        user = await usersService.create(userData);
+      });
+      it('return devices that are available userDevices', async () => {
+        const postBody: any = {
+          emailOrUsername: user.userName,
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.CREATED);
+        const userAfter = await usersService.findByEmail(
+          response.body.email,
+        );
+        expect(userAfter.userDevices).toHaveLength(10);
+        expect(user.userDevices).not.toEqual(userAfter.userDevices);
+      });
+    });
+
+    describe('when device is exists than change in same device', () => {
+      let user;
+      const userUnhashedPassword = 'password';
+      beforeEach(async () => {
+        const userDevices = [];
+        for (let i = 1; i <= 5; i += 1) {
+          const weekAgo = DateTime.now().minus({ days: i }).toISODate();
+          userDevices.push(
+            {
+              ...deviceAndAppVersionPlaceholderSignInFields,
+              device_id: `${i}`,
+              login_date: weekAgo,
+            },
+          );
+        }
+        const userData = userFactory.build(
+          {},
+          { transient: { unhashedPassword: userUnhashedPassword } },
+        );
+        userData.userDevices = userDevices;
+        user = await usersService.create(userData);
+      });
+      it('returns the expected userDevices', async () => {
+        const postBody: any = {
+          emailOrUsername: user.userName,
+          password: userUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+          device_id: '4',
+        };
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.CREATED);
+        const userAfter = await usersService.findByEmail(
+          response.body.email,
+        );
+        expect(userAfter.userDevices).toHaveLength(5);
+        expect(user.userDevices).not.toEqual(userAfter.userDevices);
       });
     });
   });

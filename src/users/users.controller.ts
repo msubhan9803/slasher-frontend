@@ -371,13 +371,12 @@ export class UsersController {
     }
 
     const user = getUserFromRequest(request);
-    const storageLocation = '/profile/';
-    const fileName = `profile_${file.filename}`;
+    const storageLocation = `/profile/profile_${file.filename}`;
 
     if (this.config.get<string>('FILE_STORAGE') === 's3') {
-      await this.s3StorageService.write(storageLocation, fileName, file);
+      await this.s3StorageService.write(storageLocation, file);
     } else {
-      this.localStorageService.write(storageLocation, fileName, file);
+      this.localStorageService.write(storageLocation, file);
     }
 
     user.profilePic = storageLocation;

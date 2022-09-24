@@ -20,14 +20,14 @@ export class S3StorageService {
    * @param fileName
    * @param file
    */
-  async write(location: string, fileName: string, file: Express.Multer.File): Promise<void> {
+  async write(location: string, file: Express.Multer.File): Promise<void> {
     if (!existsSync(file.path)) { throw Error(`Uploaded file not found at upload path: ${file.path}`); }
     const readStream = createReadStream(file.path);
     await this.s3PutObject({
       Bucket: this.s3Bucket,
-      Key: `${location.replace(/^\//, '')}${fileName}`,
+      Key: `${location.replace(/^\//, '')}`,
       Body: readStream,
-      ContentType: fileNameToMimeType(fileName),
+      ContentType: fileNameToMimeType(location),
     });
     await new Promise((resolve) => {
       readStream.close(() => resolve(undefined));

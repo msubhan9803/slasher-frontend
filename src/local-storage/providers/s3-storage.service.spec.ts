@@ -38,9 +38,8 @@ describe('S3StorageService', () => {
       jest.spyOn(s3StorageService, 's3PutObject').mockImplementation(() => Promise.resolve(undefined));
       await createTempFile(async (tempPath) => {
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
-        const storagePath = '/profile_test/';
-        const fileName = `profile_test_${storedFileName}`;
-        await s3StorageService.write(storagePath, fileName, file);
+        const location = `/profile_test/profile_test_${storedFileName}`;
+        await s3StorageService.write(location, file);
         expect(s3StorageService.s3PutObject).toHaveBeenCalledWith({
           Bucket: configService.get<string>('S3_BUCKET'),
           Key: `profile_test/profile_test_${storedFileName}`,
@@ -52,9 +51,8 @@ describe('S3StorageService', () => {
 
     it("throws an exception when the passed-in file can't be found on the filesystem", async () => {
       const file: Express.Multer.File = { path: '/no/file/exists/here' } as Express.Multer.File;
-      const storagePath = '/test/';
-      const fileName = `${uuidv4()}.jpg`;
-      await expect(s3StorageService.write(storagePath, fileName, file))
+      const location = `/test/${uuidv4()}.jpg`;
+      await expect(s3StorageService.write(location, file))
         .rejects
         .toThrow('Uploaded file not found at upload path: /no/file/exists/here');
     });

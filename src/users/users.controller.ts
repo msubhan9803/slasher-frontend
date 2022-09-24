@@ -375,7 +375,7 @@ export class UsersController {
     const fileName = `profile_${file.filename}`;
 
     if (this.config.get<string>('FILE_STORAGE') === 's3') {
-      this.s3StorageService.write(storageLocation, fileName, file);
+      await this.s3StorageService.write(storageLocation, fileName, file);
     } else {
       this.localStorageService.write(storageLocation, fileName, file);
     }

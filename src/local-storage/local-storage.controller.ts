@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
-import * as mime from 'mime-types';
+import { fileNameToMimeType } from '../utils/mime-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { LocationParamDto } from './dto/location-param.dto';
 import { LocalStorageService } from './providers/local-storage.service';
@@ -20,7 +20,7 @@ export class LocalStorageController {
   ) {
     const filePath = await this.localStorageService.getLocalFilePath(`/${param.location}`);
     if (!filePath) throw new HttpException('File not found', HttpStatus.NOT_FOUND);
-    res.setHeader('Content-Type', mime.lookup(filePath) || 'application/octet-stream');
+    res.setHeader('Content-Type', fileNameToMimeType(filePath));
     const file = createReadStream(filePath);
     file.pipe(res);
   }

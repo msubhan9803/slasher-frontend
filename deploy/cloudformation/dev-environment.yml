@@ -141,6 +141,15 @@ Resources:
             # Install redis
             sudo apt-get install -y redis
 
+            # Install nvm
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+
+            # Install node
+            nvm install 16.13.1
+
+            # Update npm to 8.2.0
+            npm install -g npm@8.2.0
+
             # Set up Let's Encrypt certificate (plus automatic renewal)
             sudo apt install certbot python3-certbot-nginx
   DevServerSecurityGroup:

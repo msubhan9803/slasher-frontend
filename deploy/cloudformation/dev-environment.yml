@@ -6,17 +6,24 @@ Description: EC2 development instance
 # --template-body file://deploy/cloudformation/dev-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
 
-# Describe latest changes (ask AWS to describe what WILL change, but do not make any changes):
+# Update stack:
+# aws cloudformation update-stack --stack-name slasher-dev-server \
+# --template-body file://deploy/cloudformation/dev-environment.yml \
+# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
+# ParameterKey=MongoDbAdminUser,ParameterValue=admin \
+# ParameterKey=MongoDbAdminPassword,ParameterValue=password \
+# ParameterKey=MongoDbSlasherUser,ParameterValue=slasher \
+# ParameterKey=MongoDbSlasherPassword,ParameterValue=password \
+
+# Validate current version of template
+# aws cloudformation validate-template --template-body file://deploy/cloudformation/dev-environment.yml
+
+# Create and describe a change set (but do not make any changes):
 # aws cloudformation delete-change-set --stack-name slasher-dev-server --change-set-name test-change-set && \
 # aws cloudformation create-change-set --stack-name slasher-dev-server --change-set-name test-change-set --change-set-type UPDATE \
 # --template-body file://deploy/cloudformation/dev-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 && \
 # aws cloudformation describe-change-set --stack-name slasher-dev-server --change-set-name test-change-set
-
-# Update stack:
-# aws cloudformation update-stack --stack-name slasher-dev-server \
-# --template-body file://deploy/cloudformation/dev-environment.yml \
-# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
 
 # Delete stack:
 # aws cloudformation delete-stack --stack-name slasher-dev-server
@@ -36,6 +43,9 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: us-east-1b # same as staging cluster
+  SwapSizeInGB:
+    Type: Number
+    Default: 2
   InstanceType:
       Description: EC2 instance type
       Type: String
@@ -45,17 +55,25 @@ Parameters:
         - t3a.small
         - t3a.medium
       ConstraintDescription: Must be one of the EC2 instance types allowed by the CloudFormation template
+  MongoDbAdminUser:
+    Type: String
+  MongoDbAdminPassword:
+    Type: String
+  MongoDbSlasherUser:
+    Type: String
+  MongoDbSlasherPassword:
+    Type: String
 
 Resources:
   DevServerInstance:
     Type: AWS::EC2::Instance
     Properties:
-      # ImageId is: Canonical, Ubuntu, 22.04 LTS, amd64 jammy image build on 2022-09-12
+      # ImageId is: Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-09-14
       # - Virtualization: hvm, ENA enabled: true, Root device type: ebs
       # - This ImageId is only available in the us-east-1 region
       # - Image can be used with t3a.nano through t3a.2xlarge (and other types,
       #   but need to consult AWS console for those other types)
-      ImageId: ami-08c40ec9ead489470
+      ImageId: ami-0149b2da6ceec4bb0
       AvailabilityZone: !Ref AvailabilityZone
       InstanceType: !Ref InstanceType
       Tags:
@@ -64,6 +82,67 @@ Resources:
       KeyName: slasher-dev
       SecurityGroupIds:
         - !Ref DevServerSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: "20"
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+
+            # Update apt package list
+            sudo apt-get update
+
+            # Install emacs
+            sudo apt-get install -y emacs-nox
+
+            # Set up swap
+            sudo dd if=/dev/zero of=/swapfile bs=1024M count=${SwapSizeInGB}
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile
+            sudo swapon /swapfile
+            echo -e '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+
+            # Install nginx
+            sudo apt install nginx -y
+
+            # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
+            wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+            # Add MongoDB apt repo
+            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+            # Update apt package list again to get MongoDB packages
+            sudo apt-get update
+            # Install MongoDB
+            sudo apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
+            # Prevent automatic MongoDB updates by pinning to current version
+            echo "mongodb-org hold" | sudo dpkg --set-selections
+            echo "mongodb-org-server hold" | sudo dpkg --set-selections
+            echo "mongodb-org-shell hold" | sudo dpkg --set-selections
+            echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
+            echo "mongodb-org-tools hold" | sudo dpkg --set-selections
+            # Start MongoDB
+            sudo systemctl start mongod
+            # Wait a little while for MongoDB to start
+            sleep 10
+            # Set up mongo admin user
+            mongo admin --eval "db.createUser({user: '${MongoDbAdminUser}',   pwd: '${MongoDbAdminPassword}',   roles: [ { role: 'root', db: 'admin' } ]})"
+            # Set up mongo slasher user
+            mongo slasher --eval "db.createUser({user: '${MongoDbSlasherUser}', pwd: '${MongoDbSlasherPassword}', roles: [ { role: 'readWrite', db: 'slasher' } ]})"
+            # Enable MongoDB security by un-commenting security section and adding 'authorization: enabled'
+            sudo sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
+            # Allow external connections to MongoDB
+            sudo sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
+            # Restart MongoDB
+            sudo systemctl restart mongod
+            # Make sure that MongoDB starts on reboot in the future
+            systemctl enable mongod.service
+
+            # Install redis
+            sudo apt-get install -y redis
+
+            # Set up Let's Encrypt certificate (plus automatic renewal)
+            sudo apt install certbot python3-certbot-nginx
   DevServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -84,6 +163,11 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: 27017
+          ToPort: 27017
+          CidrIp: !Ref SSHLocation
+
   DevServerEIP:
     Type: AWS::EC2::EIP
     Properties:
@@ -94,6 +178,11 @@ Resources:
           Value: dev-server-eip
 
 Outputs:
-  WebsiteURL:
-    Value: !Sub http://${DevServerEIP}
-    Description: DevServer URL
+  PublicIP:
+    Value: !Join
+      - ''
+      - - 'http://'
+        - !GetAtt
+          - DevServerInstance
+          - PublicIp
+    Description: Server public IP address

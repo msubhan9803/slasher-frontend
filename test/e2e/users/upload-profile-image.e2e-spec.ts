@@ -76,7 +76,7 @@ describe('Users / Upload Profile image (e2e)', () => {
           .attach('file', tempPath)
           .expect(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
-      }, { extension: 'zip' });
+      }, { extension: 'zpng' });
     });
 
     it('responds expected response if file size should not larger than 20MB', async () => {

@@ -1,12 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: EC2 development instance
 
-# Create stack:
-# aws cloudformation create-stack --stack-name slasher-dev-server \
-# --template-body file://deploy/cloudformation/dev-environment.yml \
-# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
+# Create Stack:
+# Same as Update Stack (see below), but replace "update-stack" with "create-stack"
 
-# Update stack:
+# Update Stack:
 # aws cloudformation update-stack --stack-name slasher-dev-server \
 # --template-body file://deploy/cloudformation/dev-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
@@ -14,6 +12,7 @@ Description: EC2 development instance
 # ParameterKey=MongoDbAdminPassword,ParameterValue=password \
 # ParameterKey=MongoDbSlasherUser,ParameterValue=slasher \
 # ParameterKey=MongoDbSlasherPassword,ParameterValue=password \
+# ParameterKey=BackendSiteDomain,ParameterValue=something.example.com
 
 # Validate current version of template
 # aws cloudformation validate-template --template-body file://deploy/cloudformation/dev-environment.yml
@@ -63,6 +62,8 @@ Parameters:
     Type: String
   MongoDbSlasherPassword:
     Type: String
+  BackendSiteDomain:
+    Type: String
 
 Resources:
   DevServerInstance:
@@ -102,10 +103,7 @@ Resources:
             sudo chmod 600 /swapfile
             sudo mkswap /swapfile
             sudo swapon /swapfile
-            echo -e '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-
-            # Install nginx
-            sudo apt install nginx -y
+            echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
 
             # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
             wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
@@ -150,8 +148,43 @@ Resources:
             # Update npm to 8.2.0
             npm install -g npm@8.2.0
 
+            # Install nginx
+            sudo apt install nginx -y
+
+            # Set up placeholder vhost in sites-available directory
+            sudo mkdir -p /var/www/${BackendSiteDomain}/html
+            echo 'server {
+              listen 80;
+              listen [::]:80;
+
+              root /var/www/${BackendSiteDomain}/html;
+              index index.html;
+
+              server_name ${BackendSiteDomain};
+
+              location / {
+                      try_files $uri $uri/ =404;
+              }
+            }' | sudo tee /etc/nginx/sites-available/${BackendSiteDomain}
+
+            # Make vhost active by creating a sites-enabled symlink
+            sudo ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
+
+            # Add placeholder index.html to docroot
+            echo 'Available' | sudo tee /var/www/${BackendSiteDomain}/html/index.html
+
+            # Restart nginx
+            sudo systemctl restart nginx
+
+            # Wait for nginx to start up
+            sleep 5
+
             # Set up Let's Encrypt certificate (plus automatic renewal)
-            sudo apt install certbot python3-certbot-nginx
+            sudo apt install -y certbot python3-certbot-nginx
+            sudo certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
+
+            # Restart nginx
+            sudo systemctl restart nginx
   DevServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

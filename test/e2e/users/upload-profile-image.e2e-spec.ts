@@ -62,9 +62,9 @@ describe('Users / Upload Profile image (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users/upload-profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
-      expect(response.body.message).toContain('Please select the file');
+      expect(response.body.message).toContain('File is required');
     });
 
     it('responds expected response when file is not jpg, jpeg or png', async () => {
@@ -74,8 +74,8 @@ describe('Users / Upload Profile image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('Please select the jpg, jpeg or png');
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
       }, { extension: 'zip' });
     });
 
@@ -86,8 +86,8 @@ describe('Users / Upload Profile image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('File size should not larger than 20MB');
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain('Validation failed (expected size is less than 20000000)');
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
     });
   });

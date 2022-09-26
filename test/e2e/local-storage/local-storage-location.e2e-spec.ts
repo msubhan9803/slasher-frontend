@@ -53,28 +53,28 @@ describe('Local-Storage / Get File (e2e)', () => {
     it('responds with file if give file path exists', async () => {
       const fileExtension = 'jpg';
       const storedFileName = `${uuidv4()}.${fileExtension}`;
+      const location = `/profile_test/profile_test_${storedFileName}`;
+
       await createTempFile(async (tempPath) => {
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
-        const storagePath = 'profile_test/';
-        const fileName = `profile_test_${storedFileName}`;
-        localStorageService.write(`/${storagePath}`, fileName, file);
-
-        await request(app.getHttpServer())
-          .get(`/local-storage/${storagePath}${fileName}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.OK);
+        localStorageService.write(location, file);
       }, { extension: 'png' });
+
+      await request(app.getHttpServer())
+        .get(`/local-storage${location}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.OK);
     });
 
     it('responds expected response when file path is not present at requested path', async () => {
       const storagePath = 'profile_test/profile_test_1.jpg';
 
       const response = await request(app.getHttpServer())
-          .get(`/local-storage/${storagePath}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.NOT_FOUND);
+        .get(`/local-storage/${storagePath}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
 
       expect(response.body.message).toContain('File not found');
     });

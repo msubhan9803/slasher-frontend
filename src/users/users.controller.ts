@@ -45,6 +45,7 @@ import { ActiveStatus } from '../schemas/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 
 @Controller('users')
 export class UsersController {
@@ -53,6 +54,7 @@ export class UsersController {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
+    private readonly s3StorageService: S3StorageService,
   ) { }
 
   @Post('sign-in')
@@ -119,7 +121,7 @@ export class UsersController {
     // We'll keep this commented out for now, and uncomment later if needed.
     // user.token = `Bearer ${token}`;
     user.addOrUpdateDeviceEntry(deviceEntry);
-    user.save();
+    await user.save();
 
     // Only return the subset of useful fields
     return {
@@ -360,26 +362,29 @@ export class UsersController {
     @Req() request: Request,
     @UploadedFile(
       new ParseFilePipeBuilder()
-      .addFileTypeValidator({
-        fileType: /(jpg|jpeg|png)$/,
-      })
-      .addMaxSizeValidator({
-        maxSize: 2e+7,
-      })
-      .build({
-        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      }),
+        .addFileTypeValidator({
+          fileType: /(jpg|jpeg|png)$/,
+        })
+        .addMaxSizeValidator({
+          maxSize: 2e+7,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
     )
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
-    const storageLocation = '/profile/';
-    const fileName = `profile_${file.filename}`;
+    const storageLocation = `/profile/profile_${file.filename}`;
 
-    this.localStorageService.write(storageLocation, fileName, file);
+    if (this.config.get<string>('FILE_STORAGE') === 's3') {
+      await this.s3StorageService.write(storageLocation, file);
+    } else {
+      this.localStorageService.write(storageLocation, file);
+    }
 
     user.profilePic = storageLocation;
-    user.save();
+    await user.save();
 
     // Delete original upload
     await fs.unlinkSync(file.path);

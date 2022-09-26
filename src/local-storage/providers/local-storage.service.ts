@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   constants, copyFileSync, existsSync, mkdirSync,
 } from 'fs';
-import { resolve } from 'path';
+import { join, dirname, resolve } from 'path';
 
 @Injectable()
 export class LocalStorageService {
@@ -15,13 +15,14 @@ export class LocalStorageService {
    * @param fileName
    * @param file
    */
-  write(location: string, fileName: string, file: Express.Multer.File): void {
+  write(location: string, file: Express.Multer.File): void {
     const localStoragePath = this.config.get<string>('LOCAL_STORAGE_DIR');
-    const extraStoragePath = `${localStoragePath}${location}`;
-    if (!existsSync(extraStoragePath)) {
-      mkdirSync(extraStoragePath, { recursive: true });
+    const destPath = join(localStoragePath, location);
+    const destPathParentDir = dirname(destPath);
+    if (!existsSync(destPathParentDir)) {
+      mkdirSync(destPathParentDir, { recursive: true });
     }
-    copyFileSync(`${file.path}`, `${extraStoragePath}${fileName}`, constants.COPYFILE_EXCL);
+    copyFileSync(`${file.path}`, destPath, constants.COPYFILE_EXCL);
   }
 
   /**

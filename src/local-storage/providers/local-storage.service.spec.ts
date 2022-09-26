@@ -37,12 +37,11 @@ describe('LocalStorageService', () => {
       const storedFileName = `${uuidv4()}.${fileExtension}`;
       await createTempFile(async (tempPath) => {
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
-        const storagePath = '/profile_test/';
-        const fileName = `profile_test_${storedFileName}`;
-        localStorageService.write(storagePath, fileName, file);
+        const location = `/profile_test/profile_test_${storedFileName}`;
+        localStorageService.write(location, file);
 
         const localStoragePath = configService.get<string>('LOCAL_STORAGE_DIR');
-        expect(existsSync(`${localStoragePath}${storagePath}${fileName}`)).toBe(true);
+        expect(existsSync(`${localStoragePath}${location}`)).toBe(true);
       }, { extension: fileExtension });
     });
   });
@@ -54,12 +53,9 @@ describe('LocalStorageService', () => {
       await createTempFile(async (tempPath) => {
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
         const localStoragePath = configService.get<string>('LOCAL_STORAGE_DIR');
-        const storagePath = '/profile_test/';
-        const fileName = `profile_test_${storedFileName}`;
-        localStorageService.write(storagePath, fileName, file);
-        const filePath = localStorageService.getLocalFilePath(`${storagePath}${fileName}`);
-
-        expect(filePath).toBe(`${localStoragePath}${storagePath}${fileName}`);
+        const location = `/profile_test/profile_test_${storedFileName}`;
+        localStorageService.write(location, file);
+        expect(localStorageService.getLocalFilePath(location)).toBe(`${localStoragePath}${location}`);
       }, { extension: fileExtension });
     });
 

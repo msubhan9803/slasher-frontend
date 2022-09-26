@@ -115,6 +115,9 @@ export class User extends UserUnusedFields {
   @Prop({ type: [DeviceSchema] })
   userDevices: Device[];
 
+  @Prop({ default: 'noUser.jpg', trim: true })
+  profilePic: string;
+
   /***********
    * Methods *
    ***********/

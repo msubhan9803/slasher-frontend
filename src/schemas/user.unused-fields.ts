@@ -18,10 +18,6 @@ export class UserUnusedFields {
   phoneNumber: string;
 
   // NOT USED
-  @Prop({ default: 'noUser.jpg', trim: true })
-  profilePic: string;
-
-  // NOT USED
   @Prop({ default: null, trim: true })
   gender: string;
 

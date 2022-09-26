@@ -5,6 +5,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Cookies from 'js-cookie';
 import signInImage from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
@@ -37,8 +38,9 @@ function SignIn() {
   const handleUserSignIn = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
 
-    signIn(credentials.emailOrUsername, credentials.password).then(() => {
+    signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
+      Cookies.set('sessionToken', res.data.token);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);

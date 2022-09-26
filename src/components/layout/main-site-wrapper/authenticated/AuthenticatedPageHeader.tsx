@@ -10,6 +10,7 @@ import userProfileIconPlaceholder from '../../../../placeholder-images/placehold
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import CustomPopover from '../../../ui/CustomPopover';
+import { useAppSelector } from '../../../../redux/hooks';
 
 const StyledNavbar = styled(Navbar)`
   z-index:1;
@@ -55,6 +56,8 @@ function AuthenticatedPageHeader(
 ) {
   const navigate = useNavigate();
   const popoverOption = ['My profile', 'Settings'];
+  const userData = useAppSelector((state) => state?.user);
+
   const handleNavigate = (selectedOption: string) => {
     if (selectedOption === 'My profile') {
       navigate('/profile');
@@ -74,7 +77,7 @@ function AuthenticatedPageHeader(
       onClick={onToggleClick}
     />,
     <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" iconSize="lg" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={2} />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={userData ? userData?.notificationCount : 0} />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
@@ -82,7 +85,7 @@ function AuthenticatedPageHeader(
   const desktopNavLinkElements = [
     <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={2} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={userData ? userData?.notificationCount : 0} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
     <div key="me">

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { UserDocument } from '../schemas/user.schema';
+import { UserDocument } from '../schemas/user/user.schema';
 
 /**
  * Extracts the user property (if present) from the given request object.

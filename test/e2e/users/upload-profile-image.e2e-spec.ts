@@ -7,8 +7,8 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user.schema';
 import { createTempFile } from '../../helpers/tempfile-helpers';
+import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Users / Upload Profile image (e2e)', () => {
   let app: INestApplication;

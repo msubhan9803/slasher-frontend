@@ -1,16 +1,8 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable max-lines */
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-
-// TODO: If the images field in the User schema ends up not being used,
-// this Image class (and the ImageSchema) should be deleted.
-@Schema({ toJSON: { virtuals: true } })
-export class Image {
-  @Prop({ trim: true, default: null })
-  image_path: string;
-}
-const ImageSchema = SchemaFactory.createForClass(Image);
+import { Image, ImageSchema } from '../shared/image.schema';
 
 export class UserUnusedFields {
   // NOT USED

@@ -8,9 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user.schema';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../src/local-storage/providers/local-storage.service';
+import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;

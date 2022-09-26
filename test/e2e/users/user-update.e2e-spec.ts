@@ -7,8 +7,8 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user.schema';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
+import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;

@@ -1,6 +1,6 @@
 import { Factory } from 'fishery';
-import { ActiveStatus } from '../../src/schemas/user.enums';
-import { User } from '../../src/schemas/user.schema';
+import { ActiveStatus } from '../../src/schemas/user/user.enums';
+import { User } from '../../src/schemas/user/user.schema';
 
 type UserTransientParams = {
   unhashedPassword: string;

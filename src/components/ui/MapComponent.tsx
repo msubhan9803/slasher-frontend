@@ -1,4 +1,6 @@
-import React, { useRef } from 'react';
+import React, {
+  useEffect, useRef, useState,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -10,6 +12,14 @@ import {
 import styled from 'styled-components';
 import Leaflet from 'leaflet';
 import ReactDOMServer from 'react-dom/server';
+import axios from 'axios';
+
+interface MapLocation {
+  display_name: string;
+  lat: string;
+  lon: string;
+  place_id: string;
+}
 
 const Map = styled(MapContainer)`
   height: 400px !important;
@@ -33,19 +43,89 @@ const customMarkerIcon = new Leaflet.DivIcon({
   iconAnchor: [12, 5], // [left/right, top/bottom]
 });
 
-function MapComponent({ center, ZOOM_LEVEL }: any) {
+function MapComponent({ center, ZOOM_LEVEL, setCenter }: any) {
   const mapRef = useRef() as any;
+  const [locationName, setLocationName] = useState<MapLocation[]>();
+  const [searchLocation, setSearchLocation] = useState<string>('');
+
+  function handleOnLocationFound(event: any) {
+    const { current = {} } = mapRef;
+    const { latlng } = event;
+    const radius = event.accuracy;
+    const circle = Leaflet.circle(latlng, radius);
+
+    circle.addTo(current);
+    setCenter(latlng);
+  }
+  const getLocation = () => {
+    const { current = {} } = mapRef;
+
+    current.locate({
+      setView: true,
+    });
+    current.on('locationfound', handleOnLocationFound);
+    return () => {
+      current.off('locationfound', handleOnLocationFound);
+    };
+  };
+
+  const getSearchData = () => {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${searchLocation}`;
+    axios.post(url).then((res) => {
+      setLocationName(res.data);
+    });
+  };
+
+  useEffect(() => { if (searchLocation !== '') getSearchData(); }, [searchLocation]);
+
+  const handleLocationData = (location: React.ChangeEvent<HTMLInputElement>) => {
+    if (location.target.value) {
+      setSearchLocation(location.target.value);
+      getSearchData();
+    } else {
+      setSearchLocation('');
+    }
+  };
+
+  const updateLocation = (selectedLocation: MapLocation) => {
+    setSearchLocation(selectedLocation.display_name);
+    setCenter([selectedLocation.lat, selectedLocation.lon]);
+  };
   return (
     <div>
       <Row className="align-items-center">
         <Col sm={4} md={3} lg={6} xl={4} className="mb-4">
-          <Button className="w-100">Detect my location</Button>
+          <Button onClick={getLocation} className="w-100">Detect my location</Button>
         </Col>
         <Col sm={8} md={9} lg={6} xl={8} className="mb-4">
           <Form.Control
             placeholder="Enter a location…"
-            className="fs-5"
+            className="fs-5 me-2"
+            value={searchLocation}
+            onChange={handleLocationData}
           />
+
+          {locationName && locationName.length > 0
+            && (
+              <div className="bg-white text-black p-2">
+                {locationName.map((s: MapLocation) => (
+                  <div
+                    key={s.place_id}
+                    role="button"
+                    onClick={() => updateLocation(s)}
+                    onKeyUp={() => updateLocation(s)}
+                    tabIndex={0}
+                  >
+                    <h4>
+                      {
+                        s.display_name.charAt(0).toUpperCase()
+                        + s.display_name.slice(1).toLowerCase()
+                      }
+                    </h4>
+                  </div>
+                ))}
+              </div>
+            )}
         </Col>
       </Row>
       <Map

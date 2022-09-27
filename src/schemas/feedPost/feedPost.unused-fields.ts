@@ -37,7 +37,7 @@ export class FeedPostUnusedFields {
   shareUsers: mongoose.Schema.Types.ObjectId[];
 
   // NOT USED
-  @Prop({ default: null, required: true })
+  @Prop({ default: null })
   message: string;
 
   // NOT USED
@@ -75,7 +75,7 @@ export class FeedPostUnusedFields {
   privacyType: FeedPostPrivacyType;
 
   // NOT USED
-  @Prop({ default: null })
+  @Prop({ default: Date.now })
   lastUpdateAt: Date;
 
   // NOT USED

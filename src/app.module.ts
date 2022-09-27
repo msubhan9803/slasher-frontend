@@ -9,6 +9,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
+import { FeedPostModule } from './feed-post/feed-post.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ChatModule } from './chat/chat.module';
     UsersModule,
     LocalStorageModule,
     ChatModule,
+    FeedPostModule,
   ],
   controllers: [AppController],
   providers: [

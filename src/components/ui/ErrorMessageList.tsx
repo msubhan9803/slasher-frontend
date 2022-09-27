@@ -3,10 +3,11 @@ import { Alert } from 'react-bootstrap';
 
 interface MessageProps {
   errorMessages: string[];
+  className?: string;
 }
-function ErrorMessageList({ errorMessages }: MessageProps) {
+function ErrorMessageList({ errorMessages, className }: MessageProps) {
   return (
-    <Alert className="m-0">
+    <Alert className={className}>
       {typeof errorMessages === 'string'
         ? errorMessages
         : (
@@ -21,5 +22,9 @@ function ErrorMessageList({ errorMessages }: MessageProps) {
     </Alert>
   );
 }
+
+ErrorMessageList.defaultProps = {
+  className: '',
+};
 
 export default ErrorMessageList;

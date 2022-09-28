@@ -142,13 +142,13 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
       {
         errors.length > 0
         && (
-          <ErrorMessageList errorMessages={errors} />
+          <ErrorMessageList errorMessages={errors} className="my-4" />
         )
       }
       {
         resolvedSearchLocationDisplayName
         && (
-          <Alert variant="info">
+          <Alert variant="info" className="my-4">
             <strong>Showing:</strong>
             {' '}
             {resolvedSearchLocationDisplayName}

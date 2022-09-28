@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class LocationParamDto {
+export class GetFileDto {
   @IsNotEmpty()
   location: string;
 }

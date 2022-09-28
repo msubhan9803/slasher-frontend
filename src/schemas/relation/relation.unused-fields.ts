@@ -10,7 +10,7 @@ export class RelationUnusedFields {
     enum: [RelationStatus.Inactive, RelationStatus.Active],
     default: RelationStatus.Active,
   })
-  userType: RelationStatus;
+  status: RelationStatus;
 
   // NOT USED
   @Prop({

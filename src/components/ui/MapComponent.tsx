@@ -60,7 +60,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
 
   const detectLocation = () => {
     const onError = () => {
-      setErrors(['Geolocation feature is unavailable, possibly due to permission settings.']);
+      setErrors(['Geolocation feature unavailable. Please update your device\'s permissions to enable location access.']);
     };
 
     if (navigator.geolocation) {

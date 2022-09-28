@@ -58,10 +58,12 @@ Parameters:
     Type: String
   MongoDbAdminPassword:
     Type: String
+    NoEcho: true
   MongoDbSlasherUser:
     Type: String
   MongoDbSlasherPassword:
     Type: String
+    NoEcho: true
   BackendSiteDomain:
     Type: String
 

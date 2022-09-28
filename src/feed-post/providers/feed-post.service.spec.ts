@@ -52,9 +52,19 @@ describe('FeedPostsService', () => {
     });
   });
 
+  describe('#findById', () => {
+    it('find feed post details', async () => {
+      const feedPostData = feedPostFactory.build({
+        userId: activeUser._id,
+      });
+      const feedPost = await feedPostsService.create(feedPostData);
+      expect(await feedPostsService.findById(feedPost._id)).toBeTruthy();
+    });
+  });
+
   describe('#findAllByUser', () => {
     beforeEach(async () => {
-      for (let i = 0; i < 3; i += 1) {
+      for (let i = 0; i < 10; i += 1) {
         await feedPostsService.create(
           feedPostFactory.build({
             userId: activeUser._id,
@@ -62,19 +72,20 @@ describe('FeedPostsService', () => {
         );
       }
     });
-    it('finds the expected set of feed post', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 3);
-      expect(feedPost).toHaveLength(3);
+
+    it('when earlier than post id is exist than expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser._id,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 5, feedPost._id);
+      expect(feedPostData).toHaveLength(5);
+      expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
-    it('when earlierThanPostId is false', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 3, false);
-      expect(feedPost).toHaveLength(3);
-    });
-
-    it('when earlierThanPostId is true', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 3, true);
-      expect(feedPost).toHaveLength(3);
+    it('when earlier than post id is does not exist than expected response', async () => {
+      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 10);
+      expect(feedPost).toHaveLength(10);
     });
   });
 

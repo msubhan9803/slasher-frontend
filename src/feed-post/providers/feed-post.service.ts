@@ -22,17 +22,17 @@ export class FeedPostsService {
   }
 
   async findAllByUser(userId: string, limit: number, earlierThanPostId = null): Promise<FeedPostDocument[]> {
+    const feedPostQuery = [];
+    feedPostQuery.push({ userId });
     if (earlierThanPostId) {
-      return this.feedPostModel
-        .find({ userId })
-        .sort({ _id: -1 })
-        .limit(limit)
-        .exec();
+      const feedPost = await this.feedPostModel.findById(earlierThanPostId).exec();
+      const createdAtDate = { createdAt: { $lt: feedPost.createdAt } };
+      feedPostQuery.push({ createdAtDate });
     }
-      return this.feedPostModel
-        .find({ userId })
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .exec();
+    return this.feedPostModel
+      .find({ $and: feedPostQuery })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 }

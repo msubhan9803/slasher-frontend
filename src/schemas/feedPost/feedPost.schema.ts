@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { Image, ImageSchema } from '../shared/image.schema';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
 
 @Schema({ timestamps: true })
@@ -15,6 +16,15 @@ export class FeedPost extends FeedPostUnusedFields {
 
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
+
+  @Prop({ default: null, ref: 'users', required: true })
+  userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null })
+  message: string;
+
+  @Prop({ type: [ImageSchema] })
+  images: Image[];
 
   /***********
    * Methods *

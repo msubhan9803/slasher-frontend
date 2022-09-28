@@ -77,7 +77,7 @@ function ForgotPassword() {
               />
               {errorMessage && errorMessage.length > 0 && (
                 <div className="mt-3 text-start">
-                  <ErrorMessageList errorMessages={errorMessage} />
+                  <ErrorMessageList errorMessages={errorMessage} className="m-0" />
                 </div>
               )}
               {

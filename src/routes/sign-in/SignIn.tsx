@@ -97,7 +97,7 @@ function SignIn() {
                   </Link>
                 </p>
                 {errorMessage && errorMessage.length > 0 && (
-                  <ErrorMessageList errorMessages={errorMessage} />
+                  <ErrorMessageList errorMessages={errorMessage} className="m-0" />
                 )}
                 <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in

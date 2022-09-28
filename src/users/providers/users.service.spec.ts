@@ -6,8 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
 import { userFactory } from '../../../test/factories/user.factory';
-import { UserDocument } from '../../schemas/user.schema';
-import { ActiveStatus } from '../../schemas/user.enums';
+import { ActiveStatus } from '../../schemas/user/user.enums';
+import { UserDocument } from '../../schemas/user/user.schema';
 
 describe('UsersService', () => {
   let app: INestApplication;

@@ -7,7 +7,7 @@ import { NotificationsService } from './notifications.service';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { notificationFactory } from '../../../test/factories/notification.factory';
-import { UserDocument } from '../../schemas/user.schema';
+import { UserDocument } from '../../schemas/user/user.schema';
 
 describe('NotificationsService', () => {
   let app: INestApplication;

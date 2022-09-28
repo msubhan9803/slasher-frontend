@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { NotificationsService } from '../src/notifications/providers/notifications.service';
-import { ActiveStatus } from '../src/schemas/user.enums';
-import { User } from '../src/schemas/user.schema';
+import { ActiveStatus } from '../src/schemas/user/user.enums';
+import { User } from '../src/schemas/user/user.schema';
 import { UsersService } from '../src/users/providers/users.service';
 import { createApp } from './createApp';
 

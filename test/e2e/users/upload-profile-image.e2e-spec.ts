@@ -7,8 +7,8 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user.schema';
 import { createTempFile } from '../../helpers/tempfile-helpers';
+import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Users / Upload Profile image (e2e)', () => {
   let app: INestApplication;
@@ -62,9 +62,9 @@ describe('Users / Upload Profile image (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users/upload-profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.BAD_REQUEST);
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
-      expect(response.body.message).toContain('Please select the file');
+      expect(response.body.message).toContain('File is required');
     });
 
     it('responds expected response when file is not jpg, jpeg or png', async () => {
@@ -74,9 +74,9 @@ describe('Users / Upload Profile image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('Please select the jpg, jpeg or png');
-      }, { extension: 'zip' });
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
+      }, { extension: 'zpng' });
     });
 
     it('responds expected response if file size should not larger than 20MB', async () => {
@@ -86,8 +86,8 @@ describe('Users / Upload Profile image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('File size should not larger than 20MB');
+          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain('Validation failed (expected size is less than 20000000)');
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
     });
   });

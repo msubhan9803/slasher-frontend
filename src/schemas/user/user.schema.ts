@@ -88,9 +88,6 @@ export class User extends UserUnusedFields {
   @Prop({ default: null })
   lastPasswordResetTime: Date;
 
-  // '1' == regular user, '2' == admin
-  // Note: It's unfortunate that these are strings rather than numbers, but we need to keep them
-  // as strings in the database to be compatible with the old API.
   @Prop({
     required: true,
     enum: [UserType.Regular, UserType.Admin],
@@ -98,9 +95,6 @@ export class User extends UserUnusedFields {
   })
   userType: UserType;
 
-  // '0' == inactive, '1' == active, '2' == deactivated
-  // Note: It's unfortunate that these are strings rather than numbers, but we need to keep them
-  // as strings in the database to be compatible with the old API.
   @Prop({
     required: true,
     enum: [
@@ -114,6 +108,9 @@ export class User extends UserUnusedFields {
 
   @Prop({ type: [DeviceSchema] })
   userDevices: Device[];
+
+  @Prop({ default: 'noUser.jpg', trim: true })
+  profilePic: string;
 
   /***********
    * Methods *

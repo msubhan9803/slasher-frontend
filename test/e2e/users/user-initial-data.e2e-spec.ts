@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user.schema';
+import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;

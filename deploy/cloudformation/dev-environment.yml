@@ -179,8 +179,17 @@ Resources:
             # Wait for nginx to start up
             sleep 5
 
-            # Set up Let's Encrypt certificate (plus automatic renewal)
-            sudo apt install -y certbot python3-certbot-nginx
+            # Install certbot for Let's Encrypt certificates
+            # Note: Using snap as install source instead of apt because it provides a newer version
+            # of certbot than apt would, which fixes a bug (https://github.com/certbot/certbot/issues/6776)
+            # that affected us.  GitHub issue only mentioned capital letter issue, but it seems to
+            # affect vhosts with a dash in the name too.
+            sudo snap install --classic certbot
+
+            # Add symlink for certbot so that the command is on our path
+            sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+            # Generate SSL cert for the backend site domain
             sudo certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
 
             # Restart nginx

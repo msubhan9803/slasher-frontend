@@ -92,6 +92,13 @@ Resources:
           !Sub |
             #!/bin/bash
 
+            # Write out a file that indicates the build time of this instance.
+            # This will be useful for troubleshooting CloudFormation update issues.
+            # Note: Doing an append (>>) instead of a regular write (>) to ensure that this
+            # only ever runs once per instance. If we see two printouts in the file, we'll
+            # know that something went wrong.
+            echo "EC2 instance generated with CloudFormation on `date`" >> ~/generation-note.txt
+
             # Update apt package list
             sudo apt-get update
 

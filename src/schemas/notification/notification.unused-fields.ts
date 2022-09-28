@@ -26,6 +26,8 @@ export class NotificationUnusedFields {
   data: object;
 
   // NOT USED
+  // Note: In current database, it appears that no Notifications actually have any images stored.
+  // Looks like a value or null or an empty array for every record in the DB.
   @Prop({ default: null })
   images: string[];
 

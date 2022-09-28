@@ -9,6 +9,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
+import { EventsModule } from './events/events.module';
+import { EventCategoryModule } from './event-category/event-category.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { ChatModule } from './chat/chat.module';
     UsersModule,
     LocalStorageModule,
     ChatModule,
+    EventsModule,
+    EventCategoryModule,
   ],
   controllers: [AppController],
   providers: [

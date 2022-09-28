@@ -16,6 +16,39 @@ export class Event extends EventUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ default: null, ref: 'users' })
+  userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: 'eventCategories', required: true })
+  event_type: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null })
+  startDate: Date;
+
+  @Prop({ default: null })
+  endDate: Date;
+
+  @Prop({ default: null })
+  country: string;
+
+  @Prop({ default: null })
+  state: string;
+
+  @Prop({ default: null })
+  city: string;
+
+  @Prop({ default: null })
+  event_info: string;
+
+  @Prop({ default: null })
+  url: string;
+
+  @Prop({ default: null })
+  author: string;
+
   /***********
    * Methods *
    ***********/

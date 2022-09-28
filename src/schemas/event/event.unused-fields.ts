@@ -1,40 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import { EventActiveStatus } from './event.enums';
 
 export class EventUnusedFields {
-  // NOT USED
-  @Prop({ required: true })
-  name: string;
-
-  // NOT USED
-  @Prop({ default: null, ref: 'eventCategories', required: true })
-  event_type: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
-  @Prop({ default: null })
-  startDate: Date;
-
-  // NOT USED
-  @Prop({ default: null })
-  endDate: Date;
-
-  // NOT USED
-  @Prop({ default: null })
-  country: string;
-
-  // NOT USED
-  @Prop({ default: null })
-  state: string;
-
-  // NOT USED
-  @Prop({ default: null })
-  city: string;
-
-  // NOT USED
-  @Prop({ default: null })
-  event_info: string;
-
   // NOT USED
   // This is an array of string usr ids (NOT actual ObjectIds) of the users who are are interested
   // in the event (i.e. tapped the heart icon on the event).
@@ -47,10 +14,6 @@ export class EventUnusedFields {
   // (those are usually an array of objects with a key that holds a relative image path).
   @Prop({ type: Array, default: [] })
   images: string[];
-
-  // NOT USED
-  @Prop({ default: null })
-  url: string;
 
   // NOT USED
   @Prop({
@@ -70,14 +33,6 @@ export class EventUnusedFields {
   // NOT USED
   @Prop({ default: false })
   deleted: boolean;
-
-  // NOT USED
-  @Prop({ default: null })
-  author: string;
-
-  // NOT USED
-  @Prop({ default: null, ref: 'users' })
-  userId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
   // Note: In the current database data, no Events actually have any comments stored.

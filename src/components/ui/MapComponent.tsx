@@ -15,15 +15,15 @@ import axios from 'axios';
 import ErrorMessageList from './ErrorMessageList';
 
 const Map = styled(MapContainer)`
-  height: 400px !important;
-  width: 100% !important;
+  height: 450px;
+  width: 100%;
   z-index:0;
   .leaflet-div-icon {
-    background: transparent !important;
-    border: none !important;
+    background: transparent;
+    border: none;
   }
   .leaflet-popup-content{
-    margin: 13px 20px 13px 16px;
+    margin: 1rem 1.5rem;
   }
   .leaflet-popup {
     bottom : 0 !important;
@@ -119,7 +119,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
         </Col>
         <Col sm={8} md={9} lg={6} xl={8}>
           <Form>
-            <InputGroup>
+            <InputGroup className="mt-3 mt-sm-0">
               <Form.Control
                 placeholder="Enter a location (example: Salem, Massachusetts)"
                 aria-label="Location"

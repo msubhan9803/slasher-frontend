@@ -87,6 +87,10 @@ Resources:
         - DeviceName: "/dev/sda1"
           Ebs:
             VolumeSize: "20"
+      # Note: If an EC2 instance is EBS backed, changes to UserData alone will only trigger a reboot,
+      # and should not delete the EBS volume or re-run the UserData script.  By comparison, if an EC2
+      # instance is instance-store-backed, the entire instance would be rebuilt, the data on the
+      # instance-backed volume would be lost, and the UserData script would be re-run.
       UserData:
         Fn::Base64:
           !Sub |

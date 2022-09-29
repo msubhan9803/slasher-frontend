@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventCategoryController } from './event-category.controller';
-import { EventCategoryService } from './providers/event-category.service';
+import { EventCategoriesController } from './event-categories.controller';
+import { EventCategoriesService } from './providers/event-categories.service';
 import { EventCategory, EventCategorySchema } from '../schemas/eventCategory/eventCategory.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: EventCategory.name, schema: EventCategorySchema }]),
   ],
-  controllers: [EventCategoryController],
-  providers: [EventCategoryService],
-  exports: [EventCategoryService],
+  controllers: [EventCategoriesController],
+  providers: [EventCategoriesService],
+  exports: [EventCategoriesService],
 })
-export class EventCategoryModule { }
+export class EventCategoriesModule { }

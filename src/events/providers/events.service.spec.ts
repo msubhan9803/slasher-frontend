@@ -9,7 +9,7 @@ import { eventsFactory } from '../../../test/factories/events.factory';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
-import { EventCategoryService } from '../../event-category/providers/event-category.service';
+import { EventCategoriesService } from '../../event-categories/providers/event-categories.service';
 import { eventCategoryFactory } from '../../../test/factories/event-category.factory';
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 
@@ -18,7 +18,7 @@ describe('EventService', () => {
   let connection: Connection;
   let eventService: EventService;
   let usersService: UsersService;
-  let eventCategoryService: EventCategoryService;
+  let eventCategoriesService: EventCategoriesService;
   let userData: Partial<UserDocument>;
   let eventCategoryData: Partial<EventCategoryDocument>;
 
@@ -29,7 +29,7 @@ describe('EventService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     eventService = moduleRef.get<EventService>(EventService);
     usersService = moduleRef.get<UsersService>(UsersService);
-    eventCategoryService = moduleRef.get<EventCategoryService>(EventCategoryService);
+    eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -44,7 +44,7 @@ describe('EventService', () => {
     await connection.dropDatabase();
 
     userData = await usersService.create(userFactory.build());
-    eventCategoryData = await eventCategoryService.create(eventCategoryFactory.build());
+    eventCategoryData = await eventCategoriesService.create(eventCategoryFactory.build());
   });
 
   it('should be defined', () => {

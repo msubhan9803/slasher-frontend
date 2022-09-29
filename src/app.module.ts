@@ -10,7 +10,7 @@ import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { EventsModule } from './events/events.module';
-import { EventCategoryModule } from './event-category/event-category.module';
+import { EventCategoriesModule } from './event-categories/event-categories.module';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import { EventCategoryModule } from './event-category/event-category.module';
     LocalStorageModule,
     ChatModule,
     EventsModule,
-    EventCategoryModule,
+    EventCategoriesModule,
   ],
   controllers: [AppController],
   providers: [

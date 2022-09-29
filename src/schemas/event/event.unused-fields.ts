@@ -1,5 +1,4 @@
 import { Prop } from '@nestjs/mongoose';
-import { EventActiveStatus } from './event.enums';
 
 export class EventUnusedFields {
   // NOT USED
@@ -16,23 +15,8 @@ export class EventUnusedFields {
   images: string[];
 
   // NOT USED
-  @Prop({
-    enum: [
-      EventActiveStatus.Inactive,
-      EventActiveStatus.Active,
-      EventActiveStatus.Deactivated,
-    ],
-    default: EventActiveStatus.Inactive,
-  })
-  status: EventActiveStatus;
-
-  // NOT USED
   @Prop({ default: 0 })
   rating: number;
-
-  // NOT USED
-  @Prop({ default: false })
-  deleted: boolean;
 
   // NOT USED
   // Note: In the current database data, no Events actually have any comments stored.

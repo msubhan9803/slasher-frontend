@@ -12,6 +12,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { EventCategoriesService } from '../../event-categories/providers/event-categories.service';
 import { eventCategoryFactory } from '../../../test/factories/event-category.factory';
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
+import { EventActiveStatus } from '../../schemas/event/event.enums';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -60,7 +61,7 @@ describe('EventService', () => {
         },
       );
       const event = await eventService.create(eventData);
-      expect(await eventService.findById(event._id)).toBeTruthy();
+      expect(await eventService.findById(event._id, false)).toBeTruthy();
     });
   });
 
@@ -82,7 +83,7 @@ describe('EventService', () => {
         author: 'Event new author',
       };
       const updatedEvent = await eventService.update(event._id, eventData);
-      const reloadedEvent = await eventService.findById(updatedEvent._id);
+      const reloadedEvent = await eventService.findById(updatedEvent._id, false);
       expect(reloadedEvent.name).toEqual(eventData.name);
       expect(reloadedEvent.author).toEqual(eventData.author);
       expect(reloadedEvent.city).toEqual(event.city);
@@ -102,8 +103,21 @@ describe('EventService', () => {
       );
     });
     it('finds the expected event details', async () => {
-      const reloadedEvent = await eventService.findById(event._id);
-      expect(reloadedEvent.name).toEqual(event.name);
+      const eventDetails = await eventService.findById(event._id, false);
+      expect(eventDetails.name).toEqual(event.name);
+    });
+
+    it('finds the expected event category details that has not deleted and active status', async () => {
+      const activeEvent = await eventService.create(
+        eventsFactory.build({
+          status: EventActiveStatus.Active,
+          userId: userData._id,
+          event_type: eventCategoryData._id,
+        }),
+      );
+
+      const eventDetail = await eventService.findById(activeEvent._id, true);
+      expect(eventDetail.name).toEqual(activeEvent.name);
     });
   });
 
@@ -118,7 +132,7 @@ describe('EventService', () => {
           },
         ),
       );
-      for (let index = 0; index < 10; index += 1) {
+      for (let index = 0; index < 5; index += 1) {
         await eventService.create(
           eventsFactory.build(
             {
@@ -127,11 +141,25 @@ describe('EventService', () => {
             },
           ),
         );
+        await eventService.create(
+          eventsFactory.build(
+            {
+              userId: userData._id,
+              event_type: eventCategoryData._id,
+              status: EventActiveStatus.Active,
+            },
+          ),
+        );
       }
     });
     it('finds all the expected event details', async () => {
-      const reloadedEvent = await eventService.findAllByDate(event.startDate, event.endDate, 5);
-      expect(reloadedEvent.length).toBeLessThanOrEqual(5);
+      const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, false);
+      expect(eventList).toHaveLength(10);
+    });
+
+    it('finds all the expected event details that has not deleted and active status', async () => {
+      const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, true);
+      expect(eventList).toHaveLength(5);
     });
   });
 });

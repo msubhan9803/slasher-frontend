@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
+import { EventActiveStatus } from '../../schemas/event/event.enums';
 
 @Injectable()
 export class EventService {
@@ -17,15 +18,27 @@ export class EventService {
     .exec();
   }
 
-  async findById(id: string): Promise<EventDocument> {
-    return this.eventModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<EventDocument> {
+    const eventFindQuery: any = { _id: id };
+    if (activeOnly) {
+      eventFindQuery.deleted = false;
+      eventFindQuery.status = EventActiveStatus.Active;
+    }
+    return this.eventModel.findOne(eventFindQuery).exec();
   }
 
-  async findAllByDate(startDate: Date, endDate: Date, limit: number): Promise<EventDocument[]> {
-    return this.eventModel.find({
-      startDate: { $gte: startDate },
-      endDate: { $lte: endDate },
-    })
+  async findAllByDate(startDate: Date, endDate: Date, limit: number, activeOnly: boolean): Promise<EventDocument[]> {
+    const eventFindAllQuery: any = {
+      startDate: { $lt: endDate },
+      endDate: { $gt: startDate },
+    };
+
+    if (activeOnly) {
+      eventFindAllQuery.deleted = false;
+      eventFindAllQuery.status = EventActiveStatus.Active;
+    }
+    return this.eventModel.find(eventFindAllQuery)
+    .sort({ createdAt: 1 })
     .limit(limit)
     .exec();
   }

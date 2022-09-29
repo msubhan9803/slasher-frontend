@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { EventActiveStatus } from './event.enums';
 import { EventUnusedFields } from './event.unused-fields';
 
 @Schema({ timestamps: true })
@@ -48,6 +49,19 @@ export class Event extends EventUnusedFields {
 
   @Prop({ default: null })
   author: string;
+
+  @Prop({
+    enum: [
+      EventActiveStatus.Inactive,
+      EventActiveStatus.Active,
+      EventActiveStatus.Deactivated,
+    ],
+    default: EventActiveStatus.Inactive,
+  })
+  status: EventActiveStatus;
+
+  @Prop({ default: false })
+  deleted: boolean;
 
   /***********
    * Methods *

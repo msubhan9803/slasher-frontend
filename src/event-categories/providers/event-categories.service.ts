@@ -19,20 +19,20 @@ export class EventCategoriesService {
   }
 
   async findById(id: string, activeOnly: boolean): Promise<EventCategory> {
-    const eventFindQuery: any = { _id: id };
+    const eventCategoryFindQuery: any = { _id: id };
     if (activeOnly) {
-      eventFindQuery.is_deleted = EventCategoryDeletionState.NotDeleted;
-      eventFindQuery.status = EventCategoryStatus.Active;
+      eventCategoryFindQuery.is_deleted = EventCategoryDeletionState.NotDeleted;
+      eventCategoryFindQuery.status = EventCategoryStatus.Active;
     }
-    return this.eventCategoryModel.findOne(eventFindQuery).exec();
+    return this.eventCategoryModel.findOne(eventCategoryFindQuery).exec();
   }
 
   async findAll(activeOnly: boolean): Promise<EventCategoryDocument[]> {
-    const eventFindAllQuery: any = {};
+    const eventCategoryFindAllQuery: any = {};
     if (activeOnly) {
-      eventFindAllQuery.is_deleted = EventCategoryDeletionState.NotDeleted;
-      eventFindAllQuery.status = EventCategoryStatus.Active;
+      eventCategoryFindAllQuery.is_deleted = EventCategoryDeletionState.NotDeleted;
+      eventCategoryFindAllQuery.status = EventCategoryStatus.Active;
     }
-    return this.eventCategoryModel.find(eventFindAllQuery).exec();
+    return this.eventCategoryModel.find(eventCategoryFindAllQuery).exec();
   }
 }

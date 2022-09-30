@@ -8,6 +8,8 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { UsersService } from '../../users/providers/users.service';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { User } from '../../schemas/user/user.schema';
+import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
+import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -48,17 +50,36 @@ describe('FeedPostsService', () => {
         userId: activeUser._id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
-      expect(await feedPostsService.findById(feedPost._id)).toBeTruthy();
+      expect(await feedPostsService.findById(feedPost._id, false)).toBeTruthy();
     });
   });
 
   describe('#findById', () => {
-    it('find feed post details', async () => {
-      const feedPostData = feedPostFactory.build({
-        userId: activeUser._id,
-      });
-      const feedPost = await feedPostsService.create(feedPostData);
-      expect(await feedPostsService.findById(feedPost._id)).toBeTruthy();
+    let feedPost: FeedPostDocument;
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+    });
+
+    it('finds the expected feed post details', async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost._id, false);
+      expect(feedPostDetails.message).toEqual(feedPost.message);
+    });
+
+    it('finds the expected feed post details that has not deleted and active status', async () => {
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          status: FeedPostStatus.Active,
+          userId: activeUser._id,
+        }),
+      );
+      const feedPostDetails = await feedPostsService.findById(feedPostData._id, true);
+      expect(feedPostDetails.message).toEqual(feedPostData.message);
     });
   });
 
@@ -70,21 +91,30 @@ describe('FeedPostsService', () => {
             userId: activeUser._id,
           }),
         );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser._id,
+            is_deleted: FeedPostDeletionState.Deleted,
+            status: FeedPostStatus.Inactive,
+          }),
+        );
       }
     });
 
     it('when earlier than post id is exist than expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
+        status: FeedPostStatus.Active,
+        is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 5, feedPost._id);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 5, true, feedPost._id);
       expect(feedPostData).toHaveLength(5);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
     it('when earlier than post id is does not exist than expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 10);
+      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 10, false);
       expect(feedPost).toHaveLength(10);
     });
   });
@@ -111,7 +141,7 @@ describe('FeedPostsService', () => {
         ],
       };
       const updatedFindPost = await feedPostsService.update(feedPost._id, feedPostData);
-      const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id);
+      const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id, false);
       expect(reloadedFindPost.message).toEqual(updatedFindPost.message);
       expect(reloadedFindPost.images).toEqual(updatedFindPost.images);
     });

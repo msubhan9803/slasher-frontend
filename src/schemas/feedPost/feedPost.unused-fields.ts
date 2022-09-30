@@ -2,7 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
 import {
-  FeedPostDeletionState, FeedPostMatureRating, FeedPostPrivacyType, FeedPostShareListType, FeedPostStatus, FeedPostType,
+  FeedPostMatureRating, FeedPostPrivacyType, FeedPostShareListType, FeedPostType,
 } from './feedPost.enums';
 
 export class FeedPostUnusedFields {
@@ -110,28 +110,6 @@ export class FeedPostUnusedFields {
     default: FeedPostShareListType.NoSharedPost,
   })
   sharedList: FeedPostShareListType;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedPostStatus.Inactive,
-      FeedPostStatus.Active,
-    ],
-    default: FeedPostStatus.Active,
-  })
-  status: FeedPostStatus;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedPostDeletionState.NotDeleted,
-      FeedPostDeletionState.Deleted,
-    ],
-    default: FeedPostDeletionState.NotDeleted,
-  })
-  is_deleted: FeedPostDeletionState;
 
   @Prop({ default: 0 })
   likeCount: number;

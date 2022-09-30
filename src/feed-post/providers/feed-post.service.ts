@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 @Injectable()
@@ -17,17 +18,25 @@ export class FeedPostsService {
       .exec();
   }
 
-  async findById(id: string): Promise<FeedPostDocument> {
-    return this.feedPostModel.findById(id).exec();
+  async findById(id: string, activeOnly: boolean): Promise<FeedPostDocument> {
+    const feedPostFindQuery: any = { _id: id };
+    if (activeOnly) {
+      feedPostFindQuery.is_deleted = false;
+      feedPostFindQuery.status = FeedPostStatus.Active;
+    }
+    return this.feedPostModel.findOne(feedPostFindQuery).exec();
   }
 
-  async findAllByUser(userId: string, limit: number, earlierThanPostId = null): Promise<FeedPostDocument[]> {
+  async findAllByUser(userId: string, limit: number, activeOnly: boolean, earlierThanPostId = null): Promise<FeedPostDocument[]> {
+    const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId });
-    if (earlierThanPostId) {
+    if (earlierThanPostId && activeOnly) {
       const feedPost = await this.feedPostModel.findById(earlierThanPostId).exec();
       const createdAtDate = { createdAt: { $lt: feedPost.createdAt } };
-      feedPostQuery.push({ createdAtDate });
+      feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
+      const status = FeedPostStatus.Active;
+      feedPostQuery.push({ createdAtDate }, feedPostFindAllQuery, { status });
     }
     return this.feedPostModel
       .find({ $and: feedPostQuery })

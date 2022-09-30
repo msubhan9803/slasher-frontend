@@ -12,5 +12,4 @@ export class CreateOrUpdateFeedPostDto {
   @Type(() => ImagesDto)
   @ValidateNested()
   images: ImagesDto[];
-
 }

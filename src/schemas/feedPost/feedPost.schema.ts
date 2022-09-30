@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Image, ImageSchema } from '../shared/image.schema';
+import { FeedPostDeletionState, FeedPostStatus } from './feedPost.enums';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
 
 @Schema({ timestamps: true })
@@ -25,6 +26,26 @@ export class FeedPost extends FeedPostUnusedFields {
 
   @Prop({ type: [ImageSchema] })
   images: Image[];
+
+  @Prop({
+    required: true,
+    enum: [
+      FeedPostStatus.Inactive,
+      FeedPostStatus.Active,
+    ],
+    default: FeedPostStatus.Active,
+  })
+  status: FeedPostStatus;
+
+  @Prop({
+    required: true,
+    enum: [
+      FeedPostDeletionState.NotDeleted,
+      FeedPostDeletionState.Deleted,
+    ],
+    default: FeedPostDeletionState.NotDeleted,
+  })
+  is_deleted: FeedPostDeletionState;
 
   /***********
    * Methods *

@@ -14,6 +14,9 @@ Description: EC2 development instance
 # ParameterKey=MongoDbSlasherPassword,ParameterValue=password \
 # ParameterKey=BackendSiteDomain,ParameterValue=something.example.com
 
+# Wait for stack to finish updating
+# aws cloudformation wait stack-update-complete --stack-name slasher-dev-server
+
 # Validate current version of template
 # aws cloudformation validate-template --template-body file://deploy/cloudformation/dev-environment.yml
 

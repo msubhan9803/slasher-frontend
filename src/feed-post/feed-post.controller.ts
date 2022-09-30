@@ -1,5 +1,5 @@
 import {
-  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException,
+  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -10,6 +10,9 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { FeedPostsService } from './providers/feed-post.service';
 import { CreateOrUpdateFeedPostDto } from './dto/create-or-update-feed-post.dto';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
+import { SingleFeedPostDto } from './dto/find-single-feed-post.dto';
+import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { LimitOrEarlierThanPostIdDto } from './dto/limit-earlier-than-post-id.dto';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -88,5 +91,56 @@ export class FeedPostsController {
       userId: createFeedPost.userId,
       images: createFeedPost.images,
     };
+  }
+
+  @Get(':id')
+  async singleFeedPostDetails(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostDto,
+    ) {
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    return feedPost;
+  }
+
+  @Patch(':id')
+  async update(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostDto,
+    @Body() createOrUpdateFeedPostDto: CreateOrUpdateFeedPostDto,
+    ) {
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    if (!feedPost.images.length && feedPost.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. This post has no images, so a message is required.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostDto);
+    return {
+      id: feedPostData.id,
+      message: feedPostData.message,
+    };
+  }
+
+  @Get('users/:id/posts')
+  async allfeedPost(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: LimitOrEarlierThanPostIdDto,
+    ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== param.id) {
+      throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
+    }
+    const feedPost = await this.feedPostsService.findAllByUser(user.id, query.limit, true, query.earlierThanPostId);
+    return feedPost;
   }
 }

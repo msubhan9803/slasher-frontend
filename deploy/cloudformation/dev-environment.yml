@@ -106,34 +106,34 @@ Resources:
             echo "EC2 instance generated with CloudFormation on `date`" >> ~/generation-note.txt
 
             # Update apt package list
-            sudo apt-get update
+            apt-get update
 
             # Install emacs
-            sudo apt-get install -y emacs-nox
+            apt-get install -y emacs-nox
 
             # Set up swap
-            sudo dd if=/dev/zero of=/swapfile bs=1024M count=${SwapSizeInGB}
-            sudo chmod 600 /swapfile
-            sudo mkswap /swapfile
-            sudo swapon /swapfile
-            echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+            dd if=/dev/zero of=/swapfile bs=1024M count=${SwapSizeInGB}
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
+            echo '/swapfile swap swap defaults 0 0' | tee -a /etc/fstab
 
             # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
-            wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+            wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
             # Add MongoDB apt repo
-            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
             # Update apt package list again to get MongoDB packages
-            sudo apt-get update
+            apt-get update
             # Install MongoDB
-            sudo apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
+            apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
             # Prevent automatic MongoDB updates by pinning to current version
-            echo "mongodb-org hold" | sudo dpkg --set-selections
-            echo "mongodb-org-server hold" | sudo dpkg --set-selections
-            echo "mongodb-org-shell hold" | sudo dpkg --set-selections
-            echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
-            echo "mongodb-org-tools hold" | sudo dpkg --set-selections
+            echo "mongodb-org hold" | dpkg --set-selections
+            echo "mongodb-org-server hold" | dpkg --set-selections
+            echo "mongodb-org-shell hold" | dpkg --set-selections
+            echo "mongodb-org-mongos hold" | dpkg --set-selections
+            echo "mongodb-org-tools hold" | dpkg --set-selections
             # Start MongoDB
-            sudo systemctl start mongod
+            systemctl start mongod
             # Wait a little while for MongoDB to start
             sleep 10
             # Set up mongo admin user
@@ -141,31 +141,22 @@ Resources:
             # Set up mongo slasher user
             mongo slasher --eval "db.createUser({user: '${MongoDbSlasherUser}', pwd: '${MongoDbSlasherPassword}', roles: [ { role: 'readWrite', db: 'slasher' } ]})"
             # Enable MongoDB security by un-commenting security section and adding 'authorization: enabled'
-            sudo sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
+            sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
             # Allow external connections to MongoDB
-            sudo sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
+            sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
             # Restart MongoDB
-            sudo systemctl restart mongod
+            systemctl restart mongod
             # Make sure that MongoDB starts on reboot in the future
             systemctl enable mongod.service
 
             # Install redis
-            sudo apt-get install -y redis
-
-            # Install nvm
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-
-            # Install node
-            nvm install 16.13.1
-
-            # Update npm to 8.2.0
-            npm install -g npm@8.2.0
+            apt-get install -y redis
 
             # Install nginx
-            sudo apt install nginx -y
+            apt install nginx -y
 
             # Set up placeholder vhost in sites-available directory
-            sudo mkdir -p /var/www/${BackendSiteDomain}/html
+            mkdir -p /var/www/${BackendSiteDomain}/html
             echo 'server {
               listen 80;
               listen [::]:80;
@@ -178,16 +169,16 @@ Resources:
               location / {
                       try_files $uri $uri/ =404;
               }
-            }' | sudo tee /etc/nginx/sites-available/${BackendSiteDomain}
+            }' | tee /etc/nginx/sites-available/${BackendSiteDomain}
 
             # Make vhost active by creating a sites-enabled symlink
-            sudo ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
+            ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
 
             # Add placeholder index.html to docroot
-            echo 'Available' | sudo tee /var/www/${BackendSiteDomain}/html/index.html
+            echo 'Available' | tee /var/www/${BackendSiteDomain}/html/index.html
 
             # Restart nginx
-            sudo systemctl restart nginx
+            systemctl restart nginx
 
             # Wait for nginx to start up
             sleep 5
@@ -197,16 +188,39 @@ Resources:
             # of certbot than apt would, which fixes a bug (https://github.com/certbot/certbot/issues/6776)
             # that affected us.  GitHub issue only mentioned capital letter issue, but it seems to
             # affect vhosts with a dash in the name too.
-            sudo snap install --classic certbot
+            snap install --classic certbot
 
             # Add symlink for certbot so that the command is on our path
-            sudo ln -s /snap/bin/certbot /usr/bin/certbot
+            ln -s /snap/bin/certbot /usr/bin/certbot
 
             # Generate SSL cert for the backend site domain
-            sudo certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
+            # Only 5 cert issuances for domain are allowed per 168 hours, so make sure not to
+            # overdo it with running this while testing.
+            #certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
 
             # Restart nginx
-            sudo systemctl restart nginx
+            systemctl restart nginx
+
+            echo 'got here' >> out.txt
+
+            # Install nvm (as ubuntu user)
+            su - ubuntu -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
+
+            # Install node (and make sure to load nvm beforehand)
+            su - ubuntu -c '
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+              nvm install 16.13.1
+            '
+
+            # Update npm to 8.2.0
+            su - ubuntu -c '
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+              npm install -g npm@8.2.0
+            '
   DevServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

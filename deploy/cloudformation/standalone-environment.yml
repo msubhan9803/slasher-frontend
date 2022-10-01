@@ -1,13 +1,14 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: EC2 development instance
+Description: EC2 Slasher standalone instance
 
 # Create Stack:
 # Same as Update Stack (see below), but replace "update-stack" with "create-stack"
 
 # Update Stack:
-# aws cloudformation update-stack --stack-name slasher-dev-server \
-# --template-body file://deploy/cloudformation/dev-environment.yml \
+# aws cloudformation update-stack --stack-name slasher-standalone-webserver-dev \
+# --template-body file://deploy/cloudformation/standalone-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
+# ParameterKey=EnvironmentType,ParameterValue=dev \
 # ParameterKey=MongoDbAdminUser,ParameterValue=admin \
 # ParameterKey=MongoDbAdminPassword,ParameterValue=password \
 # ParameterKey=MongoDbSlasherUser,ParameterValue=slasher \
@@ -15,23 +16,23 @@ Description: EC2 development instance
 # ParameterKey=BackendSiteDomain,ParameterValue=something.example.com
 
 # Wait for stack to finish updating
-# aws cloudformation wait stack-update-complete --stack-name slasher-dev-server
+# aws cloudformation wait stack-update-complete --stack-name slasher-standalone-webserver-dev
 
 # Validate current version of template
-# aws cloudformation validate-template --template-body file://deploy/cloudformation/dev-environment.yml
+# aws cloudformation validate-template --template-body file://deploy/cloudformation/standalone-environment.yml
 
 # Create and describe a change set (but do not make any changes):
-# aws cloudformation delete-change-set --stack-name slasher-dev-server --change-set-name test-change-set && \
-# aws cloudformation create-change-set --stack-name slasher-dev-server --change-set-name test-change-set --change-set-type UPDATE \
-# --template-body file://deploy/cloudformation/dev-environment.yml \
+# aws cloudformation delete-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set && \
+# aws cloudformation create-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set --change-set-type UPDATE \
+# --template-body file://deploy/cloudformation/standalone-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 && \
-# aws cloudformation describe-change-set --stack-name slasher-dev-server --change-set-name test-change-set
+# aws cloudformation describe-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set
 
 # Delete stack:
-# aws cloudformation delete-stack --stack-name slasher-dev-server
+# aws cloudformation delete-stack --stack-name slasher-standalone-webserver-dev
 
 # Estimate cost for stack:
-# aws cloudformation estimate-template-cost --template-body file://deploy/cloudformation/dev-environment.yml \
+# aws cloudformation estimate-template-cost --template-body file://deploy/cloudformation/standalone-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
 
 Parameters:
@@ -45,6 +46,14 @@ Parameters:
   AvailabilityZone:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: us-east-1b # same as staging cluster
+  EnvironmentType:
+    Description: "Specify the Environment type of the stack."
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+      - prod
   SwapSizeInGB:
     Type: Number
     Default: 2
@@ -71,7 +80,7 @@ Parameters:
     Type: String
 
 Resources:
-  DevServerInstance:
+  WebServerInstance:
     Type: AWS::EC2::Instance
     Properties:
       # ImageId is: Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-09-14
@@ -84,10 +93,10 @@ Resources:
       InstanceType: !Ref InstanceType
       Tags:
         - Key: Name
-          Value: slasher-dev
-      KeyName: slasher-dev
+          Value: !Join ["-", [slasher-standalone-webserver, !Ref EnvironmentType]]
+      KeyName: !Join ["-", [slasher-standalone-webserver, !Ref EnvironmentType]]
       SecurityGroupIds:
-        - !Ref DevServerSecurityGroup
+        - !Ref WebServerSecurityGroup
       BlockDeviceMappings:
         - DeviceName: "/dev/sda1"
           Ebs:
@@ -224,13 +233,13 @@ Resources:
               [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
               npm install -g npm@8.2.0
             '
-  DevServerSecurityGroup:
+  WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Allow inbound HTTP/HTTPS/SSH traffic"
       Tags:
         - Key: Name
-          Value: slasher-dev
+          Value: !Join ["-", [slasher-standalone-webserver-security-group, !Ref EnvironmentType]]
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -249,14 +258,14 @@ Resources:
           ToPort: 27017
           CidrIp: !Ref SSHLocation
 
-  DevServerEIP:
+  WebServerEIP:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
-      InstanceId: !Ref DevServerInstance
+      InstanceId: !Ref WebServerInstance
       Tags:
         - Key: Name
-          Value: dev-server-eip
+          Value: !Join ["-", [slasher-standalone-webserver-eip, !Ref EnvironmentType]]
 
 Outputs:
   PublicIP:
@@ -264,6 +273,6 @@ Outputs:
       - ''
       - - 'http://'
         - !GetAtt
-          - DevServerInstance
+          - WebServerInstance
           - PublicIp
     Description: Server public IP address

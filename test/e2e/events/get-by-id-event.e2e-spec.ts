@@ -14,8 +14,9 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { eventsFactory } from '../../factories/events.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { Event } from '../../../src/schemas/event/event.schema';
+import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
 
-describe('Events update / :id (e2e)', () => {
+describe('Events / :id (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let eventService: EventService;
@@ -26,13 +27,6 @@ describe('Events update / :id (e2e)', () => {
   let activeEvent: Event;
   let activeEventCategory: EventCategory;
   let configService: ConfigService;
-
-  const sampleEventUpdateObject = {
-    name: 'Event 11',
-    event_info: 'Test event info',
-    url: 'https://example.test.com',
-    author: 'Event Author',
-  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -61,71 +55,33 @@ describe('Events update / :id (e2e)', () => {
     activeEvent = await eventService.create(eventsFactory.build({
       userId: activeUser._id,
       event_type: activeEventCategory._id,
+      status: EventActiveStatus.Active,
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
 
-  describe('PATCH /events/:id', () => {
-    describe('Successful update', () => {
-      it('update the event data successful and it returns the expected response', async () => {
+  describe('GET /events/:id', () => {
+    describe('Successful get event data', () => {
+      it('get the event data successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .get(`/events/${activeEvent._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleEventUpdateObject);
-        const eventDetails = await eventService.findById(response.body.id, false);
+          .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toMatchObject(sampleEventUpdateObject);
-        expect(eventDetails).toMatchObject(sampleEventUpdateObject);
+        expect(response.body._id).toEqual(activeEvent._id.toString());
+        expect(response.body.name).toEqual(activeEvent.name);
       });
 
-      it('when the author field is not provided, updated to other fields are still successful '
-        + 'and it returns the expected response', async () => {
-          const { author, ...restPostBody } = sampleEventUpdateObject;
-          const response = await request(app.getHttpServer())
-            .patch(`/events/${activeEvent._id}`)
-            .auth(activeUserAuthToken, { type: 'bearer' })
-            .send(restPostBody);
-          const eventDetails = await eventService.findById(response.body.id, false);
-          expect(response.status).toEqual(HttpStatus.OK);
-          expect(response.body.author).toBeUndefined();
-          expect(eventDetails).toMatchObject(restPostBody);
-          expect(eventDetails.author).toEqual(activeEvent.author);
-        });
-
-      it('update the event_info successful, it returns the expected response', async () => {
-        const {
-          author, name, url, ...restPostBody
-        } = sampleEventUpdateObject;
+      it('event not found if parameter id value does not exists', async () => {
+        const tempEventObjectId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .get(`/events/${tempEventObjectId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(restPostBody);
-        const eventDetails = await eventService.findById(response.body.id, false);
-        expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body.author).toBeUndefined();
-        expect(response.body.name).toBeUndefined();
-        expect(response.body.url).toBeUndefined();
-
-        expect(eventDetails.event_info).toEqual(sampleEventUpdateObject.event_info);
-        expect(eventDetails.author).toEqual(activeEvent.author);
-        expect(eventDetails.name).toEqual(activeEvent.name);
-        expect(eventDetails.url).toEqual(activeEvent.url);
-      });
-    });
-
-    describe('Validation', () => {
-      it('event_info is maximum 1000 characters long', async () => {
-        sampleEventUpdateObject.event_info = new Array(1002).join('a');
-
-        const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleEventUpdateObject);
-        expect(response.body.message).toContain(
-          'event_info must be shorter than or equal to 1000 characters',
-        );
+          .send();
+        expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+        expect(response.body.message).toContain('Event not found');
       });
     });
   });

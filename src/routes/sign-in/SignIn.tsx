@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
@@ -26,6 +26,12 @@ function SignIn() {
     emailOrUsername: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (Cookies.get('sessionToken')) {
+      navigate('/home');
+    }
+  }, []);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
@@ -92,9 +98,9 @@ function SignIn() {
                   </Link>
                 </p>
                 {errorMessage && errorMessage.length > 0 && (
-                  <ErrorMessageList errorMessages={errorMessage} />
+                  <ErrorMessageList errorMessages={errorMessage} className="m-0" />
                 )}
-                <RoundButton type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
+                <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

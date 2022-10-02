@@ -21,9 +21,9 @@ interface Props {
 }
 
 function RegistrationTerms({ activeStep }: Props) {
-  const registrationInfo = useAppSelector((state) => state.registration);
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const registrationInfo = useAppSelector((state) => state.registration);
+  const [errorMessages, setErrorMessages] = useState<string[]>();
   const [userHasAgreedToTerms, setUserHasAgreedToTerms] = useState(false);
   const [isAlert, setAlert] = useState(false);
   const submitRegister = () => {
@@ -36,7 +36,7 @@ function RegistrationTerms({ activeStep }: Props) {
       passwordConfirmation, securityQuestion,
       securityAnswer, day, month, year,
     } = registrationInfo;
-    const dobDate = `${year}-${month}-${day}`;
+    const dobIsoString = `${year}-${month}-${day}`;
     register(
       firstName,
       userName,
@@ -45,12 +45,12 @@ function RegistrationTerms({ activeStep }: Props) {
       passwordConfirmation,
       securityQuestion,
       securityAnswer,
-      dobDate,
+      dobIsoString,
     ).then(() => {
-      setErrorMessage([]);
+      setErrorMessages([]);
       navigate('/registration/final');
     }).catch((error) => {
-      setErrorMessage(error.response.data.message);
+      setErrorMessages(error.response.data.message);
     });
   };
 
@@ -69,7 +69,7 @@ function RegistrationTerms({ activeStep }: Props) {
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      {errorMessage && <ErrorMessageList errorMessages={errorMessage} />}
+      {errorMessages && <ErrorMessageList errorMessages={errorMessages} />}
       <div className="mt-1">
         <label htmlFor="term-agreement-checkbox" className="h2">
           <input

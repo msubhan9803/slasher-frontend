@@ -8,13 +8,20 @@ import { useDropzone } from 'react-dropzone';
 interface Props {
   aspectRatio?: string;
   className?: string;
-  onChange: (files: File | undefined) => void
+  height?: string;
+  style?: React.CSSProperties;
+  variant?: 'default' | 'outline';
+  onChange?: (files: File | undefined) => void
 }
 
 const StyledImageUploadContainer = styled.div`
   position: relative;
-  background: #1f1f1f;
   cursor: pointer;
+  background: var(--bs-dark);
+
+  &.variant-outline {
+    border: 1px solid #3A3B46 !important;
+  }
 
   img {
     max-height: 100%;
@@ -29,17 +36,18 @@ const CornerIconButton = styled(Button)`
   right: -0.35rem;
 `;
 
-function PhotoUploadInput({ aspectRatio, onChange, className }: Props) {
+function PhotoUploadInput({
+  aspectRatio, height, onChange, variant, className, style,
+}: Props) {
   const [photo, setPhoto] = useState<File>();
 
   useEffect(() => {
-    onChange(photo);
+    if (onChange) { onChange(photo); }
   }, [photo]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newPhoto = acceptedFiles?.[0] || null;
     setPhoto(newPhoto);
-    onChange(newPhoto);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -63,7 +71,11 @@ function PhotoUploadInput({ aspectRatio, onChange, className }: Props) {
     ));
 
   return (
-    <StyledImageUploadContainer {...getRootProps()} className={`d-flex align-items-center justify-content-center rounded ${className}`} style={{ aspectRatio }}>
+    <StyledImageUploadContainer
+      {...getRootProps()}
+      className={`image-upload d-flex align-items-center justify-content-center rounded ${className} variant-${variant}`}
+      style={{ aspectRatio, height, ...style }}
+    >
       <input {...getInputProps()} />
       {!photo && renderUploadPlaceholder(isDragActive)}
       {
@@ -101,6 +113,10 @@ function PhotoUploadInput({ aspectRatio, onChange, className }: Props) {
 PhotoUploadInput.defaultProps = {
   aspectRatio: '1',
   className: '',
+  variant: 'default',
+  style: {},
+  onChange: undefined,
+  height: undefined,
 };
 
 export default PhotoUploadInput;

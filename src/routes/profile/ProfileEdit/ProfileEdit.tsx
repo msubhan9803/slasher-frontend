@@ -1,8 +1,8 @@
 import React, { ChangeEvent, useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
-import UploadProfilePhotos from '../components/UploadProfilePhotos';
 
 function ProfileEdit() {
   const userData = {
@@ -16,9 +16,14 @@ function ProfileEdit() {
           <Row>
             <Col md={6} lg={12} xl={6}>
               <div className="d-block d-md-flex align-items-center">
-                <div className="d-flex justify-content-center me-md-4">
-                  <UploadProfilePhotos id="profile-photo" />
-                </div>
+                <PhotoUploadInput
+                  className="mx-auto mx-md-0 me-md-3"
+                  height="10rem"
+                  variant="outline"
+                // onChange={(file) => {
+                //   // TODO
+                // }}
+                />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change profile photo</h1>
                   <div className="d-block justify-content-center">
@@ -34,9 +39,14 @@ function ProfileEdit() {
             </Col>
             <Col md={6} lg={12} xl={6} className="mt-5 mt-md-0 mt-lg-5 mt-xl-0">
               <div className="d-block d-md-flex align-items-center">
-                <div className="d-flex justify-content-center me-md-4">
-                  <UploadProfilePhotos id="cover-photo" />
-                </div>
+                <PhotoUploadInput
+                  className="mx-auto mx-md-0 me-md-3"
+                  height="10rem"
+                  variant="outline"
+                // onChange={(file) => {
+                //   // TODO
+                // }}
+                />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>
                   <div className="d-block justify-content-center">

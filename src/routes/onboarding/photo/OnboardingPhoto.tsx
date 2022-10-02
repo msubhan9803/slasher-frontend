@@ -31,9 +31,10 @@ function OnboardingPhoto() {
     <UnauthenticatedPageWrapper hideFooter valign="center">
       <h1 className="h2 text-center">Add your profile photo</h1>
       <Form>
-        <div className="my-3 mx-auto text-center" style={{ width: '285px' }}>
+        <div className="my-3">
           <PhotoUploadInput
-            className="my-5"
+            height="19rem"
+            className="my-5 mx-auto"
             onChange={(file) => {
               setImageUpload(file);
             }}

@@ -16,41 +16,49 @@ const TrucatedDescription = styled.small`
 function NewsIndex() {
   const newsAndReviews = [
     {
+      id: 1,
       logo: placeholderUser,
       name: 'Horror Oasis',
       description: 'It is a long established fact that a reader will be by the readable content of a page when looking at a page when looking at',
     },
     {
+      id: 2,
       logo: placeholderUser,
       name: 'Horror Fix',
       description: 'Explore Stormmie\'s board "Horror Fix" ideas about horror, horror movies, scary movies ,  about horror',
     },
     {
+      id: 3,
       logo: placeholderUser,
       name: 'Gruesome Magazine',
       description: 'Gruesome Magazine is launching a quarterly magazine available in both print and digital magazine available',
     },
     {
+      id: 4,
       logo: placeholderUser,
       name: 'HorrorNews',
       description: 'Latest Horror News, Reviews, Movie Releases, Trailers, Articles and More! ',
     },
     {
+      id: 5,
       logo: placeholderUser,
       name: 'Horror Oasis',
       description: 'It is a long established fact that a reader will be by the readable content of a page when looking at a page when looking at',
     },
     {
+      id: 6,
       logo: placeholderUser,
       name: 'Horror Fix',
       description: 'Explore Stormmie\'s board "Horror Fix" ideas about horror, horror movies, scary movies....',
     },
     {
+      id: 7,
       logo: placeholderUser,
       name: 'Gruesome Magazine',
       description: 'Gruesome Magazine is launching a quarterly magazine available in both print and digital magazine available',
     },
     {
+      id: 8,
       logo: placeholderUser,
       name: 'HorrorNews',
       description: 'Latest Horror News, Reviews, Movie Releases, Trailers, Articles and More! ',
@@ -66,7 +74,7 @@ function NewsIndex() {
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
         {newsAndReviews.map((news) => (
-          <Col key={news.name} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
+          <Col key={news.id} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
             <Card className="bg-transparent border-0">
               <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
               <Card.Body className="px-0">

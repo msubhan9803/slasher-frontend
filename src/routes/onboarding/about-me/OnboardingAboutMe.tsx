@@ -13,20 +13,24 @@ import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 function OnboardingAboutMe() {
   const navigate = useNavigate();
   const [message, setMessage] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [errorMessages, setErrorMessages] = useState<string[]>();
 
-  const handleAboutMeAPI = () => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    // Clear any old error messages
+    setErrorMessages([]);
+
     if (message.length === 0) {
-      setErrorMessage(['Please enter about yourself']);
-      return true;
+      setErrorMessages(['Please add some text to describe yourself to the community, or tap the "Skip" button to skip this step for now.']);
+      return;
     }
+
     onboardingAboutMe(message).then(() => {
-      setErrorMessage([]);
       navigate('/onboarding/hashtag');
     }).catch((error) => {
-      setErrorMessage(error.response.data.message);
+      setErrorMessages(error.response.data.message);
     });
-    return true;
   };
   return (
     <UnauthenticatedPageWrapper hideFooter valign="start">
@@ -45,26 +49,26 @@ function OnboardingAboutMe() {
             />
           </Col>
         </Row>
+        {errorMessages && errorMessages.length > 0 && (
+          <ErrorMessageList errorMessages={errorMessages} />
+        )}
+        <Row className="justify-content-center my-5">
+          <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
+            <Row>
+              <Col xs={6}>
+                <RoundButtonLink to="/onboarding/hashtag" className="w-100" variant="dark">
+                  Skip
+                </RoundButtonLink>
+              </Col>
+              <Col xs={6}>
+                <RoundButton type="submit" className="w-100" variant="primary" onClick={handleSubmit}>
+                  Next step
+                </RoundButton>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
       </Form>
-      {errorMessage && errorMessage.length > 0 && (
-        <ErrorMessageList errorMessages={errorMessage} />
-      )}
-      <Row className="justify-content-center my-5">
-        <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
-          <Row>
-            <Col xs={6}>
-              <RoundButtonLink to="/onboarding/hashtag" className="w-100" variant="dark">
-                Skip
-              </RoundButtonLink>
-            </Col>
-            <Col xs={6}>
-              <RoundButton type="submit" className="w-100" variant="primary" onClick={handleAboutMeAPI}>
-                Next step
-              </RoundButton>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
     </UnauthenticatedPageWrapper>
   );
 }

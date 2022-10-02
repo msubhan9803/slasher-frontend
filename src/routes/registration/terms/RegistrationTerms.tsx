@@ -5,12 +5,15 @@ import {
   Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { register } from '../../../api/users';
 import CommunityStandardsAndRules from '../../../components/terms-and-policies/CommunityStandardsAndRules';
 import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndUserLicenseAgreement';
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 
 interface Props {
@@ -19,10 +22,38 @@ interface Props {
 
 function RegistrationTerms({ activeStep }: Props) {
   const navigate = useNavigate();
+  const registrationInfo = useAppSelector((state) => state.registration);
+  const [errorMessages, setErrorMessages] = useState<string[]>();
   const [userHasAgreedToTerms, setUserHasAgreedToTerms] = useState(false);
   const [isAlert, setAlert] = useState(false);
+  const submitRegister = () => {
+    if (!userHasAgreedToTerms) {
+      setAlert(true);
+    }
 
-  const handleSignup = () => (userHasAgreedToTerms ? navigate('/registration/final') : setAlert(true));
+    const {
+      firstName, userName, email, password,
+      passwordConfirmation, securityQuestion,
+      securityAnswer, day, month, year,
+    } = registrationInfo;
+    const dobIsoString = `${year}-${month}-${day}`;
+    register(
+      firstName,
+      userName,
+      email,
+      password,
+      passwordConfirmation,
+      securityQuestion,
+      securityAnswer,
+      dobIsoString,
+    ).then(() => {
+      setErrorMessages([]);
+      navigate('/registration/final');
+    }).catch((error) => {
+      setErrorMessages(error.response.data.message);
+    });
+  };
+
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
@@ -38,6 +69,7 @@ function RegistrationTerms({ activeStep }: Props) {
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
+      {errorMessages && <ErrorMessageList errorMessages={errorMessages} />}
       <div className="mt-1">
         <label htmlFor="term-agreement-checkbox" className="h2">
           <input
@@ -54,15 +86,17 @@ function RegistrationTerms({ activeStep }: Props) {
         {isAlert && <Alert variant="info">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
       </div>
       <Row className="justify-content-center my-5">
-        <Col sm={4} md={3} className="mb-sm-0 mb-3">
-          <RoundButtonLink to="/registration/security" className="w-100" variant="secondary">
+        <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
+          <RoundButtonLink
+            to="/registration/security"
+            className="w-100"
+            variant="secondary"
+          >
             Previous step
           </RoundButtonLink>
         </Col>
-        <Col sm={4} md={3}>
-          <RoundButton className="w-100" onClick={handleSignup}>
-            Sign up
-          </RoundButton>
+        <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
+          <RoundButton className="mb-3 w-100" onClick={() => submitRegister()}>Sign up</RoundButton>
         </Col>
       </Row>
     </RegistrationPageWrapper>

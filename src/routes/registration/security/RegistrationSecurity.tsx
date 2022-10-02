@@ -13,7 +13,6 @@ import RegistartionSecurityList from '../components/RegistrationSecurityList';
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
-
 interface Props {
   activeStep: number;
 }

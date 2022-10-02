@@ -1,7 +1,6 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Alert,
   Form,
   Row,
 } from 'react-bootstrap';
@@ -10,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
 import RoundButton from '../../../components/ui/RoundButton';
 import { checkUserEmail, checkUserName } from '../../../api/users';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface Props {
   activeStep: number;
@@ -19,12 +19,7 @@ function RegistrationIdentity({ activeStep }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const identityInfo = useAppSelector((state) => state.registration);
-  const [userErrorMessageList, setUserErrorMessageList] = useState<string[]>();
-  const [emailErrorMessageList, setEmailErrorMessageList] = useState<string[]>();
-
-  useEffect(() => {
-    if (emailErrorMessageList?.length === 0 && userErrorMessageList?.length === 0) navigate('/registration/security');
-  }, [emailErrorMessageList, userErrorMessageList]);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...identityInfo };
@@ -32,17 +27,29 @@ function RegistrationIdentity({ activeStep }: Props) {
     dispatch(setIdentityFields(registerInfoTemp));
   };
 
-  const checkUserNameEmail = () => {
-    checkUserName(identityInfo.userName)
-      .then(() => setUserErrorMessageList([]))
-      .catch((error) => {
-        setUserErrorMessageList(error.response.data.message);
-      });
-    checkUserEmail(identityInfo.email)
-      .then(() => setEmailErrorMessageList([]))
-      .catch((error) => {
-        setEmailErrorMessageList(error.response.data.message);
-      });
+  const validateAndGoToNextStep = async (e: MouseEvent) => {
+    e.preventDefault();
+    let errorList: string[] = [];
+
+    try {
+      await checkUserName(identityInfo.userName);
+    } catch (requestError: any) {
+      errorList = errorList.concat(requestError.response.data.message);
+    }
+
+    try {
+      await checkUserEmail(identityInfo.email);
+    } catch (requestError: any) {
+      errorList = errorList.concat(requestError.response.data.message);
+    }
+
+    setErrors(errorList);
+
+    if (errorList.length > 0) {
+      return;
+    }
+
+    navigate('/registration/security');
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -92,32 +99,22 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-          {((userErrorMessageList && userErrorMessageList.length > 0)
-            || (emailErrorMessageList && emailErrorMessageList.length > 0))
-            && (
-              <Alert variant="info" className="m-0">
-                <ul className="m-0">
-                  {userErrorMessageList?.map(
-                    (userErrorMessage) => (<li key={userErrorMessage}>{userErrorMessage}</li>),
-                  )}
-                  {emailErrorMessageList?.map(
-                    (emailErrorMessage) => (<li key={emailErrorMessage}>{emailErrorMessage}</li>),
-                  )}
-                </ul>
-              </Alert>
-            )}
+          {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
           <div className="col-md-4 my-5">
             <RoundButton
               variant="primary"
               className="w-100"
-              onClick={checkUserNameEmail}
+              type="submit"
+              onClick={validateAndGoToNextStep}
             >
               Next step
             </RoundButton>
           </div>
           <div className="text-center fs-5">
             Already have an account?
+            {' '}
             <Link to="/sign-in" className="text-primary">Click here</Link>
+            {' '}
             to go to the sign in screen.
           </div>
         </Row>

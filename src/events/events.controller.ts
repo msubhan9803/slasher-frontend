@@ -70,16 +70,8 @@ export class EventsController {
       throw new HttpException('name should not be empty', HttpStatus.BAD_REQUEST);
     }
 
-    if (!createEventDto.userId) {
-      throw new HttpException('userId should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
     if (user.id !== createEventDto.userId) {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
-    }
-
-    if (!createEventDto.event_type) {
-      throw new HttpException('event_type should not be empty', HttpStatus.BAD_REQUEST);
     }
 
     if (!createEventDto.startDate) {

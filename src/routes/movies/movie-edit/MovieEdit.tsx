@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
+import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import MoviesModal from '../components/MoviesModal';
-import UploadCoverArt from './UploadCoverArt';
 
 const StyleButton = styled.div`
   .deactivate-btn {
@@ -26,6 +26,7 @@ function MovieEdit() {
   // TODO: If user does not own this movie listing, redirect to details view instead of edit view
 
   const [show, setShow] = useState(false);
+  const [, setImageUpload] = useState<File>();
   const [message, setMessage] = useState('');
   const [charCount, setCharCount] = useState(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +39,13 @@ function MovieEdit() {
 
         <div className="mb-4 d-block d-lg-flex align-items-center">
           <div className="d-flex justify-content-center me-lg-4">
-            <UploadCoverArt id="cover-art" />
+            <PhotoUploadInput
+              height="9.688rem"
+              style={{ border: '1px solid #3A3B46' }}
+              onChange={(file) => {
+                setImageUpload(file);
+              }}
+            />
           </div>
           <div className="text-center text-lg-start mt-4 mt-lg-0">
             <h1 className="h3 mb-2">Upload cover art</h1>
@@ -95,7 +102,13 @@ function MovieEdit() {
         <h2 className="h2 fw-bold mb-3 mt-4">Top billed cast</h2>
         <div className="mb-4 d-block d-lg-flex align-items-center">
           <div className="d-flex justify-content-center me-lg-4">
-            <UploadCoverArt id="cast" />
+            <PhotoUploadInput
+              height="9.688rem"
+              style={{ border: '1px solid #3A3B46' }}
+              onChange={(file) => {
+                setImageUpload(file);
+              }}
+            />
           </div>
           <div className="text-center text-lg-start mt-4 mt-lg-0">
             <h1 className="h3 mb-2">Add cast member photo</h1>

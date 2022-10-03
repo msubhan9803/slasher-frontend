@@ -7,7 +7,7 @@ import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wra
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import onboardingPhoto from '../../../api/onboarding';
+import { onboardingPhoto } from '../../../api/onboarding';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 
 function OnboardingPhoto() {

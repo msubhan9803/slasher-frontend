@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import signInImage from '../../images/sign-in.png';
@@ -47,6 +47,7 @@ function SignIn() {
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
       Cookies.set('sessionToken', res.data.token);
+      Cookies.set('userId', res.data.id);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);

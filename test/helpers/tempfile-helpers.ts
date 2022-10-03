@@ -9,27 +9,45 @@ interface TempFileOptions {
 }
 
 type TempFileCallback = (filePath: string) => void;
+type TempFilesCallback = (filePaths: string[]) => void;
 
 /**
- * Creates a temporary file using the given options and automatically deletes it after
+ * Creates multiple temporary files using the given options[] (with an element for each tempfile
+ * that you want), and automatically deletes the tempfiles after the given callback completes.
+ * @param callback
+ * @param optionsArr
+ */
+export async function createTempFiles(callback: TempFilesCallback, optionsArr?: TempFileOptions[]) {
+  const tempFilePaths: string[] = [];
+  for (const options of optionsArr) {
+    let { extension, size } = options;
+    extension ||= '';
+    size ||= 0;
+
+    const tempFilePath = path.join(os.tmpdir(), `${uuidv4()}.${extension}`);
+
+    const fh = fs.openSync(tempFilePath, 'w');
+    fs.writeSync(fh, '.', Math.max(0, size - 1));
+    fs.closeSync(fh);
+
+    tempFilePaths.push(tempFilePath);
+  }
+
+  try {
+    await callback(tempFilePaths);
+  } finally {
+    for (const tempFilePath of tempFilePaths) {
+      fs.unlinkSync(tempFilePath);
+    }
+  }
+}
+
+/**
+ * Creates a single, temporary file using the given options and automatically deletes the file after
  * the callback completes.
  * @param callback
  * @param options
  */
 export async function createTempFile(callback: TempFileCallback, options?: TempFileOptions) {
-  let { extension, size } = options;
-  extension ||= '';
-  size ||= 0;
-
-  const tempFilePath = path.join(os.tmpdir(), `${uuidv4()}.${extension}`);
-
-  const fh = fs.openSync(tempFilePath, 'w');
-  fs.writeSync(fh, '.', Math.max(0, size - 1));
-  fs.closeSync(fh);
-
-  try {
-    await callback(tempFilePath);
-  } finally {
-    fs.unlinkSync(tempFilePath);
-  }
+  await createTempFiles(async (filePaths) => { await callback(filePaths[0]); }, [options]);
 }

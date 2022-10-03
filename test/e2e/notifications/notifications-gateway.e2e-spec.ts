@@ -75,10 +75,10 @@ describe('Notifications Gateway (e2e)', () => {
       });
 
       // Make request that will trigger emitted event
-      request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/notifications/test')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.OK)
+        .expect(HttpStatus.CREATED)
         .expect('test');
 
       // Await socket response to receive emitted event

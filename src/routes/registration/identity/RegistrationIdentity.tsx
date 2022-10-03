@@ -27,7 +27,7 @@ function RegistrationIdentity({ activeStep }: Props) {
     dispatch(setIdentityFields(registerInfoTemp));
   };
 
-  const validateAndGoToNextStep = async (e: MouseEvent) => {
+  const validateAndGoToNextStep = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     let errorList: string[] = [];
 

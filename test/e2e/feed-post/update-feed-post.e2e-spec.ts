@@ -72,24 +72,8 @@ describe('Update Feed Post (e2e)', () => {
   });
 
   describe('Validation', () => {
-    it('successfully update feed post details', async () => {
-      sampleFeedPostObject.message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-      + 'Proin molestie neque eros, eu dignissim tellus dignissim pretium.'
-      + 'Suspendisse sodales arcu posuere, porttitor urna at, scelerisque purus.'
-      + 'Phasellus ac diam vel ante blandit commodo non a leo Aliquam erat volutpat.'
-      + 'Quisque dapibus pulvinar purus, et sollicitudin leo iaculis quis.'
-      + 'Duis fringilla arcu et hendrerit dapibus. Donec imperdiet ex velit, non pretium ipsum varius in.'
-      + 'Aenean at lacus eu tellus laoreet condimentum porttitor at ipsum. Praesent quis tellus id purus pulvinar imperdiet.'
-      + 'Nulla facilisi.Praesent in tristique dui, eu elementum felis. Nunc quis lobortis ante. In ut lacinia massa.'
-      + 'Nullam non maximus ligula, at tristique neque. Nunc id dignissim lectus.'
-      + 'Proin sit amet convallis leo. Nulla facilisi.Curabitur facilisis aliquam erat,'
-      + 'eget elementum odio gravida ac. Proin id leo at arcu porta euismod non quis est.'
-      + 'Ut faucibus mi risus, at ornare libero fringilla at.'
-      + 'Integer nec velit accumsan, convallis quam at, rhoncus tortor. Morbi et nisi aliquet, bibendum sem bibendum, dictum sem.'
-      + 'Vivamus porttitor dapibus elit, a cursus ligula tincidunt quis.'
-      + 'Donec efficitur mauris sed mauris sagittis, vel gravida odio porttitor.'
-      + 'Nulla et leo nunc. Donec lacinia consectetur urna nec tristique'
-      + 'Fusce efficitur odio vitae arcu vestibulum, in mollis erat egestas. Proin tincidunt vitae arcu vitae ultrices';
+    it('check message length validation', async () => {
+      sampleFeedPostObject.message = new Array(1002).join('z');
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

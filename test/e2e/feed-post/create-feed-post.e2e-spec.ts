@@ -7,7 +7,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { createTempFile } from '../../helpers/tempfile-helpers';
+import { createTempFiles } from '../../helpers/tempfile-helpers';
 import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Feed-Post / Post File (e2e)', () => {
@@ -47,15 +47,105 @@ describe('Feed-Post / Post File (e2e)', () => {
       );
     });
     it('SuccessFully create feed posts', async () => {
-      await createTempFile(async (tempPath) => {
-        await request(app.getHttpServer())
-          .post('/feed-post')
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
           .field('message', 'hello test user')
-          .attach('file', tempPath)
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3])
           .expect(HttpStatus.CREATED);
-      }, { extension: 'png' });
+        expect(response.body.message).toBe('hello test user');
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+    });
+
+    it('responds expected response when file is not jpg, jpeg or png', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
+          .field('message', 'hello test user')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3]);
+        expect(response.body.message).toBe('Invalid file type');
+      }, [{ extension: 'zpng' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
+    });
+
+    it('responds expected response when file is not present in request', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '');
+          expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+    });
+
+    it('only allow a maximum of four images', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
+          .field('message', 'hello test user')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3])
+          .attach('files', tempPaths[4]);
+        expect(response.body.message).toBe('Only allow a maximum of 4 images');
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+    });
+
+    it('responds expected response if file size should not larger than 20MB', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
+          .field('message', 'hello test user')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body.message).toBe('File too large');
+      }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+    });
+
+    it('check file exists or not in req body', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
+          .field('message', 'hello test user')
+          .field('userId', activeUser._id.toString());
+        expect(response.body.message).toBe('Please upload a file');
+    });
+
+    it('check message length validation', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .set('Connection', 'keep-alive')
+          .field('message', new Array(1002).join('z'))
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
     });
   });
 });

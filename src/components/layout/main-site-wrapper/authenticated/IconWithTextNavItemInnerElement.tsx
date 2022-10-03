@@ -23,7 +23,7 @@ function IconWithTextNavItemInnerElement({
     <div className="d-flex flex-column justify-content-between text-center position-relative text-decoration-none fs-5">
       {/* <div className="d-flex flex-column position-relative fs-5"> */}
       <FontAwesomeIcon icon={icon} size={iconSize} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
-      {badge
+      {!!badge
         && (
           <BadgeSpan className="top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
             {badge}

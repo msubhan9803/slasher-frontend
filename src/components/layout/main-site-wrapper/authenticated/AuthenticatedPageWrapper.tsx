@@ -20,6 +20,9 @@ import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
 import NotificationsRIghtSideNav from '../../../../routes/notifications/NotificationsRIghtSideNav';
 import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
+import { userInitialData } from '../../../../api/users';
+import { setUserInitialData } from '../../../../redux/slices/userSlice';
+import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 
 interface Props {
   children: React.ReactNode;
@@ -56,10 +59,20 @@ const desktopBreakPoint = 'lg';
 
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const initialDataLoaded = useAppSelector((state) => state.user.userName !== '');
+
   useEffect(() => {
     const token = Cookies.get('sessionToken');
     if (!token) {
       navigate('/sign-in');
+      return;
+    }
+
+    if (!initialDataLoaded) {
+      userInitialData().then((res) => {
+        dispatch(setUserInitialData(res.data));
+      });
     }
   }, []);
 

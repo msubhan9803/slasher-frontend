@@ -29,6 +29,7 @@ function Home() {
       setDropDownValue(value);
     }
   };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div>

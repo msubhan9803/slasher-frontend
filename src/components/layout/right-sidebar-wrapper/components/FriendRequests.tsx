@@ -9,7 +9,7 @@ interface FriendRequest {
 }
 
 function FriendRequests() {
-  const friendRequests = useAppSelector((state) => state?.user?.friendRequests);
+  const friendRequests = useAppSelector((state) => state.user.friendRequests);
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo="/" />

@@ -11,7 +11,7 @@ interface RecentMessage {
 }
 
 function RecentMessages() {
-  const recentMessageDetails = useAppSelector((state) => state?.user?.recentMessages);
+  const recentMessageDetails = useAppSelector((state) => state.user.recentMessages);
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />

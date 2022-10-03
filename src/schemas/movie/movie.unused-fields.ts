@@ -4,14 +4,6 @@ import { MovieActiveStatus, MovieDeletionStatus, MovieType } from './movie.enums
 
 export class MovieUnusedFields {
   // NOT USED
-  @Prop({ default: null, trim: true })
-  name: string;
-
-  // NOT USED
-  @Prop({ default: null, trim: true })
-  sort_name: string;
-
-  // NOT USED
   @Prop({ default: null })
   descriptions: string;
 

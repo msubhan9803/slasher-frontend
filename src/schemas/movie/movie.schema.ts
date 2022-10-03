@@ -16,6 +16,15 @@ export class Movie extends MovieUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  @Prop({ default: null, trim: true })
+  name: string;
+
+  @Prop({ default: null, trim: true })
+  sort_name: string;
+
+  @Prop({ default: null, trim: true })
+  sort_releaseDate: string;
+
   @Prop({ type: Array, default: null, trim: true })
   trailerUrls: string[];
 

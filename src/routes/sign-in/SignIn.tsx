@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
+import Cookies from 'js-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Cookies from 'js-cookie';
 import signInImage from '../../images/sign-in.png';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
@@ -26,6 +26,12 @@ function SignIn() {
     emailOrUsername: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (Cookies.get('sessionToken')) {
+      navigate('/home');
+    }
+  }, []);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
@@ -41,6 +47,7 @@ function SignIn() {
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
       Cookies.set('sessionToken', res.data.token);
+      Cookies.set('userId', res.data.id);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
@@ -91,9 +98,9 @@ function SignIn() {
                   </Link>
                 </p>
                 {errorMessage && errorMessage.length > 0 && (
-                  <ErrorMessageList errorMessages={errorMessage} />
+                  <ErrorMessageList errorMessages={errorMessage} className="m-0" />
                 )}
-                <RoundButton type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
+                <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                   Sign in
                 </RoundButton>
                 <p className="text-center">OR</p>

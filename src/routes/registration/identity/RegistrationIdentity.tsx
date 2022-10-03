@@ -1,26 +1,55 @@
-import React, { ChangeEvent } from 'react';
-import { Link } from 'react-router-dom';
+import React, { ChangeEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Form,
   Row,
 } from 'react-bootstrap';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
-import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
+import RoundButton from '../../../components/ui/RoundButton';
+import { checkUserEmail, checkUserName } from '../../../api/users';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface Props {
   activeStep: number;
 }
 
 function RegistrationIdentity({ activeStep }: Props) {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const identityInfo = useAppSelector((state) => state.registration);
+  const [errors, setErrors] = useState<string[]>([]);
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...identityInfo };
     (registerInfoTemp as any)[key] = value;
     dispatch(setIdentityFields(registerInfoTemp));
+  };
+
+  const validateAndGoToNextStep = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    let errorList: string[] = [];
+
+    try {
+      await checkUserName(identityInfo.userName);
+    } catch (requestError: any) {
+      errorList = errorList.concat(requestError.response.data.message);
+    }
+
+    try {
+      await checkUserEmail(identityInfo.email);
+    } catch (requestError: any) {
+      errorList = errorList.concat(requestError.response.data.message);
+    }
+
+    setErrors(errorList);
+
+    if (errorList.length > 0) {
+      return;
+    }
+
+    navigate('/registration/security');
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -70,19 +99,22 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-
+          {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
           <div className="col-md-4 my-5">
-            <RoundButtonLink
-              to="/registration/security"
+            <RoundButton
               variant="primary"
               className="w-100"
+              type="submit"
+              onClick={validateAndGoToNextStep}
             >
               Next step
-            </RoundButtonLink>
+            </RoundButton>
           </div>
           <div className="text-center fs-5">
             Already have an account?
+            {' '}
             <Link to="/sign-in" className="text-primary">Click here</Link>
+            {' '}
             to go to the sign in screen.
           </div>
         </Row>

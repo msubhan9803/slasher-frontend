@@ -15,10 +15,21 @@ export function IsValidUsername(validationOptions?: ValidationOptions) {
       validator: {
         validate(value: any): any {
           const nameLength = value.length;
-          if (nameLength >= 3 && nameLength <= 30 && /^[a-zA-Z0-9]([a-zA-Z0-9_.-]+)[a-zA-Z0-9]$/.test(value)) {
-            return true;
+          if (nameLength < 3 || nameLength > 30) {
+            return false;
           }
-          return false;
+
+          if (/^[a-f\d]{24}$/i.test(value)) {
+            // This is our user id format, so we don't want a username to match this in case we ever
+            // have an endpoint that matches on user id OR username
+            return false;
+          }
+
+          if (!(/^[a-zA-Z0-9]([a-zA-Z0-9_.-]+)[a-zA-Z0-9]$/.test(value))) {
+            return false; // validate that username starts, contains, and ends with the correct characters
+          }
+
+          return true;
         },
       },
     });

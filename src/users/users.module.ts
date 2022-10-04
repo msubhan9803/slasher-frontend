@@ -7,7 +7,7 @@ import { MailService } from '../providers/mail.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
-import { FeedPostsService } from '../feed-post/providers/feed-posts.service';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 
 @Module({

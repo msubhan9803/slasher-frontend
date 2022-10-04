@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class SingleFeedPostDto {
+export class SingleFeedPostsDto {
   @IsString()
   id: string;
 }

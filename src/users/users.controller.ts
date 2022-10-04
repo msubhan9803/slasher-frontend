@@ -42,8 +42,8 @@ import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
-import { LimitOrEarlierThanPostIdDto } from '../feed-post/dto/limit-earlier-than-post-id.dto';
-import { FeedPostsService } from '../feed-post/providers/feed-posts.service';
+import { LimitOrEarlierThanPostIdDto } from '../feed-posts/dto/limit-earlier-than-post-id.dto';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 

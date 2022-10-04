@@ -8,9 +8,9 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
 import { FeedPostsService } from './providers/feed-posts.service';
-import { CreateOrUpdateFeedPostDto } from './dto/create-or-update-feed-post.dto';
+import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
-import { SingleFeedPostDto } from './dto/find-single-feed-post.dto';
+import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 
 @Controller('feed-posts')
@@ -44,10 +44,10 @@ export class FeedPostsController {
   )
   async createFeedPost(
     @Req() request: Request,
-    @Body() createOrUpdateFeedPostDto: CreateOrUpdateFeedPostDto,
+    @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files.length && createOrUpdateFeedPostDto.message === '') {
+    if (!files.length && createOrUpdateFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
         HttpStatus.BAD_REQUEST,
@@ -77,7 +77,7 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation });
     }
 
-    const feedPost = new FeedPost(createOrUpdateFeedPostDto);
+    const feedPost = new FeedPost(createOrUpdateFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
@@ -92,7 +92,7 @@ export class FeedPostsController {
   @Get(':id')
   async singleFeedPostDetails(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    param: SingleFeedPostDto,
+    param: SingleFeedPostsDto,
     ) {
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
@@ -104,8 +104,8 @@ export class FeedPostsController {
   @Patch(':id')
   async update(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    param: SingleFeedPostDto,
-    @Body() createOrUpdateFeedPostDto: CreateOrUpdateFeedPostDto,
+    param: SingleFeedPostsDto,
+    @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
     ) {
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
@@ -117,7 +117,7 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostDto);
+    const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
     return {
       id: feedPostData.id,
       message: feedPostData.message,

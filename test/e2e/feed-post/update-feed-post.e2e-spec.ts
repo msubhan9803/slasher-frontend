@@ -8,7 +8,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
-import { FeedPostsService } from '../../../src/feed-post/providers/feed-posts.service';
+import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 

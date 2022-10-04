@@ -63,6 +63,12 @@ export class Event extends EventUnusedFields {
   @Prop({ default: false })
   deleted: boolean;
 
+  // This is an array of FULL https URLs to images that have been uploaded as part of event suggestion.
+  // Unfortunately, this is not consistent with how images are normally handled in other contexts
+  // (those are usually an array of objects with a key that holds a relative image path).
+  @Prop({ type: Array, default: [] })
+  images: string[];
+
   /***********
    * Methods *
    ***********/

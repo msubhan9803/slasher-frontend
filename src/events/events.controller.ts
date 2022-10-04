@@ -100,16 +100,13 @@ export class EventsController {
 
     const images = [];
     for (const file of files) {
-      const storageLocation = `feedPost/feedPost_${file.filename}`;
+      const storageLocation = `/event/event_${file.filename}`;
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
-        const s3hostUrl = `${this.config.get<string>('S3_HOST')}/feedPost/feedPost_${file.filename}`;
         await this.s3StorageService.write(storageLocation, file);
-        images.push({ image_path: s3hostUrl });
       } else {
         this.localStorageService.write(storageLocation, file);
-        const localhostUrl = this.localStorageService.getLocalFilePath(`/${storageLocation}`);
-        images.push({ image_path: localhostUrl });
       }
+      images.push(storageLocation);
     }
 
     const createEventData = new Event(createEventDto);

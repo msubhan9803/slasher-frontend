@@ -53,7 +53,7 @@ function PlacesEdit() {
             <CustomCol xs={12} md={3} className="mx-auto mx-md-0">
               <PhotoUploadInput
                 height="9.688rem"
-                style={{ border: '1px solid #3A3B46' }}
+                variant="outline"
                 onChange={(file) => {
                   setImageUpload(file);
                 }}

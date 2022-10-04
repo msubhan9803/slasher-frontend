@@ -50,7 +50,7 @@ function EventSuggestion() {
               <CustomCol xs={12} md={3} className="mx-auto mx-md-0">
                 <PhotoUploadInput
                   height="9rem"
-                  style={{ border: '1px solid #3A3B46' }}
+                  variant="outline"
                   onChange={(file) => {
                     setImageUpload(file);
                   }}

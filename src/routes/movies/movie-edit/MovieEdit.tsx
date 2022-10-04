@@ -41,7 +41,7 @@ function MovieEdit() {
           <div className="d-flex justify-content-center me-lg-4">
             <PhotoUploadInput
               height="9.688rem"
-              style={{ border: '1px solid #3A3B46' }}
+              variant="outline"
               onChange={(file) => {
                 setImageUpload(file);
               }}
@@ -104,7 +104,7 @@ function MovieEdit() {
           <div className="d-flex justify-content-center me-lg-4">
             <PhotoUploadInput
               height="9.688rem"
-              style={{ border: '1px solid #3A3B46' }}
+              variant="outline"
               onChange={(file) => {
                 setImageUpload(file);
               }}

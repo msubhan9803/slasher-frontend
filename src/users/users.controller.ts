@@ -45,6 +45,7 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { LimitOrEarlierThanPostIdDto } from '../feed-post/dto/limit-earlier-than-post-id.dto';
 import { FeedPostsService } from '../feed-post/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
+import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 
 @Controller('users')
 export class UsersController {
@@ -326,6 +327,22 @@ export class UsersController {
         },
       ],
     };
+  }
+
+  @Get(':userNameOrId')
+  async findOne(@Param('userNameOrId') userNameOrId: string) {
+    let user: UserDocument;
+    if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
+      user = await this.usersService.findById(userNameOrId);
+    } else {
+      user = await this.usersService.findByUsername(userNameOrId);
+    }
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return pick(user, ['id', 'firstName', 'userName', 'profilePic']);
   }
 
   @Patch(':id')

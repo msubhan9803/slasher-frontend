@@ -10,6 +10,8 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { createPost } from '../../../api/posts';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 const PostImageContainer = styled.div`
   width: 7.25rem;
@@ -24,6 +26,8 @@ function CreatePost() {
   const inputFile = useRef<HTMLInputElement>(null);
   const [postContent, setPostContent] = useState('');
   const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [imageArray, setImageArray] = useState<any>([]);
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
@@ -31,20 +35,31 @@ function CreatePost() {
     }
     if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
+      const imageArrayList = [...imageArray];
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
           const image = URL.createObjectURL(postImage.target.files[list]);
           uploadedPostList.push(image);
+          imageArrayList.push(postImage.target.files[list]);
         }
       }
       setUploadPost(uploadedPostList);
+      setImageArray(imageArrayList);
     }
   };
 
-  const handleRemoveFile = (postImage: string) => {
-    const removePostImage = uploadPost.filter((image) => image !== postImage, postContent);
-    setUploadPost(removePostImage);
+  const handleRemoveFile = (postImage: File) => {
+    const removePostImage = imageArray.filter((image: File) => image !== postImage);
+    setImageArray(removePostImage);
+  };
+
+  const addPost = () => {
+    createPost(postContent, imageArray)
+      .then(() => setErrorMessage([]))
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
   };
 
   return (
@@ -85,11 +100,11 @@ function CreatePost() {
         <Row>
           <Col xs={12} className="order-1 order-md-0">
             <Row>
-              {uploadPost.map((post: string) => (
-                <Col xs="auto" key={post} className="mb-1">
+              {imageArray.map((post: File) => (
+                <Col xs="auto" key={post.name} className="mb-1">
                   <PostImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
                     <Image
-                      src={post}
+                      src={URL.createObjectURL(post)}
                       alt="Dating profile photograph"
                       className="w-100 h-100 img-fluid rounded"
                     />
@@ -110,6 +125,11 @@ function CreatePost() {
               ))}
             </Row>
           </Col>
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
           <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
             <AddPhotosButton size="md" disabled={uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5 py-2" onClick={() => inputFile.current?.click()}>
               <FontAwesomeIcon icon={regular('image')} className="me-2" />
@@ -117,7 +137,7 @@ function CreatePost() {
             </AddPhotosButton>
           </Col>
           <Col md="auto" className="order-2 ms-auto">
-            <RoundButton className="px-4 mt-4 w-100" size="md">
+            <RoundButton className="px-4 mt-4 w-100" size="md" onClick={addPost}>
               <span className="h3">Post</span>
             </RoundButton>
           </Col>

@@ -8,7 +8,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
-import { FeedPostsService } from '../../../src/feed-post/providers/feed-post.service';
+import { FeedPostsService } from '../../../src/feed-post/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 
@@ -69,7 +69,7 @@ describe('All Feed Post (e2e)', () => {
       }
       const limit = 3;
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts/users/${activeUser._id}/posts?limit=${limit}`)
+        .get(`/users/${activeUser._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(3);
@@ -87,7 +87,7 @@ describe('All Feed Post (e2e)', () => {
       }
       const limit = 3;
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${feedPost._id}`)
+        .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(3);

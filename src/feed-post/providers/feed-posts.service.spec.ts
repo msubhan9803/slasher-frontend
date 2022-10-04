@@ -3,7 +3,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
-import { FeedPostsService } from './feed-post.service';
+import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UsersService } from '../../users/providers/users.service';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';

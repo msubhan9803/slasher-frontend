@@ -42,6 +42,9 @@ import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
+import { LimitOrEarlierThanPostIdDto } from '../feed-post/dto/limit-earlier-than-post-id.dto';
+import { FeedPostsService } from '../feed-post/providers/feed-posts.service';
+import { ParamUserIdDto } from './dto/param-user-id.dto';
 
 @Controller('users')
 export class UsersController {
@@ -51,6 +54,7 @@ export class UsersController {
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly feedPostsService: FeedPostsService,
   ) { }
 
   @Post('sign-in')
@@ -385,5 +389,20 @@ export class UsersController {
     // Delete original upload
     await fs.unlinkSync(file.path);
     return { success: true };
+  }
+
+  @Get(':userId/posts')
+  async allfeedPost(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: LimitOrEarlierThanPostIdDto,
+    ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.earlierThanPostId);
+    return feedPost;
   }
 }

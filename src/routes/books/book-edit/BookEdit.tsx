@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
+import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import BooksModal from '../components/BooksModal';
-import UploadCoverArt from './UploadCoverArt';
 
 const StyleButton = styled.div`
   .deactivate-btn {
@@ -30,6 +30,7 @@ const CustomForm = styled(Form)`
 function BookEdit() {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState('');
+  const [, setImageUpload] = useState<File>();
   const [charCount, setCharCount] = useState(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
@@ -40,7 +41,13 @@ function BookEdit() {
       <CustomForm>
         <div className="mb-4 d-block d-lg-flex align-items-center">
           <div className="d-flex justify-content-center me-lg-4">
-            <UploadCoverArt id="cover-art" />
+            <PhotoUploadInput
+              height="9.688rem"
+              variant="outline"
+              onChange={(file) => {
+                setImageUpload(file);
+              }}
+            />
           </div>
           <div className="text-center text-lg-start mt-4 mt-lg-0">
             <h1 className="h3 mb-2">Upload cover art</h1>

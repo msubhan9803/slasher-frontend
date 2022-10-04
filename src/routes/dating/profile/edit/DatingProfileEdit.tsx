@@ -43,7 +43,6 @@ function DatingProfileEdit() {
           {imageUpload.map((image, imageIndex) => (
             <Col key={image.id} xs={4} className="my-3">
               <ProfilePhotoGallery
-                image={image}
                 imageIndex={imageIndex}
                 imageUpload={imageUpload}
                 setImageUpload={setImageUpload}

@@ -1,37 +1,14 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { ChangeEvent, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Col, Form, Image, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import PhotoUploadInput from '../../components/ui/PhotoUploadInput';
 import RoundButton from '../../components/ui/RoundButton';
 
-const ImageContainer = styled.div`
-  height: 9.688rem;
-  width: 9.688rem;
-  border: 1px solid #3A3B46 !important;
-  cursor:pointer;import { Form } from 'react-bootstrap';
-
-
-  @media (max-width: 991px) {
-    height:8.75rem;
-    width:8.75rem;
-    background: #1B1B1B;
-  }
-`;
-const AddIcon = styled(FontAwesomeIcon)`
-  padding: 0.25rem 0.313rem;
-  top: 8.62rem;
-  left: 8.62rem;
-
-  @media (max-width: 991px) {
-    padding: 0.25rem 0.313rem;
-    top: 7.62rem;
-    left: 7.62rem;
-  }
-`;
 const CustomText = styled.p`
   color: #A6A6A6;
 `;
@@ -50,7 +27,7 @@ const noteList = [
   'People on Slasher can follow your book and get notifIed of new posts.',
 ];
 function AddYourBook() {
-  const [imageUpload, setImageUpload] = useState<string>('');
+  const [, setImageUpload] = useState<File>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
 
@@ -59,13 +36,6 @@ function AddYourBook() {
     setDescription(e.target.value);
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target) return;
-    if (e.target?.name === 'file' && e?.target?.files?.length) {
-      setImageUpload(URL.createObjectURL(e.target.files[0]));
-      e.target.value = '';
-    }
-  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
@@ -96,47 +66,11 @@ function AddYourBook() {
         </div>
         <Row className="h-100 mt-5 mt-sm-3">
           <Col xs={12} md="auto">
-            <label htmlFor="file-upload" className="d-flex justify-content-center">
-              {imageUpload.length === 0
-                && (
-                  <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
-                    <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
-                    <AddIcon
-                      icon={solid('plus')}
-                      size="sm"
-                      role="button"
-                      className="position-absolute bg-primary text-white rounded-circle"
-                    />
-                  </ImageContainer>
-                )}
-            </label>
-            <div className="d-flex justify-content-center">
-              {imageUpload.length > 0
-                && (
-                  <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0">
-                    <Image
-                      src={imageUpload}
-                      alt="Dating profile photograph"
-                      className="w-100 h-100 img-fluid rounded"
-                    />
-                    <AddIcon
-                      icon={solid('times')}
-                      size="sm"
-                      role="button"
-                      className="position-absolute bg-white text-primary rounded-circle"
-                      onClick={() => setImageUpload('')}
-                    />
-                  </ImageContainer>
-                )}
-            </div>
-            <input
-              id="file-upload"
-              type="file"
-              name="file"
-              className="d-none"
-              accept="image/*"
-              onChange={(e) => {
-                handleFileChange(e);
+            <PhotoUploadInput
+              height="9.688rem"
+              variant="outline"
+              onChange={(file) => {
+                setImageUpload(file);
               }}
             />
             <h3 className="text-center mb-1 mt-3">Upload cover art</h3>

@@ -1,22 +1,14 @@
 import React, {
-  useState, ChangeEvent,
+  useState,
 } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Form, Image, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
+import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 
-const ImageContainer = styled.div`
-  height: 12.5rem;
-  width: 12.5rem;
-  background-color: #1F1F1F;
-  border: 2px solid #3A3B46 !important;
-  cursor:pointer;
-`;
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.43rem;
   margin-right: .5rem;
@@ -46,19 +38,12 @@ const StyleButton = styled.div`
 function PlacesEdit() {
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
-  const [imageUpload, setImageUpload] = useState<string>('');
+  const [, setImageUpload] = useState<File>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setDescription(e.target.value);
-  };
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target) return;
-    if (e.target?.name === 'file' && e?.target?.files?.length) {
-      setImageUpload(URL.createObjectURL(e.target.files[0]));
-      e.target.value = '';
-    }
   };
   return (
     <div className="bg-dark bg-mobile-transparent p-md-4 pb-0 pb-md-4 mt-3">
@@ -66,48 +51,13 @@ function PlacesEdit() {
         <Col className="h-100">
           <Row className="h-100">
             <CustomCol xs={12} md={3} className="mx-auto mx-md-0">
-              <label htmlFor="file-upload" className="d-inline">
-                {imageUpload.length === 0
-                  && (
-                    <ImageContainer className="position-relative d-flex justify-content-center align-items-center rounded border-0 pe-auto">
-                      <FontAwesomeIcon icon={solid('camera')} size="lg" className="text-light bg-primary p-3 rounded-circle " />
-                      <FontAwesomeIcon
-                        icon={solid('plus')}
-                        size="sm"
-                        role="button"
-                        className="position-absolute bg-primary text-white rounded-circle"
-                        style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
-                      />
-                    </ImageContainer>
-                  )}
-              </label>
-              {imageUpload.length > 0
-                && (
-                  <ImageContainer className="position-relative d-flex align-items-center rounded border-0">
-                    <Image
-                      src={imageUpload}
-                      alt="Places profile photograph"
-                      className="w-100 h-100 img-fluid rounded"
-                    />
-                    <FontAwesomeIcon
-                      icon={solid('times')}
-                      size="sm"
-                      role="button"
-                      className="position-absolute bg-white text-primary rounded-circle"
-                      style={{ padding: '0.313rem 0.438rem', top: '11.62rem', left: '11.62rem' }}
-                      onClick={() => setImageUpload('')}
-                    />
-                  </ImageContainer>
-                )}
-              <input
-                id="file-upload"
-                type="file"
-                name="file"
-                className="d-none"
-                accept="image/*"
-                onChange={(e) => {
-                  handleFileChange(e);
+              <PhotoUploadInput
+                height="9.688rem"
+                variant="outline"
+                onChange={(file) => {
+                  setImageUpload(file);
                 }}
+                className="w-100"
               />
             </CustomCol>
             <Col xs={12} md={7}>

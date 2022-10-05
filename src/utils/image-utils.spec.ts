@@ -3,22 +3,36 @@ import { relativeToFullImagePath } from './image-utils';
 
 describe('image-utils', () => {
   describe('relativeToFullImagePath', () => {
-    const imagePath = '/path/to/image.jpg';
+    const relativeImagePath = '/path/to/image.jpg';
+    const specialNoImageValue = 'noImage.jpg';
 
-    it('generates the expected path for s3 storage type', () => {
+    describe('for s3 storage type', () => {
       const s3Host = 'https://anybucket.s3.amazonaws.com';
       const config: ConfigService = new ConfigService({
         FILE_STORAGE: 's3',
         S3_HOST: 'https://anybucket.s3.amazonaws.com',
       });
-      expect(relativeToFullImagePath(config, imagePath)).toBe(`${s3Host}${imagePath}`);
+      it('generates the expected path', () => {
+        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${s3Host}${relativeImagePath}`);
+      });
+
+      it('generates the expected, unchanged path when given relativeImagePath is special no-image value', () => {
+        expect(relativeToFullImagePath(config, specialNoImageValue)).toBe(specialNoImageValue);
+      });
     });
 
-    it('generates the expected path for local storage type', () => {
+    describe('for local storage type', () => {
       const config: ConfigService = new ConfigService({
         FILE_STORAGE: 'local',
       });
-      expect(relativeToFullImagePath(config, imagePath)).toBe(`/local-storage${imagePath}`);
+
+      it('generates the expected path', () => {
+        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`/local-storage${relativeImagePath}`);
+      });
+
+      it('generates the expected, unchanged path when given relativeImagePath is special no-image value', () => {
+        expect(relativeToFullImagePath(config, specialNoImageValue)).toBe(specialNoImageValue);
+      });
     });
   });
 });

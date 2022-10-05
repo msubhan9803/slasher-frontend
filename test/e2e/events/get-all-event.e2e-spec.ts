@@ -105,6 +105,29 @@ describe('Events all / (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(0);
       });
+
+      describe('when `after` argument is supplied', () => {
+        it('get expected first and second sets of paginated results', async () => {
+          const limit = 3;
+          const firstResponse = await request(app.getHttpServer())
+            .get(`/events?startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(firstResponse.status).toEqual(HttpStatus.OK);
+          expect(firstResponse.body).toHaveLength(3);
+
+          const secondResponse = await request(app.getHttpServer())
+            .get('/events?'
+              + `startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}&after=${firstResponse.body[2]._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(secondResponse.status).toEqual(HttpStatus.OK);
+          expect(secondResponse.body).toHaveLength(2);
+
+          // Last result in first set should have earlier sortStartDate value than first result of second set
+          expect(firstResponse.body[limit - 1].sortStartDate.localeCompare(secondResponse.body[0].sortStartDate)).toBe(-1);
+        });
+      });
     });
 
     describe('Validation', () => {

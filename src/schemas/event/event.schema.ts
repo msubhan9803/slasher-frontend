@@ -33,6 +33,9 @@ export class Event extends EventUnusedFields {
   endDate: Date;
 
   @Prop({ default: null })
+  sortStartDate: string;
+
+  @Prop({ default: null })
   country: string;
 
   @Prop({ default: null })

@@ -161,5 +161,17 @@ describe('EventService', () => {
       const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, true);
       expect(eventList).toHaveLength(5);
     });
+
+    describe('when `after` argument is supplied', () => {
+      it('returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await eventService.findAllByDate(event.startDate, event.endDate, limit, true);
+        const secondResults = await eventService.findAllByDate(event.startDate, event.endDate, limit, true, firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+        // Last result in first set should have earlier sortStartDate value than first result of second set
+        expect(firstResults[limit - 1].sortStartDate.localeCompare(secondResults[0].sortStartDate)).toBe(-1);
+      });
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
@@ -14,8 +14,8 @@ export class EventService {
 
   async update(id: string, eventData: Partial<Event>): Promise<EventDocument> {
     return this.eventModel
-    .findOneAndUpdate({ _id: id }, eventData, { new: true })
-    .exec();
+      .findOneAndUpdate({ _id: id }, eventData, { new: true })
+      .exec();
   }
 
   async findById(id: string, activeOnly: boolean): Promise<EventDocument> {
@@ -27,7 +27,13 @@ export class EventService {
     return this.eventModel.findOne(eventFindQuery).exec();
   }
 
-  async findAllByDate(startDate: Date, endDate: Date, limit: number, activeOnly: boolean): Promise<EventDocument[]> {
+  async findAllByDate(
+    startDate: Date,
+    endDate: Date,
+    limit: number,
+    activeOnly: boolean,
+    after?: mongoose.Types.ObjectId,
+  ): Promise<EventDocument[]> {
     const eventFindAllQuery: any = {
       startDate: { $lt: endDate },
       endDate: { $gt: startDate },
@@ -37,9 +43,15 @@ export class EventService {
       eventFindAllQuery.deleted = false;
       eventFindAllQuery.status = EventActiveStatus.Active;
     }
+
+    if (after) {
+      const afterEvent = await this.eventModel.findById(after);
+      eventFindAllQuery.sortStartDate = { $gt: afterEvent.sortStartDate };
+    }
+
     return this.eventModel.find(eventFindAllQuery)
-    .sort({ createdAt: 1 })
-    .limit(limit)
-    .exec();
+      .sort({ sortStartDate: 1 })
+      .limit(limit)
+      .exec();
   }
 }

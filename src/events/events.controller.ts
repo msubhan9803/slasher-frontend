@@ -5,6 +5,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -112,6 +113,7 @@ export class EventsController {
     const createEventData = new Event(createEventDto);
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
+
     return event;
   }
 
@@ -142,7 +144,13 @@ export class EventsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ValidateAllEventDto,
   ) {
-    const eventData = await this.eventService.findAllByDate(query.startDate, query.endDate, query.limit, true);
+    const eventData = await this.eventService.findAllByDate(
+      query.startDate,
+      query.endDate,
+      query.limit,
+      true,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+    );
     return eventData;
   }
 }

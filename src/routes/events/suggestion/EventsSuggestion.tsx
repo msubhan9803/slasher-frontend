@@ -9,32 +9,30 @@ import {
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { eventRegister, getEventCategoriesOption } from '../../../api/event';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import StateList from '../../../utils/StateList';
 
 interface Option {
   event_name: string;
   _id: string;
 }
-
 interface Value {
   name: string;
-  userId: string;
-  event_type: string;
-  startDate: Date | null;
-  endDate: Date | null;
+  eventType: string;
   country: string;
   state: string;
   city: string;
-  event_info: string;
-  url?: string;
+  eventInfo: string;
+  url: string;
   author?: string;
-  file: File | null;
+  file?: File | undefined;
+  address: string;
 }
 
 const CustomSpan = styled(Form.Text)`
@@ -61,69 +59,35 @@ function EventSuggestion() {
   const [options, setOptions] = useState<Option[]>([]);
   const userId = Cookies.get('userId');
   const [eventSuggestionFormValue, setEventSuggestionFormValue] = useState<Value>({
-    name: '',
-    userId: userId || '',
-    event_type: '',
-    startDate: null,
-    endDate: null,
-    country: '',
-    state: '',
-    city: '',
-    event_info: '',
-    url: '',
-    author: '',
-    file: null,
+    name: '', eventType: '', country: '', state: '', city: '', eventInfo: '', url: '', author: '', address: '',
   });
-
-  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCharCount(e.target.value.length);
-    setDescription(e.target.value);
-    handleChange(e.target.value, 'event_type');
-  };
-
-  useEffect(() => {
-    setOptionLoading(true);
-    getEventCategoriesOption().then((res) => {
-      setOptionLoading(false);
-      setOptions(res.data);
-    }).catch((error) => {
-
-    });
-  }, []);
-
+  const [errors, setErrors] = useState<string[]>([]);
   const handleChange = (value: any, key: string) => {
     const eventSuggestionFormValues = { ...eventSuggestionFormValue };
     (eventSuggestionFormValues as any)[key] = value;
     setEventSuggestionFormValue(eventSuggestionFormValues);
   };
-
-  // useEffect(() => {
-  //   console.log(eventSuggestionFormValue,"eventSuggestionFormValue");
-  // }, [eventSuggestionFormValue])
-
+  const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCharCount(e.target.value.length);
+    setDescription(e.target.value);
+    handleChange(e.target.value, 'eventInfo');
+  };
+  useEffect(() => {
+    setOptionLoading(true);
+    getEventCategoriesOption().then((res) => {
+      setOptionLoading(false);
+      setOptions(res.data);
+    }).catch(() => {});
+  }, []);
   const onSendEventData = () => {
     const {
-      name, userId, event_type, startDate, endDate, country, state, event_info, url, author, city, file,
+      name, eventType, country, state, eventInfo, url, city, file, address,
     } = eventSuggestionFormValue;
 
-    eventRegister(
-      name,
-      userId,
-      event_type,
-      startDate ? DateTime.fromJSDate(startDate).toFormat('yyyy-MM-dd') : null,
-      endDate ? DateTime.fromJSDate(endDate).toFormat('yyyy-MM-dd') : null,
-      country,
-      state,
-      city,
-      event_info,
-      url || '',
-      file,
-    ).then(() => {
-      // setErrorMessages([]);
-      // navigate('/registration/final');
-      console.log('doneeeeeeee');
+    eventRegister(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
+      setErrors([]);
     }).catch((error) => {
-      // setErrorMessages(error.response.data.message);
+      setErrors(error.response.data.message);
     });
   };
 
@@ -159,11 +123,12 @@ function EventSuggestion() {
         <h2 className="d-md-block mt-4">Event Information</h2>
         <Row>
           <Col md={6} className="mt-3">
-            <Form.Select aria-label="Event Category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'event_type')}>
+            <Form.Select aria-label="Event Category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
               <option value="" disabled>Event Category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
                 : options.map((option : Option) => (
-                  <option value={option._id}>{option.event_name}</option>
+                  /* eslint no-underscore-dangle: 0 */
+                  <option key={option._id} value={option._id}>{option.event_name}</option>
                 ))}
             </Form.Select>
           </Col>
@@ -200,7 +165,7 @@ function EventSuggestion() {
           </Col>
         </Row>
         <Row>
-          <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street Address" className="fs-4" /></Col>
+          <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} /></Col>
           <Col md={6} className="mt-3">
             <Form.Control type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
           </Col>
@@ -209,14 +174,19 @@ function EventSuggestion() {
           <Col md={6} className="mt-3">
             <Form.Select aria-label="State/Province" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
               <option value="" disabled>State/Province</option>
+              {StateList.map((state) => (
+                <option key={state.value} value={state.value}>{state.name}</option>
+              ))}
             </Form.Select>
           </Col>
           <Col md={6} className="mt-3">
             <Form.Select aria-label="Country" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'country')}>
               <option value="" disabled>Country</option>
+              <option value="United States">United States</option>
             </Form.Select>
           </Col>
         </Row>
+        {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
         <Row className="my-4 pe-md-5">
           <Col md={5}>
             <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg" onClick={() => onSendEventData()}>Send</RoundButton>

@@ -131,6 +131,13 @@ describe('FeedPostsService', () => {
       const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false, feedPost._id);
       expect(feedPostData).toHaveLength(20);
     });
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 6;
+      const firstResults = await feedPostsService.findAllByUser((activeUser._id).toString(), limit, true);
+      const secondResults = await feedPostsService.findAllByUser((activeUser._id).toString(), limit, true, firstResults[limit - 1].id);
+      expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
   });
 
   describe('#update', () => {

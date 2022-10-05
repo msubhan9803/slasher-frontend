@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, HttpStatus } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -11,6 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPostDeletionState, FeedPostStatus } from '../../../src/schemas/feedPost/feedPost.enums';
 
 describe('All Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -47,50 +48,75 @@ describe('All Feed Post (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    feedPost = await feedPostsService.create(
-      feedPostFactory.build(
-        {
+    for (let i = 0; i < 5; i += 1) {
+      await feedPostsService.create(
+        feedPostFactory.build({
           userId: activeUser._id,
-        },
-      ),
-    );
+        }),
+      );
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+          is_deleted: FeedPostDeletionState.Deleted,
+          status: FeedPostStatus.Inactive,
+        }),
+      );
+    }
   });
 
   describe('All Feed Post Details', () => {
     it('when earlier than post id is not exist than expected feed post response', async () => {
-      for (let i = 0; i < 7; i += 1) {
-        await feedPostsService.create(
-          feedPostFactory.build(
-            {
-              userId: activeUser._id,
-            },
-          ),
-        );
-      }
-      const limit = 3;
+      const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/users/${activeUser._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toHaveLength(3);
+      expect(response.body).toHaveLength(5);
+    });
+  });
+
+  describe('when `earlierThanPostId` argument is supplied', () => {
+    it('get expected first and second sets of paginated results', async () => {
+      const limit = 3;
+      const firstResponse = await request(app.getHttpServer())
+        .get(`/users/${activeUser._id}/posts?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(firstResponse.status).toEqual(HttpStatus.OK);
+      expect(firstResponse.body).toHaveLength(3);
+
+      const secondResponse = await request(app.getHttpServer())
+        .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${firstResponse.body[limit - 1]._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(secondResponse.status).toEqual(HttpStatus.OK);
+      expect(secondResponse.body).toHaveLength(2);
     });
 
-    it('when earlier than post id does exists than expected feed post response', async () => {
-      for (let i = 0; i < 7; i += 1) {
-        await feedPostsService.create(
+    describe('Validation', () => {
+      it('limit should not be empty', async () => {
+        const response = await request(app.getHttpServer())
+        .get(`/users/${activeUser._id}/posts`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit should not be empty');
+      });
+
+      it('limit should be a number', async () => {
+        feedPost = await feedPostsService.create(
           feedPostFactory.build(
             {
               userId: activeUser._id,
             },
           ),
         );
-      }
-      const limit = 3;
-      const response = await request(app.getHttpServer())
+        const limit = 'a';
+        const response = await request(app.getHttpServer())
         .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${feedPost._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      expect(response.body).toHaveLength(3);
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must be a number string');
+      });
     });
   });
 });

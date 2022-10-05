@@ -72,6 +72,10 @@ export class Event extends EventUnusedFields {
   @Prop({ type: Array, default: [] })
   images: string[];
 
+  // NEW FIELD
+  @Prop({ default: null })
+  address: string;
+
   /***********
    * Methods *
    ***********/

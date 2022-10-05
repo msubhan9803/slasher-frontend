@@ -116,6 +116,17 @@ describe('Events update / :id (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('name must be shorter than or equal to 150 characters', async () => {
+        sampleEventUpdateObject.name = new Array(155).join('b');
+        const response = await request(app.getHttpServer())
+          .patch(`/events/${activeEvent._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleEventUpdateObject)
+          .expect(HttpStatus.BAD_REQUEST);
+
+        expect(response.body.message).toContain('name must be shorter than or equal to 150 characters');
+      });
+
       it('event_info is maximum 1000 characters long', async () => {
         sampleEventUpdateObject.event_info = new Array(1002).join('a');
 
@@ -126,6 +137,30 @@ describe('Events update / :id (e2e)', () => {
         expect(response.body.message).toContain(
           'event_info must be shorter than or equal to 1000 characters',
         );
+      });
+
+      it('url must be shorter than or equal to 300 characters', async () => {
+        sampleEventUpdateObject.url = new Array(302).join('a');
+
+        const response = await request(app.getHttpServer())
+          .patch(`/events/${activeEvent._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleEventUpdateObject)
+          .expect(HttpStatus.BAD_REQUEST);
+
+        expect(response.body.message).toContain('url must be shorter than or equal to 300 characters');
+      });
+
+      it('author must be shorter than or equal to 100 characters', async () => {
+        sampleEventUpdateObject.author = new Array(102).join('a');
+
+        const response = await request(app.getHttpServer())
+          .patch(`/events/${activeEvent._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleEventUpdateObject)
+          .expect(HttpStatus.BAD_REQUEST);
+
+        expect(response.body.message).toContain('author must be shorter than or equal to 100 characters');
       });
     });
   });

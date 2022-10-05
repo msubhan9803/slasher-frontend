@@ -49,4 +49,8 @@ export class CreateOrUpdateEventDto {
   @IsOptional()
   @MaxLength(100)
   author: string;
+
+  @IsOptional()
+  @MaxLength(150)
+  address: string;
 }

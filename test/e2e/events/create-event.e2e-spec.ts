@@ -28,12 +28,13 @@ describe('Events create / (e2e)', () => {
     name: 'Event name test',
     startDate: '2022-09-05',
     endDate: '2022-09-10',
-    country: 'India',
-    state: 'Gujarat',
-    city: 'Surat',
+    country: 'United States',
+    state: 'CA',
+    city: 'San Francisco',
     event_info: 'test event start',
-    url: 'www.google.com',
+    url: 'www.example.com',
     author: 'Test',
+    address: '66 Ceres S',
   };
 
   beforeAll(async () => {
@@ -86,6 +87,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -119,6 +121,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -147,6 +150,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -175,6 +179,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -203,6 +208,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -231,6 +237,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -259,6 +266,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -287,6 +295,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -315,6 +324,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -343,6 +353,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -371,6 +382,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -399,6 +411,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -427,6 +440,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -455,6 +469,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -465,6 +480,64 @@ describe('Events create / (e2e)', () => {
             .expect(HttpStatus.BAD_REQUEST);
 
           expect(response.body.message).toContain('city must be shorter than or equal to 100 characters');
+        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
+      });
+
+      it('address should not be empty', async () => {
+        postBody.address = '';
+        await createTempFiles(async (tempPath) => {
+          const response = await request(app.getHttpServer())
+            .post('/events')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', postBody.name)
+            .field('userId', postBody.userId)
+            .field('event_type', postBody.event_type)
+            .field('startDate', postBody.startDate)
+            .field('endDate', postBody.endDate)
+            .field('country', postBody.country)
+            .field('state', postBody.state)
+            .field('city', postBody.city)
+            .field('address', postBody.address)
+            .field('event_info', postBody.event_info)
+            .field('url', postBody.url)
+            .field('author', postBody.author)
+            .attach('files', tempPath[0])
+            .attach('files', tempPath[1])
+            .attach('files', tempPath[2])
+            .attach('files', tempPath[3])
+            .expect(HttpStatus.BAD_REQUEST);
+
+          expect(response.body.message).toContain('address should not be empty');
+        }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
+      });
+
+      it('address must be shorter than or equal to 150 characters', async () => {
+        postBody.address = new Array(155).join('b');
+        await createTempFiles(async (tempPath) => {
+          const response = await request(app.getHttpServer())
+            .post('/events')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('name', postBody.name)
+            .field('userId', postBody.userId)
+            .field('event_type', postBody.event_type)
+            .field('startDate', postBody.startDate)
+            .field('endDate', postBody.endDate)
+            .field('country', postBody.country)
+            .field('state', postBody.state)
+            .field('city', postBody.city)
+            .field('address', postBody.address)
+            .field('event_info', postBody.event_info)
+            .field('url', postBody.url)
+            .field('author', postBody.author)
+            .attach('files', tempPath[0])
+            .attach('files', tempPath[1])
+            .attach('files', tempPath[2])
+            .attach('files', tempPath[3])
+            .expect(HttpStatus.BAD_REQUEST);
+
+          expect(response.body.message).toContain('address must be shorter than or equal to 150 characters');
         }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
       });
 
@@ -483,6 +556,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -512,6 +586,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -541,6 +616,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -570,6 +646,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -597,6 +674,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -624,6 +702,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -650,6 +729,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)
@@ -672,6 +752,7 @@ describe('Events create / (e2e)', () => {
             .field('country', postBody.country)
             .field('state', postBody.state)
             .field('city', postBody.city)
+            .field('address', postBody.address)
             .field('event_info', postBody.event_info)
             .field('url', postBody.url)
             .field('author', postBody.author)

@@ -99,6 +99,10 @@ export class EventsController {
       throw new HttpException('event_info should not be empty', HttpStatus.BAD_REQUEST);
     }
 
+    if (!createEventDto.address) {
+      throw new HttpException('address should not be empty', HttpStatus.BAD_REQUEST);
+    }
+
     const images = [];
     for (const file of files) {
       const storageLocation = `/event/event_${file.filename}`;

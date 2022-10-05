@@ -57,7 +57,7 @@ describe('All Feed Post (e2e)', () => {
   });
 
   describe('All Feed Post Details', () => {
-    it('when limit is exist but earlier than post id is not exist than expected feed post response', async () => {
+    it('when earlier than post id is not exist than expected feed post response', async () => {
       for (let i = 0; i < 7; i += 1) {
         await feedPostsService.create(
           feedPostFactory.build(

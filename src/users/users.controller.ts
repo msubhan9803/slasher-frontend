@@ -46,6 +46,7 @@ import { LimitOrEarlierThanPostIdDto } from '../feed-posts/dto/limit-earlier-tha
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('users')
 export class UsersController {
@@ -414,12 +415,19 @@ export class UsersController {
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: LimitOrEarlierThanPostIdDto,
-    ) {
+  ) {
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.earlierThanPostId);
+    for (const feedPostsImage of feedPost) {
+      feedPostsImage.images.map((relativeImagePath) => {
+        // eslint-disable-next-line no-param-reassign
+        relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
+        return relativeImagePath;
+      });
+    }
     return feedPost;
   }
 }

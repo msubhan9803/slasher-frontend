@@ -12,6 +12,7 @@ import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -93,11 +94,16 @@ export class FeedPostsController {
   async singleFeedPostDetails(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
-    ) {
+  ) {
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+    feedPost.images.map((relativeImagePath) => {
+      // eslint-disable-next-line no-param-reassign
+      relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
+      return relativeImagePath;
+    });
     return feedPost;
   }
 
@@ -106,7 +112,7 @@ export class FeedPostsController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
     @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
-    ) {
+  ) {
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);

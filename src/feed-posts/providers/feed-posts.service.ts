@@ -31,12 +31,15 @@ export class FeedPostsService {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId });
-    if (earlierThanPostId && activeOnly) {
+    if (earlierThanPostId) {
       const feedPost = await this.feedPostModel.findById(earlierThanPostId).exec();
       const createdAtDate = { createdAt: { $lt: feedPost.createdAt } };
+      feedPostQuery.push({ createdAtDate });
+    }
+    if (activeOnly) {
       feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
-      const status = FeedPostStatus.Active;
-      feedPostQuery.push({ createdAtDate }, feedPostFindAllQuery, { status });
+      feedPostFindAllQuery.status = FeedPostStatus.Active;
+      feedPostQuery.push(feedPostFindAllQuery);
     }
     return this.feedPostModel
       .find({ $and: feedPostQuery })

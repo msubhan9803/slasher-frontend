@@ -101,21 +101,35 @@ describe('FeedPostsService', () => {
       }
     });
 
-    it('when earlier than post id is exist than expected response', async () => {
+    it('when earlier than post id is exist and active only is exist than expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
         status: FeedPostStatus.Active,
         is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 5, true, feedPost._id);
-      expect(feedPostData).toHaveLength(5);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true, feedPost._id);
+      expect(feedPostData).toHaveLength(11);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
-    it('when earlier than post id is does not exist than expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 10, false);
+    it('when earlier than post id is does not exist and active only is does not exist than expected response', async () => {
+      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false);
+      expect(feedPost).toHaveLength(20);
+    });
+
+    it('when earlier than post id is does not exist but active only is exists than expected response', async () => {
+      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true);
       expect(feedPost).toHaveLength(10);
+    });
+
+    it('when earlier than post id does exist but active only does not exists than expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser._id,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false, feedPost._id);
+      expect(feedPostData).toHaveLength(20);
     });
   });
 

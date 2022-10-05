@@ -10,7 +10,7 @@ describe('image-utils', () => {
       const s3Host = 'https://anybucket.s3.amazonaws.com';
       const config: ConfigService = new ConfigService({
         FILE_STORAGE: 's3',
-        S3_HOST: 'https://anybucket.s3.amazonaws.com',
+        S3_HOST: s3Host,
       });
       it('generates the expected path', () => {
         expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${s3Host}${relativeImagePath}`);

@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { EventCategory } from '../eventCategory/eventCategory.schema';
+import { User } from '../user/user.schema';
 import { EventActiveStatus } from './event.enums';
 import { EventUnusedFields } from './event.unused-fields';
 
@@ -20,10 +22,10 @@ export class Event extends EventUnusedFields {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: null, ref: 'users' })
+  @Prop({ default: null, ref: User.name })
   userId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'eventCategories', required: true })
+  @Prop({ default: null, ref: EventCategory.name, required: true })
   event_type: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })

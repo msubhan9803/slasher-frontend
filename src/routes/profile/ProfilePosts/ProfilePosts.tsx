@@ -1,23 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { userProfilePost, userProfilePostById } from '../../../api/users';
+import { userMoreProfilePost, userProfilePostById } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+
+interface UserData {
+  id: string;
+  firstName: string;
+  userName: string;
+  profilePic: string;
+}
+interface UserPostData {
+  _id: string;
+  postDate: string;
+  content: string;
+  postUrl: string;
+  userName: string;
+  firstName: string;
+  profileImage: string;
+  commentCount: number;
+  likeCount: number;
+  sharedList: number;
+  id: number;
+  likeIcon: boolean;
+}
 
 const popoverOptions = ['Edit', 'Delete'];
 function ProfilePosts() {
-  const { userName } = useParams<string>();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [userData, setUserData] = useState<any>();
-  const [userPostData, setUserPostData] = useState([]);
+  const [userData, setUserData] = useState<UserData>();
+  const [userPostData, setUserPostData] = useState<UserPostData[]>([]);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -25,23 +47,10 @@ function ProfilePosts() {
   };
 
   useEffect(() => {
-    if (userName) {
-      userProfilePost(userName)
-        .then((res) => {
-          setUserData(res.data);
-          setErrorMessage([]);
-        })
-        .catch((error) => {
-          setErrorMessage(error.response.data.message);
-        });
-    }
-  }, []);
-
-  useEffect(() => {
     if (userData) {
       userProfilePostById(userData.id)
         .then((res) => {
-          const entities = res.data.map((data: any) => (
+          const userPostList = res.data.map((data: any) => (
             {
               ...data,
               /* eslint no-underscore-dangle: 0 */
@@ -54,7 +63,7 @@ function ProfilePosts() {
               profileImage: userData.profilePic,
             }
           ));
-          setUserPostData(entities);
+          setUserPostData(userPostList);
         })
         .catch((error) => {
           setErrorMessage(error.response.data.message);
@@ -62,9 +71,38 @@ function ProfilePosts() {
     }
   }, [userData]);
 
+  const fetchMorePost = () => {
+    if (userData) {
+      userMoreProfilePost(userData.id, userPostData[userPostData.length - 1]._id)
+        .then((res) => {
+          const userPostList = res.data.map((data: any) => (
+            {
+              ...data,
+              /* eslint no-underscore-dangle: 0 */
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              postUrl: data.images,
+              userName: userData.userName,
+              firstName: userData.userName,
+              profileImage: userData.profilePic,
+            }
+          ));
+          setUserPostData((prev: any) => [
+            ...prev,
+            ...userPostList,
+          ]);
+          if (res.data.length === 0) {
+            setNoMoreData(true);
+          }
+        })
+        .catch((error) => setErrorMessage(error.response.data.message));
+    }
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="posts" />
+      <ProfileHeader tabKey="posts" userDetail={setUserData} />
       {queryParam === 'self'
         && (
           <div className="mt-4">
@@ -77,17 +115,24 @@ function ProfilePosts() {
           <ErrorMessageList errorMessages={errorMessage} className="m-0" />
         </div>
       )}
-      {userPostData && userPostData.length > 0
-        ? (
-          <PostFeed
-            postFeedData={userPostData}
-            popoverOptions={popoverOptions}
-            isCommentSection={false}
-            onPopoverClick={handlePopoverOption}
-          />
-        )
-        : 'No posts available'}
-      {userPostData.length !== 10 && <p className="text-center">No more posts</p>}
+      <InfiniteScroll
+        pageStart={0}
+        initialLoad={false}
+        loadMore={fetchMorePost}
+        hasMore
+      >
+        {userPostData && userPostData.length > 0
+          ? (
+            <PostFeed
+              postFeedData={userPostData}
+              popoverOptions={popoverOptions}
+              isCommentSection={false}
+              onPopoverClick={handlePopoverOption}
+            />
+          )
+          : 'No posts available'}
+      </InfiniteScroll>
+      {noMoreData && <p className="text-center">No more posts</p>}
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>
   );

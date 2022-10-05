@@ -33,8 +33,7 @@ export class FeedPostsService {
     feedPostQuery.push({ userId });
     if (earlierThanPostId) {
       const feedPost = await this.feedPostModel.findById(earlierThanPostId).exec();
-      const createdAtDate = { createdAt: { $lt: feedPost.createdAt } };
-      feedPostQuery.push({ createdAtDate });
+      feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
     }
     if (activeOnly) {
       feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;

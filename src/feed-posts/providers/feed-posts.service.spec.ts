@@ -109,7 +109,7 @@ describe('FeedPostsService', () => {
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
       const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true, feedPost._id);
-      expect(feedPostData).toHaveLength(11);
+      expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 

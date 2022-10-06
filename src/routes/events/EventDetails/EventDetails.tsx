@@ -8,7 +8,6 @@ import { DateTime } from 'luxon';
 import getEventDetails from '../../../api/events';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-import EventsBanner from '../../../images/event-post.jpg';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -56,7 +55,7 @@ function EventDetails() {
       </Row>
       <div className="bg-dark p-4 rounded">
         <EventBanner>
-          <Image src={EventsBanner} alt="event banner" className="h-100 w-100" />
+          <Image src={eventDetails?.images[0]} alt="event banner" className="h-100 w-100" />
         </EventBanner>
         <Row className="mt-4">
           <Col md={7}>
@@ -68,7 +67,7 @@ function EventDetails() {
               {DateTime.fromISO(eventDetails?.endDate).toFormat('LLL dd, yyyy')}
             </p>
             <h2>{eventDetails?.name}</h2>
-            <span className="text-primary">Dance</span>
+            <span className="text-primary">{eventDetails?.event_type?.event_name}</span>
           </Col>
           <Col md={5} className="d-none d-md-block d-lg-none d-xl-block">
             <LinearIcon role="button" uniqueId="favorite-lg" className="d-flex flex-column align-items-end">
@@ -89,6 +88,8 @@ function EventDetails() {
           <Col md={7} lg={12} xl={6} className="align-self-center">
             <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
             <span className="fs-3">
+              {eventDetails?.address}
+              {' '}
               {eventDetails?.city}
               ,
               {' '}
@@ -101,7 +102,7 @@ function EventDetails() {
           <Col md={5} xl={6}>
             <div className="d-flex justify-content-between align-items-center">
               <a
-                href="https://google.com"
+                href={eventDetails?.url}
                 target="_blank"
                 rel="noopener noreferrer"
               >

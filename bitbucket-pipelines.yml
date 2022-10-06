@@ -62,6 +62,25 @@ definitions:
           # Update remote public_html symlink to point to latest release
           - ssh -p 18765 u664-oora98pjoccl@slasher.tv "ln -nsf $FULL_PATH_TO_LATEST_RELEASE_DIR $REMOTE_PUBLIC_HTML_DIR"
           # TODO: Eventually add code here to clean up old releases.  We'll just delete them manually for now.
+    - step: &deploy-cloudflare
+        name: Deploy the app to cloudflare
+        caches:
+          - node
+        script:
+          # Load environment variables from appropriate deployment env file
+          - set -o allexport; source ./deploy-cloudflare/.env.${BITBUCKET_BRANCH}
+          # Install NPM dependencies
+          - npm ci
+          # Run build
+          - npm run build
+          # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
+          - |
+            [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
+          # Deploy build to Cloudflare Pages
+          # See: https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
+          # Note: Need to specify "--branch main" below to get Cloudflare to treat this as a
+          #       "Production" deployment for the specified --project.
+          - npx wrangler pages publish ./build --branch main --project-name=$CLOUDFLARE_PROJECT_NAME
 
 pipelines:
   branches:
@@ -72,8 +91,8 @@ pipelines:
       - step: *lint-build-test
       - step: *deploy-siteground
     deploy/staging:
-      - step: *lint-build-test
-      - step: *deploy-siteground
+      #- step: *lint-build-test
+      - step: *deploy-cloudflare
     deploy/dev:
       - step: *lint-build-test
       - step: *deploy-siteground

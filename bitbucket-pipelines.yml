@@ -91,7 +91,7 @@ pipelines:
       - step: *lint-build-test
       - step: *deploy-siteground
     deploy/staging:
-      #- step: *lint-build-test
+      - step: *lint-build-test
       - step: *deploy-cloudflare
     deploy/dev:
       - step: *lint-build-test

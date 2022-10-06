@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Movie, MovieSchema } from '../schemas/movie/movie.schema';
 import { addPrePostHooks } from '../schemas/movie/movie.pre-post-hooks';
+import { MoviesController } from './movies.controller';
+import { MoviesService } from './providers/movies.service';
 
 @Module({
   imports: [
@@ -16,8 +18,8 @@ import { addPrePostHooks } from '../schemas/movie/movie.pre-post-hooks';
       },
     ]),
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  controllers: [MoviesController],
+  providers: [MoviesService],
+  exports: [MoviesService],
 })
 export class MoviesModule { }

@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import Calendar, { CalendarTileProperties } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import moment from 'moment';
+import { DateTime } from 'luxon';
+import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
-import EventPoster from '../../../images/events-poster.png';
+import { getEvents, getMoreEvents } from '../../../api/eventByDate';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -108,14 +110,6 @@ const EventCalender = styled(Calendar)`
     visibility: hidden;
 }
 `;
-const eventsList = [
-  {
-    id: 1, image: `${EventPoster}`, date: '07/05/2022', location: '1 Main St, New York, NY USA', eventName: 'Escape from a House of Horror - A Diane Sawyer Special Event',
-  },
-  {
-    id: 2, image: `${EventPoster}`, date: '07/05/2022', location: '1 Main St, New York, NY USA', eventName: 'Escape from a House of Horror - A Diane Sawyer Special Event',
-  },
-];
 const mark = [
   '04-09-2022',
   '13-09-2022',
@@ -123,6 +117,52 @@ const mark = [
 ];
 function EventsByDate() {
   const [value, onChange] = useState(new Date());
+  const [eventsList, setEventList] = useState<any[]>([]);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  useEffect(() => {
+    // const startDate = DateTime.fromJSDate(value).startOf("day").toString()
+    // const endDate = DateTime.fromJSDate(value).endOf("day").toString()
+    getEvents().then((res) => {
+      const eventsData = res.data.map((event: any) => (
+        {
+          ...event,
+          /* eslint no-underscore-dangle: 0 */
+          id: event._id,
+          image: event.images[0],
+          date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
+          location: event.address,
+          eventName: event.name,
+        }
+      ));
+      setEventList(eventsData);
+    }).catch(() => {});
+  }, []);
+
+  const fetchMoreEvent = () => {
+    getMoreEvents(eventsList[eventsList.length - 1]._id)
+      .then((res) => {
+        const eventsData = res.data.map((event: any) => (
+          {
+            ...event,
+            /* eslint no-underscore-dangle: 0 */
+            id: event._id,
+            image: event.images[0],
+            date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
+            location: event.address,
+            eventName: event.name,
+          }
+        ));
+        setEventList((prev: any) => [
+          ...prev,
+          ...eventsData,
+        ]);
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+        }
+      })
+      .catch(() => {});
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="event">
       <EventHeader tabKey="by-date" />
@@ -142,13 +182,24 @@ function EventsByDate() {
           }}
         />
         <Row className="justify-content-md-center">
-          {eventsList.map((eventDetail) => (
-            <Col md={6} key={eventDetail.id}>
-              <EventsPosterCard
-                listDetail={eventDetail}
-              />
-            </Col>
-          ))}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad={false}
+            loadMore={fetchMoreEvent}
+            hasMore
+          >
+            { eventsList.length > 0
+              ? eventsList.map((eventDetail) => (
+                <Col md={6} key={eventDetail.id}>
+                  <EventsPosterCard
+                    listDetail={eventDetail}
+                  />
+                </Col>
+              ))
+              : 'No events available'}
+          </InfiniteScroll>
+          {noMoreData && <p className="text-center">No more Events</p>}
+
         </Row>
       </div>
     </AuthenticatedPageWrapper>

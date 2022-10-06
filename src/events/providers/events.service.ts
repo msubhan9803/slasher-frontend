@@ -18,13 +18,13 @@ export class EventService {
       .exec();
   }
 
-  async findById(id: string, activeOnly: boolean): Promise<EventDocument> {
+  async findById(id: string, activeOnly: boolean, populateField = null, populateSelect = null): Promise<EventDocument> {
     const eventFindQuery: any = { _id: id };
     if (activeOnly) {
       eventFindQuery.deleted = false;
       eventFindQuery.status = EventActiveStatus.Active;
     }
-    return this.eventModel.findOne(eventFindQuery).exec();
+    return this.eventModel.findOne(eventFindQuery).populate(populateField, populateSelect).exec();
   }
 
   async findAllByDate(

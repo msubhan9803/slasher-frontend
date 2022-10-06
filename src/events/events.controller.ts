@@ -16,6 +16,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('events')
 export class EventsController {
@@ -123,11 +124,18 @@ export class EventsController {
 
   @Get(':id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
-    const eventData = await this.eventService.findById(params.id, true);
+    const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
 
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
+
+    // eslint-disable-next-line no-param-reassign
+    eventData.images = eventData.images.map((imagePath) => {
+      // eslint-disable-next-line no-param-reassign
+      imagePath = relativeToFullImagePath(this.config, imagePath);
+      return imagePath;
+    });
     return eventData;
   }
 
@@ -155,6 +163,15 @@ export class EventsController {
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
+
+    for (const singleEvent of eventData) {
+      // eslint-disable-next-line no-param-reassign
+      singleEvent.images = singleEvent.images.map((imagePath) => {
+        // eslint-disable-next-line no-param-reassign
+        imagePath = relativeToFullImagePath(this.config, imagePath);
+        return imagePath;
+      });
+    }
     return eventData;
   }
 }

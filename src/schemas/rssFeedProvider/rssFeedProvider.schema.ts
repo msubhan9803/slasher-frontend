@@ -16,6 +16,14 @@ export class RssFeedProvider extends RssFeedProviderUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  // NOT USED
+  @Prop({ default: null, required: true })
+  title: string;
+
+  // NOT USED
+  @Prop({ default: null })
+  sortTitle: string;
+
   /***********
    * Methods *
    ***********/

@@ -60,10 +60,6 @@ export class Movie extends MovieUnusedFields {
   @Prop({ default: null })
   releaseDate: Date;
 
-  // NEW FIELD
-  @Prop({ default: null, trim: true })
-  sortReleaseYear: number;
-
   /***********
    * Methods *
    ***********/

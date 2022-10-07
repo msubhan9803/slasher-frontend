@@ -40,14 +40,14 @@ export class MoviesService {
   }
 
   async findFirstByReleaseYear(releaseYear: number, activeOnly: boolean): Promise<MovieDocument> {
-    const realeaseYearQuery: any = { sortReleaseYear: { $gte: releaseYear } };
+    const realeaseYearQuery: any = { sortReleaseDate: { $gte: releaseYear.toString() } };
     if (activeOnly) {
       realeaseYearQuery.is_deleted = MovieDeletionStatus.NotDeleted;
       realeaseYearQuery.status = MovieActiveStatus.Active;
     }
     return this.moviesModel
       .findOne(realeaseYearQuery)
-      .sort({ sortReleaseYear: 1 })
+      .sort({ sortReleaseDate: 1 })
       .exec();
   }
 

@@ -11,6 +11,5 @@ export const moviesFactory = Factory.define<Partial<Movie>>(
     contentRating: `content rating ${sequence}`,
     durationInMinutes: 31,
     releaseDate: new Date(),
-    sortReleaseYear: 2000,
   }),
 );

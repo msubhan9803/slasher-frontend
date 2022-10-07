@@ -1,7 +1,10 @@
 import {
   Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query,
 } from '@nestjs/common';
+import mongoose from 'mongoose';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
+import { FindAllMoviesDto } from './dto/find-all-movies.dto';
+import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
@@ -9,6 +12,24 @@ import { MoviesService } from './providers/movies.service';
 @Controller('movies')
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) { }
+
+  @Get('firstBySortName')
+  async findFirstBySortName(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: SortNameQueryDto) {
+    const firstBySortNameMovieDetails = await this.moviesService.findFirstBySortName(query.startsWith, true);
+    if (!firstBySortNameMovieDetails) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    return firstBySortNameMovieDetails;
+  }
+
+  @Get('firstByReleaseYear')
+  async findFirstByReleaseYear(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: ReleaseYearDto) {
+    const releaseYearMovieData = await this.moviesService.findFirstByReleaseYear(query.year, true);
+    if (!releaseYearMovieData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    return releaseYearMovieData;
+  }
 
   @Get(':id')
   async findOne(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
@@ -19,12 +40,20 @@ export class MoviesController {
     return movieData;
   }
 
-  @Get('firstBySortName')
-  async findFirstBySortName(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: SortNameQueryDto) {
-    const movieData = await this.moviesService.findFirstBySortName(query.startsWith, true);
-    if (!movieData) {
+  @Get()
+  async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {
+    if (!(query.sortBy === 'name' || query.sortBy === 'releaseDate')) {
+      throw new HttpException('sortby allow only name and releasedate', HttpStatus.NOT_FOUND);
+    }
+    const releaseYearMovieData = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy === 'name' ? 'name' : 'releaseDate',
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+    );
+    if (!releaseYearMovieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    return movieData;
+    return releaseYearMovieData;
   }
 }

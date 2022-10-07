@@ -4,18 +4,23 @@ import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
 import { RssFeedProviderActiveStatus, RssFeedProviderAutoFollow, RssFeedProviderDeletionStatus } from './rssFeedProvider.enums';
 
 export class RssFeedProviderUnusedFields {
+  // NOT USED
   @Prop({ default: null })
   title: string;
 
+  // NOT USED
   @Prop({ default: null })
   logo: string;
 
+  // NOT USED
   @Prop({ default: null })
   feed_url: string;
 
+  // NOT USED
   @Prop({ default: RssFeedProviderAutoFollow.No })
   auto_follow: RssFeedProviderAutoFollow;
 
+  // NOT USED
   @Prop({ default: 0 })
   preview_count: number;
 

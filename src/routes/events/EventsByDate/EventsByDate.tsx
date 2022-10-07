@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -119,10 +120,11 @@ function EventsByDate() {
   const [value, onChange] = useState(new Date());
   const [eventsList, setEventList] = useState<any[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  const selectedDateString = DateTime.fromJSDate(value).toFormat('yyyy-MM-dd');
+  const startDate = `${selectedDateString}T00:00:00Z`;
+  const endDate = `${selectedDateString}T23:59:59Z`;
   useEffect(() => {
-    // const startDate = DateTime.fromJSDate(value).startOf("day").toString()
-    // const endDate = DateTime.fromJSDate(value).endOf("day").toString()
-    getEvents().then((res) => {
+    getEvents(startDate, endDate).then((res) => {
       const eventsData = res.data.map((event: any) => (
         {
           ...event,
@@ -136,31 +138,33 @@ function EventsByDate() {
       ));
       setEventList(eventsData);
     }).catch(() => {});
-  }, []);
+  }, [startDate]);
 
   const fetchMoreEvent = () => {
-    getMoreEvents(eventsList[eventsList.length - 1]._id)
-      .then((res) => {
-        const eventsData = res.data.map((event: any) => (
-          {
-            ...event,
-            /* eslint no-underscore-dangle: 0 */
-            id: event._id,
-            image: event.images[0],
-            date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
-            location: event.address,
-            eventName: event.name,
+    if (eventsList && eventsList.length > 0) {
+      getMoreEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
+        .then((res) => {
+          const eventsData = res.data.map((event: any) => (
+            {
+              ...event,
+              /* eslint no-underscore-dangle: 0 */
+              id: event._id,
+              image: event.images[0],
+              date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
+              location: event.address,
+              eventName: event.name,
+            }
+          ));
+          setEventList((prev: any) => [
+            ...prev,
+            ...eventsData,
+          ]);
+          if (res.data.length === 0) {
+            setNoMoreData(true);
           }
-        ));
-        setEventList((prev: any) => [
-          ...prev,
-          ...eventsData,
-        ]);
-        if (res.data.length === 0) {
-          setNoMoreData(true);
-        }
-      })
-      .catch(() => {});
+        })
+        .catch(() => { });
+    }
   };
 
   return (
@@ -188,18 +192,17 @@ function EventsByDate() {
             loadMore={fetchMoreEvent}
             hasMore
           >
-            { eventsList.length > 0
-              ? eventsList.map((eventDetail) => (
+            {eventsList && eventsList.length > 0
+              ? (eventsList.map((eventDetail) => (
                 <Col md={6} key={eventDetail.id}>
                   <EventsPosterCard
                     listDetail={eventDetail}
                   />
                 </Col>
-              ))
-              : 'No events available'}
+              )))
+              : <p className="text-center mt-3">No events available</p>}
           </InfiniteScroll>
-          {noMoreData && <p className="text-center">No more Events</p>}
-
+          {noMoreData && eventsList.length > 1 && <p className="text-center">No more Events</p>}
         </Row>
       </div>
     </AuthenticatedPageWrapper>

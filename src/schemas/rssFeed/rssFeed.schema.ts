@@ -16,6 +16,12 @@ export class RssFeed extends RssFeedUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  @Prop({ default: null, ref: 'rssFeedProvider', required: true })
+  rssfeedProviderId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, required: true, trim: true })
+  title: string;
+
   /***********
    * Methods *
    ***********/

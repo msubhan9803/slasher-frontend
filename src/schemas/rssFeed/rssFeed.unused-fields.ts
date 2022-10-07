@@ -5,14 +5,6 @@ import { RssFeedDeletionStatus } from './rssFeed.enums';
 
 export class RssFeedUnusedFields {
   // NOT USED
-  @Prop({ default: null, ref: 'rssFeedProvider', required: true })
-  rssfeedProviderId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
-  @Prop({ default: null, required: true, trim: true })
-  title: string;
-
-  // NOT USED
   @Prop({ default: null })
   link: string;
 

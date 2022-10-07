@@ -3,10 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
+import mongoose from 'mongoose';
 
+interface UserNameSuggestion {
+  userName?: string;
+  id?: mongoose.Schema.Types.ObjectId;
+}
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+
+  // private readonly userNameSuggestion: UserNameSuggestion[] = [];
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);
@@ -97,5 +104,22 @@ export class UsersService {
     return this.userModel
       .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })
       .exec();
+  }
+
+  async suggestUserName(query: string, limit: number): Promise<UserNameSuggestion[]> {
+    // TODO: Do case-insensitive search for users where userName starts with `query` param and limit is `limit` param.
+    // NOTE 1: Since search will be case-insensitive, make sure to use:
+    //         .collation({ locale: 'en', strength: 2 })
+    // Note 2: If no results are found, return an empty array.
+    const nameFindAllQuery = { userName: query };
+
+    const username = await this.userModel
+      .find(nameFindAllQuery)
+      .limit(limit)
+      .collation({ locale: 'en', strength: 2 })
+      .exec();
+    console.log('username', username);
+    return username ? username : []
+
   }
 }

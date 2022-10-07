@@ -43,6 +43,7 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 
 @Controller('users')
 export class UsersController {
@@ -402,5 +403,13 @@ export class UsersController {
     // Delete original upload
     await fs.unlinkSync(file.path);
     return { success: true };
+  }
+
+  @Get('suggest-user-name')
+  async suggestUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: SuggestUserNameQueryDto,
+  ) {
+    return this.usersService.suggestUserName(query.query, query.limit);
   }
 }

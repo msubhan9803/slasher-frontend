@@ -10,7 +10,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
-import { getEvents, getMoreEvents } from '../../../api/eventByDate';
+import { getEvents } from '../../../api/eventByDate';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -142,7 +142,7 @@ function EventsByDate() {
 
   const fetchMoreEvent = () => {
     if (eventsList && eventsList.length > 0) {
-      getMoreEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
+      getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
           const eventsData = res.data.map((event: any) => (
             {

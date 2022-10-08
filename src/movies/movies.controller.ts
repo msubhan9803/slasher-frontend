@@ -48,7 +48,7 @@ export class MoviesController {
     const releaseYearMovieData = await this.moviesService.findAll(
       query.limit,
       true,
-      query.sortBy === 'name' ? 'name' : 'releaseDate',
+      query.sortBy,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
     if (!releaseYearMovieData) {

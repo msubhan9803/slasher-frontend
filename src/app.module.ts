@@ -9,7 +9,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
-import { RssFeedProvidersModule } from './rssFeedProviders/rssFeedProviders.module';
+import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.module';
 
 @Module({
   imports: [

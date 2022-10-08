@@ -8,8 +8,8 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
-import { RssFeedProvidersService } from '../../../src/rssFeedProviders/providers/rssFeedProviders.service';
-import { rssFeedProviderFactory } from '../../factories/rssFeedProviders.factory';
+import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 

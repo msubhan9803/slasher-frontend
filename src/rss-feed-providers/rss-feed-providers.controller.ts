@@ -3,9 +3,9 @@ import {
 } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { ValidateAllRssFeedProvidersDto } from './dto/all-rssFeedProviders.dto';
-import { RssFeedProvidersIdDto } from './dto/rssFeedProviders.id.dto';
-import { RssFeedProvidersService } from './providers/rssFeedProviders.service';
+import { ValidateAllRssFeedProvidersDto } from './dto/all-rss-feed-providers.dto';
+import { RssFeedProvidersIdDto } from './dto/rss-feed-providers.id.dto';
+import { RssFeedProvidersService } from './providers/rss-feed-providers.service';
 
 @Controller('rss-feed-providers')
 export class RssFeedProvidersController {

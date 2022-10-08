@@ -3,12 +3,12 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
-import { RssFeedProvidersService } from './rssFeedProviders.service';
+import { RssFeedProvidersService } from './rss-feed-providers.service';
 import { RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
-import { rssFeedProviderFactory } from '../../../test/factories/rssFeedProviders.factory';
+import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
 import { RssFeedProviderActiveStatus } from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
 
-describe('EventService', () => {
+describe('RssFeedProvidersService', () => {
   let app: INestApplication;
   let connection: Connection;
   let rssFeedProvidersService: RssFeedProvidersService;

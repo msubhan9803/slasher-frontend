@@ -23,7 +23,7 @@ export class Movie extends MovieUnusedFields {
   sort_name: string;
 
   @Prop({ default: null, trim: true })
-  sort_releaseDate: string;
+  sortReleaseDate: string;
 
   @Prop({ type: Array, default: null, trim: true })
   trailerUrls: string[];

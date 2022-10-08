@@ -5,14 +5,6 @@ import { RssFeedProviderActiveStatus, RssFeedProviderAutoFollow, RssFeedProvider
 
 export class RssFeedProviderUnusedFields {
   // NOT USED
-  @Prop({ default: null, required: true })
-  title: string;
-
-  // NOT USED
-  @Prop({ default: null })
-  sortTitle: string;
-
-  // NOT USED
   @Prop({ default: null })
   logo: string;
 

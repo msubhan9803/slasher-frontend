@@ -192,7 +192,7 @@ function EventsByDate() {
           hasMore
           element="span"
         >
-          <Row className="justify-content-md-center">
+          <Row>
             {eventsList && eventsList.length > 0
               ? (eventsList.map((eventDetail) => (
                 <Col md={6} key={eventDetail.id}>

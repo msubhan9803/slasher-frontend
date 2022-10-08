@@ -185,13 +185,14 @@ function EventsByDate() {
             return null;
           }}
         />
-        <Row className="justify-content-md-center">
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad={false}
-            loadMore={fetchMoreEvent}
-            hasMore
-          >
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad={false}
+          loadMore={fetchMoreEvent}
+          hasMore
+          element="span"
+        >
+          <Row className="justify-content-md-center">
             {eventsList && eventsList.length > 0
               ? (eventsList.map((eventDetail) => (
                 <Col md={6} key={eventDetail.id}>
@@ -201,9 +202,9 @@ function EventsByDate() {
                 </Col>
               )))
               : <p className="text-center mt-3">No events available</p>}
-          </InfiniteScroll>
-          {noMoreData && eventsList.length > 1 && <p className="text-center">No more Events</p>}
-        </Row>
+          </Row>
+        </InfiniteScroll>
+        {noMoreData && eventsList.length > 1 && <p className="text-center">No more Events</p>}
       </div>
     </AuthenticatedPageWrapper>
   );

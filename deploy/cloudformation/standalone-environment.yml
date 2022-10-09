@@ -100,7 +100,7 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: "/dev/sda1"
           Ebs:
-            VolumeSize: "20"
+            VolumeSize: "19"
       # Note: If an EC2 instance is EBS backed, changes to UserData alone will only trigger a reboot,
       # and should not delete the EBS volume or re-run the UserData script.  By comparison, if an EC2
       # instance is instance-store-backed, the entire instance would be rebuilt, the data on the
@@ -129,6 +129,10 @@ Resources:
             mkswap /swapfile
             swapon /swapfile
             echo '/swapfile swap swap defaults 0 0' | tee -a /etc/fstab
+
+            ###################
+            # Install MongoDB #
+            ###################
 
             # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
             wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
@@ -161,39 +165,103 @@ Resources:
             # Make sure that MongoDB starts on reboot in the future
             systemctl enable mongod.service
 
-            # Install redis
+            #################
+            # Install Redis #
+            #################
+
             apt-get install -y redis
 
-            # Install nginx
+            #################
+            # Install nginx #
+            #################
+
             apt install nginx -y
 
+            ##########################################
+            # Install Passenger (for use with nginx) #
+            ##########################################
+            # See: https://www.phusionpassenger.com/docs/tutorials/deploy_to_production/installations/oss/aws/node/nginx/
+
+            # Install Passenger PGP key and add HTTPS support for APT
+            apt-get install -y dirmngr gnupg apt-transport-https ca-certificates
+            apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
+
+            # Add passenger APT repository and update packages
+            sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger focal main > /etc/apt/sources.list.d/passenger.list'
+            apt-get update
+
+            # Install Passenger + Nginx module
+            apt-get install -y libnginx-mod-http-passenger
+
+            # Enable the passenger module and restart nginx
+            if [ ! -f /etc/nginx/modules-enabled/50-mod-http-passenger.conf ]; then ln -s /usr/share/nginx/modules-available/mod-http-passenger.load /etc/nginx/modules-enabled/50-mod-http-passenger.conf ; fi
+
+            # Restart nginx
+            systemctl restart nginx
+            sleep 5
+
+            ########################################
+            # Install system-wide Node 16 (latest) #
+            ########################################
+            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
+            sudo apt-get install -y nodejs
+
+            ##########################################################
+            # Create slasherserv service account for running the app #
+            ##########################################################
+            sudo adduser --disabled-password --gecos "" slasherserv
+
+            ####################################
+            # Set up Slasher vhost and docroot #
+            ####################################
+
             # Set up placeholder vhost in sites-available directory
-            mkdir -p /var/www/${BackendSiteDomain}/html
+            # Note that in the config below, root ends in "/current/public".  This "/current/public"
+            # directory does not actually exist.  Only the "/current" directory needs to exist.
+            mkdir -p /var/www/${BackendSiteDomain}/current
             echo 'server {
               listen 80;
               listen [::]:80;
 
-              root /var/www/${BackendSiteDomain}/html;
-              index index.html;
+              root /var/www/${BackendSiteDomain}/current/public;
 
               server_name ${BackendSiteDomain};
 
-              location / {
-                      try_files $uri $uri/ =404;
-              }
-            }' | tee /etc/nginx/sites-available/${BackendSiteDomain}
+              passenger_enabled on;
+              passenger_app_type node;
+              passenger_startup_file app.js;
+              passenger_min_instances 1;
+            }
+
+            #passenger_pre_start https://${BackendSiteDomain}/;
+            ' | tee /etc/nginx/sites-available/${BackendSiteDomain}
+
+            # Set up placeholder node app in docroot
+            echo $'#!/usr/bin/env nodejs
+              var http = require(\'http\');
+              http.createServer(function (req, res) {
+                res.writeHead(200, {\'Content-Type\': \'text/plain\'});
+                res.end(\'Hello World\');
+              }).listen(8080, \'localhost\');
+              console.log(\'Placeholder node app has started up.\');
+            ' | tee /var/www/${BackendSiteDomain}/current/app.js
 
             # Make vhost active by creating a sites-enabled symlink
             ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
 
-            # Add placeholder index.html to docroot
-            echo 'Available' | tee /var/www/${BackendSiteDomain}/html/index.html
+            # Chown docroot to service account user.
+            # Note 1: Passenger will run the app as the same user that owns passenger_startup_file as
+            # long as passenger_user_switching is enabled.
+            # Note 2: passenger_user_switching should be enabled by default.
+            chown -R slasherserv:slasherserv /var/www/${BackendSiteDomain}
 
             # Restart nginx
             systemctl restart nginx
-
-            # Wait for nginx to start up
             sleep 5
+
+            ########################################
+            # Set up Let's Encrypt SSL Certificate #
+            ########################################
 
             # Install certbot for Let's Encrypt certificates
             # Note: Using snap as install source instead of apt because it provides a newer version
@@ -212,27 +280,8 @@ Resources:
 
             # Restart nginx
             systemctl restart nginx
+            sleep 5
 
-            echo 'got here' >> out.txt
-
-            # Install nvm (as ubuntu user)
-            su - ubuntu -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
-
-            # Install node (and make sure to load nvm beforehand)
-            su - ubuntu -c '
-              export NVM_DIR="$HOME/.nvm"
-              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-              [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-              nvm install 16.13.1
-            '
-
-            # Update npm to 8.2.0
-            su - ubuntu -c '
-              export NVM_DIR="$HOME/.nvm"
-              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-              [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-              npm install -g npm@8.2.0
-            '
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:

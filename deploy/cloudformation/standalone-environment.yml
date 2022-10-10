@@ -35,6 +35,8 @@ Description: EC2 Slasher standalone instance
 # aws cloudformation estimate-template-cost --template-body file://deploy/cloudformation/standalone-environment.yml \
 # --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
 
+# Once the server has been created, you can SSH in and `tail -f /var/log/cloud-init-output.log` to check the status of UserData execution.
+
 Parameters:
   SSHLocation:
     Description: The IP address range that can be used to SSH to the EC2 instances
@@ -79,6 +81,22 @@ Parameters:
   BackendSiteDomain:
     Type: String
 
+  InstallMongo:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
+  InstallRedis:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
+  DeploymentUserName:
+    Type: String
+    Default: slasherserv
+  DeploymentUserAuthorizedKeys:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /STANDALONE-WEBSERVER/deploy/deplyment-user-authorized-public-keys
+    NoEcho: true
+
 Resources:
   WebServerInstance:
     Type: AWS::EC2::Instance
@@ -100,7 +118,7 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: "/dev/sda1"
           Ebs:
-            VolumeSize: "19"
+            VolumeSize: "20"
       # Note: If an EC2 instance is EBS backed, changes to UserData alone will only trigger a reboot,
       # and should not delete the EBS volume or re-run the UserData script.  By comparison, if an EC2
       # instance is instance-store-backed, the entire instance would be rebuilt, the data on the
@@ -134,42 +152,46 @@ Resources:
             # Install MongoDB #
             ###################
 
-            # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
-            wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
-            # Add MongoDB apt repo
-            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
-            # Update apt package list again to get MongoDB packages
-            apt-get update
-            # Install MongoDB
-            apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
-            # Prevent automatic MongoDB updates by pinning to current version
-            echo "mongodb-org hold" | dpkg --set-selections
-            echo "mongodb-org-server hold" | dpkg --set-selections
-            echo "mongodb-org-shell hold" | dpkg --set-selections
-            echo "mongodb-org-mongos hold" | dpkg --set-selections
-            echo "mongodb-org-tools hold" | dpkg --set-selections
-            # Start MongoDB
-            systemctl start mongod
-            # Wait a little while for MongoDB to start
-            sleep 10
-            # Set up mongo admin user
-            mongo admin --eval "db.createUser({user: '${MongoDbAdminUser}',   pwd: '${MongoDbAdminPassword}',   roles: [ { role: 'root', db: 'admin' } ]})"
-            # Set up mongo slasher user
-            mongo slasher --eval "db.createUser({user: '${MongoDbSlasherUser}', pwd: '${MongoDbSlasherPassword}', roles: [ { role: 'readWrite', db: 'slasher' } ]})"
-            # Enable MongoDB security by un-commenting security section and adding 'authorization: enabled'
-            sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
-            # Allow external connections to MongoDB
-            sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
-            # Restart MongoDB
-            systemctl restart mongod
-            # Make sure that MongoDB starts on reboot in the future
-            systemctl enable mongod.service
+            if [ ${InstallMongo} -eq 1 ]; then
+              # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
+              wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+              # Add MongoDB apt repo
+              echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+              # Update apt package list again to get MongoDB packages
+              apt-get update
+              # Install MongoDB
+              apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
+              # Prevent automatic MongoDB updates by pinning to current version
+              echo "mongodb-org hold" | dpkg --set-selections
+              echo "mongodb-org-server hold" | dpkg --set-selections
+              echo "mongodb-org-shell hold" | dpkg --set-selections
+              echo "mongodb-org-mongos hold" | dpkg --set-selections
+              echo "mongodb-org-tools hold" | dpkg --set-selections
+              # Start MongoDB
+              systemctl start mongod
+              # Wait a little while for MongoDB to start
+              sleep 10
+              # Set up mongo admin user
+              mongo admin --eval "db.createUser({user: '${MongoDbAdminUser}',   pwd: '${MongoDbAdminPassword}',   roles: [ { role: 'root', db: 'admin' } ]})"
+              # Set up mongo slasher user
+              mongo slasher_${EnvironmentType} --eval "db.createUser({user: '${MongoDbSlasherUser}', pwd: '${MongoDbSlasherPassword}', roles: [ { role: 'readWrite', db: 'slasher_${EnvironmentType}' } ]})"
+              # Enable MongoDB security by un-commenting security section and adding 'authorization: enabled'
+              sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
+              # Allow external connections to MongoDB
+              sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
+              # Restart MongoDB
+              systemctl restart mongod
+              # Make sure that MongoDB starts on reboot in the future
+              systemctl enable mongod.service
+            fi
 
             #################
             # Install Redis #
             #################
 
-            apt-get install -y redis
+            if [ ${InstallRedis} -eq 1 ]; then
+              apt-get install -y redis
+            fi
 
             #################
             # Install nginx #
@@ -206,10 +228,22 @@ Resources:
             curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
             sudo apt-get install -y nodejs
 
-            ##########################################################
-            # Create slasherserv service account for running the app #
-            ##########################################################
-            sudo adduser --disabled-password --gecos "" slasherserv
+            ##############################################################
+            # Create deployment user service account for running the app #
+            ##############################################################
+
+            # Create user
+            sudo adduser --disabled-password --gecos "" ${DeploymentUserName}
+
+            # Import AWS parameter store /STANDALONE-WEBSERVER/deploy/slasherserv-public-key value
+            # into deployment user's authorized keys.  This key is shared between all standalone
+            # server deployment environments because the user has limited permissions that are
+            # scoped only to the user the app runs as.
+            mkdir -p ~${DeploymentUserName}/.ssh
+            echo '${DeploymentUserAuthorizedKeys}' >> ~${DeploymentUserName}/.ssh/authorized_keys
+            chown -R ${DeploymentUserName}:${DeploymentUserName} ~${DeploymentUserName}/.ssh
+            chmod 700 ~${DeploymentUserName}/.ssh
+            chmod 600 ~${DeploymentUserName}/.ssh/authorized_keys
 
             ####################################
             # Set up Slasher vhost and docroot #
@@ -218,18 +252,17 @@ Resources:
             # Set up placeholder vhost in sites-available directory
             # Note that in the config below, root ends in "/current/public".  This "/current/public"
             # directory does not actually exist.  Only the "/current" directory needs to exist.
-            mkdir -p /var/www/${BackendSiteDomain}/current
             echo 'server {
               listen 80;
               listen [::]:80;
 
-              root /var/www/${BackendSiteDomain}/current/public;
+              root /var/www/slasher_${EnvironmentType}/current/public;
 
               server_name ${BackendSiteDomain};
 
               passenger_enabled on;
               passenger_app_type node;
-              passenger_startup_file app.js;
+              passenger_startup_file dist/main.js;
               passenger_min_instances 1;
             }
 
@@ -237,6 +270,8 @@ Resources:
             ' | tee /etc/nginx/sites-available/${BackendSiteDomain}
 
             # Set up placeholder node app in docroot
+            mkdir -p /var/www/slasher_${EnvironmentType}/releases/placeholder/dist
+            ln -s /var/www/slasher_${EnvironmentType}/releases/placeholder /var/www/slasher_${EnvironmentType}/current
             echo $'#!/usr/bin/env nodejs
               var http = require(\'http\');
               http.createServer(function (req, res) {
@@ -244,16 +279,16 @@ Resources:
                 res.end(\'Hello World\');
               }).listen(8080, \'localhost\');
               console.log(\'Placeholder node app has started up.\');
-            ' | tee /var/www/${BackendSiteDomain}/current/app.js
-
-            # Make vhost active by creating a sites-enabled symlink
-            ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
+            ' | tee /var/www/slasher_${EnvironmentType}/releases/placeholder/dist/main.js
 
             # Chown docroot to service account user.
             # Note 1: Passenger will run the app as the same user that owns passenger_startup_file as
             # long as passenger_user_switching is enabled.
             # Note 2: passenger_user_switching should be enabled by default.
-            chown -R slasherserv:slasherserv /var/www/${BackendSiteDomain}
+            chown -R ${DeploymentUserName}:${DeploymentUserName} /var/www/slasher_${EnvironmentType}
+
+            # Make vhost active by creating a sites-enabled symlink
+            ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
 
             # Restart nginx
             systemctl restart nginx

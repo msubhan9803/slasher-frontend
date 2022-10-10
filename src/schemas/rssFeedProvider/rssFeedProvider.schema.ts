@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { RssFeedProviderActiveStatus, RssFeedProviderDeletionStatus } from './rssFeedProvider.enums';
 import { RssFeedProviderUnusedFields } from './rssFeedProvider.unused-fields';
 
 @Schema({ timestamps: true })
@@ -23,6 +24,25 @@ export class RssFeedProvider extends RssFeedProviderUnusedFields {
   // NOT USED
   @Prop({ default: null })
   sortTitle: string;
+
+  @Prop({
+    enum: [
+      RssFeedProviderActiveStatus.Inactive,
+      RssFeedProviderActiveStatus.Active,
+      RssFeedProviderActiveStatus.Deactivated,
+    ],
+    default: RssFeedProviderActiveStatus.Inactive,
+  })
+  status: RssFeedProviderActiveStatus;
+
+  @Prop({
+    enum: [
+      RssFeedProviderDeletionStatus.NotDeleted,
+      RssFeedProviderDeletionStatus.Deleted,
+    ],
+    default: RssFeedProviderDeletionStatus.NotDeleted,
+  })
+  deleted: RssFeedProviderDeletionStatus;
 
   /***********
    * Methods *

@@ -31,13 +31,13 @@ definitions:
           - npm run test
           # Run e2e tests
           - npm run test:e2e
-    - step: &deploy
-        name: Deploy the app to web
+    - step: &deploy-siteground
+        name: Deploy the app to siteground
         caches:
           - node
         script:
           # Load environment variables from appropriate deployment env file
-          - set -o allexport; source ./deploy/.env.${BITBUCKET_BRANCH}
+          - set -o allexport; source ./deploy-siteground/.env.${BITBUCKET_BRANCH}
           # Latest release name will be based on current date and time
           - LATEST_RELEASE_DIR_NAME="$(date +%Y%m%d_%H%M%S)"
           # Full path to release is derived from loaded environment variables
@@ -48,7 +48,7 @@ definitions:
           - npm run build
           # Copy any relevant .htaccess file into the build (if it exists)
           - |
-            [ -f "./deploy/.htaccess.${BITBUCKET_BRANCH}" ] && echo 'Adding .htaccess file to build' && cp ./deploy/.htaccess.${BITBUCKET_BRANCH} ./build/.htaccess
+            [ -f "./deploy-siteground/.htaccess.${BITBUCKET_BRANCH}" ] && echo 'Adding .htaccess file to build' && cp ./deploy-siteground/.htaccess.${BITBUCKET_BRANCH} ./build/.htaccess
           # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
           - |
             [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
@@ -62,75 +62,94 @@ definitions:
           # Update remote public_html symlink to point to latest release
           - ssh -p 18765 u664-oora98pjoccl@slasher.tv "ln -nsf $FULL_PATH_TO_LATEST_RELEASE_DIR $REMOTE_PUBLIC_HTML_DIR"
           # TODO: Eventually add code here to clean up old releases.  We'll just delete them manually for now.
+    - step: &deploy-cloudflare
+        name: Deploy the app to cloudflare
+        caches:
+          - node
+        script:
+          # Load environment variables from appropriate deployment env file
+          - set -o allexport; source ./deploy-cloudflare/.env.${BITBUCKET_BRANCH}
+          # Install NPM dependencies
+          - npm ci
+          # Run build
+          - npm run build
+          # If ADD_NOINDEX_ROBOTS_TXT is true, add a no-index robots.txt file to the build
+          - |
+            [ "$ADD_NOINDEX_ROBOTS_TXT" = true ] && echo 'Adding no-index robots.txt file to build' && echo -e "User-agent: *\nDisallow: /" > ./build/robots.txt
+          # Deploy build to Cloudflare Pages
+          # See: https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/
+          # Note: Need to specify "--branch main" below to get Cloudflare to treat this as a
+          #       "Production" deployment for the specified --project.
+          - npx wrangler pages publish ./build --branch main --project-name=$CLOUDFLARE_PROJECT_NAME
 
 pipelines:
   branches:
     # Always run on main
     main:
       - step: *lint-build-test
-    deploy/production:
+    deploy/prod:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-cloudflare
     deploy/staging:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-cloudflare
     deploy/dev:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh1:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh2:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh3:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh4:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh5:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh6:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh7:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh8:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-avadh9:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak1:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak2:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak3:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak4:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak5:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak6:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak7:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak8:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
     deploy/dev-ronak9:
       - step: *lint-build-test
-      - step: *deploy
+      - step: *deploy-siteground
   pull-requests:
     # Run for any branch that has an open pull request
     '**':

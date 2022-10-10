@@ -1,10 +1,12 @@
+import { Type } from 'class-transformer';
 import {
- IsNotEmpty, IsNumberString, IsOptional, IsString,
+ IsNotEmpty, IsNumber, IsOptional, IsString, Max,
 } from 'class-validator';
 
 export class LimitOrEarlierThanPostIdDto {
-  @IsNumberString()
   @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber()
   limit: number;
 
   @IsString()

@@ -71,6 +71,9 @@ describe('All Feed Post (e2e)', () => {
         .get(`/users/${activeUser._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+        for (let i = 1; i < response.body.length; i += 1) {
+          expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        }        
       expect(response.body).toHaveLength(5);
     });
   });
@@ -115,7 +118,7 @@ describe('All Feed Post (e2e)', () => {
         .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must be a number string');
+        expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
     });
   });

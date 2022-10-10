@@ -36,7 +36,7 @@ export class EventUnusedFields {
   event_info: string;
 
   // NOT USED
-  // This is an array of string usr ids (NOT actual ObjectIds) of the users who are are interested
+  // This is an array of string user ids (NOT actual ObjectIds) of the users who are are interested
   // in the event (i.e. tapped the heart icon on the event).
   @Prop({ type: Array, default: [] })
   interests: string[];

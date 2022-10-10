@@ -5,7 +5,10 @@ import * as fs from 'fs';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // TODO: Consider a variable logging policy later on, based on NODE_ENV
+    // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
+  });
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);
 

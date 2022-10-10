@@ -33,8 +33,9 @@ definitions:
           - docker container kill $DOCKER_MONGO_CONTAINER_ID
           # Run build (to ensure that build succeeds)
           - npm run build
-    - step: &deploy
-        name: Deploy
+
+    - step: &deploy-ecs
+        name: Deploy to AWS (incomplete)
         caches:
           - docker
         services:
@@ -200,8 +201,11 @@ pipelines:
     main:
       - step: *lint-test-build
     deploy/staging:
-      #- step: *lint-test-build
-      - step: *deploy
+      - step: *lint-test-build
+      #- step: *deploy-ecs
+    deploy/prod:
+      - step: *lint-test-build
+      #- step: *deploy-ecs
   pull-requests:
     # Run for any branch that has an open pull request
     '**':

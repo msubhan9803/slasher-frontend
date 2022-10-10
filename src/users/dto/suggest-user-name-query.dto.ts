@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, Max } from 'class-validator';
 export class SuggestUserNameQueryDto {
   @IsNotEmpty()
   query: string;
-  
+
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()

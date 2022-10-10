@@ -326,6 +326,14 @@ export class UsersController {
     };
   }
 
+  @Get('suggest-user-name')
+  async suggestUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: SuggestUserNameQueryDto,
+  ) {
+    return this.usersService.suggestUserName(query.query, query.limit);
+  }
+
   @Get(':userNameOrId')
   async findOne(@Param('userNameOrId') userNameOrId: string) {
     let user: UserDocument;
@@ -403,13 +411,5 @@ export class UsersController {
     // Delete original upload
     await fs.unlinkSync(file.path);
     return { success: true };
-  }
-
-  @Get('suggest-user-name')
-  async suggestUserName(
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: SuggestUserNameQueryDto,
-  ) {
-    return this.usersService.suggestUserName(query.query, query.limit);
   }
 }

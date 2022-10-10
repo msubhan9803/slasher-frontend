@@ -280,4 +280,42 @@ describe('UsersService', () => {
       expect(reloadedUser.email).toEqual(user.email);
     });
   });
+
+  describe('#suggestUserName', () => {
+    beforeEach(async () => {
+      await usersService.create(
+        userFactory.build(
+          { userName: 'test1' },
+        ),
+      );
+      await usersService.create(
+        userFactory.build(
+          { userName: 'te1' },
+        ),
+      );
+      await usersService.create(
+        userFactory.build(
+          { userName: 'user1' },
+        ),
+      );
+      await usersService.create(
+        userFactory.build(
+          { userName: 'user2' },
+        ),
+      );
+    });
+    it('when query is exists than expected response', async () => {
+      const query = 'te';
+      const limit = 5;
+      const user = await usersService.suggestUserName(query, limit);
+      expect(user).toHaveLength(2);
+    });
+
+    it('when query is wrong than expected response', async () => {
+      const query = 'wq';
+      const limit = 5;
+      const user = await usersService.suggestUserName(query, limit);
+      expect(user).toEqual([]);
+    });
+  });
 });

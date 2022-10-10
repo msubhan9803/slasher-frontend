@@ -101,7 +101,7 @@ describe('FeedPostsService', () => {
       }
     });
 
-    it('when earlier than post id is exist and active only is exist than expected response', async () => {
+    it('when earlier than post id is exist and active only is true than expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
         status: FeedPostStatus.Active,
@@ -109,26 +109,38 @@ describe('FeedPostsService', () => {
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
       const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true, feedPost._id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
       expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
-    it('when earlier than post id is does not exist and active only is does not exist than expected response', async () => {
+    it('when earlier than post id is does not exist and active only is false than expected response', async () => {
       const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false);
+      for (let i = 1; i < feedPost.length; i += 1) {        
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
       expect(feedPost).toHaveLength(20);
     });
 
-    it('when earlier than post id is does not exist but active only is exists than expected response', async () => {
+    it('when earlier than post id is does not exist but active only is true than expected response', async () => {
       const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true);
+      for (let i = 1; i < feedPost.length; i += 1) {        
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
       expect(feedPost).toHaveLength(10);
     });
 
-    it('when earlier than post id does exist but active only does not exists than expected response', async () => {
+    it('when earlier than post id does exist but active only is false than expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
       const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false, feedPost._id);
+      for (let i = 1; i < feedPostData.length; i += 1) {        
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
       expect(feedPostData).toHaveLength(20);
     });
     it('returns the first and second sets of paginated results', async () => {

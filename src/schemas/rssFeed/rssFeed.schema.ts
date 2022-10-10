@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedDeletionStatus } from './rssFeed.enums';
 import { RssFeedUnusedFields } from './rssFeed.unused-fields';
 
 @Schema({ timestamps: true })
@@ -16,11 +18,20 @@ export class RssFeed extends RssFeedUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: null, ref: 'rssFeedProvider', required: true })
+  @Prop({ default: null, ref: RssFeedProvider.name, required: true })
   rssfeedProviderId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null, required: true, trim: true })
   title: string;
+
+  @Prop({
+    enum: [
+      RssFeedDeletionStatus.NotDeleted,
+      RssFeedDeletionStatus.Deleted,
+    ],
+    default: RssFeedDeletionStatus.NotDeleted,
+  })
+  deleted: RssFeedDeletionStatus;
 
   /***********
    * Methods *

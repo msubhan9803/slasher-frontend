@@ -10,6 +10,7 @@ import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.module';
+import { RssFeedModule } from './rss-feed/rss-feed.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.
     LocalStorageModule,
     ChatModule,
     RssFeedProvidersModule,
+    RssFeedModule,
   ],
   controllers: [AppController],
   providers: [

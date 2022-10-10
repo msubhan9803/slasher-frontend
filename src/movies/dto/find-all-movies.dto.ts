@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsIn,
  IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max,
 } from 'class-validator';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
@@ -12,7 +13,9 @@ export class FindAllMoviesDto {
   limit: number;
 
   @IsNotEmpty()
-  sortBy: string;
+  @IsIn(['name', 'releaseDate'])
+  @IsString()
+  sortBy: 'name' | 'releaseDate';
 
   @IsOptional()
   @IsString()

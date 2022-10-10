@@ -42,18 +42,15 @@ export class MoviesController {
 
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {
-    if (!(query.sortBy === 'name' || query.sortBy === 'releaseDate')) {
-      throw new HttpException('sortby allow only name and releasedate', HttpStatus.NOT_FOUND);
-    }
-    const releaseYearMovieData = await this.moviesService.findAll(
+    const movies = await this.moviesService.findAll(
       query.limit,
       true,
       query.sortBy,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
-    if (!releaseYearMovieData) {
-      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    if (!movies) {
+      throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
     }
-    return releaseYearMovieData;
+    return movies;
   }
 }

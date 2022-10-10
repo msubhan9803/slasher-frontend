@@ -70,7 +70,7 @@ export class MoviesService {
       const afterMovie = await this.moviesModel.findById(after);
       movieFindAllQuery.sortReleaseDate = { $gt: afterMovie.sortReleaseDate };
     }
-    const sortMoviesByNameAndReleaseDate: any = sortBy === 'name' ? { name: 1 } : { releaseDate: 1 };
+    const sortMoviesByNameAndReleaseDate: any = sortBy === 'name' ? { sort_name: 1 } : { sortReleaseDate: 1 };
 
     return this.moviesModel.find(movieFindAllQuery)
       .sort(sortMoviesByNameAndReleaseDate)

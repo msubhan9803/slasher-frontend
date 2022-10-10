@@ -7,13 +7,17 @@ Description: EC2 Slasher standalone instance
 # Update Stack:
 # aws cloudformation update-stack --stack-name slasher-standalone-webserver-dev \
 # --template-body file://deploy/cloudformation/standalone-environment.yml \
-# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
-# ParameterKey=EnvironmentType,ParameterValue=dev \
+# --parameters \
+# ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
 # ParameterKey=MongoDbAdminUser,ParameterValue=admin \
 # ParameterKey=MongoDbAdminPassword,ParameterValue=password \
 # ParameterKey=MongoDbSlasherUser,ParameterValue=slasher \
 # ParameterKey=MongoDbSlasherPassword,ParameterValue=password \
-# ParameterKey=BackendSiteDomain,ParameterValue=something.example.com
+# ParameterKey=BackendSiteDomain,ParameterValue=something.example.com \
+# ParameterKey=InstallMongo,ParameterValue=1 \
+# ParameterKey=InstallRedis,ParameterValue=1 \
+# ParameterKey=SetupSslCert,ParameterValue=1 \
+# ParameterKey=EnvironmentType,ParameterValue=dev
 
 # Wait for stack to finish updating
 # aws cloudformation wait stack-update-complete --stack-name slasher-standalone-webserver-dev

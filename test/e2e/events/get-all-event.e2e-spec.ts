@@ -90,6 +90,9 @@ describe('Events all / (e2e)', () => {
           .get(`/events?startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+        for (let i = 1; i < response.body.length; i += 1) {
+          expect(response.body[i - 1].sortStartDate < response.body[i].sortStartDate).toBe(true);
+        }
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(5);
       });
@@ -113,6 +116,9 @@ describe('Events all / (e2e)', () => {
             .get(`/events?startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+          for (let i = 1; i < firstResponse.body.length; i += 1) {
+            expect(firstResponse.body[i - 1].sortStartDate < firstResponse.body[i].sortStartDate).toBe(true);
+          }
           expect(firstResponse.status).toEqual(HttpStatus.OK);
           expect(firstResponse.body).toHaveLength(3);
 
@@ -121,6 +127,9 @@ describe('Events all / (e2e)', () => {
               + `startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+          for (let i = 1; i < secondResponse.body.length; i += 1) {
+            expect(secondResponse.body[i - 1].sortStartDate < secondResponse.body[i].sortStartDate).toBe(true);
+          }
           expect(secondResponse.status).toEqual(HttpStatus.OK);
           expect(secondResponse.body).toHaveLength(2);
 

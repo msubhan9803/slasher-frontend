@@ -154,11 +154,17 @@ describe('EventService', () => {
     });
     it('finds all the expected event details', async () => {
       const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, false);
+      for (let index = 1; index < eventList.length; index += 1) {
+        expect(eventList[index - 1].sortStartDate < eventList[index].sortStartDate).toBe(true);
+      }
       expect(eventList).toHaveLength(10);
     });
 
     it('finds all the expected event details that has not deleted and active status', async () => {
       const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, true);
+      for (let index = 1; index < eventList.length; index += 1) {
+        expect(eventList[index - 1].sortStartDate < eventList[index].sortStartDate).toBe(true);
+      }
       expect(eventList).toHaveLength(5);
     });
 

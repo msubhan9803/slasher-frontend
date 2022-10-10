@@ -107,11 +107,17 @@ describe('EventCategoriesService', () => {
 
     it('finds all the expected event category details', async () => {
       const allEventCategoryList = await eventCategoriesService.findAll(false);
+      for (let index = 1; index < allEventCategoryList.length; index += 1) {
+        expect(allEventCategoryList[index - 1].event_name < allEventCategoryList[index].event_name).toBe(true);
+      }
       expect(allEventCategoryList).toHaveLength(20);
     });
 
     it('finds all the expected event category details that has not deleted and active status', async () => {
       const eventCategoryList = await eventCategoriesService.findAll(true);
+      for (let index = 1; index < eventCategoryList.length; index += 1) {
+        expect(eventCategoryList[index - 1].event_name < eventCategoryList[index].event_name).toBe(true);
+      }
       expect(eventCategoryList).toHaveLength(10);
     });
   });

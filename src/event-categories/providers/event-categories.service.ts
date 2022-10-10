@@ -33,6 +33,6 @@ export class EventCategoriesService {
       eventCategoryFindAllQuery.is_deleted = EventCategoryDeletionState.NotDeleted;
       eventCategoryFindAllQuery.status = EventCategoryStatus.Active;
     }
-    return this.eventCategoryModel.find(eventCategoryFindAllQuery).exec();
+    return this.eventCategoryModel.find(eventCategoryFindAllQuery).sort({ event_name: 1 }).exec();
   }
 }

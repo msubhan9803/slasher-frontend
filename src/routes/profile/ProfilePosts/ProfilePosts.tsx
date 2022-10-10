@@ -6,7 +6,7 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { userMoreProfilePost, userProfilePostById } from '../../../api/users';
+import { getProfilePosts } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface UserData {
@@ -48,7 +48,7 @@ function ProfilePosts() {
 
   useEffect(() => {
     if (userData) {
-      userProfilePostById(userData.id)
+      getProfilePosts(userData.id)
         .then((res) => {
           const userPostList = res.data.map((data: any) => (
             {
@@ -73,7 +73,7 @@ function ProfilePosts() {
 
   const fetchMorePost = () => {
     if (userData) {
-      userMoreProfilePost(userData.id, userPostData[userPostData.length - 1]._id)
+      getProfilePosts(userData.id, userPostData[userPostData.length - 1]._id)
         .then((res) => {
           const userPostList = res.data.map((data: any) => (
             {

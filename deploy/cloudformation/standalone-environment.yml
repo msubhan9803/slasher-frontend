@@ -54,7 +54,7 @@ Parameters:
     Default: dev
     AllowedValues:
       - dev
-      - test
+      - staging
       - prod
   SwapSizeInGB:
     Type: Number

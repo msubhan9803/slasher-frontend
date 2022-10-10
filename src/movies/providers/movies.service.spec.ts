@@ -233,47 +233,18 @@ describe('MoviesService', () => {
     });
 
     describe('when `after` argument is supplied', () => {
+      beforeEach(async () => {
+        for (let i = 0; i < 5; i += 1) {
+          await moviesService.create(
+            moviesFactory.build(
+              {
+                status: MovieActiveStatus.Active,
+              },
+            ),
+          );
+        }
+      });
       it('sort by name returns the first and second sets of paginated results', async () => {
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              name: 'a',
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              name: 'b',
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              name: 'c',
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              name: 'd',
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              name: 'e',
-            },
-          ),
-        );
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'name');
         const secondResults = await moviesService.findAll(limit, true, 'name', firstResults[limit - 1].id);
@@ -282,47 +253,6 @@ describe('MoviesService', () => {
       });
 
       it('sort by release date returns the first and second sets of paginated results', async () => {
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
-            },
-          ),
-        );
-        await moviesService.create(
-          moviesFactory.build(
-            {
-              status: MovieActiveStatus.Active,
-              releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
-            },
-
-          ),
-        );
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'releaseDate');
         const secondResults = await moviesService.findAll(limit, true, 'releaseDate', firstResults[limit - 1].id);

@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
+import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
@@ -46,41 +47,156 @@ describe('All Movies (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    for (let index = 0; index < 5; index += 1) {
+  });
+
+  describe('All Movies Details', () => {
+    it('when sortBy is name than expected all movies response', async () => {
       await moviesService.create(
-        moviesFactory.build(),
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'a',
+          },
+        ),
       );
       await moviesService.create(
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
+            name: 'b',
           },
         ),
       );
-    }
-  });
-
-  describe('All Movies Details', () => {
-    it('when sortBy is name than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'c',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'd',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'e',
+          },
+        ),
+      );
       const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/movies?limit=${limit}&sortBy=${'name'}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i - 1].sort_name < response.body[i].sort_name).toBe(true);
+      }
       expect(response.body).toHaveLength(5);
     });
 
     it('when sortBy is releaseDate than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+          },
+
+        ),
+      );
       const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i - 1].sortReleaseDate < response.body[i].sortReleaseDate).toBe(true);
+      }
       expect(response.body).toHaveLength(5);
     });
 
     describe('when `after` argument is supplied', () => {
-      it('get expected first and second sets of paginated results', async () => {
+      it('sort by name returns the first and second sets of paginated results', async () => {
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'a',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'b',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'c',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'd',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'e',
+            },
+          ),
+        );
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
           .get(`/movies?limit=${limit}&sortBy=${'name'}`)
@@ -91,6 +207,64 @@ describe('All Movies (e2e)', () => {
 
         const secondResponse = await request(app.getHttpServer())
           .get(`/movies?limit=${limit}&sortBy=${'name'}&after=${firstResponse.body[2]._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(secondResponse.status).toEqual(HttpStatus.OK);
+        expect(secondResponse.body).toHaveLength(2);
+      });
+
+      it('sort by releaseDate returns the first and second sets of paginated results', async () => {
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+            },
+
+          ),
+        );
+        const limit = 3;
+        const firstResponse = await request(app.getHttpServer())
+          .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(firstResponse.status).toEqual(HttpStatus.OK);
+        expect(firstResponse.body).toHaveLength(3);
+
+        const secondResponse = await request(app.getHttpServer())
+          .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}&after=${firstResponse.body[2]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -134,13 +308,13 @@ describe('All Movies (e2e)', () => {
         expect(response.body.message).toContain('sortBy should not be empty');
       });
 
-      it('sortby allow only name and releasedate', async () => {
+      it('sortBy must be one of the following values: name, releaseDate', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
           .get(`/movies?limit=${limit}&sortBy=${'tests'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('sortby allow only name and releasedate');
+        expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate');
       });
     });
   });

@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
@@ -42,7 +43,7 @@ describe('MoviesService', () => {
   });
 
   describe('#create', () => {
-    it('successfully creates a user', async () => {
+    it('successfully creates a movie', async () => {
       expect(await moviesService.findById(movie._id, false)).toBeTruthy();
     });
   });
@@ -121,38 +122,158 @@ describe('MoviesService', () => {
   });
 
   describe('#findAll', () => {
-    beforeEach(async () => {
-      for (let index = 0; index < 5; index += 1) {
-        await moviesService.create(
-          moviesFactory.build(),
-        );
-        await moviesService.create(
-          moviesFactory.build({
-            status: MovieActiveStatus.Active,
-          }),
-        );
-      }
-    });
     it('when movies is sort by name than expected response', async () => {
-      const limit = 10;
-      const moviesList = await moviesService.findAll(limit, false, 'name');
-      expect(moviesList).toHaveLength(10);
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'a',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'b',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'c',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'd',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'e',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'name');
+      for (let i = 1; i < moviesList.length; i += 1) {
+        expect(moviesList[i - 1].sort_name < moviesList[i].sort_name).toBe(true);
+      }
+      expect(moviesList).toHaveLength(5);
     });
 
     it('when movies is sort by releaseDate than expected response', async () => {
-      const limit = 10;
-      const moviesList = await moviesService.findAll(limit, false, 'releaseDate');
-      expect(moviesList).toHaveLength(10);
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+          },
+
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'releaseDate');
+      for (let i = 1; i < moviesList.length; i += 1) {
+        expect(moviesList[i - 1].sortReleaseDate < moviesList[i].sortReleaseDate).toBe(true);
+      }
+      expect(moviesList).toHaveLength(5);
     });
 
-    it('finds all the expected movie details that has not deleted and active status', async () => {
-      const limit = 10;
-      const moviesList = await moviesService.findAll(limit, true, 'name');
+    it('finds all the expected movie details that has deleted and active status', async () => {
+      for (let index = 0; index < 4; index += 1) {
+        await moviesService.create(
+          moviesFactory.build(),
+        );
+      }
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, false, 'name');
       expect(moviesList).toHaveLength(5);
     });
 
     describe('when `after` argument is supplied', () => {
       it('sort by name returns the first and second sets of paginated results', async () => {
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'a',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'b',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'c',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'd',
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              name: 'e',
+            },
+          ),
+        );
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'name');
         const secondResults = await moviesService.findAll(limit, true, 'name', firstResults[limit - 1].id);
@@ -161,6 +282,47 @@ describe('MoviesService', () => {
       });
 
       it('sort by release date returns the first and second sets of paginated results', async () => {
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().plus({ days: 1 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().plus({ days: 2 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 2 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 1 }).toJSDate(),
+            },
+          ),
+        );
+        await moviesService.create(
+          moviesFactory.build(
+            {
+              status: MovieActiveStatus.Active,
+              releaseDate: DateTime.now().minus({ days: 3 }).toJSDate(),
+            },
+
+          ),
+        );
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'releaseDate');
         const secondResults = await moviesService.findAll(limit, true, 'releaseDate', firstResults[limit - 1].id);

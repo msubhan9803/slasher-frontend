@@ -17,6 +17,7 @@ Description: EC2 Slasher standalone instance
 # ParameterKey=InstallMongo,ParameterValue=1 \
 # ParameterKey=InstallRedis,ParameterValue=1 \
 # ParameterKey=SetupSslCert,ParameterValue=1 \
+# ParameterKey=NodeEnv,ParameterValue=development \
 # ParameterKey=EnvironmentType,ParameterValue=dev
 
 # Wait for stack to finish updating
@@ -60,6 +61,12 @@ Parameters:
       - dev
       - staging
       - prod
+  NodeEnv:
+    Type: String
+    Default: production
+    AllowedValues:
+      - development
+      - production
   SwapSizeInGB:
     Type: Number
     Default: 2
@@ -270,6 +277,7 @@ Resources:
 
               passenger_enabled on;
               passenger_app_type node;
+              passenger_app_env ${NodeEnv};
               passenger_startup_file dist/main.js;
               passenger_min_instances 1;
             }

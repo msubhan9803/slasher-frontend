@@ -89,6 +89,10 @@ Parameters:
     Type: Number
     AllowedValues: [0, 1]
     Default: 0
+  SetupSslCert:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
   DeploymentUserName:
     Type: String
     Default: slasherserv
@@ -298,24 +302,26 @@ Resources:
             # Set up Let's Encrypt SSL Certificate #
             ########################################
 
-            # Install certbot for Let's Encrypt certificates
-            # Note: Using snap as install source instead of apt because it provides a newer version
-            # of certbot than apt would, which fixes a bug (https://github.com/certbot/certbot/issues/6776)
-            # that affected us.  GitHub issue only mentioned capital letter issue, but it seems to
-            # affect vhosts with a dash in the name too.
-            snap install --classic certbot
+            if [ ${SetupSslCert} -eq 1 ]; then
+              # Install certbot for Let's Encrypt certificates
+              # Note: Using snap as install source instead of apt because it provides a newer version
+              # of certbot than apt would, which fixes a bug (https://github.com/certbot/certbot/issues/6776)
+              # that affected us.  GitHub issue only mentioned capital letter issue, but it seems to
+              # affect vhosts with a dash in the name too.
+              snap install --classic certbot
 
-            # Add symlink for certbot so that the command is on our path
-            ln -s /snap/bin/certbot /usr/bin/certbot
+              # Add symlink for certbot so that the command is on our path
+              ln -s /snap/bin/certbot /usr/bin/certbot
 
-            # Generate SSL cert for the backend site domain
-            # Only 5 cert issuances for domain are allowed per 168 hours, so make sure not to
-            # overdo it with running this while testing.
-            #certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
+              # Generate SSL cert for the backend site domain
+              # Only 5 cert issuances for domain are allowed per 168 hours, so make sure not to
+              # overdo it with running this while testing.
+              certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
 
-            # Restart nginx
-            systemctl restart nginx
-            sleep 5
+              # Restart nginx
+              systemctl restart nginx
+              sleep 5
+            fi
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup

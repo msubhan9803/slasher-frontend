@@ -68,6 +68,10 @@ describe('rssFeedProviders all (e2e)', () => {
           .get(`/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+
+        for (let index = 1; index < response.body.length; index += 1) {
+          expect(response.body[index - 1].sortTitle < response.body[index].sortTitle).toBe(true);
+        }
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(5);
       });
@@ -79,6 +83,10 @@ describe('rssFeedProviders all (e2e)', () => {
             .get(`/rss-feed-providers?limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+
+          for (let index = 1; index < firstResponse.body.length; index += 1) {
+            expect(firstResponse.body[index - 1].sortTitle < firstResponse.body[index].sortTitle).toBe(true);
+          }
           expect(firstResponse.status).toEqual(HttpStatus.OK);
           expect(firstResponse.body).toHaveLength(3);
 
@@ -86,6 +94,10 @@ describe('rssFeedProviders all (e2e)', () => {
             .get(`/rss-feed-providers?limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
+
+          for (let index = 1; index < secondResponse.body.length; index += 1) {
+            expect(secondResponse.body[index - 1].sortTitle < secondResponse.body[index].sortTitle).toBe(true);
+          }
           expect(secondResponse.status).toEqual(HttpStatus.OK);
           expect(secondResponse.body).toHaveLength(2);
         });

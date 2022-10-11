@@ -1,18 +1,25 @@
 import React, {
-  ChangeEvent, useRef, useState,
+  ChangeEvent, createRef, useRef, useState,
 } from 'react';
 import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
+import Mentions from 'rc-mentions';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { OptionProps } from 'rc-mentions/lib/Option';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { getSuggestUserName } from '../../../api/users';
 
+interface MentionProps {
+  _id: string;
+  userName: string;
+}
 const PostImageContainer = styled.div`
   width: 7.25rem;
   height: 7.25rem;
@@ -23,11 +30,15 @@ const AddPhotosButton = styled(RoundButton)`
 `;
 
 function CreatePost() {
+  const { Option } = Mentions;
   const inputFile = useRef<HTMLInputElement>(null);
-  const [postContent, setPostContent] = useState('');
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+  const myRef = createRef<HTMLInputElement>();
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<any>([]);
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
@@ -53,15 +64,40 @@ function CreatePost() {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
     setImageArray(removePostImage);
   };
-
-  const addPost = () => {
-    createPost(postContent, imageArray)
-      .then(() => setErrorMessage([]))
-      .catch((error) => {
-        setErrorMessage(error.response.data.message);
-      });
+  const handleClick = (e: any) => {
+    setPostContent(e);
   };
-
+  const handleSearch = (text: string) => {
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+  const handleSelect = (option: OptionProps) => {
+    const mentionStr = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
+    const myObj = { id: option.key, value: option.value, format: mentionStr };
+    if (!formatMention.find((o: any) => o.id === myObj.id)) {
+      setFormatMention([...formatMention, myObj]);
+    }
+  };
+  const matchFunc = (match: string) => {
+    if (match) {
+      const finalString = formatMention.find((a: any) => match.includes(a.value));
+      return finalString.format;
+    }
+    return undefined;
+  };
+  const addPost = () => {
+    /* eslint no-useless-escape: 0 */
+    const found = (postContent.replace(/\@[A-z]+/g, matchFunc));
+    if (found) {
+      createPost(found, imageArray)
+        .then(() => setErrorMessage([]))
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark">
@@ -76,16 +112,30 @@ function CreatePost() {
               Aly Khan
             </h2>
           </div>
-          <Form.Control
-            rows={12}
-            as="textarea"
-            value={postContent}
-            onChange={(contentEvent) => setPostContent(contentEvent.target.value)}
-            placeholder="Create a post"
-            style={{ resize: 'none', backgroundColor: '#0F0F0F' }}
-            className="border-0 mb-0 pb-0 fs-5"
-          />
         </Form.Group>
+        <div className="mt-3">
+          <Mentions
+            autoSize={{ minRows: 10 }}
+            onChange={(e) => handleClick(e)}
+            placeholder="Create a post"
+            onSearch={handleSearch}
+            onSelect={handleSelect}
+          >
+            {mentionList.map((obj: MentionProps) => (
+              /* eslint no-underscore-dangle: 0 */
+              <Option value={obj.userName} key={obj._id}>
+                <div ref={myRef} className="list--hover soft-half pointer">
+                  <div>
+                    <span>
+                      &nbsp;@
+                      {obj.userName}
+                    </span>
+                  </div>
+                </div>
+              </Option>
+            ))}
+          </Mentions>
+        </div>
         <input
           type="file"
           name="post"

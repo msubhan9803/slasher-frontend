@@ -61,3 +61,11 @@ export async function userInitialData() {
   };
   return axios.get(`${apiUrl}/users/initial-data`, { headers });
 }
+
+export async function getSuggestUserName(text: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/suggest-user-name?query=${text}&limit=10`, { headers });
+}

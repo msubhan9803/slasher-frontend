@@ -50,9 +50,6 @@ Parameters:
     MaxLength: 18
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: "Must be a valid IP CIDR range of the form x.x.x.x/x"
-  AvailabilityZone:
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-1b # same as staging cluster
   EnvironmentType:
     Description: "Specify the Environment type of the stack."
     Type: String
@@ -70,15 +67,6 @@ Parameters:
   SwapSizeInGB:
     Type: Number
     Default: 2
-  InstanceType:
-      Description: EC2 instance type
-      Type: String
-      Default: t3a.small
-      AllowedValues:
-        - t3a.micro
-        - t3a.small
-        - t3a.medium
-      ConstraintDescription: Must be one of the EC2 instance types allowed by the CloudFormation template
   MongoDbAdminUser:
     Type: String
   MongoDbAdminPassword:
@@ -112,6 +100,18 @@ Parameters:
     Default: /STANDALONE-WEBSERVER/deploy/deplyment-user-authorized-public-keys
     NoEcho: true
 
+Mappings:
+  EnvironmentProperties:
+    dev:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1b # same as staging cluster
+    staging:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1b # same as staging cluster
+    prod:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1c # same as staging cluster
+
 Resources:
   WebServerInstance:
     Type: AWS::EC2::Instance
@@ -122,8 +122,8 @@ Resources:
       # - Image can be used with t3a.nano through t3a.2xlarge (and other types,
       #   but need to consult AWS console for those other types)
       ImageId: ami-0149b2da6ceec4bb0
-      AvailabilityZone: !Ref AvailabilityZone
-      InstanceType: !Ref InstanceType
+      AvailabilityZone: !FindInMap [ EnvironmentProperties, !Ref EnvironmentType, AvailabilityZone ]
+      InstanceType: !FindInMap [ EnvironmentProperties, !Ref EnvironmentType, InstanceType ]
       Tags:
         - Key: Name
           Value: !Join ["-", [slasher-standalone-webserver, !Ref EnvironmentType]]

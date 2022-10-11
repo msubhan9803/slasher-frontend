@@ -63,7 +63,7 @@ describe('Event categories index (e2e)', () => {
       ];
     });
 
-    it('returns the expected response', () => {
+    it('returns the expected response', async () => {
       const expectedResponse = eventCategoryList
         .map((eventCategory) => ({
           _id: eventCategory._id.toString(),
@@ -73,11 +73,14 @@ describe('Event categories index (e2e)', () => {
           createdAt: eventCategory.createdAt.toISOString(),
           updatedAt: eventCategory.updatedAt.toISOString(),
         }));
-      return request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .get('/event-categories')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.OK)
         .expect(expectedResponse);
+
+      expect(response.body.map((eventCategory) => eventCategory.event_name))
+      .toEqual(expectedResponse.map((expectedEventCategory) => expectedEventCategory.event_name));
     });
   });
 });

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { User, UserDocument } from '../user/user.schema';
+import { User } from '../user/user.schema';
 import { FriendRequestReaction } from './friend.enums';
 import { FriendUnusedFields } from './friend.unused-fields';
 

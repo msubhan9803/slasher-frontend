@@ -7,10 +7,10 @@ import { Friend, FriendSchema } from '../schemas/friend/friend.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Friend.name, schema: FriendSchema }]),
-    FeedPostsModule,
+    FriendsModule,
   ],
   providers: [FriendsService],
   exports: [FriendsService],
   controllers: [FriendsController],
 })
-export class FeedPostsModule { }
+export class FriendsModule { }

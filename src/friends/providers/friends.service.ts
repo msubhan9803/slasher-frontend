@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { UserDocument } from '../../schemas/user/user.schema';
@@ -22,17 +21,17 @@ export class FriendsService {
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
     const currentFriendReaction = await this.getFriendRequestReaction(fromUserId, toUserId);
     if (currentFriendReaction === FriendRequestReaction.Accepted) {
-      throw new Error('Cannot create friend request. Already friends.')
+      throw new Error('Cannot create friend request. Already friends.');
     }
 
     if (currentFriendReaction === FriendRequestReaction.Pending) {
-      throw new Error('Friend request already send')
+      return;
     }
     const friends = {
       from: new mongoose.Types.ObjectId(fromUserId),
       to: new mongoose.Types.ObjectId(toUserId),
-      reaction: FriendRequestReaction.Pending
-    }
+      reaction: FriendRequestReaction.Pending,
+    };
     await this.friendsModel.create(friends);
   }
 
@@ -43,17 +42,16 @@ export class FriendsService {
       })
       .populate('to', 'userName _id profilePic')
       .sort({ createdAt: -1 })
+      .skip((offset - 1) * limit)
       .limit(limit)
-      .skip(offset)
       .exec();
-    const friendsData = friends.map(friend => {
-      const friendTo = friend.to as any
+    const friendsData = friends.map((friend) => {
+      const friendTo = friend.to as any;
       return ({
-        userName: friendTo.userName, _id: friendTo._id, profilePic: friendTo.profilePic
-      })
-    }
-    ) as Partial<UserDocument[]>
-    return friendsData
+        userName: friendTo.userName, _id: friendTo._id, profilePic: friendTo.profilePic,
+      });
+    }) as Partial<UserDocument[]>;
+    return friendsData;
   }
 
   async getReceivedFriendRequests(userId: string, limit: number, offset?: number): Promise<Partial<UserDocument[]>> {
@@ -61,31 +59,29 @@ export class FriendsService {
       .find({
         $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
       })
-      .populate('to', 'userName _id profilePic')
+      .populate('from', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
-      .skip(offset)
+      .skip((offset - 1) * limit)
       .exec();
-    const friendsData = friends.map(friend => {
-      const friendTo = friend.to as any
+    const friendsData = friends.map((friend) => {
+      const friendFrom = friend.from as any;
       return ({
-        userName: friendTo.userName, _id: friendTo._id, profilePic: friendTo.profilePic
-      })
-    }
-    ) as Partial<UserDocument[]>
-    return friendsData
+        _id: friendFrom._id, userName: friendFrom.userName, profilePic: friendFrom.profilePic,
+      });
+    }) as Partial<UserDocument[]>;
+    return friendsData;
   }
 
   async declineOrCancelFriendRequest(userId1: string, userId2: string): Promise<void> {
     const friends = {
       $or: [
         { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-        { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) }
+        { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
       ],
-    }
+    };
     await this.friendsModel
-      .findOneAndUpdate(friends, {$set: { reaction: FriendRequestReaction.DeclinedOrCancelled }}, { new: true })
+      .findOneAndUpdate(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
       .exec();
   }
-
 }

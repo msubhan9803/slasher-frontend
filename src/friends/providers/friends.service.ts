@@ -84,4 +84,28 @@ export class FriendsService {
       .findOneAndUpdate(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
       .exec();
   }
+
+  async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
+
+    const aggregateQuery = [
+      { $group: { "_id": null, "from": { $addToSet: "$from" }, "to": { $addToSet: "$to" } } },
+      {
+        $project: {
+          _id: 0,
+          ids: { $setUnion: ["$from", "$to"] }
+        }
+      },
+      {
+        $lookup:
+        {
+          from: "users",
+          pipeline: [{$match: {_id: {$in: ids}}}, {$project: {"userName": 1, "profilePic": 1, "_id": 1}}],
+          localField: "_id",
+          foreignField: "to",
+          as: "users_to"
+        }
+      },
+    ]
+
+  }
 }

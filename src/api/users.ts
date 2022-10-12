@@ -69,3 +69,23 @@ export async function getSuggestUserName(text: string) {
   };
   return axios.get(`${apiUrl}/users/suggest-user-name?query=${text}&limit=10`, { headers });
 }
+
+export async function userProfilePost(userName: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/${userName}`, { headers });
+}
+
+export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = '?limit=10';
+  if (lastRetrievedPostId) {
+    queryParameter += `&earlierThanPostId=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
+}

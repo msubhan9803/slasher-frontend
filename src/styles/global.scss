@@ -243,9 +243,6 @@ input:hover {
   opacity: 0.5;
   display: none;
 }
-/* .list--hover {
-  background: #fafbfc;
-} */
 .soft-half {
   padding: 7px !important;
 }
@@ -254,4 +251,7 @@ input:hover {
 }
 textarea {
   resize: none;
+}
+:focus-visible{
+  outline: none !important;
 }

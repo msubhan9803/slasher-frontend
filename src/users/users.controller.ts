@@ -338,7 +338,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return pick(user, ['id', 'firstName', 'userName', 'profilePic']);
+    return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
   }
 
   @Patch(':id')

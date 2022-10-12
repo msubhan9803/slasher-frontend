@@ -14,7 +14,6 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
-  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -43,6 +42,7 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -373,18 +373,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfileImage(
     @Req() request: Request,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(jpg|jpeg|png)$/,
-        })
-        .addMaxSizeValidator({
-          maxSize: 2e+7,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-    )
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
@@ -397,6 +386,30 @@ export class UsersController {
     }
 
     user.profilePic = storageLocation;
+    await user.save();
+
+    // Delete original upload
+    await fs.unlinkSync(file.path);
+    return { success: true };
+  }
+
+  @Post('upload-cover-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCoverImage(
+    @Req() request: Request,
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    file: Express.Multer.File,
+  ) {
+    const user = getUserFromRequest(request);
+    const storageLocation = `/cover/cover_${file.filename}`;
+
+    if (this.config.get<string>('FILE_STORAGE') === 's3') {
+      await this.s3StorageService.write(storageLocation, file);
+    } else {
+      this.localStorageService.write(storageLocation, file);
+    }
+
+    user.coverPhoto = storageLocation;
     await user.save();
 
     // Delete original upload

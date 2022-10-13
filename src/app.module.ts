@@ -10,6 +10,7 @@ import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { MoviesModule } from './movies/movies.module';
+import { FeedPostsModule } from './feed-posts/feed-posts.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MoviesModule } from './movies/movies.module';
     LocalStorageModule,
     ChatModule,
     MoviesModule,
+    FeedPostsModule,
   ],
   controllers: [AppController],
   providers: [

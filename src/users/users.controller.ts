@@ -20,7 +20,6 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -46,7 +45,7 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { relativeToFullImagePath } from '../utils/image-utils';
-import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -393,8 +392,7 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    // Delete original upload
-    await fs.unlinkSync(file.path);
+    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 
@@ -439,8 +437,7 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    // Delete original upload
-    await fs.unlinkSync(file.path);
+    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 }

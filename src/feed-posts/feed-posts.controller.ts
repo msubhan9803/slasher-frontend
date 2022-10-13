@@ -13,6 +13,7 @@ import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -82,6 +83,8 @@ export class FeedPostsController {
     feedPost.images = images;
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
+
+    asyncDeleteMulterFiles(files);
     return {
       id: createFeedPost.id,
       message: createFeedPost.message,

@@ -112,6 +112,9 @@ export class User extends UserUnusedFields {
   @Prop({ default: 'noUser.jpg', trim: true })
   profilePic: string;
 
+  @Prop({ default: null, trim: true })
+  coverPhoto: string;
+
   /***********
    * Methods *
    ***********/

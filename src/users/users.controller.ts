@@ -14,7 +14,6 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
-  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -47,6 +46,7 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -343,7 +343,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return pick(user, ['id', 'firstName', 'userName', 'profilePic']);
+    return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
   }
 
   @Patch(':id')
@@ -378,18 +378,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfileImage(
     @Req() request: Request,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(jpg|jpeg|png)$/,
-        })
-        .addMaxSizeValidator({
-          maxSize: 2e+7,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-    )
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
@@ -429,5 +418,29 @@ export class UsersController {
       });
     }
     return feedPost;
+  }
+
+  @Post('upload-cover-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCoverImage(
+    @Req() request: Request,
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    file: Express.Multer.File,
+  ) {
+    const user = getUserFromRequest(request);
+    const storageLocation = `/cover/cover_${file.filename}`;
+
+    if (this.config.get<string>('FILE_STORAGE') === 's3') {
+      await this.s3StorageService.write(storageLocation, file);
+    } else {
+      this.localStorageService.write(storageLocation, file);
+    }
+
+    user.coverPhoto = storageLocation;
+    await user.save();
+
+    // Delete original upload
+    await fs.unlinkSync(file.path);
+    return { success: true };
   }
 }

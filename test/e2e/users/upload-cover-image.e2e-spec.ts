@@ -10,7 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 
-describe('Users / Upload Profile image (e2e)', () => {
+describe('Users / Upload Cover image (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -39,7 +39,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     await connection.dropDatabase();
   });
 
-  describe('POST /users/upload-profile-image', () => {
+  describe('POST /users/upload-cover-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -49,19 +49,19 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds with true if file upload successful', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/upload-cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
-        expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
+        expect((await usersService.findById(activeUser.id)).coverPhoto).toMatch(/\/cover\/cover_[a-f0-9\\-]+\.png/);
       }, { extension: 'png' });
     });
 
     it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users/upload-profile-image')
+        .post('/users/upload-cover-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.UNPROCESSABLE_ENTITY);
 
@@ -71,7 +71,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds expected response when file is not jpg, jpeg or png', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/upload-cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -83,7 +83,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/upload-cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)

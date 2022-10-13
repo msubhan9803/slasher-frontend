@@ -71,14 +71,14 @@ describe('All Feed Post (e2e)', () => {
         .get(`/users/${activeUser._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-        for (let i = 1; i < response.body.length; i += 1) {
-          expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
-        }
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+      }
       expect(response.body).toHaveLength(5);
     });
   });
 
-  describe('when `earlierThanPostId` argument is supplied', () => {
+  describe('when `before` argument is supplied', () => {
     it('get expected first and second sets of paginated results', async () => {
       const limit = 3;
       const firstResponse = await request(app.getHttpServer())
@@ -89,7 +89,7 @@ describe('All Feed Post (e2e)', () => {
       expect(firstResponse.body).toHaveLength(3);
 
       const secondResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${firstResponse.body[limit - 1]._id}`)
+        .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -99,7 +99,7 @@ describe('All Feed Post (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts`)
+          .get(`/users/${activeUser._id}/posts`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -115,7 +115,7 @@ describe('All Feed Post (e2e)', () => {
         );
         const limit = 'a';
         const response = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts?limit=${limit}&earlierThanPostId=${feedPost._id}`)
+          .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');

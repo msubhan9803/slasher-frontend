@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer';
 import {
- IsNotEmpty, IsNumber, IsOptional, IsString,
+  IsNotEmpty, IsNumber, IsOptional, IsString,
 } from 'class-validator';
 
-export class LimitOrEarlierThanPostIdDto {
+export class AllFeedPostQueryDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
@@ -11,5 +11,5 @@ export class LimitOrEarlierThanPostIdDto {
 
   @IsString()
   @IsOptional()
-  earlierThanPostId: string;
+  before: string;
 }

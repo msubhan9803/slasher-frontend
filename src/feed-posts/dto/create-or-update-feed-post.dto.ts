@@ -1,15 +1,9 @@
-import { Type } from 'class-transformer';
 import {
-  IsOptional, MaxLength, ValidateNested,
+  IsOptional, MaxLength,
 } from 'class-validator';
-import { ImagesDto } from './images.dto';
 
 export class CreateOrUpdateFeedPostsDto {
   @IsOptional()
   @MaxLength(1000, { message: 'message cannot be longer than 1000 characters' })
   message?: string;
-
-  @Type(() => ImagesDto)
-  @ValidateNested()
-  images: ImagesDto[];
 }

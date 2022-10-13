@@ -196,7 +196,7 @@ input:hover {
 .rc-mentions > textarea {
   border: none;
   width: 100%;
-  background:rgb(15, 15, 15) ;
+  background:var(--bs-secondary) ;
   color: white;
   padding: 10px;
   font-size: 14px;
@@ -237,11 +237,8 @@ input:hover {
   padding: 4px 8px;
 }
 .rc-mentions-dropdown-menu-item-active {
-  background: rgb(15, 15, 15);
-}
-.rc-mentions-dropdown-menu-item-disabled {
-  opacity: 0.5;
-  display: none;
+  background: var(--bs-primary);
+  color:var(--bs-secondary);
 }
 .soft-half {
   padding: 7px !important;

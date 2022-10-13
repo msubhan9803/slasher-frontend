@@ -11,6 +11,7 @@ import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
+import { FeedPostsModule } from './feed-posts/feed-posts.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { EventCategoriesModule } from './event-categories/event-categories.modul
     ChatModule,
     EventsModule,
     EventCategoriesModule,
+    FeedPostsModule,
   ],
   controllers: [AppController],
   providers: [

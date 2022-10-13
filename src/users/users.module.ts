@@ -7,14 +7,17 @@ import { MailService } from '../providers/mail.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
     NotificationsModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, MailService, LocalStorageService, S3StorageService],
+  providers: [UsersService, MailService, LocalStorageService, S3StorageService, FeedPostsService],
   exports: [UsersService],
 })
 export class UsersModule { }

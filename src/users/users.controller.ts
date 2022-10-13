@@ -20,7 +20,6 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -41,8 +40,12 @@ import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
+import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
-import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { relativeToFullImagePath } from '../utils/image-utils';
+import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -52,6 +55,7 @@ export class UsersController {
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly feedPostsService: FeedPostsService,
   ) { }
 
   @Post('sign-in')
@@ -388,9 +392,30 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    // Delete original upload
-    await fs.unlinkSync(file.path);
+    asyncDeleteMulterFiles([file]);
     return { success: true };
+  }
+
+  @Get(':userId/posts')
+  async allfeedPost(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.before);
+    for (const feedPostsImage of feedPost) {
+      feedPostsImage.images.map((relativeImagePath) => {
+        // eslint-disable-next-line no-param-reassign
+        relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
+        return relativeImagePath;
+      });
+    }
+    return feedPost;
   }
 
   @Post('upload-cover-image')
@@ -412,8 +437,7 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    // Delete original upload
-    await fs.unlinkSync(file.path);
+    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 }

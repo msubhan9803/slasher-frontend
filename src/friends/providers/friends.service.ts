@@ -86,8 +86,35 @@ export class FriendsService {
   }
 
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
+    // const names = userNameContains ? `${`userName:` new RegExp('', 'i')}` :  userName: { $regex: /^/ }
+    // const names = `${`userName:` new RegExp(userNameContains, 'i')}`
+
+    const abcd = `"userName": ${new RegExp(userNameContains, 'i')}`
+    console.log('abcdabcd', typeof abcd);
+
+    const offsetFriends = (offset - 1) * limit
+    // const offsetFriends = offset
+    const limitFriends = limit
+    console.log('userId', userId);
+
+    const pipelineQuery = userNameContains ?
+      [{ $match: { $expr: { _id: { $in: ['$_id', '$$ids'] } }, "userName": new RegExp(userNameContains, 'i') } }, { $project: { "userName": 1, "profilePic": 1, "_id": 1 } }] :
+      [{ $match: { $expr: { _id: { $in: ['$_id', '$$ids'] } } } }, { $project: { "userName": 1, "profilePic": 1, "_id": 1 } }]
 
     const aggregateQuery = [
+      {
+        $match: {
+          $and: [
+            {
+              $or: [
+                { from: new mongoose.Types.ObjectId(userId) },
+                { to: new mongoose.Types.ObjectId(userId) }
+              ]
+            },
+            { reaction: FriendRequestReaction.Accepted }
+          ]
+        }
+      },
       { $group: { "_id": null, "from": { $addToSet: "$from" }, "to": { $addToSet: "$to" } } },
       {
         $project: {
@@ -99,13 +126,18 @@ export class FriendsService {
         $lookup:
         {
           from: "users",
-          pipeline: [{$match: {_id: {$in: ids}}}, {$project: {"userName": 1, "profilePic": 1, "_id": 1}}],
-          localField: "_id",
-          foreignField: "to",
-          as: "users_to"
+          let: { ids: "$ids" },
+          pipeline: pipelineQuery,
+          as: "usersDetails"
         }
       },
+      { $project: { usersDetails: { $slice: ['$usersDetails', offsetFriends, limitFriends] } } },
     ]
+    console.log("aggregateQuery", JSON.stringify(aggregateQuery));
+    
+    const friendsData: any = await this.friendsModel.aggregate(aggregateQuery)
+    console.log('friendsData', friendsData);
 
+    return friendsData[0].usersDetails
   }
 }

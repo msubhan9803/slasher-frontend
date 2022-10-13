@@ -8,6 +8,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { User } from '../../schemas/user/user.schema';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { userFactory } from '../../../test/factories/user.factory';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -56,7 +57,7 @@ describe('FriendsService', () => {
   describe('#getFriendRequestReaction', () => {
     it('finds the expected friend request reaction details', async () => {
       const friends = await friendsService.getFriendRequestReaction(activeUser._id.toString(), user1._id.toString());
-      expect(friends).toBe(5);
+      expect(friends).toBe(FriendRequestReaction.Pending);
     });
 
     it('when fromUserId is wrong than expected response', async () => {
@@ -93,7 +94,7 @@ describe('FriendsService', () => {
       const friendsData = await friendsModel.findOne({
         $and: [{ from: new mongoose.Types.ObjectId(user4._id) }, { to: new mongoose.Types.ObjectId(user5._id) }],
       });
-      expect(friendsData.reaction).toBe(5);
+      expect(friendsData.reaction).toBe(FriendRequestReaction.Pending);
     });
 
     // TODO: need to check if error throws
@@ -128,7 +129,7 @@ describe('FriendsService', () => {
     });
     it('finds the expected received friend requests friends', async () => {
       const friends = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 5, 1);
-      expect(friends).toHaveLength(3);
+      expect(friends).toHaveLength(FriendRequestReaction.Accepted);
     });
 
     it('when userId is wrong than expected response', async () => {
@@ -154,7 +155,30 @@ describe('FriendsService', () => {
       const friendsData = await friendsModel.findOne({
         $and: [{ from: activeUser._id }, { to: user2._id }],
       });
-      expect(friendsData.reaction).toBe(0);
+      expect(friendsData.reaction).toBe(FriendRequestReaction.DeclinedOrCancelled);
+    });
+  });
+
+  describe('#getFriends', () => {
+    let user7; 
+    let user6;
+    let friendData1
+    let friendData2
+    let updateData
+    beforeEach(async () => {
+      user6 = await usersService.create(userFactory.build());
+      user7 = await usersService.create(userFactory.build());
+      friendData2 = await friendsService.createFriendRequest(user6._id.toString(), user7._id.toString());
+      friendData1 = await friendsService.createFriendRequest(user7._id.toString(), user6._id.toString());
+      updateData = await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
+    });
+
+    it('get all friends', async () => {
+      const friends = await friendsService.getFriends(user6._id.toString(), 5, 0);
+      // const friendsData = await friendsModel.findOne({
+      //   $and: [{ from: activeUser._id }, { to: user2._id }],
+      // });
+      // expect(friendsData.reaction).toBe(FriendRequestReaction.DeclinedOrCancelled);
     });
   });
 });

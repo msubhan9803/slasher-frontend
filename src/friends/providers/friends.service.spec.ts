@@ -160,11 +160,11 @@ describe('FriendsService', () => {
   });
 
   describe('#getFriends', () => {
-    let user7; 
+    let user7;
     let user6;
-    let friendData1
-    let friendData2
-    let updateData
+    let friendData1;
+    let friendData2;
+    let updateData;
     beforeEach(async () => {
       user6 = await usersService.create(userFactory.build());
       user7 = await usersService.create(userFactory.build());

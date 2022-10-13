@@ -18,11 +18,15 @@ export class Friend extends FriendUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: null, ref: User.name, required: true })
-  from: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
+  })
+  from: User;
 
-  @Prop({ default: null, ref: User.name, required: true })
-  to: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
+  })
+  to: User;
 
   @Prop({
     required: true,

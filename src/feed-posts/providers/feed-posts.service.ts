@@ -27,12 +27,12 @@ export class FeedPostsService {
     return this.feedPostModel.findOne(feedPostFindQuery).exec();
   }
 
-  async findAllByUser(userId: string, limit: number, activeOnly: boolean, earlierThanPostId = null): Promise<FeedPostDocument[]> {
+  async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: string): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId });
-    if (earlierThanPostId) {
-      const feedPost = await this.feedPostModel.findById(earlierThanPostId).exec();
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
       feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
     }
     if (activeOnly) {

@@ -40,7 +40,7 @@ import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
-import { LimitOrEarlierThanPostIdDto } from '../feed-posts/dto/limit-earlier-than-post-id.dto';
+import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
@@ -401,13 +401,13 @@ export class UsersController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-    query: LimitOrEarlierThanPostIdDto,
+    query: AllFeedPostQueryDto,
   ) {
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.earlierThanPostId);
+    const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.before);
     for (const feedPostsImage of feedPost) {
       feedPostsImage.images.map((relativeImagePath) => {
         // eslint-disable-next-line no-param-reassign

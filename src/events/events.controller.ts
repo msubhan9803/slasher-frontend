@@ -17,6 +17,7 @@ import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 
 @Controller('events')
 export class EventsController {
@@ -119,6 +120,7 @@ export class EventsController {
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
 
+    asyncDeleteMulterFiles(files);
     return event;
   }
 

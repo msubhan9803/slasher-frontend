@@ -55,9 +55,11 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           id: activeUser.id,
+          email: activeUser.email,
           userName: activeUser.userName,
           firstName: activeUser.firstName,
           profilePic: activeUser.profilePic,
+          coverPhoto: null,
         });
       });
 
@@ -83,9 +85,11 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           id: activeUser.id,
+          email: activeUser.email,
           userName: activeUser.userName,
           firstName: activeUser.firstName,
           profilePic: activeUser.profilePic,
+          coverPhoto: null,
         });
       });
 

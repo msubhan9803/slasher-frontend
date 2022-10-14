@@ -1,7 +1,9 @@
 import {
   Controller, Get, HttpException, HttpStatus, Param, Query, ValidationPipe,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { ValidateAllRssFeedProvidersDto } from './dto/all-rss-feed-providers.dto';
 import { RssFeedProvidersIdDto } from './dto/rss-feed-providers.id.dto';
@@ -9,15 +11,16 @@ import { RssFeedProvidersService } from './providers/rss-feed-providers.service'
 
 @Controller('rss-feed-providers')
 export class RssFeedProvidersController {
-  constructor(private readonly rssFeedProvidersService: RssFeedProvidersService) { }
+  constructor(private readonly rssFeedProvidersService: RssFeedProvidersService, private readonly config: ConfigService) { }
 
   @Get(':id')
   async findOne(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdDto) {
-    const rssFeedProvidersData = await this.rssFeedProvidersService.findById(params.id, true);
-    if (!rssFeedProvidersData) {
-      throw new HttpException('RssFeedProviders not found', HttpStatus.NOT_FOUND);
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('RssFeedProvider not found', HttpStatus.NOT_FOUND);
     }
-    return rssFeedProvidersData;
+    rssFeedProvider.logo = relativeToFullImagePath(this.config, rssFeedProvider.logo);
+    return rssFeedProvider;
   }
 
   @Get()
@@ -25,11 +28,17 @@ export class RssFeedProvidersController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ValidateAllRssFeedProvidersDto,
   ) {
-    const eventData = await this.rssFeedProvidersService.findAll(
+    const rssFeedProviders = await this.rssFeedProvidersService.findAll(
       query.limit,
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
-    return eventData;
+
+    // Convert image relative paths to full paths
+    for (const rssFeedProvider of rssFeedProviders) {
+      rssFeedProvider.logo = relativeToFullImagePath(this.config, rssFeedProvider.logo);
+    }
+
+    return rssFeedProviders;
   }
 }

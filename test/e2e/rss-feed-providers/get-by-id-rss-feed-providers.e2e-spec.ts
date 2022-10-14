@@ -72,7 +72,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('RssFeedProviders not found');
+        expect(response.body.message).toContain('RssFeedProvider not found');
       });
     });
   });

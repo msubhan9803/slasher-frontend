@@ -352,6 +352,9 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
+    user.profilePic = relativeToFullImagePath(this.config, user.profilePic);
+    user.coverPhoto = relativeToFullImagePath(this.config, user.coverPhoto);
+
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
   }
 

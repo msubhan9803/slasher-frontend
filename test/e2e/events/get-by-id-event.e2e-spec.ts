@@ -54,7 +54,7 @@ describe('Events / :id (e2e)', () => {
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
       userId: activeUser._id,
-      event_type: activeEventCategory._id,
+      event_type: activeEventCategory,
       status: EventActiveStatus.Active,
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -72,6 +72,8 @@ describe('Events / :id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body._id).toEqual(activeEvent._id.toString());
         expect(response.body.name).toEqual(activeEvent.name);
+        expect(response.body.event_type.event_name).toEqual(activeEventCategory.event_name);
+        expect(response.body.event_type._id).toEqual(activeEventCategory._id.toString());
       });
 
       it('event not found if parameter id value does not exists', async () => {

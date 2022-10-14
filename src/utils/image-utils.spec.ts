@@ -5,6 +5,7 @@ describe('image-utils', () => {
   describe('relativeToFullImagePath', () => {
     const relativeImagePath = '/path/to/image.jpg';
     const specialNoImageValue = 'noImage.jpg';
+    const nullValue = null;
 
     describe('for s3 storage type', () => {
       const s3Host = 'https://anybucket.s3.amazonaws.com';
@@ -19,6 +20,10 @@ describe('image-utils', () => {
       it('generates the expected, unchanged path when given relativeImagePath is special no-image value', () => {
         expect(relativeToFullImagePath(config, specialNoImageValue)).toBe(specialNoImageValue);
       });
+
+      it('generates the expected, null when given relativeImagePath is null value', () => {
+        expect(relativeToFullImagePath(config, nullValue)).toBe(nullValue);
+      });
     });
 
     describe('for local storage type', () => {
@@ -32,6 +37,10 @@ describe('image-utils', () => {
 
       it('generates the expected, unchanged path when given relativeImagePath is special no-image value', () => {
         expect(relativeToFullImagePath(config, specialNoImageValue)).toBe(specialNoImageValue);
+      });
+
+      it('generates the expected, null when given relativeImagePath is null value', () => {
+        expect(relativeToFullImagePath(config, nullValue)).toBe(nullValue);
       });
     });
   });

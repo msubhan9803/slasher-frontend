@@ -10,6 +10,9 @@ import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.module';
+import { MoviesModule } from './movies/movies.module';
+import { EventsModule } from './events/events.module';
+import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 
 @Module({
@@ -32,6 +35,9 @@ import { FeedPostsModule } from './feed-posts/feed-posts.module';
     LocalStorageModule,
     ChatModule,
     RssFeedProvidersModule,
+    MoviesModule,
+    EventsModule,
+    EventCategoriesModule,
     FeedPostsModule,
   ],
   controllers: [AppController],

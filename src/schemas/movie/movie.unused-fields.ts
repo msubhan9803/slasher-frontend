@@ -1,6 +1,6 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { MovieActiveStatus, MovieDeletionStatus, MovieType } from './movie.enums';
+import { MovieType } from './movie.enums';
 
 export class MovieUnusedFields {
   // NOT USED
@@ -20,10 +20,6 @@ export class MovieUnusedFields {
   backDropPath: string;
 
   // NOT USED
-  @Prop({ default: null })
-  releaseDate: Date;
-
-  // NOT USED
   @Prop({ default: false })
   adult: boolean;
 
@@ -40,27 +36,6 @@ export class MovieUnusedFields {
   // NOT USED
   @Prop({ default: 0 })
   popularity: number;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      MovieActiveStatus.Inactive,
-      MovieActiveStatus.Active,
-      MovieActiveStatus.Deactivated,
-    ],
-    default: MovieActiveStatus.Inactive,
-  })
-  status: MovieActiveStatus;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      MovieDeletionStatus.NotDeleted,
-      MovieDeletionStatus.Deleted,
-    ],
-    default: MovieDeletionStatus.NotDeleted,
-  })
-  deleted: MovieDeletionStatus;
 
   // NOT USED
   @Prop({ default: null, ref: 'users' })

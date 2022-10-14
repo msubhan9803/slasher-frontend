@@ -1,7 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
-import { RssFeedProviderActiveStatus, RssFeedProviderAutoFollow, RssFeedProviderDeletionStatus } from './rssFeedProvider.enums';
+import { RssFeedProviderAutoFollow } from './rssFeedProvider.enums';
 
 export class RssFeedProviderUnusedFields {
   // NOT USED
@@ -19,27 +19,6 @@ export class RssFeedProviderUnusedFields {
   // NOT USED
   @Prop({ default: 0 })
   preview_count: number;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      RssFeedProviderActiveStatus.Inactive,
-      RssFeedProviderActiveStatus.Active,
-      RssFeedProviderActiveStatus.Deactivated,
-    ],
-    default: RssFeedProviderActiveStatus.Inactive,
-  })
-  status: RssFeedProviderActiveStatus;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      RssFeedProviderDeletionStatus.NotDeleted,
-      RssFeedProviderDeletionStatus.Deleted,
-    ],
-    default: RssFeedProviderDeletionStatus.NotDeleted,
-  })
-  deleted: RssFeedProviderDeletionStatus;
 
   @Prop({ default: 0 })
   follower_count: number;

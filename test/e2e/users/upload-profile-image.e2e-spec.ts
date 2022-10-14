@@ -8,14 +8,14 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
-import { User } from '../../../src/schemas/user/user.schema';
+import { UserDocument } from '../../../src/schemas/user/user.schema';
 
 describe('Users / Upload Profile image (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
 
   beforeAll(async () => {
@@ -55,6 +55,7 @@ describe('Users / Upload Profile image (e2e)', () => {
           .attach('file', tempPath)
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
+        expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
       }, { extension: 'png' });
     });
 

@@ -1,7 +1,6 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
-import { RssFeedDeletionStatus } from './rssFeed.enums';
 
 export class RssFeedUnusedFields {
   // NOT USED
@@ -71,16 +70,6 @@ export class RssFeedUnusedFields {
   // NOT USED
   @Prop({ default: 0 })
   feedLikes: number;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      RssFeedDeletionStatus.NotDeleted,
-      RssFeedDeletionStatus.Deleted,
-    ],
-    default: RssFeedDeletionStatus.NotDeleted,
-  })
-  deleted: RssFeedDeletionStatus;
 
   // NOT USED
   @Prop({ default: null, ref: 'users' })

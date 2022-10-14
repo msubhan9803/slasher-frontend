@@ -8,6 +8,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
+import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -55,9 +56,11 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           id: activeUser.id,
+          email: activeUser.email,
           userName: activeUser.userName,
           firstName: activeUser.firstName,
-          profilePic: activeUser.profilePic,
+          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
         });
       });
 
@@ -83,9 +86,11 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           id: activeUser.id,
+          email: activeUser.email,
           userName: activeUser.userName,
           firstName: activeUser.firstName,
-          profilePic: activeUser.profilePic,
+          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
         });
       });
 

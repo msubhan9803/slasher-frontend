@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { EventCategoryDeletionState, EventCategoryStatus } from './eventCategory.enums';
 import { EventCategoryUnusedFields } from './eventCategory.unused-fields';
 
 @Schema({ timestamps: true })
@@ -15,6 +16,25 @@ export class EventCategory extends EventCategoryUnusedFields {
 
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
+
+  @Prop({ required: true, unique: true })
+  event_name: string;
+
+  @Prop({
+    enum: [EventCategoryStatus.Inactive, EventCategoryStatus.Active],
+    default: EventCategoryStatus.Active,
+  })
+  status: EventCategoryStatus;
+
+  @Prop({
+    required: true,
+    enum: [
+      EventCategoryDeletionState.NotDeleted,
+      EventCategoryDeletionState.Deleted,
+    ],
+    default: EventCategoryDeletionState.NotDeleted,
+  })
+  is_deleted: EventCategoryDeletionState;
 
   /***********
    * Methods *

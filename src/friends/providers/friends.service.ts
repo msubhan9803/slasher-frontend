@@ -75,7 +75,7 @@ export class FriendsService {
       ],
     };
     await this.friendsModel
-      .findOneAndUpdate(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
+      .updateMany(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
       .exec();
   }
 

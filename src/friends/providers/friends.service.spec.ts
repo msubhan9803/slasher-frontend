@@ -147,15 +147,22 @@ describe('FriendsService', () => {
   describe('#declineOrCancelFriendRequest', () => {
     beforeEach(async () => {
       await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
-      await friendsService.createFriendRequest(activeUser._id.toString(), user3._id.toString());
+      await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
     });
 
     it('friend request cancel or decline than expected response', async () => {
       await friendsService.declineOrCancelFriendRequest(activeUser._id.toString(), user2._id.toString());
-      const friendsData = await friendsModel.findOne({
-        $and: [{ from: activeUser._id }, { to: user2._id }],
-      });
-      expect(friendsData.reaction).toBe(FriendRequestReaction.DeclinedOrCancelled);
+      const query = {
+        $or: [
+          { from: activeUser._id, to: user2._id },
+          { from: user2._id, to: activeUser._id },
+        ],
+      };
+      const friends = await friendsModel.find(query);
+
+      for (let i = 1; i < friends.length; i += 1) {
+        expect(friends[i].reaction).toEqual(FriendRequestReaction.DeclinedOrCancelled);
+      }
     });
   });
 

@@ -16,6 +16,7 @@ import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 import { FriendsModule } from './friends/friends.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

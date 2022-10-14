@@ -55,7 +55,7 @@ describe('Events all / (e2e)', () => {
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
       userId: activeUser._id,
-      event_type: activeEventCategory._id,
+      event_type: activeEventCategory,
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -66,7 +66,7 @@ describe('Events all / (e2e)', () => {
         eventsFactory.build(
           {
             userId: activeUser._id,
-            event_type: activeEventCategory._id,
+            event_type: activeEventCategory,
           },
         ),
       );
@@ -74,7 +74,7 @@ describe('Events all / (e2e)', () => {
         eventsFactory.build(
           {
             userId: activeUser._id,
-            event_type: activeEventCategory._id,
+            event_type: activeEventCategory,
             status: EventActiveStatus.Active,
           },
         ),

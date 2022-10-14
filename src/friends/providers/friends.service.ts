@@ -47,7 +47,7 @@ export class FriendsService {
       .exec();
     const friendsData = friends.map((friend) => ({
       _id: friend.to._id, userName: friend.to.userName, profilePic: friend.to.profilePic,
-      })) as Partial<UserDocument[]>;
+    })) as Partial<UserDocument[]>;
     return friendsData;
   }
 
@@ -62,8 +62,8 @@ export class FriendsService {
       .skip((offset - 1) * limit)
       .exec();
     const friendsData = friends.map((friend) => ({
-        _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic,
-      })) as Partial<UserDocument[]>;
+      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic,
+    })) as Partial<UserDocument[]>;
     return friendsData;
   }
 
@@ -126,11 +126,29 @@ export class FriendsService {
       },
       { $project: { usersDetails: { $slice: ['$usersDetails', offsetFriends, limitFriends] } } },
     ];
-    console.log('aggregateQuery', JSON.stringify(aggregateQuery));
 
     const friendsData: any = await this.friendsModel.aggregate(aggregateQuery);
-    console.log('friendsData', JSON.stringify(friendsData, null, '\t'));
+    return friendsData.length ? friendsData[0].usersDetails : friendsData;
+  }
 
-    return friendsData[0].usersDetails;
+  async acceptFriendRequest(userId1: string, userId2: string): Promise<void> {
+    const acceptFriendRequestQuery = {
+      $and: [
+        {
+          $or: [
+            { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
+            { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+          ],
+        },
+        { reaction: FriendRequestReaction.Pending },
+      ],
+    };
+    const friends = await this.friendsModel.find(acceptFriendRequestQuery);
+    if (friends.length) {
+      const friendIds = friends.map((friend) => friend._id);
+      await this.friendsModel.updateMany({ _id: friendIds }, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
+    } else {
+      throw new Error(`No pending friend request found for ${userId1} and ${userId2}`);
+    }
   }
 }

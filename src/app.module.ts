@@ -10,6 +10,7 @@ import { UploadsModule } from './global/uploads.module';
 import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.module';
+import { RssFeedModule } from './rss-feed/rss-feed.module';
 import { MoviesModule } from './movies/movies.module';
 import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
@@ -35,6 +36,7 @@ import { FeedPostsModule } from './feed-posts/feed-posts.module';
     LocalStorageModule,
     ChatModule,
     RssFeedProvidersModule,
+    RssFeedModule,
     MoviesModule,
     EventsModule,
     EventCategoriesModule,

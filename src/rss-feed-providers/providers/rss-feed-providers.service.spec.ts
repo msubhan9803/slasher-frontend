@@ -92,12 +92,18 @@ describe('RssFeedProvidersService', () => {
     it('finds the expected rss feed provider details that has deleted and active status', async () => {
       const limit = 10;
       const rssFeedProvidersList = await rssFeedProvidersService.findAll(limit, false);
+      for (let index = 1; index < rssFeedProvidersList.length; index += 1) {
+        expect(rssFeedProvidersList[index - 1].sortTitle < rssFeedProvidersList[index].sortTitle).toBe(true);
+      }
       expect(rssFeedProvidersList).toHaveLength(10);
     });
 
     it('finds the expected rss feed provider details that has not deleted and active status', async () => {
       const limit = 10;
       const rssFeedProvidersList = await rssFeedProvidersService.findAll(limit, true);
+      for (let index = 1; index < rssFeedProvidersList.length; index += 1) {
+        expect(rssFeedProvidersList[index - 1].sortTitle < rssFeedProvidersList[index].sortTitle).toBe(true);
+      }
       expect(rssFeedProvidersList).toHaveLength(5);
     });
 

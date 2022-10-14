@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
@@ -27,7 +27,7 @@ export class FeedPostsService {
     return this.feedPostModel.findOne(feedPostFindQuery).exec();
   }
 
-  async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: string): Promise<FeedPostDocument[]> {
+  async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
     feedPostQuery.push({ userId });

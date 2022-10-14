@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { MovieActiveStatus, MovieDeletionStatus } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
 
 @Schema({ timestamps: true })
@@ -36,6 +37,28 @@ export class Movie extends MovieUnusedFields {
 
   @Prop({ default: null, trim: true })
   contentRating: string;
+
+  @Prop({
+    enum: [
+      MovieActiveStatus.Inactive,
+      MovieActiveStatus.Active,
+      MovieActiveStatus.Deactivated,
+    ],
+    default: MovieActiveStatus.Inactive,
+  })
+  status: MovieActiveStatus;
+
+  @Prop({
+    enum: [
+      MovieDeletionStatus.NotDeleted,
+      MovieDeletionStatus.Deleted,
+    ],
+    default: MovieDeletionStatus.NotDeleted,
+  })
+  deleted: MovieDeletionStatus;
+
+  @Prop({ default: null })
+  releaseDate: Date;
 
   /***********
    * Methods *

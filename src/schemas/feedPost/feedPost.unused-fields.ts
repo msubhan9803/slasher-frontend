@@ -12,7 +12,7 @@ export class FeedPostUnusedFields {
 
   // NOT USED
   @Prop({ default: null, ref: 'rssFeedProvider' })
-  rssfeedProvider: mongoose.Schema.Types.ObjectId;
+  rssfeedProviderId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
   @Prop({ default: null, ref: 'rssFeed' })

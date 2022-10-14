@@ -20,6 +20,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import mongoose from 'mongoose';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -407,7 +408,12 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findAllByUser(user._id, query.limit, true, query.before);
+    const feedPost = await this.feedPostsService.findAllByUser(
+      user._id,
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
     for (const feedPostsImage of feedPost) {
       feedPostsImage.images.map((relativeImagePath) => {
         // eslint-disable-next-line no-param-reassign

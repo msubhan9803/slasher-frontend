@@ -28,7 +28,7 @@ export class MoviesService {
   }
 
   async findFirstBySortName(sortNameStartsWith: string, activeOnly: boolean): Promise<MovieDocument> {
-    const sortNameQuery: any = { sort_name: { $regex: new RegExp(`^${sortNameStartsWith}`) } };
+    const sortNameQuery: any = { sort_name: new RegExp(`^${sortNameStartsWith}`) };
     if (activeOnly) {
       sortNameQuery.is_deleted = MovieDeletionStatus.NotDeleted;
       sortNameQuery.status = MovieActiveStatus.Active;

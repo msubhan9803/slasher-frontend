@@ -8,6 +8,7 @@ import { UsersService } from './users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus } from '../../schemas/user/user.enums';
 import { UserDocument } from '../../schemas/user/user.schema';
+import { pick } from '../../utils/object-utils';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -304,18 +305,28 @@ describe('UsersService', () => {
         ),
       );
     });
-    it('when query is exists than expected response', async () => {
+    it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {
       const query = 'te';
       const limit = 5;
-      const user = await usersService.suggestUserName(query, limit);
-      expect(user).toHaveLength(2);
+      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      expect(suggestUserNames).toEqual([
+        pick(await usersService.findByUsername('te1'), ['userName', 'id']),
+        pick(await usersService.findByUsername('test1'), ['userName', 'id']),
+      ]);
+    });
+
+    it('when query is exists and limited is applied, returns expected response', async () => {
+      const query = 'te';
+      const limit = 1;
+      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      expect(suggestUserNames).toHaveLength(1);
     });
 
     it('when query is wrong than expected response', async () => {
       const query = 'wq';
       const limit = 5;
-      const user = await usersService.suggestUserName(query, limit);
-      expect(user).toEqual([]);
+      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      expect(suggestUserNames).toEqual([]);
     });
   });
 });

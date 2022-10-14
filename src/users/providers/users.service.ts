@@ -5,14 +5,12 @@ import * as EmailValidator from 'email-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 
 export interface UserNameSuggestion {
-  userName?: string;
-  id?: mongoose.Schema.Types.ObjectId;
+  userName: string;
+  id: mongoose.Schema.Types.ObjectId;
 }
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
-
-  // private readonly userNameSuggestion: UserNameSuggestion[] = [];
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);
@@ -107,11 +105,17 @@ export class UsersService {
 
   async suggestUserName(query: string, limit: number): Promise<UserNameSuggestion[]> {
     const nameFindQuery = { userName: new RegExp(`^${query}`) };
-    const username = await this.userModel
+    const users = await this.userModel
       .find(nameFindQuery)
+      .sort({ userName: 1 })
       .limit(limit)
       .collation({ locale: 'en', strength: 2 })
       .exec();
-    return username || [];
+
+    const userNameSuggestions: UserNameSuggestion[] = users.map(
+      (user) => ({ userName: user.userName, id: user.id }),
+    );
+
+    return userNameSuggestions;
   }
 }

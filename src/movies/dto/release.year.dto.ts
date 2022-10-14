@@ -1,10 +1,10 @@
 import { Type } from 'class-transformer';
 import { IsNumber } from 'class-validator';
-import { IsValidYear } from '../../app/decorators/class-validator/min-or-max-year.decorator';
+import { IsValidMovieYear } from '../../app/decorators/class-validator/is-valid-movie-year.decorator';
 
 export class ReleaseYearDto {
   @Type(() => Number)
   @IsNumber()
-  @IsValidYear()
+  @IsValidMovieYear()
   year: number;
 }

@@ -1,9 +1,9 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 
-export function IsValidYear(validationOptions?: ValidationOptions) {
+export function IsValidMovieYear(validationOptions?: ValidationOptions) {
   return function (object: any, propertyName: string) {
     registerDecorator({
-      name: 'IsValidYear',
+      name: 'IsValidMovieYear',
       target: object.constructor,
       propertyName,
       constraints: [],

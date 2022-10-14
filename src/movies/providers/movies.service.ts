@@ -28,7 +28,7 @@ export class MoviesService {
   }
 
   async findFirstBySortName(sortNameStartsWith: string, activeOnly: boolean): Promise<MovieDocument> {
-    const sortNameQuery: any = { sort_name: { $gte: sortNameStartsWith } };
+    const sortNameQuery: any = { sort_name: { $regex: new RegExp(`^${sortNameStartsWith}`) } };
     if (activeOnly) {
       sortNameQuery.is_deleted = MovieDeletionStatus.NotDeleted;
       sortNameQuery.status = MovieActiveStatus.Active;
@@ -40,13 +40,13 @@ export class MoviesService {
   }
 
   async findFirstByReleaseYear(releaseYear: number, activeOnly: boolean): Promise<MovieDocument> {
-    const realeaseYearQuery: any = { sortReleaseDate: { $gte: releaseYear.toString() } };
+    const releaseYearQuery: any = { releaseDate: { $gte: new Date(releaseYear, 1, 1), $lte: new Date(releaseYear, 12, 31) } };
     if (activeOnly) {
-      realeaseYearQuery.is_deleted = MovieDeletionStatus.NotDeleted;
-      realeaseYearQuery.status = MovieActiveStatus.Active;
+      releaseYearQuery.is_deleted = MovieDeletionStatus.NotDeleted;
+      releaseYearQuery.status = MovieActiveStatus.Active;
     }
     return this.moviesModel
-      .findOne(realeaseYearQuery)
+      .findOne(releaseYearQuery)
       .sort({ sortReleaseDate: 1 })
       .exec();
   }
@@ -70,6 +70,7 @@ export class MoviesService {
       const afterMovie = await this.moviesModel.findById(after);
       movieFindAllQuery.sortReleaseDate = { $gt: afterMovie.sortReleaseDate };
     }
+
     const sortMoviesByNameAndReleaseDate: any = sortBy === 'name' ? { sort_name: 1 } : { sortReleaseDate: 1 };
 
     return this.moviesModel.find(movieFindAllQuery)

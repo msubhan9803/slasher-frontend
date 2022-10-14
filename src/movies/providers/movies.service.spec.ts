@@ -110,13 +110,13 @@ describe('MoviesService', () => {
     });
 
     it('finds the expected sort year', async () => {
-      const releaseYear = Number(movie.sortReleaseDate.slice(0, 4));
+      const releaseYear = movie.releaseDate.getFullYear();
       const movieDetails = await moviesService.findFirstByReleaseYear(releaseYear, false);
-      expect(movieDetails.sortReleaseDate).toEqual(movie.sortReleaseDate);
+      expect(movieDetails.id).toEqual(movie.id);
     });
 
     it('year is does not exist than expected response', async () => {
-      const movieDetails = await moviesService.findFirstByReleaseYear(2222, false);
+      const movieDetails = await moviesService.findFirstByReleaseYear(1990, false);
       expect(movieDetails).toBeNull();
     });
   });

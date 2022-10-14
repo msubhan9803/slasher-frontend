@@ -45,6 +45,7 @@ import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto'
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
@@ -328,6 +329,14 @@ export class UsersController {
         },
       ],
     };
+  }
+
+  @Get('suggest-user-name')
+  async suggestUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: SuggestUserNameQueryDto,
+  ) {
+    return this.usersService.suggestUserName(query.query, query.limit);
   }
 
   @Get(':userNameOrId')

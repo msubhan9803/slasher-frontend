@@ -107,7 +107,15 @@ describe('EventService', () => {
       expect(eventDetails.name).toEqual(event.name);
     });
 
-    it('finds the expected event category details that has not deleted and active status', async () => {
+    it('finds the expected event details with event category populate', async () => {
+      const eventDetails = await eventService.findById(event._id, false, 'event_type', 'event_name');
+      const eventCategoryDetail = await eventCategoriesService.findById(event.event_type.toString(), true);
+
+      expect(eventDetails.event_type._id).toEqual(eventCategoryDetail._id);
+      expect(eventDetails.event_type.event_name).toEqual(eventCategoryDetail.event_name);
+    });
+
+    it('finds the expected event details that has not deleted and active status', async () => {
       const activeEvent = await eventService.create(
         eventsFactory.build({
           status: EventActiveStatus.Active,
@@ -118,6 +126,22 @@ describe('EventService', () => {
 
       const eventDetail = await eventService.findById(activeEvent._id, true);
       expect(eventDetail.name).toEqual(activeEvent.name);
+    });
+
+    it('finds the expected event details with event category populate that has not deleted and active status', async () => {
+      const activeEvent = await eventService.create(
+        eventsFactory.build({
+          status: EventActiveStatus.Active,
+          userId: userData._id,
+          event_type: eventCategoryData._id,
+        }),
+      );
+
+      const eventDetail = await eventService.findById(activeEvent._id, true, 'event_type', 'event_name');
+      const eventCategoryDetail = await eventCategoriesService.findById(activeEvent.event_type.toString(), true);
+
+      expect(eventDetail.event_type._id).toEqual(eventCategoryDetail._id);
+      expect(eventDetail.event_type.event_name).toEqual(eventCategoryDetail.event_name);
     });
   });
 

@@ -1,23 +1,18 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Image, ImageSchema } from '../shared/image.schema';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
 import {
-  FeedPostDeletionState, FeedPostMatureRating, FeedPostPrivacyType, FeedPostShareListType, FeedPostStatus, FeedPostType,
+  FeedPostMatureRating, FeedPostPrivacyType, FeedPostShareListType, FeedPostType,
 } from './feedPost.enums';
 
 export class FeedPostUnusedFields {
-  // NOT USED
-  @Prop({ default: null, ref: 'users', required: true })
-  userId: mongoose.Schema.Types.ObjectId;
-
   // NOT USED
   @Prop({ default: null, ref: 'movies' })
   movieId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
   @Prop({ default: null, ref: 'rssFeedProvider' })
-  rssfeedProvider: mongoose.Schema.Types.ObjectId;
+  rssfeedProviderId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
   @Prop({ default: null, ref: 'rssFeed' })
@@ -37,10 +32,6 @@ export class FeedPostUnusedFields {
   shareUsers: mongoose.Schema.Types.ObjectId[];
 
   // NOT USED
-  @Prop({ default: null })
-  message: string;
-
-  // NOT USED
   // The actual values in this field seem to be mostly used for displaying the count of the number
   // of likes a post has, so it might be possible to change this field to likeCount
   // and just have it store a number.  Feed post likes are also (redundantly) stored in the
@@ -48,10 +39,6 @@ export class FeedPostUnusedFields {
   // current user has liked something.
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
-  @Prop({ type: [ImageSchema] })
-  images: Image[];
 
   // NOT USED
   // Note: The current DB mostly used FeedPostType.Text and FeedPostType.Image,
@@ -123,28 +110,6 @@ export class FeedPostUnusedFields {
     default: FeedPostShareListType.NoSharedPost,
   })
   sharedList: FeedPostShareListType;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedPostStatus.Inactive,
-      FeedPostStatus.Active,
-    ],
-    default: FeedPostStatus.Active,
-  })
-  status: FeedPostStatus;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedPostDeletionState.NotDeleted,
-      FeedPostDeletionState.Deleted,
-    ],
-    default: FeedPostDeletionState.NotDeleted,
-  })
-  is_deleted: FeedPostDeletionState;
 
   @Prop({ default: 0 })
   likeCount: number;

@@ -1,0 +1,380 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: EC2 Slasher standalone instance
+
+# Create Stack:
+# Same as Update Stack (see below), but replace "update-stack" with "create-stack"
+
+# Update Stack:
+# aws cloudformation update-stack --stack-name slasher-standalone-webserver-dev \
+# --template-body file://deploy/cloudformation/standalone-environment.yml \
+# --parameters \
+# ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 \
+# ParameterKey=MongoDbAdminUser,ParameterValue=admin \
+# ParameterKey=MongoDbAdminPassword,ParameterValue=password \
+# ParameterKey=MongoDbSlasherUser,ParameterValue=slasher \
+# ParameterKey=MongoDbSlasherPassword,ParameterValue=password \
+# ParameterKey=BackendSiteDomain,ParameterValue=something.example.com \
+# ParameterKey=InstallMongo,ParameterValue=1 \
+# ParameterKey=InstallRedis,ParameterValue=1 \
+# ParameterKey=SetupSslCert,ParameterValue=1 \
+# ParameterKey=NodeEnv,ParameterValue=development \
+# ParameterKey=EnvironmentType,ParameterValue=dev
+
+# Wait for stack to finish updating
+# aws cloudformation wait stack-update-complete --stack-name slasher-standalone-webserver-dev
+
+# Validate current version of template
+# aws cloudformation validate-template --template-body file://deploy/cloudformation/standalone-environment.yml
+
+# Create and describe a change set (but do not make any changes):
+# aws cloudformation delete-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set && \
+# aws cloudformation create-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set --change-set-type UPDATE \
+# --template-body file://deploy/cloudformation/standalone-environment.yml \
+# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32 && \
+# aws cloudformation describe-change-set --stack-name slasher-standalone-webserver-dev --change-set-name test-change-set
+
+# Delete stack:
+# aws cloudformation delete-stack --stack-name slasher-standalone-webserver-dev
+
+# Estimate cost for stack:
+# aws cloudformation estimate-template-cost --template-body file://deploy/cloudformation/standalone-environment.yml \
+# --parameters ParameterKey=SSHLocation,ParameterValue=1.2.3.4/32
+
+# Once the server has been created, you can SSH in and `tail -f /var/log/cloud-init-output.log` to check the status of UserData execution.
+
+Parameters:
+  SSHLocation:
+    Description: The IP address range that can be used to SSH to the EC2 instances
+    Type: String
+    MinLength: 9
+    MaxLength: 18
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
+    ConstraintDescription: "Must be a valid IP CIDR range of the form x.x.x.x/x"
+  EnvironmentType:
+    Description: "Specify the Environment type of the stack."
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+  NodeEnv:
+    Type: String
+    Default: production
+    AllowedValues:
+      - development
+      - production
+  SwapSizeInGB:
+    Type: Number
+    Default: 2
+  MongoDbAdminUser:
+    Type: String
+  MongoDbAdminPassword:
+    Type: String
+    NoEcho: true
+  MongoDbSlasherUser:
+    Type: String
+  MongoDbSlasherPassword:
+    Type: String
+    NoEcho: true
+  BackendSiteDomain:
+    Type: String
+
+  InstallMongo:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
+  InstallRedis:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
+  SetupSslCert:
+    Type: Number
+    AllowedValues: [0, 1]
+    Default: 0
+  DeploymentUserName:
+    Type: String
+    Default: slasherserv
+  DeploymentUserAuthorizedKeys:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /STANDALONE-WEBSERVER/deploy/deplyment-user-authorized-public-keys
+    NoEcho: true
+
+Mappings:
+  EnvironmentProperties:
+    dev:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1b # same as staging cluster
+    staging:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1b # same as staging cluster
+    prod:
+      InstanceType: t3a.small
+      AvailabilityZone: us-east-1c # same as staging cluster
+
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      # ImageId is: Canonical, Ubuntu, 20.04 LTS, amd64 focal image build on 2022-09-14
+      # - Virtualization: hvm, ENA enabled: true, Root device type: ebs
+      # - This ImageId is only available in the us-east-1 region
+      # - Image can be used with t3a.nano through t3a.2xlarge (and other types,
+      #   but need to consult AWS console for those other types)
+      ImageId: ami-0149b2da6ceec4bb0
+      AvailabilityZone: !FindInMap [ EnvironmentProperties, !Ref EnvironmentType, AvailabilityZone ]
+      InstanceType: !FindInMap [ EnvironmentProperties, !Ref EnvironmentType, InstanceType ]
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [slasher-standalone-webserver, !Ref EnvironmentType]]
+      KeyName: !Join ["-", [slasher-standalone-webserver, !Ref EnvironmentType]]
+      SecurityGroupIds:
+        - !Ref WebServerSecurityGroup
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: "20"
+      # Note: If an EC2 instance is EBS backed, changes to UserData alone will only trigger a reboot,
+      # and should not delete the EBS volume or re-run the UserData script.  By comparison, if an EC2
+      # instance is instance-store-backed, the entire instance would be rebuilt, the data on the
+      # instance-backed volume would be lost, and the UserData script would be re-run.
+      UserData:
+        Fn::Base64:
+          !Sub |
+            #!/bin/bash
+
+            # Write out a file that indicates the build time of this instance.
+            # This will be useful for troubleshooting CloudFormation update issues.
+            # Note: Doing an append (>>) instead of a regular write (>) to ensure that this
+            # only ever runs once per instance. If we see two printouts in the file, we'll
+            # know that something went wrong.
+            echo "EC2 instance generated with CloudFormation on `date`" >> ~/generation-note.txt
+
+            # Update apt package list
+            apt-get update
+
+            # Install emacs
+            apt-get install -y emacs-nox
+
+            # Set up swap
+            dd if=/dev/zero of=/swapfile bs=1024M count=${SwapSizeInGB}
+            chmod 600 /swapfile
+            mkswap /swapfile
+            swapon /swapfile
+            echo '/swapfile swap swap defaults 0 0' | tee -a /etc/fstab
+
+            ###################
+            # Install MongoDB #
+            ###################
+
+            if [ ${InstallMongo} -eq 1 ]; then
+              # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
+              wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+              # Add MongoDB apt repo
+              echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+              # Update apt package list again to get MongoDB packages
+              apt-get update
+              # Install MongoDB
+              apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
+              # Prevent automatic MongoDB updates by pinning to current version
+              echo "mongodb-org hold" | dpkg --set-selections
+              echo "mongodb-org-server hold" | dpkg --set-selections
+              echo "mongodb-org-shell hold" | dpkg --set-selections
+              echo "mongodb-org-mongos hold" | dpkg --set-selections
+              echo "mongodb-org-tools hold" | dpkg --set-selections
+              # Start MongoDB
+              systemctl start mongod
+              # Wait a little while for MongoDB to start
+              sleep 10
+              # Set up mongo admin user
+              mongo admin --eval "db.createUser({user: '${MongoDbAdminUser}',   pwd: '${MongoDbAdminPassword}',   roles: [ { role: 'root', db: 'admin' } ]})"
+              # Set up mongo slasher user
+              mongo slasher_${EnvironmentType} --eval "db.createUser({user: '${MongoDbSlasherUser}', pwd: '${MongoDbSlasherPassword}', roles: [ { role: 'readWrite', db: 'slasher_${EnvironmentType}' } ]})"
+              # Enable MongoDB security by un-commenting security section and adding 'authorization: enabled'
+              sed -i 's/#security:/security:\n  authorization: "enabled"/g' /etc/mongod.conf
+              # Allow external connections to MongoDB
+              sed -i 's/bindIp: 127\.0\.0\.1/bindIp: 0.0.0.0/g' /etc/mongod.conf
+              # Restart MongoDB
+              systemctl restart mongod
+              # Make sure that MongoDB starts on reboot in the future
+              systemctl enable mongod.service
+            fi
+
+            #################
+            # Install Redis #
+            #################
+
+            if [ ${InstallRedis} -eq 1 ]; then
+              apt-get install -y redis
+            fi
+
+            #################
+            # Install nginx #
+            #################
+
+            apt install nginx -y
+
+            ##########################################
+            # Install Passenger (for use with nginx) #
+            ##########################################
+            # See: https://www.phusionpassenger.com/docs/tutorials/deploy_to_production/installations/oss/aws/node/nginx/
+
+            # Install Passenger PGP key and add HTTPS support for APT
+            apt-get install -y dirmngr gnupg apt-transport-https ca-certificates
+            apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
+
+            # Add passenger APT repository and update packages
+            sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger focal main > /etc/apt/sources.list.d/passenger.list'
+            apt-get update
+
+            # Install Passenger + Nginx module
+            apt-get install -y libnginx-mod-http-passenger
+
+            # Enable the passenger module and restart nginx
+            if [ ! -f /etc/nginx/modules-enabled/50-mod-http-passenger.conf ]; then ln -s /usr/share/nginx/modules-available/mod-http-passenger.load /etc/nginx/modules-enabled/50-mod-http-passenger.conf ; fi
+
+            # Restart nginx
+            systemctl restart nginx
+            sleep 5
+
+            ########################################
+            # Install system-wide Node 16 (latest) #
+            ########################################
+            curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
+            sudo apt-get install -y nodejs
+
+            ##############################################################
+            # Create deployment user service account for running the app #
+            ##############################################################
+
+            # Create user
+            sudo adduser --disabled-password --gecos "" ${DeploymentUserName}
+
+            # Import AWS parameter store /STANDALONE-WEBSERVER/deploy/slasherserv-public-key value
+            # into deployment user's authorized keys.  This key is shared between all standalone
+            # server deployment environments because the user has limited permissions that are
+            # scoped only to the user the app runs as.
+            mkdir -p ~${DeploymentUserName}/.ssh
+            echo '${DeploymentUserAuthorizedKeys}' >> ~${DeploymentUserName}/.ssh/authorized_keys
+            chown -R ${DeploymentUserName}:${DeploymentUserName} ~${DeploymentUserName}/.ssh
+            chmod 700 ~${DeploymentUserName}/.ssh
+            chmod 600 ~${DeploymentUserName}/.ssh/authorized_keys
+
+            ####################################
+            # Set up Slasher vhost and docroot #
+            ####################################
+
+            # Set up placeholder vhost in sites-available directory
+            # Note that in the config below, root ends in "/current/public".  This "/current/public"
+            # directory does not actually exist.  Only the "/current" directory needs to exist.
+            echo 'server {
+              listen 80;
+              listen [::]:80;
+
+              root /var/www/slasher_${EnvironmentType}/current/public;
+
+              server_name ${BackendSiteDomain};
+
+              passenger_enabled on;
+              passenger_app_type node;
+              passenger_app_env ${NodeEnv};
+              passenger_startup_file dist/main.js;
+              passenger_min_instances 1;
+            }
+
+            #passenger_pre_start https://${BackendSiteDomain}/;
+            ' | tee /etc/nginx/sites-available/${BackendSiteDomain}
+
+            # Set up placeholder node app in docroot
+            mkdir -p /var/www/slasher_${EnvironmentType}/releases/placeholder/dist
+            ln -s /var/www/slasher_${EnvironmentType}/releases/placeholder /var/www/slasher_${EnvironmentType}/current
+            echo $'#!/usr/bin/env nodejs
+              var http = require(\'http\');
+              http.createServer(function (req, res) {
+                res.writeHead(200, {\'Content-Type\': \'text/plain\'});
+                res.end(\'Hello World\');
+              }).listen(8080, \'localhost\');
+              console.log(\'Placeholder node app has started up.\');
+            ' | tee /var/www/slasher_${EnvironmentType}/releases/placeholder/dist/main.js
+
+            # Chown docroot to service account user.
+            # Note 1: Passenger will run the app as the same user that owns passenger_startup_file as
+            # long as passenger_user_switching is enabled.
+            # Note 2: passenger_user_switching should be enabled by default.
+            chown -R ${DeploymentUserName}:${DeploymentUserName} /var/www/slasher_${EnvironmentType}
+
+            # Make vhost active by creating a sites-enabled symlink
+            ln -s /etc/nginx/sites-available/${BackendSiteDomain} /etc/nginx/sites-enabled/
+
+            # Restart nginx
+            systemctl restart nginx
+            sleep 5
+
+            ########################################
+            # Set up Let's Encrypt SSL Certificate #
+            ########################################
+
+            if [ ${SetupSslCert} -eq 1 ]; then
+              # Install certbot for Let's Encrypt certificates
+              # Note: Using snap as install source instead of apt because it provides a newer version
+              # of certbot than apt would, which fixes a bug (https://github.com/certbot/certbot/issues/6776)
+              # that affected us.  GitHub issue only mentioned capital letter issue, but it seems to
+              # affect vhosts with a dash in the name too.
+              snap install --classic certbot
+
+              # Add symlink for certbot so that the command is on our path
+              ln -s /snap/bin/certbot /usr/bin/certbot
+
+              # Generate SSL cert for the backend site domain
+              # Only 5 cert issuances for domain are allowed per 168 hours, so make sure not to
+              # overdo it with running this while testing.
+              certbot --nginx -d ${BackendSiteDomain} --non-interactive --agree-tos -m eric@slasher.tv
+
+              # Restart nginx
+              systemctl restart nginx
+              sleep 5
+            fi
+
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Allow inbound HTTP/HTTPS/SSH traffic"
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [slasher-standalone-webserver-security-group, !Ref EnvironmentType]]
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHLocation
+        - IpProtocol: tcp
+          FromPort: 27017
+          ToPort: 27017
+          CidrIp: !Ref SSHLocation
+
+  WebServerEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      InstanceId: !Ref WebServerInstance
+      Tags:
+        - Key: Name
+          Value: !Join ["-", [slasher-standalone-webserver-eip, !Ref EnvironmentType]]
+
+Outputs:
+  PublicIP:
+    Value: !Join
+      - ''
+      - - 'http://'
+        - !GetAtt
+          - WebServerInstance
+          - PublicIp
+    Description: Server public IP address

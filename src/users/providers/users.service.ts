@@ -1,9 +1,13 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 
+export interface UserNameSuggestion {
+  userName: string;
+  id: mongoose.Schema.Types.ObjectId;
+}
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
@@ -97,5 +101,21 @@ export class UsersService {
     return this.userModel
       .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })
       .exec();
+  }
+
+  async suggestUserName(query: string, limit: number): Promise<UserNameSuggestion[]> {
+    const nameFindQuery = { userName: new RegExp(`^${query}`) };
+    const users = await this.userModel
+      .find(nameFindQuery)
+      .sort({ userName: 1 })
+      .limit(limit)
+      .collation({ locale: 'en', strength: 2 })
+      .exec();
+
+    const userNameSuggestions: UserNameSuggestion[] = users.map(
+      (user) => ({ userName: user.userName, id: user.id }),
+    );
+
+    return userNameSuggestions;
   }
 }

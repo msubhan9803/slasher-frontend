@@ -14,14 +14,13 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
-  ParseFilePipeBuilder,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
+import mongoose from 'mongoose';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -42,6 +41,13 @@ import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { Device, User, UserDocument } from '../schemas/user/user.schema';
+import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { ParamUserIdDto } from './dto/param-user-id.dto';
+import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
+import { relativeToFullImagePath } from '../utils/image-utils';
+import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 
 @Controller('users')
 export class UsersController {
@@ -51,6 +57,7 @@ export class UsersController {
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly feedPostsService: FeedPostsService,
   ) { }
 
   @Post('sign-in')
@@ -324,6 +331,33 @@ export class UsersController {
     };
   }
 
+  @Get('suggest-user-name')
+  async suggestUserName(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: SuggestUserNameQueryDto,
+  ) {
+    return this.usersService.suggestUserName(query.query, query.limit);
+  }
+
+  @Get(':userNameOrId')
+  async findOne(@Param('userNameOrId') userNameOrId: string) {
+    let user: UserDocument;
+    if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
+      user = await this.usersService.findById(userNameOrId);
+    } else {
+      user = await this.usersService.findByUsername(userNameOrId);
+    }
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    user.profilePic = relativeToFullImagePath(this.config, user.profilePic);
+    user.coverPhoto = relativeToFullImagePath(this.config, user.coverPhoto);
+
+    return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
+  }
+
   @Patch(':id')
   async update(@Req() request: Request, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const user = getUserFromRequest(request);
@@ -356,18 +390,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadProfileImage(
     @Req() request: Request,
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(jpg|jpeg|png)$/,
-        })
-        .addMaxSizeValidator({
-          maxSize: 2e+7,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-    )
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
@@ -382,8 +405,57 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    // Delete original upload
-    await fs.unlinkSync(file.path);
+    asyncDeleteMulterFiles([file]);
+    return { success: true };
+  }
+
+  @Get(':userId/posts')
+  async allfeedPost(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findAllByUser(
+      user._id,
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
+    for (const feedPostsImage of feedPost) {
+      feedPostsImage.images.map((relativeImagePath) => {
+        // eslint-disable-next-line no-param-reassign
+        relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
+        return relativeImagePath;
+      });
+    }
+    return feedPost;
+  }
+
+  @Post('upload-cover-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCoverImage(
+    @Req() request: Request,
+    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    file: Express.Multer.File,
+  ) {
+    const user = getUserFromRequest(request);
+    const storageLocation = `/cover/cover_${file.filename}`;
+
+    if (this.config.get<string>('FILE_STORAGE') === 's3') {
+      await this.s3StorageService.write(storageLocation, file);
+    } else {
+      this.localStorageService.write(storageLocation, file);
+    }
+
+    user.coverPhoto = storageLocation;
+    await user.save();
+
+    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 }

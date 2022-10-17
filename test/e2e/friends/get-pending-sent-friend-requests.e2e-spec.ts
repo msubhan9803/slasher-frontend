@@ -56,7 +56,7 @@ describe('Get Friends (e2e)', () => {
     describe('Get Pending Sent Friends Request', () => {
       it('find all pending request', async () => {
         const limit = 5;
-        const offset = 1;
+        const offset = 0;
         const response = await request(app.getHttpServer())
           .get(`/friends/requests/sent?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

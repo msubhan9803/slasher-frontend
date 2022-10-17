@@ -85,10 +85,10 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          pick(user2, ['userName', '_id', 'profilePic']), // Abe Kenobi
-          pick(user1, ['userName', '_id', 'profilePic']), // Albert DARTH Skywalker
-          pick(user5, ['userName', '_id', 'profilePic']), // Darth Maul
-          pick(user3, ['userName', '_id', 'profilePic']), // Darth Vader
+          { ...pick(user2, ['userName', 'profilePic']), _id: user2._id.toString() }, // Abe Kenobi
+          { ...pick(user1, ['userName', 'profilePic']), _id: user1._id.toString() }, // Albert DARTH Skywalker
+          { ...pick(user5, ['userName', 'profilePic']), _id: user5._id.toString() }, // Darth Maul
+          { ...pick(user3, ['userName', 'profilePic']), _id: user3._id.toString() }, // Darth Vader
         ]);
       });
 
@@ -101,7 +101,7 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          pick(user5, ['userName', '_id', 'profilePic']), // Darth Maul
+          { ...pick(user5, ['userName', 'profilePic']), _id: user5._id.toString() }, // Darth Maul
         ]);
       });
     });
@@ -118,9 +118,9 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          pick(activeUser, ['userName', '_id', 'profilePic']), // Star Wars Fan
-          pick(user2, ['userName', '_id', 'profilePic']), // Abe Kenobi
-          pick(user4, ['userName', '_id', 'profilePic']), // Princess Leia
+          { ...pick(user2, ['userName', 'profilePic']), _id: user2._id.toString() }, // Abe Kenobi
+          { ...pick(user4, ['userName', 'profilePic']), _id: user4._id.toString() }, // Princess Leia
+          { ...pick(activeUser, ['userName', 'profilePic']), _id: activeUser._id.toString() }, // Star Wars Fan
         ]);
       });
 

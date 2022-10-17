@@ -84,7 +84,14 @@ export class FriendsService {
 
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
     const matchQuery: any = {
-      $match: { $expr: { _id: { $in: ['$_id', '$$ids'] } } },
+      $match: {
+        $expr: {
+          $and: [
+            { $ne: ['$_id', new mongoose.Types.ObjectId(userId)] },
+            { $in: ['$_id', '$$ids'] },
+          ],
+        },
+      },
     };
 
     if (userNameContains) {
@@ -120,6 +127,7 @@ export class FriendsService {
           pipeline: [
             matchQuery,
             { $project: { userName: 1, profilePic: 1, _id: 1 } },
+            { $sort: { userName: 1 } },
           ],
           as: 'usersDetails',
         },

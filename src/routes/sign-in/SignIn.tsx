@@ -48,6 +48,7 @@ function SignIn() {
       setErrorMessage([]);
       Cookies.set('sessionToken', res.data.token);
       Cookies.set('userId', res.data.id);
+      Cookies.set('userName', res.data.userName);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);

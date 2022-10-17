@@ -7,6 +7,8 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -28,6 +30,8 @@ function CreatePost() {
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+
+  const navigate = useNavigate();
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
@@ -56,7 +60,10 @@ function CreatePost() {
 
   const addPost = () => {
     createPost(postContent, imageArray)
-      .then(() => setErrorMessage([]))
+      .then(() => {
+        setErrorMessage([]);
+        navigate(`/${Cookies.get('userName')}/posts`);
+      })
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });

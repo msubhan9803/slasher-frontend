@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,7 +12,18 @@ import postImage from '../../images/about-post.jpg';
 import CustomPopover from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
+import { userProfilePost } from '../../api/users';
 
+interface UserData {
+  id?: string;
+  firstName?: string;
+  userName?: string;
+  profilePic?: string;
+}
+interface Props {
+  tabKey: string;
+  userDetail?: any;
+}
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
 `;
@@ -41,17 +52,30 @@ const StyledPopoverContainer = styled.div`
   top: 70px;
   right: 10px;
 `;
-function ProfileHeader({ tabKey }: any) {
+function ProfileHeader({ tabKey, userDetail }: Props) {
   const params = useParams();
+  const { userName } = useParams<string>();
+  const [userData, setUserData] = useState<UserData>();
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
+
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
   };
+
+  useEffect(() => {
+    if (userName) {
+      userProfilePost(userName)
+        .then((res) => {
+          setUserData(res.data);
+          userDetail(res.data);
+        });
+    }
+  }, []);
 
   return (
     <div className="bg-dark bg-mobile-transparent rounded">
@@ -65,7 +89,7 @@ function ProfileHeader({ tabKey }: any) {
             </Col>
             <Row className="d-flex ms-3">
               <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-                <AboutProfileImage size="11.25rem" src="https://i.pravatar.cc/300?img=12" />
+                <AboutProfileImage size="11.25rem" src={userData?.profilePic} />
                 {queryParam !== 'self'
                   && (
                     <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -78,9 +102,15 @@ function ProfileHeader({ tabKey }: any) {
               </CustomCol>
               <Col className="w-100 mt-md-4">
                 <Row className="d-flex justify-content-between">
-                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
-                    <h1 className="mb-md-0">Aly khan</h1>
-                    <p className="fs-5  text-light">@aly-khan</p>
+                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+                    <h1 className="mb-md-0">
+                      {userData?.firstName}
+                    </h1>
+                    <p className="fs-5  text-light">
+                      @
+                      {userData?.userName}
+                    </p>
+
                   </Col>
                   <Col xs={12} md={6} lg={12} xl={6}>
                     {queryParam === 'self'
@@ -116,11 +146,16 @@ function ProfileHeader({ tabKey }: any) {
           <RoundDiv className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
-                <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-2" />
+                <UserCircleImage src={userData?.profilePic} className="me-2" />
               </div>
-              <div>
-                <p className="fs-3 mb-0">@aly-khan</p>
-                <p className="fs-5 text-light mb-0">Aly khan</p>
+              <div className="text-capitalize">
+                <p className="fs-3 mb-0">
+                  @
+                  {userData?.userName}
+                </p>
+                <p className="fs-5 text-light mb-0">
+                  {userData?.firstName}
+                </p>
               </div>
             </div>
 
@@ -154,5 +189,7 @@ function ProfileHeader({ tabKey }: any) {
     </div>
   );
 }
-
+ProfileHeader.defaultProps = {
+  userDetail: undefined,
+};
 export default ProfileHeader;

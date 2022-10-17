@@ -15,6 +15,7 @@ import { MoviesModule } from './movies/movies.module';
 import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { FeedPostsModule } from './feed-posts/feed-posts.module';
     EventsModule,
     EventCategoriesModule,
     FeedPostsModule,
+    FriendsModule,
   ],
   controllers: [AppController],
   providers: [

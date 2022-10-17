@@ -9,10 +9,13 @@ import { UserDocument } from '../../schemas/user/user.schema';
 export class FriendsService {
   constructor(@InjectModel(Friend.name) private friendsModel: Model<FriendDocument>) { }
 
-  async getFriendRequestReaction(fromUserId: string, toUserId: string): Promise<FriendRequestReaction | null> {
+  async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
     const friend = await this.friendsModel
       .findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(fromUserId) }, { to: new mongoose.Types.ObjectId(toUserId) }],
+        $or: [
+          { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
+          { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+        ],
       })
       .exec();
     return friend ? friend.reaction : null;
@@ -42,7 +45,7 @@ export class FriendsService {
       })
       .populate('to', 'userName _id profilePic')
       .sort({ createdAt: -1 })
-      .skip((offset - 1) * limit)
+      .skip(offset)
       .limit(limit)
       .exec();
     const friendsData = friends.map((friend) => ({
@@ -59,7 +62,7 @@ export class FriendsService {
       .populate('from', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
-      .skip((offset - 1) * limit)
+      .skip(offset)
       .exec();
     const friendsData = friends.map((friend) => ({
       _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic,
@@ -75,14 +78,11 @@ export class FriendsService {
       ],
     };
     await this.friendsModel
-      .updateMany(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
+      .updateOne(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
       .exec();
   }
 
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
-    const offsetFriends = (offset - 1) * limit;
-    const limitFriends = limit;
-
     const matchQuery: any = {
       $match: { $expr: { _id: { $in: ['$_id', '$$ids'] } } },
     };
@@ -124,31 +124,31 @@ export class FriendsService {
           as: 'usersDetails',
         },
       },
-      { $project: { usersDetails: { $slice: ['$usersDetails', offsetFriends, limitFriends] } } },
+      { $project: { usersDetails: { $slice: ['$usersDetails', offset, limit] } } },
     ];
 
     const friendsData: any = await this.friendsModel.aggregate(aggregateQuery);
     return friendsData.length ? friendsData[0].usersDetails : friendsData;
   }
 
-  async acceptFriendRequest(userId1: string, userId2: string): Promise<void> {
-    const acceptFriendRequestQuery = {
-      $and: [
-        {
-          $or: [
-            { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-            { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
-          ],
-        },
-        { reaction: FriendRequestReaction.Pending },
-      ],
-    };
-    const friends = await this.friendsModel.find(acceptFriendRequestQuery);
-    if (friends.length) {
-      const friendIds = friends.map((friend) => friend._id);
-      await this.friendsModel.updateMany({ _id: friendIds }, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
-    } else {
-      throw new Error(`No pending friend request found for ${userId1} and ${userId2}`);
+  async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {
+    const notFoundMessage = `No pending friend request found from user ${fromUser} to ${toUser}`;
+
+    const friendRequest = await this.friendsModel.findOne({ from: fromUser, to: toUser });
+
+    if (!friendRequest) {
+      throw new Error(notFoundMessage);
     }
+
+    if (friendRequest.reaction === FriendRequestReaction.Accepted) {
+      return;
+    }
+
+    if (friendRequest.reaction !== FriendRequestReaction.Pending) {
+      throw new Error(notFoundMessage);
+    }
+
+    friendRequest.reaction = FriendRequestReaction.Accepted;
+    await friendRequest.save();
   }
 }

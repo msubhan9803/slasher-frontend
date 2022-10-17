@@ -48,6 +48,8 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { GetFriendsDto } from './dto/get-friends.dto';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('users')
 export class UsersController {
@@ -58,6 +60,7 @@ export class UsersController {
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
     private readonly feedPostsService: FeedPostsService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @Post('sign-in')
@@ -434,6 +437,20 @@ export class UsersController {
       });
     }
     return feedPost;
+  }
+
+  @Get(':userId/friends')
+  async getFriends(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendsDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const friends = await this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
+    return friends;
   }
 
   @Post('upload-cover-image')

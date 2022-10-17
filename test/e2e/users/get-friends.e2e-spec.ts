@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
+import { pick } from '../../../src/utils/object-utils';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;
@@ -20,6 +21,9 @@ describe('Get All Friends (e2e)', () => {
   let activeUser: UserDocument;
   let user1: UserDocument;
   let user2: UserDocument;
+  let user3: UserDocument;
+  let user4: UserDocument;
+  let user5: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
@@ -45,48 +49,103 @@ describe('Get All Friends (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
-    activeUser = await usersService.create(userFactory.build());
-    user1 = await usersService.create(userFactory.build());
-    user2 = await usersService.create(userFactory.build());
+    activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
+    user1 = await usersService.create(userFactory.build({ userName: 'Albert DARTH Skywalker' }));
+    user2 = await usersService.create(userFactory.build({ userName: 'Abe Kenobi' }));
+    user3 = await usersService.create(userFactory.build({ userName: 'Darth Vader' }));
+    user4 = await usersService.create(userFactory.build({ userName: 'Princess Leia' }));
+    user5 = await usersService.create(userFactory.build({ userName: 'Darth Maul' }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    const usersToAddAsAcceptedFriends = [
+      [activeUser, user1],
+      [user2, activeUser],
+      [activeUser, user3],
+      [activeUser, user5],
+      [user3, user2],
+      [user3, user4],
+    ];
+    for (const [from, to] of usersToAddAsAcceptedFriends) {
+      await friendsService.createFriendRequest(from.id, to.id);
+      await friendsService.acceptFriendRequest(from.id, to.id);
+    }
   });
 
-  describe('Get /friends', () => {
-    describe('Get all friend data', () => {
+  describe('Get /users/:userId/friends', () => {
+    describe('Get all friends for the given currently active user, ordered by username', () => {
+      beforeEach(async () => {
+        await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
+      });
+      it('finds all friends', async () => {
+        const limit = 5;
+        const offset = 0;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual([
+          pick(user2, ['userName', '_id', 'profilePic']), // Abe Kenobi
+          pick(user1, ['userName', '_id', 'profilePic']), // Albert DARTH Skywalker
+          pick(user5, ['userName', '_id', 'profilePic']), // Darth Maul
+          pick(user3, ['userName', '_id', 'profilePic']), // Darth Vader
+        ]);
+      });
+
+      it('when applying limt and offset, and filtering on userName, returns the expected response', async () => {
+        const limit = 1;
+        const offset = 1;
+        const userNameContains = 'darth';
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual([
+          pick(user5, ['userName', '_id', 'profilePic']), // Darth Maul
+        ]);
+      });
+    });
+
+    describe('Get all username-ordered friend data for a user who is not the currently active user', () => {
       beforeEach(async () => {
         await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
       });
       it('find all friend', async () => {
         const limit = 5;
-        const offset = 1;
+        const offset = 0;
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}&offset=${offset}`)
+          .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(3);
+        expect(response.body).toEqual([
+          pick(activeUser, ['userName', '_id', 'profilePic']), // Star Wars Fan
+          pick(user2, ['userName', '_id', 'profilePic']), // Abe Kenobi
+          pick(user4, ['userName', '_id', 'profilePic']), // Princess Leia
+        ]);
       });
 
-      it('when add user name contains than expected response', async () => {
+      it('find all friend when filtering by username', async () => {
         const limit = 5;
-        const offset = 1;
-        const userNameContains = 'Username';
+        const offset = 0;
+        const userNameContains = 'abe';
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(3);
+        expect(response.body).toEqual([
+          {
+            userName: user2.userName, // Abe Kenobi
+            _id: user2._id.toString(),
+            profilePic: user2.profilePic,
+          },
+        ]);
       });
     });
 
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/friends')
+          .get(`/users/${activeUser.id}/friends`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -95,7 +154,7 @@ describe('Get All Friends (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}`)
+          .get(`/users/${activeUser.id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -104,7 +163,7 @@ describe('Get All Friends (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}`)
+          .get(`/users/${activeUser.id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -114,7 +173,7 @@ describe('Get All Friends (e2e)', () => {
         const limit = 10;
         const offset = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}&offset=${offset}`)
+          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');
@@ -125,7 +184,7 @@ describe('Get All Friends (e2e)', () => {
         const offset = 1;
         const userNameContains = new Array(35).join('z');
         const response = await request(app.getHttpServer())
-          .get(`/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('userNameContains must be shorter than or equal to 30 characters');

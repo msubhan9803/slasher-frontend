@@ -5,7 +5,7 @@ import mongoose, { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FriendsService } from './friends.service';
 import { UsersService } from '../../users/providers/users.service';
-import { User } from '../../schemas/user/user.schema';
+import { UserDocument } from '../../schemas/user/user.schema';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
@@ -15,10 +15,10 @@ describe('FriendsService', () => {
   let connection: Connection;
   let friendsService: FriendsService;
   let usersService: UsersService;
-  let activeUser: User;
-  let user1: User;
-  let user2: User;
-  let user3: User;
+  let user0: UserDocument;
+  let user1: UserDocument;
+  let user2: UserDocument;
+  let user3: UserDocument;
   let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
@@ -41,13 +41,10 @@ describe('FriendsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
-    activeUser = await usersService.create(userFactory.build());
-    user1 = await usersService.create(userFactory.build());
-    user2 = await usersService.create(userFactory.build());
-    user3 = await usersService.create(userFactory.build());
-
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
+    user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
+    user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+    user2 = await usersService.create(userFactory.build({ userName: 'Freddy' }));
+    user3 = await usersService.create(userFactory.build({ userName: 'Count Orlok' }));
   });
 
   it('should be defined', () => {
@@ -55,161 +52,205 @@ describe('FriendsService', () => {
   });
 
   describe('#getFriendRequestReaction', () => {
-    it('finds the expected friend request reaction details', async () => {
-      const friends = await friendsService.getFriendRequestReaction(activeUser._id.toString(), user1._id.toString());
-      expect(friends).toBe(FriendRequestReaction.Pending);
+    beforeEach(async () => {
+      await friendsService.createFriendRequest(user0.id, user1.id);
     });
 
-    it('when fromUserId is wrong than expected response', async () => {
-      const fromUserId = '633d53908c97974c07aa2e5d';
-      const friendsDetails = await friendsService.getFriendRequestReaction(fromUserId, activeUser._id.toString());
-      expect(friendsDetails).toBeNull();
+    it('for two users with a friend record, finds the expected friend request reaction details', async () => {
+      expect(
+        await friendsService.getFriendRequestReaction(user0.id, user1.id),
+      ).toBe(FriendRequestReaction.Pending);
     });
 
-    it('when toUserId is wrong than expected response', async () => {
-      const toUserId = '633d53908c97974c07aa2e5d';
-      const friendsDetails = await friendsService.getFriendRequestReaction(activeUser._id.toString(), toUserId);
-      expect(friendsDetails).toBeNull();
+    it('for two users with NO friend record, returns null', async () => {
+      expect(
+        await friendsService.getFriendRequestReaction(user0.id, user2.id),
+      ).toBeNull();
     });
   });
 
   describe('#createFriendRequest', () => {
-    let user4; let
-      user5;
+    let newUser1;
+    let newUser2;
     beforeEach(async () => {
-      user4 = await usersService.create(userFactory.build());
-      user5 = await usersService.create(userFactory.build());
+      newUser1 = await usersService.create(userFactory.build());
+      newUser2 = await usersService.create(userFactory.build());
     });
-    it('finds the expected friend request reaction details', async () => {
-      await friendsService.createFriendRequest(user4._id.toString(), user5._id.toString());
-      const friendsData = await friendsModel.findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(user4._id) }, { to: new mongoose.Types.ObjectId(user5._id) }],
+    it('creates the expected friend record, with the expected friend.reactionv value', async () => {
+      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
+      const friendData = await friendsModel.findOne({
+        $and: [{ from: new mongoose.Types.ObjectId(newUser1._id) }, { to: new mongoose.Types.ObjectId(newUser2._id) }],
       });
-      expect(friendsData.from).toEqual(user4._id);
-      expect(friendsData.to).toEqual(user5._id);
+      expect(friendData.from).toEqual(newUser1._id);
+      expect(friendData.to).toEqual(newUser2._id);
     });
 
-    it('when user request is pending than expected response', async () => {
-      await friendsService.createFriendRequest(user4._id.toString(), user5._id.toString());
+    it('sets friend.reaction to pending by default', async () => {
+      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
       const friendsData = await friendsModel.findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(user4._id) }, { to: new mongoose.Types.ObjectId(user5._id) }],
+        $and: [{ from: new mongoose.Types.ObjectId(newUser1._id) }, { to: new mongoose.Types.ObjectId(newUser2._id) }],
       });
       expect(friendsData.reaction).toBe(FriendRequestReaction.Pending);
     });
-
-    // TODO: need to check if error throws
   });
 
   describe('#getSentFriendRequests', () => {
     beforeEach(async () => {
-      await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
-      await friendsService.createFriendRequest(activeUser._id.toString(), user3._id.toString());
+      await friendsService.createFriendRequest(user0.id, user2.id);
+      await friendsService.createFriendRequest(user0.id, user3.id);
     });
-    it('finds the expected sent friend requests friends', async () => {
-      const friends = await friendsService.getSentFriendRequests(activeUser._id.toString(), 5, 1);
-      expect(friends[0]._id).not.toEqual(activeUser._id);
-    });
-
-    it('when userId is wrong than expected response', async () => {
-      const userId = '633d53908c97974c07aa2e5d';
-      const friends = await friendsService.getSentFriendRequests(userId, 5, 1);
-      expect(friends).toEqual([]);
+    it('finds the expected number of friend records representing friend requests', async () => {
+      expect(
+        await friendsService.getSentFriendRequests(user0.id, 5, 0),
+      ).toHaveLength(2);
     });
 
-    it('when apply offset value than expected response', async () => {
-      const friends = await friendsService.getSentFriendRequests(activeUser._id.toString(), 1, 2);
-      expect(friends).toHaveLength(1);
+    it('returns the expected response for applied limit and offset', async () => {
+      expect(
+        await friendsService.getSentFriendRequests(user0.id, 1, 1),
+      ).toHaveLength(1);
+    });
+
+    it('when userId is the receiver of a request, but has no sent requests', async () => {
+      expect(await friendsService.getSentFriendRequests(user2.id, 5, 1)).toEqual([]);
     });
   });
 
   describe('#getReceivedFriendRequests', () => {
     beforeEach(async () => {
-      await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
-      await friendsService.createFriendRequest(user3._id.toString(), activeUser._id.toString());
-    });
-    it('finds the expected received friend requests friends', async () => {
-      const friends = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 5, 1);
-      expect(friends).toHaveLength(FriendRequestReaction.Accepted);
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.createFriendRequest(user3.id, user0.id);
     });
 
-    it('when userId is wrong than expected response', async () => {
-      const userId = '633d53908c97974c07aa2e5d';
-      const friends = await friendsService.getReceivedFriendRequests(userId, 5, 1);
-      expect(friends).toEqual([]);
+    it('finds the expected number of friend records representing friend requests', async () => {
+      expect(
+        await friendsService.getReceivedFriendRequests(user0.id, 5, 0),
+      ).toHaveLength(2);
     });
 
-    it('when apply offset value than expected response', async () => {
-      const friends = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 1, 2);
-      expect(friends).toHaveLength(1);
+    it('returns the expected response for applied limit and offset', async () => {
+      expect(
+        await friendsService.getReceivedFriendRequests(user0.id, 1, 1),
+      ).toHaveLength(1);
+    });
+
+    it('when userId is the sender of a request, but has no received requests', async () => {
+      expect(await friendsService.getReceivedFriendRequests(user2.id, 5, 1)).toEqual([]);
     });
   });
 
   describe('#declineOrCancelFriendRequest', () => {
-    beforeEach(async () => {
-      await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
-      await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
+    describe('when request is pending', () => {
+      beforeEach(async () => {
+        await friendsService.createFriendRequest(user0.id, user2.id);
+        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+      });
+
+      it('updates the status of the friend record to: declined', async () => {
+        expect(
+          await friendsService.getFriendRequestReaction(user0.id, user2.id),
+        ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
+      });
     });
 
-    it('friend request cancel or decline than expected response', async () => {
-      await friendsService.declineOrCancelFriendRequest(activeUser._id.toString(), user2._id.toString());
-      const query = {
-        $or: [
-          { from: activeUser._id, to: user2._id },
-          { from: user2._id, to: activeUser._id },
-        ],
-      };
-      const friends = await friendsModel.find(query);
+    describe('when request has already been accepted', () => {
+      beforeEach(async () => {
+        await friendsService.createFriendRequest(user0.id, user2.id);
+        await friendsService.acceptFriendRequest(user0.id, user2.id);
+        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+      });
 
-      for (let i = 1; i < friends.length; i += 1) {
-        expect(friends[i].reaction).toEqual(FriendRequestReaction.DeclinedOrCancelled);
-      }
+      it('updates the status of the friend record to: declined', async () => {
+        expect(
+          await friendsService.getFriendRequestReaction(user0.id, user2.id),
+        ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
+      });
     });
   });
 
   describe('#getFriends', () => {
-    let user7;
-    let user6;
     beforeEach(async () => {
-      user6 = await usersService.create(userFactory.build());
-      user7 = await usersService.create(userFactory.build());
-      await friendsService.createFriendRequest(user6._id.toString(), user7._id.toString());
-      await friendsService.createFriendRequest(user7._id.toString(), user6._id.toString());
-      await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });
+      const user4 = await usersService.create(userFactory.build({ userName: 'Count Dracula' }));
+      const user5 = await usersService.create(userFactory.build({ userName: 'The Count' }));
+
+      const usersToAddAsAcceptedFriends = [
+        [user0, user1], // friends with "Michael"
+        [user0, user3], // friends with "Count Orlok"
+        [user4, user0], // friends with "Count Dracula"
+        [user5, user0], // friends with "The Count"
+      ];
+      for (const [from, to] of usersToAddAsAcceptedFriends) {
+        await friendsService.createFriendRequest(from.id, to.id);
+        await friendsService.acceptFriendRequest(from.id, to.id);
+      }
     });
 
-    it('get all friends', async () => {
-      const friends = await friendsService.getFriends(user6._id.toString(), 5, 1);
-      expect(friends).toHaveLength(5);
+    it('returns the expected friends, sorted in alphabetical order by username', async () => {
+      const friends = await friendsService.getFriends(user0.id, 10, 0);
+      expect(friends.map((friend) => friend.userName)).toEqual(
+        [
+          'Count Dracula',
+          'Count Orlok',
+          'Michael',
+          'The Count',
+        ],
+      );
     });
 
-    it('when apply user name contains than expected response', async () => {
-      const friends = await friendsService.getFriends(user6._id.toString(), 5, 1, 'Username');
-      expect(friends).toHaveLength(5);
+    it('returns the expected response for applied limit and offset', async () => {
+      const friends = await friendsService.getFriends(user0.id, 3, 3);
+      expect(friends.map((friend) => friend.userName)).toEqual(
+        [
+          'The Count',
+        ],
+      );
     });
 
-    it('when offset multiple data than expected response', async () => {
-      const friends = await friendsService.getFriends(user6._id.toString(), 10, 6, 'Username');
-      expect(friends).toEqual([]);
+    it('returns the expected response when doing case-insensitive filtering on a userName', async () => {
+      const friends = await friendsService.getFriends(user0.id, 5, 0, 'count');
+      expect(friends.map((friend) => friend.userName)).toEqual(
+        [
+          'Count Dracula',
+          'Count Orlok',
+          'The Count',
+        ],
+      );
+    });
+
+    it('returns no results when there are no case-insensitive matches on a userName', async () => {
+      const friends = await friendsService.getFriends(user0.id, 5, 0, 'zzzzzz');
+      expect(friends).toHaveLength(0);
+    });
+
+    it('when applying limit, offset, and userName filter', async () => {
+      const friends = await friendsService.getFriends(user0.id, 5, 1, 'count');
+      expect(friends.map((friend) => friend.userName)).toEqual(
+        [
+          'Count Orlok',
+          'The Count',
+        ],
+      );
     });
   });
 
   describe('#acceptFriendRequest', () => {
-    let user7;
-    let user6;
     beforeEach(async () => {
-      user6 = await usersService.create(userFactory.build());
-      user7 = await usersService.create(userFactory.build());
-      await friendsService.createFriendRequest(user6._id.toString(), user7._id.toString());
-      await friendsService.createFriendRequest(user7._id.toString(), user6._id.toString());
+      await friendsService.createFriendRequest(user0.id, user1.id);
     });
 
-    it('get accept friend request details', async () => {
-      await friendsService.acceptFriendRequest(user6._id.toString(), user7._id.toString());
-      const friends = await friendsModel.findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(user6._id) }, { to: new mongoose.Types.ObjectId(user7._id) }],
-      });
-      expect(friends.reaction).toBe(FriendRequestReaction.Accepted);
+    it('updates the friend request record to have the Accepted reaction', async () => {
+      await friendsService.acceptFriendRequest(user0.id, user1.id);
+      expect(
+        await friendsService.getFriendRequestReaction(user0.id, user1.id),
+      ).toEqual(FriendRequestReaction.Accepted);
     });
-    // TODO: need to check if error throws
+
+    it('only allows the receiver to accept the request, NOT the sender', async () => {
+      await expect(friendsService.acceptFriendRequest(user1.id, user0.id)).rejects.toThrow('No pending friend request');
+    });
+
+    it('returns the expected response for two user who have no friend request between them', async () => {
+      await expect(friendsService.acceptFriendRequest(user1.id, user2.id)).rejects.toThrow('No pending friend request');
+    });
   });
 });

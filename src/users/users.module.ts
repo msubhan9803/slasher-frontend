@@ -9,12 +9,14 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { User, UserSchema } from '../schemas/user/user.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
+import { FriendsModule } from '../friends/friends.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
     NotificationsModule,
+    FriendsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, MailService, LocalStorageService, S3StorageService, FeedPostsService],

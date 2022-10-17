@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { User } from '../user/user.schema';
 import { FriendRequestReaction } from './friend.enums';
 import { FriendUnusedFields } from './friend.unused-fields';
 
@@ -17,11 +18,15 @@ export class Friend extends FriendUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: null, ref: 'users', required: true })
-  from: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
+  })
+  from: User;
 
-  @Prop({ default: null, ref: 'users', required: true })
-  to: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
+  })
+  to: User;
 
   @Prop({
     required: true,

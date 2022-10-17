@@ -25,8 +25,10 @@ export class Event extends EventUnusedFields {
   @Prop({ default: null, ref: User.name })
   userId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: EventCategory.name, required: true })
-  event_type: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: EventCategory.name, required: true,
+  })
+  event_type: EventCategory;
 
   @Prop({ default: null })
   startDate: Date;

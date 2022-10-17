@@ -4,6 +4,7 @@ import {
   IsOptional, MaxLength,
 } from 'class-validator';
 import { Schema } from 'mongoose';
+import { EventCategory } from '../../schemas/eventCategory/eventCategory.schema';
 
 export class CreateOrUpdateEventDto {
   @IsOptional()
@@ -16,7 +17,7 @@ export class CreateOrUpdateEventDto {
 
   @IsOptional()
   @IsMongoId()
-  event_type: Schema.Types.ObjectId;
+  event_type: EventCategory;
 
   @IsOptional()
   @Type((typeOptions) => (typeOptions.object[typeOptions.property] === '' ? null : Date))

@@ -1,14 +1,14 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';
-import { ChatGateway } from '../../../src/chat/providers/chat.gateway';
+import { AppModule } from '../../../src/app.module';
 
-describe('Chat (e2e)', () => {
+describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [ChatGateway],
+      imports: [AppModule],
     }).compile();
 
     app = moduleRef.createNestApplication();

@@ -16,20 +16,20 @@ import { Server } from 'socket.io';
     origin: '*',
   },
 })
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   handleConnection(client: any, ...args: any[]) {
-    console.log('client connected (chat)');
+    console.log('client connected (notifications)');
   }
 
   handleDisconnect(client: any) {
-    console.log('client disconnected (chat)');
+    console.log('client disconnected (notifications)');
   }
 
-  @SubscribeMessage('chatMessage')
+  @SubscribeMessage('getNotifications')
   async sendReceiveMessage(@MessageBody() data: any): Promise<string> {
-    return `chat message from ${data.senderId} to ${data.receiverId}: ${data.message}`;
+    return `getNotifications response.  received: ${data.message}`;
   }
 }

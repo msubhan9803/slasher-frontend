@@ -46,7 +46,8 @@ describe('Feed-Post / Post File (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
-    it('SuccessFully create feed posts', async () => {
+
+    it('successfully creates feed posts with a message and files', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-posts')
@@ -63,31 +64,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
     });
 
-    it('responds expected response when file is not jpg, jpeg or png', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/feed-posts')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString())
-          .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1])
-          .attach('files', tempPaths[2])
-          .attach('files', tempPaths[3]);
-        expect(response.body.message).toBe('Invalid file type');
-      }, [{ extension: 'zpng' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
-    });
-
-    it('responds expected response when file is not present in request', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/feed-posts')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .field('message', '');
-          expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
-    });
-
-    it('only allow a maximum of four images', async () => {
+    it('responds expected response when one or more uploads files user an unallowed extension', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-posts')
@@ -99,7 +76,60 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[1])
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
-          .attach('files', tempPaths[4]);
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('Invalid file type');
+      }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
+    });
+
+    it('allows the creation of a post with only a message, but no files', async () => {
+      const message = 'This is a test message';
+      const response = await request(app.getHttpServer())
+        .post('/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', message)
+        .field('userId', activeUser._id.toString())
+        .expect(HttpStatus.CREATED);
+      expect(response.body.message).toBe(message);
+    });
+
+    it('allows the creation of a post with only files, but no message', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .expect(HttpStatus.CREATED);
+        expect(response.body.images).toHaveLength(2);
+      }, [{ extension: 'png' }, { extension: 'jpg' }]);
+    });
+
+    it('responds expected response when neither message nor file are present in request', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '')
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+    });
+
+    it('only allows a maximum of four images', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-posts')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('userId', activeUser._id.toString())
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3])
+          .attach('files', tempPaths[4])
+          .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Only allow a maximum of 4 images');
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
     });
@@ -113,19 +143,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('message', 'hello test user')
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
       }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
-    });
-
-    it('check file exists or not in req body', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/feed-posts')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString());
-        expect(response.body.message).toBe('Please upload a file');
     });
 
     it('check message length validation', async () => {
@@ -137,7 +158,8 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('message', new Array(1002).join('z'))
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
-          .attach('files', tempPaths[1]);
+          .attach('files', tempPaths[1])
+          .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('message cannot be longer than 1000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
     });

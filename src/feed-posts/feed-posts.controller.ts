@@ -14,6 +14,7 @@ import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -40,7 +41,7 @@ export class FeedPostsController {
         return cb(null, true);
       },
       limits: {
-        fileSize: 20000000,
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
     }),
   )
@@ -52,12 +53,6 @@ export class FeedPostsController {
     if (!files.length && createOrUpdateFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!files.length) {
-      throw new HttpException(
-        'Please upload a file',
         HttpStatus.BAD_REQUEST,
       );
     }

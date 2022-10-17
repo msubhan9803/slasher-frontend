@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../../../src/constants';
 
 describe('Users / Upload Cover image (e2e)', () => {
   let app: INestApplication;
@@ -88,7 +89,7 @@ describe('Users / Upload Cover image (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected size is less than 20000000)');
+        expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
     });
   });

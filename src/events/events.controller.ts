@@ -18,6 +18,7 @@ import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 
 @Controller('events')
 export class EventsController {
@@ -44,7 +45,7 @@ export class EventsController {
         return cb(null, true);
       },
       limits: {
-        fileSize: 20000000, // size in bytes, 20MB
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE, // size in bytes, 20MB
       },
     }),
   )

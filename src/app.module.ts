@@ -16,6 +16,7 @@ import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 import { FriendsModule } from './friends/friends.module';
+import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { FriendsModule } from './friends/friends.module';
     EventCategoriesModule,
     FeedPostsModule,
     FriendsModule,
+    RssFeedProviderFollowsModule,
   ],
   controllers: [AppController],
   providers: [

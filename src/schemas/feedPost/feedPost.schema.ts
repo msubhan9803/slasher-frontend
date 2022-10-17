@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
+import { User } from '../user/user.schema';
 import { FeedPostDeletionState, FeedPostStatus } from './feedPost.enums';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
 
@@ -18,7 +20,7 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ default: null, ref: 'users', required: true })
+  @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })
@@ -46,6 +48,9 @@ export class FeedPost extends FeedPostUnusedFields {
     default: FeedPostDeletionState.NotDeleted,
   })
   is_deleted: FeedPostDeletionState;
+
+  @Prop({ default: null, ref: RssFeedProvider.name })
+  rssfeedProviderId: mongoose.Schema.Types.ObjectId;
 
   /***********
    * Methods *

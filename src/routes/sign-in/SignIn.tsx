@@ -47,7 +47,7 @@ function SignIn() {
 
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
-      setSignInCookies(res.data.token, res.data.id);
+      setSignInCookies(res.data.token, res.data.id, res.data.userName);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);

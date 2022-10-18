@@ -1,4 +1,5 @@
 import React from 'react';
+import { DateTime } from 'luxon';
 import { Col, Row } from 'react-bootstrap';
 import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
@@ -24,8 +25,10 @@ function PostHeader({
             </div>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
-            <h1 className="mb-0 h3">{userName}</h1>
-            <p className="mb-0 fs-6 text-light">{postDate}</p>
+            <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+            <p className="mb-0 fs-6 text-light">
+              {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
+            </p>
           </Col>
         </Row>
       </Col>

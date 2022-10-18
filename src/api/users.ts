@@ -91,13 +91,3 @@ export async function userProfileFriends(userId: string, count: number) {
   const queryParameter = `?limit=${limit}&offset=${count * limit}`;
   return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
 }
-
-export async function userProfileFriendsRequest(count: number) {
-  const token = Cookies.get('sessionToken');
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-  const limit = 18;
-  const queryParameter = `?limit=${limit}&offset=${count * limit}`;
-  return axios.get(`${apiUrl}/friends/requests/received${queryParameter}`, { headers });
-}

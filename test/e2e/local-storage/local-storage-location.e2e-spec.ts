@@ -2,23 +2,15 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
-import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../../src/app.module';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../src/local-storage/providers/local-storage.service';
-import { User } from '../../../src/schemas/user/user.schema';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
-  let usersService: UsersService;
-  let activeUserAuthToken: string;
-  let activeUser: User;
-  let configService: ConfigService;
   let localStorageService: LocalStorageService;
 
   beforeAll(async () => {
@@ -26,9 +18,6 @@ describe('Local-Storage / Get File (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
-
-    usersService = moduleRef.get<UsersService>(UsersService);
-    configService = moduleRef.get<ConfigService>(ConfigService);
     localStorageService = moduleRef.get<LocalStorageService>(LocalStorageService);
     app = moduleRef.createNestApplication();
     await app.init();
@@ -44,13 +33,7 @@ describe('Local-Storage / Get File (e2e)', () => {
   });
 
   describe('GET /local-storage/:location', () => {
-    beforeEach(async () => {
-      activeUser = await usersService.create(userFactory.build());
-      activeUserAuthToken = activeUser.generateNewJwtToken(
-        configService.get<string>('JWT_SECRET_KEY'),
-      );
-    });
-    it('responds with file if give file path exists', async () => {
+    it('does not require authentication, and responds with file if give file path exists', async () => {
       const fileExtension = 'jpg';
       const storedFileName = `${uuidv4()}.${fileExtension}`;
       const location = `/profile_test/profile_test_${storedFileName}`;
@@ -62,7 +45,6 @@ describe('Local-Storage / Get File (e2e)', () => {
 
       await request(app.getHttpServer())
         .get(`/local-storage${location}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
     });
@@ -72,7 +54,6 @@ describe('Local-Storage / Get File (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .get(`/local-storage/${storagePath}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
 

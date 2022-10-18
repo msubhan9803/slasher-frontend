@@ -1,9 +1,10 @@
 import {
-  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch,
+  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -14,6 +15,7 @@ import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
+import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -131,5 +133,27 @@ export class FeedPostsController {
       id: feedPostData.id,
       message: feedPostData.message,
     };
+  }
+
+  @Get()
+  async mainFeedPosts(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) mainFeedPostQueryDto: MainFeedPostQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    const feedPosts = await this.feedPostsService.findMainFeedPostsForUser(
+      user.id,
+      mainFeedPostQueryDto.limit,
+      mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
+    );
+    // Convert image relative paths to full paths
+    for (const feedPost of feedPosts) {
+      feedPost.images.forEach((imageData) => {
+        // eslint-disable-next-line no-param-reassign
+        imageData.image_path = relativeToFullImagePath(this.config, imageData.image_path);
+      });
+    }
+    return feedPosts;
   }
 }

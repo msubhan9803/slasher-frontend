@@ -41,7 +41,7 @@ describe('RssFeedProviderFollowsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    // await connection.dropDatabase();
+    await connection.dropDatabase();
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
@@ -65,15 +65,15 @@ describe('RssFeedProviderFollowsService', () => {
     let rssFeedProviderFollowData: RssFeedProviderFollowDocument;
     beforeEach(async () => {
       rssFeedProviderFollowData = await rssFeedProviderFollowsService.create(
-          {
-            userId: activeUser._id,
-            rssfeedProviderId: rssFeedProviderData._id,
-          }
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
       );
     });
 
     it('finds the expected rss feed provider follow details', async () => {
-      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollowData._id);      
+      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollowData._id);
       expect(rssFeedProviderFollowDetails.rssfeedProviderId).toEqual(rssFeedProviderFollowData.rssfeedProviderId);
       expect(rssFeedProviderFollowDetails.userId).toEqual(rssFeedProviderFollowData.userId);
     });
@@ -83,20 +83,20 @@ describe('RssFeedProviderFollowsService', () => {
     let rssFeedProviderFollowData: RssFeedProviderFollowDocument;
     beforeEach(async () => {
       rssFeedProviderFollowData = await rssFeedProviderFollowsService.create(
-          {
-            userId: activeUser._id,
-            rssfeedProviderId: rssFeedProviderData._id,
-          },
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
       );
     });
     it('finds the expected rss feed provider follow and update the details', async () => {
       const rssFeedProviderFollowJson = {
         rssfeedProviderId: rssFeedProviderData2._id,
       };
-      const updatedRssFeedProviderFollow = await rssFeedProviderFollowsService.update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);      
-      const reloadedRssFeedProviderFollow = await rssFeedProviderFollowsService.findById(updatedRssFeedProviderFollow._id.toString());      
+      const updatedRssFeedProviderFollow = await rssFeedProviderFollowsService
+      .update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);
+      const reloadedRssFeedProviderFollow = await rssFeedProviderFollowsService.findById(updatedRssFeedProviderFollow._id.toString());
       expect(reloadedRssFeedProviderFollow.rssfeedProviderId).toEqual(updatedRssFeedProviderFollow.rssfeedProviderId);
     });
   });
-
 });

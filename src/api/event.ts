@@ -21,8 +21,8 @@ export async function suggestEvent(
   event_info: string,
   url: string,
   file: File | undefined,
-  startDate: Date,
-  endDate: Date,
+  startDate: Date | null,
+  endDate: Date | null,
   address: string,
 ) {
   const token = Cookies.get('sessionToken');
@@ -40,8 +40,8 @@ export async function suggestEvent(
   formData.append('event_info', event_info);
   formData.append('url', url);
   formData.append('address', address);
-  formData.append('startDate', toUtcStartOfDay(startDate).toISOString());
-  formData.append('endDate', toUtcEndOfDay(endDate).toISOString());
+  formData.append('startDate', startDate ? toUtcStartOfDay(startDate).toISOString() : '');
+  formData.append('endDate', endDate ? toUtcEndOfDay(endDate).toISOString() : '');
   if (file) { formData.append('files', file); }
 
   return axios.post(

@@ -84,7 +84,7 @@ function EventSuggestion() {
       name, eventType, country, state, eventInfo, url, city, file, address,
     } = eventSuggestionFormValue;
 
-    suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate!, endDate!, address).then(() => {
+    suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
       setErrors([]);
     }).catch((error) => {
       setErrors(error.response.data.message);

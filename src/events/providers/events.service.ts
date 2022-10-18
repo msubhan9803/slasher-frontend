@@ -38,7 +38,6 @@ export class EventService {
       startDate: { $lt: endDate },
       endDate: { $gt: startDate },
     };
-
     if (activeOnly) {
       eventFindAllQuery.deleted = false;
       eventFindAllQuery.status = EventActiveStatus.Active;

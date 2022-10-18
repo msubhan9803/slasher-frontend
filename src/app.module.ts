@@ -61,6 +61,7 @@ export class AppModule {
       .apply(JwtAuthenticationMiddleware)
       .exclude(
         '/',
+        '/local-storage/(.*)', // the /local-storage endpoint is only used in development environments
         '/users/activate-account',
         '/users/check-user-name',
         '/users/forgot-password',

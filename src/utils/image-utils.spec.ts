@@ -26,12 +26,14 @@ describe('image-utils', () => {
     });
 
     describe('for local storage type', () => {
+      const apiUrl = 'http://example.com';
       const config: ConfigService = new ConfigService({
         FILE_STORAGE: 'local',
+        API_URL: apiUrl,
       });
 
       it('generates the expected path', () => {
-        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`/local-storage${relativeImagePath}`);
+        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${apiUrl}/local-storage${relativeImagePath}`);
       });
 
       it('generates the expected, unchanged path when given relativeImagePath is special noUser value', () => {

@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { NotificationsService } from '../src/notifications/providers/notifications.service';
+import { EventCategoriesService } from '../src/event-categories/providers/event-categories.service';
 import { ActiveStatus } from '../src/schemas/user/user.enums';
 import { User } from '../src/schemas/user/user.schema';
 import { UsersService } from '../src/users/providers/users.service';
@@ -42,25 +42,48 @@ async function createSampleUsers(app: INestApplication) {
   );
 }
 
-async function createSampleNotifications(app: INestApplication) {
-  const usersService = await app.get<UsersService>(UsersService);
-  const notificationsService = await app.get<NotificationsService>(
-    NotificationsService,
-  );
+async function createSampleEventCategories(app: INestApplication) {
+  const eventCategoriesService = await app.get<EventCategoriesService>(EventCategoriesService);
 
-  const users = await usersService.findAll(1, 2);
-
-  for (const user of users) {
-    await notificationsService.create({
-      userId: user._id,
-      notificationMsg: `This is a sample notification for ${user.userName}.`,
+  const categoriesToCreate = [
+    'Art Exhibits',
+    'Conventions',
+    'Event Calendar',
+    'Film Festival',
+    'Haunts',
+    'Live Music',
+    'Market',
+    'Party',
+    'Tours',
+    'Trivia / Game Night',
+  ];
+  for (const categoryName of categoriesToCreate) {
+    await eventCategoriesService.create({
+      event_name: categoryName,
     });
   }
 }
 
+// async function createSampleNotifications(app: INestApplication) {
+//   const usersService = await app.get<UsersService>(UsersService);
+//   const notificationsService = await app.get<NotificationsService>(
+//     NotificationsService,
+//   );
+
+//   const users = await usersService.findAll(1, 2);
+
+//   for (const user of users) {
+//     await notificationsService.create({
+//       userId: user._id,
+//       notificationMsg: `This is a sample notification for ${user.userName}.`,
+//     });
+//   }
+// }
+
 (async () => {
   const app = await createApp();
   await createSampleUsers(app);
-  await createSampleNotifications(app);
+  await createSampleEventCategories(app);
+  // await createSampleNotifications(app);
   app.close();
 })();

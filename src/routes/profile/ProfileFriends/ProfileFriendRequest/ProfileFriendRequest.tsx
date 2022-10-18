@@ -11,34 +11,42 @@ import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 
+interface FriendProps {
+  _id?: string;
+  id: string;
+  firstName?: string;
+  userName: string;
+  profilePic: string;
+}
+
 function ProfileFriendRequest() {
   const navigate = useNavigate();
   const params = useParams();
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [userData, setUserData] = useState<any>();
+  const [userData, setUserData] = useState<FriendProps>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendOffsetData, setFriendOffsetData] = useState<number>(0);
   const [noMoreFriendData, setMoreData] = useState<boolean>(false);
   const [friendReqOffsetData, setFriendReqOffsetData] = useState<number>(0);
   const [noMoreFriendReqData, setMoreReqData] = useState<boolean>(false);
-  const [friendsList, setFriendsList] = useState<any>([]);
-  const [friendsReqList, setFriendsReqList] = useState<any>([]);
+  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
+  const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const friendsTabs = [
     { value: 'all', label: 'All friends' },
-    { value: 'friend-request', label: 'Friend requests', badge: friendsReqList.length },
+    { value: 'friends-request', label: 'Friend requests', badge: friendsReqList.length },
   ];
   useEffect(() => {
-    navigate(`/${params.userName}/friends/${friendsTabs[0].value}?view=self`);
+    navigate(`/${params.userName}/friends/${params.id}?view=self`);
   }, []);
   const handlePopoverOption = (value: string) => {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
     } else {
-      navigate('/profile/friends/all?view=self');
+      navigate(`/${params.id}/friends/all?view=self`);
     }
   };
   useEffect(() => {
@@ -59,7 +67,7 @@ function ProfileFriendRequest() {
     if (userData && !noMoreFriendData) {
       userProfileFriends(userData.id, friendOffsetData)
         .then((res) => {
-          setFriendsList((prev: any) => [
+          setFriendsList((prev: FriendProps[]) => [
             ...prev,
             ...res.data,
           ]);
@@ -75,7 +83,7 @@ function ProfileFriendRequest() {
     if (!noMoreFriendReqData) {
       userProfileFriendsRequest(friendReqOffsetData)
         .then((res) => {
-          setFriendsReqList((prev: any) => [
+          setFriendsReqList((prev: FriendProps[]) => [
             ...prev,
             ...res.data,
           ]);
@@ -109,7 +117,7 @@ function ProfileFriendRequest() {
               <p className="fs-3 text-primary me-3 my-auto">310 friends</p>
             </div>
           )}
-          {params.id === 'friend-request' ? (
+          {params.id === 'friends-request' ? (
             <InfiniteScroll
               pageStart={0}
               initialLoad={false}
@@ -117,13 +125,14 @@ function ProfileFriendRequest() {
               hasMore
             >
               <Row className="mt-4">
-                {friendsReqList.map((friend: any) => (
+                {friendsReqList.map((friend: FriendProps) => (
                   /* eslint no-underscore-dangle: 0 */
                   <Col md={4} lg={6} xl={4} key={friend._id}>
                     <FriendsProfileCard
                       friend={friend}
                       popoverOption={popoverOption}
                       handlePopoverOption={handlePopoverOption}
+                      friendsType="requested"
                     />
                   </Col>
                 ))}
@@ -137,7 +146,7 @@ function ProfileFriendRequest() {
               hasMore
             >
               <Row className="mt-4">
-                {friendsList.map((friend: any) => (
+                {friendsList.map((friend: FriendProps) => (
                   /* eslint no-underscore-dangle: 0 */
                   <Col md={4} lg={6} xl={4} key={friend._id}>
                     <FriendsProfileCard

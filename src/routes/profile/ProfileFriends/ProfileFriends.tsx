@@ -10,9 +10,10 @@ import FriendsProfileCard from './FriendsProfileCard';
 import { userProfileFriends } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
-interface UserData {
+interface FriendProps {
+  _id?: string;
   id: string;
-  firstName: string;
+  firstName?: string;
   userName: string;
   profilePic: string;
 }
@@ -21,8 +22,8 @@ function ProfileFriends() {
   const navigate = useNavigate();
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [userData, setUserData] = useState<UserData>();
-  const [friendsList, setFriendsList] = useState<any>([]);
+  const [userData, setUserData] = useState<FriendProps>();
+  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [offset, setOffset] = useState<number>(0);

@@ -148,21 +148,21 @@ describe('EventService', () => {
 
   describe('#findAllByDate', () => {
     const activeEventData = [
-      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-17T11:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T11:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-17T23:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T23:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T23:59:59Z').toJSDate() },
     ];
     const inactiveEventData = [
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
     ];
     const deactivatedEventData = [
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T23:59:59Z').toJSDate() },
     ];
 
     const startDateForSearch = DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate();
-    const endDateForSearch = DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate();
+    const endDateForSearch = DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate();
     beforeEach(async () => {
       for (const eventDateRange of activeEventData) {
         await eventService.create(

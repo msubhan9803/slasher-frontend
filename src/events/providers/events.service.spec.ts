@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { EventService } from './events.service';
 import { EventDocument } from '../../schemas/event/event.schema';
@@ -146,59 +147,92 @@ describe('EventService', () => {
   });
 
   describe('#findAllByDate', () => {
-    let event: EventDocument;
+    const activeEventData = [
+      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-17T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T11:59:59Z').toJSDate() },
+      { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T11:59:59Z').toJSDate() },
+    ];
+    const inactiveEventData = [
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate() },
+    ];
+    const deactivatedEventData = [
+      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T11:59:59Z').toJSDate() },
+    ];
+
+    const startDateForSearch = DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate();
+    const endDateForSearch = DateTime.fromISO('2022-10-18T11:59:59Z').toJSDate();
     beforeEach(async () => {
-      event = await eventService.create(
-        eventsFactory.build(
-          {
-            userId: userData._id,
-            event_type: eventCategoryData._id,
-          },
-        ),
-      );
-      for (let index = 0; index < 5; index += 1) {
+      for (const eventDateRange of activeEventData) {
         await eventService.create(
           eventsFactory.build(
             {
               userId: userData._id,
               event_type: eventCategoryData._id,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Active,
             },
           ),
         );
+      }
+      for (const eventDateRange of inactiveEventData) {
         await eventService.create(
           eventsFactory.build(
             {
               userId: userData._id,
               event_type: eventCategoryData._id,
-              status: EventActiveStatus.Active,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Inactive,
+            },
+          ),
+        );
+      }
+      for (const eventDateRange of deactivatedEventData) {
+        await eventService.create(
+          eventsFactory.build(
+            {
+              userId: userData._id,
+              event_type: eventCategoryData._id,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Deactivated,
             },
           ),
         );
       }
     });
     it('finds all the expected event details', async () => {
-      const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, false);
-      for (let index = 1; index < eventList.length; index += 1) {
-        expect(eventList[index - 1].sortStartDate < eventList[index].sortStartDate).toBe(true);
-      }
-      expect(eventList).toHaveLength(10);
-    });
-
-    it('finds all the expected event details that has not deleted and active status', async () => {
-      const eventList = await eventService.findAllByDate(event.startDate, event.endDate, 10, true);
+      const eventList = await eventService.findAllByDate(startDateForSearch, endDateForSearch, 10, false);
       for (let index = 1; index < eventList.length; index += 1) {
         expect(eventList[index - 1].sortStartDate < eventList[index].sortStartDate).toBe(true);
       }
       expect(eventList).toHaveLength(5);
     });
 
+    it('finds all the expected event details that has not deleted and active status', async () => {
+      const eventList = await eventService.findAllByDate(startDateForSearch, endDateForSearch, 10, true);
+      for (let index = 1; index < eventList.length; index += 1) {
+        expect(eventList[index - 1].sortStartDate < eventList[index].sortStartDate).toBe(true);
+      }
+      expect(eventList).toHaveLength(3);
+    });
+
     describe('when `after` argument is supplied', () => {
       it('returns the first and second sets of paginated results', async () => {
-        const limit = 3;
-        const firstResults = await eventService.findAllByDate(event.startDate, event.endDate, limit, true);
-        const secondResults = await eventService.findAllByDate(event.startDate, event.endDate, limit, true, firstResults[limit - 1].id);
-        expect(firstResults).toHaveLength(3);
-        expect(secondResults).toHaveLength(2);
+        const limit = 2;
+        const firstResults = await eventService.findAllByDate(startDateForSearch, endDateForSearch, limit, true);
+        const secondResults = await eventService.findAllByDate(
+          startDateForSearch,
+          endDateForSearch,
+          limit,
+          true,
+          firstResults[limit - 1].id,
+        );
+        expect(firstResults).toHaveLength(2);
+        expect(secondResults).toHaveLength(1);
         // Last result in first set should have earlier sortStartDate value than first result of second set
         expect(firstResults[limit - 1].sortStartDate.localeCompare(secondResults[0].sortStartDate)).toBe(-1);
       });

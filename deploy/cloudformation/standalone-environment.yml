@@ -163,25 +163,21 @@ Resources:
             swapon /swapfile
             echo '/swapfile swap swap defaults 0 0' | tee -a /etc/fstab
 
-            ###################
-            # Install MongoDB #
-            ###################
+            ############################################
+            # Install MongoDB (or just MongoDB client) #
+            ############################################
+
+            # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
+            wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
+            # Add MongoDB apt repo
+            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+            # Update apt package list again to get MongoDB packages
+            apt-get update
 
             if [ ${InstallMongo} -eq 1 ]; then
-              # Add MongoDB 4.x gpg key (https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
-              wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
-              # Add MongoDB apt repo
-              echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
-              # Update apt package list again to get MongoDB packages
-              apt-get update
-              # Install MongoDB
+              # Install full MongoDB
               apt-get install -y mongodb-org=4.4.16 mongodb-org-server=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
-              # Prevent automatic MongoDB updates by pinning to current version
-              echo "mongodb-org hold" | dpkg --set-selections
-              echo "mongodb-org-server hold" | dpkg --set-selections
-              echo "mongodb-org-shell hold" | dpkg --set-selections
-              echo "mongodb-org-mongos hold" | dpkg --set-selections
-              echo "mongodb-org-tools hold" | dpkg --set-selections
+
               # Start MongoDB
               systemctl start mongod
               # Wait a little while for MongoDB to start
@@ -198,14 +194,28 @@ Resources:
               systemctl restart mongod
               # Make sure that MongoDB starts on reboot in the future
               systemctl enable mongod.service
+            else
+              # Omit mongodb-org-server, but install other client tools so we can establish connections via command line
+              apt-get install -y mongodb-org=4.4.16 mongodb-org-shell=4.4.16 mongodb-org-mongos=4.4.16 mongodb-org-tools=4.4.16
             fi
 
-            #################
-            # Install Redis #
-            #################
+            # Prevent automatic MongoDB updates by pinning to current version
+            echo "mongodb-org hold" | dpkg --set-selections
+            echo "mongodb-org-server hold" | dpkg --set-selections
+            echo "mongodb-org-shell hold" | dpkg --set-selections
+            echo "mongodb-org-mongos hold" | dpkg --set-selections
+            echo "mongodb-org-tools hold" | dpkg --set-selections
+
+            ########################################
+            # Install Redis (or just Redis client) #
+            ########################################
 
             if [ ${InstallRedis} -eq 1 ]; then
+              # Only install full Redis
               apt-get install -y redis
+            else
+              # Only install redis tools, so we can establish client connections via command line
+              apt-get install -y redis-tools
             fi
 
             #################
@@ -241,14 +251,14 @@ Resources:
             # Install system-wide Node 16 (latest) #
             ########################################
             curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - &&\
-            sudo apt-get install -y nodejs
+            apt-get install -y nodejs
 
             ##############################################################
             # Create deployment user service account for running the app #
             ##############################################################
 
             # Create user
-            sudo adduser --disabled-password --gecos "" ${DeploymentUserName}
+            adduser --disabled-password --gecos "" ${DeploymentUserName}
 
             # Import AWS parameter store /STANDALONE-WEBSERVER/deploy/slasherserv-public-key value
             # into deployment user's authorized keys.  This key is shared between all standalone
@@ -334,6 +344,10 @@ Resources:
               systemctl restart nginx
               sleep 5
             fi
+
+            # Install any other system upgrades and then reboot
+            apt-get -y upgrade
+            reboot
 
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup

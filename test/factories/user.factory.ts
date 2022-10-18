@@ -13,6 +13,7 @@ export const userFactory = Factory.define<Partial<User>, UserTransientParams>(
     });
 
     return new User({
+      betaTester: true, // This is temporary, but required during the beta release phase
       userName: `Username${sequence}`,
       firstName: `First name ${sequence}`,
       email: `User${sequence}@Example.com`,

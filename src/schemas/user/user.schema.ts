@@ -37,6 +37,11 @@ export class User extends UserUnusedFields {
 
   readonly _id: mongoose.Schema.Types.ObjectId;
 
+  // This is temporary, but required during the beta release phase.  It allows us to block sign-in
+  // on the new beta website until we release the site to the public.
+  @Prop({ default: false })
+  betaTester: boolean;
+
   @Prop()
   createdAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 

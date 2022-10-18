@@ -57,13 +57,6 @@ export class EventsController {
   ) {
     const user = getUserFromRequest(request);
 
-    if (!files.length) {
-      throw new HttpException(
-        'All events require a photo. Please add a photo for this event',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     if (files.length > 4) {
       throw new HttpException(
         'Only allow a maximum of 4 images',

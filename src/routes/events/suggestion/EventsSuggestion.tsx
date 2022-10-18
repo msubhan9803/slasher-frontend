@@ -16,7 +16,7 @@ import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { eventRegister, getEventCategoriesOption } from '../../../api/event';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import StateList from '../../../utils/StateList';
+import { stateOptions } from '../../../utils/location-utils';
 
 interface Option {
   event_name: string;
@@ -77,7 +77,7 @@ function EventSuggestion() {
     getEventCategoriesOption().then((res) => {
       setOptionLoading(false);
       setOptions(res.data);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
   const onSendEventData = () => {
     const {
@@ -126,7 +126,7 @@ function EventSuggestion() {
             <Form.Select aria-label="Event Category" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'eventType')}>
               <option value="" disabled>Event Category</option>
               {optionLoading ? <option value="" disabled>Loading event categories…</option>
-                : options.map((option : Option) => (
+                : options.map((option: Option) => (
                   /* eslint no-underscore-dangle: 0 */
                   <option key={option._id} value={option._id}>{option.event_name}</option>
                 ))}
@@ -174,7 +174,7 @@ function EventSuggestion() {
           <Col md={6} className="mt-3">
             <Form.Select aria-label="State/Province" defaultValue="" className="fs-4" onChange={(e: ChangeEvent<HTMLSelectElement>) => handleChange(e.target.value, 'state')}>
               <option value="" disabled>State/Province</option>
-              {StateList.map((state) => (
+              {stateOptions.map((state) => (
                 <option key={state.value} value={state.value}>{state.name}</option>
               ))}
             </Form.Select>

@@ -1,4 +1,5 @@
-const StateList = [
+/* eslint-disable import/prefer-default-export */
+export const stateOptions = [
   { name: 'Alabama', value: 'AL' },
   { name: 'Alaska', value: 'AK' },
   { name: 'Arizona', value: 'AZ' },
@@ -56,4 +57,3 @@ const StateList = [
   { name: 'Wisconsin', value: 'WI' },
   { name: 'Wyoming', value: 'WY' },
 ];
-export default StateList;

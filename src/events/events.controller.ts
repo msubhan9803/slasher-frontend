@@ -58,7 +58,7 @@ export class EventsController {
 
     if (!files.length) {
       throw new HttpException(
-        'All events require a photo. Please add a photo for this event.',
+        'All events require a photo. Please add a photo for this event',
         HttpStatus.BAD_REQUEST,
       );
     }

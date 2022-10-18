@@ -16,7 +16,7 @@ export async function performSignIn(page: Page) {
   });
 
   await page.goto('/sign-in');
-  await page.locator('input[name="emailOrUsername"]').fill('test@gmail.com');
+  await page.locator('input[name="emailOrUsername"]').fill('sample1@example.com');
   await page.locator('input[name="password"]').fill('test@123');
   await page.locator('#sign-in-button >> text=Sign in').click();
 }

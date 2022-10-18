@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -20,9 +20,12 @@ interface PostProps {
   content: string;
   hashTag?: string[];
   likeIcon: boolean;
-  postUrl?: string;
+  postUrl?: any;
   profileImage: string;
   comment?: any;
+  commentCount?: number;
+  likeCount?: number;
+  sharedList?: number;
 }
 interface Props {
   popoverOptions: string[],
@@ -63,6 +66,10 @@ function PostFeed({
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
 
+  useEffect(() => {
+    setPostData(postFeedData);
+  }, [postFeedData]);
+
   const openDialogue = (click: string) => {
     setOpenLikeShareModal(true);
     setButtonClck(click);
@@ -101,25 +108,25 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.postUrl && (
+              {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl} className="w-100" />
+                  <PostImage src={post?.postUrl[0].image_path} className="w-100" />
                 </div>
               )}
               <Row className="pt-3 px-md-3">
                 <Col>
                   <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-3">12K</span>
+                    <span className="fs-3">{post.likeCount}</span>
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                  <span className="fs-3">10</span>
+                  <span className="fs-3">{post.commentCount}</span>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                  <span className="fs-3">25</span>
+                  <span className="fs-3">{post.sharedList}</span>
                 </Col>
                 <svg width="0" height="0">
                   <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">

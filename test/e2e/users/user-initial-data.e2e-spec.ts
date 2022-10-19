@@ -22,6 +22,7 @@ describe('Users suggested friends (e2e)', () => {
   let configService: ConfigService;
   let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
+  let receivedFriendRequestsData;
   let friends;
 
   beforeAll(async () => {
@@ -63,12 +64,8 @@ describe('Users suggested friends (e2e)', () => {
             reaction: FriendRequestReaction.Pending,
           });
         }
-        friends = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 3);
-        friends.map((friend) => {
-          // eslint-disable-next-line no-param-reassign
-          delete friend._id;
-          return friend;
-        });
+        receivedFriendRequestsData = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 3);
+        friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
       });
       it('returns the expected user initial data', async () => {
         const response = await request(app.getHttpServer())

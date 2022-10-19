@@ -299,12 +299,8 @@ export class UsersController {
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
-    const friends = await this.friendsService.getReceivedFriendRequests(user._id, 3);
-    friends.map((friend) => {
-      // eslint-disable-next-line no-param-reassign
-      delete friend._id;
-      return friend;
-    });
+    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
+    const friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
     return {
       userName: user.userName,
       notificationCount: 6,
@@ -328,7 +324,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: friends
+      friendRequests: friends,
     };
   }
 

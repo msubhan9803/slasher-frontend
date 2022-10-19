@@ -13,6 +13,7 @@ import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
+import { setSignInCookies } from '../../utils/session-utils';
 
 interface UserCredentials {
   emailOrUsername: string;
@@ -46,8 +47,7 @@ function SignIn() {
 
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
-      Cookies.set('sessionToken', res.data.token);
-      Cookies.set('userId', res.data.id);
+      setSignInCookies(res.data.token, res.data.id, res.data.userName);
       navigate('/home');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);

@@ -3,6 +3,7 @@ import {
   Navbar, Container, Nav, Image, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import Cookies from 'js-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
@@ -60,7 +61,7 @@ function AuthenticatedPageHeader(
 
   const handleNavigate = (selectedOption: string) => {
     if (selectedOption === 'My profile') {
-      navigate('/profile');
+      navigate(`/${Cookies.get('userName')}`);
     }
     if (selectedOption === 'Settings') {
       navigate('/account/settings');

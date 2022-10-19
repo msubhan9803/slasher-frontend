@@ -113,7 +113,7 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.postUrl && (
+              {post?.postUrl?.[0] && (
                 <div className="mt-3">
                   <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post)} />
                 </div>

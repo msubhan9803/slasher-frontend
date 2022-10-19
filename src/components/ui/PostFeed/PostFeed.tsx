@@ -4,11 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import linkifyHtml from 'linkify-html';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
+import 'linkify-plugin-mention';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -41,8 +44,12 @@ const LinearIcon = styled.div<LinearIconProps>`
 const PostImage = styled(Image)`
   acpect-ratio: 1.9;
 `;
-const Content = styled.span`
+const Content = styled.div`
   white-space: pre-line;
+  a {
+    text-decoration : none;
+    color: var(--bs-primary);
+  }
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
@@ -62,6 +69,7 @@ const StyledPostFeed = styled.div`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick,
 }: Props) {
+  const navigate = useNavigate();
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -84,6 +92,9 @@ function PostFeed({
     setPostData(likeData);
   };
 
+  const handleDetailPage = (post: PostProps) => {
+    navigate(`/${post.userName}/posts/${post.id}`, { state: { post } });
+  };
   return (
     <StyledPostFeed>
       {postData.map((post: PostProps) => (
@@ -100,7 +111,7 @@ function PostFeed({
             </Card.Header>
             <Card.Body className="px-0 pt-3">
               <div>
-                <Content className="mb-0 fs-4 me-1">{post.content}</Content>
+                <Content dangerouslySetInnerHTML={{ __html: linkifyHtml(post.content) }} />
                 {post.hashTag?.map((hashtag: string) => (
                   <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
                     #
@@ -110,7 +121,7 @@ function PostFeed({
               </div>
               {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl[0].image_path} className="w-100" />
+                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post)} />
                 </div>
               )}
               <Row className="pt-3 px-md-3">

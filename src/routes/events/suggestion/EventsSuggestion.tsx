@@ -14,7 +14,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import RoundButton from '../../../components/ui/RoundButton';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
-import { eventRegister, getEventCategoriesOption } from '../../../api/event';
+import { suggestEvent, getEventCategoriesOption } from '../../../api/event';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { stateOptions } from '../../../utils/location-utils';
 
@@ -84,7 +84,7 @@ function EventSuggestion() {
       name, eventType, country, state, eventInfo, url, city, file, address,
     } = eventSuggestionFormValue;
 
-    eventRegister(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
+    suggestEvent(name, userId || '', eventType, country, state, city, eventInfo, url || '', file, startDate, endDate, address).then(() => {
       setErrors([]);
     }).catch((error) => {
       setErrors(error.response.data.message);
@@ -186,7 +186,7 @@ function EventSuggestion() {
             </Form.Select>
           </Col>
         </Row>
-        {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
+        {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="mt-4" />}
         <Row className="my-4 pe-md-5">
           <Col md={5}>
             <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg" onClick={() => onSendEventData()}>Send</RoundButton>

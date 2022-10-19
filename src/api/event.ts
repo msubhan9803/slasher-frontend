@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { DateTime } from 'luxon';
+import { toUtcStartOfDay, toUtcEndOfDay } from '../utils/date-utils';
 import { apiUrl } from './constants';
 
 export async function getEventCategoriesOption() {
@@ -11,7 +11,7 @@ export async function getEventCategoriesOption() {
   return axios.get(`${apiUrl}/event-categories`, { headers });
 }
 
-export async function eventRegister(
+export async function suggestEvent(
   name: string,
   userId: string,
   event_type: string,
@@ -22,7 +22,7 @@ export async function eventRegister(
   url: string,
   file: File | undefined,
   startDate: Date | null,
-  endDate : Date | null,
+  endDate: Date | null,
   address: string,
 ) {
   const token = Cookies.get('sessionToken');
@@ -40,9 +40,9 @@ export async function eventRegister(
   formData.append('event_info', event_info);
   formData.append('url', url);
   formData.append('address', address);
+  formData.append('startDate', startDate ? toUtcStartOfDay(startDate).toISOString() : '');
+  formData.append('endDate', endDate ? toUtcEndOfDay(endDate).toISOString() : '');
   if (file) { formData.append('files', file); }
-  if (startDate) { formData.append('startDate', DateTime.fromJSDate(startDate).toFormat('yyyy-MM-dd')); }
-  if (endDate) { formData.append('endDate', DateTime.fromJSDate(endDate).toFormat('yyyy-MM-dd')); }
 
   return axios.post(
     `${apiUrl}/events`,

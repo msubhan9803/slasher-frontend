@@ -16,6 +16,7 @@ import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 import { FriendsModule } from './friends/friends.module';
+import { UserSettingModule } from './settings/user-settings.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { FriendsModule } from './friends/friends.module';
     EventCategoriesModule,
     FeedPostsModule,
     FriendsModule,
+    UserSettingModule
   ],
   controllers: [AppController],
   providers: [

@@ -129,6 +129,7 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .find({ $or: rssFeedProviderFollowQuery })
+      .populate('userId', 'userName _id profilePic firstName')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

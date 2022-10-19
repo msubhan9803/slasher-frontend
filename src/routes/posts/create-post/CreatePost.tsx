@@ -7,6 +7,8 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -42,6 +44,8 @@ function CreatePost() {
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
 
+  const navigate = useNavigate();
+
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
       return;
@@ -75,7 +79,7 @@ function CreatePost() {
     }
   };
 
-  const matchFunc = (match: string) => {
+  const mentionReplacementMatchFunc = (match: string) => {
     if (match) {
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
@@ -87,10 +91,13 @@ function CreatePost() {
 
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
-    const found = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, matchFunc));
-    if (found) {
-      createPost(found, imageArray)
-        .then(() => setErrorMessage([]))
+    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    if (postContentWithMentionReplacements) {
+      createPost(postContentWithMentionReplacements, imageArray)
+        .then(() => {
+          setErrorMessage([]);
+          navigate(`/${Cookies.get('userName')}/posts`);
+        })
         .catch((error) => {
           setErrorMessage(error.response.data.message);
         });

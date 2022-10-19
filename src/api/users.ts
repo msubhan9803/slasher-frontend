@@ -85,7 +85,7 @@ export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
   };
   let queryParameter = '?limit=10';
   if (lastRetrievedPostId) {
-    queryParameter += `&earlierThanPostId=${lastRetrievedPostId}`;
+    queryParameter += `&before=${lastRetrievedPostId}`;
   }
   return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
 }

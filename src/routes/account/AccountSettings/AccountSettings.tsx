@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
+import { clearSignInCookies } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 
-const LogoutButton = styled(RoundButton)`
+const SignOutButton = styled(RoundButton)`
   display: inline-block;
   white-space: nowrap;
   border: 1px solid #3A3B46;
@@ -13,14 +15,20 @@ const LogoutButton = styled(RoundButton)`
   }
 `;
 function AccountSettings() {
+  const navigate = useNavigate();
+  const handleSignOut = () => {
+    clearSignInCookies();
+    navigate('/');
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <AccountHeader tabKey="settings" />
       <div className="mt-4">
         <p className="fs-5">Select one of the options above.</p>
-        <LogoutButton className="bg-black fs-3 mt-3 px-5 text-center shadow-none text-white px-2">
-          Logout
-        </LogoutButton>
+        <SignOutButton onClick={handleSignOut} className="bg-black fs-3 mt-3 px-5 text-center shadow-none text-white px-2">
+          Sign Out
+        </SignOutButton>
       </div>
     </AuthenticatedPageWrapper>
   );

@@ -16,7 +16,7 @@ test.describe(pagePath, () => {
     });
 
     test('should display the expected content', async ({ page }) => {
-      await expect(page.locator('main')).toHaveText(/1 Main St, New York, NY USA/);
+      await expect(page.locator('main')).toHaveText(/Suggest event/);
     });
   });
 });

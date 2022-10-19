@@ -89,3 +89,13 @@ export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
   }
   return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
 }
+
+export async function userProfileFriends(userId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 18;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
+}

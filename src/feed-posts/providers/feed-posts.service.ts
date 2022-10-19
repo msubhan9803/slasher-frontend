@@ -42,6 +42,7 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .find({ $and: feedPostQuery })
+      .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -129,7 +130,7 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .find({ $or: rssFeedProviderFollowQuery })
-      .populate('userId', 'userName _id profilePic firstName')
+      .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

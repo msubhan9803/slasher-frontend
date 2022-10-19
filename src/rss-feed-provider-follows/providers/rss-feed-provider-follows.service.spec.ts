@@ -1,0 +1,102 @@
+import { INestApplication } from '@nestjs/common';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { Test } from '@nestjs/testing';
+import { Connection } from 'mongoose';
+import { AppModule } from '../../app.module';
+import { userFactory } from '../../../test/factories/user.factory';
+import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
+import { RssFeedProviderFollowsService } from './rss-feed-provider-follows.service';
+import { UsersService } from '../../users/providers/users.service';
+import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-feed-providers.service';
+import { User } from '../../schemas/user/user.schema';
+import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedProviderFollowDocument } from '../../schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
+
+describe('RssFeedProviderFollowsService', () => {
+  let app: INestApplication;
+  let connection: Connection;
+  let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
+  let usersService: UsersService;
+  let rssFeedProvidersService: RssFeedProvidersService;
+  let activeUser: User;
+  let rssFeedProviderData: RssFeedProvider;
+  let rssFeedProviderData2: RssFeedProvider;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    connection = await moduleRef.get<Connection>(getConnectionToken());
+    rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    // Drop database so we start fresh before each test
+    await connection.dropDatabase();
+    activeUser = await usersService.create(userFactory.build());
+    rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+    rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+  });
+
+  it('should be defined', () => {
+    expect(rssFeedProviderFollowsService).toBeDefined();
+  });
+
+  describe('#create', () => {
+    it('successfully creates a rss feed provider follows', async () => {
+      const rssFeedProviderFollows = await rssFeedProviderFollowsService.create({
+        userId: activeUser._id,
+        rssfeedProviderId: rssFeedProviderData._id,
+      });
+      expect(await rssFeedProviderFollowsService.findById(rssFeedProviderFollows._id)).toBeTruthy();
+    });
+  });
+
+  describe('#findById', () => {
+    let rssFeedProviderFollowData: RssFeedProviderFollowDocument;
+    beforeEach(async () => {
+      rssFeedProviderFollowData = await rssFeedProviderFollowsService.create(
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
+      );
+    });
+
+    it('finds the expected rss feed provider follow details', async () => {
+      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollowData._id);
+      expect(rssFeedProviderFollowDetails.rssfeedProviderId).toEqual(rssFeedProviderFollowData.rssfeedProviderId);
+      expect(rssFeedProviderFollowDetails.userId).toEqual(rssFeedProviderFollowData.userId);
+    });
+  });
+
+  describe('#update', () => {
+    let rssFeedProviderFollowData: RssFeedProviderFollowDocument;
+    beforeEach(async () => {
+      rssFeedProviderFollowData = await rssFeedProviderFollowsService.create(
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
+      );
+    });
+    it('finds the expected rss feed provider follow and update the details', async () => {
+      const rssFeedProviderFollowJson = {
+        rssfeedProviderId: rssFeedProviderData2._id,
+      };
+      const updatedRssFeedProviderFollow = await rssFeedProviderFollowsService
+      .update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);
+      const reloadedRssFeedProviderFollow = await rssFeedProviderFollowsService.findById(updatedRssFeedProviderFollow._id.toString());
+      expect(reloadedRssFeedProviderFollow.rssfeedProviderId).toEqual(updatedRssFeedProviderFollow.rssfeedProviderId);
+    });
+  });
+});

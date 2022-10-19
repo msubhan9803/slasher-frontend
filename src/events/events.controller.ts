@@ -19,6 +19,7 @@ import { ValidateAllEventDto } from './dto/validate-all-event.dto';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 
 @Controller('events')
 export class EventsController {
@@ -55,13 +56,6 @@ export class EventsController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const user = getUserFromRequest(request);
-
-    if (!files.length) {
-      throw new HttpException(
-        'All events require a photo. Please add a photo for this event',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
 
     if (files.length > 4) {
       throw new HttpException(
@@ -155,7 +149,7 @@ export class EventsController {
   }
 
   @Get()
-  async getAllEvent(
+  async getEventsByDateRange(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: ValidateAllEventDto,
   ) {
@@ -176,5 +170,29 @@ export class EventsController {
       });
     }
     return eventData;
+  }
+
+  @Get('by-date-range/counts')
+  async getEventCountsByDateRange(
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: ValidateAllEventCountsDto,
+  ) {
+    // To prevent abuse, make sure that startDate and endDate aren't more than a certain number of
+    // days apart (so someone can't look up an entire year worth of events).
+    const daysInMilliseconds = 45 * 86400000;
+    if (query.endDate.getTime() - query.startDate.getTime() > daysInMilliseconds) {
+      throw new HttpException(
+        'Dates are too far apart.  Cannot return results.  Please try again with dates that are closer together.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const eventCounts = await this.eventService.findCountsByDate(
+      query.startDate,
+      query.endDate,
+      true,
+    );
+
+    return eventCounts;
   }
 }

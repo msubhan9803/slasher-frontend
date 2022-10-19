@@ -11,6 +11,7 @@ async function createSampleUsers(app: INestApplication) {
   const usersToCreate = [
     {
       data: {
+        betaTester: true,
         userName: 'SampleUser1',
         firstName: 'Sample1',
         email: 'sample1@example.com',
@@ -22,6 +23,7 @@ async function createSampleUsers(app: INestApplication) {
     },
     {
       data: {
+        betaTester: true,
         userName: 'SampleUser2',
         firstName: 'Sample2',
         email: 'sample2@example.com',

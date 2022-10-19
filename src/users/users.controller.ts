@@ -75,6 +75,11 @@ export class UsersController {
       );
     }
 
+    // This is temporary, but required during the beta release phase
+    if (!user.betaTester) {
+      throw new HttpException('Only beta testers are able to sign in at this time, sorry!', HttpStatus.UNAUTHORIZED);
+    }
+
     if (user.userSuspended) {
       throw new HttpException('User suspended.', HttpStatus.UNAUTHORIZED);
     }

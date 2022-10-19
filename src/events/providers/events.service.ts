@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event, EventDocument } from '../../schemas/event/event.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
+import { toUtcStartOfDay } from '../../utils/date-utils';
 
 @Injectable()
 export class EventService {
@@ -52,5 +53,45 @@ export class EventService {
       .sort({ sortStartDate: 1 })
       .limit(limit)
       .exec();
+  }
+
+  async findCountsByDate(
+    startDate: Date,
+    endDate: Date,
+    activeOnly: boolean,
+  ): Promise<Partial<EventDocument>[]> {
+    // TODO: Determine if there's a more efficient way to do all of the logic below in a single MongoDB query.
+    // This works for now though, since we don't have too many events per month and are generally only
+    // searching month by month.
+
+    const dateRangeFilter: any = {
+      startDate: { $lt: endDate },
+      endDate: { $gt: startDate },
+    };
+    if (activeOnly) {
+      dateRangeFilter.deleted = false;
+      dateRangeFilter.status = EventActiveStatus.Active;
+    }
+
+    const events = await this.eventModel.find(dateRangeFilter).select(['id', 'startDate', 'endDate']).exec();
+    if (events.length === 0) {
+      return [];
+    }
+
+    // Generate array of all days within interval
+    const daysToEventCounts = [];
+    let lastDate = toUtcStartOfDay(startDate);
+    while (lastDate <= endDate) {
+      const date = new Date(lastDate);
+      const nextDayDate = new Date(date.getTime() + 86400000);
+      // Count events that overlap this this day
+      const count = events.filter(
+        (event) => (event.startDate < nextDayDate && event.endDate > date),
+      ).length;
+      daysToEventCounts.push({ date, count });
+      lastDate = nextDayDate;
+    }
+
+    return daysToEventCounts;
   }
 }

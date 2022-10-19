@@ -716,28 +716,6 @@ describe('Events create / (e2e)', () => {
         }, [{ extension: 'png', size: 1024 * 1024 * 21 }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
       });
 
-      it('if no files are sent then it will give expected response', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/events')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .field('name', postBody.name)
-          .field('userId', postBody.userId)
-          .field('event_type', postBody.event_type)
-          .field('startDate', postBody.startDate)
-          .field('endDate', postBody.endDate)
-          .field('country', postBody.country)
-          .field('state', postBody.state)
-          .field('city', postBody.city)
-          .field('address', postBody.address)
-          .field('event_info', postBody.event_info)
-          .field('url', postBody.url)
-          .field('author', postBody.author)
-          .expect(HttpStatus.BAD_REQUEST);
-
-        expect(response.body.message).toContain('All events require a photo. Please add a photo for this event');
-      });
-
       it('if files more than 4 then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())

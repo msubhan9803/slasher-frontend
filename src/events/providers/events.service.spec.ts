@@ -24,6 +24,20 @@ describe('EventService', () => {
   let userData: Partial<UserDocument>;
   let eventCategoryData: Partial<EventCategoryDocument>;
 
+  const activeEventData = [
+    { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-17T23:59:59Z').toJSDate() },
+    { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
+    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
+    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T23:59:59Z').toJSDate() },
+    { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T23:59:59Z').toJSDate() },
+  ];
+  const inactiveEventData = [
+    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
+  ];
+  const deactivatedEventData = [
+    { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T23:59:59Z').toJSDate() },
+  ];
+
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -147,20 +161,6 @@ describe('EventService', () => {
   });
 
   describe('#findAllByDate', () => {
-    const activeEventData = [
-      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-17T23:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-20T23:59:59Z').toJSDate() },
-      { start: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-21T23:59:59Z').toJSDate() },
-    ];
-    const inactiveEventData = [
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate() },
-    ];
-    const deactivatedEventData = [
-      { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T23:59:59Z').toJSDate() },
-    ];
-
     const startDateForSearch = DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate();
     const endDateForSearch = DateTime.fromISO('2022-10-18T23:59:59Z').toJSDate();
     beforeEach(async () => {
@@ -236,6 +236,118 @@ describe('EventService', () => {
         // Last result in first set should have earlier sortStartDate value than first result of second set
         expect(firstResults[limit - 1].sortStartDate.localeCompare(secondResults[0].sortStartDate)).toBe(-1);
       });
+    });
+  });
+
+  describe('#findCountsByDate', () => {
+    const startDateForSearch = DateTime.fromISO('2022-10-16T00:00:00Z').toJSDate();
+    const endDateForSearch = DateTime.fromISO('2022-10-22T23:59:59Z').toJSDate();
+    beforeEach(async () => {
+      for (const eventDateRange of activeEventData) {
+        await eventService.create(
+          eventsFactory.build(
+            {
+              userId: userData._id,
+              event_type: eventCategoryData._id,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Active,
+            },
+          ),
+        );
+      }
+      for (const eventDateRange of inactiveEventData) {
+        await eventService.create(
+          eventsFactory.build(
+            {
+              userId: userData._id,
+              event_type: eventCategoryData._id,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Inactive,
+            },
+          ),
+        );
+      }
+      for (const eventDateRange of deactivatedEventData) {
+        await eventService.create(
+          eventsFactory.build(
+            {
+              userId: userData._id,
+              event_type: eventCategoryData._id,
+              startDate: eventDateRange.start,
+              endDate: eventDateRange.end,
+              status: EventActiveStatus.Deactivated,
+            },
+          ),
+        );
+      }
+    });
+    it('returns the expected counts for active events', async () => {
+      const countResults = await eventService.findCountsByDate(startDateForSearch, endDateForSearch, true);
+      expect(countResults).toEqual([
+        {
+          date: new Date('2022-10-16T00:00:00.000Z'),
+          count: 0,
+        },
+        {
+          date: new Date('2022-10-17T00:00:00.000Z'),
+          count: 2,
+        },
+        {
+          date: new Date('2022-10-18T00:00:00.000Z'),
+          count: 3,
+        },
+        {
+          date: new Date('2022-10-19T00:00:00.000Z'),
+          count: 2,
+        },
+        {
+          date: new Date('2022-10-20T00:00:00.000Z'),
+          count: 2,
+        },
+        {
+          date: new Date('2022-10-21T00:00:00.000Z'),
+          count: 1,
+        },
+        {
+          date: new Date('2022-10-22T00:00:00.000Z'),
+          count: 0,
+        },
+      ]);
+    });
+    it('returns the expected counts for active and inactive events', async () => {
+      const countResults = await eventService.findCountsByDate(startDateForSearch, endDateForSearch, false);
+      expect(countResults).toEqual([
+        {
+          date: new Date('2022-10-16T00:00:00.000Z'),
+          count: 0,
+        },
+        {
+          date: new Date('2022-10-17T00:00:00.000Z'),
+          count: 2,
+        },
+        {
+          date: new Date('2022-10-18T00:00:00.000Z'),
+          count: 5,
+        },
+        {
+          date: new Date('2022-10-19T00:00:00.000Z'),
+          count: 3,
+        },
+        {
+          date: new Date('2022-10-20T00:00:00.000Z'),
+          count: 2,
+        },
+        {
+          date: new Date('2022-10-21T00:00:00.000Z'),
+          count: 1,
+        },
+        {
+          date: new Date('2022-10-22T00:00:00.000Z'),
+          count: 0,
+        },
+      ]);
     });
   });
 });

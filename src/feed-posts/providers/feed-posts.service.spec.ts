@@ -1,22 +1,35 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
+import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
 import { UsersService } from '../../users/providers/users.service';
+import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-feed-providers.service';
+import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { User } from '../../schemas/user/user.schema';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
+import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
+import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let feedPostsService: FeedPostsService;
   let usersService: UsersService;
+  let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
+  let rssFeedProvidersService: RssFeedProvidersService;
   let activeUser: User;
+  let user1: User;
+  let user2: User;
+  let rssFeedProviderData: RssFeedProvider;
+  let rssFeedProviderData2: RssFeedProvider;
+  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -25,6 +38,9 @@ describe('FeedPostsService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -38,6 +54,32 @@ describe('FeedPostsService', () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
     activeUser = await usersService.create(userFactory.build());
+    user1 = await usersService.create(userFactory.build());
+    user2 = await usersService.create(userFactory.build());
+    rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+    rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+    await friendsModel.create({
+      from: activeUser._id.toString(),
+      to: user1._id.toString(),
+      reaction: FriendRequestReaction.Accepted,
+    });
+    await friendsModel.create({
+      from: user2._id.toString(),
+      to: activeUser._id.toString(),
+      reaction: FriendRequestReaction.Accepted,
+    });
+    await rssFeedProviderFollowsService.create(
+      {
+        userId: activeUser._id,
+        rssfeedProviderId: rssFeedProviderData._id,
+      },
+    );
+    await rssFeedProviderFollowsService.create(
+      {
+        userId: activeUser._id,
+        rssfeedProviderId: rssFeedProviderData2._id,
+      },
+    );
   });
 
   it('should be defined', () => {
@@ -177,6 +219,46 @@ describe('FeedPostsService', () => {
       const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id, false);
       expect(reloadedFindPost.message).toEqual(updatedFindPost.message);
       expect(reloadedFindPost.images).toEqual(updatedFindPost.images);
+    });
+  });
+
+  describe('#findMainFeedPostsForUser', () => {
+    beforeEach(async () => {
+      for (let i = 0; i < 5; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser._id,
+            rssfeedProviderId: rssFeedProviderData._id,
+          }),
+        );
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1._id,
+            rssfeedProviderId: rssFeedProviderData2._id,
+            is_deleted: FeedPostDeletionState.Deleted,
+            status: FeedPostStatus.Inactive,
+          }),
+        );
+      }
+    });
+
+    it('finds the expected feed posts for user', async () => {
+      const feedPost = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 2);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 6;
+      const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
+      for (let index = 1; index < firstResults.length; index += 1) {
+        expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
+      }
+      const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[1]._id);
+      for (let index = 1; index < secondResults.length; index += 1) {
+        expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
+      }
     });
   });
 });

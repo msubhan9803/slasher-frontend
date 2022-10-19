@@ -61,3 +61,23 @@ export async function userInitialData() {
   };
   return axios.get(`${apiUrl}/users/initial-data`, { headers });
 }
+
+export async function userProfilePost(userName: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/${userName}`, { headers });
+}
+
+export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = '?limit=10';
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
+}

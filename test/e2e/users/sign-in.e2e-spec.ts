@@ -83,6 +83,33 @@ describe('Users sign-in (e2e)', () => {
       });
     });
 
+    // This is temporary, but required during the beta release phase
+    describe('A user who is not a beta tester', () => {
+      it('receives an error message when attempting to sign in', async () => {
+        const nonBetaUserUnhashedPassword = 'TestPassword';
+        const nonBetaUser = await usersService.create(
+          userFactory.build(
+            { betaTester: false },
+            { transient: { unhashedPassword: nonBetaUserUnhashedPassword } },
+          ),
+        );
+
+        const postBody: UserSignInDto = {
+          emailOrUsername: nonBetaUser.userName,
+          password: nonBetaUserUnhashedPassword,
+          ...deviceAndAppVersionPlaceholderSignInFields,
+        };
+        return request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send(postBody)
+          .expect(HttpStatus.UNAUTHORIZED)
+          .expect({
+            statusCode: 401,
+            message: 'Only beta testers are able to sign in at this time, sorry!',
+          });
+      });
+    });
+
     describe('An inactive user', () => {
       it('receives an error message when attempting to sign in', async () => {
         const inactiveUserUnhashedPassword = 'TestPassword';

@@ -26,7 +26,7 @@ function ProfileFriends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [offset, setOffset] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
   const [noMoreData, setMoreData] = useState<boolean>(false);
 
   const popoverOption = ['View profile', 'Report', 'Block user'];
@@ -41,21 +41,21 @@ function ProfileFriends() {
 
   useEffect(() => {
     if (userData) {
-      userProfileFriends(userData.id, offset)
-        .then((res) => { setFriendsList(res.data); setOffset(offset + 1); })
+      userProfileFriends(userData.id, page)
+        .then((res) => { setFriendsList(res.data); setPage(page + 1); })
         .catch((error) => setErrorMessage(error.response.data.message));
     }
   }, [userData]);
 
   const fetchMoreFriendList = () => {
     if (userData && !noMoreData) {
-      userProfileFriends(userData.id, offset)
+      userProfileFriends(userData.id, page)
         .then((res) => {
           setFriendsList((prev: any) => [
             ...prev,
             ...res.data,
           ]);
-          setOffset(offset + 1);
+          setPage(page + 1);
           if (res.data.length === 0) {
             setMoreData(true);
           }

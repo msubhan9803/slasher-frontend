@@ -27,9 +27,9 @@ function ProfileFriendRequest() {
   const [show, setShow] = useState(false);
   const [userData, setUserData] = useState<FriendProps>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [friendOffsetData, setFriendOffsetData] = useState<number>(0);
+  const [friendPage, setFriendPage] = useState<number>(0);
   const [noMoreFriendData, setMoreData] = useState<boolean>(false);
-  const [friendReqOffsetData, setFriendReqOffsetData] = useState<number>(0);
+  const [friendRequestPage, setFriendRequestPage] = useState<number>(0);
   const [noMoreFriendReqData, setMoreReqData] = useState<boolean>(false);
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
@@ -52,27 +52,27 @@ function ProfileFriendRequest() {
   };
   useEffect(() => {
     if (userData) {
-      userProfileFriends(userData.id, friendOffsetData)
-        .then((res) => { setFriendsList(res.data); setFriendOffsetData(friendOffsetData + 1); })
+      userProfileFriends(userData.id, friendPage)
+        .then((res) => { setFriendsList(res.data); setFriendPage(friendPage + 1); })
         .catch((error) => setErrorMessage(error.response.data.message));
 
-      userProfileFriendsRequest(friendReqOffsetData)
+      userProfileFriendsRequest(friendRequestPage)
         .then((res) => {
           setFriendsReqList(res.data);
-          setFriendReqOffsetData(friendReqOffsetData + 1);
+          setFriendRequestPage(friendRequestPage + 1);
         })
         .catch((error) => setErrorMessage(error.response.data.message));
     }
   }, [userData]);
   const fetchMoreFriendList = () => {
     if (userData && !noMoreFriendData) {
-      userProfileFriends(userData.id, friendOffsetData)
+      userProfileFriends(userData.id, friendPage)
         .then((res) => {
           setFriendsList((prev: FriendProps[]) => [
             ...prev,
             ...res.data,
           ]);
-          setFriendOffsetData(friendOffsetData + 1);
+          setFriendPage(friendPage + 1);
           if (res.data.length === 0) {
             setMoreData(true);
           }
@@ -82,13 +82,13 @@ function ProfileFriendRequest() {
   };
   const fetchMoreFriendReqList = () => {
     if (!noMoreFriendReqData) {
-      userProfileFriendsRequest(friendReqOffsetData)
+      userProfileFriendsRequest(friendRequestPage)
         .then((res) => {
           setFriendsReqList((prev: FriendProps[]) => [
             ...prev,
             ...res.data,
           ]);
-          setFriendReqOffsetData(friendReqOffsetData + 1);
+          setFriendRequestPage(friendRequestPage + 1);
           if (res.data.length === 0) {
             setMoreReqData(true);
           }

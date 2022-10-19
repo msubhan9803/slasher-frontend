@@ -11,8 +11,6 @@ const Container = styled.div`
 function FriendsProfileCard({
   friend, popoverOption, handlePopoverOption, friendsType,
 }: any) {
-  // console.log(friend, 'friend');
-
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>

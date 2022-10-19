@@ -1,70 +1,43 @@
-import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { feedPostDetail } from '../../../api/feedpost';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
-import postImage from '../../../images/post-image.jpg';
 
-const postData = [
-  {
-    id: 11,
-    userName: 'Aly khan',
-    profileImage: 'https://i.pravatar.cc/300?img=12',
-    postDate: '06/18/2022 11:10 PM',
-    content: 'The Dream Master stars Lisa Wilcox and Tuesday Knight. Penned by Daniel and Casi Benedict, and produced by Red Serial Films, the film tells of a young',
-    hashTag: ['horrorday', 'horrorcommunity', 'slasher', 'horror'],
-    postUrl: postImage,
-    likeIcon: true,
-    comment: [
-      {
-        id: 21,
-        profileImage: 'https://i.pravatar.cc/300?img=13',
-        userName: 'Aly Khan',
-        profileDateTime: '06/19/2022 12:10 AM',
-        like: 24,
-        likeIcon: false,
-        userMessage: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has this text here that will go to the end of the line.',
-        commentReplySection:
-          [
-            {
-              id: 22,
-              image: 'https://i.pravatar.cc/300?img=45',
-              name: 'Austin Joe',
-              time: '06/19/2022 12:10 AM',
-              like: 24,
-              likeIcon: false,
-              commentMention: '@Aly Khan',
-              commentMsg: 'eque porro quisquam est qui dolorem ipsum',
-            },
-            {
-              id: 23,
-              image: 'https://i.pravatar.cc/300?img=25',
-              name: 'Rohma Mxud',
-              time: '06/19/2022 12:10 AM',
-              like: 8,
-              likeIcon: false,
-              commentMention: '@Austin Joe',
-              commentMsg: ' Lorem Ipsum has been the industry standard dummy',
-              commentImg: 'https://i.pravatar.cc/100?img=56',
-            },
-          ],
-      },
-      {
-        id: 24,
-        profileImage: 'https://i.pravatar.cc/300?img=12',
-        userName: 'Scott Watson',
-        profileDateTime: '06/19/22 at 12:10 AM',
-        likeIcon: false,
-        userMessage: 'It is a long established fact that a reader will be distracted by.',
-        commentReplySection: [],
-      },
-    ],
-  },
-];
-
+interface UserPostData {
+  _id: string;
+  postDate: string;
+  content: string;
+  postUrl: string;
+  userName: string;
+  firstName: string;
+  profileImage: string;
+  commentCount: number;
+  likeCount: number;
+  sharedList: number;
+  id: number;
+  likeIcon: boolean;
+  createdAt: string,
+  images: string,
+  message: string,
+}
+type LocationState = {
+  state: {
+    post: UserPostData;
+  };
+};
 function ProfilePostDetail() {
   const [searchParams] = useSearchParams();
+  const { id } = useParams<string>();
+  const location = useLocation();
+  const { post } = (location as LocationState).state;
+
   const queryParam = searchParams.get('view');
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [postData, setPostData] = useState<UserPostData[]>([]);
+
   let popoverOptions = ['Report', 'Block user'];
   if (queryParam === 'self') {
     popoverOptions = ['Edit', 'Delete'];
@@ -75,12 +48,41 @@ function ProfilePostDetail() {
     setShow(true);
     setDropDownValue(value);
   };
+
+  useEffect(() => {
+    if (id && location) {
+      feedPostDetail(id)
+        .then((res) => {
+          setPostData([
+            {
+              ...res.data,
+              /* eslint no-underscore-dangle: 0 */
+              id: res.data._id,
+              postDate: res.data.createdAt,
+              content: res.data.message,
+              postUrl: res.data.images,
+              userName: post.userName,
+              firstName: post.firstName,
+              profileImage: post.profileImage,
+            },
+          ]);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  }, [id, location]);
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+      {errorMessage && errorMessage.length > 0 && (
+        <div className="mt-3 text-start">
+          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+        </div>
+      )}
       <PostFeed
         postFeedData={postData}
         popoverOptions={popoverOptions}
-        isCommentSection
+        isCommentSection={false}
         onPopoverClick={handlePopoverOption}
       />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

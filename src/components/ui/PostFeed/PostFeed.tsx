@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PostFooter from './PostFooter';
 import LikeShareModal from '../LikeShareModal';
@@ -62,6 +63,7 @@ const StyledPostFeed = styled.div`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick,
 }: Props) {
+  const navigate = useNavigate();
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -84,6 +86,9 @@ function PostFeed({
     setPostData(likeData);
   };
 
+  const handleDetailPage = (post: PostProps) => {
+    navigate(`/${post.userName}/posts/${post.id}`, { state: { post } });
+  };
   return (
     <StyledPostFeed>
       {postData.map((post: PostProps) => (
@@ -110,7 +115,7 @@ function PostFeed({
               </div>
               {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl[0].image_path} className="w-100" />
+                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post)} />
                 </div>
               )}
               <Row className="pt-3 px-md-3">

@@ -46,6 +46,10 @@ function ProfilePosts() {
     setDropDownValue(value);
   };
 
+  const decryptMessage = (content: string) => {
+    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
+    return found;
+  };
   useEffect(() => {
     if (userData) {
       getProfilePosts(userData.id)
@@ -56,7 +60,7 @@ function ProfilePosts() {
               /* eslint no-underscore-dangle: 0 */
               id: data._id,
               postDate: data.createdAt,
-              content: data.message,
+              content: decryptMessage(data.message),
               postUrl: data.images,
               userName: userData.userName,
               firstName: userData.userName,
@@ -115,6 +119,7 @@ function ProfilePosts() {
           <ErrorMessageList errorMessages={errorMessage} className="m-0" />
         </div>
       )}
+
       <InfiniteScroll
         pageStart={0}
         initialLoad={false}

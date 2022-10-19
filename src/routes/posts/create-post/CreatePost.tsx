@@ -14,7 +14,18 @@ import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { getSuggestUserName } from '../../../api/users';
+import MessageTextarea from '../../../components/ui/MessageTextarea';
 
+interface MentionProps {
+  _id: string;
+  userName: string;
+}
+interface FormatMentionProps {
+  id: string;
+  value: string;
+  format: string;
+}
 const PostImageContainer = styled.div`
   width: 7.25rem;
   height: 7.25rem;
@@ -26,10 +37,12 @@ const AddPhotosButton = styled(RoundButton)`
 
 function CreatePost() {
   const inputFile = useRef<HTMLInputElement>(null);
-  const [postContent, setPostContent] = useState('');
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
 
   const navigate = useNavigate();
 
@@ -58,17 +71,38 @@ function CreatePost() {
     setImageArray(removePostImage);
   };
 
-  const addPost = () => {
-    createPost(postContent, imageArray)
-      .then(() => {
-        setErrorMessage([]);
-        navigate(`/${Cookies.get('userName')}/posts`);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response.data.message);
-      });
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
   };
 
+  const mentionReplacementMatchFunc = (match: string) => {
+    if (match) {
+      const finalString: any = formatMention.find(
+        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
+      );
+      return finalString.format;
+    }
+    return undefined;
+  };
+
+  const addPost = () => {
+    /* eslint no-useless-escape: 0 */
+    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    if (postContentWithMentionReplacements) {
+      createPost(postContentWithMentionReplacements, imageArray)
+        .then(() => {
+          setErrorMessage([]);
+          navigate(`/${Cookies.get('userName')}/posts`);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark">
@@ -83,16 +117,18 @@ function CreatePost() {
               Aly Khan
             </h2>
           </div>
-          <Form.Control
-            rows={12}
-            as="textarea"
-            value={postContent}
-            onChange={(contentEvent) => setPostContent(contentEvent.target.value)}
-            placeholder="Create a post"
-            style={{ resize: 'none', backgroundColor: '#0F0F0F' }}
-            className="border-0 mb-0 pb-0 fs-5"
-          />
         </Form.Group>
+        <div className="mt-3">
+          <MessageTextarea
+            rows={10}
+            placeholder="Create a post"
+            handleSearch={handleSearch}
+            mentionLists={mentionList}
+            setMessageContent={setPostContent}
+            formatMentionList={formatMention}
+            setFormatMentionList={setFormatMention}
+          />
+        </div>
         <input
           type="file"
           name="post"

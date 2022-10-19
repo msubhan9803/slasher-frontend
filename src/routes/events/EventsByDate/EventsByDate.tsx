@@ -56,7 +56,7 @@ const EventCalender = styled(Calendar)`
   }
   .react-calendar__tile{
     width:4rem !important;
-    height:4rem !important; 
+    height:4rem !important;
     position: relative;
   }
   .react-calendar__month-view__weekdays__weekday abbr {
@@ -68,7 +68,7 @@ const EventCalender = styled(Calendar)`
     background-color: black;
     color:white !important;
   }
- 
+
   .react-calendar__navigation button:enabled:focus {
     background-color: white;
     color:black !important;
@@ -103,7 +103,7 @@ const EventCalender = styled(Calendar)`
     margin-left: 1.429rem;
     margin-right: 1.429rem;
   }
- 
+
   .react-calendar__navigation{
     height : 2.143rem;
   }
@@ -137,7 +137,7 @@ function EventsByDate() {
         }
       ));
       setEventList(eventsData);
-    }).catch(() => {});
+    }).catch(() => { });
   }, [startDate]);
 
   const fetchMoreEvent = () => {

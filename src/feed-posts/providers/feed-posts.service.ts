@@ -42,6 +42,95 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .find({ $and: feedPostQuery })
+      .populate('userId', 'userName _id profilePic')
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
+
+  async findMainFeedPostsForUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
+    const aggregateQuery = [
+      {
+        $lookup:
+        {
+          from: 'rssfeedproviderfollows',
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  { userId: { $eq: new mongoose.Types.ObjectId(userId) } },
+                  { status: { $eq: 1 } },
+                ],
+              },
+            },
+            { $group: { _id: null, rssfeedProviderId: { $addToSet: '$rssfeedProviderId' } } },
+          ],
+          as: 'rssFeedProviderFollowsDetails',
+        },
+      },
+      { $unwind: '$rssFeedProviderFollowsDetails' },
+      {
+        $lookup: {
+          from: 'friends',
+          pipeline: [
+            {
+              $match: {
+                $and: [
+                  {
+                    $or: [
+                      { from: { $eq: new mongoose.Types.ObjectId(userId) } },
+                      { to: { $eq: new mongoose.Types.ObjectId(userId) } },
+                    ],
+                  },
+                  { reaction: 3 },
+                ],
+              },
+            },
+            { $group: { _id: null, from: { $addToSet: '$from' }, to: { $addToSet: '$to' } } },
+            {
+              $project: {
+                _id: 0,
+                ids: { $setUnion: ['$from', '$to'] },
+              },
+            },
+          ],
+          as: 'friendsDetails',
+        },
+      },
+      { $unwind: '$friendsDetails' },
+      {
+        $group:
+        {
+          _id: null,
+          rssfeedProviderIds: { $addToSet: '$rssFeedProviderFollowsDetails.rssfeedProviderId' },
+          userIds: { $addToSet: '$friendsDetails.ids' },
+        },
+      },
+      { $unwind: '$userIds' },
+      { $unwind: '$rssfeedProviderIds' },
+    ];
+    const rssfeedProviderFollowData: any = await this.feedPostModel.aggregate(aggregateQuery);
+    const rssFeedProviderFollowQuery = [];
+    rssFeedProviderFollowQuery.push(
+      { userId: { $eq: new mongoose.Types.ObjectId(userId) } },
+      {
+        userId: {
+          $in: rssfeedProviderFollowData[0].userIds,
+        },
+      },
+      {
+        rssfeedProviderId: {
+          $in: rssfeedProviderFollowData[0].rssfeedProviderIds,
+        },
+      },
+    );
+    if (before) {
+      const rssFeedProviderFollow = await this.feedPostModel.findById(before).exec();
+      rssFeedProviderFollowQuery.push({ createdAt: { $lt: rssFeedProviderFollow.createdAt } });
+    }
+    return this.feedPostModel
+      .find({ $or: rssFeedProviderFollowQuery })
+      .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

@@ -1,13 +1,16 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
+import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
+import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -15,7 +18,11 @@ describe('Users suggested friends (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let user1: User;
   let configService: ConfigService;
+  let friendsService: FriendsService;
+  let friendsModel: Model<FriendDocument>;
+  let friends;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -25,6 +32,8 @@ describe('Users suggested friends (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -45,6 +54,21 @@ describe('Users suggested friends (e2e)', () => {
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );
+        user1 = await usersService.create(userFactory.build());
+
+        for (let i = 0; i < 5; i += 1) {
+          await friendsModel.create({
+            from: user1._id.toString(),
+            to: activeUser._id.toString(),
+            reaction: FriendRequestReaction.Pending,
+          });
+        }
+        friends = await friendsService.getReceivedFriendRequests(activeUser._id.toString(), 3);
+        friends.map((friend) => {
+          // eslint-disable-next-line no-param-reassign
+          delete friend._id;
+          return friend;
+        });
       });
       it('returns the expected user initial data', async () => {
         const response = await request(app.getHttpServer())
@@ -75,20 +99,7 @@ describe('Users suggested friends (e2e)', () => {
                 + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
             },
           ],
-          friendRequests: [
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=12',
-              userName: 'JackSkellington',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=19',
-              userName: 'Sally',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=17',
-              userName: 'OogieBoogie',
-            },
-          ],
+          friendRequests: friends,
         });
       });
     });

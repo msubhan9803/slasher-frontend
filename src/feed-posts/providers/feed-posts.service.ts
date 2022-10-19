@@ -110,26 +110,34 @@ export class FeedPostsService {
       { $unwind: '$rssfeedProviderIds' },
     ];
     const rssfeedProviderFollowData: any = await this.feedPostModel.aggregate(aggregateQuery);
-    const rssFeedProviderFollowQuery = [];
-    rssFeedProviderFollowQuery.push(
-      { userId: { $eq: new mongoose.Types.ObjectId(userId) } },
-      {
-        userId: {
-          $in: rssfeedProviderFollowData[0].userIds,
-        },
-      },
-      {
-        rssfeedProviderId: {
-          $in: rssfeedProviderFollowData[0].rssfeedProviderIds,
-        },
-      },
-    );
+    const beforeQuery: any = {};
     if (before) {
       const rssFeedProviderFollow = await this.feedPostModel.findById(before).exec();
-      rssFeedProviderFollowQuery.push({ createdAt: { $lt: rssFeedProviderFollow.createdAt } });
+      beforeQuery.createdAt = { $lt: rssFeedProviderFollow.createdAt };
     }
+
+    const rssFeedProviderFollowQuery = {
+      $and: [
+        {
+          $or: [
+            { userId: { $eq: new mongoose.Types.ObjectId(userId) } },
+            {
+              userId: {
+                $in: rssfeedProviderFollowData[0].userIds,
+              },
+            },
+            {
+              rssfeedProviderId: {
+                $in: rssfeedProviderFollowData[0].rssfeedProviderIds,
+              },
+            },
+          ],
+        },
+        beforeQuery,
+      ],
+    };
     return this.feedPostModel
-      .find({ $or: rssFeedProviderFollowQuery })
+      .find(rssFeedProviderFollowQuery)
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)

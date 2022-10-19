@@ -133,14 +133,16 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         for (let index = 1; index < firstResponse.body.length; index += 1) {
           expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
         }
+        expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}&before=${firstResponse.body[1]._id}`)
+          .get(`/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < secondResponse.body.length; index += 1) {
           expect(secondResponse.body[index].createdAt < secondResponse.body[index - 1].createdAt).toBe(true);
         }
+        expect(secondResponse.body).toHaveLength(2);
       });
     });
 
@@ -160,6 +162,18 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+      });
+
+      it('userId must match regular expression', async () => {
+        const limit = 3;
+        const before = '634912b2@2c2f4f5e0e6228#';
+        const response = await request(app.getHttpServer())
+          .get(`/feed-posts?limit=${limit}&before=${before}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain(
+          'before must match /^[a-f\\d]{24}$/i regular expression',
+        );
       });
     });
   });

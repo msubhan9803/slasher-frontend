@@ -285,6 +285,9 @@ Resources:
 
               server_name ${BackendSiteDomain};
 
+              access_log /var/log/nginx/slasher_${EnvironmentType}-access.log;
+              # error_log /var/log/nginx/slasher_${EnvironmentType}-error.log error;
+
               passenger_enabled on;
               passenger_app_type node;
               passenger_app_env ${NodeEnv};

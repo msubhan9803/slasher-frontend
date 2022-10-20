@@ -78,32 +78,30 @@ function Home() {
   }, []);
 
   const fetchMorePost = () => {
-    if (!noMoreData) {
-      getHomeFeedPosts(postFeedData[postFeedData.length - 1]._id)
-        .then((res) => {
-          const postFeedList = res.data.map((data: PostProps) => (
-            {
-              ...data,
-              /* eslint no-underscore-dangle: 0 */
-              id: data._id,
-              postDate: data.createdAt,
-              content: data.message,
-              postUrl: data.images,
-              userName: data.userId.userName,
-              firstName: data.userId.userName,
-              profileImage: data.userId.profilePic,
-            }
-          ));
-          setPostFeedData((prev: PostFeedProps[]) => [
-            ...prev,
-            ...postFeedList,
-          ]);
-          if (res.data.length === 0) {
-            setNoMoreData(true);
+    getHomeFeedPosts(postFeedData[postFeedData.length - 1]._id)
+      .then((res) => {
+        const postFeedList = res.data.map((data: PostProps) => (
+          {
+            ...data,
+            /* eslint no-underscore-dangle: 0 */
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            postUrl: data.images,
+            userName: data.userId.userName,
+            firstName: data.userId.userName,
+            profileImage: data.userId.profilePic,
           }
-        })
-        .catch((error) => setErrorMessage(error.response.data.message));
-    }
+        ));
+        setPostFeedData((prev: PostFeedProps[]) => [
+          ...prev,
+          ...postFeedList,
+        ]);
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+        }
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
   };
 
   return (
@@ -121,7 +119,7 @@ function Home() {
           pageStart={0}
           initialLoad={false}
           loadMore={fetchMorePost}
-          hasMore
+          hasMore={!noMoreData}
         >
           {postFeedData && postFeedData.length > 0
             ? (

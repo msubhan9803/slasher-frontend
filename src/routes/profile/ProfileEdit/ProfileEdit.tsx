@@ -1,7 +1,9 @@
 /* eslint-disable max-lines */
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import {
+  useNavigate, useLocation, useParams,
+} from 'react-router-dom';
 import {
   getUserProfileDetail,
   uploadUserCoverImage, uploadUserProfileImage, updateUserProfile,
@@ -10,6 +12,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
+import { updateUserName } from '../../../utils/session-utils';
 
 interface UserDataProps {
   userName: string;
@@ -21,7 +24,10 @@ interface UserDataProps {
 }
 
 function ProfileEdit() {
-  const [updateUserData, setUpdateUserData] = useState<UserDataProps>({
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  const [userData, setUserData] = useState<UserDataProps>({
     userName: '',
     firstName: '',
     email: '',
@@ -32,17 +38,17 @@ function ProfileEdit() {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
-  const params = useParams();
 
   useEffect(() => {
     if (params && params.userName) {
       getUserProfileDetail(params.userName)
-        .then((res) => setUpdateUserData(res.data))
+        .then((res) => setUserData(res.data))
         .catch((error) => setErrorMessages(error));
     }
   }, [params]);
 
-  const updateProfile = async () => {
+  const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     let errorList: string[] = [];
 
     if (profilePhoto) {
@@ -63,21 +69,26 @@ function ProfileEdit() {
 
     try {
       await updateUserProfile(
-        updateUserData.userName,
-        updateUserData.firstName,
-        updateUserData.email,
-        updateUserData.id,
+        userData.userName,
+        userData.firstName,
+        userData.email,
+        userData.id,
       );
     } catch (requestError: any) {
       errorList = errorList.concat(requestError.response.data.message);
     }
     setErrorMessages(errorList);
+
+    if (errorList.length === 0) {
+      // After successful update, update locally-stored username
+      updateUserName(userData.userName);
+      // And update current url to use latest userName (to handle possible userName change)
+      navigate(location.pathname.replace(params.userName!, userData.userName), { replace: true });
+    }
   };
 
   const handleChange = (value: string, key: string) => {
-    const userTempData = { ...updateUserData };
-    (userTempData as any)[key] = value;
-    setUpdateUserData(userTempData);
+    setUserData({ ...userData, [key]: value });
   };
 
   return (
@@ -91,7 +102,7 @@ function ProfileEdit() {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={updateUserData.profilePic}
+                  imagePreview={userData.profilePic}
                   onChange={(file) => { setProfilePhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -113,7 +124,7 @@ function ProfileEdit() {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={updateUserData.coverPhoto}
+                  imagePreview={userData.coverPhoto}
                   onChange={(file) => { setCoverPhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -140,7 +151,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="text"
                   placeholder="Name"
-                  value={updateUserData.firstName || ''}
+                  value={userData.firstName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'firstName')
                   }
@@ -159,7 +170,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="text"
                   placeholder="Username"
-                  value={updateUserData.userName || ''}
+                  value={userData.userName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'userName')
                   }
@@ -178,7 +189,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="email"
                   placeholder="Email"
-                  value={updateUserData.email || ''}
+                  value={userData.email || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
                   }
@@ -207,7 +218,7 @@ function ProfileEdit() {
           )}
           <Row className="mt-2">
             <Col md={3} lg={4} xl={3}>
-              <RoundButton className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile}>
+              <RoundButton type="submit" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile}>
                 Update profile
               </RoundButton>
             </Col>

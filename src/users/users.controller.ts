@@ -297,8 +297,10 @@ export class UsersController {
 
   // eslint-disable-next-line class-methods-use-this
   @Get('initial-data')
-  initialData(@Req() request: Request) {
+  async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
+    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
+    const friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
     return {
       userName: user.userName,
       notificationCount: 6,
@@ -322,20 +324,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: [
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=12',
-          userName: 'JackSkellington',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=19',
-          userName: 'Sally',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=17',
-          userName: 'OogieBoogie',
-        },
-      ],
+      friendRequests: friends,
     };
   }
 

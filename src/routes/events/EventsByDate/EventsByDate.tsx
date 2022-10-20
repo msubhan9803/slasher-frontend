@@ -127,6 +127,21 @@ function EventsByDate() {
     return [startDateRange, endDateRange];
   };
 
+  const eventsFromResponse = (res: any) => res.data.map((event: any) => {
+    const formattedStartDate = DateTime.fromISO(event.startDate).toUTC().toFormat('dd/MM/yyyy');
+    const formattedEndDate = DateTime.fromISO(event.endDate).toUTC().toFormat('dd/MM/yyyy');
+    const formattedDate = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} - ${formattedEndDate}`;
+    return {
+      ...event,
+      /* eslint no-underscore-dangle: 0 */
+      id: event._id,
+      image: event.images[0],
+      date: formattedDate,
+      location: event.address,
+      eventName: event.name,
+    };
+  });
+
   useEffect(() => {
     let monthRange = [];
     if (!viewChange) {
@@ -136,25 +151,15 @@ function EventsByDate() {
     }
     getEventsDateCount(monthRange[0], monthRange[1]).then((res) => {
       const countedDateList = res.data.filter((dateCount: any) => dateCount.count > 0);
-      const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toFormat('yyyy-MM-dd'));
+      const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toUTC().toFormat('yyyy-MM-dd'));
       setMarkDateList(formatDateList);
     });
   }, [viewChange]);
 
   useEffect(() => {
+    setNoMoreData(false); // reset when day changes
     getEvents(startDate, endDate).then((res) => {
-      const eventsData = res.data.map((event: any) => (
-        {
-          ...event,
-          /* eslint no-underscore-dangle: 0 */
-          id: event._id,
-          image: event.images[0],
-          date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
-          location: event.address,
-          eventName: event.name,
-        }
-      ));
-      setEventList(eventsData);
+      setEventList(eventsFromResponse(res));
     }).catch(() => { });
   }, [startDate]);
 
@@ -162,20 +167,9 @@ function EventsByDate() {
     if (eventsList && eventsList.length > 0) {
       getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
-          const eventsData = res.data.map((event: any) => (
-            {
-              ...event,
-              /* eslint no-underscore-dangle: 0 */
-              id: event._id,
-              image: event.images[0],
-              date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
-              location: event.address,
-              eventName: event.name,
-            }
-          ));
           setEventList((prev: any) => [
             ...prev,
-            ...eventsData,
+            ...eventsFromResponse(res),
           ]);
           if (res.data.length === 0) {
             setNoMoreData(true);
@@ -221,7 +215,7 @@ function EventsByDate() {
           pageStart={0}
           initialLoad={false}
           loadMore={fetchMoreEvent}
-          hasMore
+          hasMore={!noMoreData}
           element="span"
         >
           <Row>
@@ -233,10 +227,9 @@ function EventsByDate() {
                   />
                 </Col>
               )))
-              : <p className="text-center mt-3">No events available</p>}
+              : <p className="text-center mt-3">No events on the selected date.</p>}
           </Row>
         </InfiniteScroll>
-        {noMoreData && eventsList.length > 1 && <p className="text-center">No more Events</p>}
       </div>
     </AuthenticatedPageWrapper>
   );

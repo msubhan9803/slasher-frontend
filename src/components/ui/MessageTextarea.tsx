@@ -3,7 +3,7 @@ import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
 
 interface MentionListProps {
-  _id: string;
+  id: string;
   userName: string;
 }
 interface FormatMentionListProps {
@@ -59,8 +59,7 @@ function MessageTextarea({
       onSelect={handleSelect}
     >
       {mentionLists.map((mentionList: MentionListProps) => (
-        /* eslint  no-underscore-dangle: 0 */
-        <Option value={mentionList.userName} key={mentionList._id}>
+        <Option value={mentionList.userName} key={mentionList.id}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
               <span>

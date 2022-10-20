@@ -1,5 +1,5 @@
 import {
-  IsOptional
+  IsOptional,
 } from 'class-validator';
 import { UserSettingNotificationStatus } from '../../schemas/userSetting/userSetting.enums';
 

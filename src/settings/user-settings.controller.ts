@@ -9,33 +9,35 @@ import {
   import { UpdateNoticationSettingDto } from './dto/update-notification-setting.dto';
   import { UserSettingsService } from './providers/user-settings.service';
   import { UserSetting } from '../schemas/userSetting/userSetting.schema';
-  
+
   @Controller('settings')
-  export class UserSettingController { constructor(
-        private readonly UserSettingsService: UserSettingsService,
-        private readonly config: ConfigService
+  export class UserSettingController {
+ constructor(
+        private readonly userSettingsService: UserSettingsService,
+        private readonly config: ConfigService,
     ) { }
 
     @Post('create-user-settings')
-      async createUserSettings(@Req() request: Request,
-      @Body() CreateUserSettingDto: CreateUserSettingDto,
+      async createUserSettings(
+@Req() request: Request,
+      @Body() createUserSettingDto: CreateUserSettingDto,
     ) {
       const user = getUserFromRequest(request);
-      const createSetting = new UserSetting(CreateUserSettingDto);
+      const createSetting = new UserSetting(createUserSettingDto);
       createSetting.userId = user._id;
-      const userSetting = await this.UserSettingsService.findUserSetting({ userId:createSetting.userId });
+      const userSetting = await this.userSettingsService.findUserSetting({ userId: createSetting.userId });
 
       if (userSetting != null) {
         throw new HttpException('User setting already exists', HttpStatus.FOUND);
       }
-      const saveSetting = await this.UserSettingsService.create(createSetting);
+      const saveSetting = await this.userSettingsService.create(createSetting);
       return saveSetting;
     }
 
     @Get('notifications')
       async getNotificationSettings(@Req() request: Request) {
         const user = getUserFromRequest(request);
-        const eventData = await this.UserSettingsService.findByUserId(user._id);
+        const eventData = await this.userSettingsService.findByUserId(user._id);
         if (!eventData) {
           throw new HttpException('User setting not found', HttpStatus.NOT_FOUND);
         }
@@ -43,11 +45,12 @@ import {
     }
 
     @Patch('update-notification-settings')
-      async updateNotificationSettings(@Req() request: Request,
-      @Body() UpdateNoticationSettingDto: UpdateNoticationSettingDto,
+      async updateNotificationSettings(
+@Req() request: Request,
+      @Body() updateNoticationSettingDto: UpdateNoticationSettingDto,
     ) {
       const user = getUserFromRequest(request);
-      const eventData = await this.UserSettingsService.update(user._id, UpdateNoticationSettingDto);
-      return eventData
+      const eventData = await this.userSettingsService.update(user._id, updateNoticationSettingDto);
+      return eventData;
     }
   }

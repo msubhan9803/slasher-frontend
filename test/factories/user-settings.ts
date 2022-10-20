@@ -5,9 +5,9 @@ import { UserSetting } from '../../src/schemas/userSetting/userSetting.schema';
 type UserTransientParams = {
   userId: ObjectId;
 };
- 
+
 export const userSettingFactory = Factory.define<Partial<UserSetting>, UserTransientParams>(
-  ({ transientParams}) => new UserSetting({
+  ({ transientParams }) => new UserSetting({
     userId: transientParams.userId,
     onboarding_completed: true,
     dating_got_a_match: 1,
@@ -20,5 +20,5 @@ export const userSettingFactory = Factory.define<Partial<UserSetting>, UserTrans
     feed_mention_on_post_comment_reply: 1,
     feed_post_like: 1,
     feed_comment_on_post: 1,
-   })
+   }),
 );

@@ -46,10 +46,6 @@ const PostImage = styled(Image)`
 `;
 const Content = styled.div`
   white-space: pre-line;
-  a {
-    text-decoration : none;
-    color: var(--bs-primary);
-  }
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46

@@ -24,7 +24,7 @@ export class FeedPostsService {
       feedPostFindQuery.is_deleted = false;
       feedPostFindQuery.status = FeedPostStatus.Active;
     }
-    return this.feedPostModel.findOne(feedPostFindQuery).exec();
+    return this.feedPostModel.findOne(feedPostFindQuery).populate('userId', 'userName _id profilePic').exec();
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -109,26 +109,26 @@ export class FeedPostsService {
       { $unwind: '$userIds' },
       { $unwind: '$rssfeedProviderIds' },
     ];
-    const rssfeedProviderFollowData: any = await this.feedPostModel.aggregate(aggregateQuery);
+    const feedPostsData: any = await this.feedPostModel.aggregate(aggregateQuery);
     const beforeQuery: any = {};
     if (before) {
-      const rssFeedProviderFollow = await this.feedPostModel.findById(before).exec();
-      beforeQuery.createdAt = { $lt: rssFeedProviderFollow.createdAt };
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      beforeQuery.createdAt = { $lt: feedPost.createdAt };
     }
 
-    const rssFeedProviderFollowQuery = {
+    const feedPostsFindQuery = {
       $and: [
         {
           $or: [
             { userId: { $eq: new mongoose.Types.ObjectId(userId) } },
             {
               userId: {
-                $in: rssfeedProviderFollowData[0].userIds,
+                $in: feedPostsData[0].userIds,
               },
             },
             {
               rssfeedProviderId: {
-                $in: rssfeedProviderFollowData[0].rssfeedProviderIds,
+                $in: feedPostsData[0].rssfeedProviderIds,
               },
             },
           ],
@@ -137,7 +137,7 @@ export class FeedPostsService {
       ],
     };
     return this.feedPostModel
-      .find(rssFeedProviderFollowQuery)
+      .find(feedPostsFindQuery)
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)

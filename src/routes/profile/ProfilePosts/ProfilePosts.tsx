@@ -124,7 +124,7 @@ function ProfilePosts() {
         pageStart={0}
         initialLoad={false}
         loadMore={fetchMorePost}
-        hasMore
+        hasMore={!noMoreData}
       >
         {userPostData && userPostData.length > 0
           ? (

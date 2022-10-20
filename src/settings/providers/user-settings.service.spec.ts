@@ -51,8 +51,7 @@ describe('UserSettingsService', () => {
           userId: userData._id,
         },
       );
-      const saveSetting = await userSettingsService.create(userSettingData);
-      expect(await userSettingsService.findByUserId(saveSetting._id)).toBeTruthy();
+      expect(await userSettingsService.create(userSettingData)).toBeTruthy();
     });
   });
 

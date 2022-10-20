@@ -1,10 +1,9 @@
 import {
-  IsOptional, IsEnum
+  IsOptional, IsEnum,
 } from 'class-validator';
 import { UserSettingNotificationStatus } from '../../schemas/userSetting/userSetting.enums';
 
 export class UpdateNoticationSettingDto {
-
   @IsOptional()
   onboarding_completed: boolean;
 

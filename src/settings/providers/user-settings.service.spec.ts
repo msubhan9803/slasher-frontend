@@ -52,7 +52,7 @@ describe('UserSettingsService', () => {
         },
       );
       const saveSetting = await userSettingsService.create(userSettingData);
-      expect(await userSettingsService.findByUserId(saveSetting._id));
+      expect(await userSettingsService.findByUserId(saveSetting._id)).toBeTruthy();
     });
   });
 

@@ -92,14 +92,14 @@ function PostFeed({
     setPostData(likeData);
   };
 
-  const handleDetailPage = (post: PostProps) => {
-    navigate(`/${post.userName}/posts/${post.id}`, { state: { post } });
+  const handleDetailPage = (userName: string, id: number, profileImage: string) => {
+    navigate(`/${userName}/posts/${id}`, { state: profileImage });
   };
   return (
     <StyledPostFeed>
       {postData.map((post: PostProps) => (
         <div key={post.id} className="post">
-          <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+          <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
               <PostHeader
                 userName={post.userName}
@@ -121,7 +121,7 @@ function PostFeed({
               </div>
               {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post)} />
+                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post.userName, post.id, post.profileImage)} />
                 </div>
               )}
               <Row className="pt-3 px-md-3">

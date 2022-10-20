@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { feedPostDetail } from '../../../api/feedpost';
+import { userProfilePost } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
@@ -23,20 +24,18 @@ interface UserPostData {
   images: string,
   message: string,
 }
-type LocationState = {
-  state: {
-    post: UserPostData;
-  };
-};
+interface UserData {
+  userName: string;
+  profilePic: string;
+}
+
 function ProfilePostDetail() {
   const [searchParams] = useSearchParams();
-  const { id } = useParams<string>();
-  const location = useLocation();
-  const { post } = (location as LocationState).state;
-
+  const { id, userName } = useParams<string>();
   const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<UserPostData[]>([]);
+  const [userData, setUserData] = useState<UserData>();
 
   let popoverOptions = ['Report', 'Block user'];
   if (queryParam === 'self') {
@@ -50,7 +49,7 @@ function ProfilePostDetail() {
   };
 
   useEffect(() => {
-    if (id && location) {
+    if (id && userData) {
       feedPostDetail(id)
         .then((res) => {
           setPostData([
@@ -61,9 +60,8 @@ function ProfilePostDetail() {
               postDate: res.data.createdAt,
               content: res.data.message,
               postUrl: res.data.images,
-              userName: post.userName,
-              firstName: post.firstName,
-              profileImage: post.profileImage,
+              userName: userData.userName,
+              profileImage: userData.profilePic,
             },
           ]);
         })
@@ -71,7 +69,15 @@ function ProfilePostDetail() {
           setErrorMessage(error.response.data.message);
         });
     }
-  }, [id, location]);
+  }, [id, userData]);
+
+  useEffect(() => {
+    if (userName) {
+      userProfilePost(userName)
+        .then((res) => setUserData(res.data));
+    }
+  }, [userName]);
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (

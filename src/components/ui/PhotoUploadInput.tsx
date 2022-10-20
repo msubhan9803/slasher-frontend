@@ -11,6 +11,7 @@ interface Props {
   height?: string;
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
+  imagePreview?: string;
   onChange?: (files: File | undefined) => void
 }
 
@@ -37,12 +38,17 @@ const CornerIconButton = styled(Button)`
 `;
 
 function PhotoUploadInput({
-  aspectRatio, height, onChange, variant, className, style,
+  aspectRatio, height, onChange, variant, className, style, imagePreview,
 }: Props) {
   const [photo, setPhoto] = useState<File>();
+  const [imageUrl, setImageUrl] = useState<string>();
 
   useEffect(() => {
-    if (onChange) { onChange(photo); }
+    if (imagePreview) setImageUrl(imagePreview);
+  }, [imagePreview]);
+
+  useEffect(() => {
+    if (onChange) { onChange(photo); setImageUrl(undefined); }
   }, [photo]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -77,7 +83,7 @@ function PhotoUploadInput({
       style={{ aspectRatio, height, ...style }}
     >
       <input {...getInputProps()} />
-      {!photo && renderUploadPlaceholder(isDragActive)}
+      {(!photo && !imageUrl) && renderUploadPlaceholder(isDragActive)}
       {
         photo
         && (
@@ -87,21 +93,30 @@ function PhotoUploadInput({
           />
         )
       }
+      {
+        imageUrl && (
+          <img
+            src={imageUrl}
+            alt="Upload preview"
+          />
+        )
+      }
+
       <CornerIconButton
         onClick={
-          photo
+          (photo || imageUrl)
             ? (e: React.MouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation(); setPhoto(undefined);
+              e.stopPropagation(); setPhoto(undefined); setImageUrl(undefined);
             }
             : undefined
         }
         variant="link"
         className={
-          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${photo ? 'bg-white text-primary' : 'bg-primary text-white'}`
+          `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-primary' : 'bg-primary text-white'}`
         }
       >
         <FontAwesomeIcon
-          icon={photo ? solid('times') : solid('plus')}
+          icon={(photo || imageUrl) ? solid('times') : solid('plus')}
           size="sm"
           role="button"
         />
@@ -117,6 +132,7 @@ PhotoUploadInput.defaultProps = {
   style: {},
   onChange: undefined,
   height: undefined,
+  imagePreview: undefined,
 };
 
 export default PhotoUploadInput;

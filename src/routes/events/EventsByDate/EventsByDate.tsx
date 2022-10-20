@@ -2,15 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import Calendar, { CalendarTileProperties } from 'react-calendar';
+import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallbackProperties } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import moment from 'moment';
 import { DateTime } from 'luxon';
 import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
-import { getEvents } from '../../../api/eventByDate';
+import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -64,7 +63,7 @@ const EventCalender = styled(Calendar)`
   }
 
   .react-calendar__navigation button:enabled:hover
- {
+  {
     background-color: black;
     color:white !important;
   }
@@ -111,32 +110,56 @@ const EventCalender = styled(Calendar)`
     visibility: hidden;
 }
 `;
-const mark = [
-  '04-09-2022',
-  '13-09-2022',
-  '23-09-2022',
-];
+
 function EventsByDate() {
-  const [value, onChange] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [viewChange, onViewChange] = useState<Date | null>(null);
   const [eventsList, setEventList] = useState<any[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const selectedDateString = DateTime.fromJSDate(value).toFormat('yyyy-MM-dd');
+  const [markDateList, setMarkDateList] = useState<string[]>([]);
+  const selectedDateString = DateTime.fromJSDate(selectedDate).toFormat('yyyy-MM-dd');
   const startDate = `${selectedDateString}T00:00:00Z`;
   const endDate = `${selectedDateString}T23:59:59Z`;
+
+  const getDateRange = (dateValue: Date) => {
+    const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
+    const endDateRange = DateTime.fromJSDate(dateValue).endOf('month').plus({ days: 6 }).toFormat('yyyy-MM-dd');
+    return [startDateRange, endDateRange];
+  };
+
+  const eventsFromResponse = (res: any) => res.data.map((event: any) => {
+    const formattedStartDate = DateTime.fromISO(event.startDate).toUTC().toFormat('dd/MM/yyyy');
+    const formattedEndDate = DateTime.fromISO(event.endDate).toUTC().toFormat('dd/MM/yyyy');
+    const formattedDate = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} - ${formattedEndDate}`;
+    return {
+      ...event,
+      /* eslint no-underscore-dangle: 0 */
+      id: event._id,
+      image: event.images[0],
+      date: formattedDate,
+      location: event.address,
+      eventName: event.name,
+    };
+  });
+
   useEffect(() => {
+    let monthRange = [];
+    if (!viewChange) {
+      monthRange = getDateRange(selectedDate);
+    } else {
+      monthRange = getDateRange(viewChange);
+    }
+    getEventsDateCount(monthRange[0], monthRange[1]).then((res) => {
+      const countedDateList = res.data.filter((dateCount: any) => dateCount.count > 0);
+      const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toUTC().toFormat('yyyy-MM-dd'));
+      setMarkDateList(formatDateList);
+    });
+  }, [viewChange]);
+
+  useEffect(() => {
+    setNoMoreData(false); // reset when day changes
     getEvents(startDate, endDate).then((res) => {
-      const eventsData = res.data.map((event: any) => (
-        {
-          ...event,
-          /* eslint no-underscore-dangle: 0 */
-          id: event._id,
-          image: event.images[0],
-          date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
-          location: event.address,
-          eventName: event.name,
-        }
-      ));
-      setEventList(eventsData);
+      setEventList(eventsFromResponse(res));
     }).catch(() => { });
   }, [startDate]);
 
@@ -144,20 +167,9 @@ function EventsByDate() {
     if (eventsList && eventsList.length > 0) {
       getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
-          const eventsData = res.data.map((event: any) => (
-            {
-              ...event,
-              /* eslint no-underscore-dangle: 0 */
-              id: event._id,
-              image: event.images[0],
-              date: DateTime.fromISO(event.startDate).toFormat('dd/MM/yyyy'),
-              location: event.address,
-              eventName: event.name,
-            }
-          ));
           setEventList((prev: any) => [
             ...prev,
-            ...eventsData,
+            ...eventsFromResponse(res),
           ]);
           if (res.data.length === 0) {
             setNoMoreData(true);
@@ -167,19 +179,33 @@ function EventsByDate() {
     }
   };
 
+  const onActiveStartDateChange = (data: ViewCallbackProperties) => {
+    if (data.view === 'month') {
+      onViewChange(data.activeStartDate);
+    }
+  };
+
+  const onDrillDownChange = (data: DrillCallbackProperties) => {
+    if (data.activeStartDate.getMonth() === 0) {
+      onViewChange(data.activeStartDate);
+    }
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="event">
       <EventHeader tabKey="by-date" />
       <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
         <EventCalender
           className="w-100 p-4 pb-0 bg-dark border-0 text-white"
-          onChange={onChange}
-          value={value}
+          onClickDay={setSelectedDate}
+          onActiveStartDateChange={onActiveStartDateChange}
+          onDrillDown={onDrillDownChange}
+          value={selectedDate}
           minDetail="year"
           prev2Label={null}
           next2Label={null}
           tileClassName={({ date }: CalendarTileProperties) => {
-            if (mark.find((x: any) => x === moment(date).format('DD-MM-YYYY'))) {
+            if (markDateList.find((x: any) => x === DateTime.fromJSDate(date).toFormat('yyyy-MM-dd'))) {
               return 'highlight';
             }
             return null;
@@ -189,7 +215,7 @@ function EventsByDate() {
           pageStart={0}
           initialLoad={false}
           loadMore={fetchMoreEvent}
-          hasMore
+          hasMore={!noMoreData}
           element="span"
         >
           <Row>
@@ -201,10 +227,9 @@ function EventsByDate() {
                   />
                 </Col>
               )))
-              : <p className="text-center mt-3">No events available</p>}
+              : <p className="text-center mt-3">No events on the selected date.</p>}
           </Row>
         </InfiniteScroll>
-        {noMoreData && eventsList.length > 1 && <p className="text-center">No more Events</p>}
       </div>
     </AuthenticatedPageWrapper>
   );

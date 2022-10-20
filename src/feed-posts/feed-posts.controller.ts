@@ -104,6 +104,8 @@ export class FeedPostsController {
       relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
       return relativeImagePath;
     });
+    // TODO: Update feedPost so that "as any" type coercion isn't needed here
+    (feedPost.userId as any).profilePic = relativeToFullImagePath(this.config, (feedPost.userId as any).profilePic);
     return feedPost;
   }
 

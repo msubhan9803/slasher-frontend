@@ -89,3 +89,60 @@ export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
   }
   return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
 }
+
+export async function userProfileFriends(userId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 18;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
+}
+
+export async function getUserProfileDetail(userName: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/${userName}`, { headers });
+}
+
+export async function updateUserProfile(
+  userName: string,
+  firstName: string,
+  email: string,
+  id: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/users/${id}`, {
+    userName,
+    firstName,
+    email,
+  }, { headers });
+}
+
+export async function uploadUserProfileImage(file: File) {
+  const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  formData.append('file', file);
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/users/upload-profile-image`, formData, { headers });
+}
+
+export async function uploadUserCoverImage(file: File) {
+  const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  formData.append('file', file);
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
+}

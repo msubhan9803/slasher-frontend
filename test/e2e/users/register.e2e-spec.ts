@@ -97,6 +97,17 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
+      it('firstName should not be longer than 30 characters', async () => {
+        postBody.firstName = 'long first name > 30 characters';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'firstName must be shorter than or equal to 30 characters',
+        );
+      });
+
       it('userName should not be empty', async () => {
         postBody.userName = '';
         const response = await request(app.getHttpServer())

@@ -62,6 +62,44 @@ export async function userInitialData() {
   return axios.get(`${apiUrl}/users/initial-data`, { headers });
 }
 
+export async function getSuggestUserName(text: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/suggest-user-name?query=${text}&limit=10`, { headers });
+}
+
+export async function userProfilePost(userName: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/${userName}`, { headers });
+}
+
+export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = '?limit=10';
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
+}
+
+export async function userProfileFriends(userId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 18;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
+}
+
 export async function getUserProfileDetail(userName: string) {
   const token = Cookies.get('sessionToken');
   const headers = {

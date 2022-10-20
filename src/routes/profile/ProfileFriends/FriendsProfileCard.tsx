@@ -16,11 +16,14 @@ function FriendsProfileCard({
       <div>
         <div className="d-flex align-items-center">
           <div>
-            <UserCircleImage src={friend.imageUrl} className="me-2" />
+            <UserCircleImage src={friend.profilePic} className="me-2" />
           </div>
           <div>
-            <h1 className="h3 mb-0">{friend.name}</h1>
-            <p className="fs-6 mb-0 text-light">{friend.email}</p>
+            <h1 className="h3 mb-0">{friend.userName}</h1>
+            <p className="fs-6 mb-0 text-light">
+              @
+              {friend.userName}
+            </p>
           </div>
         </div>
       </div>

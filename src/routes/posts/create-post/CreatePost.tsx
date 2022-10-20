@@ -7,10 +7,25 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { createPost } from '../../../api/posts';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { getSuggestUserName } from '../../../api/users';
+import MessageTextarea from '../../../components/ui/MessageTextarea';
 
+interface MentionProps {
+  _id: string;
+  userName: string;
+}
+interface FormatMentionProps {
+  id: string;
+  value: string;
+  format: string;
+}
 const PostImageContainer = styled.div`
   width: 7.25rem;
   height: 7.25rem;
@@ -22,8 +37,14 @@ const AddPhotosButton = styled(RoundButton)`
 
 function CreatePost() {
   const inputFile = useRef<HTMLInputElement>(null);
-  const [postContent, setPostContent] = useState('');
   const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [imageArray, setImageArray] = useState<any>([]);
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+
+  const navigate = useNavigate();
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
     if (!postImage.target) {
@@ -31,22 +52,57 @@ function CreatePost() {
     }
     if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
+      const imageArrayList = [...imageArray];
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 10) {
           const image = URL.createObjectURL(postImage.target.files[list]);
           uploadedPostList.push(image);
+          imageArrayList.push(postImage.target.files[list]);
         }
       }
       setUploadPost(uploadedPostList);
+      setImageArray(imageArrayList);
     }
   };
 
-  const handleRemoveFile = (postImage: string) => {
-    const removePostImage = uploadPost.filter((image) => image !== postImage, postContent);
-    setUploadPost(removePostImage);
+  const handleRemoveFile = (postImage: File) => {
+    const removePostImage = imageArray.filter((image: File) => image !== postImage);
+    setImageArray(removePostImage);
   };
 
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+
+  const mentionReplacementMatchFunc = (match: string) => {
+    if (match) {
+      const finalString: any = formatMention.find(
+        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
+      );
+      return finalString.format;
+    }
+    return undefined;
+  };
+
+  const addPost = () => {
+    /* eslint no-useless-escape: 0 */
+    const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    if (postContentWithMentionReplacements) {
+      createPost(postContentWithMentionReplacements, imageArray)
+        .then(() => {
+          setErrorMessage([]);
+          navigate(`/${Cookies.get('userName')}/posts`);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="d-md-none bg-dark">
@@ -61,16 +117,18 @@ function CreatePost() {
               Aly Khan
             </h2>
           </div>
-          <Form.Control
-            rows={12}
-            as="textarea"
-            value={postContent}
-            onChange={(contentEvent) => setPostContent(contentEvent.target.value)}
-            placeholder="Create a post"
-            style={{ resize: 'none', backgroundColor: '#0F0F0F' }}
-            className="border-0 mb-0 pb-0 fs-5"
-          />
         </Form.Group>
+        <div className="mt-3">
+          <MessageTextarea
+            rows={10}
+            placeholder="Create a post"
+            handleSearch={handleSearch}
+            mentionLists={mentionList}
+            setMessageContent={setPostContent}
+            formatMentionList={formatMention}
+            setFormatMentionList={setFormatMention}
+          />
+        </div>
         <input
           type="file"
           name="post"
@@ -85,11 +143,11 @@ function CreatePost() {
         <Row>
           <Col xs={12} className="order-1 order-md-0">
             <Row>
-              {uploadPost.map((post: string) => (
-                <Col xs="auto" key={post} className="mb-1">
+              {imageArray.map((post: File) => (
+                <Col xs="auto" key={post.name} className="mb-1">
                   <PostImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
                     <Image
-                      src={post}
+                      src={URL.createObjectURL(post)}
                       alt="Dating profile photograph"
                       className="w-100 h-100 img-fluid rounded"
                     />
@@ -110,6 +168,11 @@ function CreatePost() {
               ))}
             </Row>
           </Col>
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
           <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
             <AddPhotosButton size="md" disabled={uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5 py-2" onClick={() => inputFile.current?.click()}>
               <FontAwesomeIcon icon={regular('image')} className="me-2" />
@@ -117,7 +180,7 @@ function CreatePost() {
             </AddPhotosButton>
           </Col>
           <Col md="auto" className="order-2 ms-auto">
-            <RoundButton className="px-4 mt-4 w-100" size="md">
+            <RoundButton className="px-4 mt-4 w-100" size="md" onClick={addPost}>
               <span className="h3">Post</span>
             </RoundButton>
           </Col>

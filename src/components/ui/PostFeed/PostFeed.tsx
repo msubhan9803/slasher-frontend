@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import PostFooter from './PostFooter';
@@ -69,7 +69,6 @@ const StyledPostFeed = styled.div`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick,
 }: Props) {
-  const navigate = useNavigate();
   const [postData, setPostData] = useState<PostProps[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
@@ -92,9 +91,6 @@ function PostFeed({
     setPostData(likeData);
   };
 
-  const handleDetailPage = (userName: string, id: number, profileImage: string) => {
-    navigate(`/${userName}/posts/${id}`, { state: profileImage });
-  };
   return (
     <StyledPostFeed>
       {postData.map((post: PostProps) => (
@@ -121,7 +117,9 @@ function PostFeed({
               </div>
               {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post.userName, post.id, post.profileImage)} />
+                  <Link to={`/${post.userName}/posts/${post.id}`}>
+                    <PostImage src={post?.postUrl[0].image_path} className="w-100" />
+                  </Link>
                 </div>
               )}
               <Row className="pt-3 px-md-3">
@@ -132,8 +130,10 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                  <span className="fs-3">{post.commentCount}</span>
+                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                    <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                    <span className="fs-3">{post.commentCount}</span>
+                  </Link>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
@@ -167,7 +167,6 @@ function PostFeed({
             }
           </Card>
         </div>
-
       ))}
       {
         openLikeShareModal

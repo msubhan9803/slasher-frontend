@@ -6,6 +6,10 @@ export const setSignInCookies = (sessionToken: string, userId: string, userName:
   Cookies.set('userName', userName);
 };
 
+export const updateUserName = (userName: string) => {
+  Cookies.set('userName', userName);
+};
+
 export const clearSignInCookies = () => {
   Cookies.remove('sessionToken');
   Cookies.remove('userId');

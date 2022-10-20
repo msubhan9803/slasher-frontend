@@ -164,7 +164,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
-      it('userId must match regular expression', async () => {
+      it('`before` must match regular expression', async () => {
         const limit = 3;
         const before = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())

@@ -7,7 +7,6 @@ export const setSignInCookies = (sessionToken: string, userId: string, userName:
 };
 
 export const updateUserName = (userName: string) => {
-  console.log('setting to: ', userName);
   Cookies.set('userName', userName);
 };
 

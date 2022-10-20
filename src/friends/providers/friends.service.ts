@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { UserDocument } from '../../schemas/user/user.schema';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class FriendsService {
@@ -95,7 +96,7 @@ export class FriendsService {
     };
 
     if (userNameContains) {
-      matchQuery.$match.userName = new RegExp(userNameContains, 'i');
+      matchQuery.$match.userName = new RegExp(escapeStringForRegex(userNameContains), 'i');
     }
 
     const aggregateQuery = [

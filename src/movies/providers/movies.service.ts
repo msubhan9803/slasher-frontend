@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 import { MovieActiveStatus, MovieDeletionStatus } from '../../schemas/movie/movie.enums';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class MoviesService {
@@ -28,7 +29,7 @@ export class MoviesService {
   }
 
   async findFirstBySortName(sortNameStartsWith: string, activeOnly: boolean): Promise<MovieDocument> {
-    const sortNameQuery: any = { sort_name: new RegExp(`^${sortNameStartsWith}`) };
+    const sortNameQuery: any = { sort_name: new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`) };
     if (activeOnly) {
       sortNameQuery.is_deleted = MovieDeletionStatus.NotDeleted;
       sortNameQuery.status = MovieActiveStatus.Active;

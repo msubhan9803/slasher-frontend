@@ -65,10 +65,11 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
       it('when the startsWith is valid than expected response', async () => {
         const movie = await moviesService.create(
           moviesFactory.build({
+            name: 'GrEaT MoVie #9',
             status: MovieActiveStatus.Active,
           }),
         );
-        const sortNameStartsWith = movie.sort_name.slice(0, 6);
+        const sortNameStartsWith = 'great';
         const response = await request(app.getHttpServer())
           .get(`/movies/firstBySortName?startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

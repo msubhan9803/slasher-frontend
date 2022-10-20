@@ -2,7 +2,6 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
-import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { UserSettingsService } from './user-settings.service';
 import { userSettingFactory } from '../../../test/factories/user-settings';
@@ -65,8 +64,6 @@ describe('UserSettingsService', () => {
     });
   });
 
- 
-
   describe('#update', () => {
     it('finds the expected setting and update the details', async () => {
       const userSettingData = userSettingFactory.build(
@@ -74,17 +71,17 @@ describe('UserSettingsService', () => {
           userId: userData._id
         },
       );
-      const saveSetting = await userSettingsService.create(userSettingData);
+      await userSettingsService.create(userSettingData);
       const settingData = {
         friends_got_a_match: 0,
         friends_message_received: 1,
         message_board_like_your_post: 1,
-        message_board_reply_your_post:0,
-        message_board_new_post_on_thread: 0
+        message_board_reply_your_post: 0,
+        message_board_new_post_on_thread: 0,
       };
       
-      const updatedSetting = await userSettingsService.update(userData._id.toString(), settingData);
-      const reloadedEvent = await userSettingsService.findUserSetting({userId:userData._id});;
+      await userSettingsService.update(userData._id.toString(), settingData);
+      const reloadedEvent = await userSettingsService.findUserSetting({ userId:userData._id });
       expect(reloadedEvent.friends_got_a_match).toEqual(settingData.friends_got_a_match)
       expect(reloadedEvent.friends_message_received).toEqual(settingData.friends_message_received);
       expect(reloadedEvent.message_board_like_your_post).toEqual(settingData.message_board_like_your_post);
@@ -92,5 +89,4 @@ describe('UserSettingsService', () => {
       expect(reloadedEvent.message_board_new_post_on_thread).toEqual(settingData.message_board_new_post_on_thread);
     });
   });
-
 });

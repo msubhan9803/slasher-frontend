@@ -1,9 +1,6 @@
-import { Type } from 'class-transformer';
 import {
-  IsMongoId,
-  IsOptional, MaxLength, IsNotEmpty, IsEnum
+  IsOptional, IsEnum
 } from 'class-validator';
-import { Schema } from 'mongoose';
 import { UserSettingNotificationStatus } from '../../schemas/userSetting/userSetting.enums';
 
 export class UpdateNoticationSettingDto {

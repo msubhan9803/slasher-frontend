@@ -1,7 +1,6 @@
 import {
-  IsOptional, MaxLength, IsNotEmpty
+  IsOptional
 } from 'class-validator';
-import { Schema } from 'mongoose';
 import { UserSettingNotificationStatus } from '../../schemas/userSetting/userSetting.enums';
 
 export class CreateUserSettingDto {

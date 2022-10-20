@@ -1,21 +1,14 @@
 import {
     Body,
-    Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, UploadedFiles, UseInterceptors, ValidationPipe,
+    Controller, Get, HttpException, HttpStatus, Patch, Post, Req,
   } from '@nestjs/common';
   import { ConfigService } from '@nestjs/config';
-  import { FilesInterceptor } from '@nestjs/platform-express';
   import { Request } from 'express';
-  import mongoose from 'mongoose';
-  import { LocalStorageService } from '../local-storage/providers/local-storage.service';
-  import { S3StorageService } from '../local-storage/providers/s3-storage.service';
   import { getUserFromRequest } from '../utils/request-utils';
   import { CreateUserSettingDto } from './dto/create-user-setting.dto';
   import { UpdateNoticationSettingDto } from './dto/update-notification-setting.dto';
-  import { ValidateUserIdDto } from './dto/validate-user-id.dto';
   import { UserSettingsService } from './providers/user-settings.service';
   import { UserSetting } from '../schemas/userSetting/userSetting.schema';
-  import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-  import { pick } from '../utils/object-utils';
   
   @Controller('settings')
   export class UserSettingController { constructor(
@@ -29,16 +22,15 @@ import {
     ) {
       const user = getUserFromRequest(request);
       const createSetting = new UserSetting(CreateUserSettingDto);
-      createSetting.userId = user._id
-      const userSetting = await this.UserSettingsService.findUserSetting({userId:createSetting.userId});
+      createSetting.userId = user._id;
+      const userSetting = await this.UserSettingsService.findUserSetting({ userId:createSetting.userId });
 
       if (userSetting != null) {
         throw new HttpException('User setting already exists', HttpStatus.FOUND);
       }
-      const create_setting = await this.UserSettingsService.create(createSetting);
-      return create_setting
+      const saveSetting = await this.UserSettingsService.create(createSetting);
+      return saveSetting;
     }
-
 
     @Get('notifications')
       async getNotificationSettings(@Req() request: Request) {
@@ -58,7 +50,4 @@ import {
       const eventData = await this.UserSettingsService.update(user._id, UpdateNoticationSettingDto);
       return eventData
     }
-
-
   }
-  

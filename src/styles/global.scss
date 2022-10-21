@@ -218,6 +218,8 @@ input:hover {
   list-style: none;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
+  max-height: 150px;
 }
 .rc-mentions-dropdown-menu-item {
   cursor: pointer;

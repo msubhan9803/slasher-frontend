@@ -7,10 +7,10 @@ type Image = {
 export const imageFactory = Factory.define<Partial<Image[]>>(() => (
   [
     {
-      image_path: 'https://source.unsplash.com/random/200x200?sig=1',
+      image_path: '/feed/feed_sample1.jpg',
     },
     {
-      image_path: 'https://source.unsplash.com/random/200x200?sig=2',
+      image_path: '/feed/feed_sample2.jpg',
     },
   ]
 ));

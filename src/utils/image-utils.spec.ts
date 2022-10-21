@@ -16,11 +16,11 @@ describe('image-utils', () => {
         expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${s3Host}${relativeImagePath}`);
       });
 
-      it('generates the expected, unchanged path when given relativeImagePath is special noUser value', () => {
-        expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(specialNoUserValue);
+      it('generates the expected placeholder image url for the special noUser value', () => {
+        expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(`${s3Host}/placeholders/default_user_icon.png`);
       });
 
-      it('generates the expected, null when given relativeImagePath is null value', () => {
+      it('for a falsy value like null, returns the passed-in falsy value', () => {
         expect(relativeToFullImagePath(config, null)).toBeNull();
       });
     });
@@ -36,11 +36,11 @@ describe('image-utils', () => {
         expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${apiUrl}/local-storage${relativeImagePath}`);
       });
 
-      it('generates the expected, unchanged path when given relativeImagePath is special noUser value', () => {
-        expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(specialNoUserValue);
+      it('generates the expected placeholder image url for the special noUser value', () => {
+        expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(`${apiUrl}/placeholders/default_user_icon.png`);
       });
 
-      it('generates the expected, null when given relativeImagePath is null value', () => {
+      it('for a falsy value like null, returns the passed-in falsy value', () => {
         expect(relativeToFullImagePath(config, null)).toBeNull();
       });
     });

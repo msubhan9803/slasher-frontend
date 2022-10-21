@@ -2,6 +2,8 @@ import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_PIPE } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
@@ -23,6 +25,9 @@ import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-fe
     ConfigModule.forRoot({
       envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
     }),
     MongooseModule.forRootAsync({
       inject: [ConfigService],
@@ -61,6 +66,7 @@ export class AppModule {
       .apply(JwtAuthenticationMiddleware)
       .exclude(
         '/',
+        '/placeholders/(.*)', // the /placeholders endpoint is only used in development environments
         '/local-storage/(.*)', // the /local-storage endpoint is only used in development environments
         '/users/activate-account',
         '/users/check-user-name',

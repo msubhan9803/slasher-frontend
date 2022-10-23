@@ -78,7 +78,7 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
   }, []);
 
   return (
-    <div className="bg-dark bg-mobile-transparent rounded">
+    <div className="bg-dark bg-mobile-transparent rounded mb-4">
       {tabKey === 'about'
         ? (
           <Row className="p-md-4">
@@ -190,6 +190,6 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
   );
 }
 ProfileHeader.defaultProps = {
-  userDetail: undefined,
+  userDetail: () => null,
 };
 export default ProfileHeader;

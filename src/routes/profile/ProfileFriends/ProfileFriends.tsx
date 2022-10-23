@@ -41,15 +41,22 @@ function ProfileFriends() {
 
   useEffect(() => {
     if (userData) {
-      userProfileFriends(userData.id, page)
-        .then((res) => { setFriendsList(res.data); setPage(page + 1); })
+      userProfileFriends(userData.id, search ? 0 : page, search)
+        .then((res) => {
+          setFriendsList(res.data);
+          if (search) {
+            setPage(0);
+          } else {
+            setPage(page + 1);
+          }
+        })
         .catch((error) => setErrorMessage(error.response.data.message));
     }
-  }, [userData]);
+  }, [userData, search]);
 
   const fetchMoreFriendList = () => {
     if (userData && !noMoreData) {
-      userProfileFriends(userData.id, page)
+      userProfileFriends(userData.id, page, search)
         .then((res) => {
           setFriendsList((prev: any) => [
             ...prev,

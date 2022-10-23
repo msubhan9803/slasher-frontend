@@ -13,4 +13,5 @@ export const updateUserName = (userName: string) => {
 export const clearSignInCookies = () => {
   Cookies.remove('sessionToken');
   Cookies.remove('userId');
+  Cookies.remove('userName');
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { feedPostDetail } from '../../../api/feedpost';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -22,48 +22,56 @@ interface UserPostData {
   createdAt: string,
   images: string,
   message: string,
+  userId: {
+    userName: string;
+    profilePic: string;
+  }
 }
-type LocationState = {
-  state: {
-    post: UserPostData;
-  };
-};
+
 function ProfilePostDetail() {
   const [searchParams] = useSearchParams();
-  const { id } = useParams<string>();
-  const location = useLocation();
-  const { post } = (location as LocationState).state;
+  const { id, userName } = useParams<string>();
+  const navigate = useNavigate();
 
   const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<UserPostData[]>([]);
+  const [show, setShow] = useState(false);
+  const [dropDownValue, setDropDownValue] = useState('');
 
   let popoverOptions = ['Report', 'Block user'];
+
   if (queryParam === 'self') {
     popoverOptions = ['Edit', 'Delete'];
   }
-  const [show, setShow] = useState(false);
-  const [dropDownValue, setDropDownValue] = useState('');
+
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
   };
 
+  const decryptMessage = (content: string) => {
+    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
+    return found;
+  };
+
   useEffect(() => {
-    if (id && location) {
+    if (id) {
       feedPostDetail(id)
         .then((res) => {
+          if (res.data.userId.userName !== userName) {
+            navigate(`/${res.data.userId.userName}/posts/${id}`);
+          }
           setPostData([
             {
               ...res.data,
               /* eslint no-underscore-dangle: 0 */
               id: res.data._id,
               postDate: res.data.createdAt,
-              content: res.data.message,
+              content: decryptMessage(res.data.message),
               postUrl: res.data.images,
-              userName: post.userName,
-              firstName: post.firstName,
-              profileImage: post.profileImage,
+              userName: res.data.userId.userName,
+              profileImage: res.data.userId.profilePic,
             },
           ]);
         })
@@ -71,7 +79,8 @@ function ProfilePostDetail() {
           setErrorMessage(error.response.data.message);
         });
     }
-  }, [id, location]);
+  }, [id]);
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (

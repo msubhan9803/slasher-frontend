@@ -23,6 +23,7 @@ import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSide
 import { userInitialData } from '../../../../api/users';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
+import { clearSignInCookies } from '../../../../utils/session-utils';
 
 interface Props {
   children: React.ReactNode;
@@ -72,6 +73,11 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     if (!initialDataLoaded) {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
+      }).catch((err) => {
+        if (err.response.status === 401) {
+          clearSignInCookies();
+          navigate('/sign-in');
+        }
       });
     }
   }, []);

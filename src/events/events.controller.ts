@@ -16,10 +16,10 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
-import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('events')
 export class EventsController {
@@ -119,6 +119,7 @@ export class EventsController {
     return event;
   }
 
+  @TransformImageUrls('$.images[*]')
   @Get(':id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
     const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
@@ -127,12 +128,6 @@ export class EventsController {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
 
-    // eslint-disable-next-line no-param-reassign
-    eventData.images = eventData.images.map((imagePath) => {
-      // eslint-disable-next-line no-param-reassign
-      imagePath = relativeToFullImagePath(this.config, imagePath);
-      return imagePath;
-    });
     return eventData;
   }
 
@@ -148,6 +143,7 @@ export class EventsController {
     };
   }
 
+  @TransformImageUrls('$[*].images[*]')
   @Get()
   async getEventsByDateRange(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -161,14 +157,6 @@ export class EventsController {
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
 
-    for (const singleEvent of eventData) {
-      // eslint-disable-next-line no-param-reassign
-      singleEvent.images = singleEvent.images.map((imagePath) => {
-        // eslint-disable-next-line no-param-reassign
-        imagePath = relativeToFullImagePath(this.config, imagePath);
-        return imagePath;
-      });
-    }
     return eventData;
   }
 

@@ -38,10 +38,8 @@ function CustomSearchInput({ setSearch, search, label }: SearchProps) {
         addon-label="search"
         aria-describedby="search"
         type="text"
-        value={search}
-        onChange={(e: any) => {
-          setSearch(e.target.value);
-        }}
+        defaultValue={search}
+        onKeyPress={(e: any) => e.key === 'Enter' && setSearch(e.target.value)}
       />
     </StyledInputGroup>
   );

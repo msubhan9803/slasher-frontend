@@ -190,6 +190,6 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
   );
 }
 ProfileHeader.defaultProps = {
-  userDetail: undefined,
+  userDetail: () => null,
 };
 export default ProfileHeader;

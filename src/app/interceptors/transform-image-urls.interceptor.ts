@@ -44,15 +44,21 @@ export class TransformImageUrlsInterceptor implements NestInterceptor {
           }
 
           const matches = simpleJsonPath(jsonPathToObject, value);
+          // Sometimes, due to the way that the value is constructed, it will have multiple
+          // references to the same object instance, so we'll deduplicate by convertingt he array
+          // of matches to a Set (which will only allow one instance of a partiuclar object
+          // instance to be present).
+          const deduplicatedMatches = new Set(matches);
+
           // If propertyName is array notation, get key from inside brackets
           if (propertyKey.match(/\[[*\d]\]/)) {
             propertyKey = propertyKey.substring(1, propertyKey.length - 1);
             if (propertyKey !== '*') {
-              propertyKey = parseInt(propertyKey, 10); // important: make this a number!
+              propertyKey = parseInt(propertyKey, 10); // Parse as number for array index access
             }
           }
 
-          for (const match of matches) {
+          for (const match of deduplicatedMatches) {
             if (propertyKey === '*') {
               if (match instanceof Array) {
                 // Transform every element in this array

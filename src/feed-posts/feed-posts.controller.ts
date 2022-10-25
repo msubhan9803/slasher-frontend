@@ -17,6 +17,7 @@ import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -132,25 +133,18 @@ export class FeedPostsController {
     };
   }
 
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get()
   async mainFeedPosts(
     @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) mainFeedPostQueryDto: MainFeedPostQueryDto,
   ) {
     const user = getUserFromRequest(request);
-
     const feedPosts = await this.feedPostsService.findMainFeedPostsForUser(
       user.id,
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
-    // Convert image relative paths to full paths
-    for (const feedPost of feedPosts) {
-      feedPost.images.forEach((imageData) => {
-        // eslint-disable-next-line no-param-reassign
-        imageData.image_path = relativeToFullImagePath(this.config, imageData.image_path);
-      });
-    }
     return feedPosts;
   }
 }

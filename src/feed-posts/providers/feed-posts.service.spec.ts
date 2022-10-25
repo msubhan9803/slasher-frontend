@@ -226,29 +226,31 @@ describe('FeedPostsService', () => {
       await friendsService.createFriendRequest(userFriend2.id, activeUser.id);
       await friendsService.acceptFriendRequest(userFriend2.id, activeUser.id);
 
-      // Create some posts by all of the users (friends and non-friend)
-      for (const user of [userFriend1, userFriend2, userNonFriend]) {
+      // Create some posts by all of the users (activeUser, activeUser's friends, and non-friend)
+      for (const user of [activeUser, userFriend1, userFriend2, userNonFriend]) {
         for (let i = 0; i < 2; i += 1) {
-          // Active post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              userId: user._id,
-            }),
-          );
-          // Inactive post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              userId: user._id,
-              status: FeedPostStatus.Inactive,
-            }),
-          );
-          // Deleted post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              userId: user._id,
-              is_deleted: FeedPostDeletionState.Deleted,
-            }),
-          );
+          await Promise.all([
+            // Active post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                userId: user._id,
+              }),
+            ),
+            // Inactive post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                userId: user._id,
+                status: FeedPostStatus.Inactive,
+              }),
+            ),
+            // Deleted post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                userId: user._id,
+                is_deleted: FeedPostDeletionState.Deleted,
+              }),
+            ),
+          ]);
         }
       }
 
@@ -268,29 +270,31 @@ describe('FeedPostsService', () => {
       // Create some posts by all of the rss feed providers (follow ones and non-follow one)
       for (const rssFeedProv of [rssFeedProviderToFollow1, rssFeedProviderToFollow2, rssFeedProviderDoNotFollow]) {
         for (let i = 0; i < 2; i += 1) {
-          // Active post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              rssfeedProviderId: rssFeedProv._id,
-              userId: rssFeedProv._id,
-            }),
-          );
-          // Inactive post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              rssfeedProviderId: rssFeedProv._id,
-              userId: rssFeedProv._id,
-              status: FeedPostStatus.Inactive,
-            }),
-          );
-          // Deleted post
-          await feedPostsService.create(
-            feedPostFactory.build({
-              rssfeedProviderId: rssFeedProv._id,
-              userId: rssFeedProv._id,
-              is_deleted: FeedPostDeletionState.Deleted,
-            }),
-          );
+          await Promise.all([
+            // Active post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProv._id,
+                userId: rssFeedProv._id,
+              }),
+            ),
+            // Inactive post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProv._id,
+                userId: rssFeedProv._id,
+                status: FeedPostStatus.Inactive,
+              }),
+            ),
+            // Deleted post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProv._id,
+                userId: rssFeedProv._id,
+                is_deleted: FeedPostDeletionState.Deleted,
+              }),
+            ),
+          ]);
         }
       }
     });
@@ -298,12 +302,14 @@ describe('FeedPostsService', () => {
     it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
       const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 100);
 
-      // We expect 8 posts total because:
+      // We expect 10 posts total because:
+      // - The active user has 2 active posts = (2 posts)
       // - The active user has 2 friends with 2 active posts each = (4 posts)
       // - The active user is following 2 rssFeedProviders, each of those providers
       //   have 2 active posts each = (4 more posts)
-      expect(feedPosts).toHaveLength(8);
+      expect(feedPosts).toHaveLength(10);
 
+      // And we expect them to be sorted by createdAt date
       for (let i = 1; i < feedPosts.length; i += 1) {
         expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
       }
@@ -320,7 +326,7 @@ describe('FeedPostsService', () => {
       for (let index = 1; index < secondResults.length; index += 1) {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
       }
-      expect(secondResults).toHaveLength(2);
+      expect(secondResults).toHaveLength(4);
     });
   });
 });

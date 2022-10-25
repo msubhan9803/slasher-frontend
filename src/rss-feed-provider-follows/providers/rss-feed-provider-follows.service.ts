@@ -20,4 +20,9 @@ export class RssFeedProviderFollowsService {
   async findById(id: string): Promise<RssFeedProviderFollow> {
     return this.rssFeedProviderFollowModel.findOne({ _id: id }).exec();
   }
+
+  // TODO: Add test
+  async findAllByUserId(userId: string): Promise<RssFeedProviderFollow[]> {
+    return this.rssFeedProviderFollowModel.find({ userId }).exec();
+  }
 }

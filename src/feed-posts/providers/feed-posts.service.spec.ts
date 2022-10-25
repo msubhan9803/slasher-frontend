@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -10,12 +10,11 @@ import { UsersService } from '../../users/providers/users.service';
 import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-feed-providers.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
-import { User } from '../../schemas/user/user.schema';
+import { User, UserDocument } from '../../schemas/user/user.schema';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
-import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
-import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { FriendsService } from '../../friends/providers/friends.service';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -24,12 +23,9 @@ describe('FeedPostsService', () => {
   let usersService: UsersService;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
-  let activeUser: User;
-  let user1: User;
-  let user2: User;
-  let rssFeedProviderData: RssFeedProvider;
-  let rssFeedProviderData2: RssFeedProvider;
-  let friendsModel: Model<FriendDocument>;
+  let friendsService: FriendsService;
+  let activeUser: UserDocument;
+  let rssFeedProvider: RssFeedProvider;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,7 +36,7 @@ describe('FeedPostsService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
-    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -54,32 +50,7 @@ describe('FeedPostsService', () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
     activeUser = await usersService.create(userFactory.build());
-    user1 = await usersService.create(userFactory.build());
-    user2 = await usersService.create(userFactory.build());
-    rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-    rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-    await friendsModel.create({
-      from: activeUser._id.toString(),
-      to: user1._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
-    await friendsModel.create({
-      from: user2._id.toString(),
-      to: activeUser._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
-    await rssFeedProviderFollowsService.create(
-      {
-        userId: activeUser._id,
-        rssfeedProviderId: rssFeedProviderData._id,
-      },
-    );
-    await rssFeedProviderFollowsService.create(
-      {
-        userId: activeUser._id,
-        rssfeedProviderId: rssFeedProviderData2._id,
-      },
-    );
+    rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });
 
   it('should be defined', () => {
@@ -87,12 +58,27 @@ describe('FeedPostsService', () => {
   });
 
   describe('#create', () => {
-    it('successfully creates a feed post', async () => {
+    it('successfully creates a feed post that is associated with a user', async () => {
       const feedPostData = feedPostFactory.build({
         userId: activeUser._id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
-      expect(await feedPostsService.findById(feedPost._id, false)).toBeTruthy();
+      const reloadedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      expect((reloadedFeedPost.userId as unknown as User)._id).toEqual(activeUser._id);
+    });
+
+    it('successfully creates a feed post that is associated with an rss feed provider', async () => {
+      const feedPostData = feedPostFactory.build({
+        rssfeedProviderId: rssFeedProvider._id,
+        // Note: The old API assigns the rss feed provider id to the userId field for feedPosts.
+        // This isn't ideal, but we need to maintain it for compatibility.
+        userId: rssFeedProvider._id,
+      });
+      const feedPost = await feedPostsService.create(feedPostData);
+      const reloadedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(reloadedFeedPost.rssfeedProviderId.toString()).toEqual(rssFeedProvider._id.toString());
+      // TODO: Check this too:
+      //expect(reloadedFeedPost.userId.toString()).toEqual(feedPostData.userId.toString());
     });
   });
 
@@ -142,7 +128,7 @@ describe('FeedPostsService', () => {
       }
     });
 
-    it('when earlier than post id is exist and active only is true than expected response', async () => {
+    it('when earlier than post id is exist and active only is true then it returns the expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
         status: FeedPostStatus.Active,
@@ -157,7 +143,7 @@ describe('FeedPostsService', () => {
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
-    it('when earlier than post id is does not exist and active only is false than expected response', async () => {
+    it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
       const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
@@ -165,7 +151,7 @@ describe('FeedPostsService', () => {
       expect(feedPost).toHaveLength(20);
     });
 
-    it('when earlier than post id is does not exist but active only is true than expected response', async () => {
+    it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
       const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
@@ -173,7 +159,7 @@ describe('FeedPostsService', () => {
       expect(feedPost).toHaveLength(10);
     });
 
-    it('when earlier than post id does exist but active only is false than expected response', async () => {
+    it('when earlier than post id does exist but active only is false then it returns the expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
         userId: activeUser._id,
       });
@@ -222,29 +208,104 @@ describe('FeedPostsService', () => {
   });
 
   describe('#findMainFeedPostsForUser', () => {
+    let userFriend1;
+    let userFriend2;
+    let userNonFriend;
+    let rssFeedProviderToFollow1;
+    let rssFeedProviderToFollow2;
+    let rssFeedProviderDoNotFollow;
     beforeEach(async () => {
-      for (let i = 0; i < 5; i += 1) {
-        await feedPostsService.create(
-          feedPostFactory.build({
-            userId: activeUser._id,
-            rssfeedProviderId: rssFeedProviderData._id,
-          }),
-        );
-        await feedPostsService.create(
-          feedPostFactory.build({
-            userId: user1._id,
-            rssfeedProviderId: rssFeedProviderData2._id,
-            is_deleted: FeedPostDeletionState.Deleted,
-            status: FeedPostStatus.Inactive,
-          }),
-        );
+      // Create some other users
+      userFriend1 = await usersService.create(userFactory.build());
+      userFriend2 = await usersService.create(userFactory.build());
+      userNonFriend = await usersService.create(userFactory.build());
+
+      // Create accepted friend relationships for some of the users
+      await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
+      await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
+      await friendsService.createFriendRequest(userFriend2.id, activeUser.id);
+      await friendsService.acceptFriendRequest(userFriend2.id, activeUser.id);
+
+      // Create some posts by all of the users (friends and non-friend)
+      for (const user of [userFriend1, userFriend2, userNonFriend]) {
+        for (let i = 0; i < 2; i += 1) {
+          // Active post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              userId: user._id,
+            }),
+          );
+          // Inactive post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              userId: user._id,
+              status: FeedPostStatus.Inactive,
+            }),
+          );
+          // Deleted post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              userId: user._id,
+              is_deleted: FeedPostDeletionState.Deleted,
+            }),
+          );
+        }
+      }
+
+      // Create some rss feed providers
+      rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+      rssFeedProviderToFollow2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+      rssFeedProviderDoNotFollow = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+      // Create follow relationships for some of the rssFeedProviders
+      await rssFeedProviderFollowsService.create(
+        { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow1._id },
+      );
+      await rssFeedProviderFollowsService.create(
+        { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow2._id },
+      );
+
+      // Create some posts by all of the rss feed providers (follow ones and non-follow one)
+      for (const rssFeedProv of [rssFeedProviderToFollow1, rssFeedProviderToFollow2, rssFeedProviderDoNotFollow]) {
+        for (let i = 0; i < 2; i += 1) {
+          // Active post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProv._id,
+              userId: rssFeedProv._id,
+            }),
+          );
+          // Inactive post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProv._id,
+              userId: rssFeedProv._id,
+              status: FeedPostStatus.Inactive,
+            }),
+          );
+          // Deleted post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProv._id,
+              userId: rssFeedProv._id,
+              is_deleted: FeedPostDeletionState.Deleted,
+            }),
+          );
+        }
       }
     });
 
-    it('finds the expected feed posts for user', async () => {
-      const feedPost = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 2);
-      for (let i = 1; i < feedPost.length; i += 1) {
-        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+    it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
+      const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 100);
+
+      // We expect 8 posts total because:
+      // - The active user has 2 friends with 2 active posts each = (4 posts)
+      // - The active user is following 2 rssFeedProviders, each of those providers
+      //   have 2 active posts each = (4 more posts)
+      expect(feedPosts).toHaveLength(8);
+
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
       }
     });
 
@@ -259,7 +320,7 @@ describe('FeedPostsService', () => {
       for (let index = 1; index < secondResults.length; index += 1) {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
       }
-      expect(secondResults).toHaveLength(4);
+      expect(secondResults).toHaveLength(2);
     });
   });
 });

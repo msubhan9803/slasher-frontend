@@ -1,10 +1,12 @@
 import {
-  IsEmail, IsOptional, MaxLength,
+  IsEmail, IsNotEmpty, IsOptional, MaxLength,
 } from 'class-validator';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 
 export class UpdateUserDto {
   @IsOptional()
+  @IsNotEmpty()
+  @MaxLength(30)
   firstName?: string;
 
   @IsOptional()

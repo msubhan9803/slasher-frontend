@@ -78,10 +78,14 @@ export class User extends UserUnusedFields {
   @Prop({ default: null })
   dob: Date;
 
-  @Prop({ required: true, default: '', trim: true })
+  // TODO: Eventually make the field required (@Prop({required: true})), once the old API has been retired.
+  // Can't make it required now because that would stop users of the old API from logging in.
+  @Prop({ default: '', trim: true })
   securityQuestion: string;
 
-  @Prop({ required: true, default: '', trim: true })
+  // TODO: Eventually make the field required (@Prop({required: true})), once the old API has been retired.
+  // Can't make it required now because that would stop users of the old API from logging in.
+  @Prop({ default: '', trim: true })
   securityAnswer: string;
 
   @Prop({ trim: true, default: null })

@@ -85,10 +85,22 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          { ...pick(user2, ['userName', 'profilePic']), _id: user2._id.toString() }, // Abe Kenobi
-          { ...pick(user1, ['userName', 'profilePic']), _id: user1._id.toString() }, // Albert DARTH Skywalker
-          { ...pick(user5, ['userName', 'profilePic']), _id: user5._id.toString() }, // Darth Maul
-          { ...pick(user3, ['userName', 'profilePic']), _id: user3._id.toString() }, // Darth Vader
+          {
+            // Abe Kenobi
+            userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            // Albert DARTH Skywalker
+            userName: user1.userName, _id: user1._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            // Darth Maul
+            userName: user5.userName, _id: user5._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            // Darth Vader
+            userName: user3.userName, _id: user3._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
         ]);
       });
 
@@ -101,7 +113,8 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          { ...pick(user5, ['userName', 'profilePic']), _id: user5._id.toString() }, // Darth Maul
+          // Darth Maul
+          { userName: user5.userName, _id: user5._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
         ]);
       });
     });
@@ -118,9 +131,20 @@ describe('Get All Friends (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          { ...pick(user2, ['userName', 'profilePic']), _id: user2._id.toString() }, // Abe Kenobi
-          { ...pick(user4, ['userName', 'profilePic']), _id: user4._id.toString() }, // Princess Leia
-          { ...pick(activeUser, ['userName', 'profilePic']), _id: activeUser._id.toString() }, // Star Wars Fan
+          {
+            // Abe Kenobi
+            userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            // Princess Leia
+            userName: user4.userName, _id: user4._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            // Star Wars Fan
+            userName: activeUser.userName,
+            _id: activeUser._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
         ]);
       });
 
@@ -136,7 +160,7 @@ describe('Get All Friends (e2e)', () => {
           {
             userName: user2.userName, // Abe Kenobi
             _id: user2._id.toString(),
-            profilePic: user2.profilePic,
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);
       });

@@ -46,10 +46,10 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
-import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -296,8 +296,10 @@ export class UsersController {
 
   // eslint-disable-next-line class-methods-use-this
   @Get('initial-data')
-  initialData(@Req() request: Request) {
+  async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
+    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
+    const friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
     return {
       userName: user.userName,
       notificationCount: 6,
@@ -321,20 +323,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: [
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=12',
-          userName: 'JackSkellington',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=19',
-          userName: 'Sally',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=17',
-          userName: 'OogieBoogie',
-        },
-      ],
+      friendRequests: friends,
     };
   }
 
@@ -346,6 +335,7 @@ export class UsersController {
     return this.usersService.suggestUserName(query.query, query.limit);
   }
 
+  @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
   async findOne(@Param('userNameOrId') userNameOrId: string) {
     let user: UserDocument;
@@ -358,9 +348,6 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    user.profilePic = relativeToFullImagePath(this.config, user.profilePic);
-    user.coverPhoto = relativeToFullImagePath(this.config, user.coverPhoto);
 
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
   }
@@ -416,6 +403,7 @@ export class UsersController {
     return { success: true };
   }
 
+  @TransformImageUrls('$[*].images[*].image_path')
   @Get(':userId/posts')
   async allfeedPost(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -427,22 +415,16 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    const feedPost = await this.feedPostsService.findAllByUser(
+    const feedPosts = await this.feedPostsService.findAllByUser(
       user._id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
-    for (const feedPostsImage of feedPost) {
-      feedPostsImage.images.map((relativeImagePath) => {
-        // eslint-disable-next-line no-param-reassign
-        relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
-        return relativeImagePath;
-      });
-    }
-    return feedPost;
+    return feedPosts;
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get(':userId/friends')
   async getFriends(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

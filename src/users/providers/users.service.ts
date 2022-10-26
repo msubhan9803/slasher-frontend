@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
+import { escapeStringForRegex } from '../../utils/escape-utils';
 
 export interface UserNameSuggestion {
   userName: string;
@@ -104,7 +105,7 @@ export class UsersService {
   }
 
   async suggestUserName(query: string, limit: number): Promise<UserNameSuggestion[]> {
-    const nameFindQuery = { userName: new RegExp(`^${query}`) };
+    const nameFindQuery = { userName: new RegExp(`^${escapeStringForRegex(query)}`) };
     const users = await this.userModel
       .find(nameFindQuery)
       .sort({ userName: 1 })

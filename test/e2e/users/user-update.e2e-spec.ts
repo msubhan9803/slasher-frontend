@@ -111,6 +111,28 @@ describe('Users / :id (e2e)', () => {
         expect(response.body.message).toContain('You are not allowed to do this action');
       });
 
+      it('firstName is not empty', async () => {
+        postBody.firstName = '';
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.body.message).toContain(
+          'firstName should not be empty',
+        );
+      });
+
+      it('firstName is not longer than 30 characters', async () => {
+        postBody.firstName = 'long first name > 30 characters';
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.body.message).toContain(
+          'firstName must be shorter than or equal to 30 characters',
+        );
+      });
+
       it('userName is minimum 3 characters long', async () => {
         postBody.userName = 'Te';
         const response = await request(app.getHttpServer())

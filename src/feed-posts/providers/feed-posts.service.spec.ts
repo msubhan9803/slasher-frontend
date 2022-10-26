@@ -107,7 +107,6 @@ describe('FeedPostsService', () => {
         ),
       );
     });
-
     it('finds the expected feed post details', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost._id, false);
       expect(feedPostDetails.message).toEqual(feedPost.message);
@@ -218,7 +217,7 @@ describe('FeedPostsService', () => {
       const updatedFindPost = await feedPostsService.update(feedPost._id, feedPostData);
       const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id, false);
       expect(reloadedFindPost.message).toEqual(updatedFindPost.message);
-      expect(reloadedFindPost.images).toEqual(updatedFindPost.images);
+      expect(reloadedFindPost.toJSON().images).toEqual(updatedFindPost.toJSON().images);
     });
   });
 
@@ -255,10 +254,12 @@ describe('FeedPostsService', () => {
       for (let index = 1; index < firstResults.length; index += 1) {
         expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
       }
-      const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[1]._id);
+      expect(firstResults).toHaveLength(6);
+      const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
       for (let index = 1; index < secondResults.length; index += 1) {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
       }
+      expect(secondResults).toHaveLength(4);
     });
   });
 });

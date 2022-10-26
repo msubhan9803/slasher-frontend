@@ -7,15 +7,17 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user/user.schema';
+import { UserDocument } from '../../../src/schemas/user/user.schema';
+import { FriendsService } from '../../../src/friends/providers/friends.service';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -25,6 +27,7 @@ describe('Users suggested friends (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -40,11 +43,22 @@ describe('Users suggested friends (e2e)', () => {
 
   describe('GET /users/initial-data', () => {
     describe('Available user initial data in the database', () => {
+      let user1: UserDocument;
+      let user2: UserDocument;
+      let user3: UserDocument;
+
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build());
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );
+        user1 = await usersService.create(userFactory.build({ userName: 'Friend1' }));
+        user2 = await usersService.create(userFactory.build({ userName: 'Friend2' }));
+        user3 = await usersService.create(userFactory.build({ userName: 'Friend3' }));
+
+        await friendsService.createFriendRequest(user3.id, activeUser.id);
+        await friendsService.createFriendRequest(user1.id, activeUser.id);
+        await friendsService.createFriendRequest(user2.id, activeUser.id);
       });
       it('returns the expected user initial data', async () => {
         const response = await request(app.getHttpServer())
@@ -76,18 +90,9 @@ describe('Users suggested friends (e2e)', () => {
             },
           ],
           friendRequests: [
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=12',
-              userName: 'JackSkellington',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=19',
-              userName: 'Sally',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=17',
-              userName: 'OogieBoogie',
-            },
+            { userName: 'Friend2', profilePic: 'noUser.jpg' },
+            { userName: 'Friend1', profilePic: 'noUser.jpg' },
+            { userName: 'Friend3', profilePic: 'noUser.jpg' },
           ],
         });
       });

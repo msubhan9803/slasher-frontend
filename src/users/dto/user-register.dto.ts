@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsEmail,
   MinLength,
+  MaxLength,
 } from 'class-validator';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 import { IsValidPassword } from '../../app/decorators/class-validator/valid-password.decorator';
@@ -11,6 +12,7 @@ import { MinYearsBeforeToday } from '../../app/decorators/class-validator/min-ye
 
 export class UserRegisterDto {
   @IsNotEmpty()
+  @MaxLength(30)
   firstName: string;
 
   @IsNotEmpty()

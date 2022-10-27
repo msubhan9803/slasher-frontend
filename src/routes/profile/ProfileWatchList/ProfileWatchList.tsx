@@ -9,6 +9,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import CustomSearchInput from '../../../components/ui/CustomerSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import MoviePost from '../../../images/movie-poster.jpg';
+import { User } from '../../../types';
 
 const allMovies = [
   {
@@ -36,7 +37,10 @@ const allMovies = [
     id: 8, name: 'Zombie Reddy', image: MoviePost, year: '2022', liked: true,
   },
 ];
-function ProfileWatchList() {
+interface Props {
+  user: User
+}
+function ProfileWatchList({ user }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [search, setSearch] = useState<string>('');
@@ -44,7 +48,7 @@ function ProfileWatchList() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="watched-list" />
+      <ProfileHeader tabKey="watched-list" user={user} />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

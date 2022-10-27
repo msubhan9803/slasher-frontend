@@ -1,51 +1,30 @@
 /* eslint-disable max-lines */
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
 import {
-  getUserProfileDetail,
-  uploadUserCoverImage, uploadUserProfileImage, updateUserProfile,
+  uploadUserCoverImage, uploadUserProfileImage, updateUser,
 } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
+import { User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
 
-interface UserDataProps {
-  userName: string;
-  firstName: string;
-  email: string;
-  id: string;
-  profilePic: string;
-  coverPhoto: string;
+interface Props {
+  user: User
 }
-
-function ProfileEdit() {
+function ProfileEdit({ user }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
-  const [userData, setUserData] = useState<UserDataProps>({
-    userName: '',
-    firstName: '',
-    email: '',
-    id: '',
-    profilePic: '',
-    coverPhoto: '',
-  });
+  const [locallyStoredUserData, setLocallyStoredUserData] = useState<User>(user);
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
-
-  useEffect(() => {
-    if (params && params.userName) {
-      getUserProfileDetail(params.userName)
-        .then((res) => setUserData(res.data))
-        .catch((error) => setErrorMessages(error));
-    }
-  }, [params]);
 
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -68,11 +47,11 @@ function ProfileEdit() {
     }
 
     try {
-      await updateUserProfile(
-        userData.userName,
-        userData.firstName,
-        userData.email,
-        userData.id,
+      await updateUser(
+        locallyStoredUserData.userName,
+        locallyStoredUserData.firstName,
+        locallyStoredUserData.email,
+        locallyStoredUserData.id,
       );
     } catch (requestError: any) {
       errorList = errorList.concat(requestError.response.data.message);
@@ -81,14 +60,17 @@ function ProfileEdit() {
 
     if (errorList.length === 0) {
       // After successful update, update locally-stored username
-      updateUserName(userData.userName);
+      updateUserName(locallyStoredUserData.userName);
       // And update current url to use latest userName (to handle possible userName change)
-      navigate(location.pathname.replace(params.userName!, userData.userName), { replace: true });
+      navigate(
+        location.pathname.replace(params.userName!, locallyStoredUserData.userName),
+        { replace: true },
+      );
     }
   };
 
   const handleChange = (value: string, key: string) => {
-    setUserData({ ...userData, [key]: value });
+    setLocallyStoredUserData({ ...locallyStoredUserData, [key]: value });
   };
 
   return (
@@ -102,7 +84,7 @@ function ProfileEdit() {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={userData.profilePic}
+                  imagePreview={locallyStoredUserData.profilePic}
                   onChange={(file) => { setProfilePhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -124,7 +106,7 @@ function ProfileEdit() {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={userData.coverPhoto}
+                  imagePreview={locallyStoredUserData.coverPhoto}
                   onChange={(file) => { setCoverPhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -151,7 +133,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="text"
                   placeholder="Name"
-                  value={userData.firstName || ''}
+                  value={locallyStoredUserData.firstName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'firstName')
                   }
@@ -170,7 +152,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="text"
                   placeholder="Username"
-                  value={userData.userName || ''}
+                  value={locallyStoredUserData.userName || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'userName')
                   }
@@ -189,7 +171,7 @@ function ProfileEdit() {
                 <Form.Control
                   type="email"
                   placeholder="Email"
-                  value={userData.email || ''}
+                  value={locallyStoredUserData.email || ''}
                   onChange={
                     (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
                   }

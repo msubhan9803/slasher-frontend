@@ -70,7 +70,7 @@ export async function getSuggestUserName(text: string) {
   return axios.get(`${apiUrl}/users/suggest-user-name?query=${text}&limit=10`, { headers });
 }
 
-export async function userProfilePost(userName: string) {
+export async function getUser(userName: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -103,15 +103,15 @@ export async function userProfileFriends(userId: string, page: number, search = 
   return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
 }
 
-export async function getUserProfileDetail(userName: string) {
-  const token = Cookies.get('sessionToken');
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-  return axios.get(`${apiUrl}/users/${userName}`, { headers });
-}
+// export async function getUserProfileDetail(userName: string) {
+//   const token = Cookies.get('sessionToken');
+//   const headers = {
+//     Authorization: `Bearer ${token}`,
+//   };
+//   return axios.get(`${apiUrl}/users/${userName}`, { headers });
+// }
 
-export async function updateUserProfile(
+export async function updateUser(
   userName: string,
   firstName: string,
   email: string,

@@ -8,18 +8,15 @@ import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { Post } from '../../../types';
-
-interface UserData {
-  id: string;
-  firstName: string;
-  userName: string;
-  profilePic: string;
-}
+import { Post, User } from '../../../types';
 
 const popoverOptions = ['Edit', 'Delete'];
 
-function ProfilePosts() {
+interface Props {
+  user: User
+}
+
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
@@ -27,7 +24,6 @@ function ProfilePosts() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [userData, setUserData] = useState<UserData>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
 
@@ -37,11 +33,11 @@ function ProfilePosts() {
   };
 
   useEffect(() => {
-    if (userData && requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
 
       getProfilePosts(
-        userData.id,
+        user.id,
         posts.length > 1 ? posts[posts.length - 1]._id : undefined,
       ).then((res) => {
         const newPosts = res.data.map((data: any) => (
@@ -70,7 +66,7 @@ function ProfilePosts() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts, userData]);
+  }, [requestAdditionalPosts, loadingPosts]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -88,7 +84,7 @@ function ProfilePosts() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="posts" userDetail={setUserData} />
+      <ProfileHeader tabKey="posts" user={user} />
       {queryParam === 'self'
         && (
           <div className="mt-4">

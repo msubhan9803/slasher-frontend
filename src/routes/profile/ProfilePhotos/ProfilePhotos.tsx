@@ -6,6 +6,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
+import { User } from '../../../types';
 
 const ProfilePhoto = styled(Image)`
   acpect-ratio:1;
@@ -29,7 +30,10 @@ const photosData = [
   { id: 12, photoUrl: 'https://i.pravatar.cc/300?img=01' },
 ];
 
-function ProfilePhotos() {
+interface Props {
+  user: User
+}
+function ProfilePhotos({ user }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [show, setShow] = useState(false);
@@ -43,7 +47,7 @@ function ProfilePhotos() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="photos" />
+      <ProfileHeader tabKey="photos" user={user} />
       <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
         <Row className="justify-content-between">
           {photosData.map((data) => (

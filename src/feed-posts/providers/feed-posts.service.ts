@@ -184,4 +184,27 @@ export class FeedPostsService {
     //   .limit(limit)
     //   .exec();
   }
+
+  async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
+    // Optionally, only include posts that are older than the given `before` post
+    const beforeQuery: any = {};
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      beforeQuery.createdAt = { $lt: feedPost.createdAt };
+    }
+
+    return this.feedPostModel
+      .find({
+        $and: [
+          { userId },
+          { is_deleted: FeedPostDeletionState.NotDeleted },
+          { status: FeedPostStatus.Active },
+          { 'images.0': { $exists: true } },
+          beforeQuery,
+        ],
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
 }

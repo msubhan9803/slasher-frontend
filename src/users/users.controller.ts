@@ -295,7 +295,7 @@ export class UsersController {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.friendRequests[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);

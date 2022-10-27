@@ -9,6 +9,7 @@ import ReportModal from '../../../components/ui/ReportModal';
 import FriendsProfileCard from './FriendsProfileCard';
 import { userProfileFriends } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { User } from '../../../types';
 
 interface FriendProps {
   _id?: string;
@@ -18,11 +19,13 @@ interface FriendProps {
   profilePic: string;
 }
 
-function ProfileFriends() {
+interface Props {
+  user: User
+}
+function ProfileFriends({ user }: Props) {
   const navigate = useNavigate();
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [userData, setUserData] = useState<FriendProps>();
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -40,23 +43,21 @@ function ProfileFriends() {
   };
 
   useEffect(() => {
-    if (userData) {
-      userProfileFriends(userData.id, search ? 0 : page, search)
-        .then((res) => {
-          setFriendsList(res.data);
-          if (search) {
-            setPage(0);
-          } else {
-            setPage(page + 1);
-          }
-        })
-        .catch((error) => setErrorMessage(error.response.data.message));
-    }
-  }, [userData, search]);
+    userProfileFriends(user.id, search ? 0 : page, search)
+      .then((res) => {
+        setFriendsList(res.data);
+        if (search) {
+          setPage(0);
+        } else {
+          setPage(page + 1);
+        }
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
+  }, [search]);
 
   const fetchMoreFriendList = () => {
-    if (userData && !noMoreData) {
-      userProfileFriends(userData.id, page, search)
+    if (!noMoreData) {
+      userProfileFriends(user.id, page, search)
         .then((res) => {
           setFriendsList((prev: any) => [
             ...prev,
@@ -71,7 +72,7 @@ function ProfileFriends() {
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
-      <ProfileHeader tabKey="friends" userDetail={setUserData} />
+      <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-2">
         <div className="d-md-flex d-block justify-content-between">
           <div>

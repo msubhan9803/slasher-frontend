@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Image, Row,
 } from 'react-bootstrap';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -12,17 +12,11 @@ import postImage from '../../images/about-post.jpg';
 import CustomPopover from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
-import { userProfilePost } from '../../api/users';
+import { User } from '../../types';
 
-interface UserData {
-  id?: string;
-  firstName?: string;
-  userName?: string;
-  profilePic?: string;
-}
 interface Props {
   tabKey: string;
-  userDetail?: any;
+  user: User;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -52,10 +46,7 @@ const StyledPopoverContainer = styled.div`
   top: 70px;
   right: 10px;
 `;
-function ProfileHeader({ tabKey, userDetail }: Props) {
-  const params = useParams();
-  const { userName } = useParams<string>();
-  const [userData, setUserData] = useState<UserData>();
+function ProfileHeader({ tabKey, user }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
   const [show, setShow] = useState<boolean>(false);
@@ -66,16 +57,6 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
     setShow(true);
     setDropDownValue(value);
   };
-
-  useEffect(() => {
-    if (userName) {
-      userProfilePost(userName)
-        .then((res) => {
-          setUserData(res.data);
-          userDetail(res.data);
-        });
-    }
-  }, []);
 
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
@@ -89,7 +70,7 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
             </Col>
             <Row className="d-flex ms-3">
               <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-                <AboutProfileImage size="11.25rem" src={userData?.profilePic} />
+                <AboutProfileImage size="11.25rem" src={user?.profilePic} />
                 {queryParam !== 'self'
                   && (
                     <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -104,11 +85,11 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
                 <Row className="d-flex justify-content-between">
                   <Col xs={12} md={6} lg={12} xl={6} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                     <h1 className="mb-md-0">
-                      {userData?.firstName}
+                      {user?.firstName}
                     </h1>
                     <p className="fs-5  text-light">
                       @
-                      {userData?.userName}
+                      {user?.userName}
                     </p>
 
                   </Col>
@@ -146,15 +127,15 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
           <RoundDiv className="d-flex bg-dark justify-content-between p-md-3 p-2">
             <div className="d-flex">
               <div>
-                <UserCircleImage src={userData?.profilePic} className="me-2" />
+                <UserCircleImage src={user?.profilePic} className="me-2" />
               </div>
               <div className="text-capitalize">
                 <p className="fs-3 mb-0">
                   @
-                  {userData?.userName}
+                  {user?.userName}
                 </p>
                 <p className="fs-5 text-light mb-0">
-                  {userData?.firstName}
+                  {user?.firstName}
                 </p>
               </div>
             </div>
@@ -184,12 +165,10 @@ function ProfileHeader({ tabKey, userDetail }: Props) {
         )}
 
       <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={tabs} toLink={`/${params.userName}`} selectedTab={tabKey} />
+      <TabLinks tabLink={tabs} toLink={`/${user.userName}`} selectedTab={tabKey} />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );
 }
-ProfileHeader.defaultProps = {
-  userDetail: () => null,
-};
+
 export default ProfileHeader;

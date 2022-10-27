@@ -9,6 +9,7 @@ import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import ReportModal from '../../../../components/ui/ReportModal';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
+import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
 
@@ -20,12 +21,14 @@ interface FriendProps {
   profilePic: string;
 }
 
-function ProfileFriendRequest() {
+interface Props {
+  user: User
+}
+function ProfileFriendRequest({ user }: Props) {
   const navigate = useNavigate();
   const params = useParams();
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [userData, setUserData] = useState<FriendProps>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendPage, setFriendPage] = useState<number>(0);
   const [noMoreFriendData, setMoreData] = useState<boolean>(false);
@@ -51,22 +54,20 @@ function ProfileFriendRequest() {
     }
   };
   useEffect(() => {
-    if (userData) {
-      userProfileFriends(userData.id, friendPage)
-        .then((res) => { setFriendsList(res.data); setFriendPage(friendPage + 1); })
-        .catch((error) => setErrorMessage(error.response.data.message));
+    userProfileFriends(user.id, friendPage)
+      .then((res) => { setFriendsList(res.data); setFriendPage(friendPage + 1); })
+      .catch((error) => setErrorMessage(error.response.data.message));
 
-      userProfileFriendsRequest(friendRequestPage)
-        .then((res) => {
-          setFriendsReqList(res.data);
-          setFriendRequestPage(friendRequestPage + 1);
-        })
-        .catch((error) => setErrorMessage(error.response.data.message));
-    }
-  }, [userData]);
+    userProfileFriendsRequest(friendRequestPage)
+      .then((res) => {
+        setFriendsReqList(res.data);
+        setFriendRequestPage(friendRequestPage + 1);
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
+  });
   const fetchMoreFriendList = () => {
-    if (userData && !noMoreFriendData) {
-      userProfileFriends(userData.id, friendPage)
+    if (!noMoreFriendData) {
+      userProfileFriends(user.id, friendPage)
         .then((res) => {
           setFriendsList((prev: FriendProps[]) => [
             ...prev,
@@ -99,7 +100,7 @@ function ProfileFriendRequest() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <ProfileHeader tabKey="friends" userDetail={setUserData} />
+      <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-3">
         <div className="d-sm-flex d-block justify-content-between">
           <div>

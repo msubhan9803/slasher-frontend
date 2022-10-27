@@ -25,3 +25,13 @@ export interface Post {
   likeIcon: boolean;
   hashTag?: string[];
 }
+
+export interface User {
+  id: string;
+  firstName: string;
+  userName: string;
+  email: string;
+  profilePic: string;
+  coverPhoto: string;
+  aboutMe: string;
+}

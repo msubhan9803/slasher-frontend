@@ -5,37 +5,19 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
+import { Post, User } from '../../../types';
 
-interface UserPostData {
-  _id: string;
-  postDate: string;
-  content: string;
-  postUrl: string;
-  userName: string;
-  firstName: string;
-  profileImage: string;
-  commentCount: number;
-  likeCount: number;
-  sharedList: number;
-  id: number;
-  likeIcon: boolean;
-  createdAt: string,
-  images: string,
-  message: string,
-  userId: {
-    userName: string;
-    profilePic: string;
-  }
+interface Props {
+  user: User
 }
-
-function ProfilePostDetail() {
+function ProfilePostDetail({ user }: Props) {
   const [searchParams] = useSearchParams();
-  const { id, userName } = useParams<string>();
+  const { postId } = useParams<string>();
   const navigate = useNavigate();
 
   const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [postData, setPostData] = useState<UserPostData[]>([]);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
 
@@ -56,16 +38,18 @@ function ProfilePostDetail() {
   };
 
   useEffect(() => {
-    if (id) {
-      feedPostDetail(id)
+    if (postId) {
+      feedPostDetail(postId)
         .then((res) => {
-          if (res.data.userId.userName !== userName) {
-            navigate(`/${res.data.userId.userName}/posts/${id}`);
+          if (res.data.userId.userName !== user.userName) {
+            navigate(`/${res.data.userId.userName}/posts/${postId}`);
+            return;
           }
           setPostData([
             {
               ...res.data,
               /* eslint no-underscore-dangle: 0 */
+              _id: res.data._id,
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
@@ -79,7 +63,7 @@ function ProfilePostDetail() {
           setErrorMessage(error.response.data.message);
         });
     }
-  }, [id]);
+  }, [postId, user]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>

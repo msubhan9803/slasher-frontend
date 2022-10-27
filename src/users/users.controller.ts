@@ -406,7 +406,7 @@ export class UsersController {
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
-  async allfeedPost(
+  async allFeedPosts(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

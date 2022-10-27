@@ -8,13 +8,15 @@ import { userSettingFactory } from '../../../test/factories/user-settings';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
+import { UserSettingDocument } from '../../schemas/userSetting/userSetting.schema';
 
 describe('UserSettingsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let userSettingsService: UserSettingsService;
   let usersService: UsersService;
-  let userData: Partial<UserDocument>;
+  let userData: UserDocument;
+  let userSetting: UserSettingDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,7 +37,7 @@ describe('UserSettingsService', () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
     userData = await usersService.create(userFactory.build());
-    await userSettingsService.create(
+    userSetting = await userSettingsService.create(
       userSettingFactory.build(
         {
           userId: userData._id,
@@ -45,7 +47,7 @@ describe('UserSettingsService', () => {
   });
 
   describe('#create', () => {
-    it('successfully creates a event', async () => {
+    it('successfully creates a user setting', async () => {
       const userSettingData = userSettingFactory.build(
         {
           userId: userData._id,
@@ -55,9 +57,11 @@ describe('UserSettingsService', () => {
     });
   });
 
-  describe('#getsetting', () => {
-    it('successfully get a user setting----------------', async () => {
-      expect(await userSettingsService.findByUserId(userData._id)).toBeTruthy();
+  describe('#findByUserId', () => {
+    it('successfully get a user setting', async () => {
+      const getUserSetting = await userSettingsService.findByUserId(userData._id);
+      expect(getUserSetting._id).toEqual(userSetting._id);
+      expect(getUserSetting.userId).toEqual(userSetting.userId);
     });
   });
 
@@ -78,12 +82,12 @@ describe('UserSettingsService', () => {
       };
 
       await userSettingsService.update(userData._id.toString(), settingData);
-      const reloadedEvent = await userSettingsService.findUserSetting({ userId: userData._id });
-      expect(reloadedEvent.friends_got_a_match).toEqual(settingData.friends_got_a_match);
-      expect(reloadedEvent.friends_message_received).toEqual(settingData.friends_message_received);
-      expect(reloadedEvent.message_board_like_your_post).toEqual(settingData.message_board_like_your_post);
-      expect(reloadedEvent.message_board_reply_your_post).toEqual(settingData.message_board_reply_your_post);
-      expect(reloadedEvent.message_board_new_post_on_thread).toEqual(settingData.message_board_new_post_on_thread);
+      const reloadedUserSetting = await userSettingsService.findByUserId(userData._id);
+      expect(reloadedUserSetting.friends_got_a_match).toEqual(settingData.friends_got_a_match);
+      expect(reloadedUserSetting.friends_message_received).toEqual(settingData.friends_message_received);
+      expect(reloadedUserSetting.message_board_like_your_post).toEqual(settingData.message_board_like_your_post);
+      expect(reloadedUserSetting.message_board_reply_your_post).toEqual(settingData.message_board_reply_your_post);
+      expect(reloadedUserSetting.message_board_new_post_on_thread).toEqual(settingData.message_board_new_post_on_thread);
     });
   });
 });

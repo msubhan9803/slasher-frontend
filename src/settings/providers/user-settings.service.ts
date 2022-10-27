@@ -20,8 +20,4 @@ export class UserSettingsService {
     async findByUserId(userId: string): Promise<UserSettingDocument> {
         return this.UserSettingModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }).exec();
     }
-
-    async findUserSetting(condition): Promise<UserSettingDocument> {
-        return this.UserSettingModel.findOne(condition).exec();
-    }
 }

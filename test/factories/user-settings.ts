@@ -7,8 +7,7 @@ type UserTransientParams = {
 };
 
 export const userSettingFactory = Factory.define<Partial<UserSetting>, UserTransientParams>(
-  ({ transientParams }) => new UserSetting({
-    userId: transientParams.userId,
+  () => new UserSetting({
     onboarding_completed: true,
     dating_got_a_match: 1,
     dating_message_received: 1,

@@ -6,31 +6,31 @@ import SidebarNavItem from './SidebarNavItem';
 
 const sidebarMenuList = [
   {
-    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/news',
+    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/news', id: 1,
   },
   {
-    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/events',
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/events', id: 2,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/places',
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/places', id: 3,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/dating',
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/dating', id: 4,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/podcasts',
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/podcasts', id: 5,
   },
   {
-    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/videos',
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/videos', id: 6,
   },
   {
-    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/shopping',
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/shopping', id: 7,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/movies',
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/movies', id: 8,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/books',
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/books', id: 9,
   },
   {
     label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 10, to: '/music',
@@ -48,7 +48,8 @@ function SidebarNavContent() {
     <Nav>
       {sidebarMenuList.map((menu) => (
         <SidebarNavItem
-          key={menu.label}
+          id={menu.id}
+          key={menu.id}
           label={menu.label}
           icon={menu.icon}
           iconColor={menu.iconColor}

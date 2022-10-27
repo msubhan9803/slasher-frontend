@@ -404,7 +404,7 @@ export class UsersController {
     return { success: true };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
   async allfeedPost(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

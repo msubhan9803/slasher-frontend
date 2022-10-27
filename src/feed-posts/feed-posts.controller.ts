@@ -133,7 +133,11 @@ export class FeedPostsController {
     };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].rssfeedProviderId.logo',
+  )
   @Get()
   async mainFeedPosts(
     @Req() request: Request,

@@ -84,7 +84,8 @@ export class FeedPostsService {
           beforeQuery,
         ],
       })
-      .populate('userId', 'userName _id profilePic')
+      .populate('userId', '_id userName profilePic')
+      .populate('rssfeedProviderId', '_id title logo')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

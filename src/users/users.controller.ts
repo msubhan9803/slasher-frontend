@@ -127,10 +127,11 @@ export class UsersController {
 
     // During successful sign-in, update certain fields and re-save the object:
     user.last_login = new Date();
-    // TODO: Is there any reason we need to store the JWT in the db?
-    // It's done in the old API, but it may not actually be necessary.
-    // We'll keep this commented out for now, and uncomment later if needed.
-    // user.token = `Bearer ${token}`;
+
+    // Store the user's latest token in the database.  This is mostly just done for compatibility
+    // with the old API, which does the same thing, but we don't actually do any comparisons with
+    // the database-stored version of the token.
+    user.token = `Bearer ${token}`;
     user.addOrUpdateDeviceEntry(deviceEntry);
     await user.save();
 

@@ -23,7 +23,7 @@ export class NotificationsController {
     );
   }
 
-  @Post('test')
+  @Post('socket-test')
   async socketMessageEmitTest() {
     this.notificationsGateway.server.emit('hello', 'world');
     return 'test';

@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Card, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import placeholderUser from '../../placeholder-images/placeholder-user.jpg';
+import { rssFeedInitialData } from '../../api/rss-feed';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -14,57 +15,13 @@ const TrucatedDescription = styled.small`
   overflow: hidden;
 `;
 function NewsIndex() {
-  const newsAndReviews = [
-    {
-      id: 1,
-      logo: placeholderUser,
-      name: 'Horror Oasis',
-      description: 'It is a long established fact that a reader will be by the readable content of a page when looking at a page when looking at',
-    },
-    {
-      id: 2,
-      logo: placeholderUser,
-      name: 'Horror Fix',
-      description: 'Explore Stormmie\'s board "Horror Fix" ideas about horror, horror movies, scary movies ,  about horror',
-    },
-    {
-      id: 3,
-      logo: placeholderUser,
-      name: 'Gruesome Magazine',
-      description: 'Gruesome Magazine is launching a quarterly magazine available in both print and digital magazine available',
-    },
-    {
-      id: 4,
-      logo: placeholderUser,
-      name: 'HorrorNews',
-      description: 'Latest Horror News, Reviews, Movie Releases, Trailers, Articles and More! ',
-    },
-    {
-      id: 5,
-      logo: placeholderUser,
-      name: 'Horror Oasis',
-      description: 'It is a long established fact that a reader will be by the readable content of a page when looking at a page when looking at',
-    },
-    {
-      id: 6,
-      logo: placeholderUser,
-      name: 'Horror Fix',
-      description: 'Explore Stormmie\'s board "Horror Fix" ideas about horror, horror movies, scary movies....',
-    },
-    {
-      id: 7,
-      logo: placeholderUser,
-      name: 'Gruesome Magazine',
-      description: 'Gruesome Magazine is launching a quarterly magazine available in both print and digital magazine available',
-    },
-    {
-      id: 8,
-      logo: placeholderUser,
-      name: 'HorrorNews',
-      description: 'Latest Horror News, Reviews, Movie Releases, Trailers, Articles and More! ',
-    },
+  const [newsAndReviews, setNewsAndReviews] = useState([]);
 
-  ];
+  useEffect(() => {
+    rssFeedInitialData().then((res) => {
+      setNewsAndReviews(res.data);
+    });
+  }, []);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -73,15 +30,18 @@ function NewsIndex() {
         <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
-        {newsAndReviews.map((news) => (
-          <Col key={news.id} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
-            <Card className="bg-transparent border-0">
-              <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
-              <Card.Body className="px-0">
-                <p className="fs-3 mb-1 fw-bold">{news.name}</p>
-                <TrucatedDescription className="text-light fs-4">{news.description}</TrucatedDescription>
-              </Card.Body>
-            </Card>
+        {newsAndReviews.map((news: any) => (
+          /* eslint no-underscore-dangle: 0 */
+          <Col key={news._id} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
+            <Link to={`/news/partner/${news._id}`} className="text-decoration-none">
+              <Card className="bg-transparent border-0">
+                <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
+                <Card.Body className="px-0">
+                  <p className="fs-3 mb-1 fw-bold">{news.title}</p>
+                  <TrucatedDescription className="text-light fs-4">{news.description}</TrucatedDescription>
+                </Card.Body>
+              </Card>
+            </Link>
           </Col>
         ))}
       </Row>

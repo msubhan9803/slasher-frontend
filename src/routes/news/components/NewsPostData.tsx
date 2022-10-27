@@ -95,7 +95,7 @@ function NewsPostData() {
                 </Button>
               </Col>
               <Col className="text-center">
-                <Link className="bg-transparent text-white border-0 fw-normal fs-3 shadow-none" to="/news/partner/posts/1">
+                <Link className="bg-transparent text-decoration-none text-white border-0 fw-normal fs-3 shadow-none" to="/news/partner/posts/1">
                   <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                   10
                 </Link>
@@ -139,19 +139,17 @@ function NewsPostData() {
                 </Button>
               </Col>
               <Col className="text-end">
-                <Button variant="link" className="shadow-none fw-normal fs-3">
-                  <CustomDropDown>
-                    <Dropdown.Toggle className="bg-transparent pt-1 pe-0" variant="link">
-                      <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                      Share
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu className="bg-black">
-                      <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
-                      <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
-                      <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </CustomDropDown>
-                </Button>
+                <CustomDropDown>
+                  <Dropdown.Toggle className="bg-transparent pt-1" variant="link">
+                    <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                    Share
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu className="bg-black">
+                    <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
+                    <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
+                    <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+                  </Dropdown.Menu>
+                </CustomDropDown>
               </Col>
               <svg width="0" height="0">
                 <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

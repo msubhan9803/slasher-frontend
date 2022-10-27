@@ -78,7 +78,7 @@ export async function userProfilePost(userName: string) {
   return axios.get(`${apiUrl}/users/${userName}`, { headers });
 }
 
-export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
+export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -90,13 +90,16 @@ export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
   return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
 }
 
-export async function userProfileFriends(userId: string, page: number) {
+export async function userProfileFriends(userId: string, page: number, search = '') {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
   const limit = 18;
-  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  let queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  if (search) {
+    queryParameter += `&userNameContains=${search}`;
+  }
   return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
 }
 

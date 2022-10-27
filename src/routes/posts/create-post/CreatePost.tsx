@@ -18,7 +18,7 @@ import { getSuggestUserName } from '../../../api/users';
 import MessageTextarea from '../../../components/ui/MessageTextarea';
 
 interface MentionProps {
-  _id: string;
+  id: string;
   userName: string;
 }
 interface FormatMentionProps {

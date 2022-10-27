@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Image, Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import PostFooter from './PostFooter';
@@ -12,27 +12,15 @@ import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import 'linkify-plugin-mention';
+import { Post } from '../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
 }
-interface PostProps {
-  id: number;
-  userName: string;
-  postDate: string;
-  content: string;
-  hashTag?: string[];
-  likeIcon: boolean;
-  postUrl?: any;
-  profileImage: string;
-  comment?: any;
-  commentCount?: number;
-  likeCount?: number;
-  sharedList?: number;
-}
+
 interface Props {
   popoverOptions: string[],
-  postFeedData: PostProps[],
+  postFeedData: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string) => void,
 }
@@ -46,10 +34,6 @@ const PostImage = styled(Image)`
 `;
 const Content = styled.div`
   white-space: pre-line;
-  a {
-    text-decoration : none;
-    color: var(--bs-primary);
-  }
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
@@ -66,11 +50,15 @@ const StyledPostFeed = styled.div`
   }
 `;
 
+const decryptMessage = (content: string) => {
+  const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
+  return found;
+};
+
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick,
 }: Props) {
-  const navigate = useNavigate();
-  const [postData, setPostData] = useState<PostProps[]>(postFeedData);
+  const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
 
@@ -82,8 +70,8 @@ function PostFeed({
     setOpenLikeShareModal(true);
     setButtonClck(click);
   };
-  const onLikeClick = (likeId: number) => {
-    const likeData = postData.map((checkLikeId: PostProps) => {
+  const onLikeClick = (likeId: string) => {
+    const likeData = postData.map((checkLikeId: Post) => {
       if (checkLikeId.id === likeId) {
         return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
       }
@@ -92,14 +80,11 @@ function PostFeed({
     setPostData(likeData);
   };
 
-  const handleDetailPage = (post: PostProps) => {
-    navigate(`/${post.userName}/posts/${post.id}`, { state: { post } });
-  };
   return (
     <StyledPostFeed>
-      {postData.map((post: PostProps) => (
+      {postData.map((post: any) => (
         <div key={post.id} className="post">
-          <Card className="bg-mobile-transparent border-0 rounded-3 my-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+          <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
               <PostHeader
                 userName={post.userName}
@@ -111,7 +96,10 @@ function PostFeed({
             </Card.Header>
             <Card.Body className="px-0 pt-3">
               <div>
-                <Content dangerouslySetInnerHTML={{ __html: linkifyHtml(post.content) }} />
+                <Content dangerouslySetInnerHTML={
+                  { __html: linkifyHtml(decryptMessage(post.content)) }
+                }
+                />
                 {post.hashTag?.map((hashtag: string) => (
                   <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
                     #
@@ -121,7 +109,9 @@ function PostFeed({
               </div>
               {post?.postUrl?.[0] && (
                 <div className="mt-3">
-                  <PostImage src={post?.postUrl[0].image_path} className="w-100" onClick={() => handleDetailPage(post)} />
+                  <Link to={`/${post.userName}/posts/${post.id}`}>
+                    <PostImage src={post?.postUrl[0].image_path} className="w-100" />
+                  </Link>
                 </div>
               )}
               <Row className="pt-3 px-md-3">
@@ -132,8 +122,10 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                  <span className="fs-3">{post.commentCount}</span>
+                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                    <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                    <span className="fs-3">{post.commentCount}</span>
+                  </Link>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
@@ -167,7 +159,6 @@ function PostFeed({
             }
           </Card>
         </div>
-
       ))}
       {
         openLikeShareModal

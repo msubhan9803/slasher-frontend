@@ -8,6 +8,7 @@ import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { Post } from '../../../types';
 
 interface UserData {
   id: string;
@@ -15,94 +16,75 @@ interface UserData {
   userName: string;
   profilePic: string;
 }
-interface UserPostData {
-  _id: string;
-  postDate: string;
-  content: string;
-  postUrl: string;
-  userName: string;
-  firstName: string;
-  profileImage: string;
-  commentCount: number;
-  likeCount: number;
-  sharedList: number;
-  id: number;
-  likeIcon: boolean;
-}
 
 const popoverOptions = ['Edit', 'Delete'];
+
 function ProfilePosts() {
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
-  const [show, setShow] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [userData, setUserData] = useState<UserData>();
-  const [userPostData, setUserPostData] = useState<UserPostData[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
 
   const handlePopoverOption = (value: string) => {
-    setShow(true);
+    setShowReportModal(true);
     setDropDownValue(value);
   };
 
-  const decryptMessage = (content: string) => {
-    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-    return found;
-  };
   useEffect(() => {
-    if (userData) {
-      getProfilePosts(userData.id)
-        .then((res) => {
-          const userPostList = res.data.map((data: any) => (
-            {
-              ...data,
-              /* eslint no-underscore-dangle: 0 */
-              id: data._id,
-              postDate: data.createdAt,
-              content: decryptMessage(data.message),
-              postUrl: data.images,
-              userName: userData.userName,
-              firstName: userData.userName,
-              profileImage: userData.profilePic,
-            }
-          ));
-          setUserPostData(userPostList);
-        })
-        .catch((error) => {
-          setErrorMessage(error.response.data.message);
-        });
-    }
-  }, [userData]);
+    if (userData && requestAdditionalPosts && !loadingPosts) {
+      setLoadingPosts(true);
 
-  const fetchMorePost = () => {
-    if (userData) {
-      getProfilePosts(userData.id, userPostData[userPostData.length - 1]._id)
-        .then((res) => {
-          const userPostList = res.data.map((data: any) => (
-            {
-              ...data,
-              /* eslint no-underscore-dangle: 0 */
-              id: data._id,
-              postDate: data.createdAt,
-              content: data.message,
-              postUrl: data.images,
-              userName: userData.userName,
-              firstName: userData.userName,
-              profileImage: userData.profilePic,
-            }
-          ));
-          setUserPostData((prev: any) => [
-            ...prev,
-            ...userPostList,
-          ]);
-          if (res.data.length === 0) {
-            setNoMoreData(true);
+      getProfilePosts(
+        userData.id,
+        posts.length > 1 ? posts[posts.length - 1]._id : undefined,
+      ).then((res) => {
+        const newPosts = res.data.map((data: any) => (
+          {
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
           }
-        })
-        .catch((error) => setErrorMessage(error.response.data.message));
+        ));
+        setPosts((prev: Post[]) => [
+          ...prev,
+          ...newPosts,
+        ]);
+        if (res.data.length === 0) { setNoMoreData(true); }
+      }).catch(
+        (error) => {
+          setNoMoreData(true);
+          setErrorMessage(error.response.data.message);
+        },
+      ).finally(
+        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+      );
     }
-  };
+  }, [requestAdditionalPosts, loadingPosts, userData]);
+
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        posts.length === 0
+          ? 'No posts available'
+          : 'No more posts'
+      }
+    </p>
+  );
+
+  const renderLoadingIndicator = () => (
+    <p className="text-center">Loading...</p>
+  );
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -122,23 +104,29 @@ function ProfilePosts() {
 
       <InfiniteScroll
         pageStart={0}
-        initialLoad={false}
-        loadMore={fetchMorePost}
-        hasMore
+        initialLoad
+        loadMore={() => { setRequestAdditionalPosts(true); }}
+        hasMore={!noMoreData}
       >
-        {userPostData && userPostData.length > 0
-          ? (
+        {
+          posts.length > 0
+          && (
             <PostFeed
-              postFeedData={userPostData}
+              postFeedData={posts}
               popoverOptions={popoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
             />
           )
-          : 'No posts available'}
+        }
       </InfiniteScroll>
-      {noMoreData && <p className="text-center">No more posts</p>}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      {loadingPosts && renderLoadingIndicator()}
+      {noMoreData && renderNoMoreDataMessage()}
+      <ReportModal
+        show={showReportModal}
+        setShow={setShowReportModal}
+        slectedDropdownValue={dropDownValue}
+      />
     </AuthenticatedPageWrapper>
   );
 }

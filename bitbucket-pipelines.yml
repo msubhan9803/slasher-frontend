@@ -88,13 +88,13 @@ pipelines:
     main:
       - step: *lint-build-test
     deploy/prod:
-      #- step: *lint-build-test
+      - step: *lint-build-test
       - step: *deploy-cloudflare
     deploy/staging:
-      #- step: *lint-build-test
+      - step: *lint-build-test
       - step: *deploy-cloudflare
     deploy/dev:
-      #- step: *lint-build-test
+      - step: *lint-build-test
       - step: *deploy-siteground
     deploy/dev-avadh1:
       - step: *lint-build-test

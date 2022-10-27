@@ -78,10 +78,6 @@ export class UserUnusedFields {
   lastName: string;
 
   // NOT USED
-  @Prop({ default: '', trim: true })
-  aboutMe: string;
-
-  // NOT USED
   @Prop({ default: false })
   is_email_verified: boolean;
 

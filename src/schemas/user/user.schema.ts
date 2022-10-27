@@ -124,6 +124,9 @@ export class User extends UserUnusedFields {
   @Prop({ default: null, trim: true })
   coverPhoto: string;
 
+  @Prop({ default: '', trim: true })
+  aboutMe: string;
+
   /***********
    * Methods *
    ***********/

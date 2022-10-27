@@ -21,6 +21,7 @@ export const userFactory = Factory.define<Partial<User>, UserTransientParams>(
       securityQuestion: 'Where does the general keep his armies?',
       securityAnswer: 'In his sleevies!',
       profilePic: 'noUser.jpg',
+      aboutMe: 'Hello. This is me.',
     });
   },
 );

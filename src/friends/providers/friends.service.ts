@@ -83,6 +83,38 @@ export class FriendsService {
       .exec();
   }
 
+  /**
+   * For the given user, returns a list that includes the user's id AND the ids of all of that
+   * user's friend. This function may be useful for getting suggested new friends for a user, and
+   * excluding the user and the user's existing friends.
+   * Note: This methon can return a lot of results if the user has a lot of friends.
+   */
+  async getListOfFriendIdsIncludingSelfId(userId: string) {
+    const results = await this.friendsModel.aggregate([
+      {
+        $match: {
+          $and: [
+            {
+              $or: [
+                { from: new mongoose.Types.ObjectId(userId) },
+                { to: new mongoose.Types.ObjectId(userId) },
+              ],
+            },
+            { reaction: FriendRequestReaction.Accepted },
+          ],
+        },
+      },
+      { $group: { _id: null, from: { $addToSet: '$from' }, to: { $addToSet: '$to' } } },
+      {
+        $project: {
+          _id: 0,
+          ids: { $setUnion: ['$from', '$to'] },
+        },
+      },
+    ]).exec();
+    return (results[0].ids as mongoose.Types.ObjectId[]);
+  }
+
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
     const matchQuery: any = {
       $match: {

@@ -12,8 +12,8 @@ interface LinearIconProps {
 }
 interface PostFooterProps {
   likeIcon: boolean;
-  id: number;
-  onLikeClick: (id: number) => void
+  id: string;
+  onLikeClick: (id: string) => void
 }
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid  #3A3B46

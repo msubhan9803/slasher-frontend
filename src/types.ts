@@ -5,3 +5,23 @@ export interface ValueLabelPair {
   value: string;
   label: string;
 }
+
+export interface PostImage {
+  image_path: string;
+}
+
+export interface Post {
+  _id: string;
+  id: string;
+  postDate: string;
+  content: string;
+  postUrl: PostImage[];
+  userName: string;
+  firstName: string;
+  profileImage: string;
+  commentCount: number;
+  likeCount: number;
+  sharedList: number;
+  likeIcon: boolean;
+  hashTag?: string[];
+}

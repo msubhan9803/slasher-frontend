@@ -12,27 +12,15 @@ import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import 'linkify-plugin-mention';
+import { Post } from '../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
 }
-interface PostProps {
-  id: number;
-  userName: string;
-  postDate: string;
-  content: string;
-  hashTag?: string[];
-  likeIcon: boolean;
-  postUrl?: any;
-  profileImage: string;
-  comment?: any;
-  commentCount?: number;
-  likeCount?: number;
-  sharedList?: number;
-}
+
 interface Props {
   popoverOptions: string[],
-  postFeedData: PostProps[],
+  postFeedData: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string) => void,
 }
@@ -62,10 +50,15 @@ const StyledPostFeed = styled.div`
   }
 `;
 
+const decryptMessage = (content: string) => {
+  const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
+  return found;
+};
+
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick,
 }: Props) {
-  const [postData, setPostData] = useState<PostProps[]>(postFeedData);
+  const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
 
@@ -77,8 +70,8 @@ function PostFeed({
     setOpenLikeShareModal(true);
     setButtonClck(click);
   };
-  const onLikeClick = (likeId: number) => {
-    const likeData = postData.map((checkLikeId: PostProps) => {
+  const onLikeClick = (likeId: string) => {
+    const likeData = postData.map((checkLikeId: Post) => {
       if (checkLikeId.id === likeId) {
         return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
       }
@@ -89,7 +82,7 @@ function PostFeed({
 
   return (
     <StyledPostFeed>
-      {postData.map((post: PostProps) => (
+      {postData.map((post: any) => (
         <div key={post.id} className="post">
           <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
@@ -103,7 +96,10 @@ function PostFeed({
             </Card.Header>
             <Card.Body className="px-0 pt-3">
               <div>
-                <Content dangerouslySetInnerHTML={{ __html: linkifyHtml(post.content) }} />
+                <Content dangerouslySetInnerHTML={
+                  { __html: linkifyHtml(decryptMessage(post.content)) }
+                }
+                />
                 {post.hashTag?.map((hashtag: string) => (
                   <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
                     #

@@ -78,7 +78,7 @@ export async function userProfilePost(userName: string) {
   return axios.get(`${apiUrl}/users/${userName}`, { headers });
 }
 
-export async function getProfilePosts(id: string, lastRetrievedPostId = '') {
+export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

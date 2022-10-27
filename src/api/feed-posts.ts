@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
 // eslint-disable-next-line import/prefer-default-export
-export async function getHomeFeedPosts(lastRetrievedPostId = '') {
+export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

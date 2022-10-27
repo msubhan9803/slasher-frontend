@@ -295,7 +295,7 @@ export class UsersController {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.friendRequests[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
@@ -404,7 +404,7 @@ export class UsersController {
     return { success: true };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
   async allfeedPost(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

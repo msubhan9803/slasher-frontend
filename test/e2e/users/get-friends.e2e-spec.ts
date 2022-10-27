@@ -11,7 +11,6 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
-import { pick } from '../../../src/utils/object-utils';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;

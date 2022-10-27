@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 
 export function relativeToFullImagePath(config: ConfigService, relativeImagePath: string | null) {
-  if (!relativeImagePath) { return relativeImagePath; }
+  if (!relativeImagePath || relativeImagePath.startsWith('http')) { return relativeImagePath; }
 
   let placeholderToShow: string = null;
 

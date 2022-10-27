@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { https } from 'follow-redirects';
-import { createWriteStream } from 'fs';
+import { createWriteStream, mkdirSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { EventCategoriesService } from '../src/event-categories/providers/event-categories.service';
 import { ActiveStatus } from '../src/schemas/user/user.enums';
@@ -37,8 +37,11 @@ async function createRandomPostsForUser(app: INestApplication, user: UserDocumen
   for (let i = 0; i < numPosts; i += 1) {
     const feedPostsService = app.get<FeedPostsService>(FeedPostsService);
 
+    // Ensure that ./local-storage/feed path exists
+    mkdirSync('./local-storage/feed', { recursive: true });
+
     const images: Image[] = [];
-    if (false && randomBoolean()) {
+    if (randomBoolean()) {
       // We need to put some sample images in the upload directory.
       const imagePath = `/feed/feed_${uuidv4()}.jpg`;
       await downloadFile(app, faker.image.cats(), `./local-storage${imagePath}`);

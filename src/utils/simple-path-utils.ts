@@ -1,7 +1,7 @@
-// Example path (array): ['$', '[*]', 'images', '[*]', image_path']
+// Example path (array): ['[*]', 'images', '[*]', image_path']
 // TODO: Add tests
 export function simpleObjectPath(path: string[], obj: object, results = []): any[] {
-  if ((path.length === 0 || path[0] === '$') && obj) {
+  if (path.length === 0) {
     results.push(obj);
     return results;
   }
@@ -16,14 +16,25 @@ export function simpleObjectPath(path: string[], obj: object, results = []): any
           simpleObjectPath([...path], el, results);
         }
       } else {
-        simpleObjectPath([...path], obj[element], results);
+        const index = parseInt(element, 10);
+        if (index + 1 >= obj.length) { simpleObjectPath([...path], obj[element], results); }
       }
     }
     return results;
   }
-  simpleObjectPath([...path], obj[currentSelector], results);
+  if (obj[currentSelector]) {
+    simpleObjectPath([...path], obj[currentSelector], results);
+  }
 
   return results;
+}
+
+export function convertSimpleJsonPathToObjectPath(path: string) {
+  if (!path.match(/\$(\.[a-zA-Z-_]+|\[(\*|\d)\])*/)) {
+    throw new Error(`Unsupported json path: ${path} (method only accepts simple paths like $[*].a, $.a.b.c, $.a[*].b[1])`);
+  }
+  if (path === '$') { return []; }
+  return path.replace(/(\[[*\d]+\])/g, '.$1').replace('$.', '').split('.');
 }
 
 // Example path (string): '$[*].images[*].image_path'
@@ -38,9 +49,5 @@ export function simpleObjectPath(path: string[], obj: object, results = []): any
 //
 // TODO: Add tests
 export function simpleJsonPath(path: string, obj: object, results = []): any[] {
-  if (!path.match(/\$(\.[a-zA-Z-_]+|\[(\*|\d)\])*/)) {
-    throw new Error(`Unsupported json path: ${path} (method only accepts simple paths like $[*].a, $.a.b.c, $.a[*].b[1])`);
-  }
-  const pieces = path.replace(/(\[[*\d]+\])/g, '.$1').replace('$.', '').split('.');
-  return simpleObjectPath(pieces, obj, results);
+  return simpleObjectPath(convertSimpleJsonPathToObjectPath(path), obj, results);
 }

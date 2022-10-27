@@ -7,7 +7,6 @@ import { Friend, FriendSchema } from '../schemas/friend/friend.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Friend.name, schema: FriendSchema }]),
-    FriendsModule,
   ],
   providers: [FriendsService],
   exports: [FriendsService],

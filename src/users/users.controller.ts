@@ -294,7 +294,7 @@ export class UsersController {
     };
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.friendRequests[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
@@ -349,7 +349,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto']);
+    return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto', 'aboutMe']);
   }
 
   @Patch(':id')
@@ -403,9 +403,9 @@ export class UsersController {
     return { success: true };
   }
 
-  @TransformImageUrls('$[*].images[*].image_path')
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
-  async allfeedPost(
+  async allFeedPosts(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))

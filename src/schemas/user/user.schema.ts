@@ -124,6 +124,9 @@ export class User extends UserUnusedFields {
   @Prop({ default: null, trim: true })
   coverPhoto: string;
 
+  @Prop({ default: '', trim: true })
+  aboutMe: string;
+
   /***********
    * Methods *
    ***********/
@@ -161,7 +164,12 @@ export class User extends UserUnusedFields {
       return;
     }
 
-    this.userDevices.sort((a, b) => a.login_date.getTime() - b.login_date.getTime()); // sort devices by ascending login_date
+    this.userDevices.sort((a, b) => {
+      if (!a.login_date) { return -1; } // if a is null, then b is later
+      if (!b.login_date) { return 1; } // if b is null, then a is later
+      return a.login_date.getTime() - b.login_date.getTime();
+    }); // sort devices by ascending login_date
+
     if (this.userDevices.length >= 10) {
       this.userDevices.shift(); // remove earliest login_date item
     }

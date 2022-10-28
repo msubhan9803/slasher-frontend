@@ -3,7 +3,6 @@ import {
   Navbar, Container, Nav, Image, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import Cookies from 'js-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
@@ -45,6 +44,7 @@ const StyledNav = styled(Nav)`
   }
 `;
 interface Props {
+  userName: string;
   onToggleClick: () => void;
   offcanvasSidebarExpandBreakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   ariaToggleTargetId: string;
@@ -53,7 +53,9 @@ interface Props {
 const desktopTopNavIconWidth = '6.7rem';
 
 function AuthenticatedPageHeader(
-  { onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId }: Props,
+  {
+    userName, onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId,
+  }: Props,
 ) {
   const navigate = useNavigate();
   const popoverOption = ['My profile', 'Settings'];
@@ -61,7 +63,7 @@ function AuthenticatedPageHeader(
 
   const handleNavigate = (selectedOption: string) => {
     if (selectedOption === 'My profile') {
-      navigate(`/${Cookies.get('userName')}`);
+      navigate(`/${userName}`);
     }
     if (selectedOption === 'Settings') {
       navigate('/account/settings');
@@ -85,7 +87,7 @@ function AuthenticatedPageHeader(
 
   const desktopNavLinkElements = [
     <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to="/friends" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={userData.notificationCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,

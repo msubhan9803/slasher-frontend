@@ -61,7 +61,7 @@ const desktopBreakPoint = 'lg';
 function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const initialDataLoaded = useAppSelector((state) => state.user.userName !== '');
+  const userData = useAppSelector((state) => state.user);
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
@@ -70,7 +70,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       return;
     }
 
-    if (!initialDataLoaded) {
+    if (userData.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -105,6 +105,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
+        userName={userData.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}

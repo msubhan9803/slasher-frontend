@@ -10,6 +10,7 @@ import FriendsProfileCard from './FriendsProfileCard';
 import { userProfileFriends } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { User } from '../../../types';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 interface FriendProps {
   _id?: string;
@@ -27,6 +28,7 @@ function ProfileFriends({ user }: Props) {
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
+  const [friendCount, setFriendCount] = useState<number>();
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [page, setPage] = useState<number>(0);
@@ -45,7 +47,8 @@ function ProfileFriends({ user }: Props) {
   useEffect(() => {
     userProfileFriends(user.id, search ? 0 : page, search)
       .then((res) => {
-        setFriendsList(res.data);
+        setFriendsList(res.data.friends);
+        setFriendCount(res.data.allFriendCount);
         if (search) {
           setPage(0);
         } else {
@@ -61,10 +64,10 @@ function ProfileFriends({ user }: Props) {
         .then((res) => {
           setFriendsList((prev: any) => [
             ...prev,
-            ...res.data,
+            ...res.data.friends,
           ]);
           setPage(page + 1);
-          if (res.data.length === 0) {
+          if (res.data.friends.length === 0) {
             setMoreData(true);
           }
         });
@@ -79,39 +82,57 @@ function ProfileFriends({ user }: Props) {
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
           </div>
           <div className="d-flex align-self-center mt-3 mt-md-0">
-            <p className="fs-3 text-primary me-3 my-auto">310 friends</p>
+            {
+              friendCount
+              && (
+                <p className="fs-3 text-primary me-3 my-auto">
+                  {friendCount}
+                  {' '}
+                  friends
+                </p>
+              )
+            }
           </div>
         </div>
         {
-          friendsList && friendsList.length > 0
-            ? (
-              <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-                <InfiniteScroll
-                  pageStart={0}
-                  initialLoad={false}
-                  loadMore={fetchMoreFriendList}
-                  hasMore
-                >
-                  <Row className="mt-2">
-                    {friendsList.map((friend: any) => (
-                      /* eslint no-underscore-dangle: 0 */
-                      <Col md={4} lg={6} xl={4} key={friend._id}>
-                        <FriendsProfileCard
-                          friend={friend}
-                          popoverOption={popoverOption}
-                          handlePopoverOption={handlePopoverOption}
-                        />
-                      </Col>
-                    ))}
-                  </Row>
-                </InfiniteScroll>
-              </div>
-            )
-            : (
-              <p className="mt-3">
-                No friends at the moment.  Try sending or accepting some friend requests!
-              </p>
-            )
+          friendsList.length > 0
+          && (
+            <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+              <InfiniteScroll
+                pageStart={0}
+                initialLoad={false}
+                loadMore={fetchMoreFriendList}
+                hasMore
+              >
+                <Row className="mt-2">
+                  {friendsList.map((friend: any) => (
+                    /* eslint no-underscore-dangle: 0 */
+                    <Col md={4} lg={6} xl={4} key={friend._id}>
+                      <FriendsProfileCard
+                        friend={friend}
+                        popoverOption={popoverOption}
+                        handlePopoverOption={handlePopoverOption}
+                      />
+                    </Col>
+                  ))}
+                </Row>
+              </InfiniteScroll>
+            </div>
+          )
+        }
+        {
+          friendsList.length === 0 && noMoreData
+          && (
+            <p className="mt-3">
+              No friends at the moment.  Try sending or accepting some friend requests!
+            </p>
+          )
+        }
+        {
+          friendsList.length === 0 && !noMoreData
+          && (
+            <LoadingIndicator />
+          )
         }
         {errorMessage && errorMessage.length > 0 && (
           <div className="mt-3 text-start">

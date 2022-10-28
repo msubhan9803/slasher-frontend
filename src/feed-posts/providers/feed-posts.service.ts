@@ -58,7 +58,7 @@ export class FeedPostsService {
     // Get the list of rss feed providers that the user is following
     const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
     // Get the list of friend ids
-    const friendIds = await this.friendsService.getListOfFriendIdsIncludingSelfId(userId);
+    const friendIds = await this.friendsService.getFriendIds(userId);
 
     // Optionally, only include posts that are older than the given `before` post
     const beforeQuery: any = {};
@@ -75,7 +75,7 @@ export class FeedPostsService {
           {
             $or: [
               { userId: { $eq: userId } },
-              { userId: { $in: friendIds } },
+              { userId: { $in: [...friendIds, new mongoose.Types.ObjectId(userId)] } },
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
             ],
           },

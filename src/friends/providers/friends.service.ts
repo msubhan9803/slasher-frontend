@@ -3,12 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
-import { UserDocument } from '../../schemas/user/user.schema';
+import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class FriendsService {
-  constructor(@InjectModel(Friend.name) private friendsModel: Model<FriendDocument>) { }
+  constructor(
+    @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
+    @InjectModel(User.name) private usersModel: Model<UserDocument>,
+  ) { }
 
   async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
     const friend = await this.friendsModel
@@ -84,12 +87,10 @@ export class FriendsService {
   }
 
   /**
-   * For the given user, returns a list that includes the user's id AND the ids of all of that
-   * user's friend. This function may be useful for getting suggested new friends for a user, and
-   * excluding the user and the user's existing friends.
-   * Note: This methon can return a lot of results if the user has a lot of friends.
+   * For the given user, returns an array of ObjectIds for that user's friends.
+   * Note: This methon can return a lot of results (thousands) if the user has a lot of friends.
    */
-  async getListOfFriendIdsIncludingSelfId(userId: string) {
+  async getFriendIds(userId: string) {
     const results = await this.friendsModel.aggregate([
       {
         $match: {
@@ -108,68 +109,31 @@ export class FriendsService {
       {
         $project: {
           _id: 0,
-          ids: { $setUnion: ['$from', '$to'] },
+          id: { $setUnion: ['$from', '$to'] },
         },
       },
+      { $unwind: '$id' },
     ]).exec();
-    return (results[0].ids as mongoose.Types.ObjectId[]);
+
+    // Exclude userId and return list of friend ObjectId values
+    const userIdToExclude = new mongoose.Types.ObjectId(userId);
+    const processedResults = (results.map((result) => result.id) as mongoose.Types.ObjectId[]).filter(
+      (id) => !id.equals(userIdToExclude),
+    );
+
+    return processedResults;
   }
 
   async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
-    const matchQuery: any = {
-      $match: {
-        $expr: {
-          $and: [
-            { $ne: ['$_id', new mongoose.Types.ObjectId(userId)] },
-            { $in: ['$_id', '$$ids'] },
-          ],
-        },
-      },
-    };
-
-    if (userNameContains) {
-      matchQuery.$match.userName = new RegExp(escapeStringForRegex(userNameContains), 'i');
-    }
-
-    const aggregateQuery = [
-      {
-        $match: {
-          $and: [
-            {
-              $or: [
-                { from: new mongoose.Types.ObjectId(userId) },
-                { to: new mongoose.Types.ObjectId(userId) },
-              ],
-            },
-            { reaction: FriendRequestReaction.Accepted },
-          ],
-        },
-      },
-      { $group: { _id: null, from: { $addToSet: '$from' }, to: { $addToSet: '$to' } } },
-      {
-        $project: {
-          _id: 0,
-          ids: { $setUnion: ['$from', '$to'] },
-        },
-      },
-      {
-        $lookup:
-        {
-          from: 'users',
-          let: { ids: '$ids' },
-          pipeline: [
-            matchQuery,
-            { $project: { userName: 1, profilePic: 1, _id: 1 } },
-            { $sort: { userName: 1 } },
-          ],
-          as: 'usersDetails',
-        },
-      },
-      { $project: { usersDetails: { $slice: ['$usersDetails', offset, limit] } } },
-    ];
-
-    const friendsData: any = await this.friendsModel.aggregate(aggregateQuery);
-    return friendsData.length ? friendsData[0].usersDetails : friendsData;
+    const friendIds = await this.getFriendIds(userId);
+    return this.usersModel.find({
+      $and: [
+        { _id: { $in: friendIds } },
+        userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
+      ],
+    }).limit(limit).skip(offset).sort({ userName: 1 })
+      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .exec();
   }
 
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {

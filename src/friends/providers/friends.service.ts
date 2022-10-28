@@ -124,9 +124,9 @@ export class FriendsService {
     return processedResults;
   }
 
-  async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
+  async getFriends(userId: string, limit: number, offset: number, userNameContains?: string) {
     const friendIds = await this.getFriendIds(userId);
-    return this.usersModel.find({
+    const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $in: friendIds } },
         userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
@@ -134,6 +134,11 @@ export class FriendsService {
     }).limit(limit).skip(offset).sort({ userName: 1 })
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();
+
+    return {
+      allFriendCount: friendIds.length,
+      friends: friendUsers,
+    };
   }
 
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {

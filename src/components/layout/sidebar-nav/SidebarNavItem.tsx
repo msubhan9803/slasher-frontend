@@ -10,6 +10,7 @@ interface Props {
   to: string;
   iconColor?: string;
   className?: string;
+  id: number;
 }
 
 interface LinearIconProps {
@@ -17,9 +18,9 @@ interface LinearIconProps {
 }
 
 const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
+ svg * {
+  fill: url(#${(props) => props.uniqueId});
+}
 `;
 
 const StyledLink = styled(Link)`
@@ -32,7 +33,6 @@ const StyledLink = styled(Link)`
   }
 `;
 const LinkContentWrapper = styled.div`
-  // This compensates for the icon offset
   padding-top: 0.2em;
 `;
 
@@ -40,24 +40,20 @@ const StyledIcon = styled(FontAwesomeIcon)`
   font-size:1.25rem;
 `;
 
-let instanceCounter = 0;
-
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className,
+  label, icon, iconColor: color, to, className, id,
 }: Props) {
-  const uniqueId = `icon-${instanceCounter += 1}`;
-
   return (
     <StyledLink className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
-        <LinearIcon uniqueId={uniqueId}>
+        <LinearIcon uniqueId={`icon-${id}`}>
           <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
         </LinearIcon>
         <div className="ms-2 text-start nav-item-label fs-5">
           {label}
         </div>
         <svg width="0" height="0">
-          <linearGradient id={uniqueId} x1="100%" y1="100%" x2="0%" y2="0%">
+          <linearGradient id={`icon-${id}`} x1="100%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" style={{ stopColor: `${color}`, stopOpacity: '1' }} />
             <stop offset="100%" style={{ stopColor: '#FFFFFF', stopOpacity: '1' }} />
           </linearGradient>

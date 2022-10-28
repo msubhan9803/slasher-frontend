@@ -64,7 +64,7 @@ function ProfileFriendRequest({ user }: Props) {
         setFriendRequestPage(friendRequestPage + 1);
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  });
+  }, []);
   const fetchMoreFriendList = () => {
     if (!noMoreFriendData) {
       userProfileFriends(user.id, friendPage)

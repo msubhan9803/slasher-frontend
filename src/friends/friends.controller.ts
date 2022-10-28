@@ -3,6 +3,7 @@ import {
   Delete, ValidationPipe, Query,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { AcceptFriendRequestDto } from './dto/accept-friend-request-dto';
@@ -23,6 +24,7 @@ export class FriendsController {
     await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('requests/sent')
   async getPendingSentFriendRequests(
     @Req() request: Request,
@@ -33,6 +35,7 @@ export class FriendsController {
     return friends;
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('requests/received')
   async getPendingReceivedFriendRequests(
     @Req() request: Request,

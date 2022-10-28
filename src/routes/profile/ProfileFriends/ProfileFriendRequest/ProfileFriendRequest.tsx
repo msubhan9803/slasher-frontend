@@ -55,7 +55,7 @@ function ProfileFriendRequest({ user }: Props) {
   };
   useEffect(() => {
     userProfileFriends(user.id, friendPage)
-      .then((res) => { setFriendsList(res.data); setFriendPage(friendPage + 1); })
+      .then((res) => { setFriendsList(res.data.friends); setFriendPage(friendPage + 1); })
       .catch((error) => setErrorMessage(error.response.data.message));
 
     userProfileFriendsRequest(friendRequestPage)
@@ -71,10 +71,10 @@ function ProfileFriendRequest({ user }: Props) {
         .then((res) => {
           setFriendsList((prev: FriendProps[]) => [
             ...prev,
-            ...res.data,
+            ...res.data.friends,
           ]);
           setFriendPage(friendPage + 1);
-          if (res.data.length === 0) {
+          if (res.data.friends.length === 0) {
             setMoreData(true);
           }
         })

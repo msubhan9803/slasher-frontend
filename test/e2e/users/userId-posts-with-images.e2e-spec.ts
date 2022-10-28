@@ -127,7 +127,7 @@ describe('UserId Posts With Images (e2e)', () => {
           .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${beforeId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('before must match /^[a-f\\d]{24}$/i regular expression');
+        expect(response.body.message).toContain('before must be a mongodb id');
       });
     });
   });

@@ -90,14 +90,6 @@ export class UsersService {
     return !!isValid;
   }
 
-  async getSuggestedFriends(user: UserDocument, limit: number) {
-    return this.userModel
-      .find({ _id: { $ne: user._id } })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
-  }
-
   async update(id: string, updateUserDto: Partial<UserDocument>): Promise<UserDocument> {
     return this.userModel
       .findOneAndUpdate({ _id: id }, updateUserDto, { new: true })

@@ -141,6 +141,14 @@ export class FriendsService {
     };
   }
 
+  async getSuggestedFriends(user: UserDocument, limit: number) {
+    return this.usersModel
+      .find({ _id: { $ne: user._id } })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
+
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {
     const notFoundMessage = `No pending friend request found from user ${fromUser} to ${toUser}`;
 

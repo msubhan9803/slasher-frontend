@@ -79,14 +79,14 @@ describe('Add Friends (e2e)', () => {
         );
       });
 
-      it('userId must match /^[a-f\\d]{24}$/i regular expression', async () => {
+      it('userId must be a mongodb id', async () => {
         const response = await request(app.getHttpServer())
           .post('/friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFriendsObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'userId must match /^[a-f\\d]{24}$/i regular expression',
+          'userId must be a mongodb id',
         );
       });
     });

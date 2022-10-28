@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer';
 import {
   IsIn,
- IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max,
+  IsMongoId,
+  IsNotEmpty, IsNumber, IsOptional, IsString, Max,
 } from 'class-validator';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
 
 export class FindAllMoviesDto {
   @IsNotEmpty()
@@ -19,6 +19,6 @@ export class FindAllMoviesDto {
 
   @IsOptional()
   @IsString()
-  @Matches(SIMPLE_MONGODB_ID_REGEX)
+  @IsMongoId()
   after: string;
 }

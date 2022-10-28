@@ -90,7 +90,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
         );
       });
 
-      it('userId must match /^[a-f\\d]{24}$/i regular expression', async () => {
+      it('userId must be a mongodb id', async () => {
         const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
           .delete(`/friends?userId=${userId}`)
@@ -98,7 +98,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'userId must match /^[a-f\\d]{24}$/i regular expression',
+          'userId must be a mongodb id',
         );
       });
     });

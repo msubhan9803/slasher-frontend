@@ -1,8 +1,8 @@
 import { Type } from 'class-transformer';
 import {
-  IsNotEmpty, IsNumber, IsOptional, IsString, Matches,
+  IsMongoId,
+  IsNotEmpty, IsNumber, IsOptional, IsString,
 } from 'class-validator';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
 
 export class AllFeedPostQueryDto {
   @IsNotEmpty()
@@ -12,6 +12,6 @@ export class AllFeedPostQueryDto {
 
   @IsString()
   @IsOptional()
-  @Matches(SIMPLE_MONGODB_ID_REGEX)
+  @IsMongoId()
   before: string;
 }

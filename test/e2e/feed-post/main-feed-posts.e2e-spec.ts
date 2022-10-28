@@ -172,7 +172,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain(
-          'before must match /^[a-f\\d]{24}$/i regular expression',
+          'before must be a mongodb id',
         );
       });
     });

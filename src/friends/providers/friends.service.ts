@@ -146,6 +146,7 @@ export class FriendsService {
       .find({ _id: { $ne: user._id } })
       .sort({ createdAt: -1 })
       .limit(limit)
+      .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();
   }
 

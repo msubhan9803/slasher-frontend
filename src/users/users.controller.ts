@@ -271,6 +271,7 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('suggested-friends')
   async suggestedFriends(@Req() request: Request) {
     const user = getUserFromRequest(request);

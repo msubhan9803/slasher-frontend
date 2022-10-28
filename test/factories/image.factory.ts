@@ -1,16 +1,8 @@
 import { Factory } from 'fishery';
+import { Image } from '../../src/schemas/shared/image.schema';
 
-type Image = {
-  image_path: string;
-};
-
-export const imageFactory = Factory.define<Partial<Image[]>>(() => (
-  [
-    {
-      image_path: '/feed/feed_sample1.jpg',
-    },
-    {
-      image_path: '/feed/feed_sample2.jpg',
-    },
-  ]
+export const imageFactory = Factory.define<Image>(() => (
+  {
+    image_path: '/feed/feed_sample1.jpg',
+  }
 ));

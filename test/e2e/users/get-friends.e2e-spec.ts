@@ -83,7 +83,9 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([
+
+        expect(response.body.allFriendCount).toBe(4);
+        expect(response.body.friends).toEqual([
           {
             // Abe Kenobi
             userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -111,7 +113,8 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([
+        expect(response.body.allFriendCount).toBe(4);
+        expect(response.body.friends).toEqual([
           // Darth Maul
           { userName: user5.userName, _id: user5._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
         ]);
@@ -129,7 +132,8 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([
+        expect(response.body.allFriendCount).toBe(3);
+        expect(response.body.friends).toEqual([
           {
             // Abe Kenobi
             userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -155,7 +159,8 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toEqual([
+        expect(response.body.allFriendCount).toBe(3);
+        expect(response.body.friends).toEqual([
           {
             userName: user2.userName, // Abe Kenobi
             _id: user2._id.toString(),

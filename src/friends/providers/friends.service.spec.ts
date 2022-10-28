@@ -185,8 +185,9 @@ describe('FriendsService', () => {
       }
     });
 
-    it('returns the expected friends, sorted in alphabetical order by username', async () => {
-      const friends = await friendsService.getFriends(user0.id, 10, 0);
+    it('returns the expected friends and total, with friends sorted in alphabetical order by username', async () => {
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 10, 0);
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Dracula',
@@ -198,7 +199,8 @@ describe('FriendsService', () => {
     });
 
     it('returns the expected response for applied limit and offset', async () => {
-      const friends = await friendsService.getFriends(user0.id, 3, 3);
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 3, 3);
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'The Count',
@@ -207,7 +209,8 @@ describe('FriendsService', () => {
     });
 
     it('returns the expected response when doing case-insensitive filtering on a userName', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 0, 'count');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 0, 'count');
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Dracula',
@@ -218,12 +221,14 @@ describe('FriendsService', () => {
     });
 
     it('returns no results when there are no case-insensitive matches on a userName', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 0, 'zzzzzz');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 0, 'zzzzzz');
+      expect(allFriendCount).toBe(4);
       expect(friends).toHaveLength(0);
     });
 
     it('when applying limit, offset, and userName filter', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 1, 'count');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 1, 'count');
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Orlok',

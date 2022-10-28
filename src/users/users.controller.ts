@@ -425,7 +425,7 @@ export class UsersController {
     return feedPosts;
   }
 
-  @TransformImageUrls('$[*].profilePic')
+  @TransformImageUrls('$.friends[*].profilePic')
   @Get(':userId/friends')
   async getFriends(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -436,8 +436,8 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    const friends = await this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
-    return friends;
+
+    return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
   @Post('upload-cover-image')

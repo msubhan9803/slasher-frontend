@@ -22,7 +22,7 @@ definitions:
           # Install NPM dependencies
           - npm ci
           # Set up playwright for e2e tests
-          - npx playwright install --with-deps
+          - npx playwright install
           # Run linter
           - npm run lint
           # Run build

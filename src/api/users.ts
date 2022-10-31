@@ -149,3 +149,11 @@ export async function uploadUserCoverImage(file: File) {
   };
   return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
 }
+
+export async function getSuggestFriends() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
+}

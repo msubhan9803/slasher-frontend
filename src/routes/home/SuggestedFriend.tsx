@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import {
   Button, Image, Row,
 } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
+import { getSuggestFriends } from '../../api/users';
 
-interface Props {
-  id: number;
-  profileImage: string;
-  userName: string;
-  addFriend: boolean;
-
-}
 const ProfileImage = styled(Image)`
   height:6.25rem;
   width:6.25rem;
@@ -40,29 +35,6 @@ const Card = styled.div`
     padding-right: 0rem;
   }
 `;
-const friendList = [
-  {
-    id: 1, profileImage: 'https://i.pravatar.cc/300?img=23', userName: 'Olive Yew', addFriend: false,
-  },
-  {
-    id: 2, profileImage: 'https://i.pravatar.cc/300?img=13', userName: 'Olive Yew', addFriend: true,
-  },
-  {
-    id: 3, profileImage: 'https://i.pravatar.cc/300?img=14', userName: 'Olive Yew', addFriend: false,
-  },
-  {
-    id: 4, profileImage: 'https://i.pravatar.cc/300?img=35', userName: 'Olive Yew', addFriend: false,
-  },
-  {
-    id: 5, profileImage: 'https://i.pravatar.cc/300?img=28', userName: 'Olive Yew', addFriend: false,
-  },
-  {
-    id: 6, profileImage: 'https://i.pravatar.cc/300?img=22', userName: 'Olive Yew', addFriend: false,
-  },
-  {
-    id: 7, profileImage: 'https://i.pravatar.cc/300?img=28', userName: 'Olive Yew', addFriend: false,
-  },
-];
 
 const slideFriendRight = () => {
   const slider = document.getElementById('slideFriend');
@@ -77,16 +49,17 @@ const slideFriendLeft = () => {
   }
 };
 function SuggestedFriend() {
-  const [friendListData, setFriendListData] = useState(friendList);
-  const toggleAddFriendButton = (id: number) => {
-    const data = friendListData.map((datas: Props) => {
-      if (datas.id === id) {
-        return { ...datas, addFriend: !datas.addFriend };
-      }
-      return datas;
-    });
-    setFriendListData(data);
+  const [friendListData, setFriendListData] = useState<string[]>();
+
+  const getSuggestedFriends = () => {
+    getSuggestFriends()
+      .then((res) => setFriendListData(res.data));
   };
+
+  useEffect(() => {
+    getSuggestedFriends();
+  }, []);
+
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
       <div className="d-flex align-items-center">
@@ -97,24 +70,27 @@ function SuggestedFriend() {
           id="slideFriend"
           className="d-flex flex-nowrap w-100 mx-3"
         >
-          {friendListData.map((user: any) => (
-            <Card key={user.id}>
+          {friendListData?.map((user: any) => (
+            /* eslint no-underscore-dangle: 0 */
+            <Card key={user._id}>
               <div className="bg-dark rounded p-2">
-                <div className=" d-flex justify-content-center position-relative">
-                  <ProfileImage src={user.profileImage} className="rounded-circle" />
-                  <div className="position-absolute" style={{ right: '0' }}>
-                    <FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" />
+                <Link className="text-decoration-none" to={`/${user.userName}/about`}>
+                  <div className=" d-flex justify-content-center position-relative">
+                    <ProfileImage src={user.profilePic} className="rounded-circle" />
+                    <div className="position-absolute" style={{ right: '0' }}>
+                      <FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" />
+                    </div>
                   </div>
-                </div>
-                <p className="text-center my-2">{user.userName}</p>
+                  <p className="text-center my-2">{user.userName}</p>
+                </Link>
                 {user.addFriend
                   ? (
-                    <RoundButton variant="black" className="w-100 fs-3" onClick={() => toggleAddFriendButton(user.id)}>
+                    <RoundButton variant="black" className="w-100 fs-3">
                       Cancel Request
                     </RoundButton>
                   )
                   : (
-                    <RoundButton className="w-100 fs-3" onClick={() => toggleAddFriendButton(user.id)}>
+                    <RoundButton className="w-100 fs-3">
                       Add friend
                     </RoundButton>
                   )}

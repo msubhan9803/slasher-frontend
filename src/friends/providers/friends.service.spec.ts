@@ -250,7 +250,7 @@ describe('FriendsService', () => {
         reaction: FriendRequestReaction.Accepted,
       });
     });
-    
+
     it('finds the expected number of users when the requested number is higher than the number available, '
       + 'and does not incude passed-in user among the set', async () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users

@@ -146,12 +146,12 @@ export class FriendsService {
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
-        { _id: { $ne: user._id } }
+        { _id: { $ne: user._id } },
       ],
     }).sort({ createdAt: -1 }).limit(limit)
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();
-    return friendUsers
+    return friendUsers;
   }
 
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {

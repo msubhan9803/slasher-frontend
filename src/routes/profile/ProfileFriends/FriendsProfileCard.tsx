@@ -18,9 +18,9 @@ function FriendsProfileCard({
           <div>
             <UserCircleImage src={friend.profilePic} className="me-2" />
           </div>
-          <div>
-            <h1 className="h3 mb-0">{friend.userName}</h1>
-            <p className="fs-6 mb-0 text-light">
+          <div className="d-grid">
+            <h1 className="h3 mb-0 text-truncate">{friend.userName}</h1>
+            <p className="fs-6 mb-0 text-light text-truncate">
               @
               {friend.userName}
             </p>
@@ -34,7 +34,11 @@ function FriendsProfileCard({
             <CircleButton variant="black" className="me-2 text-primary" icon={solid('times')} />
           </>
         ) : (
-          <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopoverOption} />
+          <CustomPopover
+            userName={friend.userName}
+            popoverOptions={popoverOption}
+            onPopoverClick={handlePopoverOption}
+          />
         )}
       </div>
     </Container>

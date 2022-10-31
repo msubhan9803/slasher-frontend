@@ -40,8 +40,4 @@ export class MovieUnusedFields {
   // NOT USED
   @Prop({ default: null, ref: 'users' })
   createdBy: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
-  @Prop({ default: 0 })
-  rating: number;
 }

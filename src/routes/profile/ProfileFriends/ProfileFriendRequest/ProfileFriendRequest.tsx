@@ -29,7 +29,7 @@ function ProfileFriendRequest({ user }: Props) {
   const [search, setSearch] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendRequestPage, setFriendRequestPage] = useState<number>(0);
-  const [noMoreFriendReqData, setMoreReqData] = useState<boolean>(false);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
 
@@ -55,21 +55,28 @@ function ProfileFriendRequest({ user }: Props) {
       .catch((error) => setErrorMessage(error.response.data.message));
   }, []);
   const fetchMoreFriendReqList = () => {
-    if (!noMoreFriendReqData) {
-      userProfileFriendsRequest(friendRequestPage)
-        .then((res) => {
-          setFriendsReqList((prev: FriendProps[]) => [
-            ...prev,
-            ...res.data,
-          ]);
-          setFriendRequestPage(friendRequestPage + 1);
-          if (res.data.length === 0) {
-            setMoreReqData(true);
-          }
-        })
-        .catch();
-    }
+    userProfileFriendsRequest(friendRequestPage)
+      .then((res) => {
+        setFriendsReqList((prev: FriendProps[]) => [
+          ...prev,
+          ...res.data,
+        ]);
+        setFriendRequestPage(friendRequestPage + 1);
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+        }
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
   };
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        friendsReqList.length === 0
+          ? 'No friends requests at the moment.'
+          : 'No more friends requests'
+      }
+    </p>
+  );
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <ProfileHeader tabKey="friends" user={user} />
@@ -86,7 +93,7 @@ function ProfileFriendRequest({ user }: Props) {
             pageStart={0}
             initialLoad={false}
             loadMore={fetchMoreFriendReqList}
-            hasMore
+            hasMore={!noMoreData}
           >
             <Row className="mt-4">
               {friendsReqList.map((friend: FriendProps) => (
@@ -100,6 +107,7 @@ function ProfileFriendRequest({ user }: Props) {
               ))}
             </Row>
           </InfiniteScroll>
+          {noMoreData && renderNoMoreDataMessage()}
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">
               <ErrorMessageList errorMessages={errorMessage} className="m-0" />

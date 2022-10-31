@@ -29,7 +29,7 @@ function ProfileFriends({ user }: Props) {
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
   const [page, setPage] = useState<number>(0);
-  const [noMoreData, setMoreData] = useState<Boolean>(false);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendCount, setFriendCount] = useState<number>();
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
@@ -70,24 +70,26 @@ function ProfileFriends({ user }: Props) {
   }, [search]);
 
   const fetchMoreFriendList = () => {
-    userProfileFriends(user.id, page, search)
-      .then((res) => {
-        setFriendsList((prev: any) => [
-          ...prev,
-          ...res.data.friends,
-        ]);
-        setPage(page + 1);
-        if (res.data.friends.length === 0) {
-          setMoreData(true);
-        }
-      });
+    if (page > 0) {
+      userProfileFriends(user.id, page, search)
+        .then((res) => {
+          setFriendsList((prev: any) => [
+            ...prev,
+            ...res.data.friends,
+          ]);
+          setPage(page + 1);
+          if (res.data.friends.length === 0) {
+            setNoMoreData(true);
+          }
+        });
+    }
   };
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
         friendsList.length === 0
-          ? 'No friends available'
+          ? 'No friends at the moment. Try sending or accepting some friend requests!'
           : 'No more friends'
       }
     </p>

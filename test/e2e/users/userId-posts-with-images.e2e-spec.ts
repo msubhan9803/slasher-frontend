@@ -57,7 +57,7 @@ describe('UserId Posts With Images (e2e)', () => {
       await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser._id,
-          images: []
+          images: [],
         }),
       );
     }

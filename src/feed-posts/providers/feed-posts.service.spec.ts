@@ -342,7 +342,7 @@ describe('FeedPostsService', () => {
         await feedPostsService.create(
           feedPostFactory.build({
             userId: activeUser._id,
-            images: []
+            images: [],
           }),
         );
       }

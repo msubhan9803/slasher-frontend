@@ -38,6 +38,12 @@ export class Movie extends MovieUnusedFields {
   @Prop({ default: null, trim: true })
   contentRating: string;
 
+  @Prop({ default: 0 })
+  rating: number;
+
+  @Prop({ default: null, trim: true })
+  sortRating: string;
+
   @Prop({
     enum: [
       MovieActiveStatus.Inactive,

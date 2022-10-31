@@ -1,13 +1,14 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FriendsService } from './friends.service';
 import { UsersService } from '../../users/providers/users.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('FriendsService', () => {
   let user1: UserDocument;
   let user2: UserDocument;
   let user3: UserDocument;
+  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -26,6 +28,7 @@ describe('FriendsService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -236,17 +239,28 @@ describe('FriendsService', () => {
           userFactory.build(),
         );
       }
+      await friendsModel.create({
+        from: user._id.toString(),
+        to: user1._id.toString(),
+        reaction: FriendRequestReaction.Accepted,
+      });
+      await friendsModel.create({
+        from: user2._id.toString(),
+        to: user._id.toString(),
+        reaction: FriendRequestReaction.Accepted,
+      });
     });
+    
     it('finds the expected number of users when the requested number is higher than the number available, '
       + 'and does not incude passed-in user among the set', async () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
-        expect(suggestedFriends).toHaveLength(11); // but there should only be 11 returned
+        expect(suggestedFriends).toHaveLength(9); // but there should only be 9 returned
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {
-      const suggestedFriends = await friendsService.getSuggestedFriends(user, 11);
-      expect(suggestedFriends).toHaveLength(11);
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 9);
+      expect(suggestedFriends).toHaveLength(9);
     });
 
     it('returns the expected number of users when the requested number is lower than the number available', async () => {

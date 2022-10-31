@@ -90,11 +90,17 @@ pipelines:
     deploy/prod:
       - step: *lint-build-test
       - step: *deploy-cloudflare
+    deploy/prod-skiptests:
+      - step: *deploy-cloudflare
     deploy/staging:
       - step: *lint-build-test
       - step: *deploy-cloudflare
+    deploy/staging-skiptests:
+      - step: *deploy-cloudflare
     deploy/dev:
       - step: *lint-build-test
+      - step: *deploy-siteground
+    deploy/dev-skiptests:
       - step: *deploy-siteground
     deploy/dev-avadh1:
       - step: *lint-build-test

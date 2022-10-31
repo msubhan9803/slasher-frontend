@@ -271,10 +271,11 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('suggested-friends')
   async suggestedFriends(@Req() request: Request) {
     const user = getUserFromRequest(request);
-    return this.usersService.getSuggestedFriends(user, 7); // for now, always return 7
+    return this.friendsService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 
   @Post('verification-email-not-received')

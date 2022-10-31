@@ -65,6 +65,7 @@ describe('UserId Posts With Images (e2e)', () => {
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        expect(response.body[i].images.length).toBeGreaterThan(0);
       }
       expect(response.body).toHaveLength(10);
     });

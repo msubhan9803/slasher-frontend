@@ -338,6 +338,13 @@ describe('FeedPostsService', () => {
             userId: activeUser._id,
           }),
         );
+
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser._id,
+            images: []
+          }),
+        );
       }
     });
 
@@ -351,7 +358,6 @@ describe('FeedPostsService', () => {
       const feedPostData = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), 20, feedPost._id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
-        expect(feedPostData[i].images.length).toBeGreaterThan(0);
       }
       expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);

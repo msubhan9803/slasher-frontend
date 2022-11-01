@@ -72,10 +72,10 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
       });
 
       it('when no friend request found then it throws error', async () => {
-        activeUserAuthToken = user2.generateNewJwtToken(
-          configService.get<string>('JWT_SECRET_KEY'),
-        );
-        const userId = activeUser._id;
+        // activeUserAuthToken = user2.generateNewJwtToken(
+        //   configService.get<string>('JWT_SECRET_KEY'),
+        // );
+        const userId = user2._id;
         const response = await request(app.getHttpServer())
           .delete(`/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

@@ -53,7 +53,7 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      await this.friendsService.declineOrCancelFriendRequest(user._id, declineOrCancelFriendRequestDto.userId);
+      await this.friendsService.declineOrCancelFriendRequest(declineOrCancelFriendRequestDto.userId, user._id);
     } catch (error) {
       throw new HttpException('Unable to cancel friend request', HttpStatus.BAD_REQUEST);
     }

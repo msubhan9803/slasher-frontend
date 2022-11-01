@@ -7,6 +7,7 @@ interface SortDataProps {
   className?: string;
   sortoptions?: OptionsProps[];
   type?: string;
+  onSelect?: any;
 }
 interface OptionsProps {
   value: string;
@@ -16,11 +17,11 @@ const StyledStortingSelect = styled(Form)`
 
 `;
 function SortData({
-  title, className, sortoptions, type,
+  title, className, sortoptions, type, onSelect,
 }: SortDataProps) {
   return (
     <StyledStortingSelect>
-      <Form.Select aria-label="Default select example" className={`fs-5 shadow-none px-4 ${className}`}>
+      <Form.Select aria-label="Default select example" onChange={(e) => onSelect(e)} className={`fs-5 shadow-none px-4 ${className}`}>
         {sortoptions && sortoptions.length > 0 && sortoptions.map(({ value, label }) => (
           type === 'sort' && (
             <option key={value} value={value}>

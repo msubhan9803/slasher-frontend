@@ -22,8 +22,11 @@ const sortoptions = [
   { value: 'userRating', label: 'User Rating' },
 ];
 function MoviesHeader({
-  tabKey, showKeys, setShowKeys, setSearch, search,
+  tabKey, showKeys, setShowKeys, setSearch, search, short,
 }: any) {
+  const onSelects = (e : any) => {
+    short(e.target.value);
+  };
   return (
     <>
       <TabLinks tabLink={tabs} toLink="/movies" selectedTab={tabKey} />
@@ -35,7 +38,7 @@ function MoviesHeader({
           <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
+          <SortData onSelect={onSelects} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>

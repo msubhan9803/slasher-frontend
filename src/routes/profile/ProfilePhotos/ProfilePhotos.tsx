@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ProfileHeader from '../ProfileHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
 import { User } from '../../../types';
+import { userPhotos } from '../../../api/users';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 const ProfilePhoto = styled(Image)`
   acpect-ratio:1;
@@ -15,55 +18,118 @@ const StyledPopover = styled.div`
   top: 25px;
   right: 8px;
 `;
-const photosData = [
-  { id: 1, photoUrl: 'https://i.pravatar.cc/300?img=02' },
-  { id: 2, photoUrl: 'https://i.pravatar.cc/300?img=03' },
-  { id: 3, photoUrl: 'https://i.pravatar.cc/300?img=04' },
-  { id: 4, photoUrl: 'https://i.pravatar.cc/300?img=11' },
-  { id: 5, photoUrl: 'https://i.pravatar.cc/300?img=01' },
-  { id: 6, photoUrl: 'https://i.pravatar.cc/300?img=02' },
-  { id: 7, photoUrl: 'https://i.pravatar.cc/300?img=03' },
-  { id: 8, photoUrl: 'https://i.pravatar.cc/300?img=04' },
-  { id: 9, photoUrl: 'https://i.pravatar.cc/300?img=11' },
-  { id: 10, photoUrl: 'https://i.pravatar.cc/300?img=19' },
-  { id: 11, photoUrl: 'https://i.pravatar.cc/300?img=31' },
-  { id: 12, photoUrl: 'https://i.pravatar.cc/300?img=01' },
-];
-
+interface UserPhotos {
+  id: string;
+  imagesList : ImageList[]
+}
+interface ImageList {
+  image_path:string;
+  _id:string;
+}
 interface Props {
   user: User
 }
 function ProfilePhotos({ user }: Props) {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('view');
+  const [requestAdditionalPhotos, setRequestAdditionalPhotos] = useState<boolean>(false);
   const [show, setShow] = useState(false);
+  const [userPhotosList, setUserPhotosList] = useState<UserPhotos[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
   const viewerOptions = ['Unfriend', 'Block user', 'Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
   const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
+
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
   };
+
+  useEffect(() => {
+    if (requestAdditionalPhotos && !loadingPhotos) {
+      setLoadingPhotos(true);
+      userPhotos(
+        user.id,
+        userPhotosList.length > 1 ? userPhotosList[userPhotosList.length - 1].id : undefined,
+      )
+        .then((res) => {
+          const newPhotoList = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              id: data._id,
+              imagesList: data.images,
+            }
+          ));
+          setUserPhotosList((prev: UserPhotos[]) => [
+            ...prev,
+            ...newPhotoList,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+        })
+        .catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); },
+        );
+    }
+  }, [requestAdditionalPhotos, loadingPhotos]);
+
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        userPhotosList.length === 0
+          ? 'No photos available'
+          : 'No more photos'
+      }
+    </p>
+  );
+
+  const renderLoadingIndicator = () => (
+    <p className="text-center">Loading...</p>
+  );
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" user={user} />
       <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-        <Row className="justify-content-between">
-          {photosData.map((data) => (
-            <Col xs={4} md={3} key={data.id}>
-              <div className="position-relative">
-                <ProfilePhoto src={data.photoUrl} className="rounded mt-4 w-100" key={data.id} />
-                <StyledPopover className="position-absolute">
-                  <CustomPopover
-                    popoverOptions={popoverOption}
-                    onPopoverClick={handlePopoverOption}
-                  />
-                </StyledPopover>
-              </div>
-            </Col>
-          ))}
-        </Row>
+        {errorMessage && errorMessage.length > 0 && (
+          <div className="mt-3 text-start">
+            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          </div>
+        )}
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPhotos(true); }}
+          hasMore={!noMoreData}
+        >
+          <Row className="justify-content-between">
+            {userPhotosList.map((data: UserPhotos) => (
+              data.imagesList.map((images: ImageList) => (
+                <Col xs={4} md={3} key={images._id}>
+                  <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
+                    <div className="position-relative">
+                      <ProfilePhoto src={images.image_path} className="rounded mt-4 w-100" key={images._id} />
+                      <StyledPopover className="position-absolute">
+                        <CustomPopover
+                          popoverOptions={popoverOption}
+                          onPopoverClick={handlePopoverOption}
+                        />
+                      </StyledPopover>
+                    </div>
+                  </Link>
+                </Col>
+              ))
+            ))}
+          </Row>
+        </InfiniteScroll>
+        {loadingPhotos && renderLoadingIndicator()}
+        {noMoreData && renderNoMoreDataMessage()}
       </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>

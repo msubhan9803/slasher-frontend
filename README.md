@@ -25,7 +25,7 @@ $ cp .env.test.template .env.test
 
 ## Development and testing
 
-In the development/test environments, you'll need to use docker compose to run the development dependencies (right now, that's just MongoDB).  In a separate terminal window, run this from inside of the top level directory:
+In the development/test environments, you'll need to use docker compose to run the development dependencies (right now, that's MongoDB and Redis).  In a separate terminal window, run this from inside of the top level directory:
 
 ```bash
 docker compose --file docker-compose.devtest.yml up --build

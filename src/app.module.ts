@@ -19,6 +19,7 @@ import { EventCategoriesModule } from './event-categories/event-categories.modul
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 import { FriendsModule } from './friends/friends.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
+import { AppGateway } from './app/providers/app.gateway';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-fe
       provide: APP_PIPE,
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
     },
+    AppGateway,
   ],
 })
 export class AppModule {

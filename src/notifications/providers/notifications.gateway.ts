@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import {
   MessageBody,
   SubscribeMessage,
@@ -20,13 +19,9 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: any, ...args: any[]) {
-    console.log('client connected (notifications)');
-  }
+  handleConnection(client: any, ...args: any[]) { }
 
-  handleDisconnect(client: any) {
-    console.log('client disconnected (notifications)');
-  }
+  handleDisconnect(client: any) { }
 
   @SubscribeMessage('getNotifications')
   async sendReceiveMessage(@MessageBody() data: any): Promise<string> {

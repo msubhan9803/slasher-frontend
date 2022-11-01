@@ -68,16 +68,23 @@ describe('Accept Friend Request (e2e)', () => {
           .post('/friends/requests/accept')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFriendsObject);
-        const query = {
-          $or: [
-            { from: activeUser._id, to: user1._id },
-            { from: user1._id, to: activeUser._id },
-          ],
-        };
-        const friends = await friendsModel.find(query);
+
+        const friends = await friendsModel.find({ from: activeUser._id, to: user1._id });
         for (let i = 1; i < friends.length; i += 1) {
           expect(friends[i].reaction).toEqual(FriendRequestReaction.Accepted);
         }
+      });
+
+      it('when active user has no any friend request then it throws error', async () => {
+        sampleFriendsObject.userId = user2._id;
+
+        const response = await request(app.getHttpServer())
+          .post('/friends/requests/accept')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleFriendsObject)
+          .expect(HttpStatus.BAD_REQUEST);
+
+          expect(response.body.message).toContain('Unable to accept friend request');
       });
     });
 

@@ -75,15 +75,15 @@ export class FriendsService {
   }
 
   async declineOrCancelFriendRequest(userId1: string, userId2: string): Promise<void> {
-    const friends = {
-      $or: [
-        { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-        { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
-      ],
-    };
-    await this.friendsModel
-      .updateOne(friends, { $set: { reaction: FriendRequestReaction.DeclinedOrCancelled } }, { new: true })
-      .exec();
+    const notFoundMessage = `No friend request found from user ${userId1} to ${userId2}`;
+    const friendRequest = await this.friendsModel.findOne({ from: userId1, to: userId2 });
+
+    if (!friendRequest) {
+      throw new Error(notFoundMessage);
+    }
+
+    friendRequest.reaction = FriendRequestReaction.DeclinedOrCancelled;
+    await friendRequest.save();
   }
 
   /**

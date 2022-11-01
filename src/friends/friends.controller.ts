@@ -1,6 +1,6 @@
 import {
   Controller, Post, Req, Body, Get,
-  Delete, ValidationPipe, Query,
+  Delete, ValidationPipe, Query, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -51,8 +51,12 @@ export class FriendsController {
     @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) declineOrCancelFriendRequestDto: DeclineOrCancelFriendRequestDto,
   ) {
-    const user = getUserFromRequest(request);
-    await this.friendsService.declineOrCancelFriendRequest(user._id, declineOrCancelFriendRequestDto.userId);
+    try {
+      const user = getUserFromRequest(request);
+      await this.friendsService.declineOrCancelFriendRequest(user._id, declineOrCancelFriendRequestDto.userId);
+    } catch (error) {
+      throw new HttpException('Unable to cancel friend request', HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Post('requests/accept')
@@ -60,8 +64,12 @@ export class FriendsController {
     @Req() request: Request,
     @Body() acceptFriendRequestDto: AcceptFriendRequestDto,
   ) {
-    const user = getUserFromRequest(request);
-    const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
-    return acceptFriendRequestDetails;
+    try {
+      const user = getUserFromRequest(request);
+      const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
+      return acceptFriendRequestDetails;
+    } catch (error) {
+      throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);
+    }
   }
 }

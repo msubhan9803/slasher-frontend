@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsMongoId,
-  IsNotEmpty, IsNumber, IsOptional, IsString, Max,
+  IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength,
 } from 'class-validator';
 
 export class FindAllMoviesDto {
@@ -13,12 +13,17 @@ export class FindAllMoviesDto {
   limit: number;
 
   @IsNotEmpty()
-  @IsIn(['name', 'releaseDate'])
+  @IsIn(['name', 'releaseDate', 'rating'])
   @IsString()
-  sortBy: 'name' | 'releaseDate';
+  sortBy: 'name' | 'releaseDate' | 'rating';
 
   @IsOptional()
   @IsString()
   @IsMongoId()
   after: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  nameContains: string;
 }

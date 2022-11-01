@@ -61,7 +61,7 @@ export class FriendsController {
     @Body() acceptFriendRequestDto: AcceptFriendRequestDto,
   ) {
     const user = getUserFromRequest(request);
-    const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(user._id, acceptFriendRequestDto.userId);
+    const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
     return acceptFriendRequestDetails;
   }
 }

@@ -3,11 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
-import { userProfileFriendsRequest } from '../../../../api/friends';
+import { acceptFriendsRequest, rejectFriendsRequest, userProfileFriendsRequest } from '../../../../api/friends';
+import { userInitialData } from '../../../../api/users';
 import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
+import { useAppDispatch } from '../../../../redux/hooks';
+import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
@@ -25,6 +28,7 @@ interface Props {
 }
 function ProfileFriendRequest({ user }: Props) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const params = useParams();
   const [search, setSearch] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -77,6 +81,26 @@ function ProfileFriendRequest({ user }: Props) {
       }
     </p>
   );
+  const handleAcceptRequest = (userId: string) => {
+    acceptFriendsRequest(userId)
+      .then(() => {
+        userProfileFriendsRequest(0)
+          .then((res) => setFriendsReqList(res.data));
+        userInitialData().then((res) => {
+          dispatch(setUserInitialData(res.data));
+        });
+      });
+  };
+  const handleRejectRequest = (userId: string) => {
+    rejectFriendsRequest(userId)
+      .then(() => {
+        userProfileFriendsRequest(0)
+          .then((res) => setFriendsReqList(res.data));
+        userInitialData().then((res) => {
+          dispatch(setUserInitialData(res.data));
+        });
+      });
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <ProfileHeader tabKey="friends" user={user} />
@@ -102,6 +126,8 @@ function ProfileFriendRequest({ user }: Props) {
                   <FriendsProfileCard
                     friend={friend}
                     friendsType="requested"
+                    onAcceptClick={handleAcceptRequest}
+                    onRejectClick={handleRejectRequest}
                   />
                 </Col>
               ))}

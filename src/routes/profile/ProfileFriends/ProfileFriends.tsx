@@ -50,7 +50,7 @@ function ProfileFriends({ user }: Props) {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
-    } else {
+    } else if (value === 'View profile') {
       navigate(`/${userName}/about`);
     }
   };

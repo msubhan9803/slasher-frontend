@@ -9,7 +9,7 @@ const Container = styled.div`
   background: #1F1F1F;
 `;
 function FriendsProfileCard({
-  friend, popoverOption, handlePopoverOption, friendsType,
+  friend, popoverOption, handlePopoverOption, friendsType, onAcceptClick, onRejectClick,
 }: any) {
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
@@ -30,8 +30,22 @@ function FriendsProfileCard({
       <div className="d-flex align-self-center">
         {friendsType === 'requested' ? (
           <>
-            <CircleButton variant="black" className="me-2 text-success" icon={solid('check')} />
-            <CircleButton variant="black" className="me-2 text-primary" icon={solid('times')} />
+            <CircleButton
+              variant="black"
+              className="me-2 text-success"
+              icon={solid('check')}
+              /* eslint no-underscore-dangle: 0 */
+              userId={friend._id}
+              onAcceptRejectClick={onAcceptClick}
+            />
+            <CircleButton
+              variant="black"
+              className="me-2 text-primary"
+              icon={solid('times')}
+              /* eslint no-underscore-dangle: 0 */
+              userId={friend._id}
+              onAcceptRejectClick={onRejectClick}
+            />
           </>
         ) : (
           <CustomPopover

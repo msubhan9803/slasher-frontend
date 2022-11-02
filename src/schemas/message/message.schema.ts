@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { MatchList } from '../matchList/matchList.schema';
+import { Relation } from '../relation/relation.schema';
+import { User } from '../user/user.schema';
+import { MessageType } from './message.enums';
 import { MessageUnusedFields } from './message.unused-fields';
 
 @Schema({ timestamps: true })
@@ -16,6 +20,29 @@ export class Message extends MessageUnusedFields {
 
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: MatchList.name })
+  matchId: MatchList;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Relation.name })
+  relationId: Relation;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  fromId: User;
+
+  // Note: This should actually be called toId, but it was improperly in the old API
+  // so we need to keep the same name until we retire the old API.
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  senderId: User;
+
+  @Prop({ default: MessageType.Text })
+  messageType: MessageType.Text;
+
+  // Each message can only have ONE image. And based on the mobile app, choosing an image
+  // sends the image instantly, sets the messageType to MessageType.Image, and populates the
+  // message field with the word "Image".
+  @Prop({ default: null })
+  image: string;
 
   /***********
    * Methods *

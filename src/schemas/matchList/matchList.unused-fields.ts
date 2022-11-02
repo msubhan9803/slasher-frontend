@@ -1,7 +1,7 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import {
-  MatchListRoomCategory, MatchListRoomType, MatchListStatus, MatchListFlag,
+  MatchListStatus, MatchListFlag,
 } from './matchList.enums';
 
 export class MatchListUnusedFields {
@@ -10,20 +10,8 @@ export class MatchListUnusedFields {
   participants: mongoose.Schema.Types.ObjectId[];
 
   // NOT USED
-  @Prop({ default: null, ref: 'relations', required: true })
-  relationId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
   @Prop({ default: 0 })
   roomName: string;
-
-  // NOT USED
-  @Prop({ required: true })
-  roomCategory: MatchListRoomCategory;
-
-  // NOT USED
-  @Prop({ required: true })
-  roomType: MatchListRoomType;
 
   // NOT USED
   // Note: In current prod db, this is null 100% of the time, so this field is not used in any

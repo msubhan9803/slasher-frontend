@@ -1,8 +1,7 @@
-import { IsNotEmpty, Matches } from 'class-validator';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
+import { IsMongoId, IsNotEmpty } from 'class-validator';
 
 export class AcceptFriendRequestDto {
   @IsNotEmpty()
-  @Matches(SIMPLE_MONGODB_ID_REGEX)
+  @IsMongoId()
   userId: string;
 }

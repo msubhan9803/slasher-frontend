@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import {
   MessageBody,
   SubscribeMessage,
@@ -20,13 +19,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: any, ...args: any[]) {
-    console.log('client connected (chat)');
-  }
+  handleConnection(client: any, ...args: any[]) { }
 
-  handleDisconnect(client: any) {
-    console.log('client disconnected (chat)');
-  }
+  handleDisconnect(client: any) { }
 
   @SubscribeMessage('chatMessage')
   async sendReceiveMessage(@MessageBody() data: any): Promise<string> {

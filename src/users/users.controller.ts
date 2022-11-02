@@ -126,10 +126,11 @@ export class UsersController {
 
     // During successful sign-in, update certain fields and re-save the object:
     user.last_login = new Date();
-    // TODO: Is there any reason we need to store the JWT in the db?
-    // It's done in the old API, but it may not actually be necessary.
-    // We'll keep this commented out for now, and uncomment later if needed.
-    // user.token = `Bearer ${token}`;
+
+    // Store the user's latest token in the database.  This is mostly just done for compatibility
+    // with the old API, which does the same thing, but we don't actually do any comparisons with
+    // the database-stored version of the token.
+    user.token = `Bearer ${token}`;
     user.addOrUpdateDeviceEntry(deviceEntry);
     await user.save();
 
@@ -270,10 +271,11 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('suggested-friends')
   async suggestedFriends(@Req() request: Request) {
     const user = getUserFromRequest(request);
-    return this.usersService.getSuggestedFriends(user, 7); // for now, always return 7
+    return this.friendsService.getSuggestedFriends(user, 7); // for now, always return 7
   }
 
   @Post('verification-email-not-received')
@@ -424,7 +426,7 @@ export class UsersController {
     return feedPosts;
   }
 
-  @TransformImageUrls('$[*].profilePic')
+  @TransformImageUrls('$.friends[*].profilePic')
   @Get(':userId/friends')
   async getFriends(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -435,8 +437,8 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    const friends = await this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
-    return friends;
+
+    return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
   @Post('upload-cover-image')
@@ -460,5 +462,25 @@ export class UsersController {
 
     asyncDeleteMulterFiles([file]);
     return { success: true };
+  }
+
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @Get(':userId/posts-with-images')
+  async allFeedPostsWithImages(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPosts = await this.feedPostsService.findAllPostsWithImagesByUser(
+      user._id,
+      query.limit,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
+    return feedPosts;
   }
 }

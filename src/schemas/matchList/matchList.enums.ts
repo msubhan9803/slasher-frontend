@@ -5,8 +5,8 @@ export enum MatchListRoomCategory {
 
 export enum MatchListRoomType {
   Public = 0,
-  Match = 1,
-  Private = 2,
+  Match = 1, // This was labeled "match" in the old API but it seems to actually mean "Private"
+  // UnusedThirdOption = 2,
 }
 
 // Unfortunately, this enum is backed by strings to ensure compatibility with the old API. Using

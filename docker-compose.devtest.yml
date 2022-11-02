@@ -7,6 +7,8 @@ name: 'slasher-devtest'
 
 volumes:
   mongo-data:
+  redis-dev-data:
+  redis-test-data:
 services:
   mongo:
     build: ./docker/mongo
@@ -15,3 +17,17 @@ services:
       - mongo-data:/data/db
     ports:
       - '27017:27017'
+  redis-dev:
+    build: ./docker/redis
+    restart: on-failure
+    volumes:
+      - redis-dev-data:/data
+    ports:
+      - '6379:6379'
+  redis-test:
+    build: ./docker/redis
+    restart: on-failure
+    volumes:
+      - redis-test-data:/data
+    ports:
+      - '6389:6379'

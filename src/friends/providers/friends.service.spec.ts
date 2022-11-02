@@ -1,12 +1,11 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import mongoose, { Connection, Model } from 'mongoose';
+import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FriendsService } from './friends.service';
 import { UsersService } from '../../users/providers/users.service';
 import { UserDocument } from '../../schemas/user/user.schema';
-import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 
@@ -19,7 +18,6 @@ describe('FriendsService', () => {
   let user1: UserDocument;
   let user2: UserDocument;
   let user3: UserDocument;
-  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -28,7 +26,6 @@ describe('FriendsService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
-    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -76,21 +73,11 @@ describe('FriendsService', () => {
       newUser1 = await usersService.create(userFactory.build());
       newUser2 = await usersService.create(userFactory.build());
     });
-    it('creates the expected friend record, with the expected friend.reactionv value', async () => {
+    it('creates the expected friend record and sets friend.reaction to pending by default', async () => {
       await friendsService.createFriendRequest(newUser1.id, newUser2.id);
-      const friendData = await friendsModel.findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(newUser1._id) }, { to: new mongoose.Types.ObjectId(newUser2._id) }],
-      });
-      expect(friendData.from).toEqual(newUser1._id);
-      expect(friendData.to).toEqual(newUser2._id);
-    });
-
-    it('sets friend.reaction to pending by default', async () => {
-      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
-      const friendsData = await friendsModel.findOne({
-        $and: [{ from: new mongoose.Types.ObjectId(newUser1._id) }, { to: new mongoose.Types.ObjectId(newUser2._id) }],
-      });
-      expect(friendsData.reaction).toBe(FriendRequestReaction.Pending);
+      expect(
+        await friendsService.getFriendRequestReaction(newUser1.id, newUser2.id),
+      ).toEqual(FriendRequestReaction.Pending);
     });
   });
 
@@ -185,8 +172,9 @@ describe('FriendsService', () => {
       }
     });
 
-    it('returns the expected friends, sorted in alphabetical order by username', async () => {
-      const friends = await friendsService.getFriends(user0.id, 10, 0);
+    it('returns the expected friends and total, with friends sorted in alphabetical order by username', async () => {
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 10, 0);
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Dracula',
@@ -198,7 +186,8 @@ describe('FriendsService', () => {
     });
 
     it('returns the expected response for applied limit and offset', async () => {
-      const friends = await friendsService.getFriends(user0.id, 3, 3);
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 3, 3);
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'The Count',
@@ -207,7 +196,8 @@ describe('FriendsService', () => {
     });
 
     it('returns the expected response when doing case-insensitive filtering on a userName', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 0, 'count');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 0, 'count');
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Dracula',
@@ -218,18 +208,57 @@ describe('FriendsService', () => {
     });
 
     it('returns no results when there are no case-insensitive matches on a userName', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 0, 'zzzzzz');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 0, 'zzzzzz');
+      expect(allFriendCount).toBe(4);
       expect(friends).toHaveLength(0);
     });
 
     it('when applying limit, offset, and userName filter', async () => {
-      const friends = await friendsService.getFriends(user0.id, 5, 1, 'count');
+      const { friends, allFriendCount } = await friendsService.getFriends(user0.id, 5, 1, 'count');
+      expect(allFriendCount).toBe(4);
       expect(friends.map((friend) => friend.userName)).toEqual(
         [
           'Count Orlok',
           'The Count',
         ],
       );
+    });
+  });
+
+  describe('#getSuggestedFriends', () => {
+    let user;
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+      for (let i = 0; i < 7; i += 1) {
+        await usersService.create(
+          userFactory.build(),
+        );
+      }
+
+      await friendsService.createFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.createFriendRequest(user2._id.toString(), user._id.toString());
+
+      await friendsService.acceptFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.acceptFriendRequest(user2._id.toString(), user._id.toString());
+    });
+
+    it('finds the expected number of users when the requested number is higher than the number available, '
+      + 'and does not incude passed-in user among the set', async () => {
+        const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
+        expect(suggestedFriends).toHaveLength(9); // but there should only be 9 returned
+        expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
+      });
+
+    it('returns the expected number of users when the requested number equals the number available', async () => {
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 9);
+      expect(suggestedFriends).toHaveLength(9);
+    });
+
+    it('returns the expected number of users when the requested number is lower than the number available', async () => {
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 5);
+      expect(suggestedFriends).toHaveLength(5);
     });
   });
 

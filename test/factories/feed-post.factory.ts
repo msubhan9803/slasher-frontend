@@ -5,6 +5,6 @@ import { imageFactory } from './image.factory';
 export const feedPostFactory = Factory.define<Partial<FeedPost>>(
   ({ sequence }) => new FeedPost({
     message: `Message ${sequence}`,
-    images: imageFactory.build(),
+    images: imageFactory.buildList(2),
   }),
 );

@@ -3,12 +3,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
-import { UserDocument } from '../../schemas/user/user.schema';
+import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 
 @Injectable()
 export class FriendsService {
-  constructor(@InjectModel(Friend.name) private friendsModel: Model<FriendDocument>) { }
+  constructor(
+    @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
+    @InjectModel(User.name) private usersModel: Model<UserDocument>,
+  ) { }
 
   async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
     const friend = await this.friendsModel
@@ -83,23 +86,12 @@ export class FriendsService {
       .exec();
   }
 
-  async getFriends(userId: string, limit: number, offset: number, userNameContains?: string): Promise<Partial<UserDocument[]>> {
-    const matchQuery: any = {
-      $match: {
-        $expr: {
-          $and: [
-            { $ne: ['$_id', new mongoose.Types.ObjectId(userId)] },
-            { $in: ['$_id', '$$ids'] },
-          ],
-        },
-      },
-    };
-
-    if (userNameContains) {
-      matchQuery.$match.userName = new RegExp(escapeStringForRegex(userNameContains), 'i');
-    }
-
-    const aggregateQuery = [
+  /**
+   * For the given user, returns an array of ObjectIds for that user's friends.
+   * Note: This methon can return a lot of results (thousands) if the user has a lot of friends.
+   */
+  async getFriendIds(userId: string) {
+    const results = await this.friendsModel.aggregate([
       {
         $match: {
           $and: [
@@ -117,27 +109,49 @@ export class FriendsService {
       {
         $project: {
           _id: 0,
-          ids: { $setUnion: ['$from', '$to'] },
+          id: { $setUnion: ['$from', '$to'] },
         },
       },
-      {
-        $lookup:
-        {
-          from: 'users',
-          let: { ids: '$ids' },
-          pipeline: [
-            matchQuery,
-            { $project: { userName: 1, profilePic: 1, _id: 1 } },
-            { $sort: { userName: 1 } },
-          ],
-          as: 'usersDetails',
-        },
-      },
-      { $project: { usersDetails: { $slice: ['$usersDetails', offset, limit] } } },
-    ];
+      { $unwind: '$id' },
+    ]).exec();
 
-    const friendsData: any = await this.friendsModel.aggregate(aggregateQuery);
-    return friendsData.length ? friendsData[0].usersDetails : friendsData;
+    // Exclude userId and return list of friend ObjectId values
+    const userIdToExclude = new mongoose.Types.ObjectId(userId);
+    const processedResults = (results.map((result) => result.id) as mongoose.Types.ObjectId[]).filter(
+      (id) => !id.equals(userIdToExclude),
+    );
+
+    return processedResults;
+  }
+
+  async getFriends(userId: string, limit: number, offset: number, userNameContains?: string) {
+    const friendIds = await this.getFriendIds(userId);
+    const friendUsers = await this.usersModel.find({
+      $and: [
+        { _id: { $in: friendIds } },
+        userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
+      ],
+    }).limit(limit).skip(offset).sort({ userName: 1 })
+      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .exec();
+
+    return {
+      allFriendCount: friendIds.length,
+      friends: friendUsers,
+    };
+  }
+
+  async getSuggestedFriends(user: UserDocument, limit: number) {
+    const friendIds = await this.getFriendIds(user._id);
+    const friendUsers = await this.usersModel.find({
+      $and: [
+        { _id: { $nin: friendIds } },
+        { _id: { $ne: user._id } },
+      ],
+    }).sort({ createdAt: -1 }).limit(limit)
+      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .exec();
+    return friendUsers;
   }
 
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {

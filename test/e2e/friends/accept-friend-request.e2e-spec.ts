@@ -101,7 +101,7 @@ describe('Accept Friend Request (e2e)', () => {
           .send(sampleFriendsObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
-          'userId must match /^[a-f\\d]{24}$/i regular expression',
+          'userId must be a mongodb id',
         );
       });
     });

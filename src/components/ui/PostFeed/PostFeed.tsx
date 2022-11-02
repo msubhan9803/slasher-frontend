@@ -2,22 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Image, Row,
+  Card, Col, Row,
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper';
 import PostFooter from './PostFooter';
+import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import 'linkify-plugin-mention';
-import { Post } from '../../../types';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 interface LinearIconProps {
   uniqueId?: string
 }
-
 interface Props {
   popoverOptions: string[],
   postFeedData: any[],
@@ -29,8 +32,8 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const PostImage = styled(Image)`
-  acpect-ratio: 1.9;
+const PostImage = styled.div`
+  aspect-ratio : 1.9;
 `;
 const Content = styled.div`
   white-space: pre-line;
@@ -38,7 +41,6 @@ const Content = styled.div`
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
 `;
-
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -49,7 +51,46 @@ const StyledPostFeed = styled.div`
     }
   }
 `;
+const CustomSwiper = styled(Swiper)`
+  width: 100%;
+  height: 100%;
+  z-index: 0 !important;
+  
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
 
+  /* Center slide text vertically */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+}
+.swiper-pagination {
+  position: revert !important;
+}
+.swiper-pagination-bullet {
+  border:1px solid !important;
+}
+.swiper-pagination-bullet-active{
+  background: white !important;
+}
+`;
 const decryptMessage = (content: string) => {
   const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
   return found;
@@ -107,13 +148,19 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.postUrl?.[0] && (
-                <div className="mt-3">
-                  <Link to={`/${post.userName}/posts/${post.id}`}>
-                    <PostImage src={post?.postUrl[0].image_path} className="w-100" />
-                  </Link>
-                </div>
-              )}
+              <CustomSwiper pagination modules={[Pagination]} className="mySwiper swiper-container">
+                {
+                  post?.images.map((images: any) => (
+                    <SwiperSlide key={images.image_path}>
+                      <Link to={`/${post.userName}/posts/${post.id}`}>
+                        <PostImage>
+                          <img src={images.image_path} className="w-100" alt="not found" />
+                        </PostImage>
+                      </Link>
+                    </SwiperSlide>
+                  ))
+                }
+              </CustomSwiper>
               <Row className="pt-3 px-md-3">
                 <Col>
                   <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>

@@ -28,8 +28,10 @@ function ProfilePosts({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
 
   const handlePopoverOption = (value: string) => {
-    setShowReportModal(true);
-    setDropDownValue(value);
+    if (value === 'Delete') {
+      setShowReportModal(true);
+      setDropDownValue(value);
+    }
   };
 
   useEffect(() => {

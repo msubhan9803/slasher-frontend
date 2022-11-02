@@ -2,6 +2,7 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
+import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -26,6 +27,10 @@ async function bootstrap() {
 
   // Enable CORS headers on requests
   app.enableCors();
+
+  const redisIoAdapter = new RedisIoAdapter(app, config);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   console.log(`Starting app on port: ${port}`);
   await app.listen(port);

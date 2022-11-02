@@ -1,15 +1,14 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
-import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
-import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
+import { FriendsService } from '../../../src/friends/providers/friends.service';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +19,7 @@ describe('Users suggested friends (e2e)', () => {
   let user1: User;
   let user2: User;
   let configService: ConfigService;
-  let friendsModel: Model<FriendDocument>;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -30,7 +29,7 @@ describe('Users suggested friends (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
-    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -48,16 +47,12 @@ describe('Users suggested friends (e2e)', () => {
     );
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
     user2 = await usersService.create(userFactory.build({ userName: 'Freddy' }));
-    await friendsModel.create({
-      from: activeUser._id.toString(),
-      to: user1._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
-    await friendsModel.create({
-      from: user2._id.toString(),
-      to: activeUser._id.toString(),
-      reaction: FriendRequestReaction.Accepted,
-    });
+
+    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+    await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
+
+    await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+    await friendsService.acceptFriendRequest(user2._id.toString(), activeUser._id.toString());
   });
 
   describe('GET /users/suggested-friends', () => {

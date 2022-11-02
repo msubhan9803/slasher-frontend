@@ -1,14 +1,13 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FriendsService } from './friends.service';
 import { UsersService } from '../../users/providers/users.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
-import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -19,7 +18,6 @@ describe('FriendsService', () => {
   let user1: UserDocument;
   let user2: UserDocument;
   let user3: UserDocument;
-  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -28,7 +26,6 @@ describe('FriendsService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
-    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -239,16 +236,12 @@ describe('FriendsService', () => {
           userFactory.build(),
         );
       }
-      await friendsModel.create({
-        from: user._id.toString(),
-        to: user1._id.toString(),
-        reaction: FriendRequestReaction.Accepted,
-      });
-      await friendsModel.create({
-        from: user2._id.toString(),
-        to: user._id.toString(),
-        reaction: FriendRequestReaction.Accepted,
-      });
+
+      await friendsService.createFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.createFriendRequest(user2._id.toString(), user._id.toString());
+
+      await friendsService.acceptFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.acceptFriendRequest(user2._id.toString(), user._id.toString());
     });
 
     it('finds the expected number of users when the requested number is higher than the number available, '

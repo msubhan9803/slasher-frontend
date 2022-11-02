@@ -161,3 +161,11 @@ export async function userPhotos(id: string, lastRetrievedPostId?: string) {
   }
   return axios.get(`${apiUrl}/users/${id}/posts-with-images${queryParameter}`, { headers });
 }
+
+export async function getSuggestFriends() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
+}

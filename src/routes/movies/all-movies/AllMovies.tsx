@@ -59,7 +59,7 @@ function AllMovies() {
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())
       .then((res) => {
-        getMovies(res.data._id)
+        getMovies('', '', res.data._id)
           .then((result) => {
             setFilteredMovies(result.data);
           });

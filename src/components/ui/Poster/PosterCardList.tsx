@@ -20,6 +20,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
   return (
     <Row className="mt-0">
       {dataList && dataList.length > 0 ? dataList.map((listDetail: CardListProps) => (
+        /* eslint no-underscore-dangle: 0 */
         <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
           <PosterCard
             name={listDetail.name}

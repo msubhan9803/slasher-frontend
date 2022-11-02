@@ -8,12 +8,16 @@ import SortData from './SortData';
 interface FilterDialogProps {
   showKeys: boolean;
   setShowKeys: (val: boolean) => void;
+  selectedKey?: (e : string) => void;
+  applyFilter?: () => void;
 }
 const KeyboardButtons = styled(Button)`
   width: 2.5rem;
   height: 2.5rem;
 `;
-function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
+function FilterModal({
+  showKeys, setShowKeys, selectedKey, applyFilter,
+}: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
   const generateAlphabet = () => {
@@ -25,6 +29,21 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
   const handleCloseKeys = () => {
     setShowKeys(false);
   };
+
+  const keyValue = () => {
+    if (selectedKey) {
+      selectedKey(key);
+    }
+  };
+
+  const onClickApplyFilter = () => {
+    if (applyFilter) {
+      applyFilter();
+      handleCloseKeys();
+    }
+  };
+
+  useEffect(() => { keyValue(); }, [key]);
   return (
     <CustomModal
       show={showKeys}
@@ -57,6 +76,7 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
           variant="primary"
           type="submit"
           className="w-100 fs-3 "
+          onClick={onClickApplyFilter}
         >
           Apply filter
         </RoundButton>
@@ -64,5 +84,10 @@ function FilterModal({ showKeys, setShowKeys }: FilterDialogProps) {
     </CustomModal>
   );
 }
+
+FilterModal.defaultProps = {
+  selectedKey: null,
+  applyFilter: null,
+};
 
 export default FilterModal;

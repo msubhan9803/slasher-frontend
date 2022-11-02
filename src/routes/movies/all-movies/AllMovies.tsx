@@ -3,25 +3,17 @@ import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
-import getMovies from '../../../api/movies';
+import getMovies, { getMoviesByFirstName } from '../../../api/movies';
+import { MoviesProps } from '../components/MovieProps';
 
 function AllMovies() {
   const [showKeys, setShowKeys] = useState(false);
-  const [search, setSearch] = useState<any>('');
-  const [filteredMovies, setFilteredMovies] = useState<any[]>([]);
+  const [search, setSearch] = useState<string>('');
+  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  const [key, setKey] = useState<string>('');
   const searchData = () => {
-    // let searchResult;
-    // const newFilter = allMovies;
-    // if (search) {
-    //   searchResult = newFilter && newFilter.length > 0
-    //     ? newFilter.filter((src: any) => src.name.toLowerCase().startsWith(search))
-    //     : [];
-    //   setFilteredMovies(searchResult);
-    // } else {
-    //   setFilteredMovies(allMovies);
-    // }
-    getMovies(null, search)
+    getMovies(search, '')
       .then((res) => {
         setFilteredMovies(res.data);
       });
@@ -38,23 +30,9 @@ function AllMovies() {
   }, []);
 
   const fetchMoreMovies = () => {
-    // if (eventsList && eventsList.length > 0) {
-    //   getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
-    //     .then((res) => {
-    //       setEventList((prev: any) => [
-    //         ...prev,
-    //         ...eventsFromResponse(res),
-    //       ]);
-    //       if (res.data.length === 0) {
-    //         setNoMoreData(true);
-    //       }
-    //     })
-    //     .catch(() => { });
-    // }
-
     if (filteredMovies && filteredMovies.length > 0) {
       /* eslint no-underscore-dangle: 0 */
-      getMovies(filteredMovies[filteredMovies.length - 1]._id)
+      getMovies('', '', filteredMovies[filteredMovies.length - 1]._id)
         .then((res) => {
           setFilteredMovies((prev: any) => [
             ...prev,
@@ -67,10 +45,24 @@ function AllMovies() {
     }
   };
 
-  const onShort = (e : any) => {
-    getMovies(null, '', e)
+  const onShort = (shortValue : string) => {
+    getMovies('', shortValue)
       .then((res) => {
         setFilteredMovies(res.data);
+      });
+  };
+
+  const selectedKey = (keyValue: string) => {
+    setKey(keyValue);
+  };
+
+  const applyFilter = () => {
+    getMoviesByFirstName(key.toLowerCase())
+      .then((res) => {
+        getMovies(res.data._id)
+          .then((result) => {
+            setFilteredMovies(result.data);
+          });
       });
   };
   return (
@@ -82,6 +74,8 @@ function AllMovies() {
         setSearch={setSearch}
         search={search}
         short={onShort}
+        selectedKey={selectedKey}
+        applyFilter={applyFilter}
       />
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
         <div className="m-md-2">

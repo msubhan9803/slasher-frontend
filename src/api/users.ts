@@ -150,6 +150,18 @@ export async function uploadUserCoverImage(file: File) {
   return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
 }
 
+export async function userPhotos(id: string, lastRetrievedPostId?: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = '?limit=10';
+  if (lastRetrievedPostId) {
+    queryParameter += `&before=${lastRetrievedPostId}`;
+  }
+  return axios.get(`${apiUrl}/users/${id}/posts-with-images${queryParameter}`, { headers });
+}
+
 export async function getSuggestFriends() {
   const token = Cookies.get('sessionToken');
   const headers = {

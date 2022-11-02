@@ -65,15 +65,16 @@ describe('GET settings (e2e)', () => {
         expect(await userSettingsService.findByUserId(activeUser._id)).toBeTruthy();
       });
 
-      it('returns the expected response when the user is not found', async () => {
-       const nonExistentUserId = '5d1df8ebe9a186319c225cd6';
+      it('returns the expected response when the user setting is not found', async () => {
         const response = await request(app.getHttpServer())
           .get('/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        const result = null;
-        expect(await userSettingsService.findByUserId(nonExistentUserId)).toEqual(result);
+        expect(response.body).toEqual({
+          message: 'User setting not found',
+          statusCode: 404,
+        });
       });
     });
   });

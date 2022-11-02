@@ -1,12 +1,7 @@
 import { Factory } from 'fishery';
-import { ObjectId } from 'mongoose';
 import { UserSetting } from '../../src/schemas/userSetting/userSetting.schema';
 
-type UserTransientParams = {
-  userId: ObjectId;
-};
-
-export const userSettingFactory = Factory.define<Partial<UserSetting>, UserTransientParams>(
+export const userSettingFactory = Factory.define<Partial<UserSetting>>(
   () => new UserSetting({
     onboarding_completed: true,
     dating_got_a_match: 1,

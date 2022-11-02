@@ -62,6 +62,7 @@ describe('UserSettingsService', () => {
       const getUserSetting = await userSettingsService.findByUserId(userData._id);
       expect(getUserSetting._id).toEqual(userSetting._id);
       expect(getUserSetting.userId).toEqual(userSetting.userId);
+      expect(getUserSetting.message_board_new_post_on_thread).toEqual(userSetting.message_board_new_post_on_thread);
     });
   });
 

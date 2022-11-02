@@ -23,7 +23,7 @@ describe('settings update / :id (e2e)', () => {
     friends_message_received: 1,
     message_board_like_your_post: 1,
     message_board_reply_your_post: 0,
-    message_board_new_post_on_thread: 0,
+    message_board_new_post_on_thread: 1,
   };
 
   beforeAll(async () => {

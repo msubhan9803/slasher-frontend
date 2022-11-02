@@ -71,7 +71,7 @@ function PosterCard({
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-          <span className="h5">{rating || 3.0}</span>
+          <span className="h5">{rating}</span>
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0 pb-4">

@@ -10,13 +10,19 @@ interface FilterDialogProps {
   setShowKeys: (val: boolean) => void;
   selectedKey?: (e : string) => void;
   applyFilter?: () => void;
+  sortoptions?: OptionsProps[];
+  onSelectSort?(e : React.ChangeEvent<HTMLSelectElement>): void | null;
+}
+interface OptionsProps {
+  value: string;
+  label: string;
 }
 const KeyboardButtons = styled(Button)`
   width: 2.5rem;
   height: 2.5rem;
 `;
 function FilterModal({
-  showKeys, setShowKeys, selectedKey, applyFilter,
+  showKeys, setShowKeys, selectedKey, applyFilter, sortoptions, onSelectSort,
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
@@ -58,7 +64,7 @@ function FilterModal({
       <Modal.Body className="pb-5">
         <div className="d-lg-none mb-4">
           <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-          <SortData />
+          <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
         </div>
         <Modal.Title className="fs-3 mb-1">Jump to</Modal.Title>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
@@ -88,6 +94,8 @@ function FilterModal({
 FilterModal.defaultProps = {
   selectedKey: null,
   applyFilter: null,
+  sortoptions: null,
+  onSelectSort: null,
 };
 
 export default FilterModal;

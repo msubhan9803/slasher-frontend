@@ -45,8 +45,8 @@ function AllMovies() {
     }
   };
 
-  const onShort = (shortValue : string) => {
-    getMovies('', shortValue)
+  const onSort = (sortValue : string) => {
+    getMovies('', sortValue)
       .then((res) => {
         setFilteredMovies(res.data);
       });
@@ -73,7 +73,7 @@ function AllMovies() {
         setShowKeys={setShowKeys}
         setSearch={setSearch}
         search={search}
-        short={onShort}
+        sort={onSort}
         selectedKey={selectedKey}
         applyFilter={applyFilter}
       />

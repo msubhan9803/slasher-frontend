@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
-export default async function getMovies(search = '', shortValue = '', lastRetrievedMovieId?: string | null) {
+export default async function getMovies(search = '', sortValue = '', lastRetrievedMovieId?: string | null) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -16,15 +16,15 @@ export default async function getMovies(search = '', shortValue = '', lastRetrie
     queryParameter += `&nameContains=${search}`;
   }
 
-  if (shortValue && shortValue === 'alphabetical') {
+  if (sortValue && sortValue === 'alphabetical') {
     queryParameter = '?limit=20&sortBy=name';
   }
 
-  if (shortValue && shortValue === 'releaseDate') {
+  if (sortValue && sortValue === 'releaseDate') {
     queryParameter = '?limit=20&sortBy=releaseDate';
   }
 
-  if (shortValue && shortValue === 'userRating') {
+  if (sortValue && sortValue === 'userRating') {
     queryParameter = '?limit=20&sortBy=rating';
   }
 

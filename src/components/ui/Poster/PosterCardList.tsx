@@ -1,5 +1,6 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { DateTime } from 'luxon';
 import PosterCard from './PosterCard';
 
 interface PosterCardProps {
@@ -14,6 +15,7 @@ interface CardListProps {
   rating?: number;
   _id?: string | null;
   logo?: string;
+  releaseDate?: string;
 }
 
 function PosterCardList({ dataList }: PosterCardProps) {
@@ -25,7 +27,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
           <PosterCard
             name={listDetail.name}
             poster={listDetail.logo}
-            year={listDetail.year}
+            year={listDetail.releaseDate ? DateTime.fromISO(listDetail.releaseDate).toFormat('yyyy') : listDetail.year}
             liked={listDetail.liked}
             rating={listDetail.rating}
           />

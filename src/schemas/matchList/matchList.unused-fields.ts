@@ -1,14 +1,10 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import {
-  MatchListStatus, MatchListFlag,
+  MatchListFlag,
 } from './matchList.enums';
 
 export class MatchListUnusedFields {
-  // NOT USED
-  @Prop({ default: [], required: true })
-  participants: mongoose.Schema.Types.ObjectId[];
-
   // NOT USED
   @Prop({ default: 0 })
   roomName: string;
@@ -20,16 +16,8 @@ export class MatchListUnusedFields {
   roomImage: string;
 
   // NOT USED
-  @Prop({ required: true, default: MatchListStatus.Pending })
-  status: MatchListStatus;
-
-  // NOT USED
   @Prop({ default: MatchListFlag.NormalUser })
   flag: MatchListFlag;
-
-  // NOT USED
-  @Prop({ default: false })
-  deleted: boolean;
 
   @Prop({ default: null, ref: 'users' })
   createdBy: mongoose.Schema.Types.ObjectId;

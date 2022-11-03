@@ -23,6 +23,7 @@ interface Props {
   postFeedData: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string) => void,
+  detailPage?: boolean
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -56,12 +57,11 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
-
   useEffect(() => {
     setPostData(postFeedData);
   }, [postFeedData]);
@@ -87,6 +87,8 @@ function PostFeed({
           <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
               <PostHeader
+                detailPage={detailPage}
+                id={post.id}
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}
@@ -107,10 +109,10 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.postUrl?.[0] && (
+              {post?.images?.[0] && (
                 <div className="mt-3">
                   <Link to={`/${post.userName}/posts/${post.id}`}>
-                    <PostImage src={post?.postUrl[0].image_path} className="w-100" />
+                    <PostImage src={post?.images[0].image_path} className="w-100" />
                   </Link>
                 </div>
               )}
@@ -175,5 +177,6 @@ function PostFeed({
 }
 PostFeed.defaultProps = {
   isCommentSection: false,
+  detailPage: false,
 };
 export default PostFeed;

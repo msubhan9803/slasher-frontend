@@ -1,31 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
+import { getUsersFriends } from '../../../../api/users';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
-const friends = [
-  { image: 'https://i.pravatar.cc/300?img=3', userName: 'Robert.Plant' },
-  { image: 'https://i.pravatar.cc/300?img=11', userName: 'Jimmy_Page' },
-  { image: 'https://i.pravatar.cc/300?img=6', userName: 'john.bonham' },
-  { image: 'https://i.pravatar.cc/300?img=12', userName: 'John-Paul-Jones' },
-  { image: 'https://i.pravatar.cc/300?img=8', userName: 'jason.bonham' },
-  { image: 'https://i.pravatar.cc/300?img=52', userName: 'Paul-Martinez' },
-];
+interface FriendProps {
+  /* eslint no-underscore-dangle: 0 */
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
 
 function Friends() {
+  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
+  useEffect(() => {
+    getUsersFriends()
+      .then((res) => setFriendsList(res.data.friends));
+  }, []);
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo="/" />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {friends.map((photo, i) => (
-            <Col xs="4" key={photo.image} className={i > 2 ? 'mt-3' : ''}>
+          {friendsList.map((friend: FriendProps, i: number) => (
+            /* eslint no-underscore-dangle: 0 */
+            <Col xs="4" key={friend._id} className={i > 2 ? 'mt-3' : ''}>
               <FriendCircleWithLabel
                 className="mx-auto"
-                photo={photo.image}
-                label={photo.userName}
+                photo={friend.profilePic}
+                label={friend.userName}
                 photoAlt={`${i}`}
-                linkTo="/"
+                linkTo={`/${friend.userName}`}
               />
             </Col>
           ))}

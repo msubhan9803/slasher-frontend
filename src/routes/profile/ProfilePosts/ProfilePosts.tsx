@@ -17,6 +17,7 @@ interface Props {
 }
 
 function ProfilePosts({ user }: Props) {
+
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
@@ -31,10 +32,10 @@ function ProfilePosts({ user }: Props) {
     setShowReportModal(true);
     setDropDownValue(value);
   };
-
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
+      console.log(user, "user...");
 
       getProfilePosts(
         user.id,

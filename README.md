@@ -25,7 +25,21 @@ $ cp .env.test.template .env.test
 
 ## Development and testing
 
-In the development/test environments, you'll need to use docker compose to run the development dependencies (right now, that's MongoDB and Redis).  In a separate terminal window, run this from inside of the top level directory:
+In the development/test environments, you'll need to use docker compose to run the development dependencies (right now, that's MongoDB and Redis).
+
+**IMPORTANT NOTE: If you have a separate copy of MongoDB installed, you must stop that MongoDB instance or it will claim the port that the Docker tries to use, and you will not be able to connect to MongoDB.**
+
+If you're not sure if MongoDB is running, run:
+
+```
+ps aux | grep mongo
+```
+
+If you see a MongoDB process running, then you need to stop it before running the steps below.
+
+*After confirming that no other copy of MongoDB is running, you can continue with the steps below.*
+
+In a separate terminal window, run this from inside of the top level directory:
 
 ```bash
 docker compose --file docker-compose.devtest.yml up --build

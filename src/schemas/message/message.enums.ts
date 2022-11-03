@@ -1,6 +1,6 @@
 export enum MessageType {
-  Type0 = 0,
-  Type1 = 1,
+  Text = 0,
+  Image = 1,
 }
 
 export enum MessageStatus {

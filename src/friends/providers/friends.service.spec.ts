@@ -261,17 +261,24 @@ describe('FriendsService', () => {
           userFactory.build(),
         );
       }
+
+      await friendsService.createFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.createFriendRequest(user2._id.toString(), user._id.toString());
+
+      await friendsService.acceptFriendRequest(user._id.toString(), user1._id.toString());
+      await friendsService.acceptFriendRequest(user2._id.toString(), user._id.toString());
     });
+
     it('finds the expected number of users when the requested number is higher than the number available, '
       + 'and does not incude passed-in user among the set', async () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
-        expect(suggestedFriends).toHaveLength(11); // but there should only be 11 returned
+        expect(suggestedFriends).toHaveLength(9); // but there should only be 9 returned
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {
-      const suggestedFriends = await friendsService.getSuggestedFriends(user, 11);
-      expect(suggestedFriends).toHaveLength(11);
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 9);
+      expect(suggestedFriends).toHaveLength(9);
     });
 
     it('returns the expected number of users when the requested number is lower than the number available', async () => {

@@ -160,12 +160,16 @@ export class FriendsService {
   }
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
-    return this.usersModel
-      .find({ _id: { $ne: user._id } })
-      .sort({ createdAt: -1 })
-      .limit(limit)
+    const friendIds = await this.getFriendIds(user._id);
+    const friendUsers = await this.usersModel.find({
+      $and: [
+        { _id: { $nin: friendIds } },
+        { _id: { $ne: user._id } },
+      ],
+    }).sort({ createdAt: -1 }).limit(limit)
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();
+    return friendUsers;
   }
 
   async acceptFriendRequest(fromUser: string, toUser: string): Promise<void> {

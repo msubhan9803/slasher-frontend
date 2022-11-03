@@ -54,7 +54,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            postUrl: data.images,
+            images: data.images,
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
           };

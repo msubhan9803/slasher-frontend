@@ -9,14 +9,13 @@ import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper';
+import 'swiper/swiper-bundle.css';
 import PostFooter from './PostFooter';
 import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import 'linkify-plugin-mention';
-import 'swiper/css';
-import 'swiper/css/pagination';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -55,7 +54,7 @@ const CustomSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
   z-index: 0 !important;
-  
+
 .swiper-slide {
   text-align: center;
   font-size: 18px;
@@ -148,19 +147,28 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              <CustomSwiper pagination modules={[Pagination]} className="mySwiper swiper-container">
-                {
-                  post?.images.map((images: any) => (
-                    <SwiperSlide key={images.image_path}>
-                      <Link to={`/${post.userName}/posts/${post.id}`}>
-                        <PostImage>
-                          <img src={images.image_path} className="w-100" alt="not found" />
-                        </PostImage>
-                      </Link>
-                    </SwiperSlide>
-                  ))
-                }
-              </CustomSwiper>
+              {post?.images && (
+                <CustomSwiper
+                  pagination
+                  // TODO: if imageId query string param is present in URL, and post.images contains
+                  // an image with the imageId, set initialSlide to that slide.
+                  initialSlide={0}
+                  modules={[Pagination]}
+                  className="mySwiper swiper-container"
+                >
+                  {
+                    post?.images.map((images: any) => (
+                      <SwiperSlide key={images.image_path}>
+                        <Link to={`/${post.userName}/posts/${post.id}`}>
+                          <PostImage>
+                            <img src={images.image_path} className="w-100" alt="not found" />
+                          </PostImage>
+                        </Link>
+                      </SwiperSlide>
+                    ))
+                  }
+                </CustomSwiper>
+              )}
               <Row className="pt-3 px-md-3">
                 <Col>
                   <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>

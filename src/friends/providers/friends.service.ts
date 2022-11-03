@@ -27,19 +27,37 @@ export class FriendsService {
 
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
     const currentFriendReaction = await this.getFriendRequestReaction(fromUserId, toUserId);
+
+    let friend: any = await this.friendsModel
+      .findOne({
+        $or: [
+          { from: new mongoose.Types.ObjectId(fromUserId), to: new mongoose.Types.ObjectId(toUserId) },
+          { from: new mongoose.Types.ObjectId(toUserId), to: new mongoose.Types.ObjectId(fromUserId) },
+        ],
+      })
+      .exec();
+
+    if (friend && friend.reaction === FriendRequestReaction.DeclinedOrCancelled) {
+      await this.friendsModel.deleteOne({ _id: friend._id });
+      friend = null; // clear out friend variable so new request is created below
+    }
+
+    if (!friend) {
+      const friends = {
+        from: new mongoose.Types.ObjectId(fromUserId),
+        to: new mongoose.Types.ObjectId(toUserId),
+        reaction: FriendRequestReaction.Pending,
+      };
+      await this.friendsModel.create(friends);
+    }
+
     if (currentFriendReaction === FriendRequestReaction.Accepted) {
       throw new Error('Cannot create friend request. Already friends.');
     }
 
-    if (currentFriendReaction === FriendRequestReaction.Pending) {
-      return;
+    if (friend?.reaction === FriendRequestReaction.Pending && friend?.to.toString() === fromUserId.toString()) {
+      await this.acceptFriendRequest(friend.from, friend.to);
     }
-    const friends = {
-      from: new mongoose.Types.ObjectId(fromUserId),
-      to: new mongoose.Types.ObjectId(toUserId),
-      reaction: FriendRequestReaction.Pending,
-    };
-    await this.friendsModel.create(friends);
   }
 
   async getSentFriendRequests(userId: string, limit: number, offset?: number): Promise<Partial<UserDocument[]>> {

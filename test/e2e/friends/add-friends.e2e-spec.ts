@@ -9,6 +9,7 @@ import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
+import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -63,6 +64,37 @@ describe('Add Friends (e2e)', () => {
         const toFriend = { to: user1._id };
         const friends = await friendsModel.findOne(toFriend);
         expect(friends.to).toEqual(user1._id);
+      });
+
+      it('when friend request is decline than expected response', async () => {
+        const friends = await friendsModel.create({
+          from: activeUser.id,
+          to: user1.id,
+          reaction: FriendRequestReaction.DeclinedOrCancelled,
+        });
+        sampleFriendsObject.userId = user1.id;
+        await request(app.getHttpServer())
+          .post('/friends')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleFriendsObject);
+        const friendData = await friendsModel.findOne({ _id: friends._id });
+        expect(friendData).toBeNull();
+      });
+
+      it('when friend request is pending than expected response', async () => {
+        const friends = await friendsModel.create({
+          from: user1.id,
+          to: activeUser.id,
+          reaction: FriendRequestReaction.Pending,
+        });
+        sampleFriendsObject.userId = user1._id;
+        await request(app.getHttpServer())
+        .post('/friends')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send(sampleFriendsObject);
+
+        const friendData = await friendsModel.findOne({ _id: friends._id });
+        expect(friendData.reaction).toEqual(FriendRequestReaction.Accepted);
       });
     });
 

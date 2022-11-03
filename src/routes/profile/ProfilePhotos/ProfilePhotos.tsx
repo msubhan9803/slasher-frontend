@@ -110,7 +110,7 @@ function ProfilePhotos({ user }: Props) {
         >
           <Row className="justify-content-between">
             {userPhotosList.map((data: UserPhotos) => (
-              data.imagesList.map((images: ImageList) => (
+              data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>
                   <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
                     <div className="position-relative">

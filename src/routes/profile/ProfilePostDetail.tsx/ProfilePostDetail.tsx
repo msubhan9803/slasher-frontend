@@ -77,6 +77,7 @@ function ProfilePostDetail({ user }: Props) {
         popoverOptions={popoverOptions}
         isCommentSection={false}
         onPopoverClick={handlePopoverOption}
+        detailPage
       />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>

@@ -4,35 +4,33 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import PostFooter from './PostFooter';
 import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
+import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 
 interface LinearIconProps {
   uniqueId?: string
 }
+
 interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string) => void,
+  detailPage?: boolean
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const PostImage = styled.div`
-  aspect-ratio : 1.9;
 `;
 const Content = styled.div`
   white-space: pre-line;
@@ -50,57 +48,20 @@ const StyledPostFeed = styled.div`
     }
   }
 `;
-const CustomSwiper = styled(Swiper)`
-  width: 100%;
-  height: 100%;
-  z-index: 0 !important;
 
-.swiper-slide {
-  text-align: center;
-  font-size: 18px;
-  background: #fff;
-
-  /* Center slide text vertically */
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  -webkit-justify-content: center;
-  justify-content: center;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  align-items: center;
-}
-
-.swiper-slide img {
-  display: block;
-  height: 100%;
-  object-fit: cover;
-}
-.swiper-pagination {
-  position: revert !important;
-}
-.swiper-pagination-bullet {
-  border:1px solid !important;
-}
-.swiper-pagination-bullet-active{
-  background: white !important;
-}
-`;
 const decryptMessage = (content: string) => {
   const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
   return found;
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('imageId');
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -149,25 +110,15 @@ function PostFeed({
               </div>
               {post?.images && (
                 <CustomSwiper
-                  pagination
-                  // TODO: if imageId query string param is present in URL, and post.images contains
-                  // an image with the imageId, set initialSlide to that slide.
-                  initialSlide={0}
-                  modules={[Pagination]}
-                  className="mySwiper swiper-container"
-                >
-                  {
-                    post?.images.map((images: any) => (
-                      <SwiperSlide key={images.image_path}>
-                        <Link to={`/${post.userName}/posts/${post.id}`}>
-                          <PostImage>
-                            <img src={images.image_path} className="w-100" alt="not found" />
-                          </PostImage>
-                        </Link>
-                      </SwiperSlide>
-                    ))
+                  images={
+                    post.images.map((imageData: any) => ({
+                      imageUrl: imageData.image_path,
+                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}`,
+                    }))
                   }
-                </CustomSwiper>
+                  /* eslint no-underscore-dangle: 0 */
+                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                />
               )}
               <Row className="pt-3 px-md-3">
                 <Col>
@@ -230,5 +181,6 @@ function PostFeed({
 }
 PostFeed.defaultProps = {
   isCommentSection: false,
+  detailPage: false,
 };
 export default PostFeed;

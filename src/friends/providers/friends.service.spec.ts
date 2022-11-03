@@ -138,12 +138,6 @@ describe('FriendsService', () => {
           await friendsService.getFriendRequestReaction(user0.id, user2.id),
         ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
       });
-
-      it('no friend request found then throws error', async () => {
-        await expect(
-          friendsService.declineOrCancelFriendRequest(user2.id, user0.id),
-        ).rejects.toThrow('No friend request');
-      });
     });
 
     describe('when request has already been accepted', () => {
@@ -157,12 +151,6 @@ describe('FriendsService', () => {
         expect(
           await friendsService.getFriendRequestReaction(user0.id, user2.id),
         ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
-      });
-
-      it('no friend request found then throws error', async () => {
-        await expect(
-          friendsService.declineOrCancelFriendRequest(user2.id, user0.id),
-        ).rejects.toThrow('No friend request');
       });
     });
   });

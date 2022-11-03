@@ -51,12 +51,8 @@ export class FriendsController {
     @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) declineOrCancelFriendRequestDto: DeclineOrCancelFriendRequestDto,
   ) {
-    try {
-      const user = getUserFromRequest(request);
-      await this.friendsService.declineOrCancelFriendRequest(declineOrCancelFriendRequestDto.userId, user._id);
-    } catch (error) {
-      throw new HttpException('Unable to cancel friend request', HttpStatus.BAD_REQUEST);
-    }
+    const user = getUserFromRequest(request);
+    await this.friendsService.declineOrCancelFriendRequest(user._id, declineOrCancelFriendRequestDto.userId);
   }
 
   @Post('requests/accept')

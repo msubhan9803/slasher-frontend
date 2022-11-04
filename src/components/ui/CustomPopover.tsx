@@ -5,6 +5,7 @@ import {
   OverlayTrigger, Popover, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const UserCircle = styled(Image)`
   width: 2rem;
@@ -64,16 +65,16 @@ function CustomPopover({
     <StyledPopover>
       <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
         {userProfileIcon ? (
-          // eslint-disable-next-line jsx-a11y/anchor-is-valid
-          <a tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
+          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
+          <Link to="" tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
             <UserCircle src={userProfileIcon} className="rounded-circle" />
             <p className="mb-0 mt-2 fs-6">Me</p>
-          </a>
+          </Link>
         ) : (
-          // eslint-disable-next-line jsx-a11y/anchor-is-valid
-          <a tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
+          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
+          <Link to="" tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-          </a>
+          </Link>
         )}
       </OverlayTrigger>
     </StyledPopover>

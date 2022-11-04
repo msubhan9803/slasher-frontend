@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 import { Row, Col } from 'react-bootstrap';
 import { getUsersFriends } from '../../../../api/users';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
@@ -13,13 +14,14 @@ interface FriendProps {
 
 function Friends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
+  const userName = Cookies.get('userName');
   useEffect(() => {
     getUsersFriends()
       .then((res) => setFriendsList(res.data.friends));
   }, []);
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo="/" />
+      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {friendsList.map((friend: FriendProps, i: number) => (

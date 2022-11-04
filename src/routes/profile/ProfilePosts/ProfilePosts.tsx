@@ -1,22 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts } from '../../../api/users';
+import { getProfilePosts, getUser } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { Post, User } from '../../../types';
+import { User, Post } from '../../../types';
 
 const popoverOptions = ['Edit', 'Delete'];
 
-interface Props {
-  user: User
-}
+function ProfilePosts() {
+  const { userName } = useParams<string>();
+  const [user, setUser] = useState<User>();
 
-function ProfilePosts({ user }: Props) {
+  useEffect(() => {
+    if (userName) {
+      getUser(userName)
+        .then((res) => {
+          setUser(res.data);
+        });
+    }
+  }, [userName]);
 
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
@@ -32,11 +39,10 @@ function ProfilePosts({ user }: Props) {
     setShowReportModal(true);
     setDropDownValue(value);
   };
-  useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
-      setLoadingPosts(true);
-      console.log(user, "user...");
 
+  useEffect(() => {
+    if (requestAdditionalPosts && !loadingPosts && user) {
+      setLoadingPosts(true);
       getProfilePosts(
         user.id,
         posts.length > 1 ? posts[posts.length - 1]._id : undefined,
@@ -67,7 +73,7 @@ function ProfilePosts({ user }: Props) {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, user]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">

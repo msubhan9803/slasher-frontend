@@ -68,6 +68,7 @@ export class UsersController {
     const user = await this.usersService.findByEmailOrUsername(
       userSignInDto.emailOrUsername,
     );
+
     if (!user || user.deleted) {
       throw new HttpException(
         'Incorrect username or password.',

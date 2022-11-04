@@ -14,5 +14,5 @@ export const userSettingFactory = Factory.define<Partial<UserSetting>>(
     feed_mention_on_post_comment_reply: 1,
     feed_post_like: 1,
     feed_comment_on_post: 1,
-   }),
+  }),
 );

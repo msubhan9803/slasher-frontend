@@ -7,7 +7,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
-import { userSettingFactory } from '../../factories/user-settings';
+import { userSettingFactory } from '../../factories/user-setting.factory';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 
 describe('settings update / :id (e2e)', () => {
@@ -55,18 +55,20 @@ describe('settings update / :id (e2e)', () => {
   describe('PATCH /settings/notifications', () => {
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
-      await request(app.getHttpServer())
-        .patch('/settings/notifications')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleUserSettingUpdateObject);
-      await userSettingsService.update(activeUser._id.toString(), sampleUserSettingUpdateObject);
-      const reloadedUserSetting = await userSettingsService.findByUserId(activeUser._id.toString());
-      expect(reloadedUserSetting.friends_got_a_match).toEqual(sampleUserSettingUpdateObject.friends_got_a_match);
-      expect(reloadedUserSetting.friends_message_received).toEqual(sampleUserSettingUpdateObject.friends_message_received);
-      expect(reloadedUserSetting.message_board_like_your_post).toEqual(sampleUserSettingUpdateObject.message_board_like_your_post);
-      expect(reloadedUserSetting.message_board_reply_your_post).toEqual(sampleUserSettingUpdateObject.message_board_reply_your_post);
-      expect(reloadedUserSetting.message_board_new_post_on_thread).toEqual(sampleUserSettingUpdateObject.message_board_new_post_on_thread);
-        });
+        await request(app.getHttpServer())
+          .patch('/settings/notifications')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(sampleUserSettingUpdateObject);
+        await userSettingsService.update(activeUser._id.toString(), sampleUserSettingUpdateObject);
+        const reloadedUserSetting = await userSettingsService.findByUserId(activeUser._id.toString());
+        expect(reloadedUserSetting.friends_got_a_match).toEqual(sampleUserSettingUpdateObject.friends_got_a_match);
+        expect(reloadedUserSetting.friends_message_received).toEqual(sampleUserSettingUpdateObject.friends_message_received);
+        expect(reloadedUserSetting.message_board_like_your_post).toEqual(sampleUserSettingUpdateObject.message_board_like_your_post);
+        expect(reloadedUserSetting.message_board_reply_your_post).toEqual(sampleUserSettingUpdateObject.message_board_reply_your_post);
+        expect(reloadedUserSetting.message_board_new_post_on_thread).toEqual(
+          sampleUserSettingUpdateObject.message_board_new_post_on_thread,
+        );
+      });
     });
   });
 });

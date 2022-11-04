@@ -6,7 +6,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { userSettingFactory } from '../../factories/user-settings';
+import { userSettingFactory } from '../../factories/user-setting.factory';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
@@ -50,9 +50,9 @@ describe('GET settings (e2e)', () => {
       );
     });
 
-    describe('Find a user by id', () => {
+    describe('Find a user setting by id', () => {
       it('returns the expected user', async () => {
-      await userSettingsService.create(
+        await userSettingsService.create(
           userSettingFactory.build({
             userId: activeUser._id,
           }),

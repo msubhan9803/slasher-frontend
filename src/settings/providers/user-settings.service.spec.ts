@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { UserSettingsService } from './user-settings.service';
-import { userSettingFactory } from '../../../test/factories/user-settings';
+import { userSettingFactory } from '../../../test/factories/user-setting.factory';
 import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';

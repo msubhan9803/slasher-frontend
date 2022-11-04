@@ -5,19 +5,19 @@ import { UserSetting, UserSettingDocument } from '../../schemas/userSetting/user
 
 @Injectable()
 export class UserSettingsService {
-    constructor(@InjectModel(UserSetting.name) private UserSettingModel: Model<UserSettingDocument>) { }
+  constructor(@InjectModel(UserSetting.name) private UserSettingModel: Model<UserSettingDocument>) { }
 
-    async create(userSettingData: Partial<UserSetting>) {
-        return this.UserSettingModel.create(userSettingData);
-    }
+  async create(userSettingData: Partial<UserSetting>) {
+    return this.UserSettingModel.create(userSettingData);
+  }
 
-    async update(id: string, UserSettingData: Partial<UserSettingDocument>): Promise<UserSettingDocument> {
-        return this.UserSettingModel
-          .findOneAndUpdate({ userId: id }, UserSettingData, { new: true })
-          .exec();
-    }
+  async update(id: string, UserSettingData: Partial<UserSettingDocument>): Promise<UserSettingDocument> {
+    return this.UserSettingModel
+      .findOneAndUpdate({ userId: id }, UserSettingData, { new: true })
+      .exec();
+  }
 
-    async findByUserId(userId: string): Promise<UserSettingDocument> {
-        return this.UserSettingModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }).exec();
-    }
+  async findByUserId(userId: string): Promise<UserSettingDocument> {
+    return this.UserSettingModel.findOne({ userId: new mongoose.Types.ObjectId(userId) }).exec();
+  }
 }

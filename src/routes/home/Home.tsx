@@ -8,6 +8,9 @@ import ReportModal from '../../components/ui/ReportModal';
 import { getHomeFeedPosts } from '../../api/feed-posts';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { Post } from '../../types';
+import { FormatMentionProps, MentionProps } from '../posts/create-post/CreatePost';
+import { getSuggestUserName } from '../../api/users';
+import EditPostModal from '../../components/ui/EditPostModal';
 
 const popoverOptions = ['Edit', 'Delete'];
 
@@ -19,11 +22,28 @@ function Home() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [content, setContent] = useState<string>('');
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, con:any) => {
+    setContent(con);
     if (value === 'Delete') {
       setShow(true);
       setDropDownValue(value);
+    }
+    if (value === 'Edit') {
+      setShow(true);
+      setDropDownValue(value);
+    }
+  };
+
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
     }
   };
 
@@ -120,7 +140,9 @@ function Home() {
       </InfiniteScroll>
       {loadingPosts && renderLoadingIndicator()}
       {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      {dropDownValue !== 'Edit'
+      && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}
+      {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={content} />}
     </AuthenticatedPageWrapper>
   );
 }

@@ -9,11 +9,12 @@ interface PostHeaderProps {
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
-  onPopoverClick: (value: string) => void;
+  onPopoverClick: (value: string, con:any) => void;
+  content?: any;
 }
 
 function PostHeader({
-  userName, postDate, profileImage, popoverOptions, onPopoverClick,
+  userName, postDate, profileImage, popoverOptions, onPopoverClick, content,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -33,10 +34,18 @@ function PostHeader({
         </Row>
       </Col>
       <Col xs="auto" className="d-block">
-        <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
+        <CustomPopover
+          popoverOptions={popoverOptions}
+          onPopoverClick={onPopoverClick}
+          content={content}
+        />
       </Col>
     </Row>
   );
 }
+
+PostHeader.defaultProps = {
+  content: null,
+};
 
 export default PostHeader;

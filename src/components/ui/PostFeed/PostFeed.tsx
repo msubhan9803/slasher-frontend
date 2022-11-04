@@ -22,7 +22,7 @@ interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string) => void,
+  onPopoverClick: (value: string, con: any) => void,
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -92,6 +92,7 @@ function PostFeed({
                 profileImage={post.profileImage}
                 popoverOptions={popoverOptions}
                 onPopoverClick={onPopoverClick}
+                content={post.content}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">

@@ -9,6 +9,7 @@ import { AppModule } from '../../../src/app.module';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
+import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -29,6 +30,9 @@ describe('Notifications Gateway (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+    const redisIoAdapter = new RedisIoAdapter(app, configService);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
     await app.init();
 
     address = app.getHttpServer().listen().address();

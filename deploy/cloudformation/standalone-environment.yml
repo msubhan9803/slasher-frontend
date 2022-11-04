@@ -293,6 +293,8 @@ Resources:
               passenger_app_env ${NodeEnv};
               passenger_startup_file dist/main.js;
               passenger_min_instances 1;
+              # Enable sticky sessions for socket connections
+              passenger_sticky_sessions on;
             }
 
             #passenger_pre_start https://${BackendSiteDomain}/;

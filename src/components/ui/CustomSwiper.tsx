@@ -60,7 +60,7 @@ const PostImage = styled.div`
 function CustomSwiper({ images, initialSlide }: Props) {
   return (
     <StyledSwiper
-      pagination
+      pagination={{ type: 'fraction' }}
       initialSlide={initialSlide}
       modules={[Pagination]}
     >
@@ -71,13 +71,13 @@ function CustomSwiper({ images, initialSlide }: Props) {
               ? (
                 <Link to={image.linkUrl}>
                   <PostImage>
-                    <img src={image.imageUrl} className="w-100" alt="not found" />
+                    <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
                   </PostImage>
                 </Link>
               )
               : (
                 <PostImage>
-                  <img src={image.imageUrl} className="w-100" alt="not found" />
+                  <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
                 </PostImage>
               )}
           </SwiperSlide>

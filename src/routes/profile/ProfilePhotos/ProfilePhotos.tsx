@@ -20,11 +20,11 @@ const StyledPopover = styled.div`
 `;
 interface UserPhotos {
   id: string;
-  imagesList : ImageList[]
+  imagesList: ImageList[]
 }
 interface ImageList {
-  image_path:string;
-  _id:string;
+  image_path: string;
+  _id: string;
 }
 interface Props {
   user: User

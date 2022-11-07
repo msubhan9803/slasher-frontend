@@ -90,9 +90,24 @@ describe('Users suggested friends (e2e)', () => {
             },
           ],
           friendRequests: [
-            { _id: user2._id.toString(), userName: 'Friend2', profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
-            { _id: user1._id.toString(), userName: 'Friend1', profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
-            { _id: user3._id.toString(), userName: 'Friend3', profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
+            {
+              _id: user2._id.toString(),
+              userName: 'Friend2',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user2.firstName,
+            },
+            {
+              _id: user1._id.toString(),
+              userName: 'Friend1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user1.firstName,
+            },
+            {
+              _id: user3._id.toString(),
+              userName: 'Friend3',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user3.firstName,
+            },
           ],
         });
       });

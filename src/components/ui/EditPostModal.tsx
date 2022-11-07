@@ -13,6 +13,7 @@ interface Props {
   formatMention: FormatMentionListProps[];
   setFormatMention: (val: FormatMentionListProps[]) => void;
   content: string;
+  onUpdatePost: () => void;
 }
 
 function EditPostModal({
@@ -24,6 +25,7 @@ function EditPostModal({
   formatMention,
   setFormatMention,
   content,
+  onUpdatePost,
 }: Props) {
   const closeModal = () => {
     setShow(false);
@@ -37,8 +39,8 @@ function EditPostModal({
       size="lg"
     >
       <Modal.Header className="bg-dark border-0 shadow-none justify-content-end" closeButton />
-      <Modal.Body className="bg-dark d-flex flex-column align-items-center text-center pt-0">
-        <h1 className="h3 mb-0 text-primary">Edit</h1>
+      <Modal.Body className="bg-dark d-flex flex-column pt-0">
+        <h1 className="h1 mb-0 text-primary text-center pb-2">Edit</h1>
         <MessageTextarea
           rows={10}
           placeholder="Create a post"
@@ -49,11 +51,11 @@ function EditPostModal({
           setFormatMentionList={setFormatMention}
           defaultValue={content}
         />
-        <div className="d-flex flex-wrap">
-          <RoundButton className="px-4 mt-4 w-100" size="md" onClick={closeModal}>
+        <div className="d-flex flex-wrap justify-content-between">
+          <RoundButton className="px-4 mt-4" size="md" onClick={closeModal}>
             <span className="h3">Cancel</span>
           </RoundButton>
-          <RoundButton className="px-4 mt-4 w-100" size="md">
+          <RoundButton className="px-4 mt-4" size="md" onClick={onUpdatePost}>
             <span className="h3">Update</span>
           </RoundButton>
         </div>

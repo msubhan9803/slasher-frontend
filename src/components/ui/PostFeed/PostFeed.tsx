@@ -22,7 +22,8 @@ interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string, con: any) => void,
+  onPopoverClick: (value: string, content?: string, id?:string, userId?: string) => void,
+  handlePopoverOption?: (id:string) => void
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -56,7 +57,7 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, handlePopoverOption,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -93,6 +94,9 @@ function PostFeed({
                 popoverOptions={popoverOptions}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
+                id={post.id}
+                userId={post.userId}
+                handlePopoverOption={handlePopoverOption}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
@@ -176,5 +180,6 @@ function PostFeed({
 }
 PostFeed.defaultProps = {
   isCommentSection: false,
+  handlePopoverOption: null,
 };
 export default PostFeed;

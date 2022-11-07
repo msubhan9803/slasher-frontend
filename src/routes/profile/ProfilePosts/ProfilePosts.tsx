@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { Post, User } from '../../../types';
+import EditPostModal from '../../../components/ui/EditPostModal';
+import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
+import { updateFeedPost } from '../../../api/feed-posts';
 
-const popoverOptions = ['Edit', 'Delete'];
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
@@ -26,8 +31,22 @@ function ProfilePosts({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  const [postUserId, setPostUserId] = useState<string>('');
+  const [messageContent, setMessageContent] = useState<string>('');
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [postId, setPostId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, content?: string, id?:string) => {
+    if (content) {
+      setMessageContent(content);
+    }
+
+    if (id) {
+      setPostId(id);
+    }
     setShowReportModal(true);
     setDropDownValue(value);
   };
@@ -50,6 +69,7 @@ function ProfilePosts({ user }: Props) {
             images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
+            userId: data.userId._id,
           }
         ));
         setPosts((prev: Post[]) => [
@@ -82,6 +102,44 @@ function ProfilePosts({ user }: Props) {
     <p className="text-center">Loading...</p>
   );
 
+  const handlePopoverOptionValue = (id: string) => {
+    if (id) {
+      setPostUserId(id);
+    }
+  };
+
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+
+  const onUpdatePost = () => {
+    updateFeedPost(postId, postContent).then(() => {
+      setShowReportModal(false);
+      getProfilePosts(
+        user.id,
+      ).then((res) => {
+        const newPosts = res.data.map((data: any) => (
+          {
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+          }
+        ));
+        setPosts(newPosts);
+      });
+    });
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
@@ -109,9 +167,11 @@ function ProfilePosts({ user }: Props) {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={popoverOptions}
+              popoverOptions={loginUserId === postUserId
+                ? loginUserPopoverOptions : otherUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
+              handlePopoverOption={handlePopoverOptionValue}
             />
           )
         }
@@ -123,7 +183,17 @@ function ProfilePosts({ user }: Props) {
         setShow={setShowReportModal}
         slectedDropdownValue={dropDownValue}
       />
+      {dropDownValue !== 'Edit'
+      && (
+      <ReportModal
+        show={showReportModal}
+        setShow={setShowReportModal}
+        slectedDropdownValue={dropDownValue}
+      />
+      )}
+      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
+
   );
 }
 export default ProfilePosts;

@@ -234,6 +234,7 @@ input:hover {
   border: 1px solid #999;
   border-radius: 3px;
   background: rgb(15, 15, 15);
+  z-index: 9999;
 }
 .rc-mentions-dropdown-menu-item {
   padding: 4px 8px;

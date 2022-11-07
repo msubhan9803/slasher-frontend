@@ -24,6 +24,7 @@ export interface Post {
   sharedList: number;
   likeIcon: boolean;
   hashTag?: string[];
+  userId?: string
 }
 
 export interface User {

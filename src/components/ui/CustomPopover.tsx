@@ -12,9 +12,12 @@ const UserCircle = styled(Image)`
 `;
 interface Props {
   popoverOptions: string[];
-  onPopoverClick: (val: string, con: string) => void;
+  onPopoverClick: (val: string, content?: string, id?: string, userId?: string) => void;
   userProfileIcon?: string;
-  content? : any ;
+  content?: string;
+  id?: string;
+  userId?: string;
+  handlePopoverOption?: (id:string) => void
 }
 const StyledPopover = styled.div`
 .btn[aria-describedby="popover-basic"]{
@@ -45,7 +48,7 @@ const PopoverText = styled.p`
 `;
 
 function CustomPopover({
-  popoverOptions, onPopoverClick, userProfileIcon, content,
+  popoverOptions, onPopoverClick, userProfileIcon, content, id, userId, handlePopoverOption,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -54,13 +57,20 @@ function CustomPopover({
           key={option}
           className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
           role="button"
-          onClick={() => onPopoverClick(option, content)}
+          onClick={() => onPopoverClick(option, content, id, userId)}
         >
           {option}
         </PopoverText>
       ))}
     </Custompopover>
   );
+
+  const onHandleOption = () => {
+    if (handlePopoverOption) {
+      handlePopoverOption(userId || '');
+    }
+  };
+
   return (
     <StyledPopover>
       <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
@@ -70,7 +80,7 @@ function CustomPopover({
             <p className="mb-0 text-center mt-2 fs-6">Me</p>
           </Button>
         ) : (
-          <Button variant="link" className="bg-transparent shadow-none border-0 pe-1">
+          <Button variant="link" className="bg-transparent shadow-none border-0 pe-1" onClick={onHandleOption}>
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
           </Button>
         )}
@@ -82,6 +92,9 @@ function CustomPopover({
 CustomPopover.defaultProps = {
   userProfileIcon: '',
   content: null,
+  id: null,
+  userId: null,
+  handlePopoverOption: null,
 };
 
 export default CustomPopover;

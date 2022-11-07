@@ -24,6 +24,8 @@ import { userInitialData } from '../../../../api/users';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
+import { userProfileFriendsRequest } from '../../../../api/friends';
+import { setUserFriendDetail } from '../../../../redux/slices/friendRequestSlice';
 
 interface Props {
   children: React.ReactNode;
@@ -79,6 +81,10 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           navigate('/sign-in');
         }
       });
+      userProfileFriendsRequest(0)
+        .then((res) => {
+          dispatch(setUserFriendDetail(res.data));
+        });
     }
   }, []);
 

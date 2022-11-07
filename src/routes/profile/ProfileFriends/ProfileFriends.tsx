@@ -12,6 +12,7 @@ import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface FriendProps {
   _id?: string;
@@ -36,10 +37,11 @@ function ProfileFriends({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
+  const friendsReqCount = useAppSelector((state) => state.friendRequest.friendRequestsList);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
-    { value: 'request', label: 'Friend requests', badge: 0 },
+    { value: 'request', label: 'Friend requests', badge: friendsReqCount.length },
   ];
 
   useEffect(() => {

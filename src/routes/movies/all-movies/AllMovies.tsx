@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
-import getMovies, { getMoviesByFirstName } from '../../../api/movies';
+import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 
 function AllMovies() {
@@ -12,27 +12,19 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
-  const searchData = () => {
-    getMovies(search, '')
-      .then((res) => {
-        setFilteredMovies(res.data);
-      });
-  };
-  useEffect(() => {
-    searchData();
-  }, [search]);
+  const [sortVal, setSortVal] = useState<string>('releaseDate');
 
   useEffect(() => {
-    getMovies()
+    getMovies(search, sortVal)
       .then((res) => {
         setFilteredMovies(res.data);
       });
-  }, []);
+  }, [search]);
 
   const fetchMoreMovies = () => {
     if (filteredMovies && filteredMovies.length > 0) {
       /* eslint no-underscore-dangle: 0 */
-      getMovies('', '', filteredMovies[filteredMovies.length - 1]._id)
+      getMovies(search, sortVal, filteredMovies[filteredMovies.length - 1]._id)
         .then((res) => {
           setFilteredMovies((prev: any) => [
             ...prev,
@@ -45,8 +37,9 @@ function AllMovies() {
     }
   };
 
-  const onSort = (sortValue : string) => {
-    getMovies('', sortValue)
+  const onSort = (sortValue: string) => {
+    setSortVal(sortValue);
+    getMovies(search, sortValue)
       .then((res) => {
         setFilteredMovies(res.data);
       });
@@ -59,7 +52,7 @@ function AllMovies() {
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())
       .then((res) => {
-        getMovies('', '', res.data._id)
+        getMovies(search, sortVal, res.data._id)
           .then((result) => {
             setFilteredMovies(result.data);
           });

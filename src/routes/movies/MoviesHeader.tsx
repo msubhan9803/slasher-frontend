@@ -13,9 +13,9 @@ interface MovisHeaderProps {
   setShowKeys: React.Dispatch<React.SetStateAction<boolean>>;
   setSearch: React.Dispatch<string>;
   search: string;
-  sort?(e : string) : void;
-  selectedKey?(e : string) : void;
-  applyFilter?() : void;
+  sort?(e: string): void;
+  selectedKey?(e: string): void;
+  applyFilter?(): void;
 }
 
 const tabs = [
@@ -29,13 +29,13 @@ const tabs = [
 ];
 const sortoptions = [
   { value: 'releaseDate', label: 'Release Date' },
-  { value: 'alphabetical', label: 'Alphabetical' },
-  { value: 'userRating', label: 'User Rating' },
+  { value: 'name', label: 'Alphabetical' },
+  { value: 'rating', label: 'User Rating' },
 ];
 function MoviesHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey, applyFilter,
 }: MovisHeaderProps) {
-  const onSelectSort = (e : React.ChangeEvent<HTMLSelectElement>) => {
+  const onSelectSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (sort) {
       sort(e.target.value);
     }

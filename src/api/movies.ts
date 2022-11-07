@@ -2,12 +2,12 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
-export default async function getMovies(search = '', sortValue = '', lastRetrievedMovieId?: string | null) {
+export async function getMovies(search = '', sortValue = '', lastRetrievedMovieId?: string | null) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = '?limit=20&sortBy=releaseDate';
+  let queryParameter = `?limit=20&sortBy=${sortValue}`;
   if (lastRetrievedMovieId) {
     queryParameter += `&after=${lastRetrievedMovieId}`;
   }
@@ -15,19 +15,6 @@ export default async function getMovies(search = '', sortValue = '', lastRetriev
   if (search) {
     queryParameter += `&nameContains=${search}`;
   }
-
-  if (sortValue && sortValue === 'alphabetical') {
-    queryParameter = '?limit=20&sortBy=name';
-  }
-
-  if (sortValue && sortValue === 'releaseDate') {
-    queryParameter = '?limit=20&sortBy=releaseDate';
-  }
-
-  if (sortValue && sortValue === 'userRating') {
-    queryParameter = '?limit=20&sortBy=rating';
-  }
-
   return axios.get(`${apiUrl}/movies${queryParameter}`, { headers });
 }
 

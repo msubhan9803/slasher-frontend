@@ -24,10 +24,6 @@ describe('Accept Friend Request (e2e)', () => {
   let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
 
-  const sampleFriendsObject = {
-    userId: '634912b2@2c2f4f5e0e6228#',
-  };
-
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -61,40 +57,35 @@ describe('Accept Friend Request (e2e)', () => {
   });
 
   describe('Post /friends/requests/accept', () => {
-    describe('Accept all friend request', () => {
-      it('when accept all friend request than expected response', async () => {
-        sampleFriendsObject.userId = user1._id;
-        await request(app.getHttpServer())
-          .post('/friends/requests/accept')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleFriendsObject);
+    it('when successful, returns the expected response', async () => {
+      await request(app.getHttpServer())
+        .post('/friends/requests/accept')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ userId: user1._id });
 
-        const friends = await friendsModel.find({ from: activeUser._id, to: user1._id });
-        for (let i = 1; i < friends.length; i += 1) {
-          expect(friends[i].reaction).toEqual(FriendRequestReaction.Accepted);
-        }
-      });
+      const friends = await friendsModel.find({ from: activeUser._id, to: user1._id });
+      for (let i = 1; i < friends.length; i += 1) {
+        expect(friends[i].reaction).toEqual(FriendRequestReaction.Accepted);
+      }
+    });
 
-      it('when active user has no any friend request then it throws error', async () => {
-        sampleFriendsObject.userId = user2._id;
-
+    it('when the friend request has been sent BY the active user (not TO the expected user), '
+      + 'then it returns the expected error message', async () => {
         const response = await request(app.getHttpServer())
           .post('/friends/requests/accept')
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleFriendsObject)
+          .send({ userId: user2._id })
           .expect(HttpStatus.BAD_REQUEST);
 
-          expect(response.body.message).toContain('Unable to accept friend request');
+        expect(response.body.message).toContain('Unable to accept friend request');
       });
-    });
 
     describe('Validation', () => {
       it('userId should not be empty', async () => {
-        sampleFriendsObject.userId = '';
         const response = await request(app.getHttpServer())
           .post('/friends/requests/accept')
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleFriendsObject);
+          .send({ userId: '' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'userId should not be empty',
@@ -105,7 +96,7 @@ describe('Accept Friend Request (e2e)', () => {
         const response = await request(app.getHttpServer())
           .post('/friends/requests/accept')
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send(sampleFriendsObject);
+          .send({ userId: 'aaa' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'userId must be a mongodb id',

@@ -1,13 +1,14 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FriendsService } from './friends.service';
 import { UsersService } from '../../users/providers/users.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('FriendsService', () => {
   let user1: UserDocument;
   let user2: UserDocument;
   let user3: UserDocument;
+  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -26,6 +28,7 @@ describe('FriendsService', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -78,6 +81,28 @@ describe('FriendsService', () => {
       expect(
         await friendsService.getFriendRequestReaction(newUser1.id, newUser2.id),
       ).toEqual(FriendRequestReaction.Pending);
+    });
+
+    it('when friend request is decline than expected response', async () => {
+      const friends = await friendsModel.create({
+        from: newUser1.id,
+        to: newUser2.id,
+        reaction: FriendRequestReaction.DeclinedOrCancelled,
+      });
+      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
+      const friendData = await friendsModel.findOne({ _id: friends._id });
+      expect(friendData).toBeNull();
+    });
+
+    it('when friend request is pending than expected response', async () => {
+      await friendsModel.create({
+        from: newUser1.id,
+        to: newUser2.id,
+        reaction: FriendRequestReaction.Pending,
+      });
+      await friendsService.createFriendRequest(newUser2.id, newUser1.id);
+      const friendData = await friendsService.getFriendRequestReaction(newUser2.id, newUser1.id);
+      expect(friendData).toEqual(FriendRequestReaction.Accepted);
     });
   });
 

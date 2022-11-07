@@ -302,7 +302,6 @@ export class UsersController {
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
-    const friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
     return {
       userName: user.userName,
       notificationCount: 6,
@@ -326,7 +325,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: friends,
+      friendRequests: receivedFriendRequestsData,
     };
   }
 

@@ -70,17 +70,16 @@ interface Props {
   id: string,
   className?: string,
   isChecked?: boolean,
-  onSwitchToggle: any,
-  keyName: string
+  onSwitchToggle?: (e: React.ChangeEvent<HTMLInputElement>) => void | undefined,
 }
 
 function Switch({
-  id, className, isChecked, onSwitchToggle, keyName,
+  id, className, isChecked, onSwitchToggle,
 }: Props) {
   return (
     <SwitchDiv>
       <SwitchStyledLabel className={`switch ${className}`} htmlFor={id}>
-        <input type="checkbox" id={id} onChange={(e) => onSwitchToggle(e, keyName)} checked={isChecked} />
+        <input type="checkbox" id={id} onChange={onSwitchToggle} checked={isChecked} />
         <div className="slider round" />
       </SwitchStyledLabel>
     </SwitchDiv>
@@ -90,6 +89,7 @@ function Switch({
 Switch.defaultProps = {
   className: '',
   isChecked: false,
+  onSwitchToggle: () => { },
 };
 
 export default Switch;

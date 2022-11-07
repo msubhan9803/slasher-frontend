@@ -16,15 +16,29 @@ const StyledBorder = styled.div`
     padding-bottom: 0 !important;
   }
 `;
-
+interface AllNotification {
+  dating_got_a_match: number;
+  dating_message_received: number;
+  friends_got_a_match: number;
+  friends_message_received: number;
+  message_board_like_your_post: number;
+  message_board_reply_your_post: number;
+  message_board_new_post_on_thread: number;
+  feed_mention_on_post_comment_reply: number;
+  message_board_mention_on_comment_reply: number;
+  feed_post_like: number;
+}
+interface RequestBody {
+  [key: string]: string | number
+}
 function AccountNotification() {
-  const [allNotification, setNotification] = useState<any>();
+  const [allNotification, setNotification] = useState<AllNotification>();
   useEffect(() => {
     getAccountNotification()
       .then((res) => setNotification(res.data));
   }, []);
-  const handleChange = (e: any, key: string) => {
-    const reqBody = {} as any;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, key: string) => {
+    const reqBody = {} as RequestBody;
     reqBody[key] = e.target.checked === false ? 0 : 1;
     updateAccountNotification(reqBody)
       .then((res) => setNotification(res.data));
@@ -44,8 +58,7 @@ function AccountNotification() {
               <Switch
                 id="1"
                 className="ms-0 ms-md-3"
-                keyName="dating_got_a_match"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'dating_got_a_match')}
                 isChecked={!!(allNotification && allNotification.dating_got_a_match === 1)}
               />
             </div>
@@ -56,8 +69,7 @@ function AccountNotification() {
               <Switch
                 id="2"
                 className="ms-0 ms-md-3"
-                keyName="dating_message_received"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'dating_message_received')}
                 isChecked={!!(allNotification && allNotification.dating_message_received === 1)}
               />
             </div>
@@ -71,8 +83,7 @@ function AccountNotification() {
               <Switch
                 id="3"
                 className="ms-0 ms-md-3"
-                keyName="friends_got_a_match"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'friends_got_a_match')}
                 isChecked={!!(allNotification && allNotification.friends_got_a_match === 1)}
               />
             </div>
@@ -83,12 +94,10 @@ function AccountNotification() {
               <Switch
                 id="4"
                 className="ms-0 ms-md-3"
-                keyName="friends_message_received"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'friends_message_received')}
                 isChecked={
                   !!(allNotification
-                    && allNotification.friends_message_received
-                    === 1)
+                    && allNotification.friends_message_received === 1)
                 }
               />
             </div>
@@ -100,13 +109,12 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
               <Switch
-                id="4"
+                id="5"
                 className="ms-0 ms-md-3"
-                keyName="rss_feed_mention_on_post_comment_reply"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'message_board_like_your_post')}
                 isChecked={
                   !!(allNotification
-                    && allNotification.rss_feed_mention_on_post_comment_reply === 1)
+                    && allNotification.message_board_like_your_post === 1)
                 }
               />
             </div>
@@ -115,13 +123,12 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Comment/reply to your post</span>
               <Switch
-                id="5"
+                id="6"
                 className="ms-0 ms-md-3"
-                keyName="feed_comment_on_post"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'message_board_reply_your_post')}
                 isChecked={
                   !!(allNotification
-                    && allNotification.feed_comment_on_post === 1)
+                    && allNotification.message_board_reply_your_post === 1)
                 }
               />
             </div>
@@ -130,12 +137,11 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">New post in thread</span>
               <Switch
-                id="6"
+                id="7"
                 className="ms-0 ms-md-3"
-                keyName="rss_feed_post_like"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'message_board_new_post_on_thread')}
                 isChecked={
-                  !!(allNotification && allNotification.rss_feed_post_like === 1)
+                  !!(allNotification && allNotification.message_board_new_post_on_thread === 1)
                 }
               />
             </div>
@@ -146,10 +152,9 @@ function AccountNotification() {
           <div className="fs-3  d-flex justify-content-between">
             <span className="fs-4">Mention on post/comment/reply</span>
             <Switch
-              id="7"
+              id="8"
               className="ms-0 ms-md-3"
-              keyName="feed_mention_on_post_comment_reply"
-              onSwitchToggle={handleChange}
+              onSwitchToggle={(e) => handleChange(e, 'feed_mention_on_post_comment_reply')}
               isChecked={!!(allNotification
                 && allNotification.feed_mention_on_post_comment_reply === 1)}
             />
@@ -161,14 +166,12 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
               <Switch
-                id="8"
+                id="9"
                 className="ms-0 ms-md-3"
-                keyName="message_board_mention_on_comment_reply"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'message_board_mention_on_comment_reply')}
                 isChecked={
                   !!(allNotification
-                    && allNotification.message_board_mention_on_comment_reply
-                    === 1)
+                    && allNotification.message_board_mention_on_comment_reply === 1)
                 }
               />
             </div>
@@ -177,14 +180,11 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Comment/reply on your post</span>
               <Switch
-                id="8"
+                id="10"
                 className="ms-0 ms-md-3"
-                keyName="feed_mention_on_post_comment_reply"
-                onSwitchToggle={handleChange}
+                onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
                 isChecked={
-                  !!(allNotification
-                    && allNotification.feed_mention_on_post_comment_reply
-                    === 1)
+                  !!(allNotification && allNotification.feed_post_like === 1)
                 }
               />
             </div>

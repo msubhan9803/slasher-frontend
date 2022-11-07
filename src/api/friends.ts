@@ -12,6 +12,14 @@ export async function userProfileFriendsRequest(page: number) {
   return axios.get(`${apiUrl}/friends/requests/received${queryParameter}`, { headers });
 }
 
+export async function acceptFriendsRequest(userId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/friends/requests/accept`, { userId }, { headers });
+}
+
 export async function addFriend(userId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {

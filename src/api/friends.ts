@@ -20,6 +20,14 @@ export async function acceptFriendsRequest(userId: string) {
   return axios.post(`${apiUrl}/friends/requests/accept`, { userId }, { headers });
 }
 
+export async function addFriend(userId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/friends`, { userId }, { headers });
+}
+
 export async function rejectFriendsRequest(userId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {

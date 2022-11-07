@@ -150,7 +150,7 @@ export class FriendsService {
         userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
       ],
     }).limit(limit).skip(offset).sort({ userName: 1 })
-      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .select({ userName: 1, profilePic: 1, _id: 1, firstName: 1 })
       .exec();
 
     return {

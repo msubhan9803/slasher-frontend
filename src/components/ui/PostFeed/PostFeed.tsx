@@ -88,6 +88,8 @@ function PostFeed({
           <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
               <PostHeader
+                detailPage={detailPage}
+                id={post.id}
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}

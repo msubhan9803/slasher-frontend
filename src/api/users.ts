@@ -169,3 +169,12 @@ export async function getSuggestFriends() {
   };
   return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
 }
+
+export async function getUsersFriends() {
+  const token = Cookies.get('sessionToken');
+  const userId = Cookies.get('userId');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/users/${userId}/friends?limit=6`, { headers });
+}

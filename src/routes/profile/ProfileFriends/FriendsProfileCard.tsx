@@ -9,7 +9,7 @@ const Container = styled.div`
   background: #1F1F1F;
 `;
 function FriendsProfileCard({
-  friend, popoverOption, handlePopoverOption, friendsType,
+  friend, popoverOption, handlePopoverOption, friendsType, onAcceptClick, onRejectClick,
 }: any) {
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
@@ -18,9 +18,9 @@ function FriendsProfileCard({
           <div>
             <UserCircleImage src={friend.profilePic} className="me-2" />
           </div>
-          <div>
-            <h1 className="h3 mb-0">{friend.userName}</h1>
-            <p className="fs-6 mb-0 text-light">
+          <div className="d-grid">
+            <h1 className="h3 mb-0 text-truncate">{friend.userName}</h1>
+            <p className="fs-6 mb-0 text-light text-truncate">
               @
               {friend.userName}
             </p>
@@ -30,11 +30,29 @@ function FriendsProfileCard({
       <div className="d-flex align-self-center">
         {friendsType === 'requested' ? (
           <>
-            <CircleButton variant="black" className="me-2 text-success" icon={solid('check')} />
-            <CircleButton variant="black" className="me-2 text-primary" icon={solid('times')} />
+            <CircleButton
+              variant="black"
+              className="me-2 text-success"
+              icon={solid('check')}
+              /* eslint no-underscore-dangle: 0 */
+              userId={friend._id}
+              onAcceptRejectClick={onAcceptClick}
+            />
+            <CircleButton
+              variant="black"
+              className="me-2 text-primary"
+              icon={solid('times')}
+              /* eslint no-underscore-dangle: 0 */
+              userId={friend._id}
+              onAcceptRejectClick={onRejectClick}
+            />
           </>
         ) : (
-          <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopoverOption} />
+          <CustomPopover
+            userName={friend.userName}
+            popoverOptions={popoverOption}
+            onPopoverClick={handlePopoverOption}
+          />
         )}
       </div>
     </Container>

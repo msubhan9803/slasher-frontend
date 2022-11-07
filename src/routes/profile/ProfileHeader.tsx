@@ -16,7 +16,7 @@ import { User } from '../../types';
 
 interface Props {
   tabKey: string;
-  user: User;
+  user: User | undefined;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -165,7 +165,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         )}
 
       <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={tabs} toLink={`/${user.userName}`} selectedTab={tabKey} />
+      <TabLinks tabLink={tabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </div>
   );

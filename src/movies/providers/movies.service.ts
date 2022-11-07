@@ -55,12 +55,14 @@ export class MoviesService {
   async findAll(
     limit: number,
     activeOnly: boolean,
-    sortBy: 'name' | 'releaseDate',
+    sortBy: 'name' | 'releaseDate' | 'rating',
     after?: mongoose.Types.ObjectId,
+    nameContains?: string,
+
   ): Promise<MovieDocument[]> {
     const movieFindAllQuery: any = {};
     if (activeOnly) {
-      movieFindAllQuery.is_deleted = MovieDeletionStatus.NotDeleted;
+      movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
       movieFindAllQuery.status = MovieActiveStatus.Active;
     }
     if (after && sortBy === 'name') {
@@ -71,9 +73,21 @@ export class MoviesService {
       const afterMovie = await this.moviesModel.findById(after);
       movieFindAllQuery.sortReleaseDate = { $gt: afterMovie.sortReleaseDate };
     }
-
-    const sortMoviesByNameAndReleaseDate: any = sortBy === 'name' ? { sort_name: 1 } : { sortReleaseDate: 1 };
-
+    if (after && sortBy === 'rating') {
+      const afterMovie = await this.moviesModel.findById(after);
+      movieFindAllQuery.sortRating = { $lt: afterMovie.sortRating };
+    }
+    if (nameContains) {
+      movieFindAllQuery.name = new RegExp(escapeStringForRegex(nameContains), 'i');
+    }
+    let sortMoviesByNameAndReleaseDate: any;
+    if (sortBy === 'name') {
+      sortMoviesByNameAndReleaseDate = { sort_name: 1 };
+    } else if (sortBy === 'releaseDate') {
+      sortMoviesByNameAndReleaseDate = { sortReleaseDate: 1 };
+    } else {
+      sortMoviesByNameAndReleaseDate = { sortRating: -1 };
+    }
     return this.moviesModel.find(movieFindAllQuery)
       .sort(sortMoviesByNameAndReleaseDate)
       .limit(limit)

@@ -155,13 +155,101 @@ describe('All Movies (e2e)', () => {
       expect(response.body).toHaveLength(5);
     });
 
+    it('when sortBy is rating than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 1,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 1.5,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 2,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 2.5,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 3,
+          },
+        ),
+      );
+      const limit = 10;
+      const response = await request(app.getHttpServer())
+        .get(`/movies?limit=${limit}&sortBy=${'rating'}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].sortRating < response.body[i - 1].sortRating).toBe(true);
+      }
+      expect(response.body).toHaveLength(5);
+    });
+
+    it('when name contains supplied than expected all movies response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'a',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'b',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'c',
+          },
+        ),
+      );
+      const limit = 5;
+      const nameContains = 'c';
+      const response = await request(app.getHttpServer())
+      .get(`/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .send();
+      expect(response.body).toHaveLength(1);
+    });
+
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
+        const rating = [1, 2, 3, 4, 5];
         for (let i = 0; i < 5; i += 1) {
           await moviesService.create(
             moviesFactory.build(
               {
                 status: MovieActiveStatus.Active,
+                rating: rating[i],
               },
             ),
           );
@@ -195,6 +283,24 @@ describe('All Movies (e2e)', () => {
 
         const secondResponse = await request(app.getHttpServer())
           .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}&after=${firstResponse.body[limit - 1]._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(secondResponse.status).toEqual(HttpStatus.OK);
+        expect(secondResponse.body).toHaveLength(2);
+      });
+
+      it('sort by rating returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const rating = 'rating';
+        const firstResponse = await request(app.getHttpServer())
+          .get(`/movies?limit=${limit}&sortBy=${rating}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(firstResponse.status).toEqual(HttpStatus.OK);
+        expect(firstResponse.body).toHaveLength(3);
+
+        const secondResponse = await request(app.getHttpServer())
+          .get(`/movies?limit=${limit}&sortBy=${rating}&after=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -238,13 +344,13 @@ describe('All Movies (e2e)', () => {
         expect(response.body.message).toContain('sortBy should not be empty');
       });
 
-      it('sortBy must be one of the following values: name, releaseDate', async () => {
+      it('sortBy must be one of the following values: name, releaseDate, rating', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
           .get(`/movies?limit=${limit}&sortBy=${'tests'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate');
+        expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate, rating');
       });
     });
   });

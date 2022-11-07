@@ -238,13 +238,94 @@ describe('MoviesService', () => {
       expect(moviesList).toHaveLength(5);
     });
 
+    it('when name contains supplied than expected response', async () => {
+      const movieData = await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'a',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'b',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'c',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'name', movieData._id, 'c');
+      expect(moviesList).toHaveLength(1);
+    });
+
+    it('when movies is sort by rating than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 1,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 1.5,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 2,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 2.5,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            rating: 3,
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'rating');
+      for (let i = 1; i < moviesList.length; i += 1) {
+        expect(moviesList[i].sortRating < moviesList[i - 1].sortRating).toBe(true);
+      }
+      expect(moviesList).toHaveLength(5);
+    });
+
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
+        const rating = [1, 1.5, 2, 2.5, 3];
         for (let i = 0; i < 5; i += 1) {
           await moviesService.create(
             moviesFactory.build(
               {
                 status: MovieActiveStatus.Active,
+                rating: rating[i],
               },
             ),
           );
@@ -262,6 +343,14 @@ describe('MoviesService', () => {
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'releaseDate');
         const secondResults = await moviesService.findAll(limit, true, 'releaseDate', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by rating returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.findAll(limit, true, 'rating');
+        const secondResults = await moviesService.findAll(limit, true, 'rating', firstResults[limit - 1].id);
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });

@@ -13,8 +13,9 @@ const UserCircle = styled(Image)`
 `;
 interface Props {
   popoverOptions: string[];
-  onPopoverClick: (val: string) => void;
+  onPopoverClick: any;
   userProfileIcon?: string;
+  userName?: string;
 }
 const StyledPopover = styled.div`
 .btn[aria-describedby="popover-basic"]{
@@ -45,7 +46,7 @@ const PopoverText = styled.p`
 `;
 
 function CustomPopover({
-  popoverOptions, onPopoverClick, userProfileIcon,
+  popoverOptions, onPopoverClick, userProfileIcon, userName,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -54,7 +55,7 @@ function CustomPopover({
           key={option}
           className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
           role="button"
-          onClick={() => onPopoverClick(option)}
+          onClick={() => onPopoverClick(option, userName)}
         >
           {option}
         </PopoverText>
@@ -83,6 +84,7 @@ function CustomPopover({
 
 CustomPopover.defaultProps = {
   userProfileIcon: '',
+  userName: '',
 };
 
 export default CustomPopover;

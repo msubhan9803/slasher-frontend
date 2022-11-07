@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { MovieActiveStatus, MovieDeletionStatus } from './movie.enums';
+import { MovieActiveStatus, MovieDeletionStatus, MovieType } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
 
 @Schema({ timestamps: true })
@@ -65,6 +65,33 @@ export class Movie extends MovieUnusedFields {
 
   @Prop({ default: null })
   releaseDate: Date;
+
+  @Prop({ default: null })
+  descriptions: string;
+
+  @Prop({ default: null })
+  logo: string;
+
+  @Prop({ default: null })
+  movieDBId: number;
+
+  @Prop({ default: null })
+  backDropPath: string;
+
+  @Prop({ default: false })
+  adult: boolean;
+
+  @Prop({
+    enum: [
+      MovieType.Free,
+      MovieType.MovieDb,
+    ],
+    default: MovieType.Free,
+  })
+  type: MovieType;
+
+  @Prop({ default: 0 })
+  popularity: number;
 
   /***********
    * Methods *

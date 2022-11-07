@@ -302,7 +302,6 @@ export class UsersController {
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
-    const friends = receivedFriendRequestsData.map(({ _id, ...friend }) => ({ ...friend }));
     return {
       userName: user.userName,
       notificationCount: 6,
@@ -326,7 +325,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: friends,
+      friendRequests: receivedFriendRequestsData,
     };
   }
 
@@ -463,5 +462,25 @@ export class UsersController {
 
     asyncDeleteMulterFiles([file]);
     return { success: true };
+  }
+
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
+  @Get(':userId/posts-with-images')
+  async allFeedPostsWithImages(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: AllFeedPostQueryDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPosts = await this.feedPostsService.findAllPostsWithImagesByUser(
+      user._id,
+      query.limit,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
+    return feedPosts;
   }
 }

@@ -18,6 +18,7 @@ describe('Get Friends (e2e)', () => {
   let activeUser: UserDocument;
   let user1: UserDocument;
   let user2: UserDocument;
+  let user3: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
 
@@ -44,12 +45,14 @@ describe('Get Friends (e2e)', () => {
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());
+    user3 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
     await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
     await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
     await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    await friendsService.createFriendRequest(user3._id.toString(), activeUser._id.toString());
   });
 
   describe('Get /friends/requests/received', () => {

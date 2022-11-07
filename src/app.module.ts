@@ -18,6 +18,7 @@ import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
 import { FeedPostsModule } from './feed-posts/feed-posts.module';
 import { FriendsModule } from './friends/friends.module';
+import { UserSettingModule } from './settings/user-settings.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { AppGateway } from './app/providers/app.gateway';
 
@@ -50,6 +51,7 @@ import { AppGateway } from './app/providers/app.gateway';
     EventCategoriesModule,
     FeedPostsModule,
     FriendsModule,
+    UserSettingModule,
     RssFeedProviderFollowsModule,
   ],
   controllers: [AppController],

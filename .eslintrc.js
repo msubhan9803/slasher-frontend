@@ -40,7 +40,7 @@ module.exports = {
     "no-await-in-loop": "off", // might re-enable later, but disabling for now
     "no-restricted-syntax": "off", // might re-enable later, but disabling for now
     'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'request.**.expect'] }],
-    "spaced-comment": "off"
+    "spaced-comment": "off",
   },
   overrides: [
     {

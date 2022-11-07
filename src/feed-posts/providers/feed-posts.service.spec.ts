@@ -329,4 +329,55 @@ describe('FeedPostsService', () => {
       expect(secondResults).toHaveLength(4);
     });
   });
+
+  describe('#findAllPostsWithImagesByUser', () => {
+    beforeEach(async () => {
+      for (let i = 0; i < 10; i += 1) {
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser._id,
+          }),
+        );
+
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: activeUser._id,
+            images: [],
+          }),
+        );
+      }
+    });
+
+    it('when earlier than post id is exist then it returns the expected response', async () => {
+      const feedPostDetails = feedPostFactory.build({
+        userId: activeUser._id,
+        status: FeedPostStatus.Active,
+        is_deleted: FeedPostDeletionState.NotDeleted,
+      });
+      const feedPost = await feedPostsService.create(feedPostDetails);
+      const feedPostData = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), 20, feedPost._id);
+      for (let i = 1; i < feedPostData.length; i += 1) {
+        expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPostData).toHaveLength(10);
+      expect(feedPostData).not.toContain(feedPost.createdAt);
+    });
+
+    it('when earlier than post id is does not exist then it returns the expected response', async () => {
+      const feedPost = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), 10);
+      for (let i = 1; i < feedPost.length; i += 1) {
+        expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
+      }
+      expect(feedPost).toHaveLength(10);
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 6;
+      const firstResults = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), limit);
+      const secondResults = await feedPostsService
+      .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
+      expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
+  });
 });

@@ -20,6 +20,12 @@ definitions:
             --env MONGO_INITDB_ROOT_USERNAME=root --env MONGO_INITDB_ROOT_PASSWORD=rootpassword
             $(docker build -q ./docker/mongo)
             )
+          # Start redis mongo
+          - >
+            DOCKER_REDIS_CONTAINER_ID=$(
+            docker run --detach -p 6389:6379
+            $(docker build -q ./docker/redis)
+            )
           # Install NPM dependencies
           - npm ci
           # Run linter
@@ -31,6 +37,8 @@ definitions:
           - npm run test:e2e
           # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
           - docker container kill $DOCKER_MONGO_CONTAINER_ID
+          # Stop docker redis (kill for speed, since this is CI and clean shutdown doesn't matter)
+          - docker container kill $DOCKER_REDIS_CONTAINER_ID
           # Run build (to ensure that build succeeds)
           - npm run build
 

@@ -14,13 +14,10 @@ import {
 } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
 import { Server } from 'socket.io';
+import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
+@WebSocketGateway(SHARED_GATEWAY_OPTS)
 /**
  * The AppGateway doesn't handle individual messages.  It's just a central place for performing
  * authentication when a user connects to a socket.  This is the place where we disconnect the
@@ -33,7 +30,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly config: ConfigService, private readonly usersService: UsersService) { }
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`client connected (app): ${client.id}`);
+    console.log(`(app gateway) client connected: ${client.id}`);
 
     // We will first look for the token in the handshake auth field.  This is what clients will
     // generally be sending because it is more broadly compatible.  Browsers do not currently
@@ -69,11 +66,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     // If other checks failed above, then disconnect
+    console.log(`(app gateway) client connection rejected due to invalid credentials: ${client.id}`);
     client.disconnect();
   }
 
   handleDisconnect(client: any) {
-    console.log(`client disconnected (app): ${client.id}`);
+    console.log(`(app gateway) client disconnected: ${client.id}`);
   }
 
   // This is just an end point for verifying a connection

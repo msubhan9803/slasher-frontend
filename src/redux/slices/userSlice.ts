@@ -4,17 +4,19 @@ export const userSlice = createSlice({
   name: 'user',
   initialState: {
     friendRequests: [],
-    notificationCount: 0,
+    unreadNotificationCount: 0,
     recentMessages: [],
     userName: '',
+    userId: '',
   },
   reducers: {
     setUserInitialData: (state, action) => ({
       ...state,
       friendRequests: action.payload.friendRequests,
-      notificationCount: action.payload.notificationCount,
+      unreadNotificationCount: action.payload.unreadNotificationCount,
       recentMessages: action.payload.recentMessages,
       userName: action.payload.userName,
+      userId: action.payload.userId,
     }),
   },
 });

@@ -1,27 +1,24 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
-import styled from 'styled-components';
 
 interface SortDataProps {
   title?: string;
   className?: string;
   sortoptions?: OptionsProps[];
   type?: string;
-  onSelectSort?(e : React.ChangeEvent<HTMLSelectElement>): void | null;
+  onSelectSort?(e: React.ChangeEvent<HTMLSelectElement>): void | null;
 }
 interface OptionsProps {
   value: string;
   label: string;
 }
-const StyledStortingSelect = styled(Form)`
 
-`;
 function SortData({
   title, className, sortoptions, type, onSelectSort,
 }: SortDataProps) {
   return (
-    <StyledStortingSelect>
-      <Form.Select aria-label="Default select example" onChange={(e) => (onSelectSort ? onSelectSort(e) : '')} className={`fs-5 shadow-none px-4 ${className}`}>
+    <Form>
+      <Form.Select aria-label="Default select example" onChange={onSelectSort} className={`fs-5 shadow-none px-4 ${className}`}>
         {sortoptions && sortoptions.length > 0 && sortoptions.map(({ value, label }) => (
           type === 'sort' && (
             <option key={value} value={value}>
@@ -36,7 +33,7 @@ function SortData({
           </option>
         )}
       </Form.Select>
-    </StyledStortingSelect>
+    </Form>
   );
 }
 

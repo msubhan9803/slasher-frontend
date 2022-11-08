@@ -5,49 +5,50 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
+import { posts } from '../../search/SearchResult';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 function AllMovies() {
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState<string>('releaseDate');
+  const [errorMessage, setErrorMessage] = useState<string[]>();
 
   useEffect(() => {
-    getMovies(search, sortVal)
-      .then((res) => {
-        setFilteredMovies(res.data);
-      });
-  }, [search]);
+    setFilteredMovies([]);
+    setRequestAdditionalPosts(true);
+  }, [search, sortVal]);
 
-  const fetchMoreMovies = () => {
-    if (filteredMovies && filteredMovies.length > 0) {
+  useEffect(() => {
+    if (requestAdditionalPosts && !loadingPosts) {
       /* eslint no-underscore-dangle: 0 */
-      getMovies(search, sortVal, filteredMovies[filteredMovies.length - 1]._id)
+      setLoadingPosts(true);
+      getMovies(
+        search,
+        sortVal,
+        filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
+      )
         .then((res) => {
-          setFilteredMovies((prev: any) => [
+          setFilteredMovies((prev: MoviesProps[]) => [
             ...prev,
             ...res.data,
           ]);
-          if (res.data.length === 0) {
+          if (res.data.length === 0) { setNoMoreData(true); }
+        }).catch(
+          (error) => {
             setNoMoreData(true);
-          }
-        });
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
     }
-  };
-
-  const onSort = (sortValue: string) => {
-    setSortVal(sortValue);
-    getMovies(search, sortValue)
-      .then((res) => {
-        setFilteredMovies(res.data);
-      });
-  };
-
-  const selectedKey = (keyValue: string) => {
-    setKey(keyValue);
-  };
+  }, [requestAdditionalPosts, loadingPosts, search, sortVal]);
 
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())
@@ -58,6 +59,20 @@ function AllMovies() {
           });
       });
   };
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        posts.length === 0
+          ? 'No Movies available'
+          : 'No more Movies'
+      }
+    </p>
+  );
+
+  const renderLoadingIndicator = () => (
+    <p className="text-center">Loading...</p>
+  );
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <MoviesHeader
@@ -66,21 +81,28 @@ function AllMovies() {
         setShowKeys={setShowKeys}
         setSearch={setSearch}
         search={search}
-        sort={onSort}
-        selectedKey={selectedKey}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        selectedKey={(keyValue: string) => setKey(keyValue)}
         applyFilter={applyFilter}
       />
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        {errorMessage && errorMessage.length > 0 && (
+          <div className="mt-3 text-start">
+            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          </div>
+        )}
         <div className="m-md-2">
           <InfiniteScroll
             pageStart={0}
-            initialLoad={false}
-            loadMore={fetchMoreMovies}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPosts(true); }}
             hasMore={!noMoreData}
             element="span"
           >
             <PosterCardList dataList={filteredMovies} />
           </InfiniteScroll>
+          {loadingPosts && renderLoadingIndicator()}
+          {noMoreData && renderNoMoreDataMessage()}
         </div>
       </div>
     </AuthenticatedPageWrapper>

@@ -8,10 +8,10 @@ import SortData from './SortData';
 interface FilterDialogProps {
   showKeys: boolean;
   setShowKeys: (val: boolean) => void;
-  selectedKey?: (e : string) => void;
+  selectedKey?: (e: string) => void;
   applyFilter?: () => void;
   sortoptions?: OptionsProps[];
-  onSelectSort?(e : React.ChangeEvent<HTMLSelectElement>): void | null;
+  onSelectSort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
 }
 interface OptionsProps {
   value: string;
@@ -95,7 +95,7 @@ FilterModal.defaultProps = {
   selectedKey: null,
   applyFilter: null,
   sortoptions: null,
-  onSelectSort: null,
+  onSelectSort: undefined,
 };
 
 export default FilterModal;

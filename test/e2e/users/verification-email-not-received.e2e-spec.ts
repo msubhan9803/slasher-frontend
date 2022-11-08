@@ -64,7 +64,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
           userFactory.build({ email }),
         );
         user.verification_token = uuidv4();
-        user.save();
+        await user.save();
 
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
 

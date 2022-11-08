@@ -42,12 +42,11 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              postUrl: data.images,
+              images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
             };
           }
-
           // RSS feed post
           return {
             /* eslint no-underscore-dangle: 0 */
@@ -55,7 +54,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            postUrl: data.images,
+            images: data.images,
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
           };

@@ -226,7 +226,7 @@ export class UsersController {
     userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
     userDetails.resetPasswordToken = null;
     userDetails.lastPasswordResetTime = new Date();
-    userDetails.save();
+    await userDetails.save();
     return {
       message: 'Password reset successfully',
     };
@@ -246,7 +246,7 @@ export class UsersController {
     );
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
-    userDetails.save();
+    await userDetails.save();
     return {
       success: true,
     };

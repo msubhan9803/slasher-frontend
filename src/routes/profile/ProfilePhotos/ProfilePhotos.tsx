@@ -18,11 +18,11 @@ const StyledPopover = styled.div`
   top: 25px;
   right: 8px;
 `;
-interface UserPhotos {
+export interface UserPhotos {
   id: string;
   imagesList: ImageList[]
 }
-interface ImageList {
+export interface ImageList {
   image_path: string;
   _id: string;
 }

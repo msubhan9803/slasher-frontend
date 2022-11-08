@@ -305,7 +305,7 @@ export class UsersController {
     return {
       userId: user.id,
       userName: user.userName,
-      notificationCount: 6,
+      unreadNotificationCount: 6,
       recentMessages: [
         {
           profilePic: 'https://i.pravatar.cc/300?img=47',

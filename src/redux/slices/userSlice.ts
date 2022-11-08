@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
-    friendRequests: [],
+    recentFriendRequests: [],
     unreadNotificationCount: 0,
     recentMessages: [],
     userName: '',
@@ -12,7 +12,7 @@ export const userSlice = createSlice({
   reducers: {
     setUserInitialData: (state, action) => ({
       ...state,
-      friendRequests: action.payload.friendRequests,
+      recentFriendRequests: action.payload.recentFriendRequests,
       unreadNotificationCount: action.payload.unreadNotificationCount,
       recentMessages: action.payload.recentMessages,
       userName: action.payload.userName,

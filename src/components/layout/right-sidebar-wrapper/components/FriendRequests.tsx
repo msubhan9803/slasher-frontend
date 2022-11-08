@@ -13,7 +13,7 @@ interface FriendRequest {
 }
 
 function FriendRequests() {
-  const friendRequests = useAppSelector((state) => state.user.friendRequests);
+  const recentFriendRequests = useAppSelector((state) => state.user.recentFriendRequests);
   const dispatch = useAppDispatch();
 
   const handleAcceptRequest = (userId: string) => {
@@ -31,12 +31,12 @@ function FriendRequests() {
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo="/" />
-      {friendRequests && friendRequests.length > 0
-        && friendRequests.map((request: FriendRequest, i: number) => (
+      {recentFriendRequests && recentFriendRequests.length > 0
+        && recentFriendRequests.map((request: FriendRequest, i: number) => (
           <FriendRequestItem
             /* eslint no-underscore-dangle: 0 */
             key={request._id}
-            className={i + 1 < friendRequests.length ? 'mb-3' : ''}
+            className={i + 1 < recentFriendRequests.length ? 'mb-3' : ''}
             image={request.profilePic}
             userName={request.userName}
             id={request._id}

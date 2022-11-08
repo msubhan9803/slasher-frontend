@@ -3,18 +3,20 @@ import { createSlice } from '@reduxjs/toolkit';
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
-    friendRequests: [],
-    notificationCount: 0,
+    recentFriendRequests: [],
+    unreadNotificationCount: 0,
     recentMessages: [],
     userName: '',
+    userId: '',
   },
   reducers: {
     setUserInitialData: (state, action) => ({
       ...state,
-      friendRequests: action.payload.friendRequests,
-      notificationCount: action.payload.notificationCount,
+      recentFriendRequests: action.payload.recentFriendRequests,
+      unreadNotificationCount: action.payload.unreadNotificationCount,
       recentMessages: action.payload.recentMessages,
       userName: action.payload.userName,
+      userId: action.payload.userId,
     }),
   },
 });

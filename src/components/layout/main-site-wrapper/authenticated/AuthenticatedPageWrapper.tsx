@@ -31,6 +31,7 @@ interface Props {
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
+  background-color: #171717;
   .btn-close {
     background-color: #fff;
   }

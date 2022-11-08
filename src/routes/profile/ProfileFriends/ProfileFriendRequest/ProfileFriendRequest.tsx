@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
+import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -9,8 +9,7 @@ import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wr
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
-import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { setUserFriendDetail } from '../../../../redux/slices/friendRequestSlice';
+import { useAppDispatch } from '../../../../redux/hooks';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
@@ -35,9 +34,8 @@ function ProfileFriendRequest({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendRequestPage, setFriendRequestPage] = useState<number>(0);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const loginUserName = Cookies.get('userName');
-  const friendsReqListApp = useAppSelector((state) => state.friendRequest.friendRequestsList);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
+  const loginUserName = Cookies.get('userName');
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -53,16 +51,21 @@ function ProfileFriendRequest({ user }: Props) {
   }, []);
 
   useEffect(() => {
-    setFriendsReqList(friendsReqListApp);
-    setFriendRequestPage(friendRequestPage + 1);
-  }, [friendsReqListApp]);
+    userProfileFriendsRequest(friendRequestPage)
+      .then((res) => {
+        setFriendsReqList(res.data);
+        setFriendRequestPage(friendRequestPage + 1);
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
+  }, []);
   const fetchMoreFriendReqList = () => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
-        dispatch(setUserFriendDetail([
-          ...friendsReqList,
+        setFriendsReqList((prev: FriendProps[]) => [
+          ...prev,
           ...res.data,
-        ]));
+        ]);
+        setFriendRequestPage(friendRequestPage + 1);
         if (res.data.length === 0) {
           setNoMoreData(true);
         }
@@ -82,7 +85,7 @@ function ProfileFriendRequest({ user }: Props) {
     acceptFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => dispatch(setUserFriendDetail(res.data)));
+          .then((res) => setFriendsReqList(res.data));
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -92,7 +95,7 @@ function ProfileFriendRequest({ user }: Props) {
     rejectFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => dispatch(setUserFriendDetail(res.data)));
+          .then((res) => setFriendsReqList(res.data));
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });

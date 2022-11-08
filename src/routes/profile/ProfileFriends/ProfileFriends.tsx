@@ -37,11 +37,11 @@ function ProfileFriends({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
-  const friendsReqCount = useAppSelector((state) => state.friendRequest.friendRequestsList);
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
-    { value: 'request', label: 'Friend requests', badge: friendsReqCount.length },
+    { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
   useEffect(() => {

@@ -46,6 +46,7 @@ describe('Users suggested friends (e2e)', () => {
       let user1: UserDocument;
       let user2: UserDocument;
       let user3: UserDocument;
+      let user4: UserDocument;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build());
@@ -55,7 +56,9 @@ describe('Users suggested friends (e2e)', () => {
         user1 = await usersService.create(userFactory.build({ userName: 'Friend1' }));
         user2 = await usersService.create(userFactory.build({ userName: 'Friend2' }));
         user3 = await usersService.create(userFactory.build({ userName: 'Friend3' }));
+        user4 = await usersService.create(userFactory.build({ userName: 'Friend4' }));
 
+        await friendsService.createFriendRequest(user4.id, activeUser.id);
         await friendsService.createFriendRequest(user3.id, activeUser.id);
         await friendsService.createFriendRequest(user1.id, activeUser.id);
         await friendsService.createFriendRequest(user2.id, activeUser.id);
@@ -90,6 +93,7 @@ describe('Users suggested friends (e2e)', () => {
                 + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
             },
           ],
+          friendRequestCount: 4,
           recentFriendRequests: [
             {
               _id: user2._id.toString(),

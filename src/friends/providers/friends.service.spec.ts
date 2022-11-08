@@ -308,4 +308,21 @@ describe('FriendsService', () => {
       await expect(friendsService.acceptFriendRequest(user1.id, user2.id)).rejects.toThrow('No pending friend request');
     });
   });
+
+  describe('#getReceivedFriendRequestCount', () => {
+    beforeEach(async () => {
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.createFriendRequest(user3.id, user0.id);
+    });
+
+    it('finds the expected number of friend records representing friend request count', async () => {
+      expect(
+        await friendsService.getReceivedFriendRequestCount(user0.id),
+      ).toBe(2);
+    });
+
+    it('when userId has no any received requests', async () => {
+      expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
+    });
+  });
 });

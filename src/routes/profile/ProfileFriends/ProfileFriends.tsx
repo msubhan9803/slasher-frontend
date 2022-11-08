@@ -12,6 +12,7 @@ import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 
 interface FriendProps {
   _id?: string;
@@ -46,12 +47,12 @@ function ProfileFriends({ user }: Props) {
     navigate(`/${params.userName}/friends`);
   }, []);
 
-  const handlePopoverOption = (value: string, userName: string) => {
+  const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
     } else if (value === 'View profile') {
-      navigate(`/${userName}/about`);
+      navigate(`/${popoverClickProps.userName}/about`);
     }
   };
 

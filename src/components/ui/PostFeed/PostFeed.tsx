@@ -15,6 +15,7 @@ import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
+import { PopoverClickProps } from '../CustomPopover';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -24,7 +25,7 @@ interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string, content?: string, id?:string, userId?: string) => void,
+  onPopoverClick: (value: string, popoverClickProps : PopoverClickProps) => void,
   handlePopoverOption?: (id:string) => void
   detailPage?: boolean
 }
@@ -97,7 +98,6 @@ function PostFeed({
                 popoverOptions={popoverOptions}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
-                id={post.id}
                 userId={post.userId}
                 handlePopoverOption={handlePopoverOption}
               />

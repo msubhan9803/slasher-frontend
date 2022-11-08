@@ -12,6 +12,7 @@ import { Post } from '../../types';
 import { FormatMentionProps, MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
+import { PopoverClickProps } from '../../components/ui/CustomPopover';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -32,13 +33,13 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
 
-  const handlePopoverOption = (value: string, messageContent?:string, id?:string) => {
-    if (messageContent) {
-      setContent(messageContent);
+  const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
+    if (popoverClickProps.content) {
+      setContent(popoverClickProps.content);
     }
 
-    if (id) {
-      setPostId(id);
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
     }
 
     setShow(true);

@@ -13,20 +13,14 @@ import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
 import { updateFeedPost } from '../../../api/feed-posts';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-const popoverOptions = ['Edit', 'Delete'];
-
-interface Props {
-  user: User
-}
-
 function ProfilePosts() {
   const { userName } = useParams<string>();
   const [user, setUser] = useState<User>();
-
   useEffect(() => {
     if (userName) {
       getUser(userName)
@@ -53,13 +47,12 @@ function ProfilePosts() {
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
 
-  const handlePopoverOption = (value: string, content?: string, id?:string) => {
-    if (content) {
-      setMessageContent(content);
+  const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
+    if (popoverClickProps.content) {
+      setMessageContent(popoverClickProps.content);
     }
-
-    if (id) {
-      setPostId(id);
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
     }
     setShowReportModal(true);
     setDropDownValue(value);
@@ -100,7 +93,6 @@ function ProfilePosts() {
       );
     }
   }, [requestAdditionalPosts, loadingPosts, user]);
-
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -110,17 +102,14 @@ function ProfilePosts() {
       }
     </p>
   );
-
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
-
   const handlePopoverOptionValue = (id: string) => {
     if (id) {
       setPostUserId(id);
     }
   };
-
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -128,7 +117,6 @@ function ProfilePosts() {
         .then((res) => setMentionList(res.data));
     }
   };
-
   const onUpdatePost = () => {
     updateFeedPost(postId, postContent).then(() => {
       setShowReportModal(false);
@@ -164,13 +152,11 @@ function ProfilePosts() {
             <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
           </div>
         )}
-
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
           <ErrorMessageList errorMessages={errorMessage} className="m-0" />
         </div>
       )}
-
       <InfiniteScroll
         pageStart={0}
         initialLoad
@@ -208,7 +194,6 @@ function ProfilePosts() {
       )}
       {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
-
   );
 }
 export default ProfilePosts;

@@ -2,7 +2,7 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
-import CustomPopover from '../CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
@@ -11,7 +11,7 @@ interface PostHeaderProps {
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
-  onPopoverClick: (value: string, content?:string, id?:string, userId?: string) => void;
+  onPopoverClick: (value: string, popoverClickProps : PopoverClickProps) => void,
   detailPage: boolean | undefined
   content?: string;
   userId?: string;
@@ -78,7 +78,6 @@ function PostHeader({
 
 PostHeader.defaultProps = {
   content: null,
-  id: null,
   userId: null,
   handlePopoverOption: null,
 };

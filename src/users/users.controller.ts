@@ -297,7 +297,7 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.friendRequests[*].profilePic')
+  @TransformImageUrls('$.recentFriendRequests[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
@@ -326,7 +326,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: receivedFriendRequestsData,
+      recentFriendRequests: receivedFriendRequestsData,
     };
   }
 

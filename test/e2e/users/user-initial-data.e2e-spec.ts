@@ -90,7 +90,7 @@ describe('Users suggested friends (e2e)', () => {
                 + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
             },
           ],
-          friendRequests: [
+          recentFriendRequests: [
             {
               _id: user2._id.toString(),
               userName: 'Friend2',

@@ -67,6 +67,7 @@ describe('Users suggested friends (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
+          userId: activeUser.id,
           userName: activeUser.userName,
           notificationCount: 6,
           recentMessages: [

@@ -303,6 +303,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     return {
+      userId: user.id,
       userName: user.userName,
       notificationCount: 6,
       recentMessages: [

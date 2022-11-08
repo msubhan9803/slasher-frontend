@@ -29,7 +29,7 @@ interface AllNotification {
   feed_post_like: number;
 }
 interface RequestBody {
-  [key: string]: string | number
+  [key: string]: number
 }
 function AccountNotification() {
   const [allNotification, setNotification] = useState<AllNotification>();
@@ -56,7 +56,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like or Match received</span>
               <Switch
-                id="1"
+                id="dating_got_a_match"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'dating_got_a_match')}
                 isChecked={!!(allNotification && allNotification.dating_got_a_match === 1)}
@@ -67,7 +67,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Mesage received</span>
               <Switch
-                id="2"
+                id="dating_message_received"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'dating_message_received')}
                 isChecked={!!(allNotification && allNotification.dating_message_received === 1)}
@@ -81,7 +81,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Friend request</span>
               <Switch
-                id="3"
+                id="friends_got_a_match"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'friends_got_a_match')}
                 isChecked={!!(allNotification && allNotification.friends_got_a_match === 1)}
@@ -92,7 +92,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Message received</span>
               <Switch
-                id="4"
+                id="friends_message_received"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'friends_message_received')}
                 isChecked={
@@ -109,7 +109,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
               <Switch
-                id="5"
+                id="message_board_like_your_post"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'message_board_like_your_post')}
                 isChecked={
@@ -123,7 +123,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Comment/reply to your post</span>
               <Switch
-                id="6"
+                id="message_board_reply_your_post"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'message_board_reply_your_post')}
                 isChecked={
@@ -137,7 +137,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">New post in thread</span>
               <Switch
-                id="7"
+                id="message_board_new_post_on_thread"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'message_board_new_post_on_thread')}
                 isChecked={
@@ -152,7 +152,7 @@ function AccountNotification() {
           <div className="fs-3  d-flex justify-content-between">
             <span className="fs-4">Mention on post/comment/reply</span>
             <Switch
-              id="8"
+              id="feed_mention_on_post_comment_reply"
               className="ms-0 ms-md-3"
               onSwitchToggle={(e) => handleChange(e, 'feed_mention_on_post_comment_reply')}
               isChecked={!!(allNotification
@@ -166,7 +166,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
               <Switch
-                id="9"
+                id="message_board_mention_on_comment_reply"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'message_board_mention_on_comment_reply')}
                 isChecked={
@@ -180,7 +180,7 @@ function AccountNotification() {
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Comment/reply on your post</span>
               <Switch
-                id="10"
+                id="feed_post_like"
                 className="ms-0 ms-md-3"
                 onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
                 isChecked={

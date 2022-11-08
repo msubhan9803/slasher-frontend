@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Image, Row,
+  Card, Col, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
+import 'swiper/swiper-bundle.css';
 import PostFooter from './PostFooter';
+import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
+import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
-import { Post } from '../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -30,16 +32,12 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const PostImage = styled(Image)`
-  acpect-ratio: 1.9;
-`;
 const Content = styled.div`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
 `;
-
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -62,6 +60,9 @@ function PostFeed({
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('imageId');
+
   useEffect(() => {
     setPostData(postFeedData);
   }, [postFeedData]);
@@ -109,12 +110,17 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.images?.[0] && (
-                <div className="mt-3">
-                  <Link to={`/${post.userName}/posts/${post.id}`}>
-                    <PostImage src={post?.images[0].image_path} className="w-100" />
-                  </Link>
-                </div>
+              {post?.images && (
+                <CustomSwiper
+                  images={
+                    post.images.map((imageData: any) => ({
+                      imageUrl: imageData.image_path,
+                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                    }))
+                  }
+                  /* eslint no-underscore-dangle: 0 */
+                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                />
               )}
               <Row className="pt-3 px-md-3">
                 <Col>

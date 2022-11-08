@@ -61,7 +61,7 @@ describe('Users suggested friends (e2e)', () => {
   describe('GET /users/suggested-friends', () => {
     describe('When the endpoint limit is equal to the number of available suggested friends in the database', () => {
       beforeEach(async () => {
-        for (let i = 0; i < 6; i += 1) {
+        for (let i = 0; i < 7; i += 1) {
           await usersService.create(userFactory.build());
         }
       });
@@ -70,7 +70,7 @@ describe('Users suggested friends (e2e)', () => {
           .get('/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(6);
+        expect(response.body).toHaveLength(7);
       });
     });
 

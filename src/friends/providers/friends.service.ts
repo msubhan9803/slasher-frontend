@@ -105,16 +105,17 @@ export class FriendsService {
   }
 
   /**
-   * For the given user, returns an array of ObjectIds for that user's friends.
+   * For the given user, returns an array of ObjectIds for that user's friends (and optionally,
+   * pending friends from sent or received friend requests).
    * Note: This methon can return a lot of results (thousands) if the user has a lot of friends.
    */
   async getFriendIds(userId: string, includePendingFriends = false) {
-    let friendRequestReaction;
-    if (includePendingFriends) {
-      friendRequestReaction = { $in: [FriendRequestReaction.Accepted, FriendRequestReaction.Pending] };
-    } else {
-      friendRequestReaction = FriendRequestReaction.Accepted;
-    }
+    const friendReactionFilter = {
+      reaction: includePendingFriends
+        ? { $in: [FriendRequestReaction.Accepted, FriendRequestReaction.Pending] }
+        : FriendRequestReaction.Accepted,
+    };
+
     const results = await this.friendsModel.aggregate([
       {
         $match: {
@@ -125,7 +126,7 @@ export class FriendsService {
                 { to: new mongoose.Types.ObjectId(userId) },
               ],
             },
-            { reaction: friendRequestReaction },
+            friendReactionFilter,
           ],
         },
       },

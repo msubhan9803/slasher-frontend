@@ -273,12 +273,12 @@ describe('FriendsService', () => {
     it('finds the expected number of users when the requested number is higher than the number available, '
       + 'and does not incude passed-in user among the set', async () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
-        expect(suggestedFriends).toHaveLength(8); // because 2 accepted or 1 pending reaction
+        expect(suggestedFriends).toHaveLength(8); // 11 other users in the system, but 2 are friends and 1 is pending
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {
-      const suggestedFriends = await friendsService.getSuggestedFriends(user, 9);
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 8);
       expect(suggestedFriends).toHaveLength(8);
     });
 

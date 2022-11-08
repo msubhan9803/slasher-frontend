@@ -1,39 +1,64 @@
 import React from 'react';
 import { DateTime } from 'luxon';
+import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
 import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
   userName: string;
+  id: string;
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
   onPopoverClick: (value: string, content?:string, id?:string, userId?: string) => void;
+  detailPage: boolean | undefined
   content?: string;
-  id?: string;
   userId?: string;
   handlePopoverOption?: (id:string) => void
 }
 
 function PostHeader({
-  userName, postDate, profileImage, popoverOptions, onPopoverClick,
-  content, id, userId, handlePopoverOption,
+  id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
+  content, userId, handlePopoverOption,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
       <Col xs="auto">
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
-            <div className="rounded-circle">
-              <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
-            </div>
+            {detailPage
+              ? (
+                <div className="rounded-circle">
+                  <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
+                </div>
+              )
+              : (
+                <Link to={`/${userName}/posts/${id}`} className="text-decoration-none">
+                  <div className="rounded-circle">
+                    <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
+                  </div>
+                </Link>
+              )}
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
-            <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
-            <p className="mb-0 fs-6 text-light">
-              {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
-            </p>
+            {detailPage
+              ? (
+                <>
+                  <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+                  <p className="mb-0 fs-6 text-light">
+                    {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
+                  </p>
+                </>
+              )
+              : (
+                <Link to={`/${userName}/posts/${id}`} className="text-decoration-none">
+                  <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+                  <p className="mb-0 fs-6 text-light">
+                    {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
+                  </p>
+                </Link>
+              )}
           </Col>
         </Row>
       </Col>

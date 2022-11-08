@@ -39,10 +39,10 @@ function Profile() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="posts" replace />} />
-      <Route path="/posts" element={<ProfilePosts user={user} />} />
+      <Route path="/posts" element={<ProfilePosts />} />
       <Route path="/posts/:postId" element={<ProfilePostDetail user={user} />} />
       <Route path="/friends" element={<ProfileFriends user={user} />} />
-      <Route path="/friends/:id" element={<ProfileFriendRequest user={user} />} />
+      <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
       <Route path="/about" element={<ProfileAbout user={user} />} />
       <Route path="/photos" element={<ProfilePhotos user={user} />} />
       <Route path="/watched-list" element={<ProfileWatchList user={user} />} />

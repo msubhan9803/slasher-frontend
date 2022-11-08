@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
+import { addFriend, rejectFriendsRequest } from '../../api/friends';
 
 const ProfileImage = styled(Image)`
   height:6.25rem;
@@ -49,7 +50,7 @@ const slideFriendLeft = () => {
   }
 };
 function SuggestedFriend() {
-  const [friendListData, setFriendListData] = useState<string[]>();
+  const [friendListData, setFriendListData] = useState<any>();
 
   const getSuggestedFriends = () => {
     getSuggestFriends()
@@ -59,6 +60,25 @@ function SuggestedFriend() {
   useEffect(() => {
     getSuggestedFriends();
   }, []);
+
+  const addFriendClick = (userId: string) => {
+    addFriend(userId).then(() => {
+      const data = friendListData?.map((friend: any) => {
+        if (friend._id === userId) {
+          // eslint-disable-next-line no-param-reassign
+          friend.addFriend = true;
+        }
+        return friend;
+      });
+      setFriendListData(data);
+    });
+  };
+
+  const cancelFriendClick = (userId: string) => {
+    rejectFriendsRequest(userId).then(() => {
+      getSuggestedFriends();
+    });
+  };
 
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
@@ -85,12 +105,12 @@ function SuggestedFriend() {
                 </Link>
                 {user.addFriend
                   ? (
-                    <RoundButton variant="black" className="w-100 fs-3">
+                    <RoundButton variant="black" className="w-100 fs-3" onClick={() => cancelFriendClick(user._id)}>
                       Cancel Request
                     </RoundButton>
                   )
                   : (
-                    <RoundButton className="w-100 fs-3">
+                    <RoundButton className="w-100 fs-3" onClick={() => addFriendClick(user._id)}>
                       Add friend
                     </RoundButton>
                   )}

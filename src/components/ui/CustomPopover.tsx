@@ -2,9 +2,10 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, OverlayTrigger, Popover, Image,
+  OverlayTrigger, Popover, Image,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const UserCircle = styled(Image)`
   width: 2rem;
@@ -14,6 +15,7 @@ interface Props {
   popoverOptions: string[];
   onPopoverClick: (val: string, content?: string, id?: string, userId?: string) => void;
   userProfileIcon?: string;
+  userName?: string;
   content?: string;
   id?: string;
   userId?: string;
@@ -75,14 +77,16 @@ function CustomPopover({
     <StyledPopover>
       <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
         {userProfileIcon ? (
-          <Button variant="link" className="bg-transparent shadow-none border-0 pe-1 pt-1">
+          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
+          <Link to="" tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
             <UserCircle src={userProfileIcon} className="rounded-circle" />
-            <p className="mb-0 text-center mt-2 fs-6">Me</p>
-          </Button>
+            <p className="mb-0 mt-2 fs-6">Me</p>
+          </Link>
         ) : (
-          <Button variant="link" className="bg-transparent shadow-none border-0 pe-1" onClick={onHandleOption}>
+          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
+          <Link to="" tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1" onClick={onHandleOption}>
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-          </Button>
+          </Link>
         )}
       </OverlayTrigger>
     </StyledPopover>

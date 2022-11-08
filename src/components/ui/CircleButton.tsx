@@ -14,11 +14,19 @@ interface Props {
   variant: string;
   icon: IconDefinition;
   className?: string;
+  onAcceptRejectClick: (val: string) => void;
+  userId: string;
 }
 
-function CircleButton({ variant, icon, className }: Props) {
+function CircleButton({
+  variant, icon, className, onAcceptRejectClick, userId,
+}: Props) {
   return (
-    <CircleStyledButton variant={variant} className={`d-flex flex-row align-items-center justify-content-center rounded-5 ${className}`}>
+    <CircleStyledButton
+      onClick={() => onAcceptRejectClick(userId)}
+      variant={variant}
+      className={`d-flex flex-row align-items-center justify-content-center rounded-5 ${className}`}
+    >
       <FontAwesomeIcon icon={icon} />
     </CircleStyledButton>
   );

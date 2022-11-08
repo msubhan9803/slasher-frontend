@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
+import { useNavigate, useParams } from 'react-router-dom';
+import { userProfileFriends } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
-import ProfileHeader from '../ProfileHeader';
-import ReportModal from '../../../components/ui/ReportModal';
-import FriendsProfileCard from './FriendsProfileCard';
-import { userProfileFriends } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import ReportModal from '../../../components/ui/ReportModal';
+import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { User } from '../../../types';
-import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import ProfileHeader from '../ProfileHeader';
+import FriendsProfileCard from './FriendsProfileCard';
 
 interface FriendProps {
   _id?: string;
@@ -19,28 +20,38 @@ interface FriendProps {
   userName: string;
   profilePic: string;
 }
-
 interface Props {
   user: User
 }
 function ProfileFriends({ user }: Props) {
   const navigate = useNavigate();
+  const params = useParams();
   const [search, setSearch] = useState<string>('');
   const [show, setShow] = useState(false);
-  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
-  const [friendCount, setFriendCount] = useState<number>();
-  const [dropDownValue, setDropDownValue] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string[]>();
   const [page, setPage] = useState<number>(0);
-  const [noMoreData, setMoreData] = useState<boolean>(false);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [friendCount, setFriendCount] = useState<number>();
+  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
+  const [dropDownValue, setDropDownValue] = useState('');
+  const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
+  const loginUserName = Cookies.get('userName');
 
-  const popoverOption = ['View profile', 'Report', 'Block user'];
-  const handlePopoverOption = (value: string) => {
-    if (value === 'View profile') {
-      navigate('/profile/friends');
-    } else {
+  const friendsTabs = [
+    { value: '', label: 'All friends' },
+    { value: 'request', label: 'Friend requests', badge: 0 },
+  ];
+
+  useEffect(() => {
+    navigate(`/${params.userName}/friends`);
+  }, []);
+
+  const handlePopoverOption = (value: string, userName: string) => {
+    if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
+    } else if (value === 'View profile') {
+      navigate(`/${userName}/about`);
     }
   };
 
@@ -59,7 +70,7 @@ function ProfileFriends({ user }: Props) {
   }, [search]);
 
   const fetchMoreFriendList = () => {
-    if (!noMoreData) {
+    if (page > 0) {
       userProfileFriends(user.id, page, search)
         .then((res) => {
           setFriendsList((prev: any) => [
@@ -68,77 +79,73 @@ function ProfileFriends({ user }: Props) {
           ]);
           setPage(page + 1);
           if (res.data.friends.length === 0) {
-            setMoreData(true);
+            setNoMoreData(true);
           }
         });
     }
   };
+
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        friendsList.length === 0
+          ? 'No friends at the moment. Try sending or accepting some friend requests!'
+          : 'No more friends'
+      }
+    </p>
+  );
+
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
+    <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <ProfileHeader tabKey="friends" user={user} />
-      <div className="mt-2">
-        <div className="d-md-flex d-block justify-content-between">
+      <div className="mt-3">
+        <div className="d-sm-flex d-block justify-content-between">
           <div>
             <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
           </div>
           <div className="d-flex align-self-center mt-3 mt-md-0">
             {
               friendCount
-              && (
-                <p className="fs-3 text-primary me-3 my-auto">
-                  {friendCount}
-                  {' '}
-                  friends
-                </p>
-              )
+                ? (
+                  <p className="fs-3 text-primary me-3 my-auto">
+                    {friendCount}
+                    {' '}
+                    friends
+                  </p>
+                )
+                : ''
             }
           </div>
         </div>
-        {
-          friendsList.length > 0
-          && (
-            <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-              <InfiniteScroll
-                pageStart={0}
-                initialLoad={false}
-                loadMore={fetchMoreFriendList}
-                hasMore
-              >
-                <Row className="mt-2">
-                  {friendsList.map((friend: any) => (
-                    /* eslint no-underscore-dangle: 0 */
-                    <Col md={4} lg={6} xl={4} key={friend._id}>
-                      <FriendsProfileCard
-                        friend={friend}
-                        popoverOption={popoverOption}
-                        handlePopoverOption={handlePopoverOption}
-                      />
-                    </Col>
-                  ))}
-                </Row>
-              </InfiniteScroll>
+        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+          {loginUserName === user.userName
+            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad={false}
+            loadMore={fetchMoreFriendList}
+            hasMore={!noMoreData}
+          >
+            <Row className="mt-4">
+              {friendsList.map((friend: FriendProps) => (
+                /* eslint no-underscore-dangle: 0 */
+                <Col md={4} lg={6} xl={4} key={friend._id}>
+                  <FriendsProfileCard
+                    friend={friend}
+                    popoverOption={popoverOption}
+                    handlePopoverOption={handlePopoverOption}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </InfiniteScroll>
+          {noMoreData && renderNoMoreDataMessage()}
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
             </div>
-          )
-        }
-        {
-          friendsList.length === 0 && noMoreData
-          && (
-            <p className="mt-3">
-              No friends at the moment.  Try sending or accepting some friend requests!
-            </p>
-          )
-        }
-        {
-          friendsList.length === 0 && !noMoreData
-          && (
-            <LoadingIndicator />
-          )
-        }
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
-        )}
+          )}
+        </div>
       </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>

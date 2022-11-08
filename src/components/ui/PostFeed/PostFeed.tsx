@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Card, Col, Image, Row,
+  Card, Col, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
+import 'swiper/swiper-bundle.css';
 import PostFooter from './PostFooter';
+import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
+import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
-import { Post } from '../../../types';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -24,14 +26,12 @@ interface Props {
   isCommentSection?: boolean,
   onPopoverClick: (value: string, content?: string, id?:string, userId?: string) => void,
   handlePopoverOption?: (id:string) => void
+  detailPage?: boolean
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const PostImage = styled(Image)`
-  acpect-ratio: 1.9;
 `;
 const Content = styled.div`
   white-space: pre-line;
@@ -39,7 +39,6 @@ const Content = styled.div`
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
 `;
-
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -57,11 +56,13 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick, handlePopoverOption,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, handlePopoverOption, detailPage,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('imageId');
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -88,6 +89,8 @@ function PostFeed({
           <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
             <Card.Header className="border-0 px-0 bg-transparent">
               <PostHeader
+                detailPage={detailPage}
+                id={post.id}
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}
@@ -112,12 +115,17 @@ function PostFeed({
                   </span>
                 ))}
               </div>
-              {post?.postUrl?.[0] && (
-                <div className="mt-3">
-                  <Link to={`/${post.userName}/posts/${post.id}`}>
-                    <PostImage src={post?.postUrl[0].image_path} className="w-100" />
-                  </Link>
-                </div>
+              {post?.images && (
+                <CustomSwiper
+                  images={
+                    post.images.map((imageData: any) => ({
+                      imageUrl: imageData.image_path,
+                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                    }))
+                  }
+                  /* eslint no-underscore-dangle: 0 */
+                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                />
               )}
               <Row className="pt-3 px-md-3">
                 <Col>
@@ -180,6 +188,7 @@ function PostFeed({
 }
 PostFeed.defaultProps = {
   isCommentSection: false,
+  detailPage: false,
   handlePopoverOption: null,
 };
 export default PostFeed;

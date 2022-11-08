@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -7,9 +7,9 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { Post, User } from '../../../types';
+import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
 import { updateFeedPost } from '../../../api/feed-posts';
@@ -17,11 +17,25 @@ import { updateFeedPost } from '../../../api/feed-posts';
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
+const popoverOptions = ['Edit', 'Delete'];
+
 interface Props {
   user: User
 }
 
-function ProfilePosts({ user }: Props) {
+function ProfilePosts() {
+  const { userName } = useParams<string>();
+  const [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    if (userName) {
+      getUser(userName)
+        .then((res) => {
+          setUser(res.data);
+        });
+    }
+  }, [userName]);
+
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
@@ -52,9 +66,8 @@ function ProfilePosts({ user }: Props) {
   };
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalPosts && !loadingPosts && user) {
       setLoadingPosts(true);
-
       getProfilePosts(
         user.id,
         posts.length > 1 ? posts[posts.length - 1]._id : undefined,
@@ -86,7 +99,7 @@ function ProfilePosts({ user }: Props) {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, user]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -119,24 +132,26 @@ function ProfilePosts({ user }: Props) {
   const onUpdatePost = () => {
     updateFeedPost(postId, postContent).then(() => {
       setShowReportModal(false);
-      getProfilePosts(
-        user.id,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => (
-          {
-            /* eslint no-underscore-dangle: 0 */
-            _id: data._id,
-            id: data._id,
-            postDate: data.createdAt,
-            content: data.message,
-            images: data.images,
-            userName: data.userId.userName,
-            profileImage: data.userId.profilePic,
-            userId: data.userId._id,
-          }
-        ));
-        setPosts(newPosts);
-      });
+      if (user) {
+        getProfilePosts(
+          user.id,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              _id: data._id,
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              images: data.images,
+              userName: data.userId.userName,
+              profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+            }
+          ));
+          setPosts(newPosts);
+        });
+      }
     });
   };
 

@@ -81,13 +81,13 @@ export class FriendsService {
       .find({
         $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
       })
-      .populate('from', 'userName _id profilePic')
+      .populate('from', 'userName _id profilePic firstName')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(offset)
       .exec();
     const friendsData = friends.map((friend) => ({
-      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic,
+      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic, firstName: friend.from.firstName,
     })) as Partial<UserDocument[]>;
     return friendsData;
   }
@@ -157,7 +157,9 @@ export class FriendsService {
         userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
       ],
     }).limit(limit).skip(offset).sort({ userName: 1 })
-      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .select({
+ userName: 1, profilePic: 1, _id: 1, firstName: 1,
+})
       .exec();
 
     return {

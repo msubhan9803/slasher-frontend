@@ -69,16 +69,17 @@ const SwitchDiv = styled.div`
 interface Props {
   id: string,
   className?: string,
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void | undefined
+  isChecked?: boolean,
+  onSwitchToggle?: (e: React.ChangeEvent<HTMLInputElement>) => void | undefined,
 }
 
 function Switch({
-  id, className, onChange,
+  id, className, isChecked, onSwitchToggle,
 }: Props) {
   return (
     <SwitchDiv>
       <SwitchStyledLabel className={`switch ${className}`} htmlFor={id}>
-        <input type="checkbox" id={id} onChange={onChange} />
+        <input type="checkbox" id={id} onChange={onSwitchToggle} checked={isChecked} />
         <div className="slider round" />
       </SwitchStyledLabel>
     </SwitchDiv>
@@ -86,8 +87,9 @@ function Switch({
 }
 
 Switch.defaultProps = {
-  onChange: undefined,
   className: '',
+  isChecked: false,
+  onSwitchToggle: () => { },
 };
 
 export default Switch;

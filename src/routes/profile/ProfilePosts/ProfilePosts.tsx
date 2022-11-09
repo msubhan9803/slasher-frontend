@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -39,13 +38,11 @@ function ProfilePosts() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [postUserId, setPostUserId] = useState<string>('');
   const [messageContent, setMessageContent] = useState<string>('');
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [postId, setPostId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
 
   const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -105,11 +102,6 @@ function ProfilePosts() {
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
-  const handlePopoverOptionValue = (id: string) => {
-    if (id) {
-      setPostUserId(id);
-    }
-  };
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -118,29 +110,33 @@ function ProfilePosts() {
     }
   };
   const onUpdatePost = () => {
-    updateFeedPost(postId, postContent).then(() => {
+    if (postContent) {
+      updateFeedPost(postId, postContent).then(() => {
+        setShowReportModal(false);
+        if (user) {
+          getProfilePosts(
+            user.id,
+          ).then((res) => {
+            const newPosts = res.data.map((data: any) => (
+              {
+                /* eslint no-underscore-dangle: 0 */
+                _id: data._id,
+                id: data._id,
+                postDate: data.createdAt,
+                content: data.message,
+                images: data.images,
+                userName: data.userId.userName,
+                profileImage: data.userId.profilePic,
+                userId: data.userId._id,
+              }
+            ));
+            setPosts(newPosts);
+          });
+        }
+      });
+    } else {
       setShowReportModal(false);
-      if (user) {
-        getProfilePosts(
-          user.id,
-        ).then((res) => {
-          const newPosts = res.data.map((data: any) => (
-            {
-              /* eslint no-underscore-dangle: 0 */
-              _id: data._id,
-              id: data._id,
-              postDate: data.createdAt,
-              content: data.message,
-              images: data.images,
-              userName: data.userId.userName,
-              profileImage: data.userId.profilePic,
-              userId: data.userId._id,
-            }
-          ));
-          setPosts(newPosts);
-        });
-      }
-    });
+    }
   };
 
   return (
@@ -168,11 +164,10 @@ function ProfilePosts() {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={loginUserId === postUserId
-                ? loginUserPopoverOptions : otherUserPopoverOptions}
+              popoverOptions={loginUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
-              handlePopoverOption={handlePopoverOptionValue}
+              otherUserPopoverOptions={otherUserPopoverOptions}
             />
           )
         }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
@@ -30,8 +29,6 @@ function Home() {
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [content, setContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
-  const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
 
   const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -51,12 +48,6 @@ function Home() {
     if (text) {
       getSuggestUserName(text)
         .then((res) => setMentionList(res.data));
-    }
-  };
-
-  const handlePopoverOptionValue = (id: string) => {
-    if (id) {
-      setPostUserId(id);
     }
   };
 
@@ -124,23 +115,27 @@ function Home() {
   );
 
   const onUpdatePost = () => {
-    updateFeedPost(postId, postContent).then(() => {
-      setShow(false);
-      getHomeFeedPosts().then((res) => {
-        const newPosts = res.data.map((data: any) => ({
-          /* eslint no-underscore-dangle: 0 */
-          _id: data._id,
-          id: data._id,
-          postDate: data.createdAt,
-          content: data.message,
-          postUrl: data.images,
-          userName: data.userId.userName,
-          profileImage: data.userId.profilePic,
-          userId: data.userId.userId,
-        }));
-        setPosts(newPosts);
+    if (postContent) {
+      updateFeedPost(postId, postContent || content).then(() => {
+        setShow(false);
+        getHomeFeedPosts().then((res) => {
+          const newPosts = res.data.map((data: any) => ({
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId.userId,
+          }));
+          setPosts(newPosts);
+        });
       });
-    });
+    } else {
+      setShow(false);
+    }
   };
 
   return (
@@ -164,11 +159,10 @@ function Home() {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={loginUserId === postUserId
-                ? loginUserPopoverOptions : otherUserPopoverOptions}
+              popoverOptions={loginUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
-              handlePopoverOption={handlePopoverOptionValue}
+              otherUserPopoverOptions={otherUserPopoverOptions}
             />
           )
         }

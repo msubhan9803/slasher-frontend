@@ -52,7 +52,7 @@ function EditPostModal({
           defaultValue={content}
         />
         <div className="d-flex flex-wrap justify-content-between">
-          <RoundButton className="px-4 mt-4" size="md" onClick={closeModal}>
+          <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>
             <span className="h3">Cancel</span>
           </RoundButton>
           <RoundButton className="px-4 mt-4" size="md" onClick={onUpdatePost}>

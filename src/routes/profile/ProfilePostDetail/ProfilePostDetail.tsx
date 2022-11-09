@@ -1,4 +1,3 @@
-import Cookies from 'js-cookie';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { updateFeedPost } from '../../../api/feed-posts';
@@ -28,8 +27,6 @@ function ProfilePostDetail({ user }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const [postUserId, setPostUserId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
@@ -75,12 +72,6 @@ function ProfilePostDetail({ user }: Props) {
     }
   }, [postId, user]);
 
-  const handlePopoverOptionValue = (id: string) => {
-    if (id) {
-      setPostUserId(id);
-    }
-  };
-
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -90,7 +81,7 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   const onUpdatePost = () => {
-    if (postId) {
+    if (postId && postContent) {
       updateFeedPost(postId, postContent).then(() => {
         setShow(false);
         feedPostDetail(postId)
@@ -119,6 +110,8 @@ function ProfilePostDetail({ user }: Props) {
             setErrorMessage(error.response.data.message);
           });
       });
+    } else {
+      setShow(false);
     }
   };
 
@@ -131,11 +124,10 @@ function ProfilePostDetail({ user }: Props) {
       )}
       <PostFeed
         postFeedData={postData}
-        popoverOptions={loginUserId === postUserId
-          ? loginUserPopoverOptions : otherUserPopoverOptions}
+        popoverOptions={loginUserPopoverOptions}
         isCommentSection={false}
         onPopoverClick={handlePopoverOption}
-        handlePopoverOption={handlePopoverOptionValue}
+        otherUserPopoverOptions={otherUserPopoverOptions}
       />
       {dropDownValue !== 'Edit'
       && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}

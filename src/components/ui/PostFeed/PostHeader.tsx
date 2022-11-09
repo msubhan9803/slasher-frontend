@@ -15,12 +15,11 @@ interface PostHeaderProps {
   detailPage: boolean | undefined
   content?: string;
   userId?: string;
-  handlePopoverOption?: (id:string) => void
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, handlePopoverOption,
+  content, userId,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -69,7 +68,6 @@ function PostHeader({
           content={content}
           id={id}
           userId={userId}
-          handlePopoverOption={handlePopoverOption}
         />
       </Col>
     </Row>
@@ -79,7 +77,6 @@ function PostHeader({
 PostHeader.defaultProps = {
   content: null,
   userId: null,
-  handlePopoverOption: null,
 };
 
 export default PostHeader;

@@ -8,6 +8,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
+import Cookies from 'js-cookie';
 import PostFooter from './PostFooter';
 import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
@@ -26,8 +27,8 @@ interface Props {
   postFeedData: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string, popoverClickProps : PopoverClickProps) => void,
-  handlePopoverOption?: (id:string) => void
   detailPage?: boolean
+  otherUserPopoverOptions?: string[]
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -57,13 +58,15 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick, handlePopoverOption, detailPage,
+  postFeedData, popoverOptions, isCommentSection,
+  onPopoverClick, detailPage, otherUserPopoverOptions,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
+  const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -95,11 +98,11 @@ function PostFeed({
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}
-                popoverOptions={popoverOptions}
+                popoverOptions={post.userId && loginUserId !== post.userId
+                  ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
-                handlePopoverOption={handlePopoverOption}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
@@ -189,6 +192,6 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
-  handlePopoverOption: null,
+  otherUserPopoverOptions: [],
 };
 export default PostFeed;

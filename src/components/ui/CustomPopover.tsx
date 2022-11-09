@@ -19,7 +19,6 @@ interface Props {
   content?: string;
   id?: string;
   userId?: string;
-  handlePopoverOption?: (id:string) => void
 }
 
 export interface PopoverClickProps {
@@ -59,7 +58,7 @@ const PopoverText = styled.p`
 
 function CustomPopover({
   popoverOptions, onPopoverClick, userProfileIcon,
-  content, id, userId, handlePopoverOption, userName,
+  content, id, userId, userName,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -84,12 +83,6 @@ function CustomPopover({
     </Custompopover>
   );
 
-  const onHandleOption = () => {
-    if (handlePopoverOption) {
-      handlePopoverOption(userId || '');
-    }
-  };
-
   return (
     <StyledPopover>
       <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
@@ -101,7 +94,7 @@ function CustomPopover({
           </Link>
         ) : (
           /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-          <Link to="" tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1" onClick={onHandleOption}>
+          <Link to="" tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
           </Link>
         )}
@@ -115,7 +108,6 @@ CustomPopover.defaultProps = {
   content: null,
   id: null,
   userId: null,
-  handlePopoverOption: null,
   userName: null,
 };
 

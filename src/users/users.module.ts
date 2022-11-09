@@ -9,6 +9,7 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { User, UserSchema } from '../schemas/user/user.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
+import { UserSettingModule } from '../settings/user-settings.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FeedPostsModule } from '../feed-posts/feed-posts.module';
     FeedPostsModule,
     NotificationsModule,
     FriendsModule,
+    UserSettingModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, MailService, LocalStorageService, S3StorageService],

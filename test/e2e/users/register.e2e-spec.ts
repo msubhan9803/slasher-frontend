@@ -9,11 +9,13 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { MailService } from '../../../src/providers/mail.service';
+import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let userSettingsService: UserSettingsService;
   let mailService: MailService;
 
   const sampleUserRegisterObject = {
@@ -34,6 +36,7 @@ describe('Users / Register (e2e)', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
@@ -64,6 +67,7 @@ describe('Users / Register (e2e)', () => {
           .expect(HttpStatus.CREATED);
         const registeredUser = await usersService.findById(response.body.id);
 
+        expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
         expect(postBody.email).toEqual(registeredUser.email);

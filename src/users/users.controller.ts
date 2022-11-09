@@ -50,6 +50,7 @@ import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder }
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { UserSettingsService } from '../settings/providers/user-settings.service';
 
 @Controller('users')
 export class UsersController {
@@ -61,6 +62,7 @@ export class UsersController {
     private readonly s3StorageService: S3StorageService,
     private readonly feedPostsService: FeedPostsService,
     private readonly friendsService: FriendsService,
+    private readonly userSettingsService: UserSettingsService,
   ) { }
 
   @Post('sign-in')
@@ -192,6 +194,10 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
+
+    // Create associated UserSetting record with default values
+    await this.userSettingsService.create({ userId: registeredUser.id });
+
     await this.mailService.sendVerificationEmail(
       registeredUser.email,
       registeredUser.verification_token,

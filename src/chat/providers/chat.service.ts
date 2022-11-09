@@ -6,6 +6,11 @@ import { MatchListRoomCategory, MatchListRoomType } from '../../schemas/matchLis
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 
+export interface Conversation extends MatchList {
+  latestMessage: Message;
+  unreadCount: number;
+}
+
 @Injectable()
 export class ChatService {
   constructor(
@@ -60,14 +65,14 @@ export class ChatService {
 
     if (before) {
       const beforeMessage = await this.messageModel.findById(before).exec();
-      beforeCreatedAt = beforeMessage.createdAt;
+      beforeCreatedAt = { $lt: beforeMessage.createdAt };
     }
 
     const messages = await this.messageModel
       .find({
         $and: [
           ...where,
-          before ? { createdAt: { $lt: { beforeCreatedAt } } } : {},
+          before ? { createdAt: beforeCreatedAt } : {},
         ],
       })
       .sort({ createdAt: -1 })
@@ -77,20 +82,54 @@ export class ChatService {
     return messages;
   }
 
-  async getConversations(userId: string, limit: number, before?: string): Promise<MatchList[]> {
+  async getConversations(userId: string, limit: number, before?: string): Promise<Conversation[]> {
     let beforeUpdatedAt;
 
     if (before) {
       const beforeMatchList = await this.matchListModel.findById(before).exec();
-      beforeUpdatedAt = beforeMatchList.updatedAt;
+      beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
-    const matchLists = await this.matchListModel.find({
-      $and: [
-        { participants: new mongoose.Types.ObjectId(userId) },
-        before ? { updatedAt: { $lt: beforeUpdatedAt } } : {},
-      ],
-    }).sort({ updatedAt: -1 }).limit(limit).exec();
+    const matchLists = await this.matchListModel
+      .find({
+        $and: [
+          { participants: new mongoose.Types.ObjectId(userId) },
+          before ? { updatedAt: beforeUpdatedAt } : {},
+        ],
+      })
+      .lean()
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .exec();
 
-    return matchLists;
+    const conversations = matchLists.map(async (matchList: MatchList) => {
+      const latestMessage = await this.messageModel
+        .findOne({
+          $and: [
+            { matchId: matchList._id },
+            { deleted: false },
+          ],
+        })
+        .populate('fromId', 'userName _id profilePic')
+        .populate('senderId', 'userName _id profilePic')
+        .sort({ createdAt: -1 })
+        .exec();
+      const unreadCount = await this.messageModel
+        .find({
+          $and: [
+            { matchId: matchList._id },
+            { isRead: false },
+          ],
+        })
+        .count()
+        .exec();
+
+      return {
+        ...matchList,
+        latestMessage,
+        unreadCount,
+      };
+    });
+
+    return Promise.all(conversations);
   }
 }

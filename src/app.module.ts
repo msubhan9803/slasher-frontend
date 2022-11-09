@@ -81,7 +81,6 @@ export class AppModule {
         '/users/validate-password-reset-token',
         'users/check-email',
         '/users/verification-email-not-received',
-        '/chat/conversations',
       )
       .forRoutes('*');
   }

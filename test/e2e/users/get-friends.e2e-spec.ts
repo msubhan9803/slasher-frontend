@@ -88,19 +88,31 @@ describe('Get All Friends (e2e)', () => {
         expect(response.body.friends).toEqual([
           {
             // Abe Kenobi
-            userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user2.firstName,
+            userName: user2.userName,
+            _id: user2._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             // Albert DARTH Skywalker
-            userName: user1.userName, _id: user1._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user1.firstName,
+            userName: user1.userName,
+            _id: user1._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             // Darth Maul
-            userName: user5.userName, _id: user5._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user5.firstName,
+            userName: user5.userName,
+            _id: user5._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             // Darth Vader
-            userName: user3.userName, _id: user3._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user3.firstName,
+            userName: user3.userName,
+            _id: user3._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);
       });
@@ -116,7 +128,12 @@ describe('Get All Friends (e2e)', () => {
         expect(response.body.allFriendCount).toBe(4);
         expect(response.body.friends).toEqual([
           // Darth Maul
-          { userName: user5.userName, _id: user5._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
+          {
+            firstName: user5.firstName,
+            userName: user5.userName,
+            _id: user5._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
         ]);
       });
     });
@@ -136,14 +153,21 @@ describe('Get All Friends (e2e)', () => {
         expect(response.body.friends).toEqual([
           {
             // Abe Kenobi
-            userName: user2.userName, _id: user2._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user2.firstName,
+            userName: user2.userName,
+            _id: user2._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             // Princess Leia
-            userName: user4.userName, _id: user4._id.toString(), profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: user4.firstName,
+            userName: user4.userName,
+            _id: user4._id.toString(),
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
             // Star Wars Fan
+            firstName: activeUser.firstName,
             userName: activeUser.userName,
             _id: activeUser._id.toString(),
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -162,6 +186,7 @@ describe('Get All Friends (e2e)', () => {
         expect(response.body.allFriendCount).toBe(3);
         expect(response.body.friends).toEqual([
           {
+            firstName: user2.firstName,
             userName: user2.userName, // Abe Kenobi
             _id: user2._id.toString(),
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',

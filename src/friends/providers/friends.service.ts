@@ -81,13 +81,13 @@ export class FriendsService {
       .find({
         $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
       })
-      .populate('from', 'userName _id profilePic')
+      .populate('from', 'userName _id profilePic firstName')
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(offset)
       .exec();
     const friendsData = friends.map((friend) => ({
-      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic,
+      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic, firstName: friend.from.firstName,
     })) as Partial<UserDocument[]>;
     return friendsData;
   }
@@ -105,10 +105,17 @@ export class FriendsService {
   }
 
   /**
-   * For the given user, returns an array of ObjectIds for that user's friends.
+   * For the given user, returns an array of ObjectIds for that user's friends (and optionally,
+   * pending friends from sent or received friend requests).
    * Note: This methon can return a lot of results (thousands) if the user has a lot of friends.
    */
-  async getFriendIds(userId: string) {
+  async getFriendIds(userId: string, includePendingFriends = false) {
+    const friendReactionFilter = {
+      reaction: includePendingFriends
+        ? { $in: [FriendRequestReaction.Accepted, FriendRequestReaction.Pending] }
+        : FriendRequestReaction.Accepted,
+    };
+
     const results = await this.friendsModel.aggregate([
       {
         $match: {
@@ -119,7 +126,7 @@ export class FriendsService {
                 { to: new mongoose.Types.ObjectId(userId) },
               ],
             },
-            { reaction: FriendRequestReaction.Accepted },
+            friendReactionFilter,
           ],
         },
       },
@@ -150,7 +157,9 @@ export class FriendsService {
         userNameContains ? { userName: new RegExp(escapeStringForRegex(userNameContains), 'i') } : {},
       ],
     }).limit(limit).skip(offset).sort({ userName: 1 })
-      .select({ userName: 1, profilePic: 1, _id: 1 })
+      .select({
+        userName: 1, profilePic: 1, _id: 1, firstName: 1,
+      })
       .exec();
 
     return {
@@ -160,7 +169,7 @@ export class FriendsService {
   }
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
-    const friendIds = await this.getFriendIds(user._id);
+    const friendIds = await this.getFriendIds(user._id, true);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
@@ -191,5 +200,15 @@ export class FriendsService {
 
     friendRequest.reaction = FriendRequestReaction.Accepted;
     await friendRequest.save();
+  }
+
+  async getReceivedFriendRequestCount(userId: string): Promise<number> {
+    const friendsCount = await this.friendsModel
+        .find({
+          $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
+        })
+        .count()
+        .exec();
+    return friendsCount;
   }
 }

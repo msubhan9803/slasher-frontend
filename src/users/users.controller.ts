@@ -50,6 +50,7 @@ import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder }
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { UserSettingsService } from '../settings/providers/user-settings.service';
 
 @Controller('users')
 export class UsersController {
@@ -61,6 +62,7 @@ export class UsersController {
     private readonly s3StorageService: S3StorageService,
     private readonly feedPostsService: FeedPostsService,
     private readonly friendsService: FriendsService,
+    private readonly userSettingsService: UserSettingsService,
   ) { }
 
   @Post('sign-in')
@@ -192,6 +194,10 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
+
+    // Create associated UserSetting record with default values
+    await this.userSettingsService.create({ userId: registeredUser.id });
+
     await this.mailService.sendVerificationEmail(
       registeredUser.email,
       registeredUser.verification_token,
@@ -226,7 +232,7 @@ export class UsersController {
     userDetails.setUnhashedPassword(resetPasswordDto.newPassword);
     userDetails.resetPasswordToken = null;
     userDetails.lastPasswordResetTime = new Date();
-    userDetails.save();
+    await userDetails.save();
     return {
       message: 'Password reset successfully',
     };
@@ -246,7 +252,7 @@ export class UsersController {
     );
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
-    userDetails.save();
+    await userDetails.save();
     return {
       success: true,
     };
@@ -297,14 +303,16 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.friendRequests[*].profilePic')
+  @TransformImageUrls('$.recentFriendRequests[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
+    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
     return {
+      userId: user.id,
       userName: user.userName,
-      notificationCount: 6,
+      unreadNotificationCount: 6,
       recentMessages: [
         {
           profilePic: 'https://i.pravatar.cc/300?img=47',
@@ -325,7 +333,8 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
-      friendRequests: receivedFriendRequestsData,
+      friendRequestCount,
+      recentFriendRequests: receivedFriendRequestsData,
     };
   }
 

@@ -264,6 +264,7 @@ describe('FriendsService', () => {
 
       await friendsService.createFriendRequest(user._id.toString(), user1._id.toString());
       await friendsService.createFriendRequest(user2._id.toString(), user._id.toString());
+      await friendsService.createFriendRequest(user3._id.toString(), user._id.toString());
 
       await friendsService.acceptFriendRequest(user._id.toString(), user1._id.toString());
       await friendsService.acceptFriendRequest(user2._id.toString(), user._id.toString());
@@ -272,13 +273,13 @@ describe('FriendsService', () => {
     it('finds the expected number of users when the requested number is higher than the number available, '
       + 'and does not incude passed-in user among the set', async () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
-        expect(suggestedFriends).toHaveLength(9); // but there should only be 9 returned
+        expect(suggestedFriends).toHaveLength(8); // 11 other users in the system, but 2 are friends and 1 is pending
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {
-      const suggestedFriends = await friendsService.getSuggestedFriends(user, 9);
-      expect(suggestedFriends).toHaveLength(9);
+      const suggestedFriends = await friendsService.getSuggestedFriends(user, 8);
+      expect(suggestedFriends).toHaveLength(8);
     });
 
     it('returns the expected number of users when the requested number is lower than the number available', async () => {
@@ -305,6 +306,23 @@ describe('FriendsService', () => {
 
     it('returns the expected response for two user who have no friend request between them', async () => {
       await expect(friendsService.acceptFriendRequest(user1.id, user2.id)).rejects.toThrow('No pending friend request');
+    });
+  });
+
+  describe('#getReceivedFriendRequestCount', () => {
+    beforeEach(async () => {
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.createFriendRequest(user3.id, user0.id);
+    });
+
+    it('finds the expected number of friend records representing friend request count', async () => {
+      expect(
+        await friendsService.getReceivedFriendRequestCount(user0.id),
+      ).toBe(2);
+    });
+
+    it('when userId has no any received requests', async () => {
+      expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
     });
   });
 });

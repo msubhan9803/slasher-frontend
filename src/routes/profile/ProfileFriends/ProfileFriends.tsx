@@ -13,6 +13,7 @@ import { User } from '../../../types';
 import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface FriendProps {
   _id?: string;
@@ -37,17 +38,18 @@ function ProfileFriends({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
-    { value: 'request', label: 'Friend requests', badge: 0 },
+    { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
   useEffect(() => {
     navigate(`/${params.userName}/friends`);
   }, []);
 
-  const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);

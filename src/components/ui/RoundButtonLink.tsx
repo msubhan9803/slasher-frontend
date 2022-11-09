@@ -8,7 +8,7 @@ const StyledLink = styled(Link)`
 
 interface Props {
   children: React.ReactNode;
-  className: string;
+  className?: string;
   variant: string;
   to: string;
   size?: string | null;
@@ -28,6 +28,7 @@ function RoundButtonLink({
 RoundButtonLink.defaultProps = {
   size: null,
   state: null,
+  className: '',
 };
 
 export default RoundButtonLink;

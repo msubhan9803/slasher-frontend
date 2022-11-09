@@ -18,11 +18,11 @@ const StyledPopover = styled.div`
   top: 25px;
   right: 8px;
 `;
-export interface UserPhotos {
+interface UserPhotos {
   id: string;
   imagesList: ImageList[]
 }
-export interface ImageList {
+interface ImageList {
   image_path: string;
   _id: string;
 }
@@ -108,7 +108,7 @@ function ProfilePhotos({ user }: Props) {
           loadMore={() => { setRequestAdditionalPhotos(true); }}
           hasMore={!noMoreData}
         >
-          <Row className="justify-content-between">
+          <Row>
             {userPhotosList.map((data: UserPhotos) => (
               data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>

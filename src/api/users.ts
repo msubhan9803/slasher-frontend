@@ -155,7 +155,7 @@ export async function userPhotos(id: string, lastRetrievedPostId?: string, limit
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = `?limit=${limit ? limit : '10'}`;
+  let queryParameter = `?limit=${limit || '10'}`;
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }

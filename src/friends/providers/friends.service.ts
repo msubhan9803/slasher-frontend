@@ -158,8 +158,8 @@ export class FriendsService {
       ],
     }).limit(limit).skip(offset).sort({ userName: 1 })
       .select({
- userName: 1, profilePic: 1, _id: 1, firstName: 1,
-})
+        userName: 1, profilePic: 1, _id: 1, firstName: 1,
+      })
       .exec();
 
     return {
@@ -200,5 +200,15 @@ export class FriendsService {
 
     friendRequest.reaction = FriendRequestReaction.Accepted;
     await friendRequest.save();
+  }
+
+  async getReceivedFriendRequestCount(userId: string): Promise<number> {
+    const friendsCount = await this.friendsModel
+        .find({
+          $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
+        })
+        .count()
+        .exec();
+    return friendsCount;
   }
 }

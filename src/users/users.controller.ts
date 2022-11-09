@@ -308,6 +308,7 @@ export class UsersController {
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
+    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
     return {
       userId: user.id,
       userName: user.userName,
@@ -332,6 +333,7 @@ export class UsersController {
             + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
         },
       ],
+      friendRequestCount,
       recentFriendRequests: receivedFriendRequestsData,
     };
   }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import CircleButton from '../../../components/ui/CircleButton';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -15,16 +16,21 @@ function FriendsProfileCard({
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>
         <div className="d-flex align-items-center">
-          <div>
-            <UserCircleImage src={friend.profilePic} className="me-2" />
-          </div>
-          <div className="d-grid">
-            <h1 className="h3 mb-0 text-truncate">{friend.userName}</h1>
-            <p className="fs-6 mb-0 text-light text-truncate">
-              @
-              {friend.userName}
-            </p>
-          </div>
+          <Link to={`/${friend.userName}/about`} className="text-decoration-none">
+            <div>
+              <UserCircleImage src={friend.profilePic} className="me-2" />
+            </div>
+          </Link>
+
+          <Link to={`/${friend.userName}/about`} className="text-decoration-none">
+            <div className="d-grid">
+              <h1 className="h3 mb-0 text-truncate">{friend.firstName}</h1>
+              <p className="fs-6 mb-0 text-light text-truncate">
+                @
+                {friend.userName}
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
       <div className="d-flex align-self-center">

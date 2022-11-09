@@ -194,11 +194,10 @@ export class UsersController {
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
     const registeredUser = await this.usersService.create(user);
-    const userSettingData = {
-      ...registeredUser,
-      userId: registeredUser.id,
-    };
-    await this.userSettingsService.create(userSettingData);
+
+    // Create associated UserSetting record with default values
+    await this.userSettingsService.create({ userId: registeredUser.id });
+
     await this.mailService.sendVerificationEmail(
       registeredUser.email,
       registeredUser.verification_token,

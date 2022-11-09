@@ -14,6 +14,7 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -51,6 +52,7 @@ import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { UserSettingsService } from '../settings/providers/user-settings.service';
+import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
 
 @Controller('users')
 export class UsersController {
@@ -491,5 +493,40 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts;
+  }
+
+  @Delete('delete-account')
+  async deleteAccount(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException(
+        'Supplied userId does not match current user\'s id.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // TODO: Delete all friend collection records where friend.to === user.id OR friend.from === user.id
+    // This is to remove all friendships and pending friend requests related to this user.
+    await this.friendsService.deleteAllFriendRequest(user.id);
+
+    // Mark user as deleted
+    user.deleted = true;
+
+    // Change user's password to a new random value, to ensure that current session is invalidated
+    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
+    user.setUnhashedPassword(uuidv4()); // uuidv4 is available via: import { v4 as uuidv4 } from 'uuid';
+
+    // Save changes to user object
+    await user.save();
+
+    return {
+      success: true,
+    };
   }
 }

@@ -325,4 +325,25 @@ describe('FriendsService', () => {
       expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
     });
   });
+
+  describe('#deleteAllFriendRequest', () => {
+    beforeEach(async () => {
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.createFriendRequest(user3.id, user0.id);
+      await friendsService.createFriendRequest(user0.id, user1.id);
+    });
+
+    it('delete the friend request data successful of passed userId', async () => {
+      await friendsService.deleteAllFriendRequest(user0.id);
+      expect(
+        await friendsModel.find({
+          $or: [
+            { from: user0.id },
+            { to: user0.id },
+          ],
+        })
+        .exec(),
+      ).toHaveLength(0);
+    });
+  });
 });

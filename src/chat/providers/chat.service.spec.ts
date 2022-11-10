@@ -17,8 +17,10 @@ describe('ChatService', () => {
   let usersService: UsersService;
   let user0: UserDocument;
   let user1: UserDocument;
+  let user2: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
+  let message: Message;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -43,6 +45,7 @@ describe('ChatService', () => {
     await connection.dropDatabase();
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+    user2 = await usersService.create(userFactory.build({ userName: 'Test' }));
   });
 
   it('should be defined', () => {
@@ -50,43 +53,142 @@ describe('ChatService', () => {
   });
 
   describe('#sendPrivateDirectMessage', () => {
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+    });
+
     it('successfully sends a message from one user to another user', async () => {
-      const testMessage = 'Hi, test message.';
-      const message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, testMessage);
       const messageData = await messageModel.findById(message._id);
 
-      expect(messageData.message).toBe(testMessage);
+      expect(messageData.message).toBe('Hi, test message.');
     });
 
     it('successfully sends an image message', async () => {
       const testMessage = 'Hi, test message.';
       const image = 'noUser.jpg';
-      const message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, testMessage, image);
-      const messageData = await messageModel.findById(message._id);
+      const message1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, testMessage, image);
+      const messageData = await messageModel.findById(message1._id);
 
       expect(messageData.message).toBe('Image');
     });
   });
 
   describe('#getMessages', () => {
+    let message1;
+    beforeEach(async () => {
+      matchListModel.create = jest.fn().mockImplementationOnce(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      })).mockImplementationOnce(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      })).mockImplementation(() => ({
+        _id: '5dbff32e367a343830cd2f49',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      }));
+      matchListModel.updateOne = jest.fn().mockImplementation(() => ({}));
+      matchListModel.findOne = jest.fn().mockImplementation(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      }));
+      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+      message1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      await chatService.sendPrivateDirectMessage(user2.id, user0.id, 'Hi, Test!');
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
     it('successfully returns some messages that are parth of a conversation', async () => {
       const limit = 5;
-      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
-      await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
-      const matchList = await matchListModel.findOne();
-      const messages = await chatService.getMessages(matchList.id, user0.id, limit);
+      const matchList = await matchListModel.findOne({
+        participants: user1.id,
+      });
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit);
 
-      expect(messages).toHaveLength(2);
+      expect(messages).toHaveLength(3);
     });
 
     it('successfully returns messages when before specified', async () => {
       const limit = 5;
-      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
-      const message = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
-      const matchList = await matchListModel.findOne();
-      const messages = await chatService.getMessages(matchList.id, user0.id, limit, message._id.toString());
+      // await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      const matchList = await matchListModel.findOne({
+        participants: user1.id,
+      });
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit, message1._id.toString());
 
       expect(messages).toHaveLength(1);
+    });
+  });
+
+  describe('#getConversations', () => {
+    beforeEach(async () => {
+      matchListModel.create = jest.fn().mockImplementationOnce(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      })).mockImplementationOnce(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      })).mockImplementation(() => ({
+        _id: '5dbff32e367a343830cd2f49',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      }));
+      matchListModel.updateOne = jest.fn().mockImplementation(() => ({}));
+      matchListModel.findOne = jest.fn().mockImplementation(() => ({
+        _id: '5dbff89209dee20b18091ec3',
+        updatedAt: Date.now(),
+        createdAt: Date.now(),
+      }));
+      await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Test data');
+      await chatService.sendPrivateDirectMessage(user2.id, user1.id, 'Test 123');
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('successfully returns a list of convesations for a user', async () => {
+      matchListModel.aggregate = jest.fn().mockImplementation(() => ([{
+        _id: '5dbff32e367a343830cd2f49',
+        latestMessage: [{
+          message: 'Test data',
+        }],
+      }, {
+        _id: '5dbff89209dee20b18091ec3',
+        latestMessage: [{
+          message: 'Test 123',
+        }],
+      }]));
+      const conversations = await chatService.getConversations(user0.id, 5);
+
+      expect(conversations).toHaveLength(2);
+      expect(conversations[0].latestMessage[0].message).toBe('Test data');
+      expect(conversations[1].latestMessage[0].message).toBe('Test 123');
+    });
+
+    it('successfully returns a list of conversations when before specified', async () => {
+      matchListModel.aggregate = jest.fn().mockImplementation(() => ([{
+        _id: '5dbff89209dee20b18091ec3',
+        latestMessage: [{
+          message: 'Test 123',
+        }],
+      }]));
+      const matchList = await matchListModel.findOne({
+        participants: user2.id,
+      });
+      const conversations = await chatService.getConversations(user1.id, 5, matchList.id);
+
+      expect(conversations).toHaveLength(1);
+      expect(conversations[0].latestMessage[0].message).toBe('Test 123');
     });
   });
 });

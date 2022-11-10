@@ -20,23 +20,20 @@ export class ChatService {
 
   async sendPrivateDirectMessage(fromUser: string, toUser: string, message: string, image?: string): Promise<Message> {
     const participants = [new mongoose.Types.ObjectId(fromUser), new mongoose.Types.ObjectId(toUser)];
-    const insertData = {
-      participants,
-      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-      roomType: MatchListRoomType.Match,
-      roomCategory: MatchListRoomCategory.DirectMessage,
-    };
-    const filter = {
-      participants: {
-        $all: [
-          { $elemMatch: { $eq: new mongoose.Types.ObjectId(fromUser) } },
-          { $elemMatch: { $eq: new mongoose.Types.ObjectId(toUser) } },
-        ],
-      },
-    };
-    const matchList = await this.matchListModel
-      .findOneAndUpdate(filter, insertData, { new: true, upsert: true })
-      .exec();
+    let matchList = await this.matchListModel
+      .findOne({
+        participants: { $all: participants },
+      });
+
+    if (!matchList) {
+      const insertData = {
+        participants,
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+      };
+      matchList = await this.matchListModel.create(insertData);
+    }
     const messageInfo = await this.messageModel.create({
       matchId: matchList,
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
@@ -45,7 +42,7 @@ export class ChatService {
       message: image ? 'Image' : message,
       image,
     });
-    await matchList.update();
+    await this.matchListModel.updateOne({ _id: matchList._id }, { $set: { updatedAt: Date.now() } });
 
     return messageInfo;
   }
@@ -89,47 +86,63 @@ export class ChatService {
       const beforeMatchList = await this.matchListModel.findById(before).exec();
       beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
-    const matchLists = await this.matchListModel
-      .find({
-        $and: [
-          { participants: new mongoose.Types.ObjectId(userId) },
-          before ? { updatedAt: beforeUpdatedAt } : {},
-        ],
-      })
-      .lean()
-      .sort({ updatedAt: -1 })
-      .limit(limit)
-      .exec();
-
-    const conversations = matchLists.map(async (matchList: MatchList) => {
-      const latestMessage = await this.messageModel
-        .findOne({
+    const conversations = await this.matchListModel.aggregate([
+      {
+        $match: {
           $and: [
-            { matchId: matchList._id },
-            { deleted: false },
+            { participants: new mongoose.Types.ObjectId(userId) },
+            before ? { updatedAt: beforeUpdatedAt } : {},
           ],
-        })
-        .populate('fromId', 'userName _id profilePic')
-        .populate('senderId', 'userName _id profilePic')
-        .sort({ createdAt: -1 })
-        .exec();
-      const unreadCount = await this.messageModel
-        .find({
-          $and: [
-            { matchId: matchList._id },
-            { isRead: false },
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          let: { local_id: '$_id' },
+          as: 'latestMessage',
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$$local_id', '$matchId'] },
+                    { deleted: false },
+                  ],
+                },
+              },
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: 1 },
           ],
-        })
-        .count()
-        .exec();
+        },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          let: { local_id: '$_id' },
+          as: 'unreadCount',
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$$local_id', '$matchId'] },
+                    { isRead: false },
+                  ],
+                },
+              },
+            },
+            { $count: 'count' },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          unreadCount: { $sum: '$unreadCount.count' },
+        },
+      },
+    ]);
 
-      return {
-        ...matchList,
-        latestMessage,
-        unreadCount,
-      };
-    });
-
-    return Promise.all(conversations);
+    return conversations;
   }
 }

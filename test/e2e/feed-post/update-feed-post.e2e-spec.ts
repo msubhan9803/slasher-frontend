@@ -18,12 +18,13 @@ describe('Update Feed Post (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let user1: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
 
   const sampleFeedPostObject = {
-    message: 'hello all tet user upload your feed post',
+    message: 'hello all test user upload your feed post',
   };
 
   beforeAll(async () => {
@@ -47,6 +48,7 @@ describe('Update Feed Post (e2e)', () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
     activeUser = await usersService.create(userFactory.build());
+    user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -69,6 +71,32 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body.message).toContain(feedPostDetails.message);
     });
+
+    it('when userId is not match than expected feed post response', async () => {
+      const feedPostDetails = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user1._id,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/feed-posts/${feedPostDetails._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toBe('You can only edit a post that you created.');
+    });
+
+    it('when feed post is not found than expected feed post response', async () => {
+      const feedPostDetails = '634fc8d86a5897b88a2d9753';
+      const response = await request(app.getHttpServer())
+        .patch(`/feed-posts/${feedPostDetails}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.body.message).toBe('Post not found');
+    });
   });
 
   describe('Validation', () => {
@@ -78,7 +106,7 @@ describe('Update Feed Post (e2e)', () => {
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
-        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+      expect(response.body.message).toContain('message cannot be longer than 1000 characters');
     });
   });
 });

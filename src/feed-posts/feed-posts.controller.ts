@@ -112,6 +112,7 @@ export class FeedPostsController {
 
   @Patch(':id')
   async update(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
     @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
@@ -124,6 +125,13 @@ export class FeedPostsController {
       throw new HttpException(
         'Posts must have a message or at least one image. This post has no images, so a message is required.',
         HttpStatus.BAD_REQUEST,
+      );
+    }
+    const user = getUserFromRequest(request);
+    if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
+      throw new HttpException(
+        'You can only edit a post that you created.',
+        HttpStatus.FORBIDDEN,
       );
     }
     const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);

@@ -11,6 +11,8 @@ export class TasksService {
     timeZone: 'America/New_York',
   })
   async syncWithTheMovieDb() {
-    await this.moviesService.syncWithTheMovieDb();
+    const startYear = 1895;
+    const endYear = new Date().getFullYear();
+    await this.moviesService.syncWithTheMovieDb(startYear, endYear);
   }
 }

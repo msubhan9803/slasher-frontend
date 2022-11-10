@@ -104,22 +104,26 @@ export class MoviesService {
       .exec();
   }
 
-  async syncWithTheMovieDb(): Promise<ReturnMovieDb> {
-    const totalPages = 40;
+  async syncWithTheMovieDb(startYear: number, endYear: number): Promise<ReturnMovieDb> {
     let imagesDataFromMDB = [];
     const insertedMovieList = [];
     const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
 
     try {
-      // Fetch the movie db paginated data
-      for (let i = 1; i <= totalPages; i += 1) {
-        const { data } = await lastValueFrom(
-          this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&page=${i}`),
-          );
-          // if (i === 1) {
-          //   totalPages = data?.total_pages;
-          // }
-          imagesDataFromMDB = [...imagesDataFromMDB, ...(data?.results || [])];
+      // Fetch the data year wise
+      for (let year = startYear; year <= endYear; year += 1) {
+        // Fetch the movie db paginated data
+        let totalPages = 1;
+        for (let i = 1; i <= totalPages; i += 1) {
+          const { data } = await lastValueFrom(
+            // eslint-disable-next-line max-len
+            this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&primary_release_date.gte=${year}-01-01&primary_release_date.lte=${year}-12-31&page=${i}`),
+            );
+            if (i === 1) {
+              totalPages = data.total_pages;
+            }
+            imagesDataFromMDB = [...imagesDataFromMDB, ...(data?.results || [])];
+        }
       }
 
       // GET all the movies from our collection

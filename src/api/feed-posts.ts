@@ -14,3 +14,11 @@ export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   }
   return axios.get(`${apiUrl}/feed-posts${queryParameter}`, { headers });
 }
+
+export async function updateFeedPost(postId: string, message: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/feed-posts/${postId}`, { message }, { headers });
+}

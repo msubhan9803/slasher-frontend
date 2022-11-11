@@ -7,6 +7,17 @@ import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 
+interface MovisHeaderProps {
+  tabKey: string;
+  showKeys: boolean;
+  setShowKeys: React.Dispatch<React.SetStateAction<boolean>>;
+  setSearch: React.Dispatch<string>;
+  search: string;
+  sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
+  selectedKey?(e: string): void;
+  applyFilter?(): void;
+}
+
 const tabs = [
   { value: 'all', label: 'All movies' },
   { value: 'slasher-indie', label: 'Slasher Indie' },
@@ -17,13 +28,13 @@ const tabs = [
   { value: 'my-movies', label: 'My movies' },
 ];
 const sortoptions = [
-  { value: 'alphabetical', label: 'Alphabetical' },
   { value: 'releaseDate', label: 'Release Date' },
-  { value: 'userRating', label: 'User Rating' },
+  { value: 'name', label: 'Alphabetical' },
+  { value: 'rating', label: 'User Rating' },
 ];
 function MoviesHeader({
-  tabKey, showKeys, setShowKeys, setSearch, search,
-}: any) {
+  tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey, applyFilter,
+}: MovisHeaderProps) {
   return (
     <>
       <TabLinks tabLink={tabs} toLink="/movies" selectedTab={tabKey} />
@@ -35,15 +46,31 @@ function MoviesHeader({
           <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
+          <SortData onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>
         </Col>
       </Row>
-      {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
+      {showKeys
+        && (
+          <FilterModal
+            showKeys={showKeys}
+            setShowKeys={setShowKeys}
+            selectedKey={selectedKey}
+            applyFilter={applyFilter}
+            sortoptions={sortoptions}
+            onSelectSort={sort}
+          />
+        )}
     </>
   );
 }
+
+MoviesHeader.defaultProps = {
+  sort: undefined,
+  selectedKey: null,
+  applyFilter: null,
+};
 
 export default MoviesHeader;

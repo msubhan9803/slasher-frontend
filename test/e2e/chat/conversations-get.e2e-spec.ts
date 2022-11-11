@@ -4,7 +4,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-// import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -80,6 +79,19 @@ describe('Conversations all / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+      });
+
+      it('before must be a mongodb id', async () => {
+        const limit = 5;
+        const before = '634912b2@2c2f4f5e0e6228#';
+        const response = await request(app.getHttpServer())
+          .get(`/chat/conversations?limit=${limit}&before=${before}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'before must be a mongodb id',
+        );
       });
     });
   });

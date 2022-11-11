@@ -56,7 +56,7 @@ export class ChatService {
     const where: any = [
       { matchId: new mongoose.Types.ObjectId(matchListId) },
       { partcipants: new mongoose.Types.ObjectId(requiredParticipantId) },
-      { deletedAt: false },
+      { deleted: false },
     ];
     let beforeCreatedAt;
 
@@ -104,11 +104,9 @@ export class ChatService {
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ['$$local_id', '$matchId'] },
-                    { deleted: false },
-                  ],
+                  $eq: ['$$local_id', '$matchId'],
                 },
+                deleted: false,
               },
             },
             { $sort: { createdAt: -1 } },
@@ -125,17 +123,16 @@ export class ChatService {
             {
               $match: {
                 $expr: {
-                  $and: [
-                    { $eq: ['$$local_id', '$matchId'] },
-                    { isRead: false },
-                  ],
+                  $eq: ['$$local_id', '$matchId'],
                 },
+                isRead: false,
               },
             },
             { $count: 'count' },
           ],
         },
       },
+      { $unwind: '$latestMessage' },
       {
         $addFields: {
           unreadCount: { $sum: '$unreadCount.count' },

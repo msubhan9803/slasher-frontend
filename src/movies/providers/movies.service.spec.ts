@@ -1,29 +1,40 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
+import { HttpService } from '@nestjs/axios';
+import { of } from 'rxjs';
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieDocument } from '../../schemas/movie/movie.schema';
 import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
+import { mockMovieDbCallResponse } from './movie.db.data.mock';
 
+const mockHttpService = () => ({
+});
 describe('MoviesService', () => {
   let app: INestApplication;
   let connection: Connection;
   let moviesService: MoviesService;
   let movie: MovieDocument;
+  let httpService: HttpService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
+      providers: [
+        { provide: HttpService, useFactory: mockHttpService },
+      ],
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
 
     app = moduleRef.createNestApplication();
     await app.init();
+    httpService = await app.get<HttpService>(HttpService);
   });
 
   afterAll(async () => {
@@ -366,6 +377,20 @@ describe('MoviesService', () => {
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
+    });
+  });
+
+  describe('#fetchMovieDbData', () => {
+    it('fetch expected movie db data', async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMovieDbCallResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+
+      await moviesService.fetchMovieDbData(2907);
     });
   });
 });

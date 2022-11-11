@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { updateFeedPost } from '../../../api/feed-posts';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { feedPostDetail } from '../../../api/feedpost';
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EditPostModal from '../../../components/ui/EditPostModal';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
@@ -18,6 +17,7 @@ interface Props {
   user: User
 }
 function ProfilePostDetail({ user }: Props) {
+  const { userName } = useParams<string>();
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
@@ -79,9 +79,8 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
-
   const onUpdatePost = () => {
-    if (postId && postContent) {
+    if (postId) {
       updateFeedPost(postId, postContent).then(() => {
         setShow(false);
         feedPostDetail(postId)
@@ -114,15 +113,26 @@ function ProfilePostDetail({ user }: Props) {
       setShow(false);
     }
   };
-
+  const deletePostClick = () => {
+    if (postId) {
+      deleteFeedPost(postId)
+        .then(() => {
+          setShow(false);
+          navigate(`/${userName}/posts`);
+        })
+        /* eslint-disable no-console */
+        .catch((error) => console.error(error));
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
-          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          {errorMessage}
         </div>
       )}
       <PostFeed
+        detailPage
         postFeedData={postData}
         popoverOptions={loginUserPopoverOptions}
         isCommentSection={false}
@@ -130,7 +140,15 @@ function ProfilePostDetail({ user }: Props) {
         otherUserPopoverOptions={otherUserPopoverOptions}
       />
       {dropDownValue !== 'Edit'
-      && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+          />
+        )}
       {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
   );

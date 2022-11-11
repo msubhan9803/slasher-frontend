@@ -406,6 +406,26 @@ describe('MoviesService', () => {
       const firstResults = await moviesService.findAll(limit, false, 'name');
 
       expect(firstResults[0].name).toBe('Terrifier 2');
+      expect(firstResults[0].deleted).toBe(0);
+    });
+
+    it('Check if any movie has been deleted from movies db in our collection', async () => {
+      const limit = 10;
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: {
+        ...mockMovieDbCallResponse,
+        results: [],
+        },
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const startYear = new Date().getFullYear();
+      const endYear = new Date().getFullYear();
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+      expect(firstResults[0].deleted).toBe(1);
     });
   });
 });

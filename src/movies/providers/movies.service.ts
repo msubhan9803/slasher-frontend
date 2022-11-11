@@ -11,6 +11,7 @@ import { escapeStringForRegex } from '../../utils/escape-utils';
 import { DiscoverMovieMapper } from '../mapper/discover-movie.mapper';
 import { MovieDbDto } from '../dto/movie-db.dto';
 import { ReturnMovieDb } from '../dto/cron-job-response.dto';
+import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -105,50 +106,18 @@ export class MoviesService {
   }
 
   async syncWithTheMovieDb(startYear: number, endYear: number): Promise<ReturnMovieDb> {
-    let imagesDataFromMDB = [];
-    const insertedMovieList = [];
-    const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
-
     try {
+       // Fetch the max year data limit
+      const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
+
       // Fetch the data year wise
-      for (let year = startYear; year <= endYear; year += 1) {
-        // Fetch the movie db paginated data
-        let totalPages = 1;
-        for (let i = 1; i <= totalPages; i += 1) {
-          const { data } = await lastValueFrom(
-            // eslint-disable-next-line max-len
-            this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&primary_release_date.gte=${year}-01-01&primary_release_date.lte=${year}-12-31&page=${i}`),
-            );
-            if (i === 1) {
-              totalPages = data.total_pages;
-            }
-            imagesDataFromMDB = [...imagesDataFromMDB, ...(data?.results || [])];
-        }
+      for (let year = startYear; year <= maxYearLimit; year += 1) {
+        await this.fetchMovieData(`${year}-01-01`, `${year}-12-31`);
       }
 
-      // GET all the movies from our collection
-      const movies = await this.moviesModel.find().exec();
-
-      // make hash of collection data
-      const moviesHash = {};
-      for (const movie of movies) {
-        moviesHash[movie.movieDBId] = movie;
-      }
-
-      // Iterate through movie db movies and make the database up to date with title
-      for (const movie of imagesDataFromMDB) {
-        if (movie.id in moviesHash) {
-          await this.moviesModel.updateOne(({ movieDBId: movie.movieDBId }), { $set: { name: movie.title } });
-        } else {
-          insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
-        }
-      }
-
-      // Insert all the new movies to collection
-      if (insertedMovieList.length) { await this.moviesModel.insertMany(insertedMovieList); }
       return {
         success: true,
-        message: `${insertedMovieList.length} record inserted. ${imagesDataFromMDB.length - insertedMovieList.length} record updated`,
+        message: 'Successfully completed the cron job',
       };
     } catch (error) {
       return {
@@ -156,5 +125,85 @@ export class MoviesService {
         error,
       };
     }
+  }
+
+  async fetchMovieData(startDate: string, endDate: string) {
+    const options: Omit<MovieDbDto, 'results' | 'total_results'> = { page: 1, total_pages: 1 };
+    options.page = 1;
+    do {
+      const movieData: MovieDbDto | null = await this.fetchMovieDataAPI(startDate, endDate, options.page);
+      if (movieData) {
+        options.total_pages = movieData.total_pages;
+        options.page = movieData.page + 1;
+
+        await this.processDatabaseOperation(startDate, endDate, movieData.results);
+      }
+    } while (options.page <= options.total_pages);
+  }
+
+  async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
+    const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
+    try {
+      const { data } = await lastValueFrom(
+        // eslint-disable-next-line max-len
+        this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&primary_release_date.gte=${startDate}&primary_release_date.lte=${endDate}&page=${page}`),
+        );
+        return data;
+    } catch (error) {
+      return null;
+    }
    }
+
+  async processDatabaseOperation(startDate: string, endDate: string, movies: DiscoverMovieDto[]): Promise<void> {
+    if (!movies && movies.length) {
+      return;
+    }
+
+    const insertedMovieList = [];
+    // Fetch the movies from collection based on yearly data
+    const databaseMovies = await this.moviesModel.find(({ releaseDate: { $lte: new Date(endDate), $gte: new Date(startDate) } })).exec();
+
+    const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
+    const promisesArray = [];
+    for (const movie of movies) {
+      if (databaseMovieKeys.includes(movie.id)) {
+        promisesArray.push(this.moviesModel.updateOne(({ movieDBId: movie.id }), { $set: { name: movie.title } }));
+      } else {
+        insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
+      }
+    }
+
+    // Update all existing records
+    await Promise.all(promisesArray);
+
+    // Insert all the new movies to collection
+    if (insertedMovieList.length) { await this.moviesModel.insertMany(insertedMovieList); }
+
+    // Mark the deleted record on field deleted
+    const deletedRecordKeys = [];
+    for (const movieId of databaseMovieKeys) {
+      const existing = movies.find(({ id }) => id === movieId);
+      if (!existing) {
+        deletedRecordKeys.push(movieId);
+      }
+    }
+
+    await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
+  }
+
+  async getMoviesDataMaxYearLimit(endYear: number): Promise<number> {
+    const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
+    try {
+      // Apply the sort on data to get the max year limit
+      const { data } = await lastValueFrom(
+        this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&sort_by=primary_release_date.desc`),
+        );
+        if (data.results.length) {
+          return Number(data.results[0].release_date.toString().split('-')[0]);
+        }
+        return endYear;
+    } catch (error) {
+      return endYear;
+    }
+  }
 }

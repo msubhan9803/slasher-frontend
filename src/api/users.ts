@@ -178,3 +178,17 @@ export async function getUsersFriends() {
   };
   return axios.get(`${apiUrl}/users/${userId}/friends?limit=6`, { headers });
 }
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  newPasswordConfirmation: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/users/change-password`, {
+    currentPassword, newPassword, newPasswordConfirmation,
+  }, { headers });
+}

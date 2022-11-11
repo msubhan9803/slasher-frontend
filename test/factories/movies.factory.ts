@@ -1,4 +1,5 @@
 import { Factory } from 'fishery';
+import { MovieType } from '../../src/schemas/movie/movie.enums';
 import { Movie } from '../../src/schemas/movie/movie.schema';
 
 const randomName = Math.random().toString(36).substring(2, 5);
@@ -11,5 +12,6 @@ export const moviesFactory = Factory.define<Partial<Movie>>(
     contentRating: `content rating ${sequence}`,
     durationInMinutes: 31,
     releaseDate: new Date(),
+    type: MovieType.MovieDb,
   }),
 );

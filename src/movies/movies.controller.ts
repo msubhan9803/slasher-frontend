@@ -52,6 +52,14 @@ export class MoviesController {
     if (!movies) {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
     }
+
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+    });
+
     return movies;
   }
 }

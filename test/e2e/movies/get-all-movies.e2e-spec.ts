@@ -50,6 +50,23 @@ describe('All Movies (e2e)', () => {
   });
 
   describe('All Movies Details', () => {
+    it('transforms the logo field into a full Movie DB URL', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'a',
+            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .get('/movies?limit=1&sortBy=name')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body[0].logo).toBe('https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg');
+    });
+
     it('when sortBy is name than expected all movies response', async () => {
       await moviesService.create(
         moviesFactory.build(
@@ -235,9 +252,9 @@ describe('All Movies (e2e)', () => {
       const limit = 5;
       const nameContains = 'c';
       const response = await request(app.getHttpServer())
-      .get(`/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
-      .auth(activeUserAuthToken, { type: 'bearer' })
-      .send();
+        .get(`/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
       expect(response.body).toHaveLength(1);
     });
 

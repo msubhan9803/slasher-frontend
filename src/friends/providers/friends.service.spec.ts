@@ -328,13 +328,19 @@ describe('FriendsService', () => {
 
   describe('#deleteAllFriendRequest', () => {
     beforeEach(async () => {
+      // Pending friend request
       await friendsService.createFriendRequest(user2.id, user0.id);
+
+      // Accepted friend
       await friendsService.createFriendRequest(user3.id, user0.id);
-      await friendsService.createFriendRequest(user0.id, user1.id);
+      await friendsService.acceptFriendRequest(user3.id, user0.id);
+
+      // Declined friend
+      await friendsService.declineOrCancelFriendRequest(user0.id, user1.id);
     });
 
     it('delete the friend request data successful of passed userId', async () => {
-      await friendsService.deleteAllFriendRequest(user0.id);
+      await friendsService.deleteAllByUserId(user0.id);
       expect(
         await friendsModel.find({
           $or: [
@@ -342,7 +348,7 @@ describe('FriendsService', () => {
             { to: user0.id },
           ],
         })
-        .exec(),
+          .exec(),
       ).toHaveLength(0);
     });
   });

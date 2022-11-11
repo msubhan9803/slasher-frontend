@@ -4,7 +4,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
-import * as bcrypt from 'bcryptjs';
 import { AppModule } from '../../../src/app.module';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -60,6 +59,8 @@ describe('Users / delete account (e2e)', () => {
     describe('delete account request', () => {
       it('if activeUser delete account then it returns expected response', async () => {
         const userId = activeUser._id;
+        const oldHashedPassword = activeUser.password;
+
         await request(app.getHttpServer())
           .delete(`/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -68,7 +69,7 @@ describe('Users / delete account (e2e)', () => {
 
         const userData = await usersService.findById(activeUser.id);
         expect(userData.deleted).toBe(true); // check delete
-        expect(bcrypt.compareSync('password', userData.password)).toBe(false); // check password change
+        expect(userData.password).not.toEqual(oldHashedPassword); // check password change
 
         const query = {
           $or: [

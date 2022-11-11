@@ -511,16 +511,15 @@ export class UsersController {
       );
     }
 
-    // TODO: Delete all friend collection records where friend.to === user.id OR friend.from === user.id
     // This is to remove all friendships and pending friend requests related to this user.
-    await this.friendsService.deleteAllFriendRequest(user.id);
+    await this.friendsService.deleteAllByUserId(user.id);
 
     // Mark user as deleted
     user.deleted = true;
 
     // Change user's password to a new random value, to ensure that current session is invalidated
     // and that they cannot log in again if admins ever need to temporarily reactivate their account.
-    user.setUnhashedPassword(uuidv4()); // uuidv4 is available via: import { v4 as uuidv4 } from 'uuid';
+    user.setUnhashedPassword(uuidv4());
 
     // Save changes to user object
     await user.save();

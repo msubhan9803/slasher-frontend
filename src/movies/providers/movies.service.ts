@@ -5,8 +5,8 @@ import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
-import { MovieActiveStatus, MovieDeletionStatus } from '../../schemas/movie/movie.enums';
 
+import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { DiscoverMovieMapper } from '../mapper/discover-movie.mapper';
 import { MovieDbDto } from '../dto/movie-db.dto';
@@ -71,7 +71,9 @@ export class MoviesService {
     nameContains?: string,
 
   ): Promise<MovieDocument[]> {
-    const movieFindAllQuery: any = {};
+    const movieFindAllQuery: any = {
+      type: MovieType.MovieDb,
+    };
     if (activeOnly) {
       movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
       movieFindAllQuery.status = MovieActiveStatus.Active;
@@ -199,7 +201,7 @@ export class MoviesService {
         this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&sort_by=primary_release_date.desc`),
         );
         if (data.results.length) {
-          return Number(data.results[0].release_date.toString().split('-')[0]);
+          return Number(new Date(data.results[0].release_date).getFullYear().toString().split('-')[0]);
         }
         return endYear;
     } catch (error) {

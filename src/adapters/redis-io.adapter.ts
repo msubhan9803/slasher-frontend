@@ -1,16 +1,16 @@
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createClient } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 import { ConfigService } from '@nestjs/config';
 import { INestApplication } from '@nestjs/common';
 
 export class RedisIoAdapter extends IoAdapter {
   protected redisAdapter;
 
-  private pubClient;
+  private pubClient: RedisClientType;
 
-  private subClient;
+  private subClient: RedisClientType;
 
   constructor(app: INestApplication, private configService: ConfigService) {
     super(app);

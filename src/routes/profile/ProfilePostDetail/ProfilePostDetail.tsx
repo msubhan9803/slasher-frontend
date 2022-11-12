@@ -8,7 +8,7 @@ import EditPostModal from '../../../components/ui/EditPostModal';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
-import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
+import { MentionProps } from '../../posts/create-post/CreatePost';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -29,8 +29,6 @@ function ProfilePostDetail({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [messageContent, setMessageContent] = useState<string>('');
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -64,7 +62,7 @@ function ProfilePostDetail({ user }: Props) {
               userId: res.data.userId._id,
             },
           ]);
-          setMessageContent(decryptMessage(res.data.message));
+          setPostContent(decryptMessage(res.data.message));
         })
         .catch((error) => {
           setErrorMessage(error.response.data.message);
@@ -79,9 +77,9 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
-  const onUpdatePost = () => {
+  const onUpdatePost = (message: string) => {
     if (postId) {
-      updateFeedPost(postId, postContent).then(() => {
+      updateFeedPost(postId, message).then(() => {
         setShow(false);
         feedPostDetail(postId)
           .then((res) => {
@@ -103,7 +101,7 @@ function ProfilePostDetail({ user }: Props) {
                 userId: res.data.userId._id,
               },
             ]);
-            setMessageContent(decryptMessage(res.data.message));
+            setPostContent(decryptMessage(res.data.message));
           })
           .catch((error) => {
             setErrorMessage(error.response.data.message);
@@ -149,7 +147,18 @@ function ProfilePostDetail({ user }: Props) {
             slectedDropdownValue={dropDownValue}
           />
         )}
-      {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </AuthenticatedPageWrapper>
   );
 }

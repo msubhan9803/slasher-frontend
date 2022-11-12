@@ -7,7 +7,7 @@ import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
 import { deleteFeedPost, getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
 import { Post } from '../../types';
-import { FormatMentionProps, MentionProps } from '../posts/create-post/CreatePost';
+import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
@@ -25,12 +25,10 @@ function Home() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [content, setContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
-      setContent(popoverClickProps.content);
+      setPostContent(popoverClickProps.content);
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
@@ -123,8 +121,8 @@ function Home() {
     });
   };
 
-  const onUpdatePost = () => {
-    updateFeedPost(postId, postContent || content).then(() => {
+  const onUpdatePost = (message: string) => {
+    updateFeedPost(postId, message).then(() => {
       setShow(false);
       callLatestFeedPost();
     });
@@ -180,7 +178,18 @@ function Home() {
             slectedDropdownValue={dropDownValue}
           />
         )}
-      {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={content} onUpdatePost={onUpdatePost} />}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </AuthenticatedPageWrapper>
   );
 }

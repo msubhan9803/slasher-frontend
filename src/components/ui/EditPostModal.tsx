@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
+import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
 import ModalContainer from './CustomModal';
-import MessageTextarea, { FormatMentionListProps, MentionListProps } from './MessageTextarea';
+import MessageTextarea, { MentionListProps } from './MessageTextarea';
 import RoundButton from './RoundButton';
 
 interface Props {
@@ -10,27 +11,53 @@ interface Props {
   handleSearch: (val: string) => void;
   mentionList: MentionListProps[];
   setPostContent: (val: string) => void;
-  formatMention: FormatMentionListProps[];
-  setFormatMention: (val: FormatMentionListProps[]) => void;
-  content: string;
-  onUpdatePost: () => void;
+  postContent: string;
+  onUpdatePost: (value: string) => void;
 }
-
 function EditPostModal({
   show,
   setShow,
   handleSearch,
   mentionList,
   setPostContent,
-  formatMention,
-  setFormatMention,
-  content,
+  postContent,
   onUpdatePost,
 }: Props) {
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  useEffect(() => {
+    if (postContent) {
+      const mentionStringList = postContent.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
+      const finalFormatMentionList = Array.from(new Set(mentionStringList))
+        .map((mentionString: string) => {
+          const id = mentionString.match(/([a-f\d]{24})/g)![0];
+          const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
+          return {
+            id, value, format: mentionString,
+          };
+        });
+      setFormatMention(finalFormatMentionList);
+    }
+  }, []);
   const closeModal = () => {
     setShow(false);
   };
-
+  const decryptMessage = (content: string) => {
+    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
+    return found;
+  };
+  const mentionReplacementMatchFunc = (match: string) => {
+    if (match) {
+      const finalString: any = formatMention.find(
+        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
+      );
+      return finalString.format;
+    }
+    return undefined;
+  };
+  const handleMessage = () => {
+    const postContentWithMentionReplacements = (postContent.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    onUpdatePost(postContentWithMentionReplacements);
+  };
   return (
     <ModalContainer
       show={show}
@@ -49,13 +76,13 @@ function EditPostModal({
           setMessageContent={setPostContent}
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
-          defaultValue={content}
+          defaultValue={decryptMessage(postContent)}
         />
         <div className="d-flex flex-wrap justify-content-between">
           <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>
             <span className="h3">Cancel</span>
           </RoundButton>
-          <RoundButton className="px-4 mt-4" size="md" onClick={onUpdatePost}>
+          <RoundButton className="px-4 mt-4" size="md" onClick={handleMessage}>
             <span className="h3">Update</span>
           </RoundButton>
         </div>

@@ -9,7 +9,7 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
-import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
+import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 
@@ -36,14 +36,12 @@ function ProfilePosts() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [messageContent, setMessageContent] = useState<string>('');
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const [postId, setPostId] = useState<string>('');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
-      setMessageContent(popoverClickProps.content);
+      setPostContent(popoverClickProps.content);
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
@@ -122,8 +120,8 @@ function ProfilePosts() {
       });
     }
   };
-  const onUpdatePost = () => {
-    updateFeedPost(postId, postContent).then(() => {
+  const onUpdatePost = (message: string) => {
+    updateFeedPost(postId, message).then(() => {
       setShowReportModal(false);
       callLatestFeedPost();
     });
@@ -187,7 +185,7 @@ function ProfilePosts() {
             slectedDropdownValue={dropDownValue}
           />
         )}
-      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
+      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
   );
 }

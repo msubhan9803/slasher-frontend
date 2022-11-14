@@ -169,7 +169,7 @@ export class MoviesService {
     const promisesArray = [];
     for (const movie of movies) {
       if (databaseMovieKeys.includes(movie.id)) {
-        promisesArray.push(this.moviesModel.updateOne(({ movieDBId: movie.id }), { $set: { name: movie.title } }));
+        promisesArray.push(this.moviesModel.updateOne(({ movieDBId: movie.id }), DiscoverMovieMapper.toDomain(movie)));
       } else {
         insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
       }

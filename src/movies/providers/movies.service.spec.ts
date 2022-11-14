@@ -6,11 +6,12 @@ import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
+
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieDocument } from '../../schemas/movie/movie.schema';
-import { mockMovieDbCallResponse } from './movies.service.mock';
+import { mockMovieDbCallResponse, mockMaxLimitApiMockResponse } from './movies.service.mock';
 import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
 
 const mockHttpService = () => ({
@@ -438,6 +439,19 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults[0].deleted).toBe(1);
+    });
+
+    it('Check the start and end limit for the movies release date year', async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMaxLimitApiMockResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const endYear = new Date().getFullYear();
+      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
+      expect(maxYearLimit).toBe(2027);
     });
   });
 });

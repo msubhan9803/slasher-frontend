@@ -4,7 +4,7 @@ import { MoviesService } from '../../movies/providers/movies.service';
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly moviesService: MoviesService) {}
+  constructor(private readonly moviesService: MoviesService) { }
 
   @Cron(CronExpression.EVERY_DAY_AT_3AM, {
     name: 'syncWithTheMovieDb',
@@ -12,7 +12,9 @@ export class TasksService {
   })
   async syncWithTheMovieDb() {
     const startYear = 1895;
-    const endYear = new Date().getFullYear();
+    // Ask for 5 years ahead so we also get movies that have not come out yet
+    // (even though this may mean that they have limited data).
+    const endYear = new Date().getFullYear() + 5;
     await this.moviesService.syncWithTheMovieDb(startYear, endYear);
   }
 }

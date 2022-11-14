@@ -381,6 +381,34 @@ describe('MoviesService', () => {
     });
   });
 
+  describe('#getMoviesDataMaxYearLimit', () => {
+    it("Returns a lower limit than the given endYear, when endYear is higher than the API data's max end year", async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMaxLimitApiMockResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const endYear = 2040;
+      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
+      expect(maxYearLimit).toBe(2027);
+    });
+
+    it("Returns the given endYear when endYear is lower than the API data's max end year", async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMaxLimitApiMockResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const endYear = 2022;
+      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
+      expect(maxYearLimit).toBe(2022);
+    });
+  });
+
   describe('#syncWithTheMovieDb', () => {
     it('Check for insert the movie record in database', async () => {
       const limit = 10;
@@ -404,9 +432,9 @@ describe('MoviesService', () => {
       const limit = 10;
       jest.spyOn(httpService, 'get').mockImplementation(() => of({
         data: {
-        ...mockMovieDbCallResponse,
-        results: mockMovieDbCallResponse.results.map((item) => (
-          { ...item, original_title: 'Terrifier 2', title: 'Terrifier 2' })),
+          ...mockMovieDbCallResponse,
+          results: mockMovieDbCallResponse.results.map((item) => (
+            { ...item, original_title: 'Terrifier 2', title: 'Terrifier 2' })),
         },
         status: 200,
         statusText: '',
@@ -426,8 +454,8 @@ describe('MoviesService', () => {
       const limit = 10;
       jest.spyOn(httpService, 'get').mockImplementation(() => of({
         data: {
-        ...mockMovieDbCallResponse,
-        results: [],
+          ...mockMovieDbCallResponse,
+          results: [],
         },
         status: 200,
         statusText: '',
@@ -439,19 +467,6 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults[0].deleted).toBe(1);
-    });
-
-    it('Check the start and end limit for the movies release date year', async () => {
-      jest.spyOn(httpService, 'get').mockImplementation(() => of({
-        data: mockMaxLimitApiMockResponse,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      const endYear = new Date().getFullYear();
-      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
-      expect(maxYearLimit).toBe(2027);
     });
   });
 });

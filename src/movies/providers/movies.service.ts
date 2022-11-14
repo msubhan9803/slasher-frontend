@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 
+import { ConfigService } from '@nestjs/config';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -18,6 +19,7 @@ export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     private httpService: HttpService,
+    private configService: ConfigService,
   ) { }
 
   async create(movieData: Partial<Movie>): Promise<MovieDocument> {
@@ -109,7 +111,7 @@ export class MoviesService {
 
   async syncWithTheMovieDb(startYear: number, endYear: number): Promise<ReturnMovieDb> {
     try {
-       // Fetch the max year data limit
+      // Fetch the max year data limit
       const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
 
       // Fetch the data year wise
@@ -144,17 +146,18 @@ export class MoviesService {
   }
 
   async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
-    const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
+    const MOVIE_DB_API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie?api_key='
+      + `${this.configService.get<string>('MOVIE_DB_API_KEY')}`;
     try {
       const { data } = await lastValueFrom(
         // eslint-disable-next-line max-len
         this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&primary_release_date.gte=${startDate}&primary_release_date.lte=${endDate}&page=${page}`),
-        );
-        return data;
+      );
+      return data;
     } catch (error) {
       return null;
     }
-   }
+  }
 
   async processDatabaseOperation(startDate: string, endDate: string, movies: DiscoverMovieDto[]): Promise<void> {
     if (!movies && movies.length) {
@@ -194,16 +197,18 @@ export class MoviesService {
   }
 
   async getMoviesDataMaxYearLimit(endYear: number): Promise<number> {
-    const MOVIE_DB_API_BASE_URL = `https://api.themoviedb.org/3/discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}`;
+    const MOVIE_DB_API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie?api_key='
+      + `${this.configService.get<string>('MOVIE_DB_API_KEY')}`;
     try {
       // Apply the sort on data to get the max year limit
       const { data } = await lastValueFrom(
         this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&sort_by=primary_release_date.desc`),
-        );
-        if (data.results.length) {
-          return Number(new Date(data.results[0].release_date).getFullYear().toString().split('-')[0]);
-        }
-        return endYear;
+      );
+      if (data.results.length) {
+        const maxEndYearFromResponse = Number(new Date(data.results[0].release_date).getFullYear().toString().split('-')[0]);
+        return Math.min(endYear, maxEndYearFromResponse);
+      }
+      return endYear;
     } catch (error) {
       return endYear;
     }

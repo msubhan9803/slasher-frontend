@@ -382,15 +382,19 @@ describe('MoviesService', () => {
 
   describe('#fetchMovieDbData', () => {
     it('fetch expected movie db data', async () => {
-      jest.spyOn(httpService, 'get').mockImplementation(() => of({
-        data: mockMovieDbCallResponse,
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
+      // jest.spyOn(httpService, 'get').mockImplementation(() => of({
+      //   data: mockMovieDbCallResponse,
+      //   status: 200,
+      //   statusText: '',
+      //   headers: {},
+      //   config: {},
+      // }));
+      const mockMovieDbData: any = mockMovieDbCallResponse;
+      jest.spyOn(moviesService, 'fetchMovieDbData').mockImplementation(() => mockMovieDbData);
 
-      await moviesService.fetchMovieDbData(2907);
+      expect(await moviesService.fetchMovieDbData(2907)).toBe(mockMovieDbData);
+      // console.log('mockMovieDbCallResponse', mockMovieDbCallResponse);
+      // console.log('await moviesService.fetchMovieDbData(2907)', await moviesService.fetchMovieDbData(2907));
     });
   });
 });

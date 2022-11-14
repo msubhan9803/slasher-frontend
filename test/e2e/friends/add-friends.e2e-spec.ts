@@ -84,7 +84,7 @@ describe('Add Friends (e2e)', () => {
     });
 
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
-      friendsService.createFriendRequest(user1.id, activeUser.id);
+      await friendsService.createFriendRequest(user1.id, activeUser.id);
       await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })

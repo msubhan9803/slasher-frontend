@@ -9,6 +9,8 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -20,6 +22,7 @@ describe('FriendsService', () => {
   let user2: UserDocument;
   let user3: UserDocument;
   let friendsModel: Model<FriendDocument>;
+  let suggestBlockModel: Model<SuggestBlockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -29,6 +32,7 @@ describe('FriendsService', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -323,6 +327,66 @@ describe('FriendsService', () => {
 
     it('when userId has no any received requests', async () => {
       expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
+    });
+  });
+
+  describe('#blockFriendSuggestion', () => {
+    it('create block reaction for passed usrIds', async () => {
+      const fromAndTo = {
+        from: user0.id,
+        to: user1.id,
+      };
+      const suggestBlockNoData = await suggestBlockModel.findOne(fromAndTo);
+      expect(suggestBlockNoData).toBeNull();
+
+      await friendsService.createSuggestBlock(user0.id, user1.id);
+      const suggestBlockData = await suggestBlockModel.findOne(fromAndTo);
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
+    });
+
+    it('already created unblock reaction for passed userIds', async () => {
+      const newSuggestBlockData = await suggestBlockModel.create({
+        from: user1.id,
+        to: user2.id,
+        reaction: SuggestBlockReaction.Unblock,
+      });
+
+      await friendsService.createSuggestBlock(user1.id, user2.id);
+
+      const suggestBlockData = await suggestBlockModel.findById(newSuggestBlockData.id);
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
+    });
+
+    it('already created block reaction for passed userIds', async () => {
+      await suggestBlockModel.create({
+        from: user0.id,
+        to: user2.id,
+        reaction: SuggestBlockReaction.Block,
+      });
+
+      await friendsService.createSuggestBlock(user0.id, user2.id);
+
+      const fromAndTo = {
+        from: user0.id,
+        to: user2.id,
+      };
+      const suggestBlockData = await suggestBlockModel.find(fromAndTo);
+      expect(suggestBlockData).toHaveLength(1);
+    });
+  });
+
+  describe('#getSuggestBlockedUserIdsBySender', () => {
+    beforeEach(async () => {
+      await friendsService.createSuggestBlock(user0.id, user1.id);
+      await friendsService.createSuggestBlock(user0.id, user2.id);
+    });
+
+    it('get userIds of that pass user has created block entry for those', async () => {
+      const suggestBlockUserIdList = await friendsService.getSuggestBlockedUserIdsBySender(user0.id);
+      expect(suggestBlockUserIdList.map((suggestBlockUserId) => suggestBlockUserId.toString())).toEqual([
+        user1.id,
+        user2.id,
+      ]);
     });
   });
 });

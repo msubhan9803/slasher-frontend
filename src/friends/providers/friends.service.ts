@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -11,6 +13,7 @@ export class FriendsService {
   constructor(
     @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
     @InjectModel(User.name) private usersModel: Model<UserDocument>,
+    @InjectModel(SuggestBlock.name) private suggestBlockModel: Model<SuggestBlockDocument>,
   ) { }
 
   async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
@@ -210,5 +213,25 @@ export class FriendsService {
       .count()
       .exec();
     return friendsCount;
+  }
+
+  async createSuggestBlock(fromUserId: string, toUserId: string): Promise<void> {
+    const fromAndTo = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      to: new mongoose.Types.ObjectId(toUserId),
+    };
+
+    await this.suggestBlockModel.findOneAndUpdate(fromAndTo, { $set: { reaction: SuggestBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getSuggestBlockedUserIdsBySender(fromUserId: string): Promise<Partial<User[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: SuggestBlockReaction.Block,
+    };
+
+    const suggestBlock = await this.suggestBlockModel.find(fromAndBlockQuery).select('to');
+
+    return suggestBlock.map((data) => data.to);
   }
 }

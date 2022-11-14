@@ -215,9 +215,9 @@ export class MoviesService {
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
     const movieDbApiKey = this.config.get<string>('MOVIE_DB_API_KEY');
     const [castAndCrewData, videoData, mainDetails]: any = await Promise.all([
-    lastValueFrom(this.httpService.get<MovieDbData>(
-      `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
-    )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
+      )),
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/videos?api_key=${movieDbApiKey}&language=en-US`,
       )),

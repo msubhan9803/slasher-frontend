@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
-import { ConfigService } from '@nestjs/config';
 
 export interface Cast {
   'adult': boolean,
@@ -82,19 +82,6 @@ export interface BelongsToCollection {
   'backdrop_path': string,
 }
 
-export interface ReleaseDates {
-  "certification": string,
-  "iso_639_1": string,
-  "note": string,
-  "release_date": string,
-  "type": number
-}
-
-export interface Certification {
-  "iso_3166_1": string,
-  "release_dates": ReleaseDates[]
-}
-
 export interface MainData {
   'adult': boolean,
   'backdrop_path': string,
@@ -128,7 +115,6 @@ export interface MovieDbData {
   crew: Crew[],
   video: VideoData,
   mainData: MainData,
-  certification: Certification[],
 }
 
 @Injectable()
@@ -227,19 +213,16 @@ export class MoviesService {
   }
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
-    const movieDbApiKey = this.config.get<string>('MOVIE_DB_API_KEY')
-    const [castAndCrewData, videoData, mainDetails, certification]: any = await Promise.all([
-      lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
-      )),
+    const movieDbApiKey = this.config.get<string>('MOVIE_DB_API_KEY');
+    const [castAndCrewData, videoData, mainDetails]: any = await Promise.all([
+    lastValueFrom(this.httpService.get<MovieDbData>(
+      `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
+    )),
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/videos?api_key=${movieDbApiKey}&language=en-US`,
       )),
       lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&language=en-US`,
-      )),
-      lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&append_to_response=release_dates`,
+        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&language=en-US&append_to_response=release_dates`,
       )),
     ]);
     mainDetails.data.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
@@ -248,7 +231,6 @@ export class MoviesService {
       crew: castAndCrewData.data.crew,
       video: videoData.data,
       mainData: mainDetails.data,
-      certification: certification.data
     };
   }
 }

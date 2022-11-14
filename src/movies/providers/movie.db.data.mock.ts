@@ -1,5 +1,5 @@
 import {
-  Cast, Certification, Crew, MainData, VideoData,
+  Cast, Crew, MainData, VideoData,
 } from './movies.service';
 
 const moviesCasts: Cast[] = [{
@@ -46,19 +46,6 @@ const moviesVideo: VideoData = {
     id: '58b76ea392514161320016a4',
   }],
 };
-
-const moviesCertification: Certification[] = [{
-  iso_3166_1: "US",
-  release_dates: [
-    {
-      certification: "",
-      iso_639_1: "",
-      note: "Beverly Hills, California",
-      release_date: "1991-11-19T00:00:00.000Z",
-      type: 1
-    }
-  ]
-}]
 
 const moviesMainData: MainData = {
   adult: false,
@@ -121,12 +108,7 @@ const moviesMainData: MainData = {
   vote_average: 7.016,
   vote_count: 3763,
 };
-// console.log('moviesVideo', moviesVideo);
-// console.log('moviesCertification', JSON.stringify(moviesCertification, null, '\t'));
 
 export const mockMovieDbCallResponse = {
-  cast: moviesCasts, crew: moviesCrew, video: moviesVideo, mainData: moviesMainData, certification: moviesCertification,
+  cast: moviesCasts, crew: moviesCrew, video: moviesVideo, mainData: moviesMainData,
 };
-
-// console.log('mockMovieDbCallResponse', mockMovieDbCallResponse);
-

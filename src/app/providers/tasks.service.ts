@@ -12,9 +12,9 @@ export class TasksService {
   })
   async syncWithTheMovieDb() {
     const startYear = 1895;
-    // Ask for 5 years ahead so we also get movies that have not come out yet
+    // Ask for 10 years ahead so we also get movies that have not come out yet
     // (even though this may mean that they have limited data).
-    const endYear = new Date().getFullYear() + 5;
+    const endYear = new Date().getFullYear() + 10;
     await this.moviesService.syncWithTheMovieDb(startYear, endYear);
   }
 }

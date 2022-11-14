@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from '../user/user.schema';
-import { SuggestReaction } from './suggestBlock.enums';
+import { SuggestBlockReaction } from './suggestBlock.enums';
 import { SuggestBlockUnusedFields } from './suggestBlock.unused-fields';
 
 @Schema({ timestamps: true })
@@ -26,11 +26,11 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
 
   @Prop({
     enum: [
-      SuggestReaction.Block,
-      SuggestReaction.Unblock,
+      SuggestBlockReaction.Block,
+      SuggestBlockReaction.Unblock,
     ],
   })
-  reaction: SuggestReaction;
+  reaction: SuggestBlockReaction;
 
   /***********
    * Methods *

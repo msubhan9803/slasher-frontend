@@ -6,6 +6,7 @@ import { lastValueFrom } from 'rxjs';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { escapeStringForRegex } from '../../utils/escape-utils';
+import { ConfigService } from '@nestjs/config';
 
 export interface Cast {
   'adult': boolean,
@@ -36,7 +37,7 @@ export interface Crew {
   'credit_id': string,
 }
 
-export interface Result {
+export interface Results {
   'iso_639_1': string,
   'iso_3166_1': string,
   'name': string,
@@ -47,6 +48,11 @@ export interface Result {
   'official': boolean,
   'published_at': string,
   'id': string
+}
+
+export interface VideoData {
+  'results': Results[],
+  'id': number
 }
 
 export interface Genres {
@@ -74,6 +80,19 @@ export interface BelongsToCollection {
   'name': string,
   'poster_path': string,
   'backdrop_path': string,
+}
+
+export interface ReleaseDates {
+  "certification": string,
+  "iso_639_1": string,
+  "note": string,
+  "release_date": string,
+  "type": number
+}
+
+export interface Certification {
+  "iso_3166_1": string,
+  "release_dates": ReleaseDates[]
 }
 
 export interface MainData {
@@ -107,8 +126,9 @@ export interface MainData {
 export interface MovieDbData {
   cast: Cast[],
   crew: Crew[],
-  video: Result[],
-  mainData: MainData[]
+  video: VideoData,
+  mainData: MainData,
+  certification: Certification[],
 }
 
 @Injectable()
@@ -116,6 +136,7 @@ export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
     private httpService: HttpService,
+    private readonly config: ConfigService,
   ) { }
 
   async create(movieData: Partial<Movie>): Promise<MovieDocument> {
@@ -206,20 +227,28 @@ export class MoviesService {
   }
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
-    const [castAndCrewData, videoData, mainDetails]: any = await Promise.all([
+    const movieDbApiKey = this.config.get<string>('MOVIE_DB_API_KEY')
+    const [castAndCrewData, videoData, mainDetails, certification]: any = await Promise.all([
       lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=9c6cbe2e4292ba89cf114184a4f0bebb&language=en-US`,
+        `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
       )),
       lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}/videos?api_key=9c6cbe2e4292ba89cf114184a4f0bebb&language=en-US`,
+        `https://api.themoviedb.org/3/movie/${movieDbId}/videos?api_key=${movieDbApiKey}&language=en-US`,
       )),
       lastValueFrom(this.httpService.get<MovieDbData>(
-        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=9c6cbe2e4292ba89cf114184a4f0bebb&language=en-US`,
+        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&language=en-US`,
+      )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&append_to_response=release_dates`,
       )),
     ]);
     mainDetails.data.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
     return {
-      cast: castAndCrewData.data.cast, crew: castAndCrewData.data.crew, video: videoData.data.results, mainData: mainDetails.data,
+      cast: castAndCrewData.data.cast,
+      crew: castAndCrewData.data.crew,
+      video: videoData.data,
+      mainData: mainDetails.data,
+      certification: certification.data
     };
   }
 }

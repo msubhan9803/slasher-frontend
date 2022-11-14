@@ -151,11 +151,11 @@ describe('FriendsService', () => {
     });
   });
 
-  describe('#declineOrCancelFriendRequest', () => {
+  describe('#cancelFriendshipOrDeclineRequest', () => {
     describe('when request is pending', () => {
       beforeEach(async () => {
         await friendsService.createFriendRequest(user0.id, user2.id);
-        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+        await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user2.id);
       });
 
       it('updates the status of the friend record to: declined', async () => {
@@ -169,7 +169,7 @@ describe('FriendsService', () => {
       beforeEach(async () => {
         await friendsService.createFriendRequest(user0.id, user2.id);
         await friendsService.acceptFriendRequest(user0.id, user2.id);
-        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+        await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user2.id);
       });
 
       it('updates the status of the friend record to: declined', async () => {

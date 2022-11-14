@@ -92,7 +92,7 @@ export class FriendsService {
     return friendsData;
   }
 
-  async declineOrCancelFriendRequest(userId1: string, userId2: string): Promise<void> {
+  async cancelFriendshipOrDeclineRequest(userId1: string, userId2: string): Promise<void> {
     const friends = {
       $or: [
         { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
@@ -204,11 +204,11 @@ export class FriendsService {
 
   async getReceivedFriendRequestCount(userId: string): Promise<number> {
     const friendsCount = await this.friendsModel
-        .find({
-          $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
-        })
-        .count()
-        .exec();
+      .find({
+        $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
+      })
+      .count()
+      .exec();
     return friendsCount;
   }
 }

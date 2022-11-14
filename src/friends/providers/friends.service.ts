@@ -173,9 +173,11 @@ export class FriendsService {
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
     const friendIds = await this.getFriendIds(user._id, true);
+    const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
+        { _id: { $nin: suggestBlockUserIds } },
         { _id: { $ne: user._id } },
       ],
     }).sort({ createdAt: -1 }).limit(limit)

@@ -90,7 +90,7 @@ describe('Add Friends (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
 
-      expect(await friendsService.getFriendRequestReaction(user1.id, activeUser.id)).toEqual(FriendRequestReaction.Accepted);
+      expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
     });
 
     describe('Validation', () => {

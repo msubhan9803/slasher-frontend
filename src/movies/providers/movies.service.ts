@@ -134,15 +134,33 @@ export class MoviesService {
   async fetchMovieData(startDate: string, endDate: string) {
     const options: Omit<MovieDbDto, 'results' | 'total_results'> = { page: 1, total_pages: 1 };
     options.page = 1;
+    let moviesFromMovieDB = [];
+
+    // Fetch the movies from collection based on yearly data
+    const databaseMovies = await this.moviesModel.find(({ releaseDate: { $lte: new Date(endDate), $gte: new Date(startDate) } })).exec();
     do {
       const movieData: MovieDbDto | null = await this.fetchMovieDataAPI(startDate, endDate, options.page);
       if (movieData) {
         options.total_pages = movieData.total_pages;
         options.page = movieData.page + 1;
 
-        await this.processDatabaseOperation(startDate, endDate, movieData.results);
+        moviesFromMovieDB = [...moviesFromMovieDB, ...movieData.results];
+        await this.processDatabaseOperation(movieData.results, databaseMovies);
       }
     } while (options.page <= options.total_pages);
+
+    const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
+
+     // Mark the deleted record on field deleted
+     const deletedRecordKeys = [];
+     for (const movieId of databaseMovieKeys) {
+       const existing = moviesFromMovieDB.find(({ id }) => id === movieId);
+       if (!existing) {
+         deletedRecordKeys.push(movieId);
+       }
+     }
+
+     await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
   }
 
   async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
@@ -159,14 +177,15 @@ export class MoviesService {
     }
   }
 
-  async processDatabaseOperation(startDate: string, endDate: string, movies: DiscoverMovieDto[]): Promise<void> {
+  async processDatabaseOperation(
+    movies: DiscoverMovieDto[],
+    databaseMovies,
+): Promise<void> {
     if (!movies && movies.length) {
       return;
     }
 
     const insertedMovieList = [];
-    // Fetch the movies from collection based on yearly data
-    const databaseMovies = await this.moviesModel.find(({ releaseDate: { $lte: new Date(endDate), $gte: new Date(startDate) } })).exec();
 
     const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
     const promisesArray = [];
@@ -183,17 +202,6 @@ export class MoviesService {
 
     // Insert all the new movies to collection
     if (insertedMovieList.length) { await this.moviesModel.insertMany(insertedMovieList); }
-
-    // Mark the deleted record on field deleted
-    const deletedRecordKeys = [];
-    for (const movieId of databaseMovieKeys) {
-      const existing = movies.find(({ id }) => id === movieId);
-      if (!existing) {
-        deletedRecordKeys.push(movieId);
-      }
-    }
-
-    await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
   }
 
   async getMoviesDataMaxYearLimit(endYear: number): Promise<number> {

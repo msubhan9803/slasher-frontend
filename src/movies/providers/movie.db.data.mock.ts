@@ -17,7 +17,6 @@ const moviesCasts: Cast[] = [{
   order: 0,
 }];
 
-
 const moviesVideo: VideoData = {
   id: 2907,
   results: [{

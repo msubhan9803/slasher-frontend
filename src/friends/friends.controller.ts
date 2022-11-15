@@ -3,12 +3,14 @@ import {
   Delete, ValidationPipe, Query, HttpException, HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { pick } from '../utils/object-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { AcceptFriendRequestDto } from './dto/accept-friend-request-dto';
 import { CreateFriendRequestDto } from './dto/create-friend-request-dto';
 import { CancelFriendshipOrDeclineRequestDto } from './dto/decline-or-cancel-friend-request-dto';
+import { GetFriendshipDto } from './dto/get-frienship.dto';
 import { LimitOffSetDto } from './dto/limit-offset.dto';
 import { FriendsService } from './providers/friends.service';
 
@@ -67,6 +69,20 @@ export class FriendsController {
       return acceptFriendRequestDetails;
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @Get('friendship')
+  async getFriendship(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendshipDto,
+  ) {
+    try {
+      const user = getUserFromRequest(request);
+      const friend = await this.friendsService.findFriendship(user._id, query.userId);
+      return pick(friend, ['reaction', 'from', 'to']);
+    } catch (error) {
+      throw new HttpException('Unable to find friendship', HttpStatus.BAD_REQUEST);
     }
   }
 }

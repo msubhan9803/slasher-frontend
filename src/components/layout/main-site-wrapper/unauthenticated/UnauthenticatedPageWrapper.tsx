@@ -13,28 +13,29 @@ interface Props {
   children: React.ReactNode;
 }
 
-const StyledMain = styled.main`
+interface StyledMainProps {
+  hideTopLogo?: boolean
+}
+
+const StyledMain = styled.main<StyledMainProps>`
   flex: 1;
+
+  ${(props: StyledMainProps) => props.hideTopLogo && `
+    @media (min-width: 768px) {
+      background-image: url(${signInImage});
+      background-size: cover;
+    }
+  `}
 `;
 
 const StyledLogoImage = styled(Image)`
   height: 6rem;
 `;
-
-const StyledDiv = styled.div<any>`
-${({ hideTopLogo }) => hideTopLogo && `
-@media (min-width: 768px) {
-  background-image: url(${signInImage});
-  background-size: cover;
-}
-`}
-`;
-
 function UnauthenticatedPageWrapper({
   children, hideTopLogo, hideFooter, valign,
 }: Props) {
   return (
-    <StyledDiv className="page-wrapper nonav" hideTopLogo={hideTopLogo}>
+    <div className="page-wrapper nonav">
       <header className="text-center text-md-start">
         <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
@@ -42,13 +43,13 @@ function UnauthenticatedPageWrapper({
           </Link>
         </Container>
       </header>
-      <StyledMain className={`d-flex align-items-${valign}`}>
+      <StyledMain className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo}>
         <Container fluid={`${hideTopLogo ? 'fluid' : 'lg'}`}>
           {children}
         </Container>
       </StyledMain>
       {hideFooter || <UnauthenticatedPageFooter />}
-    </StyledDiv>
+    </div>
   );
 }
 

@@ -14,6 +14,7 @@ import { MovieDocument } from '../../schemas/movie/movie.schema';
 import movieDbId2907ApiCreditsResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-credits-response';
 import movieDbId2907ApiVideosResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-videos-response';
 import movieDbId2907ApiMainMovieResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-main-movie-response';
+import movieDbId2907ApiConfigurationResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-configuration-response';
 import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -420,12 +421,20 @@ describe('MoviesService', () => {
                 headers: {},
                 config: {},
               });
+            case 'https://api.themoviedb.org/3/configuration?api_key='
+              + `${configService.get<string>('MOVIE_DB_API_KEY')}`:
+              return of({
+                data: movieDbId2907ApiConfigurationResponse,
+                status: 200,
+                statusText: '',
+                headers: {},
+                config: {},
+              });
             default:
               throw new Error(`unhandled url: ${url}`);
           }
         },
       );
-
       expect(await moviesService.fetchMovieDbData(2907)).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
     });
   });

@@ -112,7 +112,6 @@ export interface MainData {
 
 export interface MovieDbData {
   cast: Cast[],
-  crew: Crew[],
   video: VideoData,
   mainData: MainData,
 }
@@ -214,7 +213,7 @@ export class MoviesService {
 
   async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
     const movieDbApiKey = this.config.get<string>('MOVIE_DB_API_KEY');
-    const [castAndCrewData, videoData, mainDetails]: any = await Promise.all([
+    const [castAndCrewData, videoData, mainDetails, configDetails]: any = await Promise.all([
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
       )),
@@ -224,13 +223,26 @@ export class MoviesService {
       lastValueFrom(this.httpService.get<MovieDbData>(
         `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&language=en-US&append_to_response=release_dates`,
       )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/configuration?api_key=${movieDbApiKey}`,
+      )),
     ]);
-    mainDetails.data.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
+    const mainData = JSON.parse(JSON.stringify(mainDetails.data));
+    mainData.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
+
+    const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
+    const configData = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+    const cast = configData.map((profile) => {
+      /* eslint-disable no-param-reassign */
+      if (profile.profile_path) {
+        profile.profile_path = `${secureBaseUrl}${profile.profile_path}`;
+      }
+      return profile;
+    });
     return {
-      cast: castAndCrewData.data.cast,
-      crew: castAndCrewData.data.crew,
+      cast,
       video: videoData.data,
-      mainData: mainDetails.data,
+      mainData,
     };
   }
 }

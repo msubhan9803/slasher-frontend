@@ -1,5 +1,5 @@
 import {
-  Cast, Crew, MainData, VideoData,
+  Cast, MainData, VideoData,
 } from './movies.service';
 
 const moviesCasts: Cast[] = [{
@@ -17,19 +17,6 @@ const moviesCasts: Cast[] = [{
   order: 0,
 }];
 
-const moviesCrew: Crew[] = [{
-  adult: false,
-  gender: 1,
-  id: 1901,
-  known_for_department: 'Writing',
-  name: 'Caroline Thompson',
-  original_name: 'Caroline Thompson',
-  popularity: 2.483,
-  profile_path: null,
-  credit_id: '52fe4374c3a36847f80554dd',
-  department: 'Writing',
-  job: 'Screenplay',
-}];
 
 const moviesVideo: VideoData = {
   id: 2907,
@@ -110,5 +97,5 @@ const moviesMainData: MainData = {
 };
 
 export const mockMovieDbCallResponse = {
-  cast: moviesCasts, crew: moviesCrew, video: moviesVideo, mainData: moviesMainData,
+  cast: moviesCasts, video: moviesVideo, mainData: moviesMainData,
 };

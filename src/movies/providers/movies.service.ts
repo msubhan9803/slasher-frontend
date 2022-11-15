@@ -241,7 +241,7 @@ export class MoviesService {
     });
     return {
       cast,
-      video: videoData.data,
+      video: videoData.data.results,
       mainData,
     };
   }

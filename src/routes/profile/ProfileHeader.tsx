@@ -79,7 +79,8 @@ function ProfileHeader({ tabKey, user }: Props) {
           setFriendStatus('Accept friend request');
         } else if (res.data.reaction === FriendRequestReaction.Accepted) {
           setFriendStatus('Unfriend');
-        } else if (res.data.reaction === FriendRequestReaction.DeclinedOrCancelled) {
+        } else if (res.data.reaction === FriendRequestReaction.DeclinedOrCancelled
+          || res.data.reaction === null) {
           setFriendStatus('Add friend');
         }
       });

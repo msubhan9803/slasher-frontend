@@ -74,38 +74,48 @@ describe('ChatService', () => {
   });
 
   describe('#getConversations', () => {
-    let unreadMessage1: Message;
-
     beforeEach(async () => {
-      unreadMessage1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Test data');
-      await chatService.sendPrivateDirectMessage(user2._id, user1._id, 'Test 123');
+      // User 1 sends a message and receives a message. Received message is unread.
+      const message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      message1.isRead = true;
+      await message1.save();
+      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
+
+      // User 1 sends two messages. Both sent messages are unread.
+      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
+      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
     });
 
     it('successfully returns a list of convesations for a user', async () => {
-      const conversations = await chatService.getConversations(user0._id, 5);
+      const conversations = await chatService.getConversations(user1._id, 5);
+      expect(conversations).toHaveLength(2);
 
-      expect(conversations).toHaveLength(1);
-      expect(conversations[0].latestMessage.message).toBe('Test data');
-      expect(conversations[0].unreadCount).toBe(2);
+      // Expect newest conversation in array position 0
+      expect(conversations[0].latestMessage.message).toBe('This is another new message');
+      // Expect unreadCount of 0 because the unread messages are the ones sent by the viewing user
+      expect(conversations[0].unreadCount).toBe(0);
+
+      // Expect second newest conversation in array position 1
+      expect(conversations[1].latestMessage.message).toBe('This is a reply');
+      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
+      expect(conversations[1].unreadCount).toBe(1);
     });
 
-    it('successfully returns correct unreadCount', async () => {
-      await messageModel.updateOne({ _id: unreadMessage1._id }, { $set: { isRead: true } });
-      const conversations = await chatService.getConversations(user0._id, 5);
+    it('applies the given limit', async () => {
+      const conversations = await chatService.getConversations(user1._id, 1);
 
       expect(conversations).toHaveLength(1);
-      expect(conversations[0].unreadCount).toBe(1);
+      expect(conversations[0].latestMessage.message).toBe('This is another new message');
     });
 
-    it('successfully returns a list of conversations when before specified', async () => {
+    it('successfully returns the correct conversations when the before parameter is specified', async () => {
       const matchList = await matchListModel.findOne({
         participants: user2._id,
       });
-      const conversations = await chatService.getConversations(user1._id, 5, matchList._id);
+      const conversations = await chatService.getConversations(user1._id, 5, matchList.id);
 
       expect(conversations).toHaveLength(1);
-      expect(conversations[0].latestMessage.message).toBe('Test data');
+      expect(conversations[0].latestMessage.message).toBe('This is a reply');
     });
   });
 

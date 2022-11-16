@@ -18,7 +18,7 @@ export class ChatService {
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
   ) { }
 
-  async sendPrivateDirectMessage(fromUser: string, toUser: string, message: string, image?: string): Promise<Message> {
+  async sendPrivateDirectMessage(fromUser: string, toUser: string, message: string, image?: string): Promise<MessageDocument> {
     const participants = [new mongoose.Types.ObjectId(fromUser), new mongoose.Types.ObjectId(toUser)];
     let matchList = await this.matchListModel
       .findOne({
@@ -34,7 +34,7 @@ export class ChatService {
       };
       matchList = await this.matchListModel.create(insertData);
     }
-    const messageInfo = await this.messageModel.create({
+    const messageObject = await this.messageModel.create({
       matchId: matchList,
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       fromId: new mongoose.Types.ObjectId(fromUser),
@@ -44,7 +44,7 @@ export class ChatService {
     });
     await this.matchListModel.updateOne({ _id: matchList._id }, { $set: { updatedAt: Date.now() } });
 
-    return messageInfo;
+    return messageObject;
   }
 
   async getMessages(
@@ -95,6 +95,8 @@ export class ChatService {
           ],
         },
       },
+      { $sort: { updatedAt: -1 } },
+      { $limit: limit },
       {
         $lookup: {
           from: 'messages',
@@ -126,6 +128,9 @@ export class ChatService {
                   $eq: ['$$local_id', '$matchId'],
                 },
                 isRead: false,
+                // The unread count should only count messages that are unread and sent TO
+                // the user requesting the conversation list.
+                senderId: new mongoose.Types.ObjectId(userId), // this is who the message is "to"
               },
             },
             { $count: 'count' },

@@ -11,9 +11,10 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WsException,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { sleep } from '../../utils/timer-utils';

@@ -86,4 +86,37 @@ describe('BlocksService', () => {
       expect(block).toHaveLength(2);
     });
   });
+
+  describe('#getBlockedUsersBySender', () => {
+    it('get blocked users by sender', async () => {
+      await blocksModel.create({
+        from: user0._id,
+        to: user3._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const block = await blocksService.getBlockedUsersBySender(user0._id, 5);
+      expect(block).toHaveLength(2);
+    });
+
+    it('returns the expected response for applied limit and offset', async () => {
+      await blocksModel.create({
+        from: user0._id,
+        to: user3._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      expect(
+        await blocksService.getBlockedUsersBySender(user0.id, 1, 1),
+      ).toHaveLength(1);
+    });
+  });
 });

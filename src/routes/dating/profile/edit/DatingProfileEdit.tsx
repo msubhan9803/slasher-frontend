@@ -92,7 +92,7 @@ function DatingProfileEdit() {
               </Col>
             </Section>
 
-            <Row className="mx-0 mb-5">
+            <Row className="mx-0">
               <Col sm={6} className="mb-4">
                 <p>I am a</p>
                 <Row>

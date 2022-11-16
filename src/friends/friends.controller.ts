@@ -77,12 +77,15 @@ export class FriendsController {
     @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendshipDto,
   ) {
-    try {
-      const user = getUserFromRequest(request);
-      const friend = await this.friendsService.findFriendship(user._id, query.userId);
-      return pick(friend, ['reaction', 'from', 'to']);
-    } catch (error) {
-      throw new HttpException('Unable to find friendship', HttpStatus.BAD_REQUEST);
+    const user = getUserFromRequest(request);
+    const friend = await this.friendsService.findFriendship(user._id, query.userId);
+    if (!friend) {
+      return {
+        reaction: null,
+        from: null,
+        to: null,
+      };
     }
+    return pick(friend, ['reaction', 'from', 'to']);
   }
 }

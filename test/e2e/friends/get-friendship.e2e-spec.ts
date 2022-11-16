@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -111,14 +111,18 @@ describe('Get Friendship (e2e)', () => {
         });
       });
 
-      it('for two users with NO friend record, throws http exception', async () => {
+      it('for two users with NO friend record, then return response with null value', async () => {
         const userId = user2.id;
         const response = await request(app.getHttpServer())
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('Unable to find friendship');
+          .send();
+
+        expect(response.body).toMatchObject({
+          reaction: null,
+          from: null,
+          to: null,
+        });
       });
     });
 

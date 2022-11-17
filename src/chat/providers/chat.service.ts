@@ -167,7 +167,7 @@ export class ChatService {
         },
       },
     ]);
-    const [conversationsData] = conversations.map((conversation) => {
+    const conversationsData = conversations.map((conversation) => {
       // eslint-disable-next-line no-param-reassign, prefer-destructuring
       conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
       return conversation;

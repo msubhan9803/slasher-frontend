@@ -16,18 +16,18 @@ const StyledFooter = styled.footer`
 
 function UnauthenticatedPageFooter() {
   return (
-    <StyledFooter className="pt-5">
-      <Container fluid="lg" className="footer-container py-5">
+    <StyledFooter>
+      <Container fluid="lg" className="footer-container py-4">
         <div className="w-100 d-flex flex-wrap justify-content-evenly">
-          <Link className="mb-2 px-2" to="/">About</Link>
-          <Link className="mb-2 px-2" to="/">Help</Link>
-          <Link className="mb-2 px-2" to="/">Terms of Service</Link>
-          <Link className="mb-2 px-2" to="/">Privacy Policy</Link>
-          <Link className="mb-2 px-2" to="/">Cookie Policy</Link>
-          <Link className="mb-2 px-2" to="/">Site Rules</Link>
-          <Link className="mb-2 px-2" to="/">Android App</Link>
-          <Link className="mb-2 px-2" to="/">iOS App</Link>
-          <div className="mb-2 px-2">
+          <Link className="px-2" to="/">About</Link>
+          <Link className="px-2" to="/">Help</Link>
+          <Link className="px-2" to="/">Terms of Service</Link>
+          <Link className="px-2" to="/">Privacy Policy</Link>
+          <Link className="px-2" to="/">Cookie Policy</Link>
+          <Link className="px-2" to="/">Site Rules</Link>
+          <Link className="px-2" to="/">Android App</Link>
+          <Link className="px-2" to="/">iOS App</Link>
+          <div className="px-2">
             &copy;
             {' '}
             {new Date().getFullYear()}

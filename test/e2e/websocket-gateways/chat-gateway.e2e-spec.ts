@@ -52,12 +52,12 @@ describe('Chat Gateway (e2e)', () => {
     );
   });
 
-  it('should properly handle a chatMessage event', async () => {
+  it('should properly handle a chatTest event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
 
     const payload = { senderId: '6359fbc11577d660fb284650', receiverId: '6359fbc11577d660fb284653', message: 'This is a test message' };
     await new Promise<void>((resolve) => {
-      client.emit('chatMessage', payload, (data) => {
+      client.emit('chatTest', payload, (data) => {
         expect(data).toBe(`chat message from ${payload.senderId} to ${payload.receiverId}: ${payload.message}`);
         resolve();
       });

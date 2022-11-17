@@ -112,6 +112,7 @@ export class FeedPostsController {
 
   @Patch(':id')
   async update(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
     @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
@@ -120,12 +121,22 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+
+    const user = getUserFromRequest(request);
+    if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
+      throw new HttpException(
+        'You can only edit a post that you created.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     if (!feedPost.images.length && feedPost.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. This post has no images, so a message is required.',
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
     return {
       id: feedPostData.id,

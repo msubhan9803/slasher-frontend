@@ -30,11 +30,14 @@ function AccountBlockedUser() {
   const [page, setPage] = useState<number>(0);
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
-  const getBlockedUserList = (page: number) => {
-    blockedUsers(page)
+  const getBlockedUserList = (blockUserPage: number) => {
+    blockedUsers(blockUserPage)
       .then((res) => {
         setBlockUsersList(res.data);
-        setPage(page + 1);
+        setPage(blockUserPage + 1);
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+        }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
   };
@@ -64,12 +67,12 @@ function AccountBlockedUser() {
   );
 
   const removeBlockUser = (userId: string) => {
-    removeBlockedUsers(userId).then((res) => {
-      console.log("remove user", res);
+    removeBlockedUsers(userId).then(() => {
+      window.scrollTo(0, 0);
       setTimeout(() => {
+        setNoMoreData(false);
         getBlockedUserList(0);
-      }, 2000);
-      setPage(0);
+      }, 500);
     });
   };
 
@@ -109,7 +112,6 @@ function AccountBlockedUser() {
                       <CustomPopover
                         popoverOptions={PopoverOption}
                         onPopoverClick={() => {
-                          console.log("blockUser =", blockUser._id);
                           removeBlockUser(blockUser._id);
                         }}
                       />

@@ -88,7 +88,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body.message).toBe('You can only edit a post that you created.');
     });
 
-    it('when feed post is not found than expected feed post response', async () => {
+    it('when feed post is not found, returns the expected feed post response', async () => {
       const feedPostDetails = '634fc8d86a5897b88a2d9753';
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPostDetails}`)

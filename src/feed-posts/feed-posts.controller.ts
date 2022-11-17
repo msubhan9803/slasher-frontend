@@ -121,12 +121,7 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    if (!feedPost.images.length && feedPost.message === '') {
-      throw new HttpException(
-        'Posts must have a message or at least one image. This post has no images, so a message is required.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+
     const user = getUserFromRequest(request);
     if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
       throw new HttpException(
@@ -134,6 +129,14 @@ export class FeedPostsController {
         HttpStatus.FORBIDDEN,
       );
     }
+
+    if (!feedPost.images.length && feedPost.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. This post has no images, so a message is required.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
     return {
       id: feedPostData.id,

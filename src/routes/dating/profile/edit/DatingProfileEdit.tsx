@@ -92,47 +92,49 @@ function DatingProfileEdit() {
               </Col>
             </Section>
 
-            <Row className="mx-0">
-              <Col sm={6} className="mb-4">
-                <p>I am a</p>
-                <Row>
-                  <Col xs={6} lg={5}>
-                    <Button
-                      variant="form"
-                      size="lg"
-                      className="w-100"
-                      name="male"
-                      active={gender === 'male'}
-                      onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
-                    >
-                      Male
-                    </Button>
-                  </Col>
-                  <Col xs={6} lg={5}>
-                    <Button
-                      variant="form"
-                      size="lg"
-                      className="w-100"
-                      name="female"
-                      active={gender === 'female'}
-                      onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
-                    >
-                      Female
-                    </Button>
-                  </Col>
-                </Row>
-              </Col>
-              <Col md={6}>
-                <CustomSelect
-                  name="sexualOrientation"
-                  options={sexualOrientationOptions}
-                  label="My sexual orientation is"
-                />
-                <p className="mt-2">
-                  This will display on your profile, unless you choose “Prefer not to
-                  say”.
-                </p>
-              </Col>
+            <Row className="">
+              <Section className={SECTION_INNER}>
+                <Col sm={6} lg={12} xl={6} className="mb-4">
+                  <p>I am a</p>
+                  <Row>
+                    <Col xs={6} lg={5}>
+                      <Button
+                        variant="form"
+                        size="lg"
+                        className="w-100"
+                        name="male"
+                        active={gender === 'male'}
+                        onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                      >
+                        Male
+                      </Button>
+                    </Col>
+                    <Col xs={6} lg={5}>
+                      <Button
+                        variant="form"
+                        size="lg"
+                        className="w-100"
+                        name="female"
+                        active={gender === 'female'}
+                        onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                      >
+                        Female
+                      </Button>
+                    </Col>
+                  </Row>
+                </Col>
+                <Col md={6} lg={12} xl={6}>
+                  <CustomSelect
+                    name="sexualOrientation"
+                    options={sexualOrientationOptions}
+                    label="My sexual orientation is"
+                  />
+                  <p className="mt-2">
+                    This will display on your profile, unless you choose “Prefer not to
+                    say”.
+                  </p>
+                </Col>
+              </Section>
             </Row>
           </Row>
           <DatingAdditionalInfo />

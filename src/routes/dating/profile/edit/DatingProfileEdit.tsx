@@ -123,7 +123,7 @@ function DatingProfileEdit() {
                     </Col>
                   </Row>
                 </Col>
-                <Col md={6} lg={12} xl={6}>
+                <Col sm={12} xl={6}>
                   <CustomSelect
                     name="sexualOrientation"
                     options={sexualOrientationOptions}

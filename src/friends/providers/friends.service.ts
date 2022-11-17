@@ -7,6 +7,7 @@ import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 @Injectable()
 export class FriendsService {
@@ -14,6 +15,7 @@ export class FriendsService {
     @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
     @InjectModel(User.name) private usersModel: Model<UserDocument>,
     @InjectModel(SuggestBlock.name) private suggestBlockModel: Model<SuggestBlockDocument>,
+    private readonly blocksService: BlocksService,
   ) { }
 
   async findFriendship(fromUserId: string, toUserId: string): Promise<Friend | null> {
@@ -171,10 +173,12 @@ export class FriendsService {
   async getSuggestedFriends(user: UserDocument, limit: number) {
     const friendIds = await this.getFriendIds(user._id, true);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
+    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
         { _id: { $nin: suggestBlockUserIds } },
+        { _id: { $nin: blockUserIds } },
         { _id: { $ne: user._id } },
       ],
     }).sort({ createdAt: -1 }).limit(limit)

@@ -4,4 +4,5 @@ export interface MoviesProps {
   image: string,
   year: string,
   liked: boolean,
+  _id?: string | null,
 }

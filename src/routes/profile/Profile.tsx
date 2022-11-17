@@ -5,7 +5,7 @@ import {
 import ProfileAbout from './ProfileAbout/ProfileAbout';
 import ProfileFriends from './ProfileFriends/ProfileFriends';
 import ProfilePhotos from './ProfilePhotos/ProfilePhotos';
-import ProfilePostDetail from './ProfilePostDetail.tsx/ProfilePostDetail';
+import ProfilePostDetail from './ProfilePostDetail/ProfilePostDetail';
 import ProfilePosts from './ProfilePosts/ProfilePosts';
 import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';

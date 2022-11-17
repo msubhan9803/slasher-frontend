@@ -6,9 +6,10 @@ import styled from 'styled-components';
 
 interface PosterProps {
   name: string;
-  poster: string;
   year: string;
   liked: boolean;
+  rating?: number;
+  poster?: string;
 }
 const PosterCardStyle = styled(Card)`
   .poster {
@@ -60,7 +61,7 @@ const StyledLikeButton = styled.div`
 `;
 
 function PosterCard({
-  name, poster, year, liked,
+  name, poster, year, liked, rating,
 }: PosterProps) {
   return (
     <PosterCardStyle className="bg-transparent border-0">
@@ -70,7 +71,7 @@ function PosterCard({
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">
           <FontAwesomeIcon icon={solid('star')} className="me-1 my-auto" />
-          <span className="h5">3.0</span>
+          <span className="h5">{rating}</span>
         </Card.Text>
       </RatingDiv>
       <Card.Body className="px-0 pb-4">
@@ -90,5 +91,10 @@ function PosterCard({
     </PosterCardStyle>
   );
 }
+
+PosterCard.defaultProps = {
+  rating: null,
+  poster: null,
+};
 
 export default PosterCard;

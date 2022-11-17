@@ -147,7 +147,7 @@ export class ChatService {
         $lookup: {
           from: 'users',
           let: { local_id: '$latestMessage.senderId' },
-          as: 'userData',
+          as: 'user',
           pipeline: [
             {
               $match: {
@@ -160,8 +160,18 @@ export class ChatService {
           ],
         },
       },
-      { $unwind: '$userData' },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 0, user: 1, latestMessage: '$latestMessage.message', unreadCount: 1,
+        },
+      },
     ]);
+    conversations.map((conversation) => {
+      // eslint-disable-next-line no-param-reassign
+      conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
+      return conversation;
+    });
     return conversations;
   }
 }

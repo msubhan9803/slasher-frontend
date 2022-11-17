@@ -59,7 +59,7 @@ describe('Conversations all / (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         for (const body of response.body) {
-          expect(body.userData).toEqual({
+          expect(body.user).toEqual({
             _id: user1._id.toString(),
             userName: user1.userName,
             profilePic: user1.profilePic,

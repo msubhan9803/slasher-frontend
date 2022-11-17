@@ -50,6 +50,7 @@ describe('Users suggested friends (e2e)', () => {
       let user2: UserDocument;
       let user3: UserDocument;
       let user4: UserDocument;
+      let chat0;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build());
@@ -69,8 +70,14 @@ describe('Users suggested friends (e2e)', () => {
         await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
         await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, test message 2.');
         await chatService.sendPrivateDirectMessage(user3._id.toString(), activeUser._id.toString(), 'Hi, test message 3.');
+        chat0 = await chatService.getConversations(activeUser._id.toString(), 3);
       });
       it('returns the expected user initial data', async () => {
+        const recentMessages = [];
+        for (const chat of chat0) {
+          chat.user._id = chat.user._id.toString();
+          recentMessages.push(chat);
+        }
         const response = await request(app.getHttpServer())
           .get('/users/initial-data')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -80,23 +87,7 @@ describe('Users suggested friends (e2e)', () => {
           userId: activeUser.id,
           userName: activeUser.userName,
           unreadNotificationCount: 6,
-          recentMessages: [
-            {
-              shortMesage: 'Hi, test message 3.',
-              userName: 'Username1',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            },
-            {
-              shortMesage: 'Hi, test message 2.',
-              userName: 'Username1',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            },
-            {
-              shortMesage: 'Hi, test message 1.',
-              userName: 'Username1',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            },
-          ],
+          recentMessages,
           friendRequestCount: 4,
           recentFriendRequests: [
             {

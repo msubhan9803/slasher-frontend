@@ -311,14 +311,7 @@ export class UsersController {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
-    const chatConversations: any = await this.chatService.getConversations(user._id, 3);
-    const recentMessages = chatConversations.map((conversation) => (
-      {
-        shortMesage: conversation.latestMessage.message.trim().split('\n')[0],
-        userName: conversation.userData.userName,
-        profilePic: conversation.userData.profilePic,
-      }
-    ));
+    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
     return {
       userId: user.id,
       userName: user.userName,

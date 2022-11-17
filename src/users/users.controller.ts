@@ -51,6 +51,7 @@ import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { UserSettingsService } from '../settings/providers/user-settings.service';
+import { ChatService } from '../chat/providers/chat.service';
 
 @Controller('users')
 export class UsersController {
@@ -63,6 +64,7 @@ export class UsersController {
     private readonly feedPostsService: FeedPostsService,
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
+    private readonly chatService: ChatService,
   ) { }
 
   @Post('sign-in')
@@ -303,36 +305,25 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.recentFriendRequests[*].profilePic')
+  @TransformImageUrls('$.recentFriendRequests[*].profilePic', '$.recentMessages[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
+    const chatConversations: any = await this.chatService.getConversations(user._id, 3);
+    const recentMessages = chatConversations.map((conversation) => (
+      {
+        shortMesage: conversation.latestMessage.message.trim().split('\n')[0],
+        userName: conversation.userData.userName,
+        profilePic: conversation.userData.profilePic,
+      }
+    ));
     return {
       userId: user.id,
       userName: user.userName,
       unreadNotificationCount: 6,
-      recentMessages: [
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=47',
-          userName: 'MaureenBiologist',
-          shortMessage: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse interdum, tortor vel consectetur blandit,'
-            + 'justo diam elementum massa, id tincidunt risus turpis non nisi. Integer eu lorem risus.',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=56',
-          userName: 'TeriDactyl',
-          shortMessage: 'Maecenas ornare sodales mi, sit amet pretium eros scelerisque quis.'
-            + 'Nunc blandit mi elit, nec varius erat hendrerit ac. Nulla congue sollicitudin eleifend.',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=26',
-          userName: 'BobRoss',
-          shortMessage: 'Aenean luctus ac magna lobortis varius. Ut laoreet arcu ac commodo molestie. Nulla facilisi.'
-            + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
-        },
-      ],
+      recentMessages,
       friendRequestCount,
       recentFriendRequests: receivedFriendRequestsData,
     };

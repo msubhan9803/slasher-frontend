@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { ChatService } from '../../../src/chat/providers/chat.service';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('Users suggested friends (e2e)', () => {
   let activeUser: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
+  let chatService: ChatService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -28,6 +30,7 @@ describe('Users suggested friends (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -62,6 +65,10 @@ describe('Users suggested friends (e2e)', () => {
         await friendsService.createFriendRequest(user3.id, activeUser.id);
         await friendsService.createFriendRequest(user1.id, activeUser.id);
         await friendsService.createFriendRequest(user2.id, activeUser.id);
+
+        await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, test message 2.');
+        await chatService.sendPrivateDirectMessage(user3._id.toString(), activeUser._id.toString(), 'Hi, test message 3.');
       });
       it('returns the expected user initial data', async () => {
         const response = await request(app.getHttpServer())
@@ -75,22 +82,19 @@ describe('Users suggested friends (e2e)', () => {
           unreadNotificationCount: 6,
           recentMessages: [
             {
-              profilePic: 'https://i.pravatar.cc/300?img=47',
-              userName: 'MaureenBiologist',
-              shortMessage: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse interdum, tortor vel consectetur blandit,'
-                + 'justo diam elementum massa, id tincidunt risus turpis non nisi. Integer eu lorem risus.',
+              shortMesage: 'Hi, test message 3.',
+              userName: 'Username1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              profilePic: 'https://i.pravatar.cc/300?img=56',
-              userName: 'TeriDactyl',
-              shortMessage: 'Maecenas ornare sodales mi, sit amet pretium eros scelerisque quis.'
-                + 'Nunc blandit mi elit, nec varius erat hendrerit ac. Nulla congue sollicitudin eleifend.',
+              shortMesage: 'Hi, test message 2.',
+              userName: 'Username1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              profilePic: 'https://i.pravatar.cc/300?img=26',
-              userName: 'BobRoss',
-              shortMessage: 'Aenean luctus ac magna lobortis varius. Ut laoreet arcu ac commodo molestie. Nulla facilisi.'
-                + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
+              shortMesage: 'Hi, test message 1.',
+              userName: 'Username1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
           ],
           friendRequestCount: 4,

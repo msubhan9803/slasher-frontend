@@ -143,8 +143,25 @@ export class ChatService {
           unreadCount: { $sum: '$unreadCount.count' },
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          let: { local_id: '$latestMessage.senderId' },
+          as: 'userData',
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$$local_id', '$_id'],
+                },
+              },
+            },
+            { $project: { _id: 1, userName: 1, profilePic: 1 } },
+          ],
+        },
+      },
+      { $unwind: '$userData' },
     ]);
-
     return conversations;
   }
 }

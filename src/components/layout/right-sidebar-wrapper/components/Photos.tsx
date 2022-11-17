@@ -47,17 +47,17 @@ function Photos() {
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {photos.map((photo, photoIndex) => {
-              return (
-                <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
-                  <Link to={`/${userData?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
-                    <img
-                      alt={`${photoIndex}`}
-                      src={photo.image}
-                      className={`img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
-                    />
-                  </Link>
-                </Col>
-              );
+            return (
+              <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
+                <Link to={`/${userData?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
+                  <img
+                    alt={`${photoIndex}`}
+                    src={photo.image}
+                    className={`img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
+                  />
+                </Link>
+              </Col>
+            );
             return null;
           })}
         </Row>

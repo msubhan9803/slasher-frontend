@@ -113,11 +113,14 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       />
       <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
-          <div className={`d-${desktopBreakPoint}-block d-none`}>
-            <LeftSidebarWrapper>
-              <SidebarNavContent />
-            </LeftSidebarWrapper>
-          </div>
+          {!show
+            && (
+              <div className={`d-${desktopBreakPoint}-block d-none`}>
+                <LeftSidebarWrapper>
+                  <SidebarNavContent />
+                </LeftSidebarWrapper>
+              </div>
+            )}
           <MainContentCol className="px-lg-3 flex-grow-1 min-width-0">
             {children}
           </MainContentCol>
@@ -133,22 +136,19 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           }
         </div>
       </Container>
-      {show && (
-        <StyledOffcanvas
-          id={offcanvasId}
-          show={show && !forceHideOffcanvasSidebar}
-          onHide={hideOffcanvasSidebar}
-        >
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>Menu</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <MobileOnlySidebarContent className="mb-3" />
-            <SidebarNavContent />
-          </Offcanvas.Body>
-        </StyledOffcanvas>
-      )}
-
+      <StyledOffcanvas
+        id={offcanvasId}
+        show={show && !forceHideOffcanvasSidebar}
+        onHide={hideOffcanvasSidebar}
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Menu</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <MobileOnlySidebarContent className="mb-3" />
+          <SidebarNavContent />
+        </Offcanvas.Body>
+      </StyledOffcanvas>
     </div>
   );
 }

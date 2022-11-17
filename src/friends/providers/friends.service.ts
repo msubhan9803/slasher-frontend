@@ -13,21 +13,18 @@ export class FriendsService {
     @InjectModel(User.name) private usersModel: Model<UserDocument>,
   ) { }
 
-  async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
-    const friend = await this.friendsModel
+  async findFriendship(fromUserId: string, toUserId: string): Promise<Friend | null> {
+    return this.friendsModel
       .findOne({
         $or: [
-          { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-          { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+          { from: new mongoose.Types.ObjectId(fromUserId), to: new mongoose.Types.ObjectId(toUserId) },
+          { from: new mongoose.Types.ObjectId(toUserId), to: new mongoose.Types.ObjectId(fromUserId) },
         ],
       })
       .exec();
-    return friend ? friend.reaction : null;
   }
 
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
-    const currentFriendReaction = await this.getFriendRequestReaction(fromUserId, toUserId);
-
     let friend: any = await this.friendsModel
       .findOne({
         $or: [
@@ -48,10 +45,10 @@ export class FriendsService {
         to: new mongoose.Types.ObjectId(toUserId),
         reaction: FriendRequestReaction.Pending,
       };
-      await this.friendsModel.create(friends);
+      friend = await this.friendsModel.create(friends);
     }
 
-    if (currentFriendReaction === FriendRequestReaction.Accepted) {
+    if (friend.reaction === FriendRequestReaction.Accepted) {
       throw new Error('Cannot create friend request. Already friends.');
     }
 
@@ -92,7 +89,7 @@ export class FriendsService {
     return friendsData;
   }
 
-  async declineOrCancelFriendRequest(userId1: string, userId2: string): Promise<void> {
+  async cancelFriendshipOrDeclineRequest(userId1: string, userId2: string): Promise<void> {
     const friends = {
       $or: [
         { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
@@ -204,11 +201,11 @@ export class FriendsService {
 
   async getReceivedFriendRequestCount(userId: string): Promise<number> {
     const friendsCount = await this.friendsModel
-        .find({
-          $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
-        })
-        .count()
-        .exec();
+      .find({
+        $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
+      })
+      .count()
+      .exec();
     return friendsCount;
   }
 }

@@ -84,13 +84,13 @@ describe('Add Friends (e2e)', () => {
     });
 
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
-      friendsService.createFriendRequest(user1.id, activeUser.id);
+      await friendsService.createFriendRequest(user1.id, activeUser.id);
       await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
 
-      expect(await friendsService.getFriendRequestReaction(user1.id, activeUser.id)).toEqual(FriendRequestReaction.Accepted);
+      expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
     });
 
     describe('Validation', () => {

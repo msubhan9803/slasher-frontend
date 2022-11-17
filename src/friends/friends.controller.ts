@@ -8,7 +8,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { AcceptFriendRequestDto } from './dto/accept-friend-request-dto';
 import { CreateFriendRequestDto } from './dto/create-friend-request-dto';
-import { DeclineOrCancelFriendRequestDto } from './dto/decline-or-cancel-friend-request-dto';
+import { CancelFriendshipOrDeclineRequestDto } from './dto/decline-or-cancel-friend-request-dto';
 import { LimitOffSetDto } from './dto/limit-offset.dto';
 import { FriendsService } from './providers/friends.service';
 
@@ -47,12 +47,13 @@ export class FriendsController {
   }
 
   @Delete()
-  async declineOrCancelFriendRequest(
+  async cancelFriendshipOrDeclineRequest(
     @Req() request: Request,
-    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) declineOrCancelFriendRequestDto: DeclineOrCancelFriendRequestDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    cancelFriendshipOrDeclineRequestDto: CancelFriendshipOrDeclineRequestDto,
   ) {
     const user = getUserFromRequest(request);
-    await this.friendsService.declineOrCancelFriendRequest(user._id, declineOrCancelFriendRequestDto.userId);
+    await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, cancelFriendshipOrDeclineRequestDto.userId);
   }
 
   @Post('requests/accept')

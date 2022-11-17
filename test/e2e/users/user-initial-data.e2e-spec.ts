@@ -67,9 +67,9 @@ describe('Users suggested friends (e2e)', () => {
         await friendsService.createFriendRequest(user1.id, activeUser.id);
         await friendsService.createFriendRequest(user2.id, activeUser.id);
 
-        await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
-        await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, test message 2.');
-        await chatService.sendPrivateDirectMessage(user3._id.toString(), activeUser._id.toString(), 'Hi, test message 3.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
         chat0 = await chatService.getConversations(activeUser._id.toString(), 3);
       });
       it('returns the expected user initial data', async () => {

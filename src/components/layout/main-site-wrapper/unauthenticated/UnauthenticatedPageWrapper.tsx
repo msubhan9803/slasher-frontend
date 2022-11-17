@@ -21,7 +21,8 @@ const StyledMain = styled.main<StyledMainProps>`
   flex: 1;
 
   ${(props: StyledMainProps) => props.hideTopLogo && `
-    @media (min-width: 768px) {
+    background-color: #000;
+    @media (min-width: 992px) {
       background-image: url(${signInImage});
       background-size: cover;
     }

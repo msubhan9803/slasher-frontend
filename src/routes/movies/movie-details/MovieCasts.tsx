@@ -13,7 +13,7 @@ interface CastListProps {
 interface CastLists {
   profile_path: string;
   name: string;
-  known_for_department: string;
+  character: string,
 }
 const StyledCast = styled(Row)`
   overflow-x: auto;
@@ -63,7 +63,7 @@ function MovieCasts({ castList }: CastListProps) {
                     {cast.name}
                   </Card.Title>
                   <Card.Text className="text-primary fs-5">
-                    {cast.known_for_department}
+                    {cast.character}
                   </Card.Text>
                 </Card.Body>
               </Card>

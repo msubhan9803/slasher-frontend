@@ -35,3 +35,11 @@ export async function rejectFriendsRequest(userId: string) {
   };
   return axios.delete(`${apiUrl}/friends?userId=${userId}`, { headers });
 }
+
+export async function removeSuggestedFriend(userId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/friends/suggested/block`, { userId }, { headers });
+}

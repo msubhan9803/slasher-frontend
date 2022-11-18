@@ -361,7 +361,7 @@ describe('FriendsService', () => {
       await friendsService.acceptFriendRequest(user3.id, user0.id);
 
       // Declined friend
-      await friendsService.declineOrCancelFriendRequest(user0.id, user1.id);
+      await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user1.id);
     });
 
     it('delete the friend request data successful of passed userId', async () => {

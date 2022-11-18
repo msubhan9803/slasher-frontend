@@ -163,7 +163,7 @@ export class ChatService {
       { $unwind: '$user' },
       {
         $project: {
-          _id: 0, user: 1, latestMessage: '$latestMessage.message', unreadCount: 1,
+          _id: 1, user: 1, latestMessage: '$latestMessage.message', unreadCount: 1,
         },
       },
     ]);

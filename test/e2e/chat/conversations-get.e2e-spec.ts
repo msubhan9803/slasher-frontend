@@ -15,7 +15,11 @@ describe('Conversations all / (e2e)', () => {
   let connection: Connection;
   let chatService: ChatService;
   let usersService: UsersService;
+  let user0: User;
   let user1: User;
+  let user2: User;
+  let user3: User;
+  let user4: User;
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
@@ -42,7 +46,11 @@ describe('Conversations all / (e2e)', () => {
     await connection.dropDatabase();
 
     activeUser = await usersService.create(userFactory.build());
+    user0 = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
+    user2 = await usersService.create(userFactory.build());
+    user3 = await usersService.create(userFactory.build());
+    user4 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -66,6 +74,31 @@ describe('Conversations all / (e2e)', () => {
           });
         }
         expect(response.body).toHaveLength(1);
+      });
+    });
+
+    describe('when `before` argument is supplied', () => {
+      beforeEach(async () => {
+        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user0._id.toString(), 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user2._id.toString(), 'Hi, test message 3.');
+        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user3._id.toString(), 'Hi, test message 4.');
+        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user4._id.toString(), 'Hi, test message 5.');
+      });
+      it('get expected first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResponse = await request(app.getHttpServer())
+          .get(`/chat/conversations?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(firstResponse.status).toEqual(HttpStatus.OK);
+        expect(firstResponse.body).toHaveLength(3);
+
+        const secondResponse = await request(app.getHttpServer())
+          .get(`/chat/conversations?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(secondResponse.status).toEqual(HttpStatus.OK);
+        expect(secondResponse.body).toHaveLength(2);
       });
     });
 

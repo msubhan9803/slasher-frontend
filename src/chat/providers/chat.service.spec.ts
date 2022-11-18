@@ -18,6 +18,9 @@ describe('ChatService', () => {
   let user0: UserDocument;
   let user1: UserDocument;
   let user2: UserDocument;
+  let user3: UserDocument;
+  let user4: UserDocument;
+  let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
 
@@ -42,9 +45,12 @@ describe('ChatService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
+    activeUser = await usersService.create(userFactory.build({ userName: 'Jack' }));
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
     user2 = await usersService.create(userFactory.build({ userName: 'Test' }));
+    user3 = await usersService.create(userFactory.build({ userName: 'Denial' }));
+    user4 = await usersService.create(userFactory.build({ userName: 'Rock' }));
   });
 
   it('should be defined', () => {
@@ -88,15 +94,16 @@ describe('ChatService', () => {
 
     it('successfully returns a list of convesations for a user', async () => {
       const conversations = await chatService.getConversations(user1._id, 5);
+
       expect(conversations).toHaveLength(2);
 
       // Expect newest conversation in array position 0
-      expect(conversations[0].latestMessage.message).toBe('This is another new message');
+      expect(conversations[0].latestMessage).toBe('This is another new message');
       // Expect unreadCount of 0 because the unread messages are the ones sent by the viewing user
       expect(conversations[0].unreadCount).toBe(0);
 
       // Expect second newest conversation in array position 1
-      expect(conversations[1].latestMessage.message).toBe('This is a reply');
+      expect(conversations[1].latestMessage).toBe('This is a reply');
       // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
       expect(conversations[1].unreadCount).toBe(1);
     });
@@ -105,7 +112,7 @@ describe('ChatService', () => {
       const conversations = await chatService.getConversations(user1._id, 1);
 
       expect(conversations).toHaveLength(1);
-      expect(conversations[0].latestMessage.message).toBe('This is another new message');
+      expect(conversations[0].latestMessage).toBe('This is another new message');
     });
 
     it('successfully returns the correct conversations when the before parameter is specified', async () => {
@@ -113,9 +120,26 @@ describe('ChatService', () => {
         participants: user2._id,
       });
       const conversations = await chatService.getConversations(user1._id, 5, matchList.id);
-
       expect(conversations).toHaveLength(1);
-      expect(conversations[0].latestMessage.message).toBe('This is a reply');
+      expect(conversations[0].latestMessage).toBe('This is a reply');
+    });
+
+    describe('when `before` argument is supplied', () => {
+      beforeEach(async () => {
+        await chatService.sendPrivateDirectMessage(activeUser.id, user0.id, 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 2.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 3.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 4.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user4.id, 'Hi, test message 5.');
+      });
+      it('returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await chatService.getConversations(activeUser.id, limit);
+        expect(firstResults).toHaveLength(3);
+
+        const secondResults = await chatService.getConversations(activeUser.id, limit, firstResults[limit - 1]._id.toString());
+        expect(secondResults).toHaveLength(2);
+      });
     });
   });
 

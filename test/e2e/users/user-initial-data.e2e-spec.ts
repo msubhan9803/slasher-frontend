@@ -75,6 +75,7 @@ describe('Users suggested friends (e2e)', () => {
       it('returns the expected user initial data', async () => {
         const recentMessages = [];
         for (const chat of chat0) {
+          chat._id = chat._id.toString();
           chat.user._id = chat.user._id.toString();
           recentMessages.push(chat);
         }

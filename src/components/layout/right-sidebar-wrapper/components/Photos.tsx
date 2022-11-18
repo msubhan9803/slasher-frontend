@@ -17,11 +17,11 @@ interface ImageList {
 
 function Photos() {
   const [photos, setPhotos] = useState<PhotoList[]>([]);
-  const userData = useAppSelector((state) => state.userNameSlice);
+  const sidebarContext = useAppSelector((state) => state.sidebarContext);
 
   useEffect(() => {
-    if (userData.userId) {
-      userPhotos(userData.userId, '', '6')
+    if (sidebarContext.userId) {
+      userPhotos(sidebarContext.userId, '', '6')
         .then((res) => {
           const newPhotoList: PhotoList[] = [];
           res.data.map((photosData: any) => {
@@ -43,13 +43,13 @@ function Photos() {
   }, []);
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${userData?.userName}/photos`} />
+      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${sidebarContext?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {photos.map((photo, photoIndex) => {
             return (
               <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
-                <Link to={`/${userData?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
+                <Link to={`/${sidebarContext?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
                   <img
                     alt={`${photoIndex}`}
                     src={photo.image}

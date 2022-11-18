@@ -13,7 +13,7 @@ import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileF
 import { getUser } from '../../api/users';
 import { User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
-import { setOtherUserInitialData } from '../../redux/slices/userNameSlice';
+import { setSidebarUserData } from '../../redux/slices/sidebarContextSlice';
 import { useAppDispatch } from '../../redux/hooks';
 
 function Profile() {
@@ -27,7 +27,7 @@ function Profile() {
       getUser(userName)
         .then((res) => {
           setUser(res.data);
-          dispatch(setOtherUserInitialData(res.data));
+          dispatch(setSidebarUserData(res.data));
         }).catch(() => setUserNotFound(true));
     }
   }, [userName]);

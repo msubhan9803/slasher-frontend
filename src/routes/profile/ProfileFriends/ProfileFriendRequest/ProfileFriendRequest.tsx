@@ -9,7 +9,7 @@ import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wr
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
-import { useAppDispatch } from '../../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
@@ -36,10 +36,11 @@ function ProfileFriendRequest({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
+  const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
-    { value: 'request', label: 'Friend requests', badge: friendsReqList.length },
+    { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
   useEffect(() => {

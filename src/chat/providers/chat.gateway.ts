@@ -7,8 +7,9 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
@@ -20,8 +21,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: any) { }
 
-  @SubscribeMessage('chatMessage')
-  async sendReceiveMessage(@MessageBody() data: any): Promise<string> {
+  @SubscribeMessage('chatTest')
+  async chatTest(@MessageBody() data: any): Promise<string> {
     return `chat message from ${data.senderId} to ${data.receiverId}: ${data.message}`;
   }
 }

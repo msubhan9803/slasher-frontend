@@ -102,10 +102,13 @@ describe('App Gateway (e2e)', () => {
         });
       });
 
-      // Expect connection to still be active after above ping/pong test
+      // Expect client to be connected
       expect(client.connected).toBe(true);
 
-      client.close();
+      await client.close();
+
+      // Expect client to be disconnected
+      expect(client.connected).toBe(false);
     });
   });
 });

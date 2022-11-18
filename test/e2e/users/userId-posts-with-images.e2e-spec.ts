@@ -120,6 +120,22 @@ describe('UserId Posts With Images (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
+      it('limit should not be grater than 30', async () => {
+        feedPost = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: activeUser._id,
+            },
+          ),
+        );
+        const limit = 31;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 30');
+      });
+
       it('before should be a valid ObjectId', async () => {
         feedPost = await feedPostsService.create(
           feedPostFactory.build(

@@ -53,6 +53,7 @@ import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { UserSettingsService } from '../settings/providers/user-settings.service';
 import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -363,6 +364,27 @@ export class UsersController {
     }
 
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto', 'aboutMe']);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Patch('change-password')
+  async changePassword(@Req() request: Request, @Body() changePasswordDto: ChangePasswordDto) {
+    const user = getUserFromRequest(request);
+
+    if (!bcrypt.compareSync(changePasswordDto.currentPassword, user.password)) {
+      throw new HttpException(
+        'Invalid value supplied for current password.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    user.setUnhashedPassword(changePasswordDto.newPassword);
+    user.lastPasswordResetTime = new Date();
+    await user.save();
+
+    return {
+      success: true,
+    };
   }
 
   @Patch(':id')

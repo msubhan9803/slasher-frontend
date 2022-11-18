@@ -7,7 +7,7 @@ import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieDocument } from '../../schemas/movie/movie.schema';
-import { MovieActiveStatus } from '../../schemas/movie/movie.enums';
+import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
 
 describe('MoviesService', () => {
   let app: INestApplication;
@@ -128,6 +128,18 @@ describe('MoviesService', () => {
   });
 
   describe('#findAll', () => {
+    it('only includes movies of type MovieType.MovieDb', async () => {
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'a', type: MovieType.Free }),
+      );
+      await moviesService.create(
+        moviesFactory.build({ status: MovieActiveStatus.Active, name: 'b', type: MovieType.MovieDb }),
+      );
+
+      const moviesList = await moviesService.findAll(2, true, 'name');
+      expect(moviesList).toHaveLength(1);
+    });
+
     it('when movies is sort by name than expected response', async () => {
       await moviesService.create(
         moviesFactory.build(

@@ -1,5 +1,5 @@
 import {
-  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query,
+  Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -18,6 +18,7 @@ import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -161,5 +162,28 @@ export class FeedPostsController {
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
     return feedPosts;
+  }
+
+  @Delete(':id')
+  async delete(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostsDto,
+  ) {
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const user = getUserFromRequest(request);
+    if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
+      throw new HttpException(
+        'You can only delete a post that you created.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.feedPostsService.update(feedPost.id, { is_deleted: FeedPostDeletionState.Deleted });
+    return {
+      success: true,
+    };
   }
 }

@@ -136,19 +136,21 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           }
         </div>
       </Container>
-      <StyledOffcanvas
-        id={offcanvasId}
-        show={show && !forceHideOffcanvasSidebar}
-        onHide={hideOffcanvasSidebar}
-      >
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Menu</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <MobileOnlySidebarContent className="mb-3" />
-          <SidebarNavContent />
-        </Offcanvas.Body>
-      </StyledOffcanvas>
+      {show && (
+        <StyledOffcanvas
+          id={offcanvasId}
+          show={show && !forceHideOffcanvasSidebar}
+          onHide={hideOffcanvasSidebar}
+        >
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Menu</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <MobileOnlySidebarContent className="mb-3" />
+            <SidebarNavContent />
+          </Offcanvas.Body>
+        </StyledOffcanvas>
+      )}
     </div>
   );
 }

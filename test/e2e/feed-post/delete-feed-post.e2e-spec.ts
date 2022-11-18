@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, HttpStatus } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -10,9 +10,8 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
-import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 
-describe('Update Feed Post (e2e)', () => {
+describe('Feed-Post / Delete Feed Post (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -21,11 +20,6 @@ describe('Update Feed Post (e2e)', () => {
   let user1: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
-  let feedPost: FeedPost;
-
-  const sampleFeedPostObject = {
-    message: 'hello all test user upload your feed post',
-  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,33 +41,33 @@ describe('Update Feed Post (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await connection.dropDatabase();
-    activeUser = await usersService.create(userFactory.build());
-    user1 = await usersService.create(userFactory.build());
-    activeUserAuthToken = activeUser.generateNewJwtToken(
-      configService.get<string>('JWT_SECRET_KEY'),
-    );
-    feedPost = await feedPostsService.create(
-      feedPostFactory.build(
-        {
-          userId: activeUser._id,
-        },
-      ),
-    );
   });
 
-  describe('Update Feed Post Details', () => {
-    it('successfully update feed post details', async () => {
-      const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPost._id}`)
+  describe('Delete Feed Post', () => {
+    beforeEach(async () => {
+      activeUser = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
+      activeUserAuthToken = activeUser.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+    });
+    it('returns the expected feed post response if feed post is deleted', async () => {
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      await request(app.getHttpServer())
+        .delete(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedPostObject);
-      const feedPostDetails = await feedPostsService.findById(response.body.id, true);
-      expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body.message).toContain(feedPostDetails.message);
+        .send();
+      expect(activeUser._id.toString()).toEqual((feedPost.userId as any)._id.toString());
     });
 
     it('when userId is not match than expected feed post response', async () => {
-      const feedPostDetails = await feedPostsService.create(
+      const feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
             userId: user1._id,
@@ -81,32 +75,21 @@ describe('Update Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPostDetails._id}`)
+        .delete(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
-      expect(response.body.message).toBe('You can only edit a post that you created.');
+      expect(response.body.message).toBe('You can only delete a post that you created.');
     });
 
-    it('when feed post is not found, returns the expected feed post response', async () => {
-      const feedPostDetails = '634fc8d86a5897b88a2d9753';
+    it('when feed post is not found than expected feed post response', async () => {
+      const feedPost = '634fc8d86a5897b88a2d9753';
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPostDetails}`)
+        .delete(`/feed-posts/${feedPost}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
-    });
-  });
-
-  describe('Validation', () => {
-    it('check message length validation', async () => {
-      sampleFeedPostObject.message = new Array(1002).join('z');
-      const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPost._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedPostObject);
-      expect(response.body.message).toContain('message cannot be longer than 1000 characters');
     });
   });
 });

@@ -8,19 +8,19 @@ import { AppModule } from '../../../src/app.module';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
-import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 
-describe('Add Friends (e2e)', () => {
+describe('Users / delete account (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
-  let friendsService: FriendsService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let user1: UserDocument;
+  let user2: UserDocument;
   let configService: ConfigService;
+  let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
@@ -29,8 +29,8 @@ describe('Add Friends (e2e)', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
-    friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
@@ -46,59 +46,59 @@ describe('Add Friends (e2e)', () => {
     await connection.dropDatabase();
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
+    user2 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
+    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
   });
 
-  describe('Post /friends', () => {
-    it('when friend request is successfully created, returns the expected response', async () => {
-      await request(app.getHttpServer())
-        .post('/friends')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: user1._id })
-        .expect(HttpStatus.CREATED);
-      const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
-      expect(friends.to).toEqual(user1._id);
-    });
+  describe('DELETE /users/delete-account', () => {
+    describe('delete account request', () => {
+      it('if activeUser delete account then it returns expected response', async () => {
+        const userId = activeUser._id;
+        const oldHashedPassword = activeUser.password;
 
-    it('when friend request was previously declined, returns the expected response', async () => {
-      const friends = await friendsModel.create({
-        from: activeUser.id,
-        to: user1.id,
-        reaction: FriendRequestReaction.DeclinedOrCancelled,
+        await request(app.getHttpServer())
+          .delete(`/users/delete-account?userId=${userId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.OK);
+
+        const userData = await usersService.findById(activeUser.id);
+        expect(userData.deleted).toBe(true); // check delete
+        expect(userData.password).not.toEqual(oldHashedPassword); // check password change
+
+        const query = {
+          $or: [
+            { from: activeUser._id },
+            { to: activeUser._id },
+          ],
+        };
+        const friends = await friendsModel.find(query);
+        expect(friends).toHaveLength(0);
       });
-      await request(app.getHttpServer())
-        .post('/friends')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: user1._id });
 
-      // Expect previous db entity to be deleted
-      const friendData = await friendsModel.findOne({ _id: friends._id });
-      expect(friendData).toBeNull();
-
-      // Expect new pending entry to be created
-      expect(
-        (await friendsModel.findOne({ from: activeUser._id, to: user1._id })).reaction,
-      ).toEqual(FriendRequestReaction.Pending);
-    });
-
-    it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
-      await friendsService.createFriendRequest(user1.id, activeUser.id);
-      await request(app.getHttpServer())
-        .post('/friends')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: user1._id });
-
-      expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
+      it('if query parameter userId different than activeUser then it returns expected response', async () => {
+        const userId = user1._id;
+        const response = await request(app.getHttpServer())
+          .delete(`/users/delete-account?userId=${userId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Supplied userId does not match current user\'s id.');
+      });
     });
 
     describe('Validation', () => {
       it('userId should not be empty', async () => {
+        const userId = '';
         const response = await request(app.getHttpServer())
-          .post('/friends')
+          .delete(`/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send({ userId: '' });
+          .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'userId should not be empty',
@@ -106,10 +106,11 @@ describe('Add Friends (e2e)', () => {
       });
 
       it('userId must be a mongodb id', async () => {
+        const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .post('/friends')
+          .delete(`/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send({ userId: 'aaa' });
+          .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'userId must be a mongodb id',

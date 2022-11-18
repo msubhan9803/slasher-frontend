@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -9,6 +10,8 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -20,6 +23,7 @@ describe('FriendsService', () => {
   let user2: UserDocument;
   let user3: UserDocument;
   let friendsModel: Model<FriendDocument>;
+  let suggestBlockModel: Model<SuggestBlockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -29,6 +33,7 @@ describe('FriendsService', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -51,20 +56,46 @@ describe('FriendsService', () => {
     expect(friendsService).toBeDefined();
   });
 
-  describe('#getFriendRequestReaction', () => {
+  describe('#findFriendship', () => {
     beforeEach(async () => {
       await friendsService.createFriendRequest(user0.id, user1.id);
     });
 
-    it('for two users with a friend record, finds the expected friend request reaction details', async () => {
+    it('returns the expected friend info for two users with a pending friend record', async () => {
       expect(
-        await friendsService.getFriendRequestReaction(user0.id, user1.id),
-      ).toBe(FriendRequestReaction.Pending);
+        await friendsService.findFriendship(user0.id, user1.id),
+      ).toMatchObject({
+        reaction: FriendRequestReaction.Pending,
+        from: user0._id,
+        to: user1._id,
+      });
+    });
+
+    it('returns the expected friend info for two users with an accepted friend record', async () => {
+      await friendsService.acceptFriendRequest(user0.id, user1.id);
+      expect(
+        await friendsService.findFriendship(user0.id, user1.id),
+      ).toMatchObject({
+        reaction: FriendRequestReaction.Accepted,
+        from: user0._id,
+        to: user1._id,
+      });
+    });
+
+    it('returns the expected friend info for two users with a declined/cancelled friend record', async () => {
+      await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user1.id);
+      expect(
+        await friendsService.findFriendship(user0.id, user1.id),
+      ).toMatchObject({
+        reaction: FriendRequestReaction.DeclinedOrCancelled,
+        from: user0._id,
+        to: user1._id,
+      });
     });
 
     it('for two users with NO friend record, returns null', async () => {
       expect(
-        await friendsService.getFriendRequestReaction(user0.id, user2.id),
+        await friendsService.findFriendship(user0.id, user2.id),
       ).toBeNull();
     });
   });
@@ -79,7 +110,7 @@ describe('FriendsService', () => {
     it('creates the expected friend record and sets friend.reaction to pending by default', async () => {
       await friendsService.createFriendRequest(newUser1.id, newUser2.id);
       expect(
-        await friendsService.getFriendRequestReaction(newUser1.id, newUser2.id),
+        (await friendsService.findFriendship(newUser1.id, newUser2.id)).reaction,
       ).toEqual(FriendRequestReaction.Pending);
     });
 
@@ -101,8 +132,7 @@ describe('FriendsService', () => {
         reaction: FriendRequestReaction.Pending,
       });
       await friendsService.createFriendRequest(newUser2.id, newUser1.id);
-      const friendData = await friendsService.getFriendRequestReaction(newUser2.id, newUser1.id);
-      expect(friendData).toEqual(FriendRequestReaction.Accepted);
+      expect((await friendsService.findFriendship(newUser2.id, newUser1.id)).reaction).toEqual(FriendRequestReaction.Accepted);
     });
   });
 
@@ -151,16 +181,16 @@ describe('FriendsService', () => {
     });
   });
 
-  describe('#declineOrCancelFriendRequest', () => {
+  describe('#cancelFriendshipOrDeclineRequest', () => {
     describe('when request is pending', () => {
       beforeEach(async () => {
         await friendsService.createFriendRequest(user0.id, user2.id);
-        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+        await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user2.id);
       });
 
       it('updates the status of the friend record to: declined', async () => {
         expect(
-          await friendsService.getFriendRequestReaction(user0.id, user2.id),
+          (await friendsService.findFriendship(user0.id, user2.id)).reaction,
         ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
       });
     });
@@ -169,12 +199,12 @@ describe('FriendsService', () => {
       beforeEach(async () => {
         await friendsService.createFriendRequest(user0.id, user2.id);
         await friendsService.acceptFriendRequest(user0.id, user2.id);
-        await friendsService.declineOrCancelFriendRequest(user0.id, user2.id);
+        await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user2.id);
       });
 
       it('updates the status of the friend record to: declined', async () => {
         expect(
-          await friendsService.getFriendRequestReaction(user0.id, user2.id),
+          (await friendsService.findFriendship(user0.id, user2.id)).reaction,
         ).toEqual(FriendRequestReaction.DeclinedOrCancelled);
       });
     });
@@ -252,8 +282,12 @@ describe('FriendsService', () => {
 
   describe('#getSuggestedFriends', () => {
     let user;
+    let user4;
     beforeEach(async () => {
       user = await usersService.create(
+        userFactory.build(),
+      );
+      user4 = await usersService.create(
         userFactory.build(),
       );
       for (let i = 0; i < 7; i += 1) {
@@ -268,6 +302,9 @@ describe('FriendsService', () => {
 
       await friendsService.acceptFriendRequest(user._id.toString(), user1._id.toString());
       await friendsService.acceptFriendRequest(user2._id.toString(), user._id.toString());
+
+      // create suggest block user
+      await friendsService.createSuggestBlock(user._id.toString(), user4._id.toString());
     });
 
     it('finds the expected number of users when the requested number is higher than the number available, '
@@ -275,6 +312,7 @@ describe('FriendsService', () => {
         const suggestedFriends = await friendsService.getSuggestedFriends(user, 14); // ask for up to 14 users
         expect(suggestedFriends).toHaveLength(8); // 11 other users in the system, but 2 are friends and 1 is pending
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
+        expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user4._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {
@@ -296,7 +334,7 @@ describe('FriendsService', () => {
     it('updates the friend request record to have the Accepted reaction', async () => {
       await friendsService.acceptFriendRequest(user0.id, user1.id);
       expect(
-        await friendsService.getFriendRequestReaction(user0.id, user1.id),
+        (await friendsService.findFriendship(user0.id, user1.id)).reaction,
       ).toEqual(FriendRequestReaction.Accepted);
     });
 
@@ -323,6 +361,93 @@ describe('FriendsService', () => {
 
     it('when userId has no any received requests', async () => {
       expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
+    });
+  });
+
+  describe('#blockFriendSuggestion', () => {
+    it('create block reaction for passed usrIds', async () => {
+      const fromAndTo = {
+        from: user0.id,
+        to: user1.id,
+      };
+      const suggestBlockNoData = await suggestBlockModel.findOne(fromAndTo);
+      expect(suggestBlockNoData).toBeNull();
+
+      await friendsService.createSuggestBlock(user0.id, user1.id);
+      const suggestBlockData = await suggestBlockModel.findOne(fromAndTo);
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
+    });
+
+    it('already created unblock reaction for passed userIds', async () => {
+      const newSuggestBlockData = await suggestBlockModel.create({
+        from: user1.id,
+        to: user2.id,
+        reaction: SuggestBlockReaction.Unblock,
+      });
+
+      await friendsService.createSuggestBlock(user1.id, user2.id);
+
+      const suggestBlockData = await suggestBlockModel.findById(newSuggestBlockData.id);
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
+    });
+
+    it('already created block reaction for passed userIds', async () => {
+      await suggestBlockModel.create({
+        from: user0.id,
+        to: user2.id,
+        reaction: SuggestBlockReaction.Block,
+      });
+
+      await friendsService.createSuggestBlock(user0.id, user2.id);
+
+      const fromAndTo = {
+        from: user0.id,
+        to: user2.id,
+      };
+      const suggestBlockData = await suggestBlockModel.find(fromAndTo);
+      expect(suggestBlockData).toHaveLength(1);
+    });
+  });
+
+  describe('#getSuggestBlockedUserIdsBySender', () => {
+    beforeEach(async () => {
+      await friendsService.createSuggestBlock(user0.id, user1.id);
+      await friendsService.createSuggestBlock(user0.id, user2.id);
+    });
+
+    it('get userIds of that pass user has created block entry for those', async () => {
+      const suggestBlockUserIdList = await friendsService.getSuggestBlockedUserIdsBySender(user0.id);
+      expect(suggestBlockUserIdList.map((suggestBlockUserId) => suggestBlockUserId.toString())).toEqual([
+        user1.id,
+        user2.id,
+      ]);
+    });
+  });
+
+  describe('#deleteAllFriendRequest', () => {
+    beforeEach(async () => {
+      // Pending friend request
+      await friendsService.createFriendRequest(user2.id, user0.id);
+
+      // Accepted friend
+      await friendsService.createFriendRequest(user3.id, user0.id);
+      await friendsService.acceptFriendRequest(user3.id, user0.id);
+
+      // Declined friend
+      await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user1.id);
+    });
+
+    it('delete the friend request data successful of passed userId', async () => {
+      await friendsService.deleteAllByUserId(user0.id);
+      expect(
+        await friendsModel.find({
+          $or: [
+            { from: user0.id },
+            { to: user0.id },
+          ],
+        })
+          .exec(),
+      ).toHaveLength(0);
     });
   });
 });

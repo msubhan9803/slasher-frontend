@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from '../user/user.schema';
-import { SuggestBlockReaction } from './suggestBlock.enums';
-import { SuggestBlockUnusedFields } from './suggestBlock.unused-fields';
+import { BlockAndUnblockReaction } from './blockAndUnblock.enums';
+import { BlockAndUnblockUnusedFields } from './blockAndUnblock.unused-fields';
 
 @Schema({ timestamps: true })
-export class SuggestBlock extends SuggestBlockUnusedFields {
+export class BlockAndUnblock extends BlockAndUnblockUnusedFields {
   /***********
    * Fields *
    ***********/
@@ -28,17 +28,17 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
 
   @Prop({
     enum: [
-      SuggestBlockReaction.Block,
-      SuggestBlockReaction.Unblock,
+      BlockAndUnblockReaction.Block,
+      BlockAndUnblockReaction.Unblock,
     ],
   })
-  reaction: SuggestBlockReaction;
+  reaction: BlockAndUnblockReaction;
 
   /***********
    * Methods *
    ***********/
 
-  constructor(options?: Partial<SuggestBlock>) {
+  constructor(options?: Partial<BlockAndUnblock>) {
     super();
     if (!options) {
       return;
@@ -49,13 +49,16 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
   }
 }
 
-export const SuggestBlockSchema = SchemaFactory.createForClass(SuggestBlock);
+export const BlockAndUnblockSchema = SchemaFactory.createForClass(BlockAndUnblock);
 
-// TODO: When reasonOfReport is removed, remove it from the index here too
-SuggestBlockSchema.index(
+// TODO: When relationId is removed, remove it from the index here too.
+// TODO: When requestFrom is removed, remove it from the index here too.
+// TODO: When reasonOfReport is removed, remove it from the index here too.
+// TODO: When created is removed, remove it from the index here too.
+BlockAndUnblockSchema.index(
   {
-    to: 1, from: 1, reaction: 1, reasonOfReport: 1,
+    to: 1, from: 1, reaction: 1, relationId: 1, requestFrom: 1, reasonOfReport: 1, created: 1,
   },
 );
 
-export type SuggestBlockDocument = SuggestBlock & Document;
+export type BlockAndUnblockDocument = BlockAndUnblock & Document;

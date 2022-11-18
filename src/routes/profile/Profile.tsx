@@ -13,17 +13,21 @@ import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileF
 import { getUser } from '../../api/users';
 import { User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { setSidebarUserData } from '../../redux/slices/sidebarContextSlice';
+import { useAppDispatch } from '../../redux/hooks';
 
 function Profile() {
   const { userName } = useParams<string>();
   const [user, setUser] = useState<User>();
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (userName) {
       getUser(userName)
         .then((res) => {
           setUser(res.data);
+          dispatch(setSidebarUserData(res.data));
         }).catch(() => setUserNotFound(true));
     }
   }, [userName]);

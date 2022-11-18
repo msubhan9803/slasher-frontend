@@ -350,4 +350,31 @@ describe('FriendsService', () => {
       expect(await friendsService.getReceivedFriendRequestCount(user2.id)).toBe(0);
     });
   });
+
+  describe('#deleteAllFriendRequest', () => {
+    beforeEach(async () => {
+      // Pending friend request
+      await friendsService.createFriendRequest(user2.id, user0.id);
+
+      // Accepted friend
+      await friendsService.createFriendRequest(user3.id, user0.id);
+      await friendsService.acceptFriendRequest(user3.id, user0.id);
+
+      // Declined friend
+      await friendsService.cancelFriendshipOrDeclineRequest(user0.id, user1.id);
+    });
+
+    it('delete the friend request data successful of passed userId', async () => {
+      await friendsService.deleteAllByUserId(user0.id);
+      expect(
+        await friendsModel.find({
+          $or: [
+            { from: user0.id },
+            { to: user0.id },
+          ],
+        })
+          .exec(),
+      ).toHaveLength(0);
+    });
+  });
 });

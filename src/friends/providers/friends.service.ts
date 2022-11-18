@@ -208,4 +208,12 @@ export class FriendsService {
       .exec();
     return friendsCount;
   }
+
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.friendsModel
+      .deleteMany({
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+      })
+      .exec();
+  }
 }

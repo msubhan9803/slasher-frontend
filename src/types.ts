@@ -35,3 +35,16 @@ export interface User {
   coverPhoto: string;
   aboutMe: string;
 }
+
+export interface MessagesList {
+  _id: string;
+  unreadCount: number;
+  latestMessage: string;
+  user: UserMesssage
+}
+
+export interface UserMesssage {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}

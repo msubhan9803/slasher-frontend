@@ -150,12 +150,12 @@ export async function uploadUserCoverImage(file: File) {
   return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
 }
 
-export async function userPhotos(id: string, lastRetrievedPostId?: string) {
+export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = '?limit=10';
+  let queryParameter = `?limit=${limit || '10'}`;
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }

@@ -11,11 +11,13 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WsException,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
+import { sleep } from '../../utils/timer-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 /**
@@ -53,7 +55,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         const user = await this.usersService.findById(userId);
 
         if (user && user.passwordChangedAt?.toISOString() === passwordChangedAt) {
-          // This is valid, so we'll return and take no further action.
+          // User is valid. Create SocketUser entry for this socketId + userId combination.
+          await this.usersService.createSocketUserEntry(client.id, user.id);
+          // And then return, because we have successfully authenticated.
           return;
         }
       } catch (e) {
@@ -70,8 +74,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.disconnect();
   }
 
-  handleDisconnect(client: any) {
-    console.log(`(app gateway) client disconnected: ${client.id}`);
+  async handleDisconnect(client: any) {
+    // During a disconnect, we always want to clean up the SocketUser entry
+    await this.usersService.deleteSocketUserEntry(client.id);
   }
 
   // This is just an end point for verifying a connection

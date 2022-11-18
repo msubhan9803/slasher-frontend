@@ -14,6 +14,7 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -51,6 +52,8 @@ import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { UserSettingsService } from '../settings/providers/user-settings.service';
+import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -363,6 +366,27 @@ export class UsersController {
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto', 'aboutMe']);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  @Patch('change-password')
+  async changePassword(@Req() request: Request, @Body() changePasswordDto: ChangePasswordDto) {
+    const user = getUserFromRequest(request);
+
+    if (!bcrypt.compareSync(changePasswordDto.currentPassword, user.password)) {
+      throw new HttpException(
+        'Invalid value supplied for current password.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    user.setUnhashedPassword(changePasswordDto.newPassword);
+    user.lastPasswordResetTime = new Date();
+    await user.save();
+
+    return {
+      success: true,
+    };
+  }
+
   @Patch(':id')
   async update(@Req() request: Request, @Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     const user = getUserFromRequest(request);
@@ -491,5 +515,39 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts;
+  }
+
+  @Delete('delete-account')
+  async deleteAccount(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException(
+        'Supplied userId does not match current user\'s id.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // This is to remove all friendships and pending friend requests related to this user.
+    await this.friendsService.deleteAllByUserId(user.id);
+
+    // Mark user as deleted
+    user.deleted = true;
+
+    // Change user's password to a new random value, to ensure that current session is invalidated
+    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
+    user.setUnhashedPassword(uuidv4());
+
+    // Save changes to user object
+    await user.save();
+
+    return {
+      success: true,
+    };
   }
 }

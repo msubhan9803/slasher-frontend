@@ -16,21 +16,18 @@ export class FriendsService {
     @InjectModel(SuggestBlock.name) private suggestBlockModel: Model<SuggestBlockDocument>,
   ) { }
 
-  async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
-    const friend = await this.friendsModel
+  async findFriendship(fromUserId: string, toUserId: string): Promise<Friend | null> {
+    return this.friendsModel
       .findOne({
         $or: [
-          { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-          { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+          { from: new mongoose.Types.ObjectId(fromUserId), to: new mongoose.Types.ObjectId(toUserId) },
+          { from: new mongoose.Types.ObjectId(toUserId), to: new mongoose.Types.ObjectId(fromUserId) },
         ],
       })
       .exec();
-    return friend ? friend.reaction : null;
   }
 
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
-    const currentFriendReaction = await this.getFriendRequestReaction(fromUserId, toUserId);
-
     let friend: any = await this.friendsModel
       .findOne({
         $or: [
@@ -51,10 +48,10 @@ export class FriendsService {
         to: new mongoose.Types.ObjectId(toUserId),
         reaction: FriendRequestReaction.Pending,
       };
-      await this.friendsModel.create(friends);
+      friend = await this.friendsModel.create(friends);
     }
 
-    if (currentFriendReaction === FriendRequestReaction.Accepted) {
+    if (friend.reaction === FriendRequestReaction.Accepted) {
       throw new Error('Cannot create friend request. Already friends.');
     }
 
@@ -235,5 +232,13 @@ export class FriendsService {
     const suggestBlock = await this.suggestBlockModel.find(fromAndBlockQuery).select('to');
 
     return suggestBlock.map((data) => data.to);
+  }
+
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.friendsModel
+      .deleteMany({
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+      })
+      .exec();
   }
 }

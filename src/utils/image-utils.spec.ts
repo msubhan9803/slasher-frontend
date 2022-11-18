@@ -20,6 +20,10 @@ describe('image-utils', () => {
         expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(`${s3Host}/placeholders/default_user_icon.png`);
       });
 
+      it('generates the expected placeholder image url for a path that starts with /placeholders/', () => {
+        expect(relativeToFullImagePath(config, '/placeholders/anything.png')).toBe(`${s3Host}/placeholders/anything.png`);
+      });
+
       it('for a falsy value like null, returns the passed-in falsy value', () => {
         expect(relativeToFullImagePath(config, null)).toBeNull();
       });
@@ -38,6 +42,10 @@ describe('image-utils', () => {
 
       it('generates the expected placeholder image url for the special noUser value', () => {
         expect(relativeToFullImagePath(config, specialNoUserValue)).toBe(`${apiUrl}/placeholders/default_user_icon.png`);
+      });
+
+      it('generates the expected placeholder image url for a path that starts with /placeholders/', () => {
+        expect(relativeToFullImagePath(config, '/placeholders/anything.png')).toBe(`${apiUrl}/placeholders/anything.png`);
       });
 
       it('for a falsy value like null, returns the passed-in falsy value', () => {

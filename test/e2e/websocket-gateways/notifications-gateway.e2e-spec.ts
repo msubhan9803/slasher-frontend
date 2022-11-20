@@ -9,8 +9,7 @@ import { AppModule } from '../../../src/app.module';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 // Setting a longer timeout for this file because these tests can run slowly in the CI environment
 jest.setTimeout(20_000);
@@ -50,7 +49,7 @@ describe('Notifications Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

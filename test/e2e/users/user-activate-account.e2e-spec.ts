@@ -8,7 +8,7 @@ import { ActivateAccountDto } from 'src/users/dto/user-activate-account.dto';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -32,7 +32,7 @@ describe('Users activate account (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('POST /users/activate-account', () => {

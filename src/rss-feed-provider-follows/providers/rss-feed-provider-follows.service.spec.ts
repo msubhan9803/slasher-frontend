@@ -11,7 +11,7 @@ import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-
 import { User } from '../../schemas/user/user.schema';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProviderFollowDocument } from '../../schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('RssFeedProviderFollowsService', () => {
   let app: INestApplication;
@@ -42,7 +42,7 @@ describe('RssFeedProviderFollowsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());

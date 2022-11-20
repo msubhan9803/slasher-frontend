@@ -9,7 +9,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -45,7 +45,7 @@ describe('ChatService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build({ userName: 'Jack' }));
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));

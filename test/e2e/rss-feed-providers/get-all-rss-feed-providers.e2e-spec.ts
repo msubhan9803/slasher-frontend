@@ -11,7 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('rssFeedProviders all (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +41,7 @@ describe('rssFeedProviders all (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

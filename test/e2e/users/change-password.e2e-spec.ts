@@ -10,7 +10,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { ChangePasswordDto } from '../../../src/users/dto/change-password.dto';
 import { User } from '../../../src/schemas/user/user.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users change password (e2e)', () => {
   let app: INestApplication;
@@ -37,7 +37,7 @@ describe('Users change password (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('PATCH /users/change-password', () => {

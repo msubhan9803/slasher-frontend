@@ -15,7 +15,7 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { eventsFactory } from '../../factories/events.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Event counts by date range / (e2e)', () => {
   let app: INestApplication;
@@ -65,7 +65,7 @@ describe('Event counts by date range / (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     eventCategory = await eventCategoriesService.create(eventCategoryFactory.build());

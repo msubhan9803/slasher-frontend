@@ -11,7 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -42,7 +42,7 @@ describe('UserId Posts With Images (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

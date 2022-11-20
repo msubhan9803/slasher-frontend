@@ -13,7 +13,7 @@ import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
 import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -49,7 +49,7 @@ describe('FriendsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));

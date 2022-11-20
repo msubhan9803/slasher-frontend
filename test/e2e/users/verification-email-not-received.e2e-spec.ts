@@ -9,7 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { MailService } from '../../../src/providers/mail.service';
 import { VerificationEmailNotReceivedDto } from '../../../src/users/dto/verification-email-not-recevied.dto';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
@@ -35,7 +35,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('POST /users/verification-email-not-received', () => {

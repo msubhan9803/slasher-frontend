@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users validate password reset token (e2e)', () => {
   let app: INestApplication;
@@ -31,7 +31,7 @@ describe('Users validate password reset token (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('GET /users/validate-password-reset-token', () => {

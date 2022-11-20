@@ -14,7 +14,7 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { eventsFactory } from '../../factories/events.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { Event } from '../../../src/schemas/event/event.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Events update / :id (e2e)', () => {
   let app: INestApplication;
@@ -55,7 +55,7 @@ describe('Events update / :id (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());

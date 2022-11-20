@@ -11,7 +11,7 @@ import { UserSignInDto } from '../../../src/users/dto/user-sign-in.dto';
 import { userFactory } from '../../factories/user.factory';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -45,7 +45,7 @@ describe('Users sign-in (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(

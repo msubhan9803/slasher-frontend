@@ -9,7 +9,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { UserSettingDocument } from '../../schemas/userSetting/userSetting.schema';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('UserSettingsService', () => {
   let app: INestApplication;
@@ -36,7 +36,7 @@ describe('UserSettingsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
     userData = await usersService.create(userFactory.build());
     userSetting = await userSettingsService.create(
       userSettingFactory.build(

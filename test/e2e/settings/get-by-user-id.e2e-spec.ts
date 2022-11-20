@@ -10,7 +10,7 @@ import { userSettingFactory } from '../../factories/user-setting.factory';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('GET settings (e2e)', () => {
   let app: INestApplication;
@@ -40,7 +40,7 @@ describe('GET settings (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('GET /settings/notifications', () => {

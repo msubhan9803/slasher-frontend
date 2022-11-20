@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { HttpModule } from '@nestjs/axios';
 import { Movie, MovieSchema } from '../schemas/movie/movie.schema';
 import { addPrePostHooks } from '../schemas/movie/movie.pre-post-hooks';
 import { MoviesController } from './movies.controller';
@@ -17,6 +18,7 @@ import { MoviesService } from './providers/movies.service';
         },
       },
     ]),
+    HttpModule,
   ],
   controllers: [MoviesController],
   providers: [MoviesService],

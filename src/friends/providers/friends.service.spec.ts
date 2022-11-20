@@ -12,6 +12,7 @@ import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
 import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('FriendsService', () => {
   let user3: UserDocument;
   let friendsModel: Model<FriendDocument>;
   let suggestBlockModel: Model<SuggestBlockDocument>;
+  let blocksService: BlocksService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -31,6 +33,7 @@ describe('FriendsService', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    blocksService = moduleRef.get<BlocksService>(BlocksService);
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
@@ -283,11 +286,15 @@ describe('FriendsService', () => {
   describe('#getSuggestedFriends', () => {
     let user;
     let user4;
+    let user5;
     beforeEach(async () => {
       user = await usersService.create(
         userFactory.build(),
       );
       user4 = await usersService.create(
+        userFactory.build(),
+      );
+      user5 = await usersService.create(
         userFactory.build(),
       );
       for (let i = 0; i < 7; i += 1) {
@@ -305,6 +312,7 @@ describe('FriendsService', () => {
 
       // create suggest block user
       await friendsService.createSuggestBlock(user._id.toString(), user4._id.toString());
+      await blocksService.createBlock(user._id.toString(), user5._id.toString());
     });
 
     it('finds the expected number of users when the requested number is higher than the number available, '
@@ -313,6 +321,7 @@ describe('FriendsService', () => {
         expect(suggestedFriends).toHaveLength(8); // 11 other users in the system, but 2 are friends and 1 is pending
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user._id);
         expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user4._id);
+        expect(suggestedFriends.map((friend) => friend._id)).not.toContain(user5._id);
       });
 
     it('returns the expected number of users when the requested number equals the number available', async () => {

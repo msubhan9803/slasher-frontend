@@ -40,7 +40,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
         { provide: HttpService, useFactory: mockHttpService },
       ],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);

@@ -18,7 +18,7 @@ describe('Local-Storage / Get File (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     localStorageService = moduleRef.get<LocalStorageService>(LocalStorageService);
     app = moduleRef.createNestApplication();
     await app.init();

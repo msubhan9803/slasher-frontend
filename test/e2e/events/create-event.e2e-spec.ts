@@ -42,7 +42,7 @@ describe('Events create / (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
     usersService = moduleRef.get<UsersService>(UsersService);

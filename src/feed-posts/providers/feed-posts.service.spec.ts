@@ -32,7 +32,7 @@ describe('FeedPostsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);

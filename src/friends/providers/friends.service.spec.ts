@@ -32,7 +32,7 @@ describe('FriendsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     blocksService = moduleRef.get<BlocksService>(BlocksService);
     usersService = moduleRef.get<UsersService>(UsersService);

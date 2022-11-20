@@ -26,7 +26,7 @@ describe('BlocksService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     blocksService = moduleRef.get<BlocksService>(BlocksService);
     usersService = moduleRef.get<UsersService>(UsersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));

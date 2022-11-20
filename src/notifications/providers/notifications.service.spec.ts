@@ -20,7 +20,7 @@ describe('NotificationsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
 

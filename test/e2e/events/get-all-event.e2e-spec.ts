@@ -34,7 +34,7 @@ describe('Events all / (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     eventService = moduleRef.get<EventService>(EventService);
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);

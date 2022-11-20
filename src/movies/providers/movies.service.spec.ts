@@ -38,7 +38,7 @@ describe('MoviesService', () => {
         { provide: HttpService, useFactory: mockHttpService },
       ],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     httpService = moduleRef.get<HttpService>(HttpService);

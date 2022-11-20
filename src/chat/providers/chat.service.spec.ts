@@ -29,7 +29,7 @@ describe('ChatService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     chatService = moduleRef.get<ChatService>(ChatService);
     usersService = moduleRef.get<UsersService>(UsersService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));

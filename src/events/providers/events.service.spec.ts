@@ -43,7 +43,7 @@ describe('EventService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     eventService = moduleRef.get<EventService>(EventService);
     usersService = moduleRef.get<UsersService>(UsersService);
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);

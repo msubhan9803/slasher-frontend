@@ -1,4 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
 export class BlockAndUnblockUnusedFields {
   // This field is null 100% of the time in the database. We should be able to remove it once
@@ -14,7 +15,7 @@ export class BlockAndUnblockUnusedFields {
   // This field is null 100% of the time in the database. We should be able to remove it once
   // we retire the old API.
   @Prop({ default: null, ref: 'relations' })
-  relationId: string;
+  relationId: mongoose.Types.ObjectId;
 
   // When the old API is retired, we can get rid of this field.  It's redundant since we also
   // have an automatically set createdAt field.

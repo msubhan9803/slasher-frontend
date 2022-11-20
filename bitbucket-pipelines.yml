@@ -38,6 +38,15 @@ definitions:
           # Run tests
           - npm run test
           - npm run test:e2e
+          # Temporarily run tests several additional times
+          - npm run test
+          - npm run test:e2e
+          - npm run test
+          - npm run test:e2e
+          - npm run test
+          - npm run test:e2e
+          - npm run test
+          - npm run test:e2e
           # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
           - docker container kill $DOCKER_MONGO_CONTAINER_ID
           # Stop docker redis (kill for speed, since this is CI and clean shutdown doesn't matter)

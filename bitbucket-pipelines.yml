@@ -3,6 +3,9 @@ image: atlassian/default-image:3
 definitions:
   caches:
     node: node_modules
+  services:
+    docker:
+      memory: 2048 # increase default docker memory to speed up docker apps
   steps:
     - step: &lint-test-build
         # If our test runs for more than 15 minutes, something is definitely wrong.
@@ -36,15 +39,6 @@ definitions:
           # Copy template env file to .env.test (to support testing)
           - cp .env.test.template .env.test
           # Run tests
-          - npm run test
-          - npm run test:e2e
-          # Temporarily run tests several additional times
-          - npm run test
-          - npm run test:e2e
-          - npm run test
-          - npm run test:e2e
-          - npm run test
-          - npm run test:e2e
           - npm run test
           - npm run test:e2e
           # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)

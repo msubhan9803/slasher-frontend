@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
@@ -11,6 +13,7 @@ export class FriendsService {
   constructor(
     @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
     @InjectModel(User.name) private usersModel: Model<UserDocument>,
+    @InjectModel(SuggestBlock.name) private suggestBlockModel: Model<SuggestBlockDocument>,
   ) { }
 
   async findFriendship(fromUserId: string, toUserId: string): Promise<Friend | null> {
@@ -167,9 +170,11 @@ export class FriendsService {
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
     const friendIds = await this.getFriendIds(user._id, true);
+    const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
+        { _id: { $nin: suggestBlockUserIds } },
         { _id: { $ne: user._id } },
       ],
     }).sort({ createdAt: -1 }).limit(limit)
@@ -207,5 +212,33 @@ export class FriendsService {
       .count()
       .exec();
     return friendsCount;
+  }
+
+  async createSuggestBlock(fromUserId: string, toUserId: string): Promise<void> {
+    const fromAndTo = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      to: new mongoose.Types.ObjectId(toUserId),
+    };
+
+    await this.suggestBlockModel.findOneAndUpdate(fromAndTo, { $set: { reaction: SuggestBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getSuggestBlockedUserIdsBySender(fromUserId: string): Promise<Partial<User[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: SuggestBlockReaction.Block,
+    };
+
+    const suggestBlock = await this.suggestBlockModel.find(fromAndBlockQuery).select('to');
+
+    return suggestBlock.map((data) => data.to);
+  }
+
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.friendsModel
+      .deleteMany({
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+      })
+      .exec();
   }
 }

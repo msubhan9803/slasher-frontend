@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../app.module';
 import { UsersService } from './users.service';
@@ -9,11 +9,13 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { ActiveStatus } from '../../schemas/user/user.enums';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
+import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
 
 describe('UsersService', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
+  let socketUsersModel: Model<SocketUserDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -21,6 +23,7 @@ describe('UsersService', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
+    socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -297,6 +300,73 @@ describe('UsersService', () => {
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit);
       expect(suggestUserNames).toEqual([]);
+    });
+  });
+
+  describe('#createSocketUserEntry', () => {
+    let user;
+    const socketId = 'abc123';
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+    });
+    it('successfully creates a SocketUser with the correct property values', async () => {
+      const socketUser = await usersService.createSocketUserEntry(socketId, user.id);
+      const reloadedSocketUser = await socketUsersModel.findById(socketUser.id);
+      expect(reloadedSocketUser.userId).toEqual(socketUser.userId);
+      expect(reloadedSocketUser.socketId).toEqual(socketUser.socketId);
+    });
+  });
+
+  describe('#findBySocketId', () => {
+    let user;
+    const socketId = 'abc123';
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.createSocketUserEntry(socketId, user.id);
+    });
+    it('finds the expected User by socket id', async () => {
+      expect((await usersService.findBySocketId(socketId))._id).toEqual(user._id);
+    });
+  });
+
+  describe('#findSocketIdsForUser', () => {
+    let user;
+    const socketIds = ['abc123', 'def456'];
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.createSocketUserEntry(socketIds[0], user.id);
+      await usersService.createSocketUserEntry(socketIds[1], user.id);
+    });
+    it('finds the expected socket ids for the user', async () => {
+      expect((await usersService.findSocketIdsForUser(user.id)).sort()).toEqual(socketIds.sort());
+    });
+
+    it('returns an empty array when no SocketUser entries are found for a user', async () => {
+      expect(await usersService.findSocketIdsForUser(
+        (await usersService.create(userFactory.build())).id,
+      )).toHaveLength(0);
+    });
+  });
+
+  describe('#deleteSocketUserEntry', () => {
+    let user;
+    const socketId = 'abc123';
+    beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(),
+      );
+      await usersService.createSocketUserEntry(socketId, user.id);
+    });
+    it('finds the expected User by socket id', async () => {
+      expect((await usersService.findBySocketId(socketId))._id).toEqual(user._id);
+      await usersService.deleteSocketUserEntry(socketId);
+      expect((await usersService.findBySocketId(socketId))).toBeNull();
     });
   });
 });

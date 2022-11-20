@@ -164,6 +164,15 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
+      it('limit should not be grater than 30', async () => {
+        const limit = 31;
+        const response = await request(app.getHttpServer())
+          .get(`/feed-posts?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 30');
+      });
+
       it('`before` must match regular expression', async () => {
         const limit = 3;
         const before = '634912b2@2c2f4f5e0e6228#';

@@ -1,14 +1,12 @@
 import { Type } from 'class-transformer';
 import {
-  IsMongoId,
-  IsNotEmpty, IsNumber, IsOptional, IsString, Max,
+  IsNotEmpty, IsNumber, IsString, IsMongoId, IsOptional,
 } from 'class-validator';
 
-export class MainFeedPostQueryDto {
+export class GetConversationsQueryDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  @Max(30)
   limit: number;
 
   @IsString()

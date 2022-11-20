@@ -66,7 +66,9 @@ describe('Create Block (e2e)', () => {
         await request(app.getHttpServer())
           .post('/blocks')
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send({ userId: user1._id });
+          .send({ userId: user1._id })
+          .expect(HttpStatus.CREATED)
+          .expect({ success: true });
         expect(await blocksModel.findOne({ to: user1._id })).toBeTruthy();
       });
     });

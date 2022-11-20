@@ -60,7 +60,9 @@ describe('Delete Block (e2e)', () => {
         await request(app.getHttpServer())
           .delete(`/blocks?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
+          .send()
+          .expect(HttpStatus.OK)
+          .expect({ success: true });
         expect(await blocksModel.findOne({ to: user1._id })).toBeNull();
       });
     });

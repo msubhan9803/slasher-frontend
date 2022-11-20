@@ -21,6 +21,7 @@ import { FriendsModule } from './friends/friends.module';
 import { UserSettingModule } from './settings/user-settings.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { AppGateway } from './app/providers/app.gateway';
+import { BlocksModule } from './blocks/blocks.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AppGateway } from './app/providers/app.gateway';
     FriendsModule,
     UserSettingModule,
     RssFeedProviderFollowsModule,
+    BlocksModule,
   ],
   controllers: [AppController],
   providers: [

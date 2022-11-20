@@ -22,6 +22,7 @@ export class BlocksController {
     const user = getUserFromRequest(request);
     await this.blocksService.createBlock(user._id, createBlockDto.userId);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, createBlockDto.userId);
+    return { success: true };
   }
 
   @Delete()
@@ -31,6 +32,7 @@ export class BlocksController {
   ) {
     const user = getUserFromRequest(request);
     await this.blocksService.deleteBlock(user._id, deleteBlockQueryDto.userId);
+    return { success: true };
   }
 
   @Get()

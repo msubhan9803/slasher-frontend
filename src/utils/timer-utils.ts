@@ -6,3 +6,13 @@
 export function sleep(ms: number) {
   return new Promise((resolve) => { setTimeout(resolve, ms); });
 }
+
+export async function waitFor(func: () => boolean, timeoutInMillis: number) {
+  // return new Promise((resolve) => { setTimeout(resolve, ms); });
+  const startTime = Date.now();
+  while (!func() && Date.now() - startTime < timeoutInMillis) {
+    await sleep(100);
+    // eslint-disable-next-line no-console
+    console.log('waiting...');
+  }
+}

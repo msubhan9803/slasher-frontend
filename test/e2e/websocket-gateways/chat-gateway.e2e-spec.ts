@@ -16,7 +16,6 @@ describe('Chat Gateway (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let configService: ConfigService;
-  let address: any;
   let baseAddress: string;
   let activeUser: UserDocument;
   let activeUserAuthToken: string;
@@ -30,13 +29,15 @@ describe('Chat Gateway (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+
+    // Set up redis adapter
     const redisIoAdapter = new RedisIoAdapter(app, configService);
     await redisIoAdapter.connectToRedis();
     app.useWebSocketAdapter(redisIoAdapter);
-    await app.init();
 
-    address = app.getHttpServer().listen().address();
-    baseAddress = `http://[${address.address}]:${address.port}`;
+    // For socket tests, we use app.listen() instead of app.init()
+    await app.listen(configService.get<number>('PORT'));
+    baseAddress = `http://localhost:${configService.get<number>('PORT')}`;
   });
 
   afterAll(async () => {

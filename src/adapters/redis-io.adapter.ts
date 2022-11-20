@@ -33,7 +33,6 @@ export class RedisIoAdapter extends IoAdapter {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async close(server: Server): Promise<void> {
-    server.disconnectSockets(true);
     await Promise.all([this.pubClient.disconnect(), this.subClient.disconnect()]);
   }
 }

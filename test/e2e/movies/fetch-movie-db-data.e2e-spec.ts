@@ -12,12 +12,13 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
-  import { MoviesService } from '../../../src/movies/providers/movies.service';
+import { MoviesService } from '../../../src/movies/providers/movies.service';
 import { moviesFactory } from '../../factories/movies.factory';
 import moviedbid2907ApiVideosResponse from '../../fixtures/movie-db/moviedbid-2907-api-videos-response';
 import moviedbid2907ApiMainMovieResponse from '../../fixtures/movie-db/moviedbid-2907-api-main-movie-response';
 import moviedbid2907ApiConfigurationResponse from '../../fixtures/movie-db/moviedbid-2907-api-configuration-response';
 import moviedbid2907ApiCreditsResponse from '../../fixtures/movie-db/moviedbid-2907-api-credits-response';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 const mockHttpService = () => ({
 });
@@ -55,7 +56,8 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),

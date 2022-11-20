@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -43,7 +44,7 @@ describe('Add Friends (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

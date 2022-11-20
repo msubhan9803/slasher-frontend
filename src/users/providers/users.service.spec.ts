@@ -10,6 +10,7 @@ import { ActiveStatus } from '../../schemas/user/user.enums';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
+import { dropCollections } from '../../../test/helpers/mongo-helpers';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -35,7 +36,7 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   it('should be defined', () => {

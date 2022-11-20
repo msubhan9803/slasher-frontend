@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +42,7 @@ describe('Users suggested friends (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),

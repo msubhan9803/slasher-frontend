@@ -9,6 +9,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('App Gateway (e2e)', () => {
   let app: INestApplication;
@@ -44,7 +45,7 @@ describe('App Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

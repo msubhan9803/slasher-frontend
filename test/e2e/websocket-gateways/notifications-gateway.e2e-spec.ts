@@ -12,6 +12,9 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
 import { dropCollections } from '../../helpers/mongo-helpers';
 
+// Setting a longer timeout for this file because these tests can run slowly in the CI environment
+jest.setTimeout(20_000);
+
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;

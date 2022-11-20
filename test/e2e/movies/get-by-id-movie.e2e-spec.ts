@@ -11,6 +11,7 @@ import { MoviesService } from '../../../src/movies/providers/movies.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../src/schemas/movie/movie.enums';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('GET Movie (e2e)', () => {
   let app: INestApplication;
@@ -40,7 +41,7 @@ describe('GET Movie (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('GET /movies/:id', () => {

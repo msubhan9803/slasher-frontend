@@ -9,6 +9,7 @@ import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Get Friends (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +42,7 @@ describe('Get Friends (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());

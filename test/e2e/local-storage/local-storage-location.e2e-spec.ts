@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from '../../../src/app.module';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../src/local-storage/providers/local-storage.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +30,7 @@ describe('Local-Storage / Get File (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('GET /local-storage/:location', () => {

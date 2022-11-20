@@ -12,6 +12,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { MoviesService } from '../../../src/movies/providers/movies.service';
 import { moviesFactory } from '../../factories/movies.factory';
 import { MovieActiveStatus } from '../../../src/schemas/movie/movie.enums';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('All Movies (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +42,7 @@ describe('All Movies (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -54,9 +55,7 @@ describe('All Movies (e2e)', () => {
       await moviesService.create(
         moviesFactory.build(
           {
-            status: MovieActiveStatus.Active,
-            name: 'a',
-            logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
+            status: MovieActiveStatus.Active, name: 'a', logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
           },
         ),
       );

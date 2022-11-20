@@ -8,6 +8,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { notificationFactory } from '../../../test/factories/notification.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
+import { dropCollections } from '../../../test/helpers/mongo-helpers';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -33,7 +34,7 @@ describe('NotificationsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   it('should be defined', () => {

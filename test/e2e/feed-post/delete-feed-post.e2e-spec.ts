@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Feed-Post / Delete Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -40,7 +41,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('Delete Feed Post', () => {

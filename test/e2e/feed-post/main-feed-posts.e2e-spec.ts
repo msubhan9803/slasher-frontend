@@ -16,6 +16,7 @@ import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums'
 import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -56,7 +57,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),

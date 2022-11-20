@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { relativeToFullImagePath } from '../../../src/utils/image-utils';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -36,7 +37,7 @@ describe('GET /users/:id (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('GET /users/:idOrUserName', () => {

@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { moviesFactory } from '../../factories/movies.factory';
 import { MoviesService } from '../../../src/movies/providers/movies.service';
 import { MovieActiveStatus } from '../../../src/schemas/movie/movie.enums';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Movie / Find First By Release Year (e2e)', () => {
   let app: INestApplication;
@@ -40,7 +41,7 @@ describe('Movie / Find First By Release Year (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),

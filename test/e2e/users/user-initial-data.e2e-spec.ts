@@ -77,6 +77,7 @@ describe('Users suggested friends (e2e)', () => {
         const recentMessages = [];
         for (const chat of chat0) {
           chat._id = chat._id.toString();
+          chat.updatedAt = chat.updatedAt.toISOString();
           chat.user._id = chat.user._id.toString();
           recentMessages.push(chat);
         }

@@ -40,6 +40,7 @@ export interface MessagesList {
   _id: string;
   unreadCount: number;
   latestMessage: string;
+  updatedAt: string;
   user: UserMesssage
 }
 

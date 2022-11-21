@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import { DateTime } from 'luxon';
 import { getMessagesList } from '../../api/messages';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
@@ -14,6 +15,7 @@ export interface NewMessagesList {
   id: string;
   userName: string;
   profilePic: string;
+  updatedAt: string;
 }
 
 function Messages() {
@@ -47,6 +49,7 @@ function Messages() {
             latestMessage: data.latestMessage,
             userName: data.user.userName,
             profilePic: data.user.profilePic,
+            updatedAt: data.updatedAt,
           };
           return message;
         });
@@ -103,7 +106,7 @@ function Messages() {
                   userName={message.userName}
                   message={message.latestMessage}
                   count={message.unreadCount}
-                  timeStamp="06/18/2022 11:10PM"
+                  timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
                   handleDropdownOption={handleMessagesOption}
                 />
               </div>

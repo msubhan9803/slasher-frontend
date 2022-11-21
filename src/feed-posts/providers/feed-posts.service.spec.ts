@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -378,6 +379,90 @@ describe('FeedPostsService', () => {
       const secondResults = await feedPostsService
         .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
       expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#findAllByRssFeedProvider', () => {
+    let rssFeedProviderToFollow1;
+    beforeEach(async () => {
+      // Create rss feed providers
+      rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+      // Create some posts of the rss feed providers
+        for (let i = 0; i < 4; i += 1) {
+          await Promise.all([
+            // Active post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProviderToFollow1._id,
+                userId: rssFeedProviderToFollow1._id,
+              }),
+            ),
+            // Inactive post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProviderToFollow1._id,
+                userId: rssFeedProviderToFollow1._id,
+                status: FeedPostStatus.Inactive,
+              }),
+            ),
+            // Deleted post
+            await feedPostsService.create(
+              feedPostFactory.build({
+                rssfeedProviderId: rssFeedProviderToFollow1._id,
+                userId: rssFeedProviderToFollow1._id,
+                is_deleted: FeedPostDeletionState.Deleted,
+              }),
+            ),
+          ]);
+        }
+    });
+
+    it('finds the expected set of feed posts for rss feed provider of any status, ordered in the correct order', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 50, false);
+
+      // We expect 12 posts total because:
+      // - The rssFeedProviderToFollow1 has total 12 posts including
+      //   status Active, Inactive and Deleted
+      expect(feedPosts).toHaveLength(12);
+
+      // And we expect them to be sorted by createdAt date
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+      }
+    });
+
+    it('finds the expected set of feed posts for rss feed provider only active, ordered in the correct order', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true);
+
+      // We expect 4 posts total because:
+      // - The rssFeedProviderToFollow1 has total 4 posts including
+      //   status Active
+      expect(feedPosts).toHaveLength(4);
+
+      // And we expect them to be sorted by createdAt date
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+      }
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 8;
+      const firstResults = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, limit, false);
+      for (let index = 1; index < firstResults.length; index += 1) {
+        expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
+      }
+      expect(firstResults).toHaveLength(8);
+      const secondResults = await feedPostsService.findAllByRssFeedProvider(
+        rssFeedProviderToFollow1.id,
+        limit,
+        false,
+        firstResults[limit - 1]._id,
+      );
+      for (let index = 1; index < secondResults.length; index += 1) {
+        expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
+      }
       expect(secondResults).toHaveLength(4);
     });
   });

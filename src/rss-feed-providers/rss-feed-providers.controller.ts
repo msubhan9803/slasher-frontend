@@ -3,15 +3,23 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { ValidateAllRssFeedProvidersDto } from './dto/all-rss-feed-providers.dto';
-import { RssFeedProvidersIdDto } from './dto/rss-feed-providers.id.dto';
+import { FindFeedPostsForProviderQueryDto } from './dto/find-feed-posts-provider-query.dto';
+import { ParamRssFeedProviderIdDto } from './dto/params-rss-feed-provider-id.dto';
+import { RssFeedProvidersIdDto } from './dto/rss-feed-providers-id.dto';
 import { RssFeedProvidersService } from './providers/rss-feed-providers.service';
 
 @Controller('rss-feed-providers')
 export class RssFeedProvidersController {
-  constructor(private readonly rssFeedProvidersService: RssFeedProvidersService, private readonly config: ConfigService) { }
+  constructor(
+    private readonly rssFeedProvidersService: RssFeedProvidersService,
+    private readonly config: ConfigService,
+    private readonly feedPostsService: FeedPostsService,
+  ) { }
 
   @Get(':id')
   async findOne(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdDto) {
@@ -40,5 +48,27 @@ export class RssFeedProvidersController {
     }
 
     return rssFeedProviders;
+  }
+
+  @TransformImageUrls('$[*].images[*].image_path', '$[*].rssfeedProviderId.logo')
+  @Get(':id/posts')
+  async findFeedPostsForProvider(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamRssFeedProviderIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindFeedPostsForProviderQueryDto,
+  ) {
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(param.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('RssFeedProvider not found', HttpStatus.NOT_FOUND);
+    }
+
+    const feedPosts = await this.feedPostsService.findAllByRssFeedProvider(
+      rssFeedProvider._id,
+      query.limit,
+      true,
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+    );
+    return feedPosts;
   }
 }

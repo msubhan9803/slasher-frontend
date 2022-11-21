@@ -4,11 +4,12 @@ import { io } from 'socket.io-client';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { AppModule } from '../../../src/app.module';
-import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { userFactory } from '../../factories/user.factory';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { clearDatabase } from '../../helpers/mongo-helpers';
+import { AppModule } from '../../src/app.module';
+import { UserDocument } from '../../src/schemas/user/user.schema';
+import { UsersService } from '../../src/users/providers/users.service';
+import { userFactory } from '../factories/user.factory';
+import { clearDatabase } from '../helpers/mongo-helpers';
+import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -30,9 +31,9 @@ describe('Chat Gateway (e2e)', () => {
     app = moduleRef.createNestApplication();
 
     // Set up redis adapter
-    // const redisIoAdapter = new RedisIoAdapter(app, configService);
-    // await redisIoAdapter.connectToRedis();
-    // app.useWebSocketAdapter(redisIoAdapter);
+    const redisIoAdapter = new RedisIoAdapter(app, configService);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
 
     // For socket tests, we use app.listen() instead of app.init()
     await app.listen(configService.get<number>('PORT'));

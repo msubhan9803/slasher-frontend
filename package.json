@@ -14,11 +14,13 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings=0",
     "find-floating-promises": "tslint --project tsconfig.json",
-    "test": "jest --config ./test/jest-config.json",
+    "test": "jest --config ./test/jest-config.json --runInBand",
     "test:watch": "jest --config ./test/jest-config.json --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e-config.json"
+    "test:e2e": "npm run test:e2e-core && npm run test:e2e-gateway",
+    "test:e2e-core": "jest --config ./test/jest-e2e-core-config.json --runInBand",
+    "test:e2e-gateway": "jest --config ./test/jest-e2e-gateway-config.json --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.171.0",

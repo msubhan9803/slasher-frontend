@@ -15,6 +15,7 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
+import { dropCollections } from '../../../test/helpers/mongo-helpers';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -48,7 +49,7 @@ describe('FeedPostsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
     activeUser = await usersService.create(userFactory.build());
     rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });
@@ -375,7 +376,7 @@ describe('FeedPostsService', () => {
       const limit = 6;
       const firstResults = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), limit);
       const secondResults = await feedPostsService
-      .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
+        .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
     });

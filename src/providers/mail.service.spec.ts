@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import { dropCollections } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
 import { MailService } from './mail.service';
 
@@ -27,7 +28,7 @@ describe('MailService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   it('should be defined', () => {

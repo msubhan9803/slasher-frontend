@@ -4,6 +4,7 @@ import {
 import mongoose from 'mongoose';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { FindAllMoviesDto } from './dto/find-all-movies.dto';
+import { ValidateMovieDbIdDto } from './dto/movie-db-id.dto';
 import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
@@ -61,5 +62,14 @@ export class MoviesController {
     });
 
     return movies;
+  }
+
+  @Get('movieDbData/:movieDBId')
+  async fetchMovieDbData(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieDbIdDto) {
+    const movieDbData = await this.moviesService.fetchMovieDbData(params.movieDBId);
+    if (!movieDbData) {
+      throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
+    }
+    return movieDbData;
   }
 }

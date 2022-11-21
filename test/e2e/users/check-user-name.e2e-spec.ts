@@ -6,6 +6,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Users / Check User Name (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +30,7 @@ describe('Users / Check User Name (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('GET /users/check-user-name', () => {

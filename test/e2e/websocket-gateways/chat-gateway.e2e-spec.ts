@@ -12,6 +12,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
 import { sleep } from '../../../src/utils/timer-utils';
 import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -54,7 +55,7 @@ describe('Chat Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

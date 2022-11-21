@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../../../src/constants';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('Users / Upload Cover image (e2e)', () => {
   let app: INestApplication;
@@ -37,7 +38,7 @@ describe('Users / Upload Cover image (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
   });
 
   describe('POST /users/upload-cover-image', () => {

@@ -143,8 +143,35 @@ export class ChatService {
           unreadCount: { $sum: '$unreadCount.count' },
         },
       },
+      {
+        $lookup: {
+          from: 'users',
+          let: { local_id: '$latestMessage.senderId' },
+          as: 'user',
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$$local_id', '$_id'],
+                },
+              },
+            },
+            { $project: { _id: 1, userName: 1, profilePic: 1 } },
+          ],
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: 1, user: 1, latestMessage: '$latestMessage.message', unreadCount: 1,
+        },
+      },
     ]);
-
-    return conversations;
+    const conversationsData = conversations.map((conversation) => {
+      // eslint-disable-next-line no-param-reassign, prefer-destructuring
+      conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
+      return conversation;
+    });
+    return conversationsData;
   }
 }

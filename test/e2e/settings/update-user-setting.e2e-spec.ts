@@ -9,6 +9,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { userSettingFactory } from '../../factories/user-setting.factory';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('settings update / :id (e2e)', () => {
   let app: INestApplication;
@@ -44,7 +45,7 @@ describe('settings update / :id (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
 
     activeUser = await usersService.create(userFactory.build());
     await userSettingsService.create(userSettingFactory.build({

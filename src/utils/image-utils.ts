@@ -7,6 +7,8 @@ export function relativeToFullImagePath(config: ConfigService, relativeImagePath
 
   if (relativeImagePath === 'noUser.jpg') {
     placeholderToShow = '/placeholders/default_user_icon.png';
+  } else if (relativeImagePath.startsWith('/placeholders/')) {
+    placeholderToShow = relativeImagePath;
   }
 
   if (config.get<string>('FILE_STORAGE') === 's3') {

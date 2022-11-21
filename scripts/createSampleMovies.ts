@@ -15,7 +15,7 @@ async function createSampleTmdbMovies(app: INestApplication) {
       adult: false,
       releaseDate: new Date('2019-10-08T18:30:00.000+00:00'),
       backDropPath: '/jCCdt0e8Xe9ttvevD4S3TSMNdH.jpg',
-      movieDbId: 338967,
+      movieDBId: 338967,
       logo: '/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg',
       description: 'Columbus, Tallahassee, Wichita, and Little Rock move to the American '
         + 'heartland as they face off against evolved zombies, fellow survivors, and the growing '
@@ -32,7 +32,7 @@ async function createSampleTmdbMovies(app: INestApplication) {
       adult: false,
       releaseDate: new Date('1991-11-21T18:30:00.000+00:00'),
       backDropPath: '/c49rFrkHc6P7eQYrE6irZhaWIxy.jpg',
-      movieDbId: 2907,
+      movieDBId: 2907,
       logo: '/m5573WSqdOJdJHoLv7vYBX4WAQq.jpg',
       description: 'When an evil doctor finds out Uncle Fester has been missing for 25 years, '
         + "he introduces a fake Fester in an attempt to get the Addams family's money. Wednesday "

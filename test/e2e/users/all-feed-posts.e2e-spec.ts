@@ -12,6 +12,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../../src/schemas/feedPost/feedPost.enums';
+import { dropCollections } from '../../helpers/mongo-helpers';
 
 describe('All Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -42,7 +43,7 @@ describe('All Feed Post (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await dropCollections(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -119,6 +120,22 @@ describe('All Feed Post (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+      });
+
+      it('limit should not be grater than 30', async () => {
+        feedPost = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: activeUser._id,
+            },
+          ),
+        );
+        const limit = 31;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 30');
       });
     });
   });

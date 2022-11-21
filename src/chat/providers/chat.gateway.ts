@@ -59,8 +59,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const user = await this.usersService.findBySocketId(client.id);
     const userId = user._id.toString();
 
-    const { matchListId, limit, before } = data;
-    const messages = await this.chatService.getMessages(matchListId, userId, limit, before);
+    const { matchListId, before } = data;
+
+    const LIMIT = 10;
+    const messages = await this.chatService.getMessages(matchListId, userId, LIMIT, before);
     return messages;
   }
 }

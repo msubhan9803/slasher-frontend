@@ -115,8 +115,7 @@ describe('Chat Gateway (e2e)', () => {
     });
   });
 
-  // eslint-disable-next-line jest/valid-describe-callback
-  describe('#getMessages', () => {
+  describe('#recentMessages', () => {
     let message1;
     let matchList;
 
@@ -130,11 +129,10 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     it('should get recentMessages', async () => {
-      const limit = 5;
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await sleep(2000);
       const payload = {
-        matchListId: matchList._id, user: user0._id, limit,
+        matchListId: matchList._id,
       };
       await new Promise<void>((resolve) => {
         client.emit('recentMessages', payload, (data) => {
@@ -146,11 +144,10 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     it('should get recentMessages with optional: `before` messageId', async () => {
-      const limit = 5;
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await sleep(2000);
       const payload = {
-        matchListId: matchList._id, user: user0._id, limit, before: message1._id.toString(),
+        matchListId: matchList._id, before: message1._id.toString(),
       };
       await new Promise<void>((resolve) => {
         client.emit('recentMessages', payload, (data) => {
@@ -162,11 +159,10 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     it('should NOT get recentMessages', async () => {
-      const limit = 5;
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await sleep(2000);
       const payload = {
-        matchListId: null, user: user0._id, limit, before: message1._id.toString(),
+        matchListId: null, before: message1._id.toString(),
       };
       await new Promise<void>((resolve) => {
         client.emit('recentMessages', payload, (data) => {

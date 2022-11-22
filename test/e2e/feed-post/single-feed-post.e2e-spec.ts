@@ -11,6 +11,9 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { dropCollections } from '../../helpers/mongo-helpers';
+import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -20,6 +23,8 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
+  let rssFeedProvidersService: RssFeedProvidersService;
+  let rssFeedProviderData: RssFeedProvider;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -30,6 +35,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -49,12 +55,14 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+      rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     });
     it('returns the expected feed post response', async () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
             userId: activeUser._id,
+            rssfeedProviderId: rssFeedProviderData._id,
           },
         ),
       );
@@ -63,6 +71,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body._id).toEqual(feedPost._id.toString());
+      expect(response.body.rssfeedProviderId._id).toEqual(rssFeedProviderData._id.toString());
     });
   });
 });

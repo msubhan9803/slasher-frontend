@@ -72,15 +72,12 @@ describe('FeedPostsService', () => {
     it('successfully creates a feed post that is associated with an rss feed provider', async () => {
       const feedPostData = feedPostFactory.build({
         rssfeedProviderId: rssFeedProvider._id,
-        // Note: The old API assigns the rss feed provider id to the userId field for feedPosts.
-        // This isn't ideal, but we need to maintain it for compatibility.
-        userId: rssFeedProvider._id,
+        userId: activeUser._id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
       const reloadedFeedPost = await feedPostsService.findById(feedPost._id, false);
-      expect(reloadedFeedPost.rssfeedProviderId.toString()).toEqual(rssFeedProvider._id.toString());
-      // TODO: Check this too:
-      //expect(reloadedFeedPost.userId.toString()).toEqual(feedPostData.userId.toString());
+      expect((reloadedFeedPost.rssfeedProviderId as any)._id).toEqual(rssFeedProvider._id);
+      expect((reloadedFeedPost.userId as any)._id).toEqual(feedPostData.userId);
     });
   });
 

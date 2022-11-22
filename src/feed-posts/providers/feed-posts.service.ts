@@ -30,7 +30,11 @@ export class FeedPostsService {
       feedPostFindQuery.is_deleted = false;
       feedPostFindQuery.status = FeedPostStatus.Active;
     }
-    return this.feedPostModel.findOne(feedPostFindQuery).populate('userId', 'userName _id profilePic').exec();
+    return this.feedPostModel
+    .findOne(feedPostFindQuery)
+    .populate('userId', 'userName _id profilePic')
+    .populate('rssfeedProviderId', 'title _id logo')
+    .exec();
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {

@@ -20,9 +20,9 @@ export class SearchService {
   async findUsers(query: string, limit: number, offset?: number, excludeUserIds?: User[]): Promise<UserSearchResult[]> {
     const user = await this.userModel
       .find({
-        $or: [
+        $and: [
           { userName: new RegExp(escapeStringForRegex(query), 'i') },
-          { _id: { $in: excludeUserIds } },
+          { _id: { $nin: excludeUserIds } },
         ],
       })
       .select({

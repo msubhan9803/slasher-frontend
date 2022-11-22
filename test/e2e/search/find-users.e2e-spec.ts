@@ -19,8 +19,6 @@ describe('Find Users(e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let user1: UserDocument;
-  let user2: UserDocument;
-  let user3: UserDocument;
   let configService: ConfigService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
@@ -45,10 +43,10 @@ describe('Find Users(e2e)', () => {
     // Drop database so we start fresh before each test
     await dropCollections(connection);
 
-    activeUser = await usersService.create(userFactory.build({ userName: 'Rock' }));
+    activeUser = await usersService.create(userFactory.build({ userName: 'Count Rock' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Jack' }));
-    user2 = await usersService.create(userFactory.build({ userName: 'Deni' }));
-    user3 = await usersService.create(userFactory.build({ userName: 'The Count' }));
+    await usersService.create(userFactory.build({ userName: 'Deni' }));
+    await usersService.create(userFactory.build({ userName: 'The Count' }));
     await usersService.create(userFactory.build({ userName: 'Count Dracula' }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -58,28 +56,29 @@ describe('Find Users(e2e)', () => {
       to: user1._id,
       reaction: BlockAndUnblockReaction.Block,
     });
-    await blocksModel.create({
-      from: activeUser._id,
-      to: user2._id,
-      reaction: BlockAndUnblockReaction.Block,
-    });
-    await blocksModel.create({
-      from: activeUser._id,
-      to: user3._id,
-      reaction: BlockAndUnblockReaction.Block,
-    });
   });
 
   describe('GET /search/users', () => {
     describe('Find Users Details', () => {
-      it('get all the users', async () => {
-        const query = 'Count Dracula';
+      it('retrn the expected users', async () => {
+        const query = 'Count';
         const limit = 20;
         const response = await request(app.getHttpServer())
           .get(`/search/users?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(4);
+        expect(response.body).toHaveLength(2);
+      });
+
+      it('when offset is apply than expected response', async () => {
+        const query = 'Count';
+        const limit = 20;
+        const offset = 1;
+        const response = await request(app.getHttpServer())
+          .get(`/search/users?query=${query}&limit=${limit}&offset=${offset}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toHaveLength(1);
       });
     });
   });
@@ -131,6 +130,17 @@ describe('Find Users(e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('query should not be empty');
+    });
+
+    it('offset should be a number', async () => {
+      const offset = 'a';
+      const limit = 5;
+      const query = 'test';
+      const response = await request(app.getHttpServer())
+        .get(`/search/users?query=${query}&limit=${limit}&offset=${offset}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');
     });
   });
 });

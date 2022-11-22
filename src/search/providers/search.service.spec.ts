@@ -20,8 +20,6 @@ describe('BlocksService', () => {
   let blocksService: BlocksService;
   let user0: UserDocument;
   let user1: UserDocument;
-  let user2: UserDocument;
-  let user3: UserDocument;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
@@ -46,20 +44,11 @@ describe('BlocksService', () => {
     // Drop database so we start fresh before each test
     await dropCollections(connection);
 
-    user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
-    user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
-    user2 = await usersService.create(userFactory.build({ userName: 'Freddy' }));
-    user3 = await usersService.create(userFactory.build({ userName: 'Count Orlok' }));
-    await blocksModel.create({
-      from: user0._id,
-      to: user3._id,
-      reaction: BlockAndUnblockReaction.Block,
-    });
-    await blocksModel.create({
-      from: user0._id,
-      to: user2._id,
-      reaction: BlockAndUnblockReaction.Block,
-    });
+    user0 = await usersService.create(userFactory.build({ userName: 'Count Hannibal' }));
+    user1 = await usersService.create(userFactory.build({ userName: 'Count Michael' }));
+    await usersService.create(userFactory.build({ userName: 'Freddy' }));
+    await usersService.create(userFactory.build({ userName: 'Count Orlok' }));
+    await usersService.create(userFactory.build({ userName: 'Count Jack' }));
     await blocksModel.create({
       from: user0._id,
       to: user1._id,
@@ -74,19 +63,21 @@ describe('BlocksService', () => {
   describe('#findUsers', () => {
     it('returns the expected users', async () => {
       const blockUsersIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      const users = await searchService.findUsers('Count Orlok', 5, 0, blockUsersIds);
-      expect(users).toHaveLength(3);
+      blockUsersIds.push(user0._id);
+      const users = await searchService.findUsers('Count', 5, 0, blockUsersIds);
+      expect(users).toHaveLength(2);
     });
 
     it('returns the expected response for applied limit and offset', async () => {
       const blockUsersIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      const users = await searchService.findUsers('Count Orlok', 2, 2, blockUsersIds);
+      blockUsersIds.push(user0._id);
+      const users = await searchService.findUsers('Count', 1, 1, blockUsersIds);
       expect(users).toHaveLength(1);
     });
 
     it('when exclude user ids is not apply than expected response', async () => {
-      const users = await searchService.findUsers('Count Orlok', 10);
-      expect(users).toHaveLength(1);
+      const users = await searchService.findUsers('Count', 10);
+      expect(users).toHaveLength(4);
     });
   });
 });

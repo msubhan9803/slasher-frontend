@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import ReportModal from '../../../components/ui/ReportModal';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface Props {
+  logo: string;
   userName: string;
   postDate: string;
 }
-function NewPostHeader({ userName, postDate }: Props) {
+function NewPostHeader({ logo, userName, postDate }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const PopoverOption = ['Report'];
@@ -26,12 +28,12 @@ function NewPostHeader({ userName, postDate }: Props) {
           <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
               <Link to="/news/partner/1" className="rounded-circle">
-                <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="bg-secondary" />
+                <UserCircleImage src={logo} className="bg-secondary" />
               </Link>
             </Col>
             <Col xs="auto" className="ps-0 align-self-center">
               <h1 className="mb-0 h3">{userName}</h1>
-              <p className="mb-0 fs-6 text-light">{postDate}</p>
+              <p className="mb-0 fs-6 text-light">{DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}</p>
             </Col>
           </Row>
         </Col>

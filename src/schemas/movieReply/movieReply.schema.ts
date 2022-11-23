@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { FeedReplyUnusedFields } from './feedReply.unused-fields';
+import { MovieReplyUnusedFields } from './movieReply.unused-fields';
 
-// Note: {collection: 'feedreplays'} below is deliberate.  Unfortunately, the old API app had a typo
+// Note: {collection: 'moviereplays'} below is deliberate.  Unfortunately, the old API app had a typo
 // in the collection name, so we need to preserve that typo until the old API is updated or retired.
-@Schema({ timestamps: true, collection: 'feedreplays' })
-export class FeedReply extends FeedReplyUnusedFields {
+@Schema({ timestamps: true, collection: 'moviereplays' })
+export class MovieReply extends MovieReplyUnusedFields {
   /***********
    * Fields *
    ***********/
@@ -22,7 +22,7 @@ export class FeedReply extends FeedReplyUnusedFields {
    * Methods *
    ***********/
 
-  constructor(options?: Partial<FeedReply>) {
+  constructor(options?: Partial<MovieReply>) {
     super();
     if (!options) {
       return;
@@ -33,6 +33,6 @@ export class FeedReply extends FeedReplyUnusedFields {
   }
 }
 
-export const FeedReplySchema = SchemaFactory.createForClass(FeedReply);
+export const MovieReplySchema = SchemaFactory.createForClass(MovieReply);
 
-export type FeedReplyDocument = FeedReply & Document;
+export type MovieReplyDocument = MovieReply & Document;

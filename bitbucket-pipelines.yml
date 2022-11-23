@@ -39,8 +39,12 @@ definitions:
           # Copy template env file to .env.test (to support testing)
           - cp .env.test.template .env.test
           # Run tests
-          - npm run test
-          - npm run test:e2e-core
+          # - npm run test
+          # - npm run test:e2e-core
+          - npm run test:e2e-gateway
+          - npm run test:e2e-gateway
+          - npm run test:e2e-gateway
+          - npm run test:e2e-gateway
           - npm run test:e2e-gateway
           # Stop docker mongo (kill for speed, since this is CI and clean shutdown doesn't matter)
           - docker container kill $DOCKER_MONGO_CONTAINER_ID

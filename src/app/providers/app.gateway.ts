@@ -78,7 +78,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: any) {
     // During a disconnect, we always want to clean up the SocketUser entry
-    await this.usersService.deleteSocketUserEntry(client.id);
+    // await this.usersService.deleteSocketUserEntry(client.id);
   }
 
   // This is just an end point for verifying a connection

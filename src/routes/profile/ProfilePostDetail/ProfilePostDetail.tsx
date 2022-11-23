@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { feedPostDetail } from '../../../api/feedpost';
+import { feedPostDetail } from '../../../api/feed-posts';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';

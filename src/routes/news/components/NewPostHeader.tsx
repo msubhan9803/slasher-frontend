@@ -10,8 +10,13 @@ interface Props {
   logo: string;
   userName: string;
   postDate: string;
+  postId: string;
+  partnerId: string;
 }
-function NewPostHeader({ logo, userName, postDate }: Props) {
+
+function NewPostHeader({
+  logo, userName, postDate, postId, partnerId,
+}: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const PopoverOption = ['Report'];
@@ -27,7 +32,7 @@ function NewPostHeader({ logo, userName, postDate }: Props) {
         <Col xs="auto">
           <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
-              <Link to="/news/partner/1" className="rounded-circle">
+              <Link to={`/news/partner/${partnerId}/posts/${postId}`} className="rounded-circle">
                 <UserCircleImage src={logo} className="bg-secondary" />
               </Link>
             </Col>

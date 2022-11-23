@@ -6,14 +6,14 @@ import {
   Button,
   Card, Col, Dropdown, Row,
 } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
 import NewPostHeader from './NewPostHeader';
 import LikeShareModal from '../../../components/ui/LikeShareModal';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed';
-import { PostImage } from '../../../types';
+import { NewsPartnerPostProps } from '../../../types';
 import CustomSwiper from '../../../components/ui/CustomSwiper';
 
 interface Props {
@@ -22,21 +22,6 @@ interface Props {
 
 interface LinearIconProps {
   uniqueId?: string
-}
-interface PostProps {
-  _id: string;
-  id: string;
-  postDate: string;
-  content: string;
-  images: PostImage[];
-  userName: string;
-  rssFeedProviderLogo: string;
-  commentCount: number;
-  likeCount: number;
-  sharedList: number;
-  hashTag: string[];
-  commentSection: boolean;
-  likeIcon: boolean;
 }
 
 const LinearIcon = styled.div<LinearIconProps>`
@@ -55,6 +40,8 @@ function NewsPostData({ partnerId }: Props) {
   const [postData, setPostData] = useState<any>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const queryParam = searchParams.get('imageId');
 
   const openDialogue = (click: string) => {
     setOpenLikeShareModal(true);
@@ -87,7 +74,7 @@ function NewsPostData({ partnerId }: Props) {
           userName: data.rssfeedProviderId?.title,
           rssFeedProviderLogo: data.rssfeedProviderId?.logo,
         }));
-        setPostData((prev: PostProps[]) => [
+        setPostData((prev: NewsPartnerPostProps[]) => [
           ...prev,
           ...newPosts,
         ]);
@@ -124,12 +111,14 @@ function NewsPostData({ partnerId }: Props) {
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
       >
-        {postData.map((post: PostProps) => (
+        {postData.map((post: NewsPartnerPostProps) => (
           <Card className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4 my-3" key={post.id}>
             <Card.Header className="border-0 px-0">
               <NewPostHeader
+                partnerId={partnerId}
+                postId={post._id}
                 logo={post.rssFeedProviderLogo}
-                userName={post.userName}
+                userName={post.title}
                 postDate={post.postDate}
               />
             </Card.Header>
@@ -143,16 +132,15 @@ function NewsPostData({ partnerId }: Props) {
                     images={
                       post.images.map((imageData: any) => ({
                         imageUrl: imageData.image_path,
-                        linkUrl: undefined,
+                        linkUrl: `/${post.title}/posts/${post.id}?imageId=${imageData._id}`,
                         postId: post.id,
                         imageId: imageData._id,
                       }))
                     }
-                  /* eslint no-underscore-dangle: 0 */
-                  // initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                    /* eslint no-underscore-dangle: 0 */
+                    initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                   />
                 )}
-                {/* <NewsPostImage src={post.images[0].image_path} className="w-100" /> */}
               </Row>
               <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
                 <Col className="align-self-center">

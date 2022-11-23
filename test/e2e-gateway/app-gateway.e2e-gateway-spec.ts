@@ -10,6 +10,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { waitForAuthSuccessMessage } from '../helpers/gateway-test-helpers';
 
 describe('App Gateway (e2e)', () => {
   let app: INestApplication;
@@ -96,6 +97,7 @@ describe('App Gateway (e2e)', () => {
 
     it('when a valid auth token is provided, it connects and can successfully send/receive', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
 
       await new Promise<void>((resolve) => {
         client.emit('ping', {}, (data) => {

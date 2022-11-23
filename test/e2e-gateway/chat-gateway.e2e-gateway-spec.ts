@@ -10,6 +10,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { waitForAuthSuccessMessage } from '../helpers/gateway-test-helpers';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -56,6 +57,7 @@ describe('Chat Gateway (e2e)', () => {
 
   it('should properly handle a chatTest event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const payload = { senderId: '6359fbc11577d660fb284650', receiverId: '6359fbc11577d660fb284653', message: 'This is a test message' };
     await new Promise<void>((resolve) => {

@@ -11,6 +11,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { waitForAuthSuccessMessage } from '../helpers/gateway-test-helpers';
 
 // Setting a longer timeout for this file because these tests can run slowly in the CI environment
 jest.setTimeout(20_000);
@@ -60,6 +61,7 @@ describe('Notifications Gateway (e2e)', () => {
 
   it('should properly handle a getNotifications event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const payload = { message: 'test' };
     await new Promise<void>((resolve) => {
@@ -74,6 +76,7 @@ describe('Notifications Gateway (e2e)', () => {
 
   it('a client should receive an event when a request is made to the /notifications/socket-test endpoint', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const socketListenPromise = new Promise<void>((resolve) => {
       client.once('hello', (...args) => {

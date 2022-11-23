@@ -57,7 +57,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (user && user.passwordChangedAt?.toISOString() === passwordChangedAt) {
           // User is valid. Create SocketUser entry for this socketId + userId combination.
           await this.usersService.createSocketUserEntry(client.id, user.id);
-          // And then return, because we have successfully authenticated.
+          // Emit an "authSuccess" event to let the client know that we have successfully
+          // authenticated and are ready to receive additional socket messages.
+          setTimeout(() => { client.emit('authSuccess', { success: true }); }, 100);
           return;
         }
       } catch (e) {

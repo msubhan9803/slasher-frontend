@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
 import { addFriend, rejectFriendsRequest } from '../../api/friends';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 const ProfileImage = styled(Image)`
   height:6.25rem;
@@ -82,46 +83,48 @@ function SuggestedFriend() {
 
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
-      <div className="d-flex align-items-center">
-        <Button className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
-          <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
-        </Button>
-        <StyleFriend
-          id="slideFriend"
-          className="d-flex flex-nowrap w-100 mx-3"
-        >
-          {friendListData?.map((user: any) => (
-            /* eslint no-underscore-dangle: 0 */
-            <Card key={user._id}>
-              <div className="bg-dark rounded p-2">
-                <Link className="text-decoration-none" to={`/${user.userName}/about`}>
-                  <div className=" d-flex justify-content-center position-relative">
-                    <ProfileImage src={user.profilePic} className="rounded-circle" />
-                    <div className="position-absolute" style={{ right: '0' }}>
-                      <FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" />
+      {!friendListData ? <LoadingIndicator /> : (
+        <div className="d-flex align-items-center">
+          <Button className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
+            <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
+          </Button>
+          <StyleFriend
+            id="slideFriend"
+            className="d-flex flex-nowrap w-100 mx-3"
+          >
+            {friendListData?.map((user: any) => (
+              /* eslint no-underscore-dangle: 0 */
+              <Card key={user._id}>
+                <div className="bg-dark rounded p-2">
+                  <Link className="text-decoration-none" to={`/${user.userName}/about`}>
+                    <div className=" d-flex justify-content-center position-relative">
+                      <ProfileImage src={user.profilePic} className="rounded-circle" />
+                      <div className="position-absolute" style={{ right: '0' }}>
+                        <FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" />
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-center my-2">{user.userName}</p>
-                </Link>
-                {user.addFriend
-                  ? (
-                    <RoundButton variant="black" className="w-100 fs-3" onClick={() => cancelFriendClick(user._id)}>
-                      Cancel Request
-                    </RoundButton>
-                  )
-                  : (
-                    <RoundButton className="w-100 fs-3" onClick={() => addFriendClick(user._id)}>
-                      Add friend
-                    </RoundButton>
-                  )}
-              </div>
-            </Card>
-          ))}
-        </StyleFriend>
-        <Button className="d-block p-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
-          <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
-        </Button>
-      </div>
+                    <p className="text-center my-2">{user.userName}</p>
+                  </Link>
+                  {user.addFriend
+                    ? (
+                      <RoundButton variant="black" className="w-100 fs-3" onClick={() => cancelFriendClick(user._id)}>
+                        Cancel Request
+                      </RoundButton>
+                    )
+                    : (
+                      <RoundButton className="w-100 fs-3" onClick={() => addFriendClick(user._id)}>
+                        Add friend
+                      </RoundButton>
+                    )}
+                </div>
+              </Card>
+            ))}
+          </StyleFriend>
+          <Button className="d-block p-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
+            <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
+          </Button>
+        </div>
+      )}
     </div>
 
   );

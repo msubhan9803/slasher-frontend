@@ -5,29 +5,14 @@ import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
 import { FeedReplyDeletionState, FeedReplyStatus, FeedReplyType } from './feedReply.enums';
 
 export class FeedReplyUnusedFields {
-  // NOT USED
-  @Prop({ default: null, ref: 'feedComments' })
-  feedCommentId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
   @Prop({ default: null, ref: 'feedPosts' })
   feedPostId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
-  @Prop({ default: null, ref: 'users', required: true })
-  userId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
-  @Prop({ default: null, required: true })
-  message: string;
-
-  // NOT USED
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
-  @Prop({ type: [ImageSchema] })
-  images: Image[];
 
   // NOT USED
   @Prop({ default: [] })
@@ -60,14 +45,4 @@ export class FeedReplyUnusedFields {
   })
   status: FeedReplyStatus;
 
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedReplyDeletionState.NotDeleted,
-      FeedReplyDeletionState.Deleted,
-    ],
-    default: FeedReplyDeletionState.NotDeleted,
-  })
-  deleted: FeedReplyDeletionState;
 }

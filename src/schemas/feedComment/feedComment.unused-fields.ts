@@ -6,14 +6,6 @@ import { FeedCommentDeletionState, FeedCommentStatus, FeedCommentType } from './
 
 export class FeedCommentUnusedFields {
   // NOT USED
-  @Prop({ default: null, ref: 'feedPosts', required: true })
-  feedPostId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
-  @Prop({ default: null, ref: 'users', required: true })
-  userId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
   @Prop({ default: [] })
   hideUsers: mongoose.Schema.Types.ObjectId[];
 
@@ -22,16 +14,8 @@ export class FeedCommentUnusedFields {
   reportUsers: ReportUser[];
 
   // NOT USED
-  @Prop({ default: null, required: true })
-  message: string;
-
-  // NOT USED
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
-  @Prop({ type: [ImageSchema] })
-  images: Image[];
 
   // NOT USED
   @Prop({
@@ -55,15 +39,4 @@ export class FeedCommentUnusedFields {
     default: FeedCommentStatus.Active,
   })
   status: FeedCommentStatus;
-
-  // NOT USED
-  @Prop({
-    required: true,
-    enum: [
-      FeedCommentDeletionState.NotDeleted,
-      FeedCommentDeletionState.Deleted,
-    ],
-    default: FeedCommentDeletionState.NotDeleted,
-  })
-  is_deleted: FeedCommentDeletionState;
 }

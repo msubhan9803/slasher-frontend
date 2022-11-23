@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { Image, ImageSchema } from '../shared/image.schema';
+import { FeedReplyDeletionState } from './feedReply.enums';
 import { FeedReplyUnusedFields } from './feedReply.unused-fields';
 
 // Note: {collection: 'feedreplays'} below is deliberate.  Unfortunately, the old API app had a typo
@@ -11,6 +13,28 @@ export class FeedReply extends FeedReplyUnusedFields {
    ***********/
 
   readonly _id: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: 'feedComments' })
+  feedCommentId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: 'users', required: true })
+  userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, required: true })
+  message: string;
+
+  @Prop({ type: [ImageSchema] })
+  images: Image[];
+
+  @Prop({
+    required: true,
+    enum: [
+      FeedReplyDeletionState.NotDeleted,
+      FeedReplyDeletionState.Deleted,
+    ],
+    default: FeedReplyDeletionState.NotDeleted,
+  })
+  deleted: FeedReplyDeletionState;
 
   @Prop()
   createdAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration

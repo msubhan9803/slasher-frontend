@@ -461,4 +461,16 @@ describe('FriendsService', () => {
       ).toHaveLength(0);
     });
   });
+
+  describe('#deleteAllSuggestBlocksByUserId', () => {
+    beforeEach(async () => {
+      await friendsService.createFriendRequest(user0.id, user1.id);
+      await friendsService.createFriendRequest(user0.id, user2.id);
+      await friendsService.createFriendRequest(user0.id, user3.id);
+    });
+    it('delete all friend request data successful of passed userId', async () => {
+      await friendsService.deleteAllSuggestBlocksByUserId(user0.id);
+      expect(await friendsModel.find({ from: user0._id })).toHaveLength(0);
+    });
+  });
 });

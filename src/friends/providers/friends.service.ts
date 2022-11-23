@@ -245,4 +245,12 @@ export class FriendsService {
       })
       .exec();
   }
+
+  async deleteAllSuggestBlocksByUserId(fromUserId: string): Promise<void> {
+    await this.friendsModel.deleteMany(
+      {
+        from: new mongoose.Types.ObjectId(fromUserId),
+      },
+    );
+  }
 }

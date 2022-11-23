@@ -59,4 +59,12 @@ export class BlocksService {
     const toData = blocks.map((block) => block.to);
     return toData;
   }
+
+  async deleteAllByUserId(fromUserId: string): Promise<void> {
+    await this.blocksModel.deleteMany(
+      {
+        from: new mongoose.Types.ObjectId(fromUserId),
+      },
+    );
+  }
 }

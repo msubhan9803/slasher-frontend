@@ -121,4 +121,21 @@ describe('BlocksService', () => {
       ).toHaveLength(1);
     });
   });
+
+  describe('#deleteAllByUserId', () => {
+    it('delete the block data successful of passed userId', async () => {
+      await blocksModel.create({
+        from: user0._id,
+        to: user3._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksService.deleteAllByUserId(user0.id);
+      expect(await blocksModel.find({ from: user0._id })).toHaveLength(0);
+    });
+  });
 });

@@ -11,6 +11,8 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { dropCollections } from '../../helpers/mongo-helpers';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('Users / delete account (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +25,7 @@ describe('Users / delete account (e2e)', () => {
   let configService: ConfigService;
   let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -33,6 +36,7 @@ describe('Users / delete account (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -55,6 +59,21 @@ describe('Users / delete account (e2e)', () => {
     await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
     await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
     await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    await blocksModel.create({
+      from: activeUser._id,
+      to: user1._id,
+      reaction: BlockAndUnblockReaction.Block,
+    });
+    await blocksModel.create({
+      from: activeUser._id,
+      to: user2._id,
+      reaction: BlockAndUnblockReaction.Block,
+    });
+    await blocksModel.create({
+      from: user1._id,
+      to: activeUser._id,
+      reaction: BlockAndUnblockReaction.Block,
+    });
   });
 
   describe('DELETE /users/delete-account', () => {
@@ -80,7 +99,13 @@ describe('Users / delete account (e2e)', () => {
           ],
         };
         const friends = await friendsModel.find(query);
+        const fromQuery = { from: activeUser._id };
+        const deleteFriendData = await friendsModel.find(fromQuery);
+
+        const blocks = await blocksModel.find(fromQuery);
+        expect(deleteFriendData).toHaveLength(0);
         expect(friends).toHaveLength(0);
+        expect(blocks).toHaveLength(0);
       });
 
       it('if query parameter userId different than activeUser then it returns expected response', async () => {

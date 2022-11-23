@@ -55,6 +55,7 @@ import { UserSettingsService } from '../settings/providers/user-settings.service
 import { ChatService } from '../chat/providers/chat.service';
 import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { BlocksService } from '../blocks/providers/blocks.service';
 
 @Controller('users')
 export class UsersController {
@@ -68,6 +69,7 @@ export class UsersController {
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
     private readonly chatService: ChatService,
+    private readonly blocksService: BlocksService,
   ) { }
 
   @Post('sign-in')
@@ -519,6 +521,10 @@ export class UsersController {
 
     // This is to remove all friendships and pending friend requests related to this user.
     await this.friendsService.deleteAllByUserId(user.id);
+
+    await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
+
+    await this.blocksService.deleteAllByUserId(user.id);
 
     // Mark user as deleted
     user.deleted = true;

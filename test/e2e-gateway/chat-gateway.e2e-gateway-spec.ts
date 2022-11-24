@@ -4,19 +4,19 @@ import { io } from 'socket.io-client';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
-import { AppModule } from '../../../src/app.module';
-import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { userFactory } from '../../factories/user.factory';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { AppModule } from '../../src/app.module';
+import { UserDocument } from '../../src/schemas/user/user.schema';
+import { UsersService } from '../../src/users/providers/users.service';
+import { userFactory } from '../factories/user.factory';
+import { clearDatabase } from '../helpers/mongo-helpers';
+import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let configService: ConfigService;
-  let address: any;
   let baseAddress: string;
   let activeUser: UserDocument;
   let activeUserAuthToken: string;
@@ -25,18 +25,20 @@ describe('Chat Gateway (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+
+    // Set up redis adapter
     const redisIoAdapter = new RedisIoAdapter(app, configService);
     await redisIoAdapter.connectToRedis();
     app.useWebSocketAdapter(redisIoAdapter);
-    await app.init();
 
-    address = app.getHttpServer().listen().address();
-    baseAddress = `http://[${address.address}]:${address.port}`;
+    // For socket tests, we use app.listen() instead of app.init()
+    await app.listen(configService.get<number>('PORT'));
+    baseAddress = `http://localhost:${configService.get<number>('PORT')}`;
   });
 
   afterAll(async () => {
@@ -45,7 +47,7 @@ describe('Chat Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -55,6 +57,7 @@ describe('Chat Gateway (e2e)', () => {
 
   it('should properly handle a chatTest event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const payload = { senderId: '6359fbc11577d660fb284650', receiverId: '6359fbc11577d660fb284653', message: 'This is a test message' };
     await new Promise<void>((resolve) => {
@@ -65,5 +68,8 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 });

@@ -13,13 +13,9 @@ import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway {
   @WebSocketServer()
   server: Server;
-
-  handleConnection(client: any, ...args: any[]) { }
-
-  handleDisconnect(client: any) { }
 
   @SubscribeMessage('chatTest')
   async chatTest(@MessageBody() data: any): Promise<string> {

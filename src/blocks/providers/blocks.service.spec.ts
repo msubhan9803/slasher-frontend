@@ -9,7 +9,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('BlocksService', () => {
   let app: INestApplication;
@@ -26,7 +26,7 @@ describe('BlocksService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     blocksService = moduleRef.get<BlocksService>(BlocksService);
     usersService = moduleRef.get<UsersService>(UsersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
@@ -41,7 +41,7 @@ describe('BlocksService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));

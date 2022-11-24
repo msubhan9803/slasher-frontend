@@ -10,7 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Feed-Post / Delete Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +26,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -41,7 +41,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('Delete Feed Post', () => {

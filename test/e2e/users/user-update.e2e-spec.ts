@@ -9,7 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
 import { User } from '../../../src/schemas/user/user.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
@@ -30,7 +30,7 @@ describe('Users / :id (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -44,7 +44,7 @@ describe('Users / :id (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

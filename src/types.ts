@@ -35,3 +35,12 @@ export interface User {
   coverPhoto: string;
   aboutMe: string;
 }
+
+export enum FriendRequestReaction {
+  DeclinedOrCancelled = 0,
+  MaybeDatingDislike = 1,
+  MaybeDatingLike = 2,
+  Accepted = 3,
+  Blocked = 4,
+  Pending = 5,
+}

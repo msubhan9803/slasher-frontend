@@ -13,5 +13,6 @@
   "globalTeardown": "./test/teardown.ts",
   "maxWorkers": 1,
   "maxConcurrency": 1,
-  "resetMocks": true
+  "resetMocks": true,
+  "testTimeout": 10000
 }

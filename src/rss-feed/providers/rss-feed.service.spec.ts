@@ -10,7 +10,7 @@ import { RssFeedDeletionStatus } from '../../schemas/rssFeed/rssFeed.enums';
 import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
 import { RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('RssFeedService', () => {
   let app: INestApplication;
@@ -23,7 +23,7 @@ describe('RssFeedService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
@@ -37,7 +37,7 @@ describe('RssFeedService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });

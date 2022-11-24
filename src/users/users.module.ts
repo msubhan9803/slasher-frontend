@@ -12,6 +12,7 @@ import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { UserSettingModule } from '../settings/user-settings.module';
 import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.schema';
 import { ChatModule } from '../chat/chat.module';
+import { BlocksModule } from '../blocks/blocks.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ChatModule } from '../chat/chat.module';
     FriendsModule,
     UserSettingModule,
     ChatModule,
+    BlocksModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, MailService, LocalStorageService, S3StorageService],

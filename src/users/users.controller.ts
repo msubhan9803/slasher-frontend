@@ -522,8 +522,12 @@ export class UsersController {
     // This is to remove all friendships and pending friend requests related to this user.
     await this.friendsService.deleteAllByUserId(user.id);
 
+    // No need to keep suggested friend blocks to or from this user when their account is deleted.
     await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
 
+    // No need to keep blocks from or to the user.  It's especially important to delete
+    // blocks to the user because we don't want this now-deleted user showing up in other
+    // users' block lists in the UI.
     await this.blocksService.deleteAllByUserId(user.id);
 
     // Mark user as deleted

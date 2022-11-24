@@ -60,10 +60,17 @@ export class BlocksService {
     return toData;
   }
 
-  async deleteAllByUserId(fromUserId: string): Promise<void> {
+  /**
+   * Deletes all blocks from or to the given user.
+   * @param userId
+   */
+  async deleteAllByUserId(userId: string): Promise<void> {
     await this.blocksModel.deleteMany(
       {
-        from: new mongoose.Types.ObjectId(fromUserId),
+        $or: [
+          { from: new mongoose.Types.ObjectId(userId) },
+          { to: new mongoose.Types.ObjectId(userId) },
+        ],
       },
     );
   }

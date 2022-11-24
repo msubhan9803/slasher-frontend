@@ -246,10 +246,10 @@ export class FriendsService {
       .exec();
   }
 
-  async deleteAllSuggestBlocksByUserId(fromUserId: string): Promise<void> {
-    await this.friendsModel.deleteMany(
+  async deleteAllSuggestBlocksByUserId(userId: string): Promise<void> {
+    await this.suggestBlockModel.deleteMany(
       {
-        from: new mongoose.Types.ObjectId(fromUserId),
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
       },
     );
   }

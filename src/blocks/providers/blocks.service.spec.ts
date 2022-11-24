@@ -123,7 +123,7 @@ describe('BlocksService', () => {
   });
 
   describe('#deleteAllByUserId', () => {
-    it('delete the block data successful of passed userId', async () => {
+    it('delete the block data successful of passed userId (blocks from the user and to the user)', async () => {
       await blocksModel.create({
         from: user0._id,
         to: user3._id,
@@ -134,8 +134,14 @@ describe('BlocksService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
+      await blocksModel.create({
+        from: user3._id,
+        to: user0._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
       await blocksService.deleteAllByUserId(user0.id);
       expect(await blocksModel.find({ from: user0._id })).toHaveLength(0);
+      expect(await blocksModel.find({ to: user0._id })).toHaveLength(0);
     });
   });
 });

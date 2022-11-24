@@ -5,9 +5,14 @@ import UserMessageSidebarListItem from '../../../ui/UserMessageList/UserMessageS
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
 interface RecentMessage {
-  profilePic: string;
-  shortMessage: string;
-  userName: string;
+  latestMessage: string;
+  unreadCount: number;
+  user: {
+    /* eslint no-underscore-dangle: 0 */
+    _id: string;
+    userName: string;
+    profilePic: string;
+  }
 }
 
 function RecentMessages() {
@@ -19,11 +24,12 @@ function RecentMessages() {
         {recentMessageDetails && recentMessageDetails.length > 0
           && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
-              key={recentMessageDetail.userName}
-              userName={recentMessageDetail.userName}
-              message={recentMessageDetail.shortMessage}
-              count={6}
-              image={recentMessageDetail.profilePic}
+              /* eslint no-underscore-dangle: 0 */
+              key={recentMessageDetail.user._id}
+              userName={recentMessageDetail.user.userName}
+              message={recentMessageDetail.latestMessage}
+              count={recentMessageDetail.unreadCount}
+              image={recentMessageDetail.user.profilePic}
             />
           ))}
       </UserMessageList>

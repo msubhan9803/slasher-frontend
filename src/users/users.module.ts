@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersController } from './users.controller';
@@ -14,6 +14,8 @@ import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.s
 import { ChatModule } from '../chat/chat.module';
 import { BlocksModule } from '../blocks/blocks.module';
 
+// Since the UsersModule is likely to be used in many places, we'll make it global
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

@@ -19,20 +19,18 @@ export class FeedCommentsService {
   ) { }
 
   async createFeedComment(parentFeedPostId: string, userId: string, message: string, images: Image[]): Promise<FeedComment> {
-    console.log("images", images);
-    
     const insertFeedComments = await this.feedCommentModel.create({
       feedPostId: parentFeedPostId,
-      userId: userId,
-      message: message,
-      images: images,
+      userId,
+      message,
+      images,
     });
-    return insertFeedComments
+    return insertFeedComments;
   }
 
   async updateFeedComment(feedCommentId: string, message: string): Promise<FeedComment> {
     return this.feedCommentModel
-      .findOneAndUpdate({ _id: feedCommentId }, { $set: { message: message } }, { new: true })
+      .findOneAndUpdate({ _id: feedCommentId }, { $set: { message } }, { new: true })
       .exec();
   }
 
@@ -45,30 +43,35 @@ export class FeedCommentsService {
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
     const insertFeedReply = await this.feedReplyModel.create({
       feedCommentId: parentFeedCommentId,
-      userId: userId,
-      message: message,
-      images: images,
+      userId,
+      message,
+      images,
     });
-    return insertFeedReply
+    return insertFeedReply;
   }
 
   async updateFeedReply(feedReplyId: string, message: string): Promise<FeedReply> {
     return this.feedReplyModel
-      .findOneAndUpdate({ _id: feedReplyId }, { $set: { message: message } }, { new: true })
+      .findOneAndUpdate({ _id: feedReplyId }, { $set: { message } }, { new: true })
       .exec();
   }
 
   async deleteFeedReply(feedReplyId: string): Promise<void> {
     await this.feedReplyModel
-      .updateOne({ _id: feedReplyId }, { $set: { is_deleted: FeedReplyDeletionState.Deleted } }, { new: true })
+      .updateOne({ _id: feedReplyId }, { $set: { deleted: FeedReplyDeletionState.Deleted } }, { new: true })
       .exec();
   }
 
-  async findFeedCommentsWithReplies(parentFeedPostId: string, limit: number, after?: mongoose.Types.ObjectId): Promise<FeedCommentWithReplies[]> {
-    let afteCreatedAt: any = {}
-    if (after) {
-      const afterFeedComment = await this.feedCommentModel.findById(after);
-      afteCreatedAt.createdAt = { createdAt: { $gt: afterFeedComment.createdAt } }
+  async findFeedCommentsWithReplies(
+    parentFeedPostId: string,
+    limit: number,
+    before?: mongoose.Types.ObjectId,
+  ): Promise<FeedCommentWithReplies[]> {
+    //after == feedCommentId
+    const beforeCreatedAt: any = {};
+    if (before) {
+      const beforeFeedComment = await this.feedCommentModel.findById(before);
+      beforeCreatedAt.createdAt = { $gt: beforeFeedComment.createdAt };
     }
     const comments: any = await this.feedCommentModel
       .find({
@@ -76,40 +79,34 @@ export class FeedCommentsService {
           { feedPostId: parentFeedPostId },
           { is_deleted: FeedCommentDeletionState.NotDeleted },
           { status: FeedCommentStatus.Active },
-          afteCreatedAt,
+          beforeCreatedAt,
         ],
       })
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-
-    comments.forEach((comment) => comment.replies = []);
-
+    const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((e) => {
+      e.replies = [];
+      return e;
+    });
     const commentIds = comments.map((comment) => comment._id);
-
     const replies = await this.feedReplyModel
       .find({
-        $and: [
-          { feedCommentId: { $in: commentIds } },
-          { is_deleted: FeedCommentDeletionState.NotDeleted },
-          { status: FeedCommentStatus.Active },
-        ],
+        feedCommentId: { $in: commentIds },
+        deleted: FeedCommentDeletionState.NotDeleted,
+        status: FeedCommentStatus.Active,
       })
       .populate('userId', 'userName _id profilePic')
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .limit(limit)
       .exec();
-
-      let commentReplies = []
-      for(let comment of comments){
-        for(let reply of replies){
-          if(comment._id === reply.feedCommentId){
-            commentReplies.push(comment.replies.push(reply))
-          }
-        }
-      }
-      return commentReplies
-
+    const commentReplies = [];
+    for (const comment of addRepliesKey) {
+      const filterReply = replies.filter((reply) => reply.feedCommentId.toString() === comment._id);
+      comment.replies = filterReply;
+      commentReplies.push(comment);
+    }
+    return commentReplies;
   }
 }

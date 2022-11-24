@@ -1,11 +1,9 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Image, ImageSchema } from '../shared/image.schema';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
-import { FeedReplyDeletionState, FeedReplyStatus, FeedReplyType } from './feedReply.enums';
+import { FeedReplyStatus, FeedReplyType } from './feedReply.enums';
 
 export class FeedReplyUnusedFields {
-
   // NOT USED
   @Prop({ default: null, ref: 'feedPosts' })
   feedPostId: mongoose.Schema.Types.ObjectId;
@@ -44,5 +42,4 @@ export class FeedReplyUnusedFields {
     default: FeedReplyStatus.Active,
   })
   status: FeedReplyStatus;
-
 }

@@ -3,7 +3,7 @@ import {
 } from 'class-validator';
 import { Image } from 'src/schemas/shared/image.schema';
 
-export class CreateFeedCommentsDto {
+export class CreateFeedReplyDto {
   @IsNotEmpty()
   @IsMongoId()
   userId: string;
@@ -14,7 +14,7 @@ export class CreateFeedCommentsDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  feedPostId: string;
+  feedCommentId: string;
 
   @IsOptional()
   images: Image[];

@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { FeedComment } from '../feedComment/feedComment.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
+import { User } from '../user/user.schema';
 import { FeedReplyDeletionState } from './feedReply.enums';
 import { FeedReplyUnusedFields } from './feedReply.unused-fields';
 
@@ -14,10 +16,10 @@ export class FeedReply extends FeedReplyUnusedFields {
 
   readonly _id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'feedComments' })
+  @Prop({ default: null, ref: FeedComment.name })
   feedCommentId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'users', required: true })
+  @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null, required: true })

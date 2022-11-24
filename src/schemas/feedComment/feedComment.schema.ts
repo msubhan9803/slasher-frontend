@@ -4,7 +4,6 @@ import { Image, ImageSchema } from '../shared/image.schema';
 import { FeedCommentDeletionState } from './feedComment.enums';
 import { FeedCommentUnusedFields } from './feedComment.unused-fields';
 
-// TODO: Might need to add {collection: 'feedcomments'} below if auto-inflection doesn't match old API
 @Schema({ timestamps: true })
 export class FeedComment extends FeedCommentUnusedFields {
   /***********

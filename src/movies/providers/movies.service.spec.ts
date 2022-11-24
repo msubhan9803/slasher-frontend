@@ -18,7 +18,7 @@ import movieDbId2907ApiConfigurationResponse from '../../../test/fixtures/movie-
 import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 const mockHttpService = () => ({
 });
@@ -38,7 +38,7 @@ describe('MoviesService', () => {
         { provide: HttpService, useFactory: mockHttpService },
       ],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     httpService = moduleRef.get<HttpService>(HttpService);
@@ -53,7 +53,7 @@ describe('MoviesService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
     movie = await moviesService.create(
       moviesFactory.build(),
     );

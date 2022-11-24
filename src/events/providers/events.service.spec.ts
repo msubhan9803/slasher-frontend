@@ -14,7 +14,7 @@ import { EventCategoriesService } from '../../event-categories/providers/event-c
 import { eventCategoryFactory } from '../../../test/factories/event-category.factory';
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -43,7 +43,7 @@ describe('EventService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     eventService = moduleRef.get<EventService>(EventService);
     usersService = moduleRef.get<UsersService>(UsersService);
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
@@ -58,7 +58,7 @@ describe('EventService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     userData = await usersService.create(userFactory.build());
     eventCategoryData = await eventCategoriesService.create(eventCategoryFactory.build());

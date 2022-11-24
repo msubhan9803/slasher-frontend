@@ -15,6 +15,8 @@ import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { sleep } from '../../utils/timer-utils';
 
+const RECENT_MESSAGES_LIMIT = 10;
+
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
   constructor(private readonly usersService: UsersService, private readonly chatService: ChatService) { }
@@ -48,17 +50,15 @@ export class ChatGateway {
   @SubscribeMessage('recentMessages')
   async recentMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
-    const inValidLimit = data.limit ? Number.isNaN(data.limit) : false;
 
-    if (inValidData || inValidLimit) return { success: false };
+    if (inValidData) return { success: false };
 
     const user = await this.usersService.findBySocketId(client.id);
     const userId = user._id.toString();
 
     const { matchListId, before } = data;
 
-    const LIMIT = 10;
-    const messages = await this.chatService.getMessages(matchListId, userId, LIMIT, before);
+    const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
     return messages;
   }
 }

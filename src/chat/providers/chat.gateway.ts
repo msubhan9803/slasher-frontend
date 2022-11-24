@@ -16,15 +16,11 @@ import { ChatService } from './chat.service';
 import { sleep } from '../../utils/timer-utils';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway {
   constructor(private readonly usersService: UsersService, private readonly chatService: ChatService) { }
 
   @WebSocketServer()
   server: Server;
-
-  handleConnection(client: any, ...args: any[]) { }
-
-  handleDisconnect(client: any) { }
 
   @SubscribeMessage('chatTest')
   async chatTest(@MessageBody() data: any): Promise<string> {

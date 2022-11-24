@@ -11,7 +11,7 @@ import { userFactory } from '../../factories/user.factory';
 import { notificationFactory } from '../../factories/notification.factory';
 import { NotificationDocument } from '../../../src/schemas/notification/notification.schema';
 import { User } from '../../../src/schemas/user/user.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Notifications index (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +26,7 @@ describe('Notifications index (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
@@ -41,7 +41,7 @@ describe('Notifications index (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(
       userFactory.build(),

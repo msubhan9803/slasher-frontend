@@ -272,7 +272,7 @@ export class UsersController {
     );
     if (userData) {
       userData.resetPasswordToken = uuidv4();
-      userData.save();
+      await userData.save();
       await this.mailService.sendForgotPasswordEmail(
         userData.email,
         userData.resetPasswordToken,

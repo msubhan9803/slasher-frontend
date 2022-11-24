@@ -141,4 +141,8 @@ export class UsersService {
       await sleep(1000);
     }
   }
+
+  async getSocketUserCount(): Promise<number> {
+    return this.socketUserModel.countDocuments();
+  }
 }

@@ -1,5 +1,5 @@
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { ServerOptions } from 'socket.io';
+import { Server, ServerOptions } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { createClient, RedisClientType } from 'redis';
 import { ConfigService } from '@nestjs/config';
@@ -31,8 +31,8 @@ export class RedisIoAdapter extends IoAdapter {
     return server;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, class-methods-use-this
-  async close(server: any): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async close(server: Server): Promise<void> {
     await Promise.all([this.pubClient.disconnect(), this.subClient.disconnect()]);
   }
 }

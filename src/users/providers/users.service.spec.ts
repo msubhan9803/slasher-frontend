@@ -10,7 +10,7 @@ import { ActiveStatus } from '../../schemas/user/user.enums';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -22,7 +22,7 @@ describe('UsersService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
 
@@ -36,7 +36,7 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   it('should be defined', () => {
@@ -368,6 +368,16 @@ describe('UsersService', () => {
       expect((await usersService.findBySocketId(socketId))._id).toEqual(user._id);
       await usersService.deleteSocketUserEntry(socketId);
       expect((await usersService.findBySocketId(socketId))).toBeNull();
+    });
+  });
+
+  describe('#getSocketUserCount', () => {
+    it('finds the expected count', async () => {
+      expect(await usersService.getSocketUserCount()).toBe(0);
+      await usersService.createSocketUserEntry('123', (await usersService.create(userFactory.build())).id);
+      expect(await usersService.getSocketUserCount()).toBe(1);
+      await usersService.createSocketUserEntry('456', (await usersService.create(userFactory.build())).id);
+      expect(await usersService.getSocketUserCount()).toBe(2);
     });
   });
 });

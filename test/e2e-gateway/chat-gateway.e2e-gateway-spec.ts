@@ -4,15 +4,15 @@ import { io } from 'socket.io-client';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
-import { AppModule } from '../../../src/app.module';
-import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { userFactory } from '../../factories/user.factory';
-import { ChatService } from '../../../src/chat/providers/chat.service';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
-import { sleep } from '../../../src/utils/timer-utils';
-import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
+import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { AppModule } from '../../src/app.module';
+import { ChatService } from '../../src/chat/providers/chat.service';
+import { MatchListDocument, MatchList } from '../../src/schemas/matchList/matchList.schema';
+import { UserDocument } from '../../src/schemas/user/user.schema';
+import { UsersService } from '../../src/users/providers/users.service';
+import { userFactory } from '../factories/user.factory';
+import { clearDatabase } from '../helpers/mongo-helpers';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +20,6 @@ describe('Chat Gateway (e2e)', () => {
   let chatService: ChatService;
   let usersService: UsersService;
   let configService: ConfigService;
-  let address: any;
   let baseAddress: string;
   let activeUser: UserDocument;
   let user0: UserDocument;
@@ -40,13 +39,15 @@ describe('Chat Gateway (e2e)', () => {
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
 
     app = moduleRef.createNestApplication();
+
+    // Set up redis adapter
     const redisIoAdapter = new RedisIoAdapter(app, configService);
     await redisIoAdapter.connectToRedis();
     app.useWebSocketAdapter(redisIoAdapter);
-    await app.init();
 
-    address = app.getHttpServer().listen().address();
-    baseAddress = `http://[${address.address}]:${address.port}`;
+    // For socket tests, we use app.listen() instead of app.init()
+    await app.listen(configService.get<number>('PORT'));
+    baseAddress = `http://localhost:${configService.get<number>('PORT')}`;
   });
 
   afterAll(async () => {
@@ -55,7 +56,7 @@ describe('Chat Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -73,6 +74,7 @@ describe('Chat Gateway (e2e)', () => {
 
   it('should properly handle a chatTest event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const payload = { senderId: '6359fbc11577d660fb284650', receiverId: '6359fbc11577d660fb284653', message: 'This is a test message' };
     await new Promise<void>((resolve) => {
@@ -83,6 +85,9 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 
   describe('#sendPrivateDirectMessage', () => {
@@ -92,7 +97,6 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should send chatMessage', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await sleep(1000);
       const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
@@ -104,7 +108,6 @@ describe('Chat Gateway (e2e)', () => {
     });
     it('should NOT send chatMessage', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await sleep(2000);
       const payload = { toUserId: user1._id, message: null };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
@@ -131,7 +134,6 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should get recentMessages', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await sleep(2000);
       const payload = {
         matchListId: matchList._id,
       };
@@ -146,7 +148,6 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should get recentMessages with optional: `before` messageId', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await sleep(2000);
       const payload = {
         matchListId: matchList._id, before: message1._id.toString(),
       };
@@ -161,7 +162,6 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should NOT get recentMessages', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await sleep(2000);
       const payload = {
         matchListId: null, before: message1._id.toString(),
       };

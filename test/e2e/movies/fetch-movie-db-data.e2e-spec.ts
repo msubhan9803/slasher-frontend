@@ -18,7 +18,7 @@ import moviedbid2907ApiVideosResponse from '../../fixtures/movie-db/moviedbid-29
 import moviedbid2907ApiMainMovieResponse from '../../fixtures/movie-db/moviedbid-2907-api-main-movie-response';
 import moviedbid2907ApiConfigurationResponse from '../../fixtures/movie-db/moviedbid-2907-api-configuration-response';
 import moviedbid2907ApiCreditsResponse from '../../fixtures/movie-db/moviedbid-2907-api-credits-response';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 const mockHttpService = () => ({
 });
@@ -40,7 +40,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
         { provide: HttpService, useFactory: mockHttpService },
       ],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
@@ -56,7 +56,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

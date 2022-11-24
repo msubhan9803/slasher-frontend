@@ -97,6 +97,8 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should send chatMessage', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
       const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
@@ -105,9 +107,13 @@ describe('Chat Gateway (e2e)', () => {
         });
       });
       client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
     it('should NOT send chatMessage', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
       const payload = { toUserId: user1._id, message: null };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
@@ -116,6 +122,8 @@ describe('Chat Gateway (e2e)', () => {
         });
       });
       client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
   });
 
@@ -134,6 +142,8 @@ describe('Chat Gateway (e2e)', () => {
 
     it('should get recentMessages', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
       const payload = {
         matchListId: matchList._id,
       };
@@ -144,10 +154,14 @@ describe('Chat Gateway (e2e)', () => {
         });
       });
       client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
 
     it('should get recentMessages with optional: `before` messageId', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
       const payload = {
         matchListId: matchList._id, before: message1._id.toString(),
       };
@@ -158,10 +172,14 @@ describe('Chat Gateway (e2e)', () => {
         });
       });
       client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
 
     it('should NOT get recentMessages', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
       const payload = {
         matchListId: null, before: message1._id.toString(),
       };
@@ -172,6 +190,8 @@ describe('Chat Gateway (e2e)', () => {
         });
       });
       client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
   });
 });

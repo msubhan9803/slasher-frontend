@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, Image, Row,
-} from 'react-bootstrap';
+import { Col, Image, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
@@ -16,7 +14,7 @@ import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
 import { User, FriendRequestReaction } from '../../types';
 import {
-  acceptFriendsRequest, addFriend, frienship, rejectFriendsRequest,
+  acceptFriendsRequest, addFriend, friendship, rejectFriendsRequest,
 } from '../../api/friends';
 
 interface Props {
@@ -52,7 +50,7 @@ const StyledPopoverContainer = styled.div`
 `;
 function ProfileHeader({ tabKey, user }: Props) {
   const [show, setShow] = useState<boolean>(false);
-  const [friendshipStatus, setFriendShipStatus] = useState<any>();
+  const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<any>();
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
@@ -68,7 +66,7 @@ function ProfileHeader({ tabKey, user }: Props) {
 
   useEffect(() => {
     if (user && (loginUserName !== userName)) {
-      frienship(user.id).then((res) => {
+      friendship(user.id).then((res) => {
         if (res.data.reaction === FriendRequestReaction.Pending
           && res.data.from === loginUserId
           && res.data.to === user.id) {
@@ -90,11 +88,11 @@ function ProfileHeader({ tabKey, user }: Props) {
   const friendRequestApi = (status: string) => {
     if (user && user.id) {
       if (status === 'Add friend') {
-        addFriend(user.id).then(() => setFriendShipStatus(status));
+        addFriend(user.id).then(() => setFriendshipStatus(status));
       } else if (status === 'Accept friend request') {
-        acceptFriendsRequest(user.id).then(() => setFriendShipStatus(status));
+        acceptFriendsRequest(user.id).then(() => setFriendshipStatus(status));
       } else if (status === 'Remove friend' || status === 'Cancel pending request') {
-        rejectFriendsRequest(user.id).then(() => setFriendShipStatus(status));
+        rejectFriendsRequest(user.id).then(() => setFriendshipStatus(status));
       }
     }
   };
@@ -145,17 +143,18 @@ function ProfileHeader({ tabKey, user }: Props) {
                       )}
                     {loginUserName !== userName
                       && (
-                        <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                          <Button className="btn btn-form bg-black rounded-5 d-flex px-4 me-2" variant="primary">
-                            <h3 className="mb-0">{friendStatus}</h3>
-                          </Button>
-                          <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
-                            <CustomPopover
-                              popoverOptions={popoverOption}
-                              onPopoverClick={handlePopoverOption}
-                            />
-                          </StyledPopoverContainer>
-                        </div>
+                      <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                        <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+                          {friendStatus}
+                        </RoundButton>
+
+                        <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
+                          <CustomPopover
+                            popoverOptions={popoverOption}
+                            onPopoverClick={handlePopoverOption}
+                          />
+                        </StyledPopoverContainer>
+                      </div>
                       )}
                   </Col>
                 </Row>
@@ -191,13 +190,9 @@ function ProfileHeader({ tabKey, user }: Props) {
               {loginUserName !== userName
                 && (
                   <div className="d-flex align-items-center">
-                    <Button
-                      onClick={() => friendRequestApi(friendStatus)}
-                      className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 text-white me-1"
-                      variant="primary"
-                    >
-                      <h3 className="mb-0">{friendStatus}</h3>
-                    </Button>
+                    <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+                      {friendStatus}
+                    </RoundButton>
                     <CustomPopover
                       popoverOptions={popoverOption}
                       onPopoverClick={handlePopoverOption}

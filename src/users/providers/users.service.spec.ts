@@ -370,4 +370,14 @@ describe('UsersService', () => {
       expect((await usersService.findBySocketId(socketId))).toBeNull();
     });
   });
+
+  describe('#getSocketUserCount', () => {
+    it('finds the expected count', async () => {
+      expect(await usersService.getSocketUserCount()).toBe(0);
+      await usersService.createSocketUserEntry('123', (await usersService.create(userFactory.build())).id);
+      expect(await usersService.getSocketUserCount()).toBe(1);
+      await usersService.createSocketUserEntry('456', (await usersService.create(userFactory.build())).id);
+      expect(await usersService.getSocketUserCount()).toBe(2);
+    });
+  });
 });

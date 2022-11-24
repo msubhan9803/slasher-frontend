@@ -11,7 +11,8 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
-import { waitForAuthSuccessMessage } from '../helpers/gateway-test-helpers';
+import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
+import { sleep } from '../../src/utils/timer-utils';
 
 // Setting a longer timeout for this file because these tests can run slowly in the CI environment
 jest.setTimeout(20_000);
@@ -72,6 +73,9 @@ describe('Notifications Gateway (e2e)', () => {
     });
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 
   it('a client should receive an event when a request is made to the /notifications/socket-test endpoint', async () => {
@@ -96,5 +100,8 @@ describe('Notifications Gateway (e2e)', () => {
     await socketListenPromise;
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 });

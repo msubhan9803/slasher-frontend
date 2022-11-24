@@ -59,7 +59,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
           await this.usersService.createSocketUserEntry(client.id, user.id);
           // Emit an "authSuccess" event to let the client know that we have successfully
           // authenticated and are ready to receive additional socket messages.
-          setTimeout(() => { client.emit('authSuccess', { success: true }); }, 100);
+          setTimeout(() => {
+            // This is done in a timeout so that a client has time to connect and bind an
+            // authSuccess immediately after initiating a connection.
+            client.emit('authSuccess', { success: true });
+          }, 50);
           return;
         }
       } catch (e) {
@@ -78,7 +82,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: any) {
     // During a disconnect, we always want to clean up the SocketUser entry
-    // await this.usersService.deleteSocketUserEntry(client.id);
+    await this.usersService.deleteSocketUserEntry(client.id);
   }
 
   // This is just an end point for verifying a connection

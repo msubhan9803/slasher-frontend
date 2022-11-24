@@ -10,7 +10,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
-import { waitForAuthSuccessMessage } from '../helpers/gateway-test-helpers';
+import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
 
 describe('App Gateway (e2e)', () => {
   let app: INestApplication;
@@ -93,6 +93,9 @@ describe('App Gateway (e2e)', () => {
       // Although the client shouldn't be connected, disconnect just to be safe (in case
       // a code change breaks this test later on).
       if (client.connected) { client.close(); }
+
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
 
     it('when a valid auth token is provided, it connects and can successfully send/receive', async () => {
@@ -113,6 +116,9 @@ describe('App Gateway (e2e)', () => {
 
       // Expect client to be disconnected
       expect(client.connected).toBe(false);
+
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
     });
   });
 });

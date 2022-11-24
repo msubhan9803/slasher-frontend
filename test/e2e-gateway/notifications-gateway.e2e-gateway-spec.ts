@@ -12,10 +12,6 @@ import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
 import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
-import { sleep } from '../../src/utils/timer-utils';
-
-// Setting a longer timeout for this file because these tests can run slowly in the CI environment
-jest.setTimeout(20_000);
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;

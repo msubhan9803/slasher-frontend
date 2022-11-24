@@ -78,7 +78,7 @@ function ProfileHeader({ tabKey, user }: Props) {
           && res.data.to === loginUserId) {
           setFriendStatus('Accept friend request');
         } else if (res.data.reaction === FriendRequestReaction.Accepted) {
-          setFriendStatus('Unfriend');
+          setFriendStatus('Remove friend');
         } else if (res.data.reaction === FriendRequestReaction.DeclinedOrCancelled
           || res.data.reaction === null) {
           setFriendStatus('Add friend');
@@ -93,7 +93,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         addFriend(user.id).then(() => setFriendShipStatus(status));
       } else if (status === 'Accept friend request') {
         acceptFriendsRequest(user.id).then(() => setFriendShipStatus(status));
-      } else if (status === 'Unfriend' || status === 'Cancel pending request') {
+      } else if (status === 'Remove friend' || status === 'Cancel pending request') {
         rejectFriendsRequest(user.id).then(() => setFriendShipStatus(status));
       }
     }

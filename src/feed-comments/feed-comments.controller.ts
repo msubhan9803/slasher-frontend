@@ -1,8 +1,9 @@
 import {
-  Controller, HttpStatus, Post, UseInterceptors, Body, UploadedFiles, HttpException, Param, Patch, Delete, Query, Get, ValidationPipe,
+  Controller, HttpStatus, Post, UseInterceptors, Body, UploadedFiles, HttpException, Param, Patch, Delete, Query, Get, ValidationPipe, Req,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
+import { Request } from 'express';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
@@ -13,6 +14,10 @@ import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
 import { UpdateFeedReplyDto } from './dto/update-feed-reply.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { GetFeedCommentsDto } from './dto/get-feed-comments.dto';
+import { FeedCommentsIdDto } from './dto/feed-comment-id-dto';
+import { FeedReplyIdDto } from './dto/feed-reply-id.det';
+import { getUserFromRequest } from '../utils/request-utils';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
@@ -42,6 +47,7 @@ export class FeedCommentsController {
     }),
   )
   async createFeedComment(
+    @Req() request: Request,
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
@@ -51,6 +57,7 @@ export class FeedCommentsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const user = getUserFromRequest(request);
     const images = [];
     for (const file of files) {
       const storageLocation = `/feed/feed_${file.filename}`;
@@ -59,7 +66,7 @@ export class FeedCommentsController {
     }
     const createFeedComment = await this.feedCommentsService.createFeedComment(
       createFeedCommentsDto.feedPostId,
-      createFeedCommentsDto.userId,
+      user.id,
       createFeedCommentsDto.message,
       images,
     );
@@ -74,14 +81,17 @@ export class FeedCommentsController {
   }
 
   @Patch(':feedCommentId')
-  async updateFeedComment(@Param('feedCommentId') feedCommentId: string, @Body() updateFeedCommentsDto: UpdateFeedCommentsDto) {
-    const userData = await this.feedCommentsService.updateFeedComment(feedCommentId, updateFeedCommentsDto.message);
-    return userData;
+  async updateFeedComment(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
+    @Body() updateFeedCommentsDto: UpdateFeedCommentsDto,
+    ) {
+    const feedCommentData = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto.message);
+    return feedCommentData;
   }
 
   @Delete(':feedCommentId')
-  async deleteFeedComment(@Param('feedCommentId') feedCommentId: string) {
-    await this.feedCommentsService.deleteFeedComment(feedCommentId);
+  async deleteFeedComment(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto) {
+    await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
     return { success: true };
   }
 
@@ -106,6 +116,7 @@ export class FeedCommentsController {
     }),
   )
   async createFeedReply(
+    @Req() request: Request,
     @Body() createFeedReplyDto: CreateFeedReplyDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
@@ -115,6 +126,7 @@ export class FeedCommentsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const user = getUserFromRequest(request);
     const images = [];
     for (const file of files) {
       const storageLocation = `/feed/feed_${file.filename}`;
@@ -123,9 +135,9 @@ export class FeedCommentsController {
     }
     const createFeedComment = await this.feedCommentsService.createFeedReply(
       createFeedReplyDto.feedCommentId,
-      createFeedReplyDto.userId,
+      user.id,
       createFeedReplyDto.message,
-      images
+      images,
     );
 
     asyncDeleteMulterFiles(files);
@@ -138,26 +150,35 @@ export class FeedCommentsController {
   }
 
   @Patch('replies/:feedReplyId')
-  async updateFeedReply(@Param('feedReplyId') feedReplyId: string, @Body() updateFeedReplyDto: UpdateFeedReplyDto) {
-    const userData = await this.feedCommentsService.updateFeedReply(feedReplyId, updateFeedReplyDto.message);
-    return userData;
+  async updateFeedReply(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedReplyIdDto,
+    @Body() updateFeedReplyDto: UpdateFeedReplyDto,
+  ) {
+    const feedReplyData = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto.message);
+    return feedReplyData;
   }
 
   @Delete('replies/:feedReplyId')
-  async deleteFeedReply(@Param('feedReplyId') feedReplyId: string) {
-    await this.feedCommentsService.deleteFeedReply(feedReplyId);
+  async deleteFeedReply(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedReplyIdDto) {
+    await this.feedCommentsService.deleteFeedReply(params.feedReplyId);
     return { success: true };
   }
 
+  @TransformImageUrls(
+    '$[*].images[*].image_path',
+    '$[*].userId.profilePic',
+    '$[*].replies[*].images[*].image_path',
+    '$[*].replies[*].userId.profilePic',
+  )
   @Get()
   async findFeedCommentsWithReplies(
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFeedCommentsDto,
   ) {
-    const feedPosts = await this.feedCommentsService.findFeedCommentsWithReplies(
+    const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined, //after == feedCommentId
     );
-    return feedPosts;
+    return allFeedCommentsWithReplies;
   }
 }

@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FeedCommentsService } from './feed-comments.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -21,12 +21,21 @@ describe('FeedCommentsService', () => {
   let feedPostsService: FeedPostsService;
   let usersService: UsersService;
   let activeUser: UserDocument;
-  let user0: UserDocument;
   let feedPost: FeedPostDocument;
-  let feedComments: FeedCommentDocument;
-  let feedReply: FeedReplyDocument;
   let feedCommentsModel: Model<FeedCommentDocument>;
   let feedReplyModel: Model<FeedReplyDocument>;
+
+  const sampleFeedCommentsObject = {
+    images: [
+      {
+        image_path: 'https://picsum.photos/id/237/200/300',
+      },
+      {
+        image_path: 'https://picsum.photos/seed/picsum/200/300',
+      },
+    ],
+    message: 'Hello Test Message',
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -47,11 +56,12 @@ describe('FeedCommentsService', () => {
     await app.close();
   });
 
+  let feedComments;
+  let feedReply;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
-    user0 = await usersService.create(userFactory.build());
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
@@ -59,36 +69,20 @@ describe('FeedCommentsService', () => {
         },
       ),
     );
-    feedComments = await feedCommentsModel.create(
-      {
-        userId: activeUser._id,
-        feedPostId: feedPost._id,
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-          },
-        ],
-        message: 'Hello Test Message 1',
-      },
-    );
-    feedReply = await feedReplyModel.create(
-      {
-        userId: activeUser._id,
-        feedCommentId: feedComments._id,
-        images: [
-          {
-            image_path: 'https://picsum.photos/id/237/200/300',
-          },
-          {
-            image_path: 'https://picsum.photos/seed/picsum/200/300',
-          },
-        ],
-        message: 'Hello Test Message 1',
-      },
-    );
+    feedComments = await feedCommentsService
+      .createFeedComment(
+        feedPost.id,
+        activeUser.id,
+        sampleFeedCommentsObject.message,
+        sampleFeedCommentsObject.images,
+      );
+    feedReply = await feedCommentsService
+      .createFeedReply(
+        feedComments.id,
+        activeUser.id,
+        sampleFeedCommentsObject.message,
+        sampleFeedCommentsObject.images,
+      );
   });
 
   it('should be defined', () => {
@@ -97,27 +91,24 @@ describe('FeedCommentsService', () => {
 
   describe('#createFeedComment', () => {
     it('successfully creates a feed comments.', async () => {
-      const images = [
-        {
-          image_path: 'https://picsum.photos/id/237/200/300',
-        },
-        {
-          image_path: 'https://picsum.photos/seed/picsum/200/300',
-        },
-      ];
-      const message = 'Hello Test Message 1';
-      const feedCommentData = await feedCommentsService.createFeedComment(feedPost.id, activeUser.id, message, images);
-      expect(feedCommentData.message).toEqual(message);
+      const feedCommentData = await feedCommentsService
+        .createFeedComment(
+          feedPost.id,
+          activeUser.id,
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
+      expect(feedCommentData.message).toBe('Hello Test Message');
     });
   });
 
   describe('#updateFeedComment', () => {
     it('finds the expected comments and update the details', async () => {
-      const message = 'Hello Test Message 2';
-      const updatedComment = await feedCommentsService.updateFeedComment(feedComments.id, message);
+      const message1 = 'Hello Test Message 2';
+      const updatedComment = await feedCommentsService.updateFeedComment(feedComments._id.toString(), message1);
       const feedCommentData = await feedCommentsModel.findById(updatedComment._id);
-      expect(feedCommentData.message).toEqual(message);
-      expect(feedComments.message).not.toEqual(message);
+      expect(feedCommentData.message).toEqual(message1);
+      expect(feedComments.message).not.toEqual(message1);
     });
   });
 
@@ -131,16 +122,13 @@ describe('FeedCommentsService', () => {
 
   describe('#createFeedReply', () => {
     it('successfully creates a feed replies.', async () => {
-      const images = [
-        {
-          image_path: 'https://picsum.photos/id/237/200/300',
-        },
-        {
-          image_path: 'https://picsum.photos/seed/picsum/200/300',
-        },
-      ];
-      const message = 'Hello Test Reply Message 1';
-      const feedReplyData = await feedCommentsService.createFeedReply(feedComments.id, activeUser.id, message, images);
+      const feedReplyData = await feedCommentsService
+        .createFeedReply(
+          feedComments.id,
+          activeUser.id,
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
       expect(feedReplyData.feedCommentId).toEqual(feedComments._id);
     });
   });
@@ -156,7 +144,7 @@ describe('FeedCommentsService', () => {
   });
 
   describe('#deleteFeedReply', () => {
-    it('finds the expected comments and delete the details', async () => {
+    it('finds the expected reply and delete the details', async () => {
       await feedCommentsService.deleteFeedReply(feedReply.id);
       const feedReplyData = await feedReplyModel.findById(feedReply._id);
       expect(feedReply.deleted).not.toEqual(feedReplyData.deleted);
@@ -164,255 +152,103 @@ describe('FeedCommentsService', () => {
   });
 
   describe('#findFeedCommentsWithReplies', () => {
-    let feedComments1: FeedCommentDocument;
-    let feedComments2: FeedCommentDocument;
-    const message = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
-    beforeEach(async () => {
-      feedPost = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: activeUser._id,
-          },
-        ),
-      );
-      feedComments1 = await feedCommentsModel.create(
-        {
-          userId: user0._id,
-          feedPostId: feedPost._id,
-          images: [
-            {
-              image_path: 'https://picsum.photos/id/237/200/300',
-            },
-            {
-              image_path: 'https://picsum.photos/seed/picsum/200/300',
-            },
-          ],
-          message: 'Hello Test Message 2',
-        },
-      );
-      feedComments2 = await feedCommentsModel.create(
-        {
-          userId: user0._id,
-          feedPostId: feedPost._id,
-          images: [
-            {
-              image_path: 'https://picsum.photos/id/237/200/300',
-            },
-          ],
-          message: 'Hello Test Message 2',
-        },
-      );
-      for (let i = 0; i < 3; i += 1) {
-        await feedReplyModel.create(
-          {
-            userId: user0._id,
-            feedCommentId: feedComments1._id,
-            images: [
-              {
-                image_path: 'https://picsum.photos/id/237/200/300',
-              },
-              {
-                image_path: 'https://picsum.photos/seed/picsum/200/300',
-              },
-            ],
-            message: message[i],
-          },
-        );
-      }
-      await feedReplyModel.create(
-        {
-          userId: user0._id,
-          feedCommentId: feedComments2._id,
-          images: [
-            {
-              image_path: 'https://picsum.photos/id/237/200/300',
-            },
-            {
-              image_path: 'https://picsum.photos/seed/picsum/200/300',
-            },
-          ],
-          message: 'Hello Test Reply Message 4',
-        },
-      );
-    });
     it('finds the expected comments and delete the details', async () => {
+      const messages = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
+      const feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost.id,
+          activeUser._id.toString(),
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
+      const feedComments2 = await feedCommentsService
+        .createFeedComment(
+          feedPost.id,
+          activeUser._id.toString(),
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
+      for (let i = 0; i < 3; i += 1) {
+        await feedCommentsService
+          .createFeedReply(
+            feedComments1._id.toString(),
+            activeUser._id.toString(),
+            messages[i],
+            sampleFeedCommentsObject.images,
+          );
+      }
+      await feedCommentsService
+        .createFeedReply(
+          feedComments2._id.toString(),
+          activeUser._id.toString(),
+          'Hello Test Reply Message 4',
+          sampleFeedCommentsObject.images,
+        );
       const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, 20);
-      expect(feedCommentsWithReplies).toHaveLength(2);
+      expect(feedCommentsWithReplies).toHaveLength(3);
     });
 
-    // describe('when `before` argument is supplied', () => {
-    //   let feedComments1: FeedCommentDocument;
-    //   let feedComments2: FeedCommentDocument;
-    //   let feedComments3: FeedCommentDocument;
-    //   let feedComments4: FeedCommentDocument;
-    //   let feedComments5: FeedCommentDocument;
-    //   let message = ["Hello Test Reply Message 1", "Hello Test Reply Message 2", "Hello Test Reply Message 3"]
-    //   beforeEach(async () => {
-    //     feedPost = await feedPostsService.create(
-    //       feedPostFactory.build(
-    //         {
-    //           userId: activeUser._id,
-    //         },
-    //       ),
-    //     );
-    //     feedComments1 = await feedCommentsModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedPostId: feedPost._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Message 2"
-    //       },
-    //     );
-    //     feedComments2 = await feedCommentsModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedPostId: feedPost._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Message 2"
-    //       },
-    //     );
-    //     feedComments3 = await feedCommentsModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedPostId: feedPost._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Message 2"
-    //       },
-    //     );
-    //     feedComments4 = await feedCommentsModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedPostId: feedPost._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Message 2"
-    //       },
-    //     );
-    //     feedComments5 = await feedCommentsModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedPostId: feedPost._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Message 2"
-    //       },
-    //     );
-    //     for (let i = 0; i < 3; i += 1) {
-    //       await feedReplyModel.create(
-    //         {
-    //           userId: user0._id,
-    //           feedCommentId: feedComments1._id,
-    //           images: [
-    //             {
-    //               image_path: 'https://picsum.photos/id/237/200/300',
-    //             },
-    //             {
-    //               image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //             },
-    //           ],
-    //           message: message[i]
-    //         },
-    //       );
-    //     }
-    //     await feedReplyModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedCommentId: feedComments2._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Reply Message 4"
-    //       },
-    //     );
-    //     await feedReplyModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedCommentId: feedComments3._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Reply Message 5"
-    //       },
-    //     );
-    //     await feedReplyModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedCommentId: feedComments4._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Reply Message 6"
-    //       },
-    //     );
-    //     await feedReplyModel.create(
-    //       {
-    //         userId: user0._id,
-    //         feedCommentId: feedComments5._id,
-    //         images: [
-    //           {
-    //             image_path: 'https://picsum.photos/id/237/200/300',
-    //           },
-    //           {
-    //             image_path: 'https://picsum.photos/seed/picsum/200/300',
-    //           },
-    //         ],
-    //         message: "Hello Test Reply Message 7"
-    //       },
-    //     );
-    //   });
-    //   it('get expected first and second sets of paginated results', async () => {
-    //     const limit = 3;
-    //     const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit);
-    //     expect(firstResults).toHaveLength(3);
-    //     const secondResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit);
-    //     expect(secondResults).toHaveLength(2);
-    //   });
-
-    // });
+    describe('when `before` argument is supplied', () => {
+      it('get expected first and second sets of paginated results', async () => {
+        const feedComments1 = await feedCommentsService
+          .createFeedComment(
+            feedPost.id,
+            activeUser._id.toString(),
+            'Hello Test Message 1',
+            sampleFeedCommentsObject.images,
+          );
+        const feedComments2 = await feedCommentsService
+          .createFeedComment(
+            feedPost.id,
+            activeUser._id.toString(),
+            'Hello Test Message 2',
+            sampleFeedCommentsObject.images,
+          );
+        const feedComments3 = await feedCommentsService
+          .createFeedComment(
+            feedPost.id,
+            activeUser._id.toString(),
+            'Hello Test Message 3',
+            sampleFeedCommentsObject.images,
+          );
+        await feedCommentsService
+          .createFeedReply(
+            feedComments1._id.toString(),
+            activeUser._id.toString(),
+            'Hello Test Reply Message 1',
+            sampleFeedCommentsObject.images,
+          );
+        await feedCommentsService
+          .createFeedReply(
+            feedComments2._id.toString(),
+            activeUser._id.toString(),
+            'Hello Test Reply Message 2',
+            sampleFeedCommentsObject.images,
+          );
+        await feedCommentsService
+          .createFeedReply(
+            feedComments3._id.toString(),
+            activeUser._id.toString(),
+            'Hello Test Reply Message 3',
+            sampleFeedCommentsObject.images,
+          );
+        await feedCommentsService
+          .createFeedReply(
+            feedComments3._id.toString(),
+            activeUser._id.toString(),
+            'Hello Test Reply Message 4',
+            sampleFeedCommentsObject.images,
+          );
+        const limit = 3;
+        const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit);
+        expect(firstResults).toHaveLength(3);
+        const secondResults = await feedCommentsService.findFeedCommentsWithReplies(
+          feedPost.id,
+          limit,
+          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+        );
+        expect(secondResults).toHaveLength(1);
+      });
+    });
   });
 });

@@ -71,7 +71,7 @@ export class FeedCommentsService {
     const beforeCreatedAt: any = {};
     if (before) {
       const beforeFeedComment = await this.feedCommentModel.findById(before);
-      beforeCreatedAt.createdAt = { $gt: beforeFeedComment.createdAt };
+      beforeCreatedAt.createdAt = { $lt: beforeFeedComment.createdAt };
     }
     const comments: any = await this.feedCommentModel
       .find({

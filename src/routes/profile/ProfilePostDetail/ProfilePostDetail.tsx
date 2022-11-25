@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { addFeedComments, getFeedComments } from '../../../api/feed-comments';
 import { feedPostDetail } from '../../../api/feedpost';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -20,6 +21,9 @@ function ProfilePostDetail({ user }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [commentValue, setCommentValue] = useState('');
+  const [feedImageArray, setfeedImageArray] = useState<any>([]);
+  const [commentData, setCommentData] = useState<any>([]);
 
   let popoverOptions = ['Report', 'Block user'];
 
@@ -35,6 +39,12 @@ function ProfilePostDetail({ user }: Props) {
   const decryptMessage = (content: string) => {
     const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
     return found;
+  };
+
+  const postComments = (feedPostId: string) => {
+    getFeedComments(feedPostId).then((res) => {
+      setCommentData(res.data);
+    });
   };
 
   useEffect(() => {
@@ -62,8 +72,22 @@ function ProfilePostDetail({ user }: Props) {
         .catch((error) => {
           setErrorMessage(error.response.data.message);
         });
+      postComments(postId);
     }
   }, [postId, user]);
+
+  useEffect(() => {
+    if ((commentValue !== '' || feedImageArray.length > 0) && postId) {
+      addFeedComments(user.id, postId, commentValue, feedImageArray)
+        .then(() => {
+          postComments(postId);
+          setErrorMessage([]);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  }, [commentValue, postId]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -75,9 +99,12 @@ function ProfilePostDetail({ user }: Props) {
       <PostFeed
         postFeedData={postData}
         popoverOptions={popoverOptions}
-        isCommentSection={false}
+        isCommentSection
         onPopoverClick={handlePopoverOption}
         detailPage
+        setCommentValue={setCommentValue}
+        commentsData={commentData}
+        setfeedImageArray={setfeedImageArray}
       />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
     </AuthenticatedPageWrapper>

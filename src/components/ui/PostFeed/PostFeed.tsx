@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,9 +24,12 @@ interface LinearIconProps {
 interface Props {
   popoverOptions: string[],
   postFeedData: any[],
+  commentsData?: any[],
   isCommentSection?: boolean,
   onPopoverClick: (value: string) => void,
+  setCommentValue?: (value: string) => void,
   detailPage?: boolean
+  setfeedImageArray?: (value: any[]) => void
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -55,7 +59,14 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
+  postFeedData,
+  popoverOptions,
+  isCommentSection,
+  onPopoverClick,
+  detailPage,
+  setCommentValue,
+  commentsData,
+  setfeedImageArray,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -158,9 +169,11 @@ function PostFeed({
                 <>
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <PostCommentSection
-                    commentSectionData={post.comment}
+                    commentSectionData={commentsData}
                     commentImage={post.profileImage}
                     popoverOption={popoverOptions}
+                    setCommentValue={setCommentValue}
+                    setfeedImageArray={setfeedImageArray}
                   />
                 </>
               )
@@ -184,5 +197,8 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
+  setCommentValue: () => { },
+  commentsData: [],
+  setfeedImageArray: () => { },
 };
 export default PostFeed;

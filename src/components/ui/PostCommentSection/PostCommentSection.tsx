@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+/* eslint-disable max-lines */
+import React, {
+  SyntheticEvent, useEffect, useRef, useState,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
-  Col, Form, InputGroup, Row,
+  Col, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,17 +12,6 @@ import CommentSection from './CommentSection';
 import ReportModal from '../ReportModal';
 import UserCircleImage from '../UserCircleImage';
 
-interface Props {
-  id: number;
-  profileImage: string;
-  userName: string;
-  profileDateTime: string;
-  like: number;
-  userMessage: string;
-  commentReplySection?: Values[];
-  onIconClick: (value: number) => void;
-  likeIcon: boolean;
-}
 interface Values {
   id: number;
   image: string;
@@ -38,6 +30,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
+    
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -48,11 +41,55 @@ const StyledCommentInputGroup = styled(InputGroup)`
     min-width: 1.875rem;
   }
 `;
-
-function PostCommentSection({ commentSectionData, commentImage, popoverOption }: any) {
+const PostImageContainer = styled.div`
+  width: 4.25rem;
+  height: 4.25rem;
+  border: 0.125rem solid #3A3B46
+`;
+function PostCommentSection({
+  commentSectionData, commentImage, popoverOption, setCommentValue, setfeedImageArray,
+}: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const textRef = useRef<any>();
+  const inputFile = useRef<HTMLInputElement>(null);
+  const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [imageArray, setImageArray] = useState<any>([]);
+  const onChangeHandler = (e: SyntheticEvent) => {
+    const target = e.target as HTMLTextAreaElement;
+    textRef.current.style.height = '36px';
+    textRef.current.style.height = `${target.scrollHeight}px`;
+    textRef.current.style.maxHeight = '100px';
+  };
+
+  useEffect(() => {
+    const comments = commentSectionData.map((comment: any) => {
+      const feedComment: any = {
+        /* eslint no-underscore-dangle: 0 */
+        id: comment._id,
+        profilePic: comment.userId?.profilePic,
+        name: comment.userId?.userName,
+        time: comment.createdAt,
+        likes: comment.likes.length,
+        commentMsg: comment.message,
+        commentReplySection: comment.replies,
+      };
+      return feedComment;
+    });
+    setCommentData(comments);
+  }, [commentSectionData]);
+
+  const onKeyDownHandler = (e: any) => {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      const target = e.target as HTMLTextAreaElement;
+      setCommentValue(target.value);
+      target.value = '';
+      textRef.current.style.height = '36px';
+      setfeedImageArray(imageArray);
+    }
+  };
   const handleLikeIcon = (likeId: number) => {
     const tempData = [...commentData];
     tempData.map((data: any) => {
@@ -79,61 +116,131 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
     }
   };
 
+  const handleFileChange = (postImage: React.ChangeEvent<HTMLInputElement>) => {
+    if (!postImage.target) {
+      return;
+    }
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
+      const uploadedPostList = [...uploadPost];
+      const imageArrayList = [...imageArray];
+      const fileList = postImage.target.files;
+      for (let list = 0; list < fileList.length; list += 1) {
+        if (uploadedPostList.length < 4) {
+          const image = URL.createObjectURL(postImage.target.files[list]);
+          uploadedPostList.push(image);
+          imageArrayList.push(postImage.target.files[list]);
+        }
+      }
+      setUploadPost(uploadedPostList);
+      setImageArray(imageArrayList);
+    }
+  };
+
+  const handleRemoveFile = (postImage: File) => {
+    const removePostImage = imageArray.filter((image: File) => image !== postImage);
+    setImageArray(removePostImage);
+  };
+
   return (
     <>
-      <Row className="ps-3 pt-2 order-last order-sm-0">
-        <Col xs="auto" className="pe-0">
-          <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
-        </Col>
-        <Col className="ps-0 pe-4">
-          <StyledCommentInputGroup className="mb-4">
-            <Form.Control
-              placeholder="Write a comment"
-              className="fs-5 border-end-0"
-            />
-            <InputGroup.Text>
-              <FontAwesomeIcon role="button" icon={solid('camera')} size="lg" />
-            </InputGroup.Text>
-          </StyledCommentInputGroup>
-        </Col>
-      </Row>
-      {commentData.map((data: Props) => (
+      <Form>
+        <Row className="ps-3 pt-2 order-last order-sm-0">
+          <Col xs="auto" className="pe-0">
+            <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
+          </Col>
+          <Col className="ps-0 pe-4">
+            <StyledCommentInputGroup className="mb-4">
+              <Form.Control
+                placeholder="Write a comment"
+                className="fs-5 border-end-0"
+                rows={1}
+                as="textarea"
+                ref={textRef}
+                onChange={onChangeHandler}
+                onKeyDown={onKeyDownHandler}
+              />
+              <InputGroup.Text>
+                <FontAwesomeIcon role="button" onClick={() => inputFile.current?.click()} icon={solid('camera')} size="lg" />
+                <input
+                  type="file"
+                  name="post"
+                  className="d-none"
+                  accept="image/*"
+                  onChange={(post) => {
+                    handleFileChange(post);
+                  }}
+                  multiple
+                  ref={inputFile}
+                />
+              </InputGroup.Text>
+            </StyledCommentInputGroup>
+          </Col>
+        </Row>
+
+        <Row className="mx-5 px-3">
+          {imageArray.map((post: File) => (
+            <Col xs="auto" key={post.name} className="px-3 mb-1">
+              <PostImageContainer className="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0">
+                <Image
+                  src={URL.createObjectURL(post)}
+                  alt="Dating profile photograph"
+                  className="w-100 h-100 img-fluid rounded"
+                />
+                <FontAwesomeIcon
+                  icon={solid('times')}
+                  size="xs"
+                  role="button"
+                  className="position-absolute bg-white text-primary rounded-circle"
+                  style={{
+                    padding: '0.313rem 0.438rem',
+                    top: '-0.5rem',
+                    left: '3.5rem',
+                  }}
+                  onClick={() => handleRemoveFile(post)}
+                />
+              </PostImageContainer>
+            </Col>
+          ))}
+        </Row>
+      </Form>
+      {commentData && commentData.length > 0 && commentData.map((data: any) => (
         <Row className="ps-md-4 pt-md-1" key={data.id}>
           <Col>
             <Row className="mx-auto">
               <Col className="ps-md-0">
                 <CommentSection
-                  id={data.id}
-                  image={data.profileImage}
-                  name={data.userName}
-                  time={data.profileDateTime}
-                  likes={data.like}
+                  id={data._id}
+                  image={data.profilePic}
+                  name={data.name}
+                  time={data.time}
+                  likes={data.likes}
                   likeIcon={data.likeIcon}
-                  commentMsg={data.userMessage}
+                  commentMsg={data.commentMsg}
                   onIconClick={() => handleLikeIcon(data.id)}
                   popoverOptions={popoverOption}
                   onPopoverClick={handlePopover}
                 />
-                {data.commentReplySection && data.commentReplySection.map((comment: Values) => (
-                  <div key={comment.id} className="ms-5 ps-2">
-                    <div className="ms-md-4">
-                      <CommentSection
-                        id={comment.id}
-                        image={comment.image}
-                        name={comment.name}
-                        likes={comment.like}
-                        time={comment.time}
-                        likeIcon={comment.likeIcon}
-                        commentMsg={comment.commentMsg}
-                        commentMention={comment.commentMention}
-                        commentImg={comment.commentImg}
-                        onIconClick={() => handleLikeIcon(comment.id)}
-                        popoverOptions={popoverOption}
-                        onPopoverClick={handlePopover}
-                      />
+                {data.commentReplySection && data.commentReplySection.length > 0
+                  && data.commentReplySection.map((comment: Values) => (
+                    <div key={comment.id} className="ms-5 ps-2">
+                      <div className="ms-md-4">
+                        <CommentSection
+                          id={comment.id}
+                          image={comment.image}
+                          name={comment.name}
+                          likes={comment.like}
+                          time={comment.time}
+                          likeIcon={comment.likeIcon}
+                          commentMsg={comment.commentMsg}
+                          commentMention={comment.commentMention}
+                          commentImg={comment.commentImg}
+                          onIconClick={() => handleLikeIcon(comment.id)}
+                          popoverOptions={popoverOption}
+                          onPopoverClick={handlePopover}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </Col>
             </Row>
           </Col>
@@ -145,5 +252,6 @@ function PostCommentSection({ commentSectionData, commentImage, popoverOption }:
 }
 PostCommentSection.defaultProps = {
   commentReplySection: undefined,
+  setfeedImageArray: () => [],
 };
 export default PostCommentSection;

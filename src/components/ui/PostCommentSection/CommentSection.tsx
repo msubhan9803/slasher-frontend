@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
+import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import CustomPopover from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
@@ -60,7 +61,9 @@ function CommentSection({
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
               <h3 className="mb-0 ">{name}</h3>
-              <p className="fs-6 text-light mb-0">{time}</p>
+              <p className="fs-6 text-light mb-0">
+                {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
+              </p>
             </div>
             <div className="d-block pe-0">
               <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
@@ -80,37 +83,45 @@ function CommentSection({
               </div>
             )
           }
-          {
+          {/* {
             likes
-            && (
-              <Likes className="rounded d-flex justify-content-end position-absolute">
-                <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
-                  <LinearIcon uniqueId="like-button-comment">
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">{likes}</span>
-                  </LinearIcon>
-                </LikesButton>
-                <svg width="0" height="0">
-                  <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                  </linearGradient>
-                </svg>
-              </Likes>
-            )
-          }
+            && ( */}
+          <Likes className="rounded d-flex justify-content-end position-absolute">
+            <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+              <LinearIcon uniqueId="comment-like-count">
+                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                <span className="fs-5">{likes}</span>
+              </LinearIcon>
+            </LikesButton>
+            <svg width="0" height="0">
+              <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+              </linearGradient>
+            </svg>
+          </Likes>
+          {/* )
+          } */}
         </CommentBox>
         <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {
               likeIcon
                 ? (
-                  <LinearIcon uniqueId="like-button-comment">
-                    <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
-                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                      <span className="fs-5">Like</span>
-                    </Button>
-                  </LinearIcon>
+                  <>
+                    <LinearIcon uniqueId="like-button-comment">
+                      <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
+                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                        <span className="fs-5">Like</span>
+                      </Button>
+                    </LinearIcon>
+                    <svg width="0" height="0">
+                      <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                        <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                      </linearGradient>
+                    </svg>
+                  </>
                 )
                 : (
                   <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>

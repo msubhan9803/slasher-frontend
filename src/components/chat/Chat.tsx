@@ -49,12 +49,12 @@ const StyledChatContainer = styled.div`
   }
 `;
 
-function Chat({ messages }: ChatProps) {
+function Chat({ messages, userData }: ChatProps) {
   return (
     <StyledChatContainer>
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
-          <ChatUserStatus />
+          <ChatUserStatus userData={userData} />
           <ChatOptions />
         </Card.Header>
         <Card.Body className="position-relative overflow-auto p-0">
@@ -71,6 +71,7 @@ function Chat({ messages }: ChatProps) {
 
 Chat.defaulProps = {
   messages: [],
+  userData: {},
 };
 
 export default Chat;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta, Story } from '@storybook/react';
+import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 import Switch from '../components/ui/Switch';
 
@@ -12,16 +12,15 @@ export default {
   },
 } as ComponentMeta<typeof Switch>;
 
-// TODO: Fix typing of args
-function Template(args: any) {
-  return <Switch {...args} />;
-}
+type SwitchStory = ComponentStory<typeof Switch>;
 
-export const Checked: Story = Template.bind({});
+const Template: SwitchStory = (args) => <Switch {...args} />;
+
+export const Checked: SwitchStory = Template.bind({});
 Checked.args = {
   isChecked: false,
 };
-export const UnChecked: Story = Template.bind({});
+export const UnChecked: SwitchStory = Template.bind({});
 Checked.args = {
   isChecked: true,
 };

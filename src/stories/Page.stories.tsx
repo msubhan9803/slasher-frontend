@@ -12,16 +12,16 @@ export default {
   },
 } as ComponentMeta<typeof Page>;
 
-function Template(args: any) {
-  return <Page {...args} />;
-}
+type PageStory = ComponentStory<typeof Page>;
 
-export const LoggedOut = Template.bind({});
+const Template: PageStory = (args: any) => <Page {...args} />;
 
-export const LoggedIn: any = Template.bind({});
+export const LoggedOut: PageStory = Template.bind({});
+
+export const LoggedIn: PageStory = Template.bind({});
 
 // More on interaction testing: https://storybook.js.org/docs/react/writing-tests/interaction-testing
-LoggedIn.play = async ({ canvasElement }: any) => {
+LoggedIn.play = async ({ canvasElement }) => {
   const canvas = within(canvasElement);
   const loginButton = await canvas.getByRole('button', { name: /Log in/i });
   await userEvent.click(loginButton);

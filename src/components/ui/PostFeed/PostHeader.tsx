@@ -11,7 +11,7 @@ interface PostHeaderProps {
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
-  onPopoverClick: (value: string) => void;
+  onPopoverClick: (value: string, e?: any) => void;
   detailPage: boolean | undefined
 }
 

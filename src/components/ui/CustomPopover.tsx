@@ -15,7 +15,7 @@ interface Props {
   popoverOptions: string[];
   onPopoverClick: any;
   userProfileIcon?: string;
-  userName?: string;
+  commetId?: string;
 }
 const StyledPopover = styled.div`
 .btn[aria-describedby="popover-basic"]{
@@ -46,7 +46,7 @@ const PopoverText = styled.p`
 `;
 
 function CustomPopover({
-  popoverOptions, onPopoverClick, userProfileIcon, userName,
+  popoverOptions, onPopoverClick, userProfileIcon, commetId,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
@@ -55,7 +55,7 @@ function CustomPopover({
           key={option}
           className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
           role="button"
-          onClick={() => onPopoverClick(option, userName)}
+          onClick={() => onPopoverClick(option, commetId)}
         >
           {option}
         </PopoverText>
@@ -84,7 +84,7 @@ function CustomPopover({
 
 CustomPopover.defaultProps = {
   userProfileIcon: '',
-  userName: '',
+  commetId: '',
 };
 
 export default CustomPopover;

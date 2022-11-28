@@ -13,7 +13,6 @@ export async function getFeedComments(feedPostId: string) {
 }
 
 export async function addFeedComments(
-  userId: string,
   feedPostId: string,
   message: string,
   file: any,
@@ -21,14 +20,45 @@ export async function addFeedComments(
   const token = Cookies.get('sessionToken');
   const formData = new FormData();
   for (let i = 0; i < file.length; i += 1) {
-    formData.append('files', file[i]);
+    formData.append('images', file[i]);
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
-  formData.append('userId', userId);
   const headers = {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   return axios.post(`${apiUrl}/feed-comments`, formData, { headers });
+}
+
+export async function addFeedReplyComments(
+  feedPostId: string,
+  message: string,
+  file: any,
+  commentFirstReplyId: string,
+  commnetSeconReplyId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  for (let i = 0; i < file.length; i += 1) {
+    formData.append('images', file[i]);
+  }
+  formData.append('message', message); formData.append('message', message);
+  formData.append('feedPostId', feedPostId);
+  if (commentFirstReplyId) formData.append('message', message);
+  if (commnetSeconReplyId) formData.append('message', message);
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/feed-comments/replies`, formData, { headers });
+}
+
+export async function removeFeedComments(feedCommentId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/feed-comments/${feedCommentId}`, { headers });
 }

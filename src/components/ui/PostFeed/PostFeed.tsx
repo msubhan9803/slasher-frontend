@@ -26,10 +26,12 @@ interface Props {
   postFeedData: any[],
   commentsData?: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string) => void,
+  onPopoverClick: (value: string, e?: any) => void,
   setCommentValue?: (value: string) => void,
   detailPage?: boolean
   setfeedImageArray?: (value: any[]) => void
+  setDeleteComment?: (value: boolean) => void
+  setDeleteCommentID?: (value: string) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -67,6 +69,8 @@ function PostFeed({
   setCommentValue,
   commentsData,
   setfeedImageArray,
+  setDeleteComment,
+  setDeleteCommentID,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -174,6 +178,8 @@ function PostFeed({
                     popoverOption={popoverOptions}
                     setCommentValue={setCommentValue}
                     setfeedImageArray={setfeedImageArray}
+                    setDeleteComment={setDeleteComment}
+                    setDeleteCommentID={setDeleteCommentID}
                   />
                 </>
               )
@@ -200,5 +206,7 @@ PostFeed.defaultProps = {
   setCommentValue: () => { },
   commentsData: [],
   setfeedImageArray: () => { },
+  setDeleteComment: () => { },
+  setDeleteCommentID: '',
 };
 export default PostFeed;

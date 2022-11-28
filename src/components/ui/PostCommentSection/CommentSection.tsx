@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
@@ -11,18 +11,24 @@ interface LinearIconProps {
   uniqueId?: string
 }
 interface Props {
-  id: number;
+  id: string;
   image: string;
   name: string;
   time: string;
   likes?: number;
   commentMention?: string;
   commentMsg?: string;
-  commentImg?: string;
-  onIconClick: (value: number) => void;
+  commentImg?: ImageList[];
+  onIconClick: (value: string) => void;
   likeIcon: boolean;
   popoverOptions: string[];
-  onPopoverClick: (value: string) => void;
+  onPopoverClick: (value: string, commentId: string) => void;
+  setIsReply?: (value: boolean) => void;
+  isReply?: boolean;
+}
+interface ImageList {
+  image_path: string;
+  _id: string;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
@@ -49,8 +55,19 @@ const Likes = styled.div`
 `;
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
-  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
+  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
+  isReply,
 }: Props) {
+  console.log('commentImg', commentImg);
+  const [images, setImages] = useState<ImageList[]>([]);
+  console.log('images', images);
+
+  useEffect(() => {
+    if (commentImg && commentImg.length > 0) {
+      setImages(commentImg);
+    }
+  }, [commentImg]);
+
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -66,27 +83,32 @@ function CommentSection({
               </p>
             </div>
             <div className="d-block pe-0">
-              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
+              <CustomPopover
+                commetId={id}
+                popoverOptions={popoverOptions}
+                onPopoverClick={onPopoverClick}
+              />
             </div>
           </div>
           <span className="text-primary">
             {commentMention}
           </span>
+
           <CommentMessage className="mb-0 fs-4">
             {commentMsg}
           </CommentMessage>
-          {
-            commentImg
-            && (
-              <div>
-                <UserCircleImage size="5.625rem" src={commentImg} className="mt-2 rounded" />
+          <div className="row">
+            {images && images.length > 0 && images.map((imageC: ImageList) =>
+              /* eslint no-underscore-dangle: 0 */
+              <div key={imageC._id} className="col-6 col-sm-3 col-md-2 col-lg-4 col-xl-2 col-xxl-1">
+                <UserCircleImage size="5.625rem" src={imageC.image_path} className="mt-2 rounded" />
               </div>
-            )
-          }
+            )}
+          </div>
           {/* {
             likes
             && ( */}
-          <Likes className="rounded d-flex justify-content-end position-absolute">
+          < Likes className="rounded d-flex justify-content-end position-absolute" >
             <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
               <LinearIcon uniqueId="comment-like-count">
                 <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
@@ -130,7 +152,7 @@ function CommentSection({
                   </Button>
                 )
             }
-            <Button variant="link" className="shadow-none">
+            <Button variant="link" className="shadow-none" onClick={() => { setIsReply ? setIsReply(!isReply) : null }}>
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>
@@ -143,7 +165,9 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentMsg: '',
-  commentImg: '',
+  commentImg: [],
   likes: undefined,
+  setIsReply: () => { },
+  isReply: false,
 };
 export default CommentSection;

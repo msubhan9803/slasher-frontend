@@ -1,5 +1,5 @@
 import React from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { ComponentStory, ComponentMeta, Story } from '@storybook/react';
 
 import { Header } from './Header';
 
@@ -12,14 +12,17 @@ export default {
   },
 } as ComponentMeta<typeof Header>;
 
-const Template: ComponentStory<typeof Header> = (args) => <Header {...args} />;
+// TODO: Fix args type
+function Template(args: any) {
+  return <Header {...args} />;
+}
 
-export const LoggedIn = Template.bind({});
+export const LoggedIn: Story = Template.bind({});
 LoggedIn.args = {
   user: {
     name: 'Jane Doe',
   },
 };
 
-export const LoggedOut = Template.bind({});
+export const LoggedOut: Story = Template.bind({});
 LoggedOut.args = {};

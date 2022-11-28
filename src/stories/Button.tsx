@@ -46,3 +46,9 @@ export function Button({
     </button>
   );
 }
+Button.defaultProps = {
+  primary: true,
+  backgroundColor: 'black',
+  size: 'medium',
+  onClick: () => {},
+};

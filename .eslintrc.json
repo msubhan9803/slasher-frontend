@@ -54,6 +54,8 @@
                 "*.stories.@(ts|tsx|js|jsx|mjs|cjs)"
             ],
             "rules": {
+                // Disabling because storybook typesdefinition require us to have arrow functions for typings (see file Button.stories.tsx for `Template` type).
+                "react/function-component-definition": "off" // Docs: https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/function-component-definition.md
                 // example of overriding a rule
                 // 'storybook/hierarchy-separator': 'error',
                 // example of disabling a rule

@@ -175,4 +175,11 @@ export class ChatService {
     });
     return conversationsData;
   }
+
+  async findMatchList(id: string): Promise<any> {
+    const matchList = await this.matchListModel
+      .findById(id)
+      .populate('participants', 'id userName firstName profilePic');
+    return matchList;
+  }
 }

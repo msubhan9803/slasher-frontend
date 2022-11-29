@@ -58,3 +58,27 @@ export enum FriendRequestReaction {
   Blocked = 4,
   Pending = 5,
 }
+
+export interface FeedComments {
+  createdAt: string;
+  feedPostId: string;
+  hideUsers: any;
+  images: any;
+  is_deleted: number;
+  likes: any;
+  message: string;
+  replies: any;
+  reportUsers: any;
+  status: number;
+  type: number;
+  updatedAt: string;
+  userId: FeedCommentUserId;
+  __v: number;
+  _id: string;
+}
+
+interface FeedCommentUserId {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { addFeedComments, getFeedComments, removeFeedComments } from '../../../api/feed-comments';
+import { addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply, removeFeedComments } from '../../../api/feed-comments';
 import { feedPostDetail } from '../../../api/feedpost';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -25,7 +25,8 @@ function ProfilePostDetail({ user }: Props) {
   const [feedImageArray, setfeedImageArray] = useState<any>([]);
   const [commentData, setCommentData] = useState<any>([]);
   const [deleteComment, setDeleteComment] = useState<boolean>(false);
-  const [deleteCommentID, setDeleteCommentID] = useState<string>('');
+  const [commentID, setCommentID] = useState<string>('');
+  const [commentReplyID, setCommentReplyID] = useState<string>('');
 
   // let popoverOptions = ['Report', 'Block user'];
 
@@ -79,33 +80,53 @@ function ProfilePostDetail({ user }: Props) {
   }, [postId, user]);
 
   useEffect(() => {
-    if ((commentValue !== '' || feedImageArray.length > 0) && postId) {
-      addFeedComments(postId, commentValue, feedImageArray)
-        .then(() => {
+    if (commentValue && postId) {
+      if (!commentID) {
+        addFeedComments(postId, commentValue, feedImageArray)
+          .then(() => {
+            postComments(postId);
+            setErrorMessage([]);
+            setCommentValue('');
+          })
+          .catch((error) => {
+            setErrorMessage(error.response.data.message);
+          });
+      } else {
+        addFeedReplyComments(postId, commentValue, feedImageArray, commentID).then((res) => {
+          console.log('res reply =', res);
           postComments(postId);
           setErrorMessage([]);
           setCommentValue('');
-        })
-        .catch((error) => {
+          setCommentID('');
+        }).catch((error) => {
           setErrorMessage(error.response.data.message);
         });
+      }
     }
-  }, [commentValue, postId, feedImageArray]);
+  }, [commentValue, postId, feedImageArray, commentID]);
 
   const removeComment = () => {
-    removeFeedComments(deleteCommentID).then(() => {
-      setDeleteComment(false);
-      setDeleteCommentID('');
-      setfeedImageArray([]);
-      if (postId) postComments(postId);
-    });
+    if (commentID)
+      removeFeedComments(commentID).then(() => {
+        setCommentID('');
+      });
+    if (commentReplyID)
+      removeFeedCommentReply(commentReplyID).then(() => {
+        setCommentReplyID('');
+      });
+    setDeleteComment(false);
+    setDeleteComment(false);
+    setfeedImageArray([]);
+    if (postId) postComments(postId);
   };
+  console.log('commentReplyID', commentReplyID);
+
 
   useEffect(() => {
-    if (deleteComment && deleteCommentID) {
+    if (deleteComment) {
       removeComment();
     }
-  }, [deleteComment]);
+  }, [deleteComment, commentID, commentReplyID]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -124,7 +145,8 @@ function ProfilePostDetail({ user }: Props) {
         commentsData={commentData}
         setfeedImageArray={setfeedImageArray}
         setDeleteComment={setDeleteComment}
-        setDeleteCommentID={setDeleteCommentID}
+        setCommentID={setCommentID}
+        setCommentReplyID={setCommentReplyID}
       />
       <ReportModal
         show={show}

@@ -31,7 +31,8 @@ interface Props {
   detailPage?: boolean
   setfeedImageArray?: (value: any[]) => void
   setDeleteComment?: (value: boolean) => void
-  setDeleteCommentID?: (value: string) => void;
+  setCommentID?: (value: string) => void;
+  setCommentReplyID?: (value: string) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -70,7 +71,8 @@ function PostFeed({
   commentsData,
   setfeedImageArray,
   setDeleteComment,
-  setDeleteCommentID,
+  setCommentID,
+  setCommentReplyID,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -179,7 +181,8 @@ function PostFeed({
                     setCommentValue={setCommentValue}
                     setfeedImageArray={setfeedImageArray}
                     setDeleteComment={setDeleteComment}
-                    setDeleteCommentID={setDeleteCommentID}
+                    setCommentID={setCommentID}
+                    setCommentReplyID={setCommentReplyID}
                   />
                 </>
               )
@@ -207,6 +210,7 @@ PostFeed.defaultProps = {
   commentsData: [],
   setfeedImageArray: () => { },
   setDeleteComment: () => { },
-  setDeleteCommentID: '',
+  setCommentID: () => { },
+  setCommentReplyID: () => { },
 };
 export default PostFeed;

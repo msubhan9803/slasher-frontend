@@ -7,7 +7,6 @@ import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 
 export interface Conversation extends MatchList {
-  matchList: MatchList;
   latestMessage: Message;
   unreadCount: number;
 }
@@ -80,6 +79,102 @@ export class ChatService {
     return messages;
   }
 
+  // async getConversations(userId: string, limit: number, before?: string): Promise<Conversation[]> {
+  //   let beforeUpdatedAt;
+
+  //   if (before) {
+  //     const beforeMatchList = await this.matchListModel.findById(before).exec();
+  //     beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
+  //   }
+  //   const conversations = await this.matchListModel.aggregate([
+  //     {
+  //       $match: {
+  //         $and: [
+  //           { participants: new mongoose.Types.ObjectId(userId) },
+  //           before ? { updatedAt: beforeUpdatedAt } : {},
+  //         ],
+  //       },
+  //     },
+  //     { $sort: { updatedAt: -1 } },
+  //     { $limit: limit },
+  //     {
+  //       $lookup: {
+  //         from: 'messages',
+  //         let: { local_id: '$_id' },
+  //         as: 'latestMessage',
+  //         pipeline: [
+  //           {
+  //             $match: {
+  //               $expr: {
+  //                 $eq: ['$$local_id', '$matchId'],
+  //               },
+  //               deleted: false,
+  //             },
+  //           },
+  //           { $sort: { createdAt: -1 } },
+  //           { $limit: 1 },
+  //         ],
+  //       },
+  //     },
+  //     {
+  //       $lookup: {
+  //         from: 'messages',
+  //         let: { local_id: '$_id' },
+  //         as: 'unreadCount',
+  //         pipeline: [
+  //           {
+  //             $match: {
+  //               $expr: {
+  //                 $eq: ['$$local_id', '$matchId'],
+  //               },
+  //               isRead: false,
+  //               // The unread count should only count messages that are unread and sent TO
+  //               // the user requesting the conversation list.
+  //               senderId: new mongoose.Types.ObjectId(userId), // this is who the message is "to"
+  //             },
+  //           },
+  //           { $count: 'count' },
+  //         ],
+  //       },
+  //     },
+  //     { $unwind: '$latestMessage' },
+  //     {
+  //       $addFields: {
+  //         unreadCount: { $sum: '$unreadCount.count' },
+  //       },
+  //     },
+  //     {
+  //       $lookup: {
+  //         from: 'users',
+  //         let: { local_id: '$latestMessage.senderId' },
+  //         as: 'user',
+  //         pipeline: [
+  //           {
+  //             $match: {
+  //               $expr: {
+  //                 $eq: ['$$local_id', '$_id'],
+  //               },
+  //             },
+  //           },
+  //           { $project: { _id: 1, userName: 1, profilePic: 1 } },
+  //         ],
+  //       },
+  //     },
+  //     { $unwind: '$user' },
+  //     {
+  //       $project: {
+  //         _id: 1, user: 1, latestMessage: '$latestMessage.message', updatedAt: '$latestMessage.updatedAt', unreadCount: 1,
+  //       },
+  //     },
+  //   ]);
+    // const conversationsData = conversations.map((conversation) => {
+    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
+    //   conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
+    //   return conversation;
+    // });
+  //   return conversationsData;
+  // }
+
   async getConversations(userId: string, limit: number, before?: string): Promise<Conversation[]> {
     let beforeUpdatedAt;
 
@@ -87,93 +182,51 @@ export class ChatService {
       const beforeMatchList = await this.matchListModel.findById(before).exec();
       beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
-    const conversations = await this.matchListModel.aggregate([
-      {
-        $match: {
-          $and: [
-            { participants: new mongoose.Types.ObjectId(userId) },
-            before ? { updatedAt: beforeUpdatedAt } : {},
-          ],
-        },
-      },
-      { $sort: { updatedAt: -1 } },
-      { $limit: limit },
-      {
-        $lookup: {
-          from: 'messages',
-          let: { local_id: '$_id' },
-          as: 'latestMessage',
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$$local_id', '$matchId'],
-                },
-                deleted: false,
-              },
-            },
-            { $sort: { createdAt: -1 } },
-            { $limit: 1 },
-          ],
-        },
-      },
-      {
-        $lookup: {
-          from: 'messages',
-          let: { local_id: '$_id' },
-          as: 'unreadCount',
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$$local_id', '$matchId'],
-                },
-                isRead: false,
-                // The unread count should only count messages that are unread and sent TO
-                // the user requesting the conversation list.
-                senderId: new mongoose.Types.ObjectId(userId), // this is who the message is "to"
-              },
-            },
-            { $count: 'count' },
-          ],
-        },
-      },
-      { $unwind: '$latestMessage' },
-      {
-        $addFields: {
-          unreadCount: { $sum: '$unreadCount.count' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          let: { local_id: '$latestMessage.senderId' },
-          as: 'user',
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ['$$local_id', '$_id'],
-                },
-              },
-            },
-            { $project: { _id: 1, userName: 1, profilePic: 1 } },
-          ],
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $project: {
-          _id: 1, user: 1, latestMessage: '$latestMessage.message', updatedAt: '$latestMessage.updatedAt', unreadCount: 1,
-        },
-      },
-    ]);
-    const conversationsData = conversations.map((conversation) => {
-      // eslint-disable-next-line no-param-reassign, prefer-destructuring
-      conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
-      return conversation;
-    });
-    return conversationsData;
+
+    const matchLists: any = await this.matchListModel.find({
+      $and: [
+        { participants: new mongoose.Types.ObjectId(userId) },
+        before ? { updatedAt: beforeUpdatedAt } : {},
+      ],
+    }).sort({ updatedAt: -1 }).limit(limit).lean().exec();
+
+    // const matchListIds = matchLists.map(id => id._id)
+    // console.log("matchListIds", matchListIds);
+    
+    // const latestMessage = await this.messageModel.find({ matchId: {$in: matchListIds} }).sort({ createdAt: -1 }).exec();
+    // // console.log("latestMessage", latestMessage);
+    // const conversations: Conversation[] = [];
+    // console.log('latestMessage',latestMessage);
+    
+    // const trimLatestMessage = latestMessage.map((lmessage) => {
+    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
+    //   lmessage.message = lmessage.message.trim().split('\n')[0];
+    //   // lmessage['count'] = lmessage.isRead === false && lmessage.fromId.toString() !== userId ? c++ : c
+    //   lmessage['unreadCount'] = 'asas'
+    //   return lmessage
+    // });
+    // console.log("trimLatestMessage", trimLatestMessage);
+    // return matchListIds
+
+    
+    // For each conversation, find its latest message and unread count
+    const conversations: Conversation[] = [];
+    for (const matchList of matchLists) {
+      const latestMessage = await this.messageModel.findOne({ matchId: matchList._id }).sort({ createdAt: -1 }).exec();
+      if (latestMessage) {
+        // eslint-disable-next-line prefer-destructuring
+        latestMessage.message = latestMessage.message.trim().split('\n')[0];
+      }
+      const unreadCount = await this.messageModel.countDocuments(
+        { isRead: false, fromId: { $ne: new mongoose.Types.ObjectId(userId) } },
+      ).sort({ createdAt: -1 }).limit(1).exec();
+      conversations.push({
+        ...matchList,
+        latestMessage,
+        unreadCount,
+      });
+    }
+    return conversations;
   }
 
   async findMatchList(id: string): Promise<any> {

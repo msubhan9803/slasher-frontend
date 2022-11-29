@@ -4,9 +4,9 @@ import {
   Col, Container, Row,
 } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import ProfilePhotoGallery from '../../components/ProfilePhotoGallery';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 interface Image {
   title: string;
@@ -25,11 +25,11 @@ function DatingSetupAddPhotos() {
   ]);
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
+    <DatingPageWrapper>
       <Container fluid>
         <Row className="justify-content-center text-center">
           <Col md={9} xl={7}>
-            <h1>Add Photos</h1>
+            <h1 className="fw-bold">Add Photos</h1>
             <p className="fw-normal">
               You must add at least one photo to your dating profile, otherwise
               <br />
@@ -87,7 +87,7 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
       </Container>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 

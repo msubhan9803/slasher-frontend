@@ -4,18 +4,18 @@ import {
   Form,
   Row,
 } from 'react-bootstrap';
-import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import LengthRestrictedTextArea from '../../../../components/ui/LengthRestrictedTextArea';
 import RoundButton from '../../../../components/ui/RoundButton';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 function DatingSetupAboutMe() {
   const [message, setMessage] = useState('');
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
+    <DatingPageWrapper>
       <Form>
         <Form.Group className="mb-3" controlId="about-me">
-          <Form.Label>Tell people about yourself</Form.Label>
+          <Form.Label><h1 className="fw-bold mb-4">Tell people about yourself</h1></Form.Label>
           <LengthRestrictedTextArea
             maxLength={1000}
             contentDetail={message}
@@ -31,7 +31,7 @@ function DatingSetupAboutMe() {
           </Col>
         </Row>
       </Form>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 

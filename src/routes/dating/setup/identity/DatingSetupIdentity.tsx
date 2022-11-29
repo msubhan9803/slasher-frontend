@@ -5,9 +5,9 @@ import {
   Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -26,7 +26,7 @@ function DatingSetupIdentity() {
   const [selectGender, setSelectGender] = useState('');
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
+    <DatingPageWrapper>
       <Row>
         <Col md={5}>
           <Form.Group className="mb-3" controlId="formBasicName">
@@ -190,7 +190,7 @@ function DatingSetupIdentity() {
           </RoundButton>
         </Col>
       </Row>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 export default DatingSetupIdentity;

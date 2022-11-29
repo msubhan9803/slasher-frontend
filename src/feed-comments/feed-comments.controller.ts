@@ -15,7 +15,7 @@ import { UpdateFeedReplyDto } from './dto/update-feed-reply.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { GetFeedCommentsDto } from './dto/get-feed-comments.dto';
 import { FeedCommentsIdDto } from './dto/feed-comment-id-dto';
-import { FeedReplyIdDto } from './dto/feed-reply-id.det';
+import { FeedReplyIdDto } from './dto/feed-reply-id.dto';
 import { getUserFromRequest } from '../utils/request-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 

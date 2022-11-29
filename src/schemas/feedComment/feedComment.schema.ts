@@ -2,7 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { FeedCommentUnusedFields } from './feedComment.unused-fields';
 
-// TODO: Might need to add {collection: 'feedcomments'} below if auto-inflection doesn't match old API
 @Schema({ timestamps: true })
 export class FeedComment extends FeedCommentUnusedFields {
   /***********

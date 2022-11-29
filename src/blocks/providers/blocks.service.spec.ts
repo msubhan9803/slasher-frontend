@@ -9,7 +9,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('BlocksService', () => {
   let app: INestApplication;
@@ -26,7 +26,7 @@ describe('BlocksService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     blocksService = moduleRef.get<BlocksService>(BlocksService);
     usersService = moduleRef.get<UsersService>(UsersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
@@ -41,7 +41,7 @@ describe('BlocksService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
@@ -119,6 +119,29 @@ describe('BlocksService', () => {
       expect(
         await blocksService.getBlockedUsersBySender(user0.id, 1, 1),
       ).toHaveLength(1);
+    });
+  });
+
+  describe('#deleteAllByUserId', () => {
+    it('delete the block data successful of passed userId (blocks from the user and to the user)', async () => {
+      await blocksModel.create({
+        from: user0._id,
+        to: user3._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user3._id,
+        to: user0._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksService.deleteAllByUserId(user0.id);
+      expect(await blocksModel.find({ from: user0._id })).toHaveLength(0);
+      expect(await blocksModel.find({ to: user0._id })).toHaveLength(0);
     });
   });
 });

@@ -15,4 +15,4 @@ import { Message, MessageSchema } from '../schemas/message/message.schema';
   controllers: [ChatController],
   exports: [ChatService],
 })
-export class ChatModule {}
+export class ChatModule { }

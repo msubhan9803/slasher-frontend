@@ -10,7 +10,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { MailService } from '../../../src/providers/mail.service';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -34,7 +34,7 @@ describe('Users / Register (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
@@ -50,7 +50,7 @@ describe('Users / Register (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
   });
 
   describe('POST /users/register', () => {

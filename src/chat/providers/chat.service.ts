@@ -7,6 +7,7 @@ import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 
 export interface Conversation extends MatchList {
+  matchList: MatchList;
   latestMessage: Message;
   unreadCount: number;
 }
@@ -163,7 +164,7 @@ export class ChatService {
       { $unwind: '$user' },
       {
         $project: {
-          _id: 1, user: 1, latestMessage: '$latestMessage.message', unreadCount: 1,
+          _id: 1, user: 1, latestMessage: '$latestMessage.message', updatedAt: '$latestMessage.updatedAt', unreadCount: 1,
         },
       },
     ]);

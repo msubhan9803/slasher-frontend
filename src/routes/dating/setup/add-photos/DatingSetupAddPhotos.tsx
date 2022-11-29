@@ -62,6 +62,7 @@ function DatingSetupAddPhotos() {
                     imageIndex={imageIndex}
                     imageUpload={imageUpload}
                     setImageUpload={setImageUpload}
+                    isSlim
                   />
                 </Col>
               ))}
@@ -69,15 +70,20 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
         <Row className="justify-content-center">
-          <Col md={7} className="mt-3">
-            <RoundButton
-              variant="primary"
-              type="submit"
-              className="w-100 px-5"
-              size="lg"
-            >
-              Next Step
-            </RoundButton>
+          <Col md={9} className="mt-3">
+            <Row>
+              <Col sm={4} className="my-3">
+                <RoundButton
+                  variant="primary"
+                  type="submit"
+                  className="w-100 px-5"
+                  size="sm"
+                  height="40px"
+                >
+                  Next Step
+                </RoundButton>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>

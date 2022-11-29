@@ -58,8 +58,13 @@ function DatingWelcome() {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={6}>
-          <RoundButton className="w-100">Agree</RoundButton>
+
+        <Col md={8}>
+          <Row className="justify-content-center">
+            <Col md={5}>
+              <RoundButton className="w-100">Agree</RoundButton>
+            </Col>
+          </Row>
         </Col>
       </Row>
     </AuthenticatedPageWrapper>

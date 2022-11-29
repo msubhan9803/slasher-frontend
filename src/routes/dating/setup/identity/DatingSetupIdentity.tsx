@@ -1,8 +1,10 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Button, Col, Form, Row,
+  Button,
+  Col, Form, Row,
 } from 'react-bootstrap';
+import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
@@ -10,6 +12,14 @@ import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } f
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
+
+const BigTitle = styled.h1`
+  font-size: 2rem;
+`;
+
+const ButtonSized = styled(Button)`
+  height: 40px;
+`;
 
 function DatingSetupIdentity() {
   const [gender, setGender] = useState('male');
@@ -70,31 +80,31 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col sm={6}>
           <Row>
-            <h3>I am a</h3>
+            <BigTitle>I am a</BigTitle>
             <Row>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <Button
+                <ButtonSized
                   variant="form"
-                  size="lg"
+                  size="sm"
                   className="w-100"
                   name="male"
                   active={gender === 'male'}
-                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Male
-                </Button>
+                </ButtonSized>
               </Col>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <Button
+                <ButtonSized
                   variant="form"
-                  size="lg"
+                  size="sm"
                   className="w-100"
                   name="female"
                   active={gender === 'female'}
-                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Female
-                </Button>
+                </ButtonSized>
               </Col>
             </Row>
           </Row>
@@ -103,43 +113,43 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col md={6}>
           <Row>
-            <h3> I am looking for</h3>
+            <BigTitle> I am looking for</BigTitle>
             <Row>
               <Col xs={4}>
-                <Button
+                <ButtonSized
                   variant="form"
-                  size="lg"
+                  size="sm"
                   className="w-100"
                   name="men"
                   active={selectGender === 'men'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Men
-                </Button>
+                </ButtonSized>
               </Col>
               <Col xs={4}>
-                <Button
+                <ButtonSized
                   variant="form"
-                  size="lg"
+                  size="sm"
                   className="w-100"
                   name="women"
                   active={selectGender === 'women'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Women
-                </Button>
+                </ButtonSized>
               </Col>
               <Col xs={4}>
-                <Button
+                <ButtonSized
                   variant="form"
-                  size="lg"
+                  size="sm"
                   className="w-100"
                   name="both"
                   active={selectGender === 'both'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Both
-                </Button>
+                </ButtonSized>
               </Col>
             </Row>
           </Row>
@@ -173,7 +183,8 @@ function DatingSetupIdentity() {
             variant="primary"
             type="submit"
             className="w-100 px-5"
-            size="lg"
+            size="sm"
+            height="40px"
           >
             Next Step
           </RoundButton>

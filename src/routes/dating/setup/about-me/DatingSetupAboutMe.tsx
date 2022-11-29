@@ -24,7 +24,7 @@ function DatingSetupAboutMe() {
           />
         </Form.Group>
         <Row>
-          <Col sm={5} md={4} className="mt-5">
+          <Col sm={3} className="mt-4">
             <RoundButton className="w-100" type="submit">
               Next step
             </RoundButton>

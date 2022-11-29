@@ -9,7 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Conversations all / (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +29,7 @@ describe('Conversations all / (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     chatService = moduleRef.get<ChatService>(ChatService);
     usersService = moduleRef.get<UsersService>(UsersService);
@@ -44,7 +44,7 @@ describe('Conversations all / (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());

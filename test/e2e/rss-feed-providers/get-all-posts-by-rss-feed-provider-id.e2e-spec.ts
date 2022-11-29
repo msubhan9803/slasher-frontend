@@ -13,7 +13,7 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
-import { dropCollections } from '../../helpers/mongo-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
@@ -49,7 +49,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -87,7 +87,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('RssFeedProvider not found');
+      expect(response.body.message).toContain('RssFeedProvider not found');
     });
 
     describe('when `before` argument is supplied', () => {

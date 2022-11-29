@@ -16,7 +16,7 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
-import { dropCollections } from '../../../test/helpers/mongo-helpers';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -33,7 +33,7 @@ describe('FeedPostsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
@@ -50,7 +50,7 @@ describe('FeedPostsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await dropCollections(connection);
+    await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });

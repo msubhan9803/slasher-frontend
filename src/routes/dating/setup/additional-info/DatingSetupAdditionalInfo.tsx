@@ -5,19 +5,22 @@ import {
 import DatingAdditionalInfo from '../../components/DatingAdditionalInfo/DatingAdditionalInfo';
 import RoundButton from '../../../../components/ui/RoundButton';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
+import { Section } from '../../components/styledUtils';
 
 function DatingSetupAdditionalInfo() {
   return (
     <DatingPageWrapper>
       <Form>
         <DatingAdditionalInfo />
-        <Row className="d-flex justify-content-center mt-5">
-          <Col md={6} lg={5}>
-            <RoundButton className="w-100" size="lg">
-              Next step
-            </RoundButton>
-          </Col>
-        </Row>
+        <Section>
+          <Row className="d-flex justify-content-start mt-2">
+            <Col md={4}>
+              <RoundButton className="w-100" size="sm" height="40px">
+                Next step
+              </RoundButton>
+            </Col>
+          </Row>
+        </Section>
       </Form>
     </DatingPageWrapper>
   );

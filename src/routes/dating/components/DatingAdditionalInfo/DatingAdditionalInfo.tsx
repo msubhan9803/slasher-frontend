@@ -18,9 +18,6 @@ import {
 } from './additional-info-form-options';
 import { Heading, Section } from '../styledUtils';
 
-const HEADING = 'bg-secondary h2 m-0 mb-3 p-3 rounded-3';
-const SECTION_INNER = 'row gx-3 mx-auto';
-
 function DatingAdditionalInfo() {
   const [interests, setInterests] = useState<Set<string>>(new Set<string>());
 
@@ -34,8 +31,8 @@ function DatingAdditionalInfo() {
   return (
     <>
       <Row className="mx-0 mb-4">
-        <Heading className={HEADING}>Appearance</Heading>
-        <Section className={SECTION_INNER}>
+        <Heading>Appearance</Heading>
+        <Section>
           <Col xs={12}>
             <Row className="mb-4 align-items-center">
               <Col>
@@ -68,8 +65,8 @@ function DatingAdditionalInfo() {
         </Section>
       </Row>
       <Row className="mx-0 mb-4">
-        <Heading className={HEADING}>Basic Info</Heading>
-        <Section className={SECTION_INNER}>
+        <Heading>Basic Info</Heading>
+        <Section>
           <Col xs={12}>
             <Row className="mb-4">
               <Col>
@@ -147,10 +144,10 @@ function DatingAdditionalInfo() {
         </Section>
       </Row>
       <Row className="mt-3 d-none d-md-flex mb-4 mx-0">
-        <Heading className={HEADING}>Interests</Heading>
-        <Section className={SECTION_INNER}>
+        <Heading>Interests</Heading>
+        <Section>
           {interestsList.map((interest: string, index: number) => (
-            <Col md={4} lg={3} xxl={2} key={interest}>
+            <Col xs={6} md={4} key={interest}>
               <CustomToggleButton
                 id={`interest-${index}`}
                 label={interest}
@@ -158,7 +155,7 @@ function DatingAdditionalInfo() {
                 checked={interests.has(interest)}
                 type="checkbox"
                 variant="form"
-                className="btn-lg fs-6 my-1 w-100"
+                className="fw-normal my-1 w-100 text-nowrap"
                 onChange={interestsChangeHandler}
               />
             </Col>
@@ -166,8 +163,8 @@ function DatingAdditionalInfo() {
         </Section>
       </Row>
       <Row className="d-flex d-md-none mb-4 mx-0">
-        <Heading className={HEADING}>Interests</Heading>
-        <Section className={SECTION_INNER}>
+        <Heading>Interests</Heading>
+        <Section>
           {interestsList.map((interest: string, index: number) => (
             <Col xs={6} key={interest}>
               <Form.Check

@@ -108,7 +108,6 @@ function Messages() {
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
                   handleDropdownOption={handleMessagesOption}
-                  userId={message.id}
                   matchListId={message._id}
                 />
               </div>

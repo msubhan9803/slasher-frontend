@@ -1,6 +1,6 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
 
@@ -29,8 +29,22 @@ const ChatMessages = styled.div`
 `;
 
 function ChatMessage({ messages }: ChatProps) {
+  const messageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messageRef.current) {
+      messageRef.current.scrollIntoView(
+        {
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest',
+        },
+      );
+    }
+  });
+
   return (
-    <ChatMessages className="px-3">
+    <ChatMessages className="px-3" ref={messageRef}>
       {messages?.map((message) => (message.participant === 'other' ? (
         <div key={message.id} className="other-message mb-3">
           <div className="mb-2 d-flex">

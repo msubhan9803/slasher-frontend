@@ -49,7 +49,9 @@ const StyledChatContainer = styled.div`
   }
 `;
 
-function Chat({ messages, userData }: ChatProps) {
+function Chat({
+  messages, userData, sendMessageClick, setMessage, message,
+}: ChatProps) {
   return (
     <StyledChatContainer>
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
@@ -62,7 +64,11 @@ function Chat({ messages, userData }: ChatProps) {
             <ChatTimestamp />
             <ChatMessage messages={messages} />
           </div>
-          <ChatInput />
+          <ChatInput
+            sendMessageClick={sendMessageClick}
+            setMessage={setMessage}
+            message={message}
+          />
         </Card.Body>
       </Card>
     </StyledChatContainer>
@@ -72,6 +78,9 @@ function Chat({ messages, userData }: ChatProps) {
 Chat.defaulProps = {
   messages: [],
   userData: {},
+  sendMessageClick: null,
+  setMessage: null,
+  message: null,
 };
 
 export default Chat;

@@ -51,7 +51,7 @@ function App() {
       <Route path="/search/*" element={<Search />} />
       <Route path="/dating/*" element={<Dating />} />
       <Route path="/messages" element={<Messages />} />
-      <Route path="/messages/conversation/:conversationId/user/:chatUserId" element={<Conversation />} />
+      <Route path="/messages/conversation/:conversationId" element={<Conversation />} />
       <Route path="/news/*" element={<News />} />
       <Route path="/events/*" element={<Events />} />
       <Route path="/posts/*" element={<Posts />} />

@@ -1,16 +1,16 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import mongoose, { Model } from "mongoose";
-import { FRIEND_RELATION_ID } from "../../constants";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
+import { FRIEND_RELATION_ID } from '../../constants';
 import {
   MatchListRoomCategory,
   MatchListRoomType,
-} from "../../schemas/matchList/matchList.enums";
+} from '../../schemas/matchList/matchList.enums';
 import {
   MatchList,
   MatchListDocument,
-} from "../../schemas/matchList/matchList.schema";
-import { Message, MessageDocument } from "../../schemas/message/message.schema";
+} from '../../schemas/matchList/matchList.schema';
+import { Message, MessageDocument } from '../../schemas/message/message.schema';
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -22,14 +22,14 @@ export class ChatService {
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name)
-    private matchListModel: Model<MatchListDocument>
+    private matchListModel: Model<MatchListDocument>,
   ) {}
 
   async sendPrivateDirectMessage(
     fromUser: string,
     toUser: string,
     message: string,
-    image?: string
+    image?: string,
   ): Promise<MessageDocument> {
     const participants = [
       new mongoose.Types.ObjectId(fromUser),
@@ -53,12 +53,12 @@ export class ChatService {
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       fromId: new mongoose.Types.ObjectId(fromUser),
       senderId: new mongoose.Types.ObjectId(toUser),
-      message: image ? "Image" : message,
+      message: image ? 'Image' : message,
       image,
     });
     await this.matchListModel.updateOne(
       { _id: matchList._id },
-      { $set: { updatedAt: Date.now() } }
+      { $set: { updatedAt: Date.now() } },
     );
 
     return messageObject;
@@ -68,7 +68,7 @@ export class ChatService {
     matchListId: string,
     requiredParticipantId: string,
     limit: number,
-    before?: string
+    before?: string,
   ): Promise<Message[]> {
     const where: any = [
       { matchId: new mongoose.Types.ObjectId(matchListId) },
@@ -192,7 +192,7 @@ export class ChatService {
   async getConversations(
     userId: string,
     limit: number,
-    before?: string
+    before?: string,
   ): Promise<Conversation[]> {
     let beforeUpdatedAt;
 
@@ -250,14 +250,14 @@ export class ChatService {
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
         .findOne({ matchId: matchList._id })
-        .populate("senderId", "userName _id profilePic")
+        .populate('senderId', 'userName _id profilePic')
         .sort({ createdAt: -1 })
         .exec();
       const unreadCount = await this.messageModel
         .countDocuments({
           isRead: false,
           fromId: { $ne: new mongoose.Types.ObjectId(userId) },
-          matchId: matchList._id
+          matchId: matchList._id,
         })
         .sort({ createdAt: -1 })
         .limit(1)
@@ -266,7 +266,7 @@ export class ChatService {
         conversations.push({
           _id: matchList._id,
           unreadCount,
-          latestMessage: latestMessage.message.trim().split("\n")[0],
+          latestMessage: latestMessage.message.trim().split('\n')[0],
           user: latestMessage.senderId,
           updatedAt: latestMessage.updatedAt,
         });
@@ -278,7 +278,7 @@ export class ChatService {
   async findMatchList(id: string): Promise<any> {
     const matchList = await this.matchListModel
       .findById(id)
-      .populate("participants", "id userName firstName profilePic");
+      .populate('participants', 'id userName firstName profilePic');
     return matchList;
   }
 }

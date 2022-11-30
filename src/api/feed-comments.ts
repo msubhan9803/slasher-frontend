@@ -2,12 +2,16 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
-export async function getFeedComments(feedPostId: string) {
+export async function getFeedComments(feedPostId: string, lastRetrievedCommentId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const queryParameter = `?feedPostId=${feedPostId}&limit=20`;
+
+  let queryParameter = `?feedPostId=${feedPostId}&limit=20`;
+  if (lastRetrievedCommentId) {
+    queryParameter += `&before=${lastRetrievedCommentId}`;
+  }
 
   return axios.get(`${apiUrl}/feed-comments${queryParameter}`, { headers });
 }
@@ -44,7 +48,7 @@ export async function addFeedReplyComments(
   }
   formData.append('message', message);
   formData.append('feedPostId', feedPostId);
-  formData.append('feedCommentId', commentReplyId)
+  formData.append('feedCommentId', commentReplyId);
   const headers = {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
@@ -68,4 +72,38 @@ export async function removeFeedCommentReply(feedReplyId: string) {
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/feed-comments/replies/${feedReplyId}`, { headers });
+}
+
+export async function updateFeedComments(
+  feedPostId: string,
+  message: string,
+  feedCommentId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  const reqBody = {
+    message,
+    feedPostId,
+  };
+  return axios.patch(`${apiUrl}/feed-comments/${feedCommentId}`, reqBody, { headers });
+}
+
+export async function updateFeedCommentReply(
+  feedPostId: string,
+  message: string,
+  feedReplyId: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  const reqBody = {
+    message,
+    feedPostId,
+  };
+  return axios.patch(`${apiUrl}/feed-comments/replies/${feedReplyId}`, reqBody, { headers });
 }

@@ -13,10 +13,20 @@ const UserCircle = styled(Image)`
 `;
 interface Props {
   popoverOptions: string[];
-  onPopoverClick: any;
+  onPopoverClick: (val: string, popoverClickProps: PopoverClickProps) => void,
   userProfileIcon?: string;
-  commetId?: string;
+  userName?: string;
+  content?: string;
+  id?: string;
+  userId?: string;
 }
+export interface PopoverClickProps {
+  content?: string,
+  id?: string,
+  userId?: string,
+  userName?: string
+}
+
 const StyledPopover = styled.div`
 .btn[aria-describedby="popover-basic"]{
   svg{
@@ -46,20 +56,29 @@ const PopoverText = styled.p`
 `;
 
 function CustomPopover({
-  popoverOptions, onPopoverClick, userProfileIcon, commetId,
+  popoverOptions, onPopoverClick, userProfileIcon,
+  content, id, userId, userName,
 }: Props) {
   const popover = (
     <Custompopover arrowplacement={userProfileIcon ? 'bottom' : 'left'} id="popover-basic" className="fs-3 py-2 rounded-2">
-      {popoverOptions && popoverOptions.length > 0 && popoverOptions.map((option: string) => (
-        <PopoverText
-          key={option}
-          className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
-          role="button"
-          onClick={() => onPopoverClick(option, commetId)}
-        >
-          {option}
-        </PopoverText>
-      ))}
+      {popoverOptions && popoverOptions.length > 0 && popoverOptions.map((option: string) => {
+        const popoverClickProps = {
+          content,
+          id,
+          userId,
+          userName,
+        };
+        return (
+          <PopoverText
+            key={option}
+            className="ps-4 pb-2 pe-5 pt-2 mb-0 text-light"
+            role="button"
+            onClick={() => onPopoverClick(option, popoverClickProps as PopoverClickProps)}
+          >
+            {option}
+          </PopoverText>
+        );
+      })}
     </Custompopover>
   );
   return (
@@ -84,7 +103,10 @@ function CustomPopover({
 
 CustomPopover.defaultProps = {
   userProfileIcon: '',
-  commetId: '',
+  content: null,
+  id: null,
+  userId: null,
+  userName: null,
 };
 
 export default CustomPopover;

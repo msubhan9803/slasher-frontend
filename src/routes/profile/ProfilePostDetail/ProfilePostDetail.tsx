@@ -1,6 +1,10 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply, removeFeedComments } from '../../../api/feed-comments';
+import {
+  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
+  removeFeedComments, updateFeedCommentReply, updateFeedComments,
+} from '../../../api/feed-comments';
 import { feedPostDetail } from '../../../api/feedpost';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
@@ -11,11 +15,14 @@ import { Post, User } from '../../../types';
 interface Props {
   user: User
 }
+
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
+
 function ProfilePostDetail({ user }: Props) {
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
-
   const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<Post[]>([]);
@@ -27,12 +34,10 @@ function ProfilePostDetail({ user }: Props) {
   const [deleteComment, setDeleteComment] = useState<boolean>(false);
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
-
-  // let popoverOptions = ['Report', 'Block user'];
-
-  // if (queryParam === 'self') {
-  const popoverOptions = ['Edit', 'Delete'];
-  // }
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+  const [noMoreData, setNoMoreData] = useState<boolean>(false);
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -44,11 +49,33 @@ function ProfilePostDetail({ user }: Props) {
     return found;
   };
 
-  const postComments = (feedPostId: string) => {
-    getFeedComments(feedPostId).then((res) => {
-      setCommentData(res.data);
-    });
+  const feedComments = (feedPostId: string) => {
+    getFeedComments(
+      feedPostId,
+      commentData.length > 1 ? commentData[commentData.length - 1]._id : undefined,
+    ).then((res) => {
+      const comments = res.data;
+      setCommentData((prev: any) => [
+        ...prev,
+        ...comments,
+      ]);
+      if (res.data.length === 0) { setNoMoreData(true); }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+    );
   };
+
+  useEffect(() => {
+    if (requestAdditionalPosts && !loadingPosts && postId) {
+      setLoadingPosts(true);
+      feedComments(postId);
+    }
+  }, [postId, requestAdditionalPosts, loadingPosts]);
 
   useEffect(() => {
     if (postId) {
@@ -75,52 +102,77 @@ function ProfilePostDetail({ user }: Props) {
         .catch((error) => {
           setErrorMessage(error.response.data.message);
         });
-      postComments(postId);
     }
   }, [postId, user]);
 
   useEffect(() => {
     if (commentValue && postId) {
-      if (!commentID) {
-        addFeedComments(postId, commentValue, feedImageArray)
-          .then(() => {
-            postComments(postId);
+      if (!isEdit) {
+        if (!commentID) {
+          addFeedComments(postId, commentValue, feedImageArray)
+            .then(() => {
+              feedComments(postId);
+              setErrorMessage([]);
+              setCommentValue('');
+            })
+            .catch((error) => {
+              setErrorMessage(error.response.data.message);
+            });
+        } else {
+          addFeedReplyComments(postId, commentValue, feedImageArray, commentID).then(() => {
+            feedComments(postId);
             setErrorMessage([]);
             setCommentValue('');
-          })
-          .catch((error) => {
+            setCommentID('');
+          }).catch((error) => {
             setErrorMessage(error.response.data.message);
           });
+        }
       } else {
-        addFeedReplyComments(postId, commentValue, feedImageArray, commentID).then((res) => {
-          console.log('res reply =', res);
-          postComments(postId);
-          setErrorMessage([]);
-          setCommentValue('');
-          setCommentID('');
-        }).catch((error) => {
-          setErrorMessage(error.response.data.message);
-        });
+        if (commentID) {
+          updateFeedComments(postId, commentValue, commentID)
+            .then(() => {
+              setIsEdit(false);
+              feedComments(postId);
+              setErrorMessage([]);
+              setCommentValue('');
+              setCommentID('');
+            })
+            .catch((error) => {
+              setErrorMessage(error.response.data.message);
+            });
+        }
+        if (commentReplyID) {
+          updateFeedCommentReply(postId, commentValue, commentReplyID).then(() => {
+            setIsEdit(false);
+            feedComments(postId);
+            setErrorMessage([]);
+            setCommentValue('');
+            setCommentReplyID('');
+          }).catch((error) => {
+            setErrorMessage(error.response.data.message);
+          });
+        }
       }
     }
-  }, [commentValue, postId, feedImageArray, commentID]);
+  }, [commentValue, postId, feedImageArray, commentID, commentReplyID, isEdit]);
 
   const removeComment = () => {
-    if (commentID)
+    if (commentID) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
       });
-    if (commentReplyID)
+    }
+    if (commentReplyID) {
       removeFeedCommentReply(commentReplyID).then(() => {
         setCommentReplyID('');
       });
+    }
     setDeleteComment(false);
     setDeleteComment(false);
     setfeedImageArray([]);
-    if (postId) postComments(postId);
+    if (postId) feedComments(postId);
   };
-  console.log('commentReplyID', commentReplyID);
-
 
   useEffect(() => {
     if (deleteComment) {
@@ -137,9 +189,10 @@ function ProfilePostDetail({ user }: Props) {
       )}
       <PostFeed
         postFeedData={postData}
-        popoverOptions={popoverOptions}
-        isCommentSection
+        popoverOptions={loginUserPopoverOptions}
         onPopoverClick={handlePopoverOption}
+        otherUserPopoverOptions={otherUserPopoverOptions}
+        isCommentSection
         detailPage
         setCommentValue={setCommentValue}
         commentsData={commentData}
@@ -147,6 +200,12 @@ function ProfilePostDetail({ user }: Props) {
         setDeleteComment={setDeleteComment}
         setCommentID={setCommentID}
         setCommentReplyID={setCommentReplyID}
+        commentID={commentID}
+        commentReplyID={commentReplyID}
+        setIsEdit={setIsEdit}
+        setRequestAdditionalPosts={setRequestAdditionalPosts}
+        noMoreData={noMoreData}
+        loadingPosts={loadingPosts}
       />
       <ReportModal
         show={show}

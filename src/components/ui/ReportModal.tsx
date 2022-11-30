@@ -27,8 +27,8 @@ function ReportModal({
     setShow(false);
   };
   const removeData = () => {
-    setDeleteComment && setDeleteComment(true);
-    setDeleteCommentReply && setDeleteCommentReply(true);
+    if (setDeleteComment) setDeleteComment(true);
+    if (setDeleteCommentReply) setDeleteCommentReply(true);
     closeModal();
   };
 

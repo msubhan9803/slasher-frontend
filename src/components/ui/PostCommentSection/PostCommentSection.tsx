@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  SyntheticEvent, useEffect, useRef, useState,
+  SyntheticEvent, useEffect, useRef, useState, ChangeEvent,
 } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
@@ -9,30 +9,12 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AnyIfEmpty } from 'react-redux';
 import CommentSection from './CommentSection';
 import ReportModal from '../ReportModal';
 import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
-import { Divider } from '@mui/material';
-import { id } from 'date-fns/locale';
-
-interface ImageList {
-  image_path: string;
-  _id: string;
-}
-interface Values {
-  id: string;
-  image: string;
-  name: string;
-  time: string;
-  like: number;
-  likeIcon: boolean;
-  commentMention: string;
-  commentMsg: string;
-  commentImg?: ImageList[];
-  onIconClick: (value: number) => void;
-}
+import EditCommentModal from '../editCommentModal';
+import { PopoverClickProps } from '../CustomPopover';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -65,13 +47,20 @@ function PostCommentSection({
   setDeleteCommentReply,
   setCommentID,
   setCommentReplyID,
+  commentID,
+  commentReplyID,
+  loginUserId,
+  otherUserPopoverOptions,
+  setIsEdit,
 }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const [show, setShow] = useState<boolean>(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const textRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
-  const scroll = useRef<any>(null);
+  const tabsRef = useRef<any>();
+  const replyInputFile = useRef<HTMLInputElement>(null);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
   const [imageArray, setImageArray] = useState<any>([]);
   const [replyImageArray, setReplyImageArray] = useState<any>([]);
@@ -79,10 +68,15 @@ function PostCommentSection({
   const [replyMessage, setReplyMessage] = useState<string>('');
   const [isReply, setIsReply] = useState<boolean>(false);
   const [replyId, setReplyId] = useState<string>('');
+  const [replyUserName, setReplyUserName] = useState<string>('');
+  const [editContent, setEditContent] = useState<string>();
+  const loadMore = 10;
+  const [next, setNext] = useState(2);
+  const [loadMoreId, setLoadMoreId] = useState<string>('');
 
-  const onChangeHandler = (e: SyntheticEvent, id?: string) => {
+  const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
-    if (id) {
+    if (inputId) {
       setReplyMessage(target.value);
     } else {
       setMessage(target.value);
@@ -92,9 +86,19 @@ function PostCommentSection({
     textRef.current.style.maxHeight = '100px';
   };
 
+  const handleSeeCompleteList = () => {
+    const tabs = tabsRef.current;
+    if (tabs) {
+      tabs.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   useEffect(() => {
     const comments = commentSectionData.map((comment: FeedComments) => {
-      let commentReplies = comment.replies.map((replies: any) => {
+      const commentReplies = comment.replies.map((replies: any) => {
         const feeedCommentReplies: any = {
           /* eslint no-underscore-dangle: 0 */
           id: replies._id,
@@ -105,7 +109,8 @@ function PostCommentSection({
           commentMsg: replies.message,
           commentImg: replies.images,
           feedCommentId: replies.feedCommentId,
-        }
+          userId: replies.userId,
+        };
         return feeedCommentReplies;
       });
       const feedComment: any = {
@@ -118,38 +123,45 @@ function PostCommentSection({
         commentMsg: comment.message,
         commentImg: comment.images,
         commentReplySection: commentReplies,
+        userId: comment.userId,
       };
       return feedComment;
     });
     setCommentData(comments);
   }, [commentSectionData]);
 
-  const handleClick = () => {
-    return scroll.current?.scrollIntoView();
-  };
+  useEffect(() => {
+    setReplyMessage('');
+    if (isReply) {
+      const mentionString = `@${replyUserName} `;
+      setReplyMessage(mentionString);
+    }
+  }, [replyUserName]);
 
   const sendComment = (commentId?: string) => {
     if (commentId === undefined) {
       setCommentValue(message);
-      setfeedImageArray(replyImageArray);
+      setfeedImageArray(imageArray);
       setMessage('');
       setImageArray([]);
     } else {
+      const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
-      setCommentValue(replyMessage);
-      setfeedImageArray(imageArray);
+      setCommentValue(mentionReplyString);
+      setfeedImageArray(replyImageArray);
       setReplyMessage('');
       setReplyImageArray([]);
     }
     setIsReply(false);
+    setReplyId('');
+    setReplyUserName('');
   };
 
-  const onKeyDownHandler = (e: any, id?: string) => {
+  const onKeyDownHandler = (e: any, inpuId?: string) => {
     if (e.keyCode === 13) {
       e.preventDefault();
-      sendComment(id);
+      sendComment(inpuId);
       textRef.current.style.height = '36px';
-      // scroll.current.style.height = '36px';
     }
   };
 
@@ -172,29 +184,43 @@ function PostCommentSection({
     setCommentData(tempData);
   };
 
-  const handlePopover = (value: string, commentId: string) => {
-    setCommentID(commentId);
-    if (value !== 'Edit') {
+  const handlePopover = (value: string, popoverData: PopoverClickProps) => {
+    setCommentID(popoverData.id);
+    setCommentReplyID('');
+    setEditContent(popoverData.content);
+
+    if (value === 'Edit') {
+      setIsEdit(true);
+      setShowEdit(true);
+    } else {
       setShow(true);
       setDropDownValue(value);
+      setIsEdit(false);
     }
   };
 
-  const handleReplyPopover = (value: string, commentId: string) => {
-    setCommentReplyID(commentId);
-    if (value !== 'Edit') {
+  const handleReplyPopover = (value: string, popoverData: PopoverClickProps) => {
+    setCommentReplyID(popoverData.id);
+    setCommentID('');
+    setEditContent(popoverData.content);
+    if (value === 'Edit') {
+      setIsEdit(true);
+      setShowEdit(true);
+    } else {
       setShow(true);
       setDropDownValue(value);
+      setIsEdit(false);
     }
   };
 
-  const handleFileChange = (postImage: React.ChangeEvent<HTMLInputElement>, id?: string) => {
+  const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>, replyUserId?: string) => {
     if (!postImage.target) {
       return;
     }
-    if (postImage.target.name === ('post' || 'reply') && postImage.target && postImage.target.files) {
+    const fileName = replyUserId ? 'reply' : 'post';
+    if (postImage.target.name === fileName && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
-      const imageArrayList = id ? [...replyImageArray] : [...imageArray];
+      const imageArrayList = replyUserId ? [...replyImageArray] : [...imageArray];
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 4) {
@@ -204,18 +230,24 @@ function PostCommentSection({
         }
       }
       setUploadPost(uploadedPostList);
-      if (id) {
-        setReplyImageArray(imageArrayList)
+      if (replyUserId) {
+        setReplyImageArray(imageArrayList);
       } else {
         setImageArray(imageArrayList);
       }
     }
   };
 
-  const handleRemoveFile = (postImage: File, id?: string) => {
-    let images = id ? replyImageArray : imageArray;
+  const handleRemoveFile = (postImage: File, replyUserId?: string) => {
+    const images = replyUserId ? replyImageArray : imageArray;
     const removePostImage = images.filter((image: File) => image !== postImage);
     setImageArray(removePostImage);
+    setReplyImageArray(removePostImage);
+  };
+
+  const handleShowMorePosts = (loadId: string) => {
+    setLoadMoreId(loadId);
+    setNext(next + loadMore);
   };
 
   return (
@@ -235,11 +267,20 @@ function PostCommentSection({
                   as="textarea"
                   ref={textRef}
                   value={message}
+                  onFocus={() => setIsReply(false)}
                   onChange={onChangeHandler}
                   onKeyDown={onKeyDownHandler}
                 />
                 <InputGroup.Text>
-                  <FontAwesomeIcon role="button" onClick={() => inputFile.current?.click()} icon={solid('camera')} size="lg" />
+                  <FontAwesomeIcon
+                    role="button"
+                    onClick={() => {
+                      inputFile.current?.click();
+                      setIsReply(false);
+                    }}
+                    icon={solid('camera')}
+                    size="lg"
+                  />
                   <input
                     type="file"
                     name="post"
@@ -287,7 +328,7 @@ function PostCommentSection({
         </Row>
       </Form>
       {commentData && commentData.length > 0
-        && commentData.map((data: any, index: number) => (
+        && commentData.map((data: any) => (
           <Row className="ps-md-4 pt-md-1" key={data.id}>
             <Col>
               <Row className="mx-auto">
@@ -302,184 +343,135 @@ function PostCommentSection({
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
                     onIconClick={() => handleLikeIcon(data.id)}
-                    popoverOptions={popoverOption}
+                    popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
+                      ? otherUserPopoverOptions! : popoverOption}
                     onPopoverClick={handlePopover}
                     setIsReply={setIsReply}
                     setReplyId={setReplyId}
+                    setReplyUserName={setReplyUserName}
+                    content={data.commentMsg}
+                    handleSeeCompleteList={handleSeeCompleteList}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
                       {data.commentReplySection && data.commentReplySection.length > 0
-                        && data.commentReplySection.map((comment: any) => (
-                          <div key={comment.id}>
-                            <CommentSection
-                              id={comment.id}
-                              image={comment.profilePic}
-                              name={comment.name}
-                              likes={comment.likes}
-                              time={comment.time}
-                              likeIcon={comment.likeIcon}
-                              commentMsg={comment.commentMsg}
-                              commentMention={comment.commentMention}
-                              commentImg={comment.commentImg}
-                              onIconClick={() => handleLikeIcon(comment.id)}
-                              popoverOptions={popoverOption}
-                              onPopoverClick={handleReplyPopover}
-                              setIsReply={setIsReply}
-                              setReplyId={setReplyId}
-                              handleClick={handleClick}
-                              feedCommentId={comment.feedCommentId}
-                            />
+                        && data.commentReplySection
+                          .slice(0, loadMoreId === data.id ? next : 2)
+                          .map((comment: any) => (
+                            <div key={comment.id}>
+                              <CommentSection
+                                id={comment.id}
+                                image={comment.profilePic}
+                                name={comment.name}
+                                likes={comment.likes}
+                                time={comment.time}
+                                likeIcon={comment.likeIcon}
+                                commentMsg={comment.commentMsg}
+                                commentMention={comment.commentMention}
+                                commentImg={comment.commentImg}
+                                onIconClick={() => handleLikeIcon(comment.id)}
+                                popoverOptions={
+                                  comment.userId?._id && loginUserId !== comment?.userId._id
+                                    ? otherUserPopoverOptions! : popoverOption
+                                }
+                                onPopoverClick={handleReplyPopover}
+                                setIsReply={setIsReply}
+                                setReplyId={setReplyId}
+                                setReplyUserName={setReplyUserName}
+                                feedCommentId={comment.feedCommentId}
+                                content={comment.commentMsg}
+                                userName={comment.name}
+                                handleSeeCompleteList={handleSeeCompleteList}
+                              />
+                            </div>
+                          ))}
+                      {data.commentReplySection && data.commentReplySection.length > 2
+                        && (
+                          <div className="text-center">
+                            <Button
+                              variant="link"
+                              className="text-primary shadow-none"
+                              onClick={() => {
+                                handleShowMorePosts(data.commentReplySection[0]?.feedCommentId);
+                              }}
+                            >
+                              Load 10 more commnts
+                            </Button>
                           </div>
-                        ))}
-                      {isReply && (replyId === data.id || replyId === data.commentReplySection[0]?.feedCommentId) && (
-                        // <div className="d-flex">
-                        //   <div className="">
-                        //     <UserCircleImage size="2.5rem" src={commentImage} className="bg-secondary" />
-                        //   </div>
-                        //   <div className="w-100 ms-3">
-                        //     <div ref={scroll} className="d-flex align-items-end mb-4">
-                        //       <StyledCommentInputGroup>
-                        //         <Form.Control
-                        //           placeholder="Write a comment"
-                        //           className="fs-5 border-end-0"
-                        //           rows={1}
-                        //           as="textarea"
-                        //           ref={textRef}
-                        //           value={replyMessage}
-                        //           onChange={(e: any) => onChangeHandler(e, data.id)}
-                        //           onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
-                        //         />
-                        //         <InputGroup.Text>
-                        //           <FontAwesomeIcon role="button" onClick={() => inputFile.current?.click()} icon={solid('camera')} size="lg" />
-                        //           <input
-                        //             type="file"
-                        //             name="post"
-                        //             className="d-none"
-                        //             accept="image/*"
-                        //             onChange={(post) => {
-                        //               handleFileChange(post, data.id);
-                        //             }}
-                        //             multiple
-                        //             ref={inputFile}
-                        //           />
-                        //         </InputGroup.Text>
-                        //       </StyledCommentInputGroup>
-                        //       <Button onClick={() => sendComment(data.id)} variant="link" className="ms-2 p-0">
-                        //         <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
-                        //       </Button>
-                        //     </div>
-                        //   </div>
-                        // </div>
-                        <Form>
-                          <Row className="ps-3 pt-2 order-last order-sm-0">
-                            <Col xs="auto" className="pe-0">
-                              <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
-                            </Col>
-                            <Col className="ps-0 pe-4">
-                              <div className="d-flex align-items-end mb-4">
-                                <StyledCommentInputGroup>
-                                  <Form.Control
-                                    placeholder="Write a comment"
-                                    className="fs-5 border-end-0"
-                                    rows={1}
-                                    as="textarea"
-                                    ref={textRef}
-                                    value={replyMessage}
-                                    onChange={(e: any) => onChangeHandler(e, data.id)}
-                                    onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
-                                  />
-                                  <InputGroup.Text>
-                                    <FontAwesomeIcon role="button" onClick={() => inputFile.current?.click()} icon={solid('camera')} size="lg" />
-                                    <input
-                                      type="file"
-                                      name="reply"
-                                      className="d-none"
-                                      accept="image/*"
-                                      onChange={(post) => {
-                                        handleFileChange(post, data.id);
-                                      }}
-                                      multiple
-                                      ref={inputFile}
-                                    />
-                                  </InputGroup.Text>
-                                </StyledCommentInputGroup>
-                                <Button onClick={() => sendComment()} variant="link" className="ms-2 p-0">
-                                  <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
-                                </Button>
-                              </div>
-                            </Col>
-                          </Row>
-
-                          <Row className="mx-5 px-3">
-                            {replyImageArray.map((reply: File) => (
-                              <Col xs="auto" key={reply.name} className="px-3 mb-1">
-                                <PostImageContainer className="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0">
-                                  <Image
-                                    src={URL.createObjectURL(reply)}
-                                    alt="Dating profile photograph"
-                                    className="w-100 h-100 img-fluid rounded"
-                                  />
-                                  <FontAwesomeIcon
-                                    icon={solid('times')}
-                                    size="xs"
-                                    role="button"
-                                    className="position-absolute bg-white text-primary rounded-circle"
-                                    style={{
-                                      padding: '0.313rem 0.438rem',
-                                      top: '-0.5rem',
-                                      left: '3.5rem',
-                                    }}
-                                    onClick={() => handleRemoveFile(reply, data.id)}
-                                  />
-                                </PostImageContainer>
+                        )}
+                      {
+                        isReply && (replyId === data.id
+                          || replyId === data.commentReplySection[0]?.feedCommentId) && (
+                          <Form ref={tabsRef}>
+                            <Row className="ps-3 pt-2 order-last order-sm-0">
+                              <Col xs="auto" className="pe-0">
+                                <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
                               </Col>
-                            ))}
-                          </Row>
-                        </Form>
-                      )}
+                              <Col className="ps-0 pe-4">
+                                <div className="d-flex align-items-end mb-4">
+                                  <StyledCommentInputGroup>
+                                    <Form.Control
+                                      placeholder="Write a comments"
+                                      className="fs-5 border-end-0"
+                                      rows={1}
+                                      as="textarea"
+                                      ref={textRef}
+                                      defaultValue={replyMessage}
+                                      onChange={(e: any) => onChangeHandler(e, data.id)}
+                                      onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
+                                    />
+                                    <InputGroup.Text>
+                                      <FontAwesomeIcon role="button" onClick={() => replyInputFile.current?.click()} icon={solid('camera')} size="lg" />
+                                      <input
+                                        type="file"
+                                        name="reply"
+                                        className="d-none"
+                                        accept="image/*"
+                                        onChange={(reply) => {
+                                          handleFileChange(reply, data.id);
+                                        }}
+                                        multiple
+                                        ref={replyInputFile}
+                                      />
+                                    </InputGroup.Text>
+                                  </StyledCommentInputGroup>
+                                  <Button onClick={() => sendComment(data.id)} variant="link" className="ms-2 p-0">
+                                    <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
+                                  </Button>
+                                </div>
+                              </Col>
+                            </Row>
+
+                            <Row className="mx-5 px-3">
+                              {replyImageArray.map((reply: File) => (
+                                <Col xs="auto" key={reply.name} className="px-3 mb-1">
+                                  <PostImageContainer className="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0">
+                                    <Image
+                                      src={URL.createObjectURL(reply)}
+                                      alt="Dating profile photograph"
+                                      className="w-100 h-100 img-fluid rounded"
+                                    />
+                                    <FontAwesomeIcon
+                                      icon={solid('times')}
+                                      size="xs"
+                                      role="button"
+                                      className="position-absolute bg-white text-primary rounded-circle"
+                                      style={{
+                                        padding: '0.313rem 0.438rem',
+                                        top: '-0.5rem',
+                                        left: '3.5rem',
+                                      }}
+                                      onClick={() => handleRemoveFile(reply, data.id)}
+                                    />
+                                  </PostImageContainer>
+                                </Col>
+                              ))}
+                            </Row>
+                          </Form>
+                        )
+                      }
                     </div>
                   </div>
-                  {/* {isReply && replyId === data.id && (
-                    <div className="d-flex">
-                      <div className="">
-                        <UserCircleImage size="2.5rem" src={commentImage} className="bg-secondary" />
-                      </div>
-                      <div className="w-100 ms-3">
-                        <div className="d-flex align-items-end mb-4">
-                          <StyledCommentInputGroup>
-                            <Form.Control
-                              placeholder="Write a comment"
-                              className="fs-5 border-end-0"
-                              rows={1}
-                              as="textarea"
-                              ref={textRef}
-                              value={replyMessage}
-                              onChange={(e: any) => onChangeHandler(e, data.id)}
-                              onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
-                            />
-                            <InputGroup.Text>
-                              <FontAwesomeIcon role="button" onClick={() => inputFile.current?.click()} icon={solid('camera')} size="lg" />
-                              <input
-                                type="file"
-                                name="post"
-                                className="d-none"
-                                accept="image/*"
-                                onChange={(post) => {
-                                  handleFileChange(post);
-                                }}
-                                multiple
-                                ref={inputFile}
-                              />
-                            </InputGroup.Text>
-                          </StyledCommentInputGroup>
-                          <Button onClick={() => sendComment(data.id)} variant="link" className="ms-2 p-0">
-                            <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )} */}
                 </Col>
               </Row>
             </Col>
@@ -492,6 +484,22 @@ function PostCommentSection({
         setDeleteComment={setDeleteComment}
         setDeleteCommentReply={setDeleteCommentReply}
       />
+      {
+        showEdit
+        && (
+          <EditCommentModal
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
+            commentID={commentID}
+            commentReplyID={commentReplyID}
+            setCommentID={setCommentID}
+            setCommentReplyID={setCommentReplyID}
+            editContent={editContent}
+            isReply={!commentID}
+            setCommentValue={setCommentValue}
+          />
+        )
+      }
     </>
   );
 }

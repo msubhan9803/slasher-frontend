@@ -1,10 +1,12 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
 import { DateTime } from 'luxon';
+import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
-import CustomPopover from '../CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface LinearIconProps {
@@ -17,16 +19,20 @@ interface Props {
   time: string;
   likes?: number;
   commentMention?: string;
-  commentMsg?: string;
+  commentMsg: string;
   commentImg?: ImageList[];
   onIconClick: (value: string) => void;
   likeIcon: boolean;
   popoverOptions: string[];
-  onPopoverClick: (value: string, commentId: string) => void;
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
   setIsReply?: (value: boolean) => void;
   setReplyId?: (value: string) => void;
-  handleClick?: () => void;
+  setReplyUserName?: (value: string) => void;
   feedCommentId?: string;
+  content?: string;
+  userId?: string;
+  userName?: string;
+  handleSeeCompleteList?: () => void;
 }
 interface ImageList {
   image_path: string;
@@ -55,10 +61,19 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
+const Content = styled.div`
+  white-space: pre-line;
+`;
+
+const decryptMessage = (content: string) => {
+  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+  return found;
+};
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   likes, onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
-  setReplyId, handleClick, feedCommentId,
+  setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
+  handleSeeCompleteList,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
 
@@ -68,11 +83,12 @@ function CommentSection({
     }
   }, [commentImg]);
 
-  const handleReply = (id: string) => {
-    handleClick ? handleClick() : null;
-    setIsReply ? setIsReply(true) : null;
-    setReplyId ? setReplyId(id) : null;
-  }
+  const handleReply = (replyId: string, replyName: string) => {
+    if (setIsReply) setIsReply(true);
+    if (setReplyId) setReplyId(replyId);
+    if (setReplyUserName) setReplyUserName(replyName);
+    if (handleSeeCompleteList) handleSeeCompleteList();
+  };
 
   return (
     <div key={id} className="d-flex">
@@ -90,9 +106,12 @@ function CommentSection({
             </div>
             <div className="d-block pe-0">
               <CustomPopover
-                commetId={id}
                 popoverOptions={popoverOptions}
                 onPopoverClick={onPopoverClick}
+                content={content}
+                id={id}
+                userId={userId}
+                userName={userName}
               />
             </div>
           </div>
@@ -101,12 +120,15 @@ function CommentSection({
           </span>
 
           <CommentMessage className="mb-0 fs-4">
-            {commentMsg}
+            <Content dangerouslySetInnerHTML={
+              { __html: linkifyHtml(decryptMessage(commentMsg)) }
+            }
+            />
           </CommentMessage>
-          <div className="row">
+          <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
               /* eslint no-underscore-dangle: 0 */
-              <div key={imageC._id} className="col-6 col-sm-3 col-md-2 col-lg-4 col-xl-2 col-xxl-1">
+              <div key={imageC._id} className="me-3">
                 <UserCircleImage size="5.625rem" src={imageC.image_path} className="mt-2 rounded" />
               </div>
             ))}
@@ -161,7 +183,8 @@ function CommentSection({
             <Button
               variant="link"
               className="shadow-none"
-              onClick={() => handleReply(feedCommentId ? feedCommentId : id)}>
+              onClick={() => handleReply(feedCommentId || id, name)}
+            >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>
@@ -173,12 +196,15 @@ function CommentSection({
 }
 CommentSection.defaultProps = {
   commentMention: '',
-  commentMsg: '',
   commentImg: [],
   likes: undefined,
   setIsReply: () => { },
   setReplyId: () => { },
-  handleClick: () => { },
+  setReplyUserName: () => { },
   feedCommentId: '',
+  content: null,
+  userId: null,
+  userName: null,
+  handleSeeCompleteList: () => { },
 };
 export default CommentSection;

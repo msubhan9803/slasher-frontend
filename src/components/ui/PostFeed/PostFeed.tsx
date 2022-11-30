@@ -9,6 +9,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
+import Cookies from 'js-cookie';
+import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
 import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
@@ -33,6 +35,13 @@ interface Props {
   setDeleteComment?: (value: boolean) => void
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
+  commentID?: string;
+  commentReplyID?: string;
+  otherUserPopoverOptions?: string[];
+  setIsEdit?: (value: boolean) => void;
+  setRequestAdditionalPosts?: (value: boolean) => void;
+  noMoreData?: boolean;
+  loadingPosts?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -62,23 +71,18 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData,
-  popoverOptions,
-  isCommentSection,
-  onPopoverClick,
-  detailPage,
-  setCommentValue,
-  commentsData,
-  setfeedImageArray,
-  setDeleteComment,
-  setCommentID,
-  setCommentReplyID,
+  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
+  setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
+  setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
+  setIsEdit, setRequestAdditionalPosts, noMoreData,
+  loadingPosts,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
+  const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -98,6 +102,20 @@ function PostFeed({
     setPostData(likeData);
   };
 
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        // commentsData && commentsData.length > 0
+        //   ? 'No comments available'
+        'No more comments'
+      }
+    </p>
+  );
+
+  const renderLoadingIndicator = () => (
+    <p className="text-center">Loading...</p>
+  );
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -110,8 +128,11 @@ function PostFeed({
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}
-                popoverOptions={popoverOptions}
+                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
+                  ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}
+                content={post.content}
+                userId={post.userId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
@@ -174,16 +195,32 @@ function PostFeed({
               && (
                 <>
                   <StyledBorder className="d-md-block d-none mb-4" />
-                  <PostCommentSection
-                    commentSectionData={commentsData}
-                    commentImage={post.profileImage}
-                    popoverOption={popoverOptions}
-                    setCommentValue={setCommentValue}
-                    setfeedImageArray={setfeedImageArray}
-                    setDeleteComment={setDeleteComment}
-                    setCommentID={setCommentID}
-                    setCommentReplyID={setCommentReplyID}
-                  />
+                  <InfiniteScroll
+                    pageStart={0}
+                    initialLoad
+                    loadMore={() => {
+                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                    }}
+                    hasMore={!noMoreData}
+                  >
+                    <PostCommentSection
+                      commentSectionData={commentsData}
+                      commentImage={post.profileImage}
+                      popoverOption={popoverOptions}
+                      setCommentValue={setCommentValue}
+                      setfeedImageArray={setfeedImageArray}
+                      setDeleteComment={setDeleteComment}
+                      setCommentID={setCommentID}
+                      setCommentReplyID={setCommentReplyID}
+                      commentID={commentID}
+                      commentReplyID={commentReplyID}
+                      loginUserId={loginUserId}
+                      otherUserPopoverOptions={otherUserPopoverOptions}
+                      setIsEdit={setIsEdit}
+                    />
+                  </InfiniteScroll>
+                  {loadingPosts && renderLoadingIndicator()}
+                  {noMoreData && renderNoMoreDataMessage()}
                 </>
               )
             }
@@ -212,5 +249,12 @@ PostFeed.defaultProps = {
   setDeleteComment: () => { },
   setCommentID: () => { },
   setCommentReplyID: () => { },
+  commentID: '',
+  commentReplyID: '',
+  otherUserPopoverOptions: [],
+  setIsEdit: () => { },
+  setRequestAdditionalPosts: () => { },
+  noMoreData: false,
+  loadingPosts: false,
 };
 export default PostFeed;

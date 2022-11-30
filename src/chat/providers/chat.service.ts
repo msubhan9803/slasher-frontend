@@ -1,10 +1,16 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
-import { FRIEND_RELATION_ID } from '../../constants';
-import { MatchListRoomCategory, MatchListRoomType } from '../../schemas/matchList/matchList.enums';
-import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
-import { Message, MessageDocument } from '../../schemas/message/message.schema';
+import { Injectable } from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import mongoose, { Model } from "mongoose";
+import { FRIEND_RELATION_ID } from "../../constants";
+import {
+  MatchListRoomCategory,
+  MatchListRoomType,
+} from "../../schemas/matchList/matchList.enums";
+import {
+  MatchList,
+  MatchListDocument,
+} from "../../schemas/matchList/matchList.schema";
+import { Message, MessageDocument } from "../../schemas/message/message.schema";
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -15,15 +21,23 @@ export interface Conversation extends MatchList {
 export class ChatService {
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
-    @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
-  ) { }
+    @InjectModel(MatchList.name)
+    private matchListModel: Model<MatchListDocument>
+  ) {}
 
-  async sendPrivateDirectMessage(fromUser: string, toUser: string, message: string, image?: string): Promise<MessageDocument> {
-    const participants = [new mongoose.Types.ObjectId(fromUser), new mongoose.Types.ObjectId(toUser)];
-    let matchList = await this.matchListModel
-      .findOne({
-        participants: { $all: participants },
-      });
+  async sendPrivateDirectMessage(
+    fromUser: string,
+    toUser: string,
+    message: string,
+    image?: string
+  ): Promise<MessageDocument> {
+    const participants = [
+      new mongoose.Types.ObjectId(fromUser),
+      new mongoose.Types.ObjectId(toUser),
+    ];
+    let matchList = await this.matchListModel.findOne({
+      participants: { $all: participants },
+    });
 
     if (!matchList) {
       const insertData = {
@@ -39,10 +53,13 @@ export class ChatService {
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       fromId: new mongoose.Types.ObjectId(fromUser),
       senderId: new mongoose.Types.ObjectId(toUser),
-      message: image ? 'Image' : message,
+      message: image ? "Image" : message,
       image,
     });
-    await this.matchListModel.updateOne({ _id: matchList._id }, { $set: { updatedAt: Date.now() } });
+    await this.matchListModel.updateOne(
+      { _id: matchList._id },
+      { $set: { updatedAt: Date.now() } }
+    );
 
     return messageObject;
   }
@@ -51,7 +68,7 @@ export class ChatService {
     matchListId: string,
     requiredParticipantId: string,
     limit: number,
-    before?: string,
+    before?: string
   ): Promise<Message[]> {
     const where: any = [
       { matchId: new mongoose.Types.ObjectId(matchListId) },
@@ -67,10 +84,7 @@ export class ChatService {
 
     const messages = await this.messageModel
       .find({
-        $and: [
-          ...where,
-          before ? { createdAt: beforeCreatedAt } : {},
-        ],
+        $and: [...where, before ? { createdAt: beforeCreatedAt } : {}],
       })
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -167,15 +181,19 @@ export class ChatService {
   //       },
   //     },
   //   ]);
-    // const conversationsData = conversations.map((conversation) => {
-    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
-    //   conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
-    //   return conversation;
-    // });
+  // const conversationsData = conversations.map((conversation) => {
+  //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
+  //   conversation.latestMessage = conversation.latestMessage.trim().split('\n')[0];
+  //   return conversation;
+  // });
   //   return conversationsData;
   // }
 
-  async getConversations(userId: string, limit: number, before?: string): Promise<Conversation[]> {
+  async getConversations(
+    userId: string,
+    limit: number,
+    before?: string
+  ): Promise<Conversation[]> {
     let beforeUpdatedAt;
 
     if (before) {
@@ -183,48 +201,76 @@ export class ChatService {
       beforeUpdatedAt = { $lt: beforeMatchList.updatedAt };
     }
 
-    const matchLists: any = await this.matchListModel.find({
-      $and: [
-        { participants: new mongoose.Types.ObjectId(userId) },
-        before ? { updatedAt: beforeUpdatedAt } : {},
-      ],
-    }).sort({ updatedAt: -1 }).limit(limit).lean().exec();
+    const matchLists: any = await this.matchListModel
+      .find({
+        $and: [
+          { participants: new mongoose.Types.ObjectId(userId) },
+          before ? { updatedAt: beforeUpdatedAt } : {},
+        ],
+      })
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .lean()
+      .exec();
 
-    // const matchListIds = matchLists.map(id => id._id)
+    // const matchListIds = matchLists.map((id) => id._id);
     // console.log("matchListIds", matchListIds);
-    
-    // const latestMessage = await this.messageModel.find({ matchId: {$in: matchListIds} }).sort({ createdAt: -1 }).exec();
-    // // console.log("latestMessage", latestMessage);
-    // const conversations: Conversation[] = [];
-    // console.log('latestMessage',latestMessage);
-    
-    // const trimLatestMessage = latestMessage.map((lmessage) => {
-    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
-    //   lmessage.message = lmessage.message.trim().split('\n')[0];
-    //   // lmessage['count'] = lmessage.isRead === false && lmessage.fromId.toString() !== userId ? c++ : c
-    //   lmessage['unreadCount'] = 'asas'
-    //   return lmessage
-    // });
-    // console.log("trimLatestMessage", trimLatestMessage);
-    // return matchListIds
 
-    
+    // const latestMessage = await this.messageModel
+    //   .find({ matchId: { $in: matchListIds } })
+    //   .sort({ createdAt: -1 })
+    //   .lean()
+    //   .exec();
+    // // console.log("latestMessage", latestMessage);
+    // // const conversations: Conversation[] = [];
+    // let c = 0;
+    // const trimLatestMessage: any = latestMessage.map((lmessage) => {
+    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
+    //   lmessage.message = lmessage.message.trim().split("\n")[0];
+    //   lmessage["unreadCount"] =
+    //     lmessage.isRead === false && lmessage.fromId.toString() !== userId
+    //       ? c++
+    //       : c;
+    //   return lmessage;
+    // });
+    // var uniqueLatestMessages = [];
+    // trimLatestMessage.filter(function(item){
+    //   var i = uniqueLatestMessages.findIndex(x => (x.matchId.toString() === item.matchId.toString()));
+    //   if(i <= -1){
+    //         uniqueLatestMessages.push(item);
+    //   }
+    //   return null;
+    // });
+    // console.log("uniqueLatestMessages", uniqueLatestMessages);
+
+    // return uniqueLatestMessages
+
     // For each conversation, find its latest message and unread count
-    const conversations: Conversation[] = [];
+    const conversations = [];
     for (const matchList of matchLists) {
-      const latestMessage = await this.messageModel.findOne({ matchId: matchList._id }).sort({ createdAt: -1 }).exec();
+      const latestMessage = await this.messageModel
+        .findOne({ matchId: matchList._id })
+        .populate("senderId", "userName _id profilePic")
+        .sort({ createdAt: -1 })
+        .exec();
+      const unreadCount = await this.messageModel
+        .countDocuments({
+          isRead: false,
+          fromId: { $ne: new mongoose.Types.ObjectId(userId) },
+          matchId: matchList._id
+        })
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .exec();
       if (latestMessage) {
-        // eslint-disable-next-line prefer-destructuring
-        latestMessage.message = latestMessage.message.trim().split('\n')[0];
+        conversations.push({
+          _id: matchList._id,
+          unreadCount,
+          latestMessage: latestMessage.message.trim().split("\n")[0],
+          user: latestMessage.senderId,
+          updatedAt: latestMessage.updatedAt,
+        });
       }
-      const unreadCount = await this.messageModel.countDocuments(
-        { isRead: false, fromId: { $ne: new mongoose.Types.ObjectId(userId) } },
-      ).sort({ createdAt: -1 }).limit(1).exec();
-      conversations.push({
-        ...matchList,
-        latestMessage,
-        unreadCount,
-      });
     }
     return conversations;
   }
@@ -232,7 +278,7 @@ export class ChatService {
   async findMatchList(id: string): Promise<any> {
     const matchList = await this.matchListModel
       .findById(id)
-      .populate('participants', 'id userName firstName profilePic');
+      .populate("participants", "id userName firstName profilePic");
     return matchList;
   }
 }

@@ -15,6 +15,7 @@ export class ChatController {
     private readonly chatService: ChatService,
   ) { }
 
+  @TransformImageUrls('$[*].user.profilePic')
   @Get('conversations')
   async getConversations(
     @Req() request: Request,

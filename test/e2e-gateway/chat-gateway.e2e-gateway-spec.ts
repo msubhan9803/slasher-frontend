@@ -101,8 +101,9 @@ describe('Chat Gateway (e2e)', () => {
 
       const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
       await new Promise<void>((resolve) => {
-        client.emit('chatMessage', payload, (data) => {
+        client.emit('chatMessage', payload, (data) => {          
           expect(data.success).toBe(true);
+          expect(data.message.message).toBe(payload.message);
           resolve();
         });
       });
@@ -118,6 +119,7 @@ describe('Chat Gateway (e2e)', () => {
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
           expect(data.success).toBe(false);
+          expect(data.message).toBeNull();
           resolve();
         });
       });

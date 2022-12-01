@@ -37,9 +37,9 @@ function EditCommentModal({
   const onChangeHandler = (e: SyntheticEvent) => {
     const target = e.target as HTMLTextAreaElement;
     setEditMessage(target.value);
-    textRef.current.style.height = '36px';
-    textRef.current.style.height = `${target.scrollHeight}px`;
-    textRef.current.style.maxHeight = '100px';
+    // textRef.current.style.height = '36px';
+    // textRef.current.style.height = `${target.scrollHeight}px`;
+    // textRef.current.style.maxHeight = '100px';
   };
 
   const onUpdatePost = () => {
@@ -74,8 +74,8 @@ function EditCommentModal({
         <h1 className="h1 mb-0 text-primary text-center pb-2">Edit</h1>
         <Form.Control
           placeholder="Write a comments"
-          className="fs-5 border-end-0"
-          rows={1}
+          className="bg-black fs-5"
+          rows={10}
           as="textarea"
           ref={textRef}
           defaultValue={editMessage}

@@ -49,10 +49,13 @@ function ProfilePostDetail({ user }: Props) {
     return found;
   };
 
-  const feedComments = (feedPostId: string) => {
+  const feedComments = (feedPostId: string, comment: any) => {
+    setNoMoreData(false);
+    setCommentData(comment);
+    const data = comment.length > 1 ? comment[comment.length - 1]._id : undefined;
     getFeedComments(
       feedPostId,
-      commentData.length > 1 ? commentData[commentData.length - 1]._id : undefined,
+      data,
     ).then((res) => {
       const comments = res.data;
       setCommentData((prev: any) => [
@@ -73,9 +76,9 @@ function ProfilePostDetail({ user }: Props) {
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && postId) {
       setLoadingPosts(true);
-      feedComments(postId);
+      feedComments(postId, commentData);
     }
-  }, [postId, requestAdditionalPosts, loadingPosts]);
+  }, [postId, requestAdditionalPosts, loadingPosts, commentData]);
 
   useEffect(() => {
     if (postId) {
@@ -106,13 +109,14 @@ function ProfilePostDetail({ user }: Props) {
   }, [postId, user]);
 
   useEffect(() => {
+    setNoMoreData(false);
     if (commentValue && postId) {
       setLoadingPosts(true);
       if (!isEdit) {
         if (!commentID) {
           addFeedComments(postId, commentValue, feedImageArray)
             .then(() => {
-              feedComments(postId);
+              feedComments(postId, []);
               setErrorMessage([]);
               setCommentValue('');
             })
@@ -121,7 +125,7 @@ function ProfilePostDetail({ user }: Props) {
             });
         } else {
           addFeedReplyComments(postId, commentValue, feedImageArray, commentID).then(() => {
-            feedComments(postId);
+            feedComments(postId, []);
             setErrorMessage([]);
             setCommentValue('');
             setCommentID('');
@@ -133,8 +137,7 @@ function ProfilePostDetail({ user }: Props) {
         if (commentID) {
           updateFeedComments(postId, commentValue, commentID)
             .then(() => {
-              setCommentData([]);
-              feedComments(postId);
+              feedComments(postId, []);
               setErrorMessage([]);
               setCommentValue('');
               setCommentID('');
@@ -146,8 +149,7 @@ function ProfilePostDetail({ user }: Props) {
         }
         if (commentReplyID) {
           updateFeedCommentReply(postId, commentValue, commentReplyID).then(() => {
-            setCommentData([]);
-            feedComments(postId);
+            feedComments(postId, []);
             setErrorMessage([]);
             setCommentValue('');
             setCommentReplyID('');
@@ -174,7 +176,7 @@ function ProfilePostDetail({ user }: Props) {
     setDeleteComment(false);
     setDeleteComment(false);
     setfeedImageArray([]);
-    if (postId) feedComments(postId);
+    if (postId) feedComments(postId, []);
   };
 
   useEffect(() => {

@@ -1,5 +1,7 @@
 import React from 'react';
+import Cookies from 'js-cookie';
 import { useAppSelector } from '../../../../redux/hooks';
+import { UserMesssage } from '../../../../types';
 import UserMessageList from '../../../ui/UserMessageList/UserMessageList';
 import UserMessageSidebarListItem from '../../../ui/UserMessageList/UserMessageSidebarListItem';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
@@ -7,16 +9,12 @@ import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 interface RecentMessage {
   latestMessage: string;
   unreadCount: number;
-  user: {
-    /* eslint no-underscore-dangle: 0 */
-    _id: string;
-    userName: string;
-    profilePic: string;
-  }
+  participants: UserMesssage[];
 }
 
 function RecentMessages() {
   const recentMessageDetails = useAppSelector((state) => state.user.recentMessages);
+  const userId = Cookies.get('userId');
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />
@@ -25,11 +23,14 @@ function RecentMessages() {
           && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
               /* eslint no-underscore-dangle: 0 */
-              key={recentMessageDetail.user._id}
-              userName={recentMessageDetail.user.userName}
+              key={recentMessageDetail.participants
+                .find((participant) => participant._id !== userId)!._id}
+              userName={recentMessageDetail.participants
+                .find((participant) => participant._id !== userId)!.userName}
               message={recentMessageDetail.latestMessage}
               count={recentMessageDetail.unreadCount}
-              image={recentMessageDetail.user.profilePic}
+              image={recentMessageDetail.participants
+                .find((participant) => participant._id !== userId)!.profilePic}
             />
           ))}
       </UserMessageList>

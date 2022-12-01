@@ -41,7 +41,7 @@ export interface MessagesList {
   unreadCount: number;
   latestMessage: string;
   updatedAt: string;
-  user: UserMesssage
+  participants: UserMesssage[]
 }
 
 export interface UserMesssage {

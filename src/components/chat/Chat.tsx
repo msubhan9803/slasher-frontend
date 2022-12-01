@@ -5,7 +5,6 @@ import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
 import ChatOptions from './ChatOptions';
-import ChatTimestamp from './ChatTimestamp';
 import ChatUserStatus from './ChatUserStatus';
 
 const StyledChatContainer = styled.div`
@@ -61,7 +60,6 @@ function Chat({
         </Card.Header>
         <Card.Body className="position-relative overflow-auto p-0">
           <div className="conversation-container">
-            <ChatTimestamp />
             <ChatMessage messages={messages} />
           </div>
           <ChatInput

@@ -1,48 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import React, { useContext, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
-import { apiUrl } from '../../api/constants';
+import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getMatchIdDetail } from '../../api/messages';
-
-const token = Cookies.get('sessionToken');
-const userId = Cookies.get('userId');
-const socket = io(apiUrl!, {
-  transports: ['websocket'],
-  auth: { token },
-});
+import { SocketContext } from '../../context/socket';
 
 function Conversation() {
+  const userId = Cookies.get('userId');
   const { conversationId } = useParams();
   const [chatUser, setChatUser] = useState<any>();
-  const [recentMessageList, setRecentMessageList] = useState([]);
-  const [chatSendSuccess, setChatSendSuccess] = useState<boolean>(false);
+  const [recentMessageList, setRecentMessageList] = useState<any>([]);
+  const socket = useContext(SocketContext);
   const [message, setMessage] = useState('');
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  // const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+
+  const onChatMessageReceivedHandler = (payload: any) => {
+    console.log('chatMessageReceived payload =', payload);
+    const chatreceivedObj = {
+      // eslint-disable-next-line no-underscore-dangle
+      id: payload.user._id,
+      message: payload.message,
+      time: DateTime.now().toISO().toString(),
+      participant: 'other',
+    };
+    setRecentMessageList((prev: any) => [
+      ...prev,
+      chatreceivedObj,
+    ]);
+  };
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('connected');
-    });
-
-    socket.once('authSuccess', (payload) => {
-      console.log('payload =', payload);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('disconnected');
-    });
-
-    socket.on('chatMessageReceived', (payload) => {
-      console.log('chatMessageReceived payload =', payload);
-    });
+    if (socket) {
+      console.log('socket is available');
+      socket.on('chatMessageReceived', onChatMessageReceivedHandler);
+      return () => {
+        socket.off('chatMessageReceived', onChatMessageReceivedHandler);
+      };
+    }
+    return () => {};
   }, []);
 
   useEffect(() => {
     if (conversationId) {
-      socket.emit('recentMessages', { matchListId: conversationId }, (recentMessagesResponse: any) => {
+      getMatchIdDetail(conversationId).then((res) => {
+        // eslint-disable-next-line no-underscore-dangle, max-len
+        const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
+        setChatUser(userDetail);
+      });
+    }
+  }, [conversationId]);
+
+  const sendMessageClick = () => {
+    // eslint-disable-next-line no-underscore-dangle
+    socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
+      console.log('chatMessageResponse =', chatMessageResponse);
+      if (chatMessageResponse.success) {
+        setRecentMessageList((prev: any) => [
+          ...prev,
+          {
+            // eslint-disable-next-line no-underscore-dangle
+            id: chatMessageResponse.message._id,
+            message: chatMessageResponse.message.message,
+            time: chatMessageResponse.message.createdAt,
+            participant: 'self',
+          },
+        ]);
+        setMessage('');
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (conversationId) {
+      console.log('conversationId =', conversationId);
+      socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
         const messageList = recentMessagesResponse.map((recentMessage: any) => {
           const finalData: any = {
             // eslint-disable-next-line no-underscore-dangle
@@ -58,60 +94,32 @@ function Conversation() {
           return finalData;
         }).reverse();
         console.log('messageList =', messageList);
-        setRecentMessageList(messageList);
-      });
-
-      getMatchIdDetail(conversationId).then((res) => {
-        // eslint-disable-next-line no-underscore-dangle, max-len
-        const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
-        setChatUser(userDetail);
+        setRecentMessageList((prev: any) => [
+          ...messageList,
+          ...prev,
+        ]);
+        if (recentMessagesResponse.length === 0) { setNoMoreData(true); }
       });
     }
-  }, [conversationId, chatSendSuccess]);
-
-  const sendMessageClick = () => {
-    // eslint-disable-next-line no-underscore-dangle
-    socket.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
-      // const messageList = recentMessagesResponse.map((recentMessage: any) => {
-      //   const finalData: any = {
-      //     // eslint-disable-next-line no-underscore-dangle
-      //     id: recentMessage._id,
-      //     message: recentMessage.message,
-      //     time: recentMessage.createdAt,
-      //   };
-      //   if (recentMessage.fromId === userId) {
-      //     finalData.participant = 'self';
-      //   } else {
-      //     finalData.participant = 'other';
-      //   }
-      //   return finalData;
-      // });
-      console.log('chatMessageResponse =', chatMessageResponse);
-      if (chatMessageResponse.success) {
-        setMessage('');
-        setChatSendSuccess(true);
-      }
-      // setRecentMessageList(messageList);
-    });
-  };
+  }, [conversationId]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      {/* <InfiniteScroll
+      <InfiniteScroll
         pageStart={0}
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
-        hasMore={!noMoreData}
+        hasMore
         isReverse
-      > */}
-      <Chat
-        messages={recentMessageList}
-        userData={chatUser}
-        sendMessageClick={sendMessageClick}
-        setMessage={setMessage}
-        message={message}
-      />
-      {/* </InfiniteScroll> */}
+      >
+        <Chat
+          messages={recentMessageList}
+          userData={chatUser}
+          sendMessageClick={sendMessageClick}
+          setMessage={setMessage}
+          message={message}
+        />
+      </InfiniteScroll>
     </AuthenticatedPageWrapper>
   );
 }

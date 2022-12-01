@@ -23,7 +23,7 @@ export class ChatService {
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name)
     private matchListModel: Model<MatchListDocument>,
-  ) {}
+  ) { }
 
   async sendPrivateDirectMessage(
     fromUser: string,
@@ -204,53 +204,64 @@ export class ChatService {
     const matchLists: any = await this.matchListModel
       .find({
         $and: [
-          { participants: new mongoose.Types.ObjectId(userId) },
+          {
+            participants: new mongoose.Types.ObjectId(userId),
+            roomType: MatchListRoomType.Match,
+            roomCategory: MatchListRoomCategory.DirectMessage,
+            relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+          },
           before ? { updatedAt: beforeUpdatedAt } : {},
         ],
       })
+      .populate('participants', 'userName _id profilePic')
       .sort({ updatedAt: -1 })
       .limit(limit)
       .lean()
       .exec();
 
     // const matchListIds = matchLists.map((id) => id._id);
-    // console.log("matchListIds", matchListIds);
 
-    // const latestMessage = await this.messageModel
+    // const latestMessage: any = await this.messageModel
     //   .find({ matchId: { $in: matchListIds } })
     //   .sort({ createdAt: -1 })
     //   .lean()
     //   .exec();
-    // // console.log("latestMessage", latestMessage);
-    // // const conversations: Conversation[] = [];
-    // let c = 0;
-    // const trimLatestMessage: any = latestMessage.map((lmessage) => {
-    //   // eslint-disable-next-line no-param-reassign, prefer-destructuring
-    //   lmessage.message = lmessage.message.trim().split("\n")[0];
-    //   lmessage["unreadCount"] =
-    //     lmessage.isRead === false && lmessage.fromId.toString() !== userId
-    //       ? c++
-    //       : c;
-    //   return lmessage;
-    // });
-    // var uniqueLatestMessages = [];
-    // trimLatestMessage.filter(function(item){
-    //   var i = uniqueLatestMessages.findIndex(x => (x.matchId.toString() === item.matchId.toString()));
-    //   if(i <= -1){
-    //         uniqueLatestMessages.push(item);
-    //   }
-    //   return null;
-    // });
-    // console.log("uniqueLatestMessages", uniqueLatestMessages);
 
-    // return uniqueLatestMessages
+    // let conversations = []
+    // let c = 0;
+    // for (let matchList of matchLists) {
+    //   let uniqueLatestMessages = [];
+    //   latestMessage.filter(function (lmessage) {
+    //     if (lmessage.matchId.toString() === matchList._id.toString()) {
+    //       var i = uniqueLatestMessages.findIndex(x => (x.matchId.toString() === lmessage.matchId.toString()));
+    //       if (i <= -1) {
+    //         lmessage.message = lmessage.message.trim().split("\n")[0];
+    //         lmessage["unreadCount"] =
+    //           lmessage.isRead === false && lmessage.fromId.toString() !== userId
+    //             ? c++
+    //             : c;
+    //         uniqueLatestMessages.push(lmessage)
+    //       }
+    //       return null;
+    //     }
+    //   })
+    //   if (uniqueLatestMessages.length) {
+    //     conversations.push({
+    //       _id: matchList._id,
+    //       participants: matchList.participants,
+    //       unreadCount: uniqueLatestMessages[0].unreadCount,
+    //       latestMessage: uniqueLatestMessages[0].message,
+    //       updatedAt: uniqueLatestMessages[0].updatedAt,
+    //     })
+    //   }
+    // }
+    // return conversations
 
     // For each conversation, find its latest message and unread count
     const conversations = [];
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
         .findOne({ matchId: matchList._id })
-        .populate('senderId', 'userName _id profilePic')
         .sort({ createdAt: -1 })
         .exec();
       const unreadCount = await this.messageModel
@@ -265,9 +276,9 @@ export class ChatService {
       if (latestMessage) {
         conversations.push({
           _id: matchList._id,
+          participants: matchList.participants,
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
-          user: latestMessage.senderId,
           updatedAt: latestMessage.updatedAt,
         });
       }

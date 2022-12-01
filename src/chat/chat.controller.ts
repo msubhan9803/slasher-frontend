@@ -15,7 +15,7 @@ export class ChatController {
     private readonly chatService: ChatService,
   ) { }
 
-  @TransformImageUrls('$[*].user.profilePic')
+  @TransformImageUrls('$[*].participants[*].profilePic')
   @Get('conversations')
   async getConversations(
     @Req() request: Request,
@@ -23,7 +23,6 @@ export class ChatController {
   ) {
     const user = getUserFromRequest(request);
     const conversations = await this.chatService.getConversations(user.id, query.limit, query.before);
-
     return conversations;
   }
 

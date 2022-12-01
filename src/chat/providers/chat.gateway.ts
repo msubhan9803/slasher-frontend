@@ -15,6 +15,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { sleep } from '../../utils/timer-utils';
 import { Message } from '../../schemas/message/message.schema';
+
 const RECENT_MESSAGES_LIMIT = 10;
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
@@ -30,7 +31,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('chatMessage')
-  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<{ success: boolean,  message: Message }> {
+  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<{ success: boolean, message: Message }> {
     const inValidMessage = typeof data.message === 'undefined' || data.message === null || data.message === '';
     const inValidUserId = typeof data.toUserId === 'undefined' || data.toUserId === null;
 
@@ -44,7 +45,7 @@ export class ChatGateway {
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', { message: messageObject.message, user });
     });
-    return { success: true,  message: messageObject };
+    return { success: true, message: messageObject };
   }
 
   @SubscribeMessage('recentMessages')

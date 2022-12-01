@@ -5,7 +5,19 @@ import { Form, Modal } from 'react-bootstrap';
 import ModalContainer from './CustomModal';
 import RoundButton from './RoundButton';
 
-const decryptMessage = (content: string) => {
+interface Props {
+  showEdit: boolean;
+  setShowEdit: (value: boolean) => void;
+  commentID: string;
+  commentReplyID: string;
+  editContent?: string;
+  isReply: boolean;
+  setCommentValue: (value: string) => void;
+  setCommentID: (value: string) => void;
+  setCommentReplyID: (value: string) => void;
+}
+
+const decryptMessage = (content: any) => {
   const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
   return found;
 };
@@ -13,14 +25,14 @@ const decryptMessage = (content: string) => {
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
   setCommentValue, setCommentID, setCommentReplyID,
-}: any) {
+}: Props) {
   const textRef = useRef<any>();
-  const [editMessage, setEditMessage] = useState<string>('');
+  const [editMessage, setEditMessage] = useState<any>('');
 
   useEffect(() => {
     const editComment = decryptMessage(editContent);
     setEditMessage(editComment);
-  }, []);
+  }, [editContent]);
 
   const onChangeHandler = (e: SyntheticEvent) => {
     const target = e.target as HTMLTextAreaElement;
@@ -31,14 +43,19 @@ function EditCommentModal({
   };
 
   const onUpdatePost = () => {
+    let mentionReplyString = '';
     if (isReply) {
+      /* eslint no-useless-escape: 0 */
+      const getMentionUser = editMessage.match(/\@[a-zA-Z0-9_.-]+/g)[0];
       setCommentReplyID(commentReplyID);
       setCommentID('');
+      mentionReplyString = editMessage.replace(getMentionUser, `##LINK_ID##${commentReplyID}${getMentionUser}##LINK_END##`);
     } else {
       setCommentID(commentID);
       setCommentReplyID('');
+      mentionReplyString = editMessage;
     }
-    setCommentValue(editMessage);
+    setCommentValue(mentionReplyString);
   };
 
   const closeModal = () => {
@@ -76,5 +93,9 @@ function EditCommentModal({
     </ModalContainer>
   );
 }
+
+EditCommentModal.defaultProps = {
+  editContent: '',
+};
 
 export default EditCommentModal;

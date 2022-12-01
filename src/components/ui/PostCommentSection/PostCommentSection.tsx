@@ -16,6 +16,24 @@ import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
 
+// interface Props {
+//   commentSectionData?: any;
+//   commentImage?: string;
+//   popoverOption?: string[];
+//   setCommentValue?: (value: string) => {};
+//   setfeedImageArray?: (value: any) => {};
+//   setDeleteComment?: (value: boolean) => {};
+//   setDeleteCommentReply?: (value: boolean) => {};
+//   setCommentID?: (value: string) => {};
+//   setCommentReplyID?: (value: string) => {};
+//   commentID?: string;
+//   commentReplyID?: string;
+//   loginUserId?: string;
+//   otherUserPopoverOptions?: string;
+//   isEdit?: boolean;
+//   setIsEdit?: (value: boolean) => {};
+// }
+
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
@@ -51,11 +69,11 @@ function PostCommentSection({
   commentReplyID,
   loginUserId,
   otherUserPopoverOptions,
+  isEdit,
   setIsEdit,
 }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const [show, setShow] = useState<boolean>(false);
-  const [showEdit, setShowEdit] = useState(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const textRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
@@ -191,7 +209,7 @@ function PostCommentSection({
 
     if (value === 'Edit') {
       setIsEdit(true);
-      setShowEdit(true);
+      // setShowEdit(true);
     } else {
       setShow(true);
       setDropDownValue(value);
@@ -205,7 +223,7 @@ function PostCommentSection({
     setEditContent(popoverData.content);
     if (value === 'Edit') {
       setIsEdit(true);
-      setShowEdit(true);
+      // setShowEdit(true);
     } else {
       setShow(true);
       setDropDownValue(value);
@@ -248,6 +266,7 @@ function PostCommentSection({
   const handleShowMorePosts = (loadId: string) => {
     setLoadMoreId(loadId);
     setNext(next + loadMore);
+    setIsReply(false);
   };
 
   return (
@@ -416,7 +435,7 @@ function PostCommentSection({
                                       rows={1}
                                       as="textarea"
                                       ref={textRef}
-                                      defaultValue={replyMessage}
+                                      value={replyMessage}
                                       onChange={(e: any) => onChangeHandler(e, data.id)}
                                       onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
                                     />
@@ -485,11 +504,11 @@ function PostCommentSection({
         setDeleteCommentReply={setDeleteCommentReply}
       />
       {
-        showEdit
+        isEdit
         && (
           <EditCommentModal
-            showEdit={showEdit}
-            setShowEdit={setShowEdit}
+            showEdit={isEdit}
+            setShowEdit={setIsEdit}
             commentID={commentID}
             commentReplyID={commentReplyID}
             setCommentID={setCommentID}

@@ -107,6 +107,7 @@ function ProfilePostDetail({ user }: Props) {
 
   useEffect(() => {
     if (commentValue && postId) {
+      setLoadingPosts(true);
       if (!isEdit) {
         if (!commentID) {
           addFeedComments(postId, commentValue, feedImageArray)
@@ -132,11 +133,12 @@ function ProfilePostDetail({ user }: Props) {
         if (commentID) {
           updateFeedComments(postId, commentValue, commentID)
             .then(() => {
-              setIsEdit(false);
+              setCommentData([]);
               feedComments(postId);
               setErrorMessage([]);
               setCommentValue('');
               setCommentID('');
+              setIsEdit(false);
             })
             .catch((error) => {
               setErrorMessage(error.response.data.message);
@@ -144,11 +146,12 @@ function ProfilePostDetail({ user }: Props) {
         }
         if (commentReplyID) {
           updateFeedCommentReply(postId, commentValue, commentReplyID).then(() => {
-            setIsEdit(false);
+            setCommentData([]);
             feedComments(postId);
             setErrorMessage([]);
             setCommentValue('');
             setCommentReplyID('');
+            setIsEdit(false);
           }).catch((error) => {
             setErrorMessage(error.response.data.message);
           });
@@ -202,6 +205,7 @@ function ProfilePostDetail({ user }: Props) {
         setCommentReplyID={setCommentReplyID}
         commentID={commentID}
         commentReplyID={commentReplyID}
+        isEdit={isEdit}
         setIsEdit={setIsEdit}
         setRequestAdditionalPosts={setRequestAdditionalPosts}
         noMoreData={noMoreData}

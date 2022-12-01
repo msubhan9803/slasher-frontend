@@ -42,6 +42,7 @@ interface Props {
   setRequestAdditionalPosts?: (value: boolean) => void;
   noMoreData?: boolean;
   loadingPosts?: boolean;
+  isEdit?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -74,7 +75,7 @@ function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
-  setIsEdit, setRequestAdditionalPosts, noMoreData,
+  setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
   loadingPosts,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>(postFeedData);
@@ -105,9 +106,8 @@ function PostFeed({
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
-        // commentsData && commentsData.length > 0
-        //   ? 'No comments available'
-        'No more comments'
+        commentsData && commentsData.length > 0
+          ? 'No more comments' : ''
       }
     </p>
   );
@@ -217,6 +217,7 @@ function PostFeed({
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
                       setIsEdit={setIsEdit}
+                      isEdit={isEdit}
                     />
                   </InfiniteScroll>
                   {loadingPosts && renderLoadingIndicator()}
@@ -253,6 +254,7 @@ PostFeed.defaultProps = {
   commentReplyID: '',
   otherUserPopoverOptions: [],
   setIsEdit: () => { },
+  isEdit: false,
   setRequestAdditionalPosts: () => { },
   noMoreData: false,
   loadingPosts: false,

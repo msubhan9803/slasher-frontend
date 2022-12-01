@@ -59,7 +59,6 @@ export async function addFeedReplyComments(
 export async function removeFeedComments(feedCommentId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/feed-comments/${feedCommentId}`, { headers });
@@ -68,7 +67,6 @@ export async function removeFeedComments(feedCommentId: string) {
 export async function removeFeedCommentReply(feedReplyId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/feed-comments/replies/${feedReplyId}`, { headers });
@@ -81,7 +79,6 @@ export async function updateFeedComments(
 ) {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   const reqBody = {
@@ -98,7 +95,6 @@ export async function updateFeedCommentReply(
 ) {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   const reqBody = {

@@ -22,6 +22,7 @@ import { UserSettingModule } from './settings/user-settings.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { AppGateway } from './app/providers/app.gateway';
 import { BlocksModule } from './blocks/blocks.module';
+import { FeedCommentsModule } from './feed-comments/feed-comments.module';
 import { SearchModule } from './search/search.module';
 
 @Module({
@@ -56,6 +57,7 @@ import { SearchModule } from './search/search.module';
     UserSettingModule,
     RssFeedProviderFollowsModule,
     BlocksModule,
+    FeedCommentsModule,
     SearchModule,
   ],
   controllers: [AppController],

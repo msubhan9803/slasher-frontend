@@ -1,39 +1,21 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { FeedPost } from '../feedPost/feedPost.schema';
-import { Image, ImageSchema } from '../shared/image.schema';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
-import { User } from '../user/user.schema';
-import { FeedCommentDeletionState, FeedCommentStatus, FeedCommentType } from './feedComment.enums';
+import { FeedCommentStatus, FeedCommentType } from './feedComment.enums';
 
 export class FeedCommentUnusedFields {
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId, default: null, ref: FeedPost.name, required: true,
-  })
-  feedPostId: FeedPost;
-
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
-  })
-  userId: User;
-
-  // So few values exist in the database (54 out of 900,000), and it's not clear whether it's really
-  // even in use, so we may be able to delete this field when we retire the old API.
+  // NOT USED
   @Prop({ default: [] })
   hideUsers: mongoose.Schema.Types.ObjectId[];
 
   @Prop({ type: [ReportUserSchema] })
   reportUsers: ReportUser[];
 
-  @Prop({ default: null, required: true })
-  message: string;
-
+  // NOT USED
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
 
-  @Prop({ type: [ImageSchema] })
-  images: Image[];
-
+  // NOT USED
   @Prop({
     required: true,
     enum: [
@@ -54,14 +36,4 @@ export class FeedCommentUnusedFields {
     default: FeedCommentStatus.Active,
   })
   status: FeedCommentStatus;
-
-  @Prop({
-    required: true,
-    enum: [
-      FeedCommentDeletionState.NotDeleted,
-      FeedCommentDeletionState.Deleted,
-    ],
-    default: FeedCommentDeletionState.NotDeleted,
-  })
-  is_deleted: FeedCommentDeletionState;
 }

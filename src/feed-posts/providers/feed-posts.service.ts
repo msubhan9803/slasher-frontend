@@ -64,7 +64,7 @@ export class FeedPostsService {
     const beforeQuery: any = {};
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
-      beforeQuery.createdAt = { $lt: feedPost.createdAt };
+      beforeQuery.updatedAt = { $lt: feedPost.updatedAt };
     }
 
     const query = this.feedPostModel
@@ -84,7 +84,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(limit);
 
     return query.exec();

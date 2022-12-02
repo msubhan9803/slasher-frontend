@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DateTime } from 'luxon';
@@ -45,28 +45,28 @@ function ChatMessage({ messages }: ChatProps) {
   });
 
   const renderMessage = (message: any) => (message.participant === 'other' ? (
-    <div key={message.id} className="other-message mb-3">
-      <div className="mb-2 d-flex">
-        <p className="fs-4 mb-0 p-3 text-small">
-          {message.message}
-        </p>
+      <div key={message.id} className="other-message mb-3">
+        <div className="mb-2 d-flex">
+          <p className="fs-4 mb-0 p-3 text-small">
+            {message.message}
+          </p>
+        </div>
+        <span className="fs-6 time-stamp align-items-center d-flex">
+          {DateTime.fromISO(message.time).toFormat('h:mm a')}
+          <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
+          Report message
+        </span>
       </div>
-      <span className="fs-6 time-stamp align-items-center d-flex">
-        {DateTime.fromISO(message.time).toFormat('h:mm a')}
-        <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
-        Report message
-      </span>
-    </div>
-  ) : (
-    <div key={message.id} className="self-message align-items-end d-flex flex-column mb-3">
-      <div className="mb-2">
-        <p className="fs-4 mb-0 p-3 text-small text-white">
-          {message.message}
-        </p>
+    ) : (
+      <div key={message.id} className="self-message align-items-end d-flex flex-column mb-3">
+        <div className="mb-2">
+          <p className="fs-4 mb-0 p-3 text-small text-white">
+            {message.message}
+          </p>
+        </div>
+        <span className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>
       </div>
-      <span className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>
-    </div>
-  ));
+    ));
 
   let lastTimeStampMessage = '';
   return (

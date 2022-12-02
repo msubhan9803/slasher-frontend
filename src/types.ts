@@ -41,6 +41,7 @@ export interface AdditionalMovieData {
   video: Video[];
   mainData: MainData;
 }
+
 export interface MovieCast {
   profile_path: string;
   name: string;
@@ -50,6 +51,7 @@ export interface MovieCast {
 export interface Video {
   key: string;
 }
+
 export interface MainData {
   release_date: string;
   poster_path: string;
@@ -59,10 +61,12 @@ export interface MainData {
   runtime: number;
   production_countries: Country[];
 }
+
 export interface Country {
   iso_3166_1: string;
   name: string;
 }
+
 export interface MovieReleaseDate {
   results: MovieReleaseResults[];
 }
@@ -71,6 +75,30 @@ export interface MovieReleaseResults {
   iso_3166_1: string;
   release_dates: ReleaseDate[];
 }
+
 export interface ReleaseDate {
   certification: string;
+}
+
+export interface MessagesList {
+  _id: string;
+  unreadCount: number;
+  latestMessage: string;
+  updatedAt: string;
+  user: UserMesssage
+}
+
+export interface UserMesssage {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
+
+export enum FriendRequestReaction {
+  DeclinedOrCancelled = 0,
+  MaybeDatingDislike = 1,
+  MaybeDatingLike = 2,
+  Accepted = 3,
+  Blocked = 4,
+  Pending = 5,
 }

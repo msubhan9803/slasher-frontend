@@ -23,6 +23,7 @@ import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-fe
 import { AppGateway } from './app/providers/app.gateway';
 import { BlocksModule } from './blocks/blocks.module';
 import { FeedCommentsModule } from './feed-comments/feed-comments.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { FeedCommentsModule } from './feed-comments/feed-comments.module';
     RssFeedProviderFollowsModule,
     BlocksModule,
     FeedCommentsModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [

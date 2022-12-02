@@ -109,4 +109,18 @@ export class FeedCommentsService {
     }
     return commentReplies;
   }
+
+  async findFeedComment(id: string) {
+    const feedComment = await this.feedCommentModel
+      .findOne({ _id: id })
+      .exec();
+    return feedComment || null;
+  }
+
+  async findFeedReply(id: string) {
+    const feedReply = await this.feedReplyModel
+      .findOne({ _id: id })
+      .exec();
+    return feedReply || null;
+  }
 }

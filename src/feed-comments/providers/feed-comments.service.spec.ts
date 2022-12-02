@@ -251,4 +251,42 @@ describe('FeedCommentsService', () => {
       });
     });
   });
+
+  describe('#findFeedComment', () => {
+    it('successfully find single feed comment.', async () => {
+      const feedCommentData = await feedCommentsService
+        .createFeedComment(
+          feedPost.id,
+          activeUser.id,
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
+      const feedCommentDetails = await feedCommentsService.findFeedComment(feedCommentData._id.toString());
+      expect(feedCommentDetails.id).toEqual(feedCommentData._id.toString());
+    });
+
+    it('when feed comments id is not exists then expected response', async () => {
+      const feedCommentDetails = await feedCommentsService.findFeedComment('6386f95401218469e30dbd25');
+      expect(feedCommentDetails).toBeNull();
+    });
+  });
+
+  describe('#findFeedReply', () => {
+    it('successfully find single feed replies.', async () => {
+      const feedReplyData = await feedCommentsService
+      .createFeedReply(
+        feedComments.id,
+        activeUser.id,
+        sampleFeedCommentsObject.message,
+        sampleFeedCommentsObject.images,
+      );
+      const feedReplyDetails = await feedCommentsService.findFeedReply(feedReplyData._id.toString());
+      expect(feedReplyDetails.id).toEqual(feedReplyData._id.toString());
+    });
+
+    it('when feed reply id is not exists then expected response', async () => {
+      const feedReplyDetails = await feedCommentsService.findFeedReply('6386f95401218469e30dbd25');
+      expect(feedReplyDetails).toBeNull();
+    });
+  });
 });

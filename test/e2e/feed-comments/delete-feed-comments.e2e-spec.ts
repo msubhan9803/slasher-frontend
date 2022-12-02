@@ -21,6 +21,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let user0: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
@@ -67,6 +68,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     let feedComments;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -93,6 +95,30 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
         .send();
       const feedCommentsDetails = await feedCommentsModel.findById(feedComments._id);
       expect(feedCommentsDetails.is_deleted).toBe(1);
+    });
+
+    it('when feed comment id is not exists than expected response', async () => {
+      const feedComments1 = '6386f95401218469e30dbd25';
+      const response = await request(app.getHttpServer())
+        .delete(`/feed-comments/${feedComments1}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.message).toContain('Not found.');
+    });
+
+    it('when feed comment id and login user id is not match than expected response', async () => {
+      const feedComments1 = await feedCommentsService
+      .createFeedComment(
+        feedPost.id,
+        user0._id.toString(),
+        sampleFeedCommentsDeleteObject.message,
+        sampleFeedCommentsDeleteObject.images,
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.message).toContain('Permission denied.');
     });
   });
 });

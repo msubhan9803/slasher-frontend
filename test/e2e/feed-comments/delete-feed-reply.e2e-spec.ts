@@ -21,6 +21,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let user0: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
@@ -68,6 +69,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     let feedReply;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -101,6 +103,30 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
         .send();
       const feedCommentsDetails = await feedReplyModel.findById(feedReply._id);
       expect(feedCommentsDetails.deleted).toBe(1);
+    });
+
+    it('when feed reply id is not exists than expected response', async () => {
+      const feedReply1 = '6386f95401218469e30dbd25';
+      const response = await request(app.getHttpServer())
+        .delete(`/feed-comments/replies/${feedReply1}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.message).toContain('Not found.');
+    });
+
+    it('when feed reply id and login user id is not match than expected response', async () => {
+      const feedReply1 = await feedCommentsService
+        .createFeedReply(
+          feedComments.id,
+          user0._id.toString(),
+          'Hello Reply Test Message 2',
+          sampleFeedCommentsObject.images,
+        );
+      const response = await request(app.getHttpServer())
+        .delete(`/feed-comments/replies/${feedReply1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body.message).toContain('Permission denied.');
     });
   });
 });

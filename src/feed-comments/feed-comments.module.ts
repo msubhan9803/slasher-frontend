@@ -5,11 +5,13 @@ import { FeedCommentsService } from './providers/feed-comments.service';
 import { FeedComment, FeedCommentSchema } from '../schemas/feedComment/feedComment.schema';
 import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schema';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),
     MongooseModule.forFeature([{ name: FeedReply.name, schema: FeedReplySchema }]),
+    MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
   ],
   providers: [FeedCommentsService, LocalStorageService],
   exports: [FeedCommentsService],

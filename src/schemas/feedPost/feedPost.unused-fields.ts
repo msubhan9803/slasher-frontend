@@ -114,9 +114,6 @@ export class FeedPostUnusedFields {
   @Prop({ default: 0 })
   likeCount: number;
 
-  @Prop({ default: 0 })
-  commentCount: number;
-
   @Prop({ default: false })
   skipthat: boolean;
 }

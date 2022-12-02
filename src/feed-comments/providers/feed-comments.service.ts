@@ -6,6 +6,7 @@ import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feed
 import { FeedCommentDeletionState, FeedCommentStatus } from '../../schemas/feedComment/feedComment.enums';
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
+import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 export interface FeedCommentWithReplies extends FeedComment {
   replies: FeedReply[];
@@ -16,6 +17,7 @@ export class FeedCommentsService {
   constructor(
     @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
     @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
+    @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
   ) { }
 
   async createFeedComment(parentFeedPostId: string, userId: string, message: string, images: Image[]): Promise<FeedComment> {
@@ -25,6 +27,7 @@ export class FeedCommentsService {
       message,
       images,
     });
+    await this.feedPostModel.updateOne({ _id: parentFeedPostId }, { $inc: { commentCount: 1 } });
     return insertFeedComments;
   }
 
@@ -38,6 +41,8 @@ export class FeedCommentsService {
     await this.feedCommentModel
       .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
       .exec();
+    const getFeedPostData = await this.findFeedComment(feedCommentId);
+    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: -1 } });
   }
 
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
@@ -47,6 +52,8 @@ export class FeedCommentsService {
       message,
       images,
     });
+    const getFeedPostData = await this.findFeedComment(parentFeedCommentId);
+    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: 1 } });
     return insertFeedReply;
   }
 
@@ -60,6 +67,9 @@ export class FeedCommentsService {
     await this.feedReplyModel
       .updateOne({ _id: feedReplyId }, { $set: { deleted: FeedReplyDeletionState.Deleted } }, { new: true })
       .exec();
+    const getFeedReplyData = await this.findFeedReply(feedReplyId);
+    const getFeedPostData = await this.findFeedComment(getFeedReplyData.feedCommentId.toString());
+    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: -1 } });
   }
 
   async findFeedCommentsWithReplies(

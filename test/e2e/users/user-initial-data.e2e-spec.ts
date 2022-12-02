@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -78,7 +79,12 @@ describe('Users suggested friends (e2e)', () => {
         for (const chat of chat0) {
           chat._id = chat._id.toString();
           chat.updatedAt = chat.updatedAt.toISOString();
-          chat.user._id = chat.user._id.toString();
+          // eslint-disable-next-line @typescript-eslint/no-loop-func
+          chat.participants = chat.participants.map((participant) => ({
+              ...participant,
+              _id: participant._id.toString(),
+              profilePic: relativeToFullImagePath(configService, participant.profilePic),
+            }));
           recentMessages.push(chat);
         }
         const response = await request(app.getHttpServer())

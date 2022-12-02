@@ -310,7 +310,7 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.recentFriendRequests[*].profilePic', '$.recentMessages[*].profilePic')
+  @TransformImageUrls('$.recentFriendRequests[*].profilePic', '$.recentMessages[*].participants[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);

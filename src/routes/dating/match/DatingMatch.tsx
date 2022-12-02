@@ -59,8 +59,8 @@ button{
 `;
 
 function DatingMatch() {
-  const [nameAge, setNameAge] = useState('Eliza Williams, 23');
-  const [location, setLocation] = useState('25mi/40km, California');
+  const [nameAge, setNameAge] = useState('Eliza Williams 23');
+  const [location, setLocation] = useState('25mi / 40km California');
   const [subscriberMatchShow, setSubscriberMatchShow] = useState<boolean>(false);
   const [subscriber, setSubscriber] = useState<string>('');
 

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ChatProps } from './ChatProps';
+import ChatTimestamp from './ChatTimestamp';
 
 const ChatMessages = styled.div`
 .time-stamp{
@@ -31,6 +32,7 @@ const ChatMessages = styled.div`
 
 function ChatMessage({ messages }: ChatProps) {
   const messageRef = useRef<HTMLDivElement>(null);
+  let lastTimeStampMessage = '';
 
   useEffect(() => {
     if (messageRef.current) {
@@ -44,51 +46,41 @@ function ChatMessage({ messages }: ChatProps) {
     }
   });
 
-  const renderMessage = (message: any) => (message.participant === 'other' ? (
-      <div key={message.id} className="other-message mb-3">
-        <div className="mb-2 d-flex">
-          <p className="fs-4 mb-0 p-3 text-small">
-            {message.message}
-          </p>
+  const renderMessage = (message: any) => (
+    <React.Fragment key={message.id}>
+      {(!lastTimeStampMessage || DateTime.fromISO(lastTimeStampMessage).toISODate()
+        !== DateTime.fromISO(message.time).toISODate())
+        && <ChatTimestamp messageTime={message.time} />}
+      {message.participant === 'other' ? (
+        <div className="other-message mb-3">
+          <div className="mb-2 d-flex">
+            <p className="fs-4 mb-0 p-3 text-small">
+              {message.message}
+            </p>
+          </div>
+          <span className="fs-6 time-stamp align-items-center d-flex">
+            {DateTime.fromISO(message.time).toFormat('h:mm a')}
+            <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
+            Report message
+          </span>
         </div>
-        <span className="fs-6 time-stamp align-items-center d-flex">
-          {DateTime.fromISO(message.time).toFormat('h:mm a')}
-          <FontAwesomeIcon icon={solid('circle')} size="sm" className="mx-2" />
-          Report message
-        </span>
-      </div>
-    ) : (
-      <div key={message.id} className="self-message align-items-end d-flex flex-column mb-3">
-        <div className="mb-2">
-          <p className="fs-4 mb-0 p-3 text-small text-white">
-            {message.message}
-          </p>
+      ) : (
+        <div className="self-message align-items-end d-flex flex-column mb-3">
+          <div className="mb-2">
+            <p className="fs-4 mb-0 p-3 text-small text-white">
+              {message.message}
+            </p>
+          </div>
+          <span className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>
         </div>
-        <span className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>
-      </div>
-    ));
+      )}
+    </React.Fragment>
+  );
 
-  let lastTimeStampMessage = '';
   return (
     <ChatMessages className="px-3" ref={messageRef}>
-      {messages?.map((message) => {
-        // console.log('lastTimeStampMessage =', lastTimeStampMessage);
-        // console.log('message.time =', message.time);
-        if (!lastTimeStampMessage) {
-          if (DateTime.fromISO(lastTimeStampMessage).diff(DateTime.fromISO(message.time)).as('years') > 1) {
-            console.log('year =', DateTime.fromISO(message.time).toLocaleString({
-              month: 'short',
-              weekday: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            }));
-          } else if (DateTime.fromISO(lastTimeStampMessage).diff(DateTime.fromISO(message.time)).as('hours') > 48) {
-            console.log('hour = ', DateTime.fromISO(message.time).toLocaleString({ month: 'short', weekday: 'long', day: 'numeric' }));
-          } else {
-            console.log(DateTime.fromISO(message.time).toLocaleString({ weekday: 'long' }));
-          }
-        }
-        lastTimeStampMessage = message.time;
+      {messages?.map((message, index) => {
+        lastTimeStampMessage = index > 0 ? messages[index - 1].time : '';
         return renderMessage(message);
       })}
     </ChatMessages>

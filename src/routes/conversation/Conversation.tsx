@@ -16,12 +16,10 @@ function Conversation() {
   const socket = useContext(SocketContext);
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
-  // const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
 
   const onChatMessageReceivedHandler = (payload: any) => {
-    console.log('chatMessageReceived payload =', payload);
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
       id: payload.user._id,
@@ -37,7 +35,6 @@ function Conversation() {
 
   useEffect(() => {
     if (socket) {
-      console.log('socket is available');
       socket.on('chatMessageReceived', onChatMessageReceivedHandler);
       return () => {
         socket.off('chatMessageReceived', onChatMessageReceivedHandler);
@@ -59,7 +56,6 @@ function Conversation() {
   const sendMessageClick = () => {
     // eslint-disable-next-line no-underscore-dangle
     socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
-      console.log('chatMessageResponse =', chatMessageResponse);
       if (chatMessageResponse.success) {
         setRecentMessageList((prev: any) => [
           ...prev,
@@ -78,9 +74,8 @@ function Conversation() {
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      setNoMoreData(false)
+      setNoMoreData(false);
       if (conversationId) {
-        console.log('conversationId =', conversationId);
         socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
           const messageList = recentMessagesResponse.map((recentMessage: any) => {
             const finalData: any = {
@@ -96,7 +91,6 @@ function Conversation() {
             }
             return finalData;
           }).reverse();
-          console.log('messageList =', messageList);
           setRecentMessageList((prev: any) => [
             ...messageList,
             ...prev,
@@ -117,7 +111,7 @@ function Conversation() {
         pageStart={0}
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
-        hasMore
+        hasMore={!noMoreData}
         isReverse
       >
         <Chat

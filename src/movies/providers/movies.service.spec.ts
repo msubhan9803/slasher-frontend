@@ -7,10 +7,12 @@ import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
+
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieDocument } from '../../schemas/movie/movie.schema';
+import { mockMovieDbCallResponse, mockMaxLimitApiMockResponse } from './movies.service.mock';
 import movieDbId2907ApiCreditsResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-credits-response';
 import movieDbId2907ApiVideosResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-videos-response';
 import movieDbId2907ApiMainMovieResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-main-movie-response';
@@ -45,6 +47,7 @@ describe('MoviesService', () => {
 
     app = moduleRef.createNestApplication();
     await app.init();
+    httpService = await app.get<HttpService>(HttpService);
   });
 
   afterAll(async () => {
@@ -387,6 +390,95 @@ describe('MoviesService', () => {
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
+    });
+  });
+
+  describe('#getMoviesDataMaxYearLimit', () => {
+    it("Returns a lower limit than the given endYear, when endYear is higher than the API data's max end year", async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMaxLimitApiMockResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const endYear = 2040;
+      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
+      expect(maxYearLimit).toBe(2027);
+    });
+
+    it("Returns the given endYear when endYear is lower than the API data's max end year", async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMaxLimitApiMockResponse,
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const endYear = 2022;
+      const maxYearLimit = await moviesService.getMoviesDataMaxYearLimit(endYear);
+      expect(maxYearLimit).toBe(2022);
+    });
+  });
+
+  describe('#syncWithTheMovieDb', () => {
+    it('Check for insert the movie record in database', async () => {
+      const limit = 10;
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: mockMovieDbCallResponse,
+        status: 202,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const startYear = new Date().getFullYear();
+      const endYear = new Date().getFullYear();
+      expect(await moviesService.findAll(limit, false, 'name')).toHaveLength(1);
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+      expect(firstResults).toHaveLength(2);
+      expect(firstResults[0].name).toBe('Terrifier 5');
+    });
+
+    it('Check for update the movie record in database', async () => {
+      const limit = 10;
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: {
+          ...mockMovieDbCallResponse,
+          results: mockMovieDbCallResponse.results.map((item) => (
+            { ...item, original_title: 'Terrifier 2', title: 'Terrifier 2' })),
+        },
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const startYear = new Date().getFullYear();
+      const endYear = new Date().getFullYear();
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+
+      expect(firstResults[0].name).toBe('Terrifier 2');
+      expect(firstResults[0].deleted).toBe(0);
+    });
+
+    it('Check if any movie has been deleted from movies db in our collection', async () => {
+      const limit = 10;
+      jest.spyOn(httpService, 'get').mockImplementation(() => of({
+        data: {
+          ...mockMovieDbCallResponse,
+          results: [],
+        },
+        status: 200,
+        statusText: '',
+        headers: {},
+        config: {},
+      }));
+      const startYear = new Date().getFullYear();
+      const endYear = new Date().getFullYear();
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+      expect(firstResults[0].deleted).toBe(1);
     });
   });
 

@@ -26,12 +26,14 @@ import { AppGateway } from './app/providers/app.gateway';
 import { TasksService } from './app/providers/tasks.service';
 import { BlocksModule } from './blocks/blocks.module';
 import { SearchModule } from './search/search.module';
+import { validateEnv } from './utils/env-validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
       isGlobal: true,
+      validate: validateEnv,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),

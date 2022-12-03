@@ -277,8 +277,11 @@ export class MoviesService {
       + `${this.configService.get<string>('MOVIE_DB_API_KEY')}`;
     try {
       const { data } = await lastValueFrom(
-        // eslint-disable-next-line max-len
-        this.httpService.get<MovieDbDto>(`${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&primary_release_date.gte=${startDate}&primary_release_date.lte=${endDate}&page=${page}`),
+        this.httpService.get<MovieDbDto>(
+          `${MOVIE_DB_API_BASE_URL}&with_genres=27&language=en-US&`
+          + `primary_release_date.gte=${startDate}&`
+          + `primary_release_date.lte=${endDate}&page=${page}`,
+        ),
       );
       return data;
     } catch (error) {

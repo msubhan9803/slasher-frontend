@@ -15,14 +15,18 @@ export class TasksService {
   })
   async syncWithTheMovieDb() {
     if (!this.configService.get<boolean>('CRON_ENABLED')) { return; }
-    this.logger.debug('Start: syncWithTheMovieDb cron');
+    this.logger.debug('Start cron: syncWithTheMovieDb');
 
     const startYear = 1895;
     // Ask for 10 years ahead so we also get movies that have not come out yet
     // (even though this may mean that they have limited data).
     const endYear = new Date().getFullYear() + 10;
-    await this.moviesService.syncWithTheMovieDb(startYear, endYear);
+    const { success, error } = await this.moviesService.syncWithTheMovieDb(startYear, endYear);
 
-    this.logger.debug('End: syncWithTheMovieDb cron');
+    if (success) {
+      this.logger.debug('End cron: syncWithTheMovieDb (success)');
+    } else {
+      this.logger.debug(`End cron: syncWithTheMovieDb (failure). Error: ${error}`);
+    }
   }
 }

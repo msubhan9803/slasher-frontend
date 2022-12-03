@@ -9,6 +9,8 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { ChatService } from '../../../src/chat/providers/chat.service';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -18,16 +20,18 @@ describe('Users suggested friends (e2e)', () => {
   let activeUser: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
+  let chatService: ChatService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    chatService = moduleRef.get<ChatService>(ChatService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -38,7 +42,7 @@ describe('Users suggested friends (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   describe('GET /users/initial-data', () => {
@@ -47,6 +51,7 @@ describe('Users suggested friends (e2e)', () => {
       let user2: UserDocument;
       let user3: UserDocument;
       let user4: UserDocument;
+      let chat0;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build());
@@ -62,8 +67,20 @@ describe('Users suggested friends (e2e)', () => {
         await friendsService.createFriendRequest(user3.id, activeUser.id);
         await friendsService.createFriendRequest(user1.id, activeUser.id);
         await friendsService.createFriendRequest(user2.id, activeUser.id);
+
+        await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
+        chat0 = await chatService.getConversations(activeUser._id.toString(), 3);
       });
       it('returns the expected user initial data', async () => {
+        const recentMessages = [];
+        for (const chat of chat0) {
+          chat._id = chat._id.toString();
+          chat.updatedAt = chat.updatedAt.toISOString();
+          chat.user._id = chat.user._id.toString();
+          recentMessages.push(chat);
+        }
         const response = await request(app.getHttpServer())
           .get('/users/initial-data')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -73,26 +90,7 @@ describe('Users suggested friends (e2e)', () => {
           userId: activeUser.id,
           userName: activeUser.userName,
           unreadNotificationCount: 6,
-          recentMessages: [
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=47',
-              userName: 'MaureenBiologist',
-              shortMessage: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse interdum, tortor vel consectetur blandit,'
-                + 'justo diam elementum massa, id tincidunt risus turpis non nisi. Integer eu lorem risus.',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=56',
-              userName: 'TeriDactyl',
-              shortMessage: 'Maecenas ornare sodales mi, sit amet pretium eros scelerisque quis.'
-                + 'Nunc blandit mi elit, nec varius erat hendrerit ac. Nulla congue sollicitudin eleifend.',
-            },
-            {
-              profilePic: 'https://i.pravatar.cc/300?img=26',
-              userName: 'BobRoss',
-              shortMessage: 'Aenean luctus ac magna lobortis varius. Ut laoreet arcu ac commodo molestie. Nulla facilisi.'
-                + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
-            },
-          ],
+          recentMessages,
           friendRequestCount: 4,
           recentFriendRequests: [
             {

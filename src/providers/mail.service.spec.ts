@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import { clearDatabase } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
 import { MailService } from './mail.service';
 
@@ -14,7 +15,7 @@ describe('MailService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
@@ -27,7 +28,7 @@ describe('MailService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   it('should be defined', () => {
@@ -42,11 +43,10 @@ describe('MailService', () => {
       const text = 'This is the email text.';
       const mockTransporter = {
         createTransport: jest.fn(),
-        sendMail: jest.fn(),
+        sendMail: jest.fn().mockImplementation((opts, callback) => { callback(null, { fakeData: 'fake' }); }),
       };
       (jest.spyOn(mailService, 'createMailTransporter') as jest.Mock).mockReturnValue(mockTransporter);
-
-      mailService.sendEmail(to, from, subject, text);
+      await mailService.sendEmail(to, from, subject, text);
       expect(mockTransporter.sendMail).toHaveBeenCalledWith(
         {
           to,
@@ -67,7 +67,7 @@ describe('MailService', () => {
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      mailService.sendForgotPasswordEmail(to, token);
+      await mailService.sendForgotPasswordEmail(to, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
         mailService.getDefaultSender(),
@@ -85,7 +85,7 @@ describe('MailService', () => {
         .spyOn(mailService, 'sendEmail')
         .mockReturnValue(Promise.resolve(null));
 
-      mailService.sendVerificationEmail(to, token);
+      await mailService.sendVerificationEmail(to, token);
       expect(mailService.sendEmail).toHaveBeenCalledWith(
         to,
         mailService.getDefaultSender(),

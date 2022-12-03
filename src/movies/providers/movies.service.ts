@@ -1,9 +1,9 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
-
 import { ConfigService } from '@nestjs/config';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
@@ -13,6 +13,115 @@ import { DiscoverMovieMapper } from '../mapper/discover-movie.mapper';
 import { MovieDbDto } from '../dto/movie-db.dto';
 import { ReturnMovieDb } from '../dto/cron-job-response.dto';
 import { DiscoverMovieDto } from '../dto/discover-movie.dto';
+import { relativeToFullImagePath } from '../../utils/image-utils';
+
+export interface Cast {
+  'adult': boolean,
+  'gender': number,
+  'id': number,
+  'known_for_department': string,
+  'name': string,
+  'original_name': string,
+  'popularity': number,
+  'profile_path': string,
+  'cast_id': number,
+  'character': string,
+  'credit_id': string,
+  'order': number
+}
+
+export interface Crew {
+  'adult': boolean,
+  'gender': number,
+  'id': number,
+  'known_for_department': string,
+  'name': string,
+  'original_name': string,
+  'popularity': number,
+  'profile_path': string,
+  'department': string,
+  'job': string,
+  'credit_id': string,
+}
+
+export interface Results {
+  'iso_639_1': string,
+  'iso_3166_1': string,
+  'name': string,
+  'key': string,
+  'site': string,
+  'size': number,
+  'type': string,
+  'official': boolean,
+  'published_at': string,
+  'id': string
+}
+
+export interface VideoData {
+  'results': Results[],
+  'id': number
+}
+
+export interface Genres {
+  'name': string,
+  'id': number
+}
+export interface ProductionCountries {
+  'name': string,
+  'iso_3166_1': string
+}
+export interface SpokenLanguages {
+  'name': string,
+  'iso_639_1': string
+}
+export interface ProductionCompanies {
+  'id': number,
+  'name': string,
+  'iso_3166_1': string,
+  'logo_path': string,
+  'origin_country': string,
+}
+
+export interface BelongsToCollection {
+  'id': number,
+  'name': string,
+  'poster_path': string,
+  'backdrop_path': string,
+}
+
+export interface MainData {
+  'adult': boolean,
+  'backdrop_path': string,
+  'belongs_to_collection': BelongsToCollection,
+  'budget': number,
+  'genres': Genres[],
+  'homepage': string,
+  'id': number,
+  'imdb_id': string,
+  'original_language': string,
+  'original_title': string,
+  'overview': string,
+  'popularity': number,
+  'poster_path': string,
+  'production_countries': ProductionCountries[],
+  'release_date': string,
+  'revenue': number,
+  'runtime': number,
+  'spoken_languages': SpokenLanguages[],
+  'status': string,
+  'tagline': string,
+  'title': string,
+  'vote_average': number,
+  'video': boolean,
+  'vote_count': number,
+  'production_companies': ProductionCompanies[],
+}
+
+export interface MovieDbData {
+  cast: Cast[],
+  video: VideoData,
+  mainData: MainData,
+}
 
 @Injectable()
 export class MoviesService {
@@ -151,16 +260,16 @@ export class MoviesService {
 
     const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
 
-     // Mark the deleted record on field deleted
-     const deletedRecordKeys = [];
-     for (const movieId of databaseMovieKeys) {
-       const existing = moviesFromMovieDB.find(({ id }) => id === movieId);
-       if (!existing) {
-         deletedRecordKeys.push(movieId);
-       }
-     }
+    // Mark the deleted record on field deleted
+    const deletedRecordKeys = [];
+    for (const movieId of databaseMovieKeys) {
+      const existing = moviesFromMovieDB.find(({ id }) => id === movieId);
+      if (!existing) {
+        deletedRecordKeys.push(movieId);
+      }
+    }
 
-     await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
+    await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
   }
 
   async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
@@ -180,7 +289,7 @@ export class MoviesService {
   async processDatabaseOperation(
     movies: DiscoverMovieDto[],
     databaseMovies,
-): Promise<void> {
+  ): Promise<void> {
     if (!movies && movies.length) {
       return;
     }
@@ -220,5 +329,47 @@ export class MoviesService {
     } catch (error) {
       return endYear;
     }
+  }
+
+  async fetchMovieDbData(movieDbId: number): Promise<MovieDbData> {
+    const movieDbApiKey = this.configService.get<string>('MOVIE_DB_API_KEY');
+    const [castAndCrewData, videoData, mainDetails, configDetails]: any = await Promise.all([
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/movie/${movieDbId}/credits?api_key=${movieDbApiKey}&language=en-US`,
+      )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/movie/${movieDbId}/videos?api_key=${movieDbApiKey}&language=en-US`,
+      )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/movie/${movieDbId}?api_key=${movieDbApiKey}&language=en-US&append_to_response=release_dates`,
+      )),
+      lastValueFrom(this.httpService.get<MovieDbData>(
+        `https://api.themoviedb.org/3/configuration?api_key=${movieDbApiKey}`,
+      )),
+    ]);
+    const mainData = JSON.parse(JSON.stringify(mainDetails.data));
+    mainData.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
+
+    const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
+    const castData = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+
+    const cast = castData.map((profile) => {
+      /* eslint-disable no-param-reassign */
+      if (profile.known_for_department === 'Acting') {
+        if (profile.profile_path) {
+          profile.profile_path = `${secureBaseUrl}${profile.profile_path}`;
+        } else {
+          profile.profile_path = relativeToFullImagePath(this.configService, '/placeholders/movie_cast.png');
+        }
+        return profile;
+      }
+      return false;
+    }).filter(Boolean);
+
+    return {
+      cast,
+      video: videoData.data.results,
+      mainData,
+    };
   }
 }

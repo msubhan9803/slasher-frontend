@@ -1,6 +1,6 @@
 import { IsMongoId, IsNotEmpty } from 'class-validator';
 
-export class DeclineOrCancelFriendRequestDto {
+export class CancelFriendshipOrDeclineRequestDto {
   @IsNotEmpty()
   @IsMongoId()
   userId: string;

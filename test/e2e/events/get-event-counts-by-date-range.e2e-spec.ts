@@ -15,6 +15,7 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { eventsFactory } from '../../factories/events.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Event counts by date range / (e2e)', () => {
   let app: INestApplication;
@@ -41,14 +42,14 @@ describe('Event counts by date range / (e2e)', () => {
     { start: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-19T23:59:59Z').toJSDate() },
   ];
 
-  const startDateForSearch = DateTime.fromISO('2022-10-16T00:00:00Z').toJSDate();
-  const endDateForSearch = DateTime.fromISO('2022-10-22T23:59:59Z').toJSDate();
+  const startDateForSearch = DateTime.fromISO('2022-10-16', { setZone: true }).toJSDate();
+  const endDateForSearch = DateTime.fromISO('2022-10-22', { setZone: true }).toJSDate();
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     eventService = moduleRef.get<EventService>(EventService);
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
@@ -64,7 +65,7 @@ describe('Event counts by date range / (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     eventCategory = await eventCategoriesService.create(eventCategoryFactory.build());

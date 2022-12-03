@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as EmailValidator from 'email-validator';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
+import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
+import { sleep } from '../../utils/timer-utils';
 
 export interface UserNameSuggestion {
   userName: string;
@@ -11,7 +13,10 @@ export interface UserNameSuggestion {
 }
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) { }
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(SocketUser.name) private socketUserModel: Model<SocketUserDocument>,
+  ) { }
 
   async create(user: Partial<User>) {
     return this.userModel.create(user);
@@ -110,5 +115,34 @@ export class UsersService {
     );
 
     return userNameSuggestions;
+  }
+
+  async createSocketUserEntry(socketId: string, userId: string) {
+    return this.socketUserModel.create({ userId, socketId });
+  }
+
+  async findBySocketId(socketId: string) {
+    const socketUser = await this.socketUserModel.findOne({ socketId }).populate('userId').exec();
+    return socketUser ? socketUser.userId : null;
+  }
+
+  async findSocketIdsForUser(userId: string) {
+    return (await this.socketUserModel.find({ userId }).select('socketId').exec()).map((socketUser) => socketUser.socketId);
+  }
+
+  async deleteSocketUserEntry(socketId: string) {
+    for (let i = 0; i < 3; i += 1) {
+      const deletionResult = await this.socketUserModel.deleteOne({ socketId });
+
+      // Sometimes, if a user disconnects too soon after connecting, the SocketUser entry isn't
+      // available. To account for this, if the deletion result is 0, we'll wait 1 seconds and then
+      // attempt the deletion again.  This is important for proper SocketUsers entry cleanup.
+      if (deletionResult.deletedCount === 1) { break; }
+      await sleep(1000);
+    }
+  }
+
+  async getSocketUserCount(): Promise<number> {
+    return this.socketUserModel.countDocuments();
   }
 }

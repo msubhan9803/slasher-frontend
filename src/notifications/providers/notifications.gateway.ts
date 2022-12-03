@@ -12,13 +12,9 @@ import { Server } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
-export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationsGateway {
   @WebSocketServer()
   server: Server;
-
-  handleConnection(client: any, ...args: any[]) { }
-
-  handleDisconnect(client: any) { }
 
   @SubscribeMessage('getNotifications')
   async sendReceiveMessage(@MessageBody() data: any): Promise<string> {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersController } from './users.controller';
@@ -10,14 +10,22 @@ import { User, UserSchema } from '../schemas/user/user.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { UserSettingModule } from '../settings/user-settings.module';
+import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.schema';
+import { ChatModule } from '../chat/chat.module';
+import { BlocksModule } from '../blocks/blocks.module';
 
+// Since the UsersModule is likely to be used in many places, we'll make it global
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
     FeedPostsModule,
     NotificationsModule,
     FriendsModule,
     UserSettingModule,
+    ChatModule,
+    BlocksModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, MailService, LocalStorageService, S3StorageService],

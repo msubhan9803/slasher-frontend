@@ -3,16 +3,24 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
-import { DateTime } from 'luxon';
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+import { DateTime } from 'luxon';
 
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
 import { MovieDocument } from '../../schemas/movie/movie.schema';
 import { mockMovieDbCallResponse, mockMaxLimitApiMockResponse } from './movies.service.mock';
+import movieDbId2907ApiCreditsResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-credits-response';
+import movieDbId2907ApiVideosResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-videos-response';
+import movieDbId2907ApiMainMovieResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-main-movie-response';
+import movieDbId2907ApiConfigurationResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-configuration-response';
+import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
+  '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 const mockHttpService = () => ({
 });
@@ -21,6 +29,7 @@ describe('MoviesService', () => {
   let app: INestApplication;
   let connection: Connection;
   let moviesService: MoviesService;
+  let configService: ConfigService;
   let movie: MovieDocument;
   let httpService: HttpService;
 
@@ -31,8 +40,11 @@ describe('MoviesService', () => {
         { provide: HttpService, useFactory: mockHttpService },
       ],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
+    httpService = moduleRef.get<HttpService>(HttpService);
+
     app = moduleRef.createNestApplication();
     await app.init();
     httpService = await app.get<HttpService>(HttpService);
@@ -44,7 +56,7 @@ describe('MoviesService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
     movie = await moviesService.create(
       moviesFactory.build(),
     );
@@ -467,6 +479,56 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults[0].deleted).toBe(1);
+    });
+  });
+
+  describe('#fetchMovieDbData', () => {
+    it('fetch expected movie db data', async () => {
+      jest.spyOn(httpService, 'get').mockImplementation(
+        (url: any) => {
+          switch (url) {
+            case 'https://api.themoviedb.org/3/movie/2907/credits?api_key='
+              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
+              return of({
+                data: movieDbId2907ApiCreditsResponse,
+                status: 200,
+                statusText: '',
+                headers: {},
+                config: {},
+              });
+            case 'https://api.themoviedb.org/3/movie/2907/videos?api_key='
+              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
+              return of({
+                data: movieDbId2907ApiVideosResponse,
+                status: 200,
+                statusText: '',
+                headers: {},
+                config: {},
+              });
+            case 'https://api.themoviedb.org/3/movie/2907?api_key='
+              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US&append_to_response=release_dates`:
+              return of({
+                data: movieDbId2907ApiMainMovieResponse,
+                status: 200,
+                statusText: '',
+                headers: {},
+                config: {},
+              });
+            case 'https://api.themoviedb.org/3/configuration?api_key='
+              + `${configService.get<string>('MOVIE_DB_API_KEY')}`:
+              return of({
+                data: movieDbId2907ApiConfigurationResponse,
+                status: 200,
+                statusText: '',
+                headers: {},
+                config: {},
+              });
+            default:
+              throw new Error(`unhandled url: ${url}`);
+          }
+        },
+      );
+      expect(await moviesService.fetchMovieDbData(2907)).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
     });
   });
 });

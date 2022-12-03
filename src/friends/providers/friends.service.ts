@@ -1,33 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
+import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/suggestBlock.schema';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { Friend, FriendDocument } from '../../schemas/friend/friend.schema';
 import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
+import { BlocksService } from '../../blocks/providers/blocks.service';
 
 @Injectable()
 export class FriendsService {
   constructor(
     @InjectModel(Friend.name) private friendsModel: Model<FriendDocument>,
     @InjectModel(User.name) private usersModel: Model<UserDocument>,
+    @InjectModel(SuggestBlock.name) private suggestBlockModel: Model<SuggestBlockDocument>,
+    private readonly blocksService: BlocksService,
   ) { }
 
-  async getFriendRequestReaction(userId1: string, userId2: string): Promise<FriendRequestReaction | null> {
-    const friend = await this.friendsModel
+  async findFriendship(fromUserId: string, toUserId: string): Promise<Friend | null> {
+    return this.friendsModel
       .findOne({
         $or: [
-          { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
-          { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+          { from: new mongoose.Types.ObjectId(fromUserId), to: new mongoose.Types.ObjectId(toUserId) },
+          { from: new mongoose.Types.ObjectId(toUserId), to: new mongoose.Types.ObjectId(fromUserId) },
         ],
       })
       .exec();
-    return friend ? friend.reaction : null;
   }
 
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
-    const currentFriendReaction = await this.getFriendRequestReaction(fromUserId, toUserId);
-
     let friend: any = await this.friendsModel
       .findOne({
         $or: [
@@ -48,10 +50,10 @@ export class FriendsService {
         to: new mongoose.Types.ObjectId(toUserId),
         reaction: FriendRequestReaction.Pending,
       };
-      await this.friendsModel.create(friends);
+      friend = await this.friendsModel.create(friends);
     }
 
-    if (currentFriendReaction === FriendRequestReaction.Accepted) {
+    if (friend.reaction === FriendRequestReaction.Accepted) {
       throw new Error('Cannot create friend request. Already friends.');
     }
 
@@ -92,7 +94,7 @@ export class FriendsService {
     return friendsData;
   }
 
-  async declineOrCancelFriendRequest(userId1: string, userId2: string): Promise<void> {
+  async cancelFriendshipOrDeclineRequest(userId1: string, userId2: string): Promise<void> {
     const friends = {
       $or: [
         { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
@@ -170,9 +172,13 @@ export class FriendsService {
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
     const friendIds = await this.getFriendIds(user._id, true);
+    const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
+    const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
     const friendUsers = await this.usersModel.find({
       $and: [
         { _id: { $nin: friendIds } },
+        { _id: { $nin: suggestBlockUserIds } },
+        { _id: { $nin: blockUserIds } },
         { _id: { $ne: user._id } },
       ],
     }).sort({ createdAt: -1 }).limit(limit)
@@ -204,11 +210,47 @@ export class FriendsService {
 
   async getReceivedFriendRequestCount(userId: string): Promise<number> {
     const friendsCount = await this.friendsModel
-        .find({
-          $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
-        })
-        .count()
-        .exec();
+      .find({
+        $and: [{ to: new mongoose.Types.ObjectId(userId) }, { reaction: FriendRequestReaction.Pending }],
+      })
+      .count()
+      .exec();
     return friendsCount;
+  }
+
+  async createSuggestBlock(fromUserId: string, toUserId: string): Promise<void> {
+    const fromAndTo = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      to: new mongoose.Types.ObjectId(toUserId),
+    };
+
+    await this.suggestBlockModel.findOneAndUpdate(fromAndTo, { $set: { reaction: SuggestBlockReaction.Block } }, { upsert: true });
+  }
+
+  async getSuggestBlockedUserIdsBySender(fromUserId: string): Promise<Partial<User[]>> {
+    const fromAndBlockQuery = {
+      from: new mongoose.Types.ObjectId(fromUserId),
+      reaction: SuggestBlockReaction.Block,
+    };
+
+    const suggestBlock = await this.suggestBlockModel.find(fromAndBlockQuery).select('to');
+
+    return suggestBlock.map((data) => data.to);
+  }
+
+  async deleteAllByUserId(userId: string): Promise<void> {
+    await this.friendsModel
+      .deleteMany({
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+      })
+      .exec();
+  }
+
+  async deleteAllSuggestBlocksByUserId(userId: string): Promise<void> {
+    await this.suggestBlockModel.deleteMany(
+      {
+        $or: [{ to: new mongoose.Types.ObjectId(userId) }, { from: new mongoose.Types.ObjectId(userId) }],
+      },
+    );
   }
 }

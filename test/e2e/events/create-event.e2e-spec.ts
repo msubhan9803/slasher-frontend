@@ -13,6 +13,7 @@ import { EventCategoriesService } from '../../../src/event-categories/providers/
 import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { createTempFiles } from '../../helpers/tempfile-helpers';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Events create / (e2e)', () => {
   let app: INestApplication;
@@ -41,7 +42,7 @@ describe('Events create / (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
     usersService = moduleRef.get<UsersService>(UsersService);
@@ -56,7 +57,7 @@ describe('Events create / (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());

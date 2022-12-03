@@ -5,18 +5,19 @@ import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import * as request from 'supertest';
-import { AppModule } from '../../../src/app.module';
-import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { userFactory } from '../../factories/user.factory';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { RedisIoAdapter } from '../../../src/adapters/redis-io.adapter';
+import { AppModule } from '../../src/app.module';
+import { UserDocument } from '../../src/schemas/user/user.schema';
+import { UsersService } from '../../src/users/providers/users.service';
+import { userFactory } from '../factories/user.factory';
+import { clearDatabase } from '../helpers/mongo-helpers';
+import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
+import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let configService: ConfigService;
-  let address: any;
   let baseAddress: string;
   let activeUser: UserDocument;
   let activeUserAuthToken: string;
@@ -25,18 +26,20 @@ describe('Notifications Gateway (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+
+    // Set up redis adapter
     const redisIoAdapter = new RedisIoAdapter(app, configService);
     await redisIoAdapter.connectToRedis();
     app.useWebSocketAdapter(redisIoAdapter);
-    await app.init();
 
-    address = app.getHttpServer().listen().address();
-    baseAddress = `http://[${address.address}]:${address.port}`;
+    // For socket tests, we use app.listen() instead of app.init()
+    await app.listen(configService.get<number>('PORT'));
+    baseAddress = `http://localhost:${configService.get<number>('PORT')}`;
   });
 
   afterAll(async () => {
@@ -45,7 +48,7 @@ describe('Notifications Gateway (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -55,6 +58,7 @@ describe('Notifications Gateway (e2e)', () => {
 
   it('should properly handle a getNotifications event', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const payload = { message: 'test' };
     await new Promise<void>((resolve) => {
@@ -65,10 +69,14 @@ describe('Notifications Gateway (e2e)', () => {
     });
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 
   it('a client should receive an event when a request is made to the /notifications/socket-test endpoint', async () => {
     const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
 
     const socketListenPromise = new Promise<void>((resolve) => {
       client.once('hello', (...args) => {
@@ -88,5 +96,8 @@ describe('Notifications Gateway (e2e)', () => {
     await socketListenPromise;
 
     client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
   });
 });

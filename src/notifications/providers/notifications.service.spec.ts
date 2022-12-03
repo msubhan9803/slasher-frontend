@@ -8,6 +8,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { notificationFactory } from '../../../test/factories/notification.factory';
 import { UserDocument } from '../../schemas/user/user.schema';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -19,7 +20,7 @@ describe('NotificationsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
 
@@ -33,7 +34,7 @@ describe('NotificationsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   it('should be defined', () => {

@@ -24,6 +24,8 @@ import { UserSettingModule } from './settings/user-settings.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { AppGateway } from './app/providers/app.gateway';
 import { TasksService } from './app/providers/tasks.service';
+import { BlocksModule } from './blocks/blocks.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { TasksService } from './app/providers/tasks.service';
     RssFeedProviderFollowsModule,
     ScheduleModule.forRoot(),
     HttpModule,
+    BlocksModule,
+    SearchModule,
   ],
   controllers: [AppController],
   providers: [

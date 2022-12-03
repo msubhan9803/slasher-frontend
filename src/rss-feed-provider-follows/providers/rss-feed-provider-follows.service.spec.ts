@@ -11,6 +11,7 @@ import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-
 import { User } from '../../schemas/user/user.schema';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProviderFollowDocument } from '../../schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
+import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('RssFeedProviderFollowsService', () => {
   let app: INestApplication;
@@ -26,7 +27,7 @@ describe('RssFeedProviderFollowsService', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
@@ -41,7 +42,7 @@ describe('RssFeedProviderFollowsService', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
@@ -94,7 +95,7 @@ describe('RssFeedProviderFollowsService', () => {
         rssfeedProviderId: rssFeedProviderData2._id,
       };
       const updatedRssFeedProviderFollow = await rssFeedProviderFollowsService
-      .update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);
+        .update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);
       const reloadedRssFeedProviderFollow = await rssFeedProviderFollowsService.findById(updatedRssFeedProviderFollow._id.toString());
       expect(reloadedRssFeedProviderFollow.rssfeedProviderId).toEqual(updatedRssFeedProviderFollow.rssfeedProviderId);
     });

@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -27,7 +28,7 @@ describe('Add Friends (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -43,7 +44,7 @@ describe('Add Friends (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -84,13 +85,13 @@ describe('Add Friends (e2e)', () => {
     });
 
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
-      friendsService.createFriendRequest(user1.id, activeUser.id);
+      await friendsService.createFriendRequest(user1.id, activeUser.id);
       await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
 
-      expect(await friendsService.getFriendRequestReaction(user1.id, activeUser.id)).toEqual(FriendRequestReaction.Accepted);
+      expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
     });
 
     describe('Validation', () => {

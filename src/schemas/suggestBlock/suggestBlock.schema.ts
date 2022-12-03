@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from '../user/user.schema';
-import { SuggestReaction } from './suggestBlock.enums';
+import { SuggestBlockReaction } from './suggestBlock.enums';
 import { SuggestBlockUnusedFields } from './suggestBlock.unused-fields';
 
 @Schema({ timestamps: true })
@@ -18,19 +18,21 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  // The user who initiates the block
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
   from: User;
 
+  // The user who will BE blocked
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
   to: User;
 
   @Prop({
     enum: [
-      SuggestReaction.Block,
-      SuggestReaction.Unblock,
+      SuggestBlockReaction.Block,
+      SuggestBlockReaction.Unblock,
     ],
   })
-  reaction: SuggestReaction;
+  reaction: SuggestBlockReaction;
 
   /***********
    * Methods *
@@ -49,7 +51,7 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
 
 export const SuggestBlockSchema = SchemaFactory.createForClass(SuggestBlock);
 
-// TODO: When reasonOfReport it removed, remove it from the index here too
+// TODO: When reasonOfReport is removed, remove it from the index here too
 SuggestBlockSchema.index(
   {
     to: 1, from: 1, reaction: 1, reasonOfReport: 1,

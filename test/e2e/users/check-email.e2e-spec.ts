@@ -6,6 +6,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Check Email (e2e)', () => {
   let app: INestApplication;
@@ -16,7 +17,7 @@ describe('Users / Check Email (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
@@ -29,7 +30,7 @@ describe('Users / Check Email (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   describe('GET /users/check-email', () => {

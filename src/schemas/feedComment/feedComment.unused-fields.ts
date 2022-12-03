@@ -1,39 +1,39 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { FeedPost } from '../feedPost/feedPost.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { ReportUserSchema, ReportUser } from '../shared/reportUser.schema';
+import { User } from '../user/user.schema';
 import { FeedCommentDeletionState, FeedCommentStatus, FeedCommentType } from './feedComment.enums';
 
 export class FeedCommentUnusedFields {
-  // NOT USED
-  @Prop({ default: null, ref: 'feedPosts', required: true })
-  feedPostId: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: FeedPost.name, required: true,
+  })
+  feedPostId: FeedPost;
 
-  // NOT USED
-  @Prop({ default: null, ref: 'users', required: true })
-  userId: mongoose.Schema.Types.ObjectId;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, default: null, ref: User.name, required: true,
+  })
+  userId: User;
 
-  // NOT USED
+  // So few values exist in the database (54 out of 900,000), and it's not clear whether it's really
+  // even in use, so we may be able to delete this field when we retire the old API.
   @Prop({ default: [] })
   hideUsers: mongoose.Schema.Types.ObjectId[];
 
-  // NOT USED
   @Prop({ type: [ReportUserSchema] })
   reportUsers: ReportUser[];
 
-  // NOT USED
   @Prop({ default: null, required: true })
   message: string;
 
-  // NOT USED
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
 
-  // NOT USED
   @Prop({ type: [ImageSchema] })
   images: Image[];
 
-  // NOT USED
   @Prop({
     required: true,
     enum: [
@@ -45,7 +45,6 @@ export class FeedCommentUnusedFields {
   })
   type: FeedCommentType; // Note: It appears that old API may only ever use FeedCommentType.Text
 
-  // NOT USED
   @Prop({
     required: true,
     enum: [
@@ -56,7 +55,6 @@ export class FeedCommentUnusedFields {
   })
   status: FeedCommentStatus;
 
-  // NOT USED
   @Prop({
     required: true,
     enum: [

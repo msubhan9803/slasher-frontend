@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { MailService } from '../../../src/providers/mail.service';
 import { VerificationEmailNotReceivedDto } from '../../../src/users/dto/verification-email-not-recevied.dto';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
@@ -20,7 +21,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     mailService = moduleRef.get<MailService>(MailService);
@@ -34,7 +35,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   describe('POST /users/verification-email-not-received', () => {

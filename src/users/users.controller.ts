@@ -14,6 +14,7 @@ import {
   Patch,
   UploadedFile,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -51,6 +52,10 @@ import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { UserSettingsService } from '../settings/providers/user-settings.service';
+import { ChatService } from '../chat/providers/chat.service';
+import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { BlocksService } from '../blocks/providers/blocks.service';
 
 @Controller('users')
 export class UsersController {
@@ -63,6 +68,8 @@ export class UsersController {
     private readonly feedPostsService: FeedPostsService,
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
+    private readonly chatService: ChatService,
+    private readonly blocksService: BlocksService,
   ) { }
 
   @Post('sign-in')
@@ -267,7 +274,7 @@ export class UsersController {
     );
     if (userData) {
       userData.resetPasswordToken = uuidv4();
-      userData.save();
+      await userData.save();
       await this.mailService.sendForgotPasswordEmail(
         userData.email,
         userData.resetPasswordToken,
@@ -303,36 +310,18 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.recentFriendRequests[*].profilePic')
+  @TransformImageUrls('$.recentFriendRequests[*].profilePic', '$.recentMessages[*].profilePic')
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
+    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
     return {
       userId: user.id,
       userName: user.userName,
       unreadNotificationCount: 6,
-      recentMessages: [
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=47',
-          userName: 'MaureenBiologist',
-          shortMessage: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse interdum, tortor vel consectetur blandit,'
-            + 'justo diam elementum massa, id tincidunt risus turpis non nisi. Integer eu lorem risus.',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=56',
-          userName: 'TeriDactyl',
-          shortMessage: 'Maecenas ornare sodales mi, sit amet pretium eros scelerisque quis.'
-            + 'Nunc blandit mi elit, nec varius erat hendrerit ac. Nulla congue sollicitudin eleifend.',
-        },
-        {
-          profilePic: 'https://i.pravatar.cc/300?img=26',
-          userName: 'BobRoss',
-          shortMessage: 'Aenean luctus ac magna lobortis varius. Ut laoreet arcu ac commodo molestie. Nulla facilisi.'
-            + 'Sed porta sit amet nunc tempus sollicitudin. Pellentesque ac lectus pulvinar, pulvinar diam sed, semper libero.',
-        },
-      ],
+      recentMessages,
       friendRequestCount,
       recentFriendRequests: receivedFriendRequestsData,
     };
@@ -361,6 +350,27 @@ export class UsersController {
     }
 
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto', 'aboutMe']);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Patch('change-password')
+  async changePassword(@Req() request: Request, @Body() changePasswordDto: ChangePasswordDto) {
+    const user = getUserFromRequest(request);
+
+    if (!bcrypt.compareSync(changePasswordDto.currentPassword, user.password)) {
+      throw new HttpException(
+        'Invalid value supplied for current password.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    user.setUnhashedPassword(changePasswordDto.newPassword);
+    user.lastPasswordResetTime = new Date();
+    await user.save();
+
+    return {
+      success: true,
+    };
   }
 
   @Patch(':id')
@@ -491,5 +501,47 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts;
+  }
+
+  @Delete('delete-account')
+  async deleteAccount(
+    @Req() request: Request,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: DeleteAccountQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+
+    // We check user id against the DTO data to make it harder to accidentally delete an account.
+    // This is important because users cannot undo account deletion.
+    if (user.id !== query.userId) {
+      throw new HttpException(
+        'Supplied userId does not match current user\'s id.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // This is to remove all friendships and pending friend requests related to this user.
+    await this.friendsService.deleteAllByUserId(user.id);
+
+    // No need to keep suggested friend blocks to or from this user when their account is deleted.
+    await this.friendsService.deleteAllSuggestBlocksByUserId(user.id);
+
+    // No need to keep blocks from or to the user.  It's especially important to delete
+    // blocks to the user because we don't want this now-deleted user showing up in other
+    // users' block lists in the UI.
+    await this.blocksService.deleteAllByUserId(user.id);
+
+    // Mark user as deleted
+    user.deleted = true;
+
+    // Change user's password to a new random value, to ensure that current session is invalidated
+    // and that they cannot log in again if admins ever need to temporarily reactivate their account.
+    user.setUnhashedPassword(uuidv4());
+
+    // Save changes to user object
+    await user.save();
+
+    return {
+      success: true,
+    };
   }
 }

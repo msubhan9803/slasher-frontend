@@ -11,6 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +27,7 @@ describe('UserId Posts With Images (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -41,7 +42,7 @@ describe('UserId Posts With Images (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -118,6 +119,22 @@ describe('UserId Posts With Images (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+      });
+
+      it('limit should not be grater than 30', async () => {
+        feedPost = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: activeUser._id,
+            },
+          ),
+        );
+        const limit = 31;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 30');
       });
 
       it('before should be a valid ObjectId', async () => {

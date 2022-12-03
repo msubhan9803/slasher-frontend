@@ -9,6 +9,7 @@ import { ResetPasswordDto } from 'src/users/dto/reset-password.dto';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users reset password (e2e)', () => {
   let app: INestApplication;
@@ -19,7 +20,7 @@ describe('Users reset password (e2e)', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    connection = await moduleRef.get<Connection>(getConnectionToken());
+    connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
@@ -32,7 +33,7 @@ describe('Users reset password (e2e)', () => {
 
   beforeEach(async () => {
     // Drop database so we start fresh before each test
-    await connection.dropDatabase();
+    await clearDatabase(connection);
   });
 
   describe('POST /users/reset-password', () => {

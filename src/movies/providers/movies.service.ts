@@ -354,20 +354,20 @@ export class MoviesService {
     mainData.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
 
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
-    const castData = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
+    const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
 
-    const cast = castData.map((profile) => {
-      /* eslint-disable no-param-reassign */
-      if (profile.known_for_department === 'Acting') {
-        if (profile.profile_path) {
-          profile.profile_path = `${secureBaseUrl}${profile.profile_path}`;
-        } else {
-          profile.profile_path = relativeToFullImagePath(this.configService, '/placeholders/movie_cast.png');
-        }
-        return profile;
+    cast.forEach((profile) => {
+      if (profile.profile_path) {
+        // eslint-disable-next-line no-param-reassign
+        profile.profile_path = `${secureBaseUrl}${profile.profile_path}`;
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        profile.profile_path = relativeToFullImagePath(this.configService, '/placeholders/movie_cast.png');
       }
+      return profile;
+
       return false;
-    }).filter(Boolean);
+    });
 
     return {
       cast,

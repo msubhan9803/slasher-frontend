@@ -72,7 +72,7 @@ export class Movie extends MovieUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: null })
+  @Prop({ default: null, unique: true })
   movieDBId: number;
 
   @Prop({ default: null })

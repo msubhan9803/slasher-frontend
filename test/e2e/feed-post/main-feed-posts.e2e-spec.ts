@@ -110,7 +110,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
-        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        expect(response.body[i].updatedAt < response.body[i - 1].updatedAt).toBe(true);
       }
     });
 
@@ -132,7 +132,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < firstResponse.body.length; index += 1) {
-          expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
+          expect(firstResponse.body[index].updatedAt < firstResponse.body[index - 1].updatedAt).toBe(true);
         }
         expect(firstResponse.body).toHaveLength(3);
 
@@ -141,7 +141,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < secondResponse.body.length; index += 1) {
-          expect(secondResponse.body[index].createdAt < secondResponse.body[index - 1].createdAt).toBe(true);
+          expect(secondResponse.body[index].updatedAt < secondResponse.body[index - 1].updatedAt).toBe(true);
         }
         expect(secondResponse.body).toHaveLength(2);
       });

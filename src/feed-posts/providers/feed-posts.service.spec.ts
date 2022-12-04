@@ -308,9 +308,9 @@ describe('FeedPostsService', () => {
       //   have 2 active posts each = (4 more posts)
       expect(feedPosts).toHaveLength(10);
 
-      // And we expect them to be sorted by createdAt date
+      // And we expect them to be sorted by updatedAt date
       for (let i = 1; i < feedPosts.length; i += 1) {
-        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+        expect(feedPosts[i].updatedAt < feedPosts[i - 1].updatedAt).toBe(true);
       }
     });
 
@@ -318,12 +318,12 @@ describe('FeedPostsService', () => {
       const limit = 6;
       const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
       for (let index = 1; index < firstResults.length; index += 1) {
-        expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
+        expect(firstResults[index].updatedAt < firstResults[index - 1].updatedAt).toBe(true);
       }
       expect(firstResults).toHaveLength(6);
       const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
       for (let index = 1; index < secondResults.length; index += 1) {
-        expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
+        expect(secondResults[index].updatedAt < secondResults[index - 1].updatedAt).toBe(true);
       }
       expect(secondResults).toHaveLength(4);
     });

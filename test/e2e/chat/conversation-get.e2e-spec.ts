@@ -73,6 +73,16 @@ describe('Conversation / (e2e)', () => {
           .send();
         expect(response.body.message).toBe('You are not a member of this conversation');
       });
+
+      it('returns a 404 when when the conversation is not found', async () => {
+        const matchListId = '638bf8215e0682526453ecb8';
+        const response = await request(app.getHttpServer())
+          .get(`/chat/conversation/${matchListId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.NOT_FOUND);
+        expect(response.body.message).toBe('Conversation not found');
+      });
     });
 
     describe('Validation', () => {

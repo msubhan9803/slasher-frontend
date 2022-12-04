@@ -30,7 +30,11 @@ export class FeedPostsService {
       feedPostFindQuery.is_deleted = false;
       feedPostFindQuery.status = FeedPostStatus.Active;
     }
-    return this.feedPostModel.findOne(feedPostFindQuery).populate('userId', 'userName _id profilePic').exec();
+    return this.feedPostModel
+    .findOne(feedPostFindQuery)
+    .populate('userId', 'userName _id profilePic')
+    .populate('rssfeedProviderId', 'title _id logo')
+    .exec();
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -108,6 +112,32 @@ export class FeedPostsService {
           beforeQuery,
         ],
       })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+  }
+
+  async findAllByRssFeedProvider(
+    rssfeedProviderId: string,
+    limit: number,
+    activeOnly: boolean,
+    before?: mongoose.Types.ObjectId,
+  ): Promise<FeedPostDocument[]> {
+    const feedPostFindAllQuery: any = {};
+    const feedPostQuery = [];
+    feedPostQuery.push({ rssfeedProviderId });
+    if (before) {
+      const feedPost = await this.feedPostModel.findById(before).exec();
+      feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
+    }
+    if (activeOnly) {
+      feedPostFindAllQuery.is_deleted = FeedPostDeletionState.NotDeleted;
+      feedPostFindAllQuery.status = FeedPostStatus.Active;
+      feedPostQuery.push(feedPostFindAllQuery);
+    }
+    return this.feedPostModel
+      .find({ $and: feedPostQuery })
+      .populate('rssfeedProviderId', 'title _id logo')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

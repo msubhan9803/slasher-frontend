@@ -13,7 +13,6 @@ import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { relativeToFullImagePath } from '../utils/image-utils';
 import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
@@ -92,6 +91,7 @@ export class FeedPostsController {
     };
   }
 
+  @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path')
   @Get(':id')
   async singleFeedPostDetails(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
@@ -101,13 +101,6 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    feedPost.images.map((relativeImagePath) => {
-      // eslint-disable-next-line no-param-reassign
-      relativeImagePath.image_path = relativeToFullImagePath(this.config, relativeImagePath.image_path);
-      return relativeImagePath;
-    });
-    // TODO: Update feedPost so that "as any" type coercion isn't needed here
-    (feedPost.userId as any).profilePic = relativeToFullImagePath(this.config, (feedPost.userId as any).profilePic);
     return feedPost;
   }
 

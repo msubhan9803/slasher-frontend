@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -257,7 +258,13 @@ describe('UsersService', () => {
   });
 
   describe('#suggestUserName', () => {
+    let user;
     beforeEach(async () => {
+      user = await usersService.create(
+        userFactory.build(
+          { userName: 'test5' },
+        ),
+      );
       await usersService.create(
         userFactory.build(
           { userName: 'test1' },
@@ -278,11 +285,16 @@ describe('UsersService', () => {
           { userName: 'user2' },
         ),
       );
+      await usersService.create(
+        userFactory.build(
+          { userName: 'te2', status: ActiveStatus.Deactivated, deleted: true },
+        ),
+      );
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {
-      const query = 'te';
+      const query = 'Te';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
       expect(suggestUserNames).toEqual([
         pick(await usersService.findByUsername('te1'), ['userName', 'id']),
         pick(await usersService.findByUsername('test1'), ['userName', 'id']),
@@ -292,15 +304,22 @@ describe('UsersService', () => {
     it('when query is exists and limited is applied, returns expected response', async () => {
       const query = 'te';
       const limit = 1;
-      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
       expect(suggestUserNames).toHaveLength(1);
     });
 
     it('when query is wrong than expected response', async () => {
       const query = 'wq';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(query, limit);
+      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
       expect(suggestUserNames).toEqual([]);
+    });
+
+    it('when activeOnly is false then it gives expected response', async () => {
+      const query = 'TE';
+      const limit = 5;
+      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, false);
+      expect(suggestUserNames).toHaveLength(3);
     });
   });
 

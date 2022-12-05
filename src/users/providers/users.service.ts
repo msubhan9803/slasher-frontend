@@ -6,6 +6,7 @@ import { User, UserDocument } from '../../schemas/user/user.schema';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
 import { sleep } from '../../utils/timer-utils';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 export interface UserNameSuggestion {
   userName: string;
@@ -101,8 +102,12 @@ export class UsersService {
       .exec();
   }
 
-  async suggestUserName(query: string, limit: number): Promise<UserNameSuggestion[]> {
-    const nameFindQuery = { userName: new RegExp(`^${escapeStringForRegex(query)}`) };
+  async suggestUserName(userId: string, query: string, limit: number, activeOnly: boolean): Promise<UserNameSuggestion[]> {
+    const nameFindQuery: any = { userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'), _id: { $ne: userId } };
+    if (activeOnly) {
+      nameFindQuery.is_deleted = false;
+      nameFindQuery.status = ActiveStatus.Active;
+    }
     const users = await this.userModel
       .find(nameFindQuery)
       .sort({ userName: 1 })

@@ -9,6 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
@@ -66,10 +67,15 @@ describe('Suggested user name (e2e)', () => {
             { userName: 'user2' },
           ),
         );
+        await usersService.create(
+          userFactory.build(
+            { userName: 'user3', status: ActiveStatus.Deactivated, deleted: true },
+          ),
+        );
       });
       it('when query does exists than expected suggested user name', async () => {
         const limit = 5;
-        const query = 'us';
+        const query = 'Us';
         const response = await request(app.getHttpServer())
           .get(`/users/suggest-user-name?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

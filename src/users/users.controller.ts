@@ -329,10 +329,12 @@ export class UsersController {
 
   @Get('suggest-user-name')
   async suggestUserName(
+    @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: SuggestUserNameQueryDto,
   ) {
-    return this.usersService.suggestUserName(query.query, query.limit);
+    const user = getUserFromRequest(request);
+    return this.usersService.suggestUserName(user.id, query.query, query.limit, true);
   }
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')

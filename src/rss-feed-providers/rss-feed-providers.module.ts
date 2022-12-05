@@ -4,6 +4,7 @@ import { RssFeedProvider, RssFeedProviderSchema } from '../schemas/rssFeedProvid
 import { addPrePostHooks } from '../schemas/rssFeedProvider/rssFeedProvider.pre-post-hooks';
 import { RssFeedProvidersService } from './providers/rss-feed-providers.service';
 import { RssFeedProvidersController } from './rss-feed-providers.controller';
+import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RssFeedProvidersController } from './rss-feed-providers.controller';
         },
       },
     ]),
+    FeedPostsModule,
   ],
   controllers: [RssFeedProvidersController],
   providers: [RssFeedProvidersService],

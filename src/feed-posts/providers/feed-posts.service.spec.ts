@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -11,7 +12,7 @@ import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { User, UserDocument } from '../../schemas/user/user.schema';
-import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
@@ -21,6 +22,7 @@ describe('FeedPostsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let feedPostsService: FeedPostsService;
+  let feedPostModel: Model<FeedPostDocument>;
   let usersService: UsersService;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
@@ -34,6 +36,7 @@ describe('FeedPostsService', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    feedPostModel = moduleRef.get<Model<FeedPostDocument>>(getModelToken(FeedPost.name));
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
@@ -68,19 +71,21 @@ describe('FeedPostsService', () => {
       expect((reloadedFeedPost.userId as unknown as User)._id).toEqual(activeUser._id);
     });
 
-    it('successfully creates a feed post that is associated with an rss feed provider', async () => {
-      const feedPostData = feedPostFactory.build({
-        rssfeedProviderId: rssFeedProvider._id,
+    it('successfully creates a feed post that is associated with an rss feed provider, '
+      + 'and assigns the rssFeedProviert to userId', async () => {
         // Note: The old API assigns the rss feed provider id to the userId field for feedPosts.
         // This isn't ideal, but we need to maintain it for compatibility.
-        userId: rssFeedProvider._id,
+        // TODO: Once we retire the old API, we can change userId to null or to a more legitimate
+        // user value.
+        const feedPostData = feedPostFactory.build({
+          rssfeedProviderId: rssFeedProvider._id,
+          userId: rssFeedProvider._id,
+        });
+        const feedPost = await feedPostsService.create(feedPostData);
+        const reloadedFeedPost = await feedPostModel.findOne(feedPost._id);
+        expect(reloadedFeedPost.rssfeedProviderId).toEqual(rssFeedProvider._id);
+        expect(reloadedFeedPost.userId).toEqual(rssFeedProvider._id);
       });
-      const feedPost = await feedPostsService.create(feedPostData);
-      const reloadedFeedPost = await feedPostsService.findById(feedPost._id, false);
-      expect(reloadedFeedPost.rssfeedProviderId.toString()).toEqual(rssFeedProvider._id.toString());
-      // TODO: Check this too:
-      //expect(reloadedFeedPost.userId.toString()).toEqual(feedPostData.userId.toString());
-    });
   });
 
   describe('#findById', () => {
@@ -310,9 +315,9 @@ describe('FeedPostsService', () => {
       //   have 2 active posts each = (4 more posts)
       expect(feedPosts).toHaveLength(10);
 
-      // And we expect them to be sorted by createdAt date
+      // And we expect them to be sorted by updatedAt date
       for (let i = 1; i < feedPosts.length; i += 1) {
-        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+        expect(feedPosts[i].updatedAt < feedPosts[i - 1].updatedAt).toBe(true);
       }
     });
 
@@ -320,12 +325,12 @@ describe('FeedPostsService', () => {
       const limit = 6;
       const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
       for (let index = 1; index < firstResults.length; index += 1) {
-        expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
+        expect(firstResults[index].updatedAt < firstResults[index - 1].updatedAt).toBe(true);
       }
       expect(firstResults).toHaveLength(6);
       const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
       for (let index = 1; index < secondResults.length; index += 1) {
-        expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
+        expect(secondResults[index].updatedAt < secondResults[index - 1].updatedAt).toBe(true);
       }
       expect(secondResults).toHaveLength(4);
     });
@@ -378,6 +383,90 @@ describe('FeedPostsService', () => {
       const secondResults = await feedPostsService
         .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
       expect(firstResults).toHaveLength(6);
+      expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#findAllByRssFeedProvider', () => {
+    let rssFeedProviderToFollow1;
+    beforeEach(async () => {
+      // Create rss feed providers
+      rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+      // Create some posts of the rss feed providers
+      for (let i = 0; i < 4; i += 1) {
+        await Promise.all([
+          // Active post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProviderToFollow1._id,
+              userId: rssFeedProviderToFollow1._id,
+            }),
+          ),
+          // Inactive post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProviderToFollow1._id,
+              userId: rssFeedProviderToFollow1._id,
+              status: FeedPostStatus.Inactive,
+            }),
+          ),
+          // Deleted post
+          await feedPostsService.create(
+            feedPostFactory.build({
+              rssfeedProviderId: rssFeedProviderToFollow1._id,
+              userId: rssFeedProviderToFollow1._id,
+              is_deleted: FeedPostDeletionState.Deleted,
+            }),
+          ),
+        ]);
+      }
+    });
+
+    it('finds the expected set of feed posts for rss feed provider of any status, ordered in the correct order', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 50, false);
+
+      // We expect 12 posts total because:
+      // - The rssFeedProviderToFollow1 has total 12 posts including
+      //   status Active, Inactive and Deleted
+      expect(feedPosts).toHaveLength(12);
+
+      // And we expect them to be sorted by createdAt date
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+      }
+    });
+
+    it('finds the expected set of feed posts for rss feed provider only active, ordered in the correct order', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true);
+
+      // We expect 4 posts total because:
+      // - The rssFeedProviderToFollow1 has total 4 posts including
+      //   status Active
+      expect(feedPosts).toHaveLength(4);
+
+      // And we expect them to be sorted by createdAt date
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].createdAt < feedPosts[i - 1].createdAt).toBe(true);
+      }
+    });
+
+    it('returns the first and second sets of paginated results', async () => {
+      const limit = 8;
+      const firstResults = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, limit, false);
+      for (let index = 1; index < firstResults.length; index += 1) {
+        expect(firstResults[index].createdAt < firstResults[index - 1].createdAt).toBe(true);
+      }
+      expect(firstResults).toHaveLength(8);
+      const secondResults = await feedPostsService.findAllByRssFeedProvider(
+        rssFeedProviderToFollow1.id,
+        limit,
+        false,
+        firstResults[limit - 1]._id,
+      );
+      for (let index = 1; index < secondResults.length; index += 1) {
+        expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
+      }
       expect(secondResults).toHaveLength(4);
     });
   });

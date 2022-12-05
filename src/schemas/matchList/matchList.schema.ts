@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { User } from '../user/user.schema';
 import { MatchListRoomCategory, MatchListRoomType, MatchListStatus } from './matchList.enums';
 import { MatchListUnusedFields } from './matchList.unused-fields';
 
@@ -27,7 +28,7 @@ export class MatchList extends MatchListUnusedFields {
   @Prop({ required: true })
   roomType: MatchListRoomType;
 
-  @Prop({ default: [], required: true })
+  @Prop({ default: [], ref: User.name, required: true })
   participants: mongoose.Schema.Types.ObjectId[];
 
   @Prop({ required: true, default: MatchListStatus.Pending })

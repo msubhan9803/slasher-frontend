@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_PIPE } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ScheduleModule } from '@nestjs/schedule';
+import { HttpModule } from '@nestjs/axios';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
@@ -21,15 +23,18 @@ import { FriendsModule } from './friends/friends.module';
 import { UserSettingModule } from './settings/user-settings.module';
 import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { AppGateway } from './app/providers/app.gateway';
+import { TasksService } from './app/providers/tasks.service';
 import { BlocksModule } from './blocks/blocks.module';
 import { FeedCommentsModule } from './feed-comments/feed-comments.module';
 import { SearchModule } from './search/search.module';
+import { validateEnv } from './utils/env-validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
       isGlobal: true,
+      validate: validateEnv,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -56,6 +61,8 @@ import { SearchModule } from './search/search.module';
     FriendsModule,
     UserSettingModule,
     RssFeedProviderFollowsModule,
+    ScheduleModule.forRoot(),
+    HttpModule,
     BlocksModule,
     FeedCommentsModule,
     SearchModule,
@@ -67,6 +74,7 @@ import { SearchModule } from './search/search.module';
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
     },
     AppGateway,
+    TasksService,
   ],
 })
 export class AppModule {

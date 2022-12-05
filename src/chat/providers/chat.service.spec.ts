@@ -181,4 +181,16 @@ describe('ChatService', () => {
       expect(messages).toHaveLength(1);
     });
   });
+
+  describe('#findMatchList', () => {
+    let matchList;
+    beforeEach(async () => {
+      matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+    });
+    it('get match list details', async () => {
+      const matchListDetails = await chatService.findMatchList(matchList.matchId._id);
+      expect(matchListDetails.participants).toHaveLength(2);
+      expect(matchListDetails._id).toEqual(matchList.matchId._id);
+    });
+  });
 });

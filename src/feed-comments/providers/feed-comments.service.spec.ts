@@ -99,7 +99,7 @@ describe('FeedCommentsService', () => {
           sampleFeedCommentsObject.images,
         );
       expect(feedCommentData.message).toBe('Hello Test Message');
-      const feedPostsData = await feedPostsService.findById(feedPost.id, false)
+      const feedPostsData = await feedPostsService.findById(feedPost.id, false);
       expect(feedPostsData.commentCount).toBe(2);
     });
   });
@@ -117,9 +117,9 @@ describe('FeedCommentsService', () => {
   describe('#deleteFeedComment', () => {
     it('finds the expected comments and delete the details', async () => {
       await feedCommentsService.deleteFeedComment(feedComments.id);
-      const feedCommentData = await feedCommentsModel.findById(feedComments._id);      
+      const feedCommentData = await feedCommentsModel.findById(feedComments._id);
       expect(feedComments.is_deleted).not.toEqual(feedCommentData.is_deleted);
-      const feedPostsData = await feedPostsService.findById(feedCommentData.feedPostId.toString(), false)
+      const feedPostsData = await feedPostsService.findById(feedCommentData.feedPostId.toString(), false);
       expect(feedPostsData.commentCount).toBe(0);
     });
   });

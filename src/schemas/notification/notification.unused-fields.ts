@@ -1,5 +1,8 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { FeedComment } from '../feedComment/feedComment.schema';
+import { FeedPost } from '../feedPost/feedPost.schema';
+import { User } from '../user/user.schema';
 import { NotificationType, NotificationStatus } from './notification.enums';
 
 export class NotificationUnusedFields {
@@ -11,13 +14,25 @@ export class NotificationUnusedFields {
   @Prop({
     required: true,
     enum: [
-      NotificationType.Match,
-      NotificationType.MessageBoard,
-      NotificationType.ViewProfile,
-      NotificationType.Message,
-      // NOTE: Not adding other types because they're just placeholders
+      NotificationType.Type1,
+      NotificationType.Type2,
+      NotificationType.Type11,
+      NotificationType.Type12,
+      NotificationType.Type13,
+      NotificationType.Type14,
+      NotificationType.Type15,
+      NotificationType.Type16,
+      NotificationType.Type17,
+      NotificationType.Type18,
+      NotificationType.Type19,
+      NotificationType.PostMention,
+      NotificationType.Type101,
+      NotificationType.Type102,
+      NotificationType.Type103,
+      NotificationType.Type121,
+      NotificationType.Type122,
+      NotificationType.Type125,
     ],
-    default: NotificationType.Match,
   })
   notifyType: NotificationType;
 
@@ -31,24 +46,20 @@ export class NotificationUnusedFields {
   @Prop({ default: null })
   images: string[];
 
-  // NOT USED
-  @Prop({ default: '5c9c60ca59bf9617c18f6cec', ref: 'users' })
+  @Prop({ default: '5c9c60ca59bf9617c18f6cec', ref: User.name })
   senderId: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ type: Array, default: [] })
   allUsers: { type: string[] };
 
-  // NOT USED
-  @Prop({ default: null, ref: 'feedPosts' })
-  feedPostId: mongoose.Schema.Types.ObjectId;
+  @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: FeedPost.name })
+  feedPostId: FeedPost;
 
-  // NOT USED
-  @Prop({ default: null, ref: 'feedComments' })
-  feedCommentId: mongoose.Schema.Types.ObjectId;
+  @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: FeedComment.name })
+  feedCommentId: FeedComment;
 
-  // NOT USED
-  @Prop({ default: null, ref: 'feedreplays' })
+  // TODO: Fix this typo after old API is retired
+  @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: 'feedreplays' })
   feedReplyId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED

@@ -13,22 +13,4 @@ export class NotificationsService {
   async create(notification: Partial<Notification>) {
     return this.notificationModel.create(notification);
   }
-
-  /**
-   * Returns a user's notifications, sorted from most recent to least recent.
-   * @param userId
-   * @returns
-   */
-  async findAllByUserId(
-    userId: string,
-    page = 1,
-    perPage = 10,
-  ): Promise<NotificationDocument[]> {
-    return this.notificationModel
-      .find({ userId })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * perPage)
-      .limit(perPage)
-      .exec();
-  }
 }

@@ -46,15 +46,18 @@ export class FeedCommentsService {
   }
 
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
-    const insertFeedReply = await this.feedReplyModel.create({
+    const feedReply = await this.feedReplyModel.create({
       feedCommentId: parentFeedCommentId,
       userId,
       message,
       images,
     });
-    const getFeedPostData = await this.findFeedComment(parentFeedCommentId);
-    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: 1 } });
-    return insertFeedReply;
+    // TODO: Uncomment the code below later on.  Right now, the old API only increments post comment
+    // count when a FeedComment is added/removed, but not when a FeedReply is added/removed. So for
+    // now, to ensure compatibility, we will do the same.
+    // const getFeedPostData = await this.findFeedComment(parentFeedCommentId);
+    // await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: 1 } });
+    return feedReply;
   }
 
   async updateFeedReply(feedReplyId: string, message: string): Promise<FeedReply> {
@@ -67,9 +70,12 @@ export class FeedCommentsService {
     await this.feedReplyModel
       .updateOne({ _id: feedReplyId }, { $set: { deleted: FeedReplyDeletionState.Deleted } }, { new: true })
       .exec();
-    const getFeedReplyData = await this.findFeedReply(feedReplyId);
-    const getFeedPostData = await this.findFeedComment(getFeedReplyData.feedCommentId.toString());
-    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: -1 } });
+    // TODO: Uncomment the code below later on.  Right now, the old API only increments post comment
+    // count when a FeedComment is added/removed, but not when a FeedReply is added/removed. So for
+    // now, to ensure compatibility, we will do the same.
+    // const getFeedReplyData = await this.findFeedReply(feedReplyId);
+    // const getFeedPostData = await this.findFeedComment(getFeedReplyData.feedCommentId.toString());
+    // await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: -1 } });
   }
 
   async findFeedCommentsWithReplies(

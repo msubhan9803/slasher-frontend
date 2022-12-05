@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { FeedCommentsModule } from 'src/feed-comments/feed-comments.module';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { FeedPostLike, FeedPostLikeSchema } from '../schemas/feedPostLike/feedPostLike.schema';
 import { FeedLikesService } from './providers/feed-likes.service';
@@ -7,6 +8,7 @@ import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 import { FeedComment, FeedCommentSchema } from '../schemas/feedComment/feedComment.schema';
 import { FeedReplyLike, FeedReplyLikeSchema } from '../schemas/feedReplyLike/feedReplyLike.schema';
 import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schema';
+import { FeedLikesController } from './feed-likes.controller';
 
 @Module({
   imports: [
@@ -16,9 +18,10 @@ import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schem
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),
     MongooseModule.forFeature([{ name: FeedReplyLike.name, schema: FeedReplyLikeSchema }]),
     FeedPostsModule,
+    FeedCommentsModule,
   ],
   providers: [FeedLikesService],
   exports: [FeedLikesService],
-  controllers: [],
+  controllers: [FeedLikesController],
 })
 export class FeedLikesModule { }

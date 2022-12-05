@@ -10,3 +10,4 @@ export class SlasherError extends Error {
 }
 
 export class WaitForTimeoutError extends SlasherError { }
+export class NotFoundError extends SlasherError { }

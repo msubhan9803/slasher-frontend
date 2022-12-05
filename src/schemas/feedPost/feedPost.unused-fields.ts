@@ -107,11 +107,12 @@ export class FeedPostUnusedFields {
   })
   sharedList: FeedPostShareListType;
 
+  // Do not rely on this field.  It was used at some point in the old API, but does not seem to be
+  // used anymore.  The last record to use it was created in January of 2020, so we'll ignore it for
+  // now.  Use the "likes" array field instead to see how many likes a post has.  Maybe one day
+  // we'll start using it again, as a cache for the like count.
   @Prop({ default: 0 })
   likeCount: number;
-
-  @Prop({ default: 0 })
-  commentCount: number;
 
   @Prop({ default: false })
   skipthat: boolean;

@@ -48,7 +48,9 @@ describe('Conversations all / (e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
-    user1 = await usersService.create(userFactory.build());
+    user1 = await usersService.create(userFactory.build(
+      { profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' },
+    ));
     user2 = await usersService.create(userFactory.build());
     user3 = await usersService.create(userFactory.build());
     user4 = await usersService.create(userFactory.build());
@@ -68,7 +70,7 @@ describe('Conversations all / (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         for (const body of response.body) {
-          expect(body.user).toEqual({
+          expect(body.participants[0]).toEqual({
             _id: user1._id.toString(),
             userName: user1.userName,
             profilePic: user1.profilePic,

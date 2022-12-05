@@ -52,6 +52,9 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ default: null, ref: RssFeedProvider.name })
   rssfeedProviderId: mongoose.Schema.Types.ObjectId;
 
+  @Prop({ default: 0 })
+  commentCount: number;
+
   /***********
    * Methods *
    ***********/

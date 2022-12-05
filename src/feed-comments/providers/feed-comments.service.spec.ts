@@ -101,6 +101,8 @@ describe('FeedCommentsService', () => {
           sampleFeedCommentsObject.images,
         );
       expect(feedCommentData.message).toBe('Hello Test Message');
+      const feedPostsData = await feedPostsService.findById(feedPost.id, false);
+      expect(feedPostsData.commentCount).toBe(2);
     });
   });
 

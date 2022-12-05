@@ -25,7 +25,7 @@ export class NotificationUnusedFields {
       NotificationType.Type17,
       NotificationType.Type18,
       NotificationType.Type19,
-      NotificationType.Type99,
+      NotificationType.PostMention,
       NotificationType.Type101,
       NotificationType.Type102,
       NotificationType.Type103,

@@ -12,7 +12,7 @@ export enum NotificationType {
   Type17 = 17,
   Type18 = 18,
   Type19 = 19,
-  Type99 = 99,
+  PostMention = 99,
   Type101 = 101,
   Type102 = 102,
   Type103 = 103,

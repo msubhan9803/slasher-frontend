@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedReply, FeedReplyDocument } from '../../../src/schemas/feedReply/feedReply.schema';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { FeedReplyDeletionState } from '../../../src/schemas/feedReply/feedReply.enums';
 
 describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let app: INestApplication;
@@ -102,7 +103,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const feedCommentsDetails = await feedReplyModel.findById(feedReply._id);
-      expect(feedCommentsDetails.deleted).toBe(1);
+      expect(feedCommentsDetails.deleted).toBe(FeedReplyDeletionState.Deleted);
     });
 
     it('when feed reply id is not exists than expected response', async () => {

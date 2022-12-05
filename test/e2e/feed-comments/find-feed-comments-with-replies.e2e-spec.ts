@@ -207,7 +207,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 30');
+        expect(response.body.message).toContain('limit must not be greater than 20');
       });
 
       it('`before` must match regular expression', async () => {

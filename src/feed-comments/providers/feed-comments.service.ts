@@ -114,13 +114,13 @@ export class FeedCommentsService {
     const feedComment = await this.feedCommentModel
       .findOne({ _id: id })
       .exec();
-    return feedComment || null;
+    return feedComment;
   }
 
   async findFeedReply(id: string) {
     const feedReply = await this.feedReplyModel
       .findOne({ _id: id })
       .exec();
-    return feedReply || null;
+    return feedReply;
   }
 }

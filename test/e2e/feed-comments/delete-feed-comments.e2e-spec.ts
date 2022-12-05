@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { FeedComment, FeedCommentDocument } from '../../../src/schemas/feedComment/feedComment.schema';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { FeedCommentDeletionState } from '../../../src/schemas/feedComment/feedComment.enums';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -94,7 +95,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const feedCommentsDetails = await feedCommentsModel.findById(feedComments._id);
-      expect(feedCommentsDetails.is_deleted).toBe(1);
+      expect(feedCommentsDetails.is_deleted).toBe(FeedCommentDeletionState.Deleted);
     });
 
     it('when feed comment id is not exists than expected response', async () => {
@@ -108,12 +109,12 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
 
     it('when feed comment id and login user id is not match than expected response', async () => {
       const feedComments1 = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        user0._id.toString(),
-        sampleFeedCommentsDeleteObject.message,
-        sampleFeedCommentsDeleteObject.images,
-      );
+        .createFeedComment(
+          feedPost.id,
+          user0._id.toString(),
+          sampleFeedCommentsDeleteObject.message,
+          sampleFeedCommentsDeleteObject.images,
+        );
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

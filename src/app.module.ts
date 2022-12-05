@@ -25,6 +25,7 @@ import { RssFeedProviderFollowsModule } from './rss-feed-provider-follows/rss-fe
 import { AppGateway } from './app/providers/app.gateway';
 import { TasksService } from './app/providers/tasks.service';
 import { BlocksModule } from './blocks/blocks.module';
+import { FeedCommentsModule } from './feed-comments/feed-comments.module';
 import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 
@@ -63,6 +64,7 @@ import { validateEnv } from './utils/env-validation';
     ScheduleModule.forRoot(),
     HttpModule,
     BlocksModule,
+    FeedCommentsModule,
     SearchModule,
   ],
   controllers: [AppController],

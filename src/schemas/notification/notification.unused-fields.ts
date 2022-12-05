@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import { FeedComment } from '../feedComment/feedComment.schema';
 import { FeedPost } from '../feedPost/feedPost.schema';
 import { User } from '../user/user.schema';
-import { NotificationType, NotificationStatus } from './notification.enums';
+import {
+  NotificationType, NotificationStatus, NotificationDeletionStatus, NotificationReadStatus,
+} from './notification.enums';
 
 export class NotificationUnusedFields {
   // NOT USED
@@ -71,8 +73,11 @@ export class NotificationUnusedFields {
   movieDBId: number;
 
   // NOT USED
-  @Prop({ enum: [0, 1], default: 0 })
-  isRead: number; // This should be a boolean value, but using number for old API compatibility. 0-false, 1-true
+  @Prop({
+    enum: [NotificationReadStatus.Unread, NotificationReadStatus.Read],
+    default: NotificationReadStatus.Unread,
+  })
+  isRead: number;
 
   // NOT USED
   @Prop({
@@ -82,7 +87,13 @@ export class NotificationUnusedFields {
   status: number;
 
   // NOT USED
-  @Prop({ enum: [0, 1], default: 0 })
+  @Prop({
+    enum: [
+      NotificationDeletionStatus.NotDeleted,
+      NotificationDeletionStatus.Deleted,
+    ],
+    default: NotificationDeletionStatus.NotDeleted,
+  })
   is_deleted: number; // This should be a boolean value, but using number for old API compatibility. 0-false, 1-true
 
   // NOT USED

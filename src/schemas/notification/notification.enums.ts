@@ -25,3 +25,13 @@ export enum NotificationStatus {
   Inactive = 0,
   Active = 1,
 }
+
+export enum NotificationDeletionStatus {
+  NotDeleted = 0,
+  Deleted = 1,
+}
+
+export enum NotificationReadStatus {
+  Unread = 0,
+  Read = 1,
+}

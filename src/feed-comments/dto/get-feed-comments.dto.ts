@@ -8,7 +8,7 @@ export class GetFeedCommentsDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  @Max(30)
+  @Max(20)
   limit: number;
 
   @IsString()

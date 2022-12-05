@@ -13,6 +13,8 @@ import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
+import { FeedCommentDeletionState } from '../../schemas/feedComment/feedComment.enums';
+import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -110,7 +112,6 @@ describe('FeedCommentsService', () => {
       const updatedComment = await feedCommentsService.updateFeedComment(feedComments._id.toString(), message1);
       const feedCommentData = await feedCommentsModel.findById(updatedComment._id);
       expect(feedCommentData.message).toEqual(message1);
-      expect(feedComments.message).not.toEqual(message1);
     });
   });
 
@@ -118,9 +119,7 @@ describe('FeedCommentsService', () => {
     it('finds the expected comments and delete the details', async () => {
       await feedCommentsService.deleteFeedComment(feedComments.id);
       const feedCommentData = await feedCommentsModel.findById(feedComments._id);
-      expect(feedComments.is_deleted).not.toEqual(feedCommentData.is_deleted);
-      const feedPostsData = await feedPostsService.findById(feedCommentData.feedPostId.toString(), false);
-      expect(feedPostsData.commentCount).toBe(0);
+      expect(feedCommentData.is_deleted).toEqual(FeedCommentDeletionState.Deleted);
     });
   });
 
@@ -143,7 +142,6 @@ describe('FeedCommentsService', () => {
       const updatedReply = await feedCommentsService.updateFeedReply(feedReply.id, message);
       const feedReplyData = await feedReplyModel.findById(updatedReply._id);
       expect(feedReplyData.message).toEqual(message);
-      expect(feedComments.message).not.toEqual(message);
     });
   });
 
@@ -151,7 +149,7 @@ describe('FeedCommentsService', () => {
     it('finds the expected reply and delete the details', async () => {
       await feedCommentsService.deleteFeedReply(feedReply.id);
       const feedReplyData = await feedReplyModel.findById(feedReply._id);
-      expect(feedReply.deleted).not.toEqual(feedReplyData.deleted);
+      expect(feedReplyData.deleted).toEqual(FeedReplyDeletionState.Deleted);
     });
   });
 
@@ -278,12 +276,12 @@ describe('FeedCommentsService', () => {
   describe('#findFeedReply', () => {
     it('successfully find single feed replies.', async () => {
       const feedReplyData = await feedCommentsService
-      .createFeedReply(
-        feedComments.id,
-        activeUser.id,
-        sampleFeedCommentsObject.message,
-        sampleFeedCommentsObject.images,
-      );
+        .createFeedReply(
+          feedComments.id,
+          activeUser.id,
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
       const feedReplyDetails = await feedCommentsService.findFeedReply(feedReplyData._id.toString());
       expect(feedReplyDetails.id).toEqual(feedReplyData._id.toString());
     });

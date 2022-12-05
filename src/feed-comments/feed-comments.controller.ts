@@ -4,6 +4,8 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
@@ -24,6 +26,8 @@ export class FeedCommentsController {
   constructor(
     private readonly feedCommentsService: FeedCommentsService,
     private readonly localStorageService: LocalStorageService,
+    private readonly config: ConfigService,
+    private readonly s3StorageService: S3StorageService,
   ) { }
 
   @Post()
@@ -61,7 +65,11 @@ export class FeedCommentsController {
     const images = [];
     for (const file of files) {
       const storageLocation = `/feed/feed_${file.filename}`;
-      this.localStorageService.write(storageLocation, file);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
       images.push({ image_path: storageLocation });
     }
     const createFeedComment = await this.feedCommentsService.createFeedComment(
@@ -152,7 +160,11 @@ export class FeedCommentsController {
     const images = [];
     for (const file of files) {
       const storageLocation = `/feed/feed_${file.filename}`;
-      this.localStorageService.write(storageLocation, file);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
       images.push({ image_path: storageLocation });
     }
     const createFeedComment = await this.feedCommentsService.createFeedReply(
@@ -221,7 +233,7 @@ export class FeedCommentsController {
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
-      query.before ? new mongoose.Types.ObjectId(query.before) : undefined, //after == feedCommentId
+      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return allFeedCommentsWithReplies;
   }

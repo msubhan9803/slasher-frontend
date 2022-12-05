@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { User } from '../user/user.schema';
 import { NotificationUnusedFields } from './notification.unused-fields';
 
 @Schema({ timestamps: true })
@@ -16,8 +17,8 @@ export class Notification extends NotificationUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ required: true })
-  userId: mongoose.Schema.Types.ObjectId; // receiver id
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
+  userId: User; // receiver id
 
   @Prop({ required: true, default: null, trim: true })
   notificationMsg: string;

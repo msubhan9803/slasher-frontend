@@ -1,19 +1,24 @@
 export enum NotificationType {
-  Match = 1,
-  MessageBoard = 2,
-  ViewProfile = 3,
-  Message = 4,
-  Type5 = 5, // placeholder, for old API compatibility
-  Type6 = 6, // placeholder, for old API compatibility
-  Type7 = 7, // placeholder, for old API compatibility
-  Type8 = 8, // placeholder, for old API compatibility
-  Type9 = 9, // placeholder, for old API compatibility
-  Type10 = 10, // placeholder, for old API compatibility
-  Type11 = 11, // placeholder, for old API compatibility
-  Type12 = 12, // placeholder, for old API compatibility
-  Type13 = 13, // placeholder, for old API compatibility
-  Type14 = 14, // placeholder, for old API compatibility
-  Type15 = 15, // placeholder, for old API compatibility
+  // These are the only ones that are currently in use in the database:
+  // (we need to determine what they are, by looking at the notification content)
+  Type1 = 1,
+  Type2 = 2,
+  Type11 = 11,
+  Type12 = 12,
+  Type13 = 13,
+  Type14 = 14,
+  Type15 = 15,
+  Type16 = 16,
+  Type17 = 17,
+  Type18 = 18,
+  Type19 = 19,
+  Type99 = 99,
+  Type101 = 101,
+  Type102 = 102,
+  Type103 = 103,
+  Type121 = 121,
+  Type122 = 122,
+  Type125 = 125,
 }
 
 export enum NotificationStatus {

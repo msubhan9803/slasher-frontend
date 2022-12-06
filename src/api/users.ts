@@ -178,3 +178,12 @@ export async function getUsersFriends() {
   };
   return axios.get(`${apiUrl}/users/${userId}/friends?limit=6`, { headers });
 }
+
+export async function userAccountDelete() {
+  const token = Cookies.get('sessionToken');
+  const userId = Cookies.get('userId');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
+}

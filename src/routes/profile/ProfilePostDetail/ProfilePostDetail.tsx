@@ -44,7 +44,6 @@ function ProfilePostDetail({ user }: Props) {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
 
-
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
@@ -281,6 +280,18 @@ function ProfilePostDetail({ user }: Props) {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+          />
+        )}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
           />
         )}
     </AuthenticatedPageWrapper>

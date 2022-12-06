@@ -37,6 +37,22 @@ export interface User {
   aboutMe: string;
 }
 
+export interface NewsPartnerPostProps {
+  _id: string;
+  id: string;
+  postDate: string;
+  content: string;
+  images: PostImage[];
+  title: string;
+  rssFeedProviderLogo: string;
+  commentCount: number;
+  likeCount: number;
+  sharedList: number;
+  hashTag: string[];
+  commentSection: boolean;
+  likeIcon: boolean;
+}
+
 export interface AdditionalMovieData {
   cast: MovieCast;
   video: Video[];

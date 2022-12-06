@@ -1,82 +1,107 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Card, Col, Image, Row,
+  Button, Card, Col, Row,
 } from 'react-bootstrap';
+import { DateTime } from 'luxon';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import NewsPartnerComments from './NewsPartnerComments';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
-import postImage from '../../../images/news-partner-detail.jpg';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { feedPostDetail } from '../../../api/feed-posts';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { NewsPartnerPostProps } from '../../../types';
+import CustomSwiper from '../../../components/ui/CustomSwiper';
 
 interface LinearIconProps {
   uniqueId?: string
-}
-interface PostProps {
-  id: number;
-  userName: string;
-  postDate: string;
-  likeIcon: boolean
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const PostImageContainer = styled(Row)`
-  aspect-ratio: 1.9
-  svg {
-    object-fit: cover;
-  }
-`;
-const data = [
-  {
-    id: 1, userName: 'Horror Oasis', postDate: '06/11/2022 11:10 PM', likeIcon: false,
-  },
-];
+
 function NewsPartnerPost() {
-  const [postData, setPostData] = useState<PostProps[]>(data);
+  const { newsPartnerId, postId } = useParams<string>();
+  const [postData, setPostData] = useState<NewsPartnerPostProps>();
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const navigate = useNavigate();
   const popoverOption = ['Report'];
+
+  useEffect(() => {
+    if (postId) {
+      feedPostDetail(postId).then((res) => {
+        /* eslint no-underscore-dangle: 0 */
+        if (newsPartnerId !== res.data.rssfeedProviderId?._id) {
+          navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
+        }
+        const newsPost: any = {
+          /* eslint no-underscore-dangle: 0 */
+          _id: res.data._id,
+          id: res.data._id,
+          postDate: res.data.createdAt,
+          title: res.data.rssfeedProviderId?.title,
+          content: res.data.message,
+          images: res.data.images,
+          rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
+          commentCount: res.data.commentCount,
+          likeCount: res.data.likeCount,
+          sharedList: res.data.sharedList,
+        };
+        setPostData(newsPost);
+      }).catch(
+        (error) => {
+          setErrorMessage(error.response.data.message);
+        },
+      );
+    }
+  }, [postId]);
 
   const handlePopover = (selectedOption: string) => {
     setShow(true);
     setDropDownValue(selectedOption);
   };
 
-  const onLikeClick = (likeId: number) => {
-    const likeData = postData.map((checkLikeId: PostProps) => {
-      if (checkLikeId.id === likeId) {
-        return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
-      }
-      return checkLikeId;
-    });
-    setPostData(likeData);
+  const onLikeClick = (likeId: string) => {
+    let checkLikeId = postData;
+    if (checkLikeId && checkLikeId.id === likeId) {
+      checkLikeId = { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
+    }
+    setPostData(checkLikeId);
   };
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="mb-5 px-2">
         <Col className="p-0">
-          {postData.map((post: PostProps) => (
-            <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={post.id}>
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
+          {postData && (
+            <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={postData.id}>
               <Card.Header className="border-0 px-sm-3 px-md-0">
                 <Row className="justify-content-between">
                   <Col xs="auto">
                     <Row className="d-flex">
                       <Col className="my-auto rounded-circle" xs="auto">
                         <div className="rounded-circle">
-                          <UserCircleImage src="https://i.pravatar.cc/300?img=11" className="bg-secondary" />
+                          <UserCircleImage src={postData.rssFeedProviderLogo} className="bg-secondary" />
                         </div>
                       </Col>
                       <Col xs="auto" className="ps-0 align-self-center">
-                        <h3 className="mb-0">{post.userName}</h3>
-                        <p className="fs-6 text-light mb-0">{post.postDate}</p>
+                        <h3 className="mb-0">{postData.title}</h3>
+                        <p className="fs-6 text-light mb-0">
+                          {DateTime.fromISO(postData.postDate).toFormat('MM/dd/yyyy t')}
+                        </p>
                       </Col>
                     </Row>
                   </Col>
@@ -89,34 +114,40 @@ function NewsPartnerPost() {
                 <Row>
                   <Col className="px-4 px-md-2 ms-md-1">
                     <p className="fs-4 mb-0">
-                      This space is used to help indie creators have a platform to
-                      promote their work.
+                      {postData.content}
                     </p>
-                    <p className="text-primary fs-4 mb-0"> #horrorday #slasher #horroroasis ☠️</p>
                   </Col>
                 </Row>
-                <PostImageContainer className="mt-3">
-                  <Image src={postImage} className="w-100 h-100" />
-                </PostImageContainer>
+                {postData.images && (
+                  <CustomSwiper
+                    images={
+                      postData.images.map((imageData: any) => ({
+                        imageUrl: imageData.image_path,
+                        postId: postData.id,
+                        imageId: imageData._id,
+                      }))
+                    }
+                  />
+                )}
                 <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
                   <Col className="align-self-center">
                     <Button variant="link" className="shadow-none fw-normal fs-3">
                       <LinearIcon uniqueId="like-button">
                         <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                        12K
+                        {postData.likeCount}
                       </LinearIcon>
                     </Button>
                   </Col>
                   <Col className="text-center">
                     <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                      10
+                      {postData.commentCount}
                     </Button>
                   </Col>
                   <Col className="text-end">
                     <Button variant="link" className="shadow-none fw-normal fs-3">
                       <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                      25
+                      {postData.sharedList}
                     </Button>
                   </Col>
                   <svg width="0" height="0">
@@ -128,13 +159,13 @@ function NewsPartnerPost() {
                 </Row>
               </Card.Body>
               <NewsPartnerPostFooter
-                likeIcon={post.likeIcon}
-                id={post.id}
-                onLikeClick={() => onLikeClick(post.id)}
+                likeIcon={postData.likeIcon}
+                id={postData.id}
+                onLikeClick={() => onLikeClick(postData.id)}
+                isComment={false}
               />
-              <NewsPartnerComments />
             </Card>
-          ))}
+          )}
         </Col>
       </Row>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

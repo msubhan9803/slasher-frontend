@@ -1,8 +1,13 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
+import { Video } from '../../../types';
+
+interface MovieTrailerList {
+  trailerList: Video[]
+}
 
 const StyledMovieTrailer = styled(Row)`
   overflow-x: auto;
@@ -16,9 +21,8 @@ const StyledMovieTrailer = styled(Row)`
   }
 
 `;
-const movieTrailer = ['ojuqj8_wWo8', 'uOV-xMYQ7sk', 'GZjvNPnIzQg', 'dylgnwNKoYc'];
 
-function MovieTrailers() {
+function MovieTrailers({ trailerList }: MovieTrailerList) {
   const slideTrailerLeft = () => {
     const slider = document.getElementById('slideTrailer');
     if (slider !== null) {
@@ -43,12 +47,12 @@ function MovieTrailers() {
           id="slideTrailer"
           className="d-flex flex-nowrap w-100"
         >
-          {movieTrailer.map((trailer: string) => (
-            <Col sm={5} md={4} lg={6} xl={4} key={trailer}>
+          {trailerList && trailerList.map((trailer: Video) => (
+            <Col sm={5} md={4} lg={6} xl={4} key={trailer.key}>
               <div className="trailer-image position-relative">
                 <iframe
                   className="w-100 h-100 rounded-2 position-absolute"
-                  src={`https://www.youtube.com/embed/${trailer}`}
+                  src={`https://www.youtube.com/embed/${trailer.key}`}
                   title="YouTube video player"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

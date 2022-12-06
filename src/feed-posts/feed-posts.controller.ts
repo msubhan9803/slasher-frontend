@@ -88,23 +88,10 @@ export class FeedPostsController {
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     if (createFeedPost) {
-      // const mentionedUserIds = [];
-      // Check the createFeedPost.message field for any occurrences of strings of this regular expression format:
-      // ##LINK_ID##([^#]+@[^#]+)##LINK_END##
-      // Here is an example message string:
-      // Hello ##LINK_ID##5cf146426038e206a2fe681b@Damon##LINK_END##.
-      // And hello ##LINK_ID##2cf146426038e206a2fe681c@SomeoneElse##LINK_END##.  This is my message.
-      // For that string, we want the regex capture groups to be:
-      // ["5cf146426038e206a2fe681b@Damon", "2cf146426038e206a2fe681c@SomeoneElse"]
-      // If any captures are found, split on "@" and store the first part (before the @-sign) in the mentionedUserIds array.
-      // where the key is the userId and the value is the userName.
-      const collectMentionUser = createFeedPost.message.match(/[a-fA-F0-9]{24}@[a-zA-Z0-9_.-]+/g);
-      console.log('collectMentionUser =', collectMentionUser);
-      const mentionedUserIds = collectMentionUser.map((collectedUserData) => collectedUserData.split('@')[0]);
-      console.log('mentionedUserIds =', mentionedUserIds);
+      const mentionUserData = createFeedPost.message.match(/[a-fA-F0-9]{24}@[a-zA-Z0-9_.-]+/g);
+      const mentionedUserIdList = mentionUserData.map((collectedUserData) => collectedUserData.split('@')[0]);
 
-      // Then:
-      for (const mentionedUserId of mentionedUserIds) {
+      for (const mentionedUserId of mentionedUserIdList) {
         const notificationObj: any = {
           userId: new mongoose.Types.ObjectId(mentionedUserId),
           feedPostId: createFeedPost._id,
@@ -113,7 +100,7 @@ export class FeedPostsController {
           notificationMsg: 'had mentioned you in a post',
         };
         const notification = await this.notificationsService.create(notificationObj);
-        // Note: You will need to inject NotificationsGateway into constructor of this class to use the line below
+
         this.notificationsGateway.emitMessageForNotification(notification);
       }
     }

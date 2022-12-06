@@ -29,7 +29,7 @@ export class NotificationsGateway {
   async emitMessageForNotification(notification: Notification) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(notification.userId.toString());
     targetUserSocketIds.forEach((socketId) => {
-      // client.to(socketId).emit('notificationReceived', { notification });
+      this.server.to(socketId).emit('notificationReceived', { notification });
     });
   }
 }

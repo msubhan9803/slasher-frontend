@@ -119,8 +119,18 @@ export class FeedCommentsService {
       .exec();
     const commentReplies = [];
     for (const comment of addRepliesKey) {
-      const filterReply = replies.filter((reply) => reply.feedCommentId.toString() === comment._id);
+      const filterReply = JSON.parse(JSON.stringify(replies)).filter((reply) => {
+        if (reply.feedCommentId.toString() === comment._id) {
+        // eslint-disable-next-line no-param-reassign
+          reply.likeCount = reply.likes.length;
+        // eslint-disable-next-line no-param-reassign
+          delete reply.likes;
+          return reply;
+        }
+      });
       comment.replies = filterReply;
+      comment.likeCount = comment.likes.length;
+      delete comment.likes;
       commentReplies.push(comment);
     }
     return commentReplies;

@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -13,6 +13,8 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { FeedComment, FeedCommentDocument } from '../../../src/schemas/feedComment/feedComment.schema';
+import { FeedReply, FeedReplyDocument } from '../../../src/schemas/feedReply/feedReply.schema';
 
 describe('Find Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +26,8 @@ describe('Find Feed Comments With Replies (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let feedCommentModel: Model<FeedCommentDocument>;
+  let feedReplyModel: Model<FeedReplyDocument>;
 
   const sampleFindFeedCommentsWithRepliesObject = {
     message: 'hello all test user upload your feed comments',
@@ -47,6 +51,8 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    feedCommentModel = moduleRef.get<Model<FeedCommentDocument>>(getModelToken(FeedComment.name));
+    feedReplyModel = moduleRef.get<Model<FeedReplyDocument>>(getModelToken(FeedReply.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -74,41 +80,69 @@ describe('Find Feed Comments With Replies (e2e)', () => {
   describe('GET /feed-comments', () => {
     it('get all feed comments with reply', async () => {
       const message = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFindFeedCommentsWithRepliesObject.message,
-          sampleFindFeedCommentsWithRepliesObject.images,
-        );
-      const feedComments2 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFindFeedCommentsWithRepliesObject.message,
-          sampleFindFeedCommentsWithRepliesObject.images,
-        );
-      for (let i = 0; i < 3; i += 1) {
-        await feedCommentsService
-          .createFeedReply(
-            feedComments1._id.toString(),
-            activeUser._id.toString(),
-            message[i],
-            sampleFindFeedCommentsWithRepliesObject.images,
-          );
-      }
-      await feedCommentsService
-        .createFeedReply(
-          feedComments2._id.toString(),
-          activeUser._id.toString(),
-          'Hello Test Reply Message 4',
-          sampleFindFeedCommentsWithRepliesObject.images,
-        );
+      const feedComments1 = await feedCommentModel.create({
+        feedPostId: feedPost.id,
+        userId: activeUser._id.toString(),
+        message: sampleFindFeedCommentsWithRepliesObject.message,
+        images: sampleFindFeedCommentsWithRepliesObject.images,
+        likes: [
+          '637b39e078b0104f975821bc',
+          '637b39e078b0104f975821bd',
+          '637b39e078b0104f975821be',
+          '637b39e078b0104f97582121',
+        ],
+      });
+      console.log('feedComments1', feedComments1);
+
+      const feedComments2 = await feedCommentModel.create({
+        feedPostId: feedPost.id,
+        userId: activeUser._id.toString(),
+        message: sampleFindFeedCommentsWithRepliesObject.message,
+        images: sampleFindFeedCommentsWithRepliesObject.images,
+        likes: [
+          '637b39e078b0104f975821bf',
+          '637b39e078b0104f975821bg',
+          '637b39e078b0104f975821bh',
+        ],
+      });
+      console.log('feedComments2', feedComments2);
+
+      const reply1 = await feedReplyModel.create({
+        feedCommentId: feedComments1._id.toString(),
+        userId: activeUser._id.toString(),
+        message: 'Hello Test Reply Message 1',
+        images: sampleFindFeedCommentsWithRepliesObject.images,
+        likes: [
+          '63772b35611dc46e8fb42102',
+        ],
+      });
+      console.log('reply1', reply1);
+      const reply2 = await feedReplyModel.create({
+        feedCommentId: feedComments2._id.toString(),
+        userId: activeUser._id.toString(),
+        message: 'Hello Test Reply Message 4',
+        images: sampleFindFeedCommentsWithRepliesObject.images,
+        likes: [
+          '63772b35611dc46e8fb44455',
+          '63772b35611dc46e8fb45566',
+        ],
+      });
+      console.log('reply2', reply2);
+
+      const commentAndReply = [];
+      // feedComments1.replies = [reply1];
+      // feedComments2.replies = [reply2];
+      commentAndReply.push(feedComments1);
+      commentAndReply.push(feedComments2);
+      console.log('commentAndReply', commentAndReply);
+
       const limit = 20;
       const response = await request(app.getHttpServer())
         .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      console.log('response.body', response.body);
+
       expect(response.body).toHaveLength(2);
     });
 

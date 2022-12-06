@@ -2,11 +2,11 @@ import React, { createRef } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
 
-interface MentionListProps {
+export interface MentionListProps {
   id: string;
   userName: string;
 }
-interface FormatMentionListProps {
+export interface FormatMentionListProps {
   id: string;
   value: string;
   format: string;
@@ -19,6 +19,7 @@ interface MentionProps {
   formatMentionList: FormatMentionListProps[];
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
   handleSearch: (val: string) => void;
+  defaultValue?: string;
 }
 
 function MessageTextarea({
@@ -29,6 +30,7 @@ function MessageTextarea({
   setMessageContent,
   formatMentionList,
   setFormatMentionList,
+  defaultValue,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
@@ -57,9 +59,10 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
+      defaultValue={defaultValue || ''}
     >
       {mentionLists.map((mentionList: MentionListProps) => (
-        <Option value={mentionList.userName} key={mentionList.id}>
+        <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
               <span>
@@ -75,5 +78,6 @@ function MessageTextarea({
 }
 MessageTextarea.defaultProps = {
   placeholder: 'Type something...',
+  defaultValue: null,
 };
 export default MessageTextarea;

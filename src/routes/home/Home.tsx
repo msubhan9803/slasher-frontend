@@ -5,11 +5,16 @@ import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
-import { getHomeFeedPosts } from '../../api/feed-posts';
+import { getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { Post } from '../../types';
+import { FormatMentionProps, MentionProps } from '../posts/create-post/CreatePost';
+import { getSuggestUserName } from '../../api/users';
+import EditPostModal from '../../components/ui/EditPostModal';
+import { PopoverClickProps } from '../../components/ui/CustomPopover';
 
-const popoverOptions = ['Edit', 'Delete'];
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -19,11 +24,30 @@ function Home() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const [content, setContent] = useState<string>('');
+  const [postId, setPostId] = useState<string>('');
 
-  const handlePopoverOption = (value: string) => {
-    if (value === 'Delete') {
-      setShow(true);
-      setDropDownValue(value);
+  const handlePopoverOption = (value: string, popoverClickProps : PopoverClickProps) => {
+    if (popoverClickProps.content) {
+      setContent(popoverClickProps.content);
+    }
+
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+
+    setShow(true);
+    setDropDownValue(value);
+  };
+
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
     }
   };
 
@@ -45,6 +69,7 @@ function Home() {
               images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
+              userId: data.userId._id,
             };
           }
           // RSS feed post
@@ -89,6 +114,30 @@ function Home() {
     <p className="text-center">Loading...</p>
   );
 
+  const onUpdatePost = () => {
+    if (postContent) {
+      updateFeedPost(postId, postContent || content).then(() => {
+        setShow(false);
+        getHomeFeedPosts().then((res) => {
+          const newPosts = res.data.map((data: any) => ({
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: data.images,
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId.userId,
+          }));
+          setPosts(newPosts);
+        });
+      });
+    } else {
+      setShow(false);
+    }
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
@@ -110,16 +159,19 @@ function Home() {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={popoverOptions}
+              popoverOptions={loginUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
             />
           )
         }
       </InfiniteScroll>
       {loadingPosts && renderLoadingIndicator()}
       {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      {dropDownValue !== 'Edit'
+      && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}
+      {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={content} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
   );
 }

@@ -6,6 +6,8 @@ import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 
 interface SliderImage {
+  postId: string;
+  imageId: string;
   imageUrl: string;
   linkUrl?: string;
 }
@@ -64,7 +66,7 @@ function CustomSwiper({ images, initialSlide }: Props) {
     >
       {
         images.map((image: SliderImage) => (
-          <SwiperSlide key={image.imageUrl}>
+          <SwiperSlide key={`${image.imageId}${image.postId}`}>
             {image.linkUrl
               ? (
                 <Link to={image.linkUrl}>

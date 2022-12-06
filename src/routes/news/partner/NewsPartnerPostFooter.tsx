@@ -11,8 +11,9 @@ interface LinearIconProps {
 }
 interface Props {
   likeIcon: boolean;
-  id: number;
-  onLikeClick: (val: number) => void
+  isComment: boolean;
+  id: string;
+  onLikeClick: (val: string) => void
 }
 const CardFooter = styled(Card.Footer)`
   border-top: 1px solid #3A3B46;
@@ -23,9 +24,11 @@ const LinearIcon = styled.div<LinearIconProps>`
   }
 `;
 
-function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
+function NewsPartnerPostFooter({
+  likeIcon, id, onLikeClick, isComment,
+}: Props) {
   return (
-    <CardFooter className="p-0 ps-1 pb-md-4">
+    <CardFooter className={`p-0 ps-1 ${isComment && 'pb-md-4'}`}>
       <Row className="fs-3 d-flex justify-content-evenly py-2">
         <Col>
           <Button variant="link" className="shadow-none fw-normal fs-3" onClick={() => onLikeClick(id)}>
@@ -62,7 +65,7 @@ function NewsPartnerPostFooter({ likeIcon, id, onLikeClick }: Props) {
           </linearGradient>
         </svg>
       </Row>
-      <CardFooter className="p-0 d-none d-md-flex" />
+      {isComment && <CardFooter className="p-0 d-none d-md-flex" />}
     </CardFooter>
   );
 }

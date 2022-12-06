@@ -124,6 +124,8 @@ function PostFeed({
                     post.images.map((imageData: any) => ({
                       imageUrl: imageData.image_path,
                       linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                      postId: post.id,
+                      imageId: imageData._id,
                     }))
                   }
                   /* eslint no-underscore-dangle: 0 */

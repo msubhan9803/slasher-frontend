@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
-import { feedPostDetail } from '../../../api/feedpost';
+import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EditPostModal from '../../../components/ui/EditPostModal';

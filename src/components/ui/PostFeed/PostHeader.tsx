@@ -78,4 +78,5 @@ PostHeader.defaultProps = {
   content: null,
   userId: null,
 };
+
 export default PostHeader;

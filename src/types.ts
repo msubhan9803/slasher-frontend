@@ -24,6 +24,7 @@ export interface Post {
   sharedList: number;
   likeIcon: boolean;
   hashTag?: string[];
+  userId?: string
 }
 
 export interface User {
@@ -36,12 +37,56 @@ export interface User {
   aboutMe: string;
 }
 
+export interface AdditionalMovieData {
+  cast: MovieCast;
+  video: Video[];
+  mainData: MainData;
+}
+
+export interface MovieCast {
+  profile_path: string;
+  name: string;
+  character: string,
+}
+
+export interface Video {
+  key: string;
+}
+
+export interface MainData {
+  release_date: string;
+  poster_path: string;
+  original_title: string;
+  overview: string;
+  release_dates: any;
+  runtime: number;
+  production_countries: Country[];
+}
+
+export interface Country {
+  iso_3166_1: string;
+  name: string;
+}
+
+export interface MovieReleaseDate {
+  results: MovieReleaseResults[];
+}
+
+export interface MovieReleaseResults {
+  iso_3166_1: string;
+  release_dates: ReleaseDate[];
+}
+
+export interface ReleaseDate {
+  certification: string;
+}
+
 export interface MessagesList {
   _id: string;
   unreadCount: number;
   latestMessage: string;
   updatedAt: string;
-  user: UserMesssage
+  participants: UserMesssage[]
 }
 
 export interface UserMesssage {

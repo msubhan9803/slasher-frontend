@@ -5,21 +5,25 @@ import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { feedPostDetail } from '../../../api/feedpost';
+import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import EditPostModal from '../../../components/ui/EditPostModal';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
+import { MentionProps } from '../../posts/create-post/CreatePost';
+
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
 
 interface Props {
   user: User
 }
 
-const loginUserPopoverOptions = ['Edit', 'Delete'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
-
 function ProfilePostDetail({ user }: Props) {
+  const { userName } = useParams<string>();
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
@@ -38,6 +42,9 @@ function ProfilePostDetail({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -99,8 +106,10 @@ function ProfilePostDetail({ user }: Props) {
               postUrl: res.data.images,
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
+              userId: res.data.userId._id,
             },
           ]);
+          setPostContent(decryptMessage(res.data.message));
         })
         .catch((error) => {
           setErrorMessage(error.response.data.message);
@@ -185,20 +194,72 @@ function ProfilePostDetail({ user }: Props) {
     }
   }, [deleteComment, commentID, commentReplyID]);
 
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+  const onUpdatePost = (message: string) => {
+    if (postId) {
+      updateFeedPost(postId, message).then(() => {
+        setShow(false);
+        feedPostDetail(postId)
+          .then((res) => {
+            if (res.data.userId.userName !== user.userName) {
+              navigate(`/${res.data.userId.userName}/posts/${postId}`);
+              return;
+            }
+            setPostData([
+              {
+                ...res.data,
+                /* eslint no-underscore-dangle: 0 */
+                _id: res.data._id,
+                id: res.data._id,
+                postDate: res.data.createdAt,
+                content: decryptMessage(res.data.message),
+                postUrl: res.data.images,
+                userName: res.data.userId.userName,
+                profileImage: res.data.userId.profilePic,
+                userId: res.data.userId._id,
+              },
+            ]);
+            setPostContent(decryptMessage(res.data.message));
+          })
+          .catch((error) => {
+            setErrorMessage(error.response.data.message);
+          });
+      });
+    } else {
+      setShow(false);
+    }
+  };
+  const deletePostClick = () => {
+    if (postId) {
+      deleteFeedPost(postId)
+        .then(() => {
+          setShow(false);
+          navigate(`/${userName}/posts`);
+        })
+        /* eslint-disable no-console */
+        .catch((error) => console.error(error));
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
-          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          {errorMessage}
         </div>
       )}
       <PostFeed
+        detailPage
         postFeedData={postData}
         popoverOptions={loginUserPopoverOptions}
         onPopoverClick={handlePopoverOption}
         otherUserPopoverOptions={otherUserPopoverOptions}
         isCommentSection
-        detailPage
         setCommentValue={setCommentValue}
         commentsData={commentData}
         setfeedImageArray={setfeedImageArray}
@@ -213,11 +274,16 @@ function ProfilePostDetail({ user }: Props) {
         noMoreData={noMoreData}
         loadingPosts={loadingPosts}
       />
-      <ReportModal
-        show={show}
-        setShow={setShow}
-        slectedDropdownValue={dropDownValue}
-      />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+          />
+        )}
     </AuthenticatedPageWrapper>
   );
 }

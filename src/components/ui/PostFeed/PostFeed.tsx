@@ -18,6 +18,7 @@ import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
+import { PopoverClickProps } from '../CustomPopover';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -28,7 +29,7 @@ interface Props {
   postFeedData: any[],
   commentsData?: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string, e?: any) => void,
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
   setCommentValue?: (value: string) => void,
   detailPage?: boolean
   setfeedImageArray?: (value: any[]) => void
@@ -78,7 +79,7 @@ function PostFeed({
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
   loadingPosts,
 }: Props) {
-  const [postData, setPostData] = useState<Post[]>(postFeedData);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();

@@ -44,7 +44,7 @@ export async function removeSuggestedFriend(userId: string) {
   return axios.post(`${apiUrl}/friends/suggested/block`, { userId }, { headers });
 }
 
-export async function frienship(userId: string) {
+export async function friendship(userId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

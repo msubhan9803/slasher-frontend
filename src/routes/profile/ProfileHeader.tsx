@@ -16,7 +16,7 @@ import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
 import { User, FriendRequestReaction } from '../../types';
 import {
-  acceptFriendsRequest, addFriend, frienship, rejectFriendsRequest,
+  acceptFriendsRequest, addFriend, friendship, rejectFriendsRequest,
 } from '../../api/friends';
 
 interface Props {
@@ -68,7 +68,7 @@ function ProfileHeader({ tabKey, user }: Props) {
 
   useEffect(() => {
     if (user && (loginUserName !== userName)) {
-      frienship(user.id).then((res) => {
+      friendship(user.id).then((res) => {
         if (res.data.reaction === FriendRequestReaction.Pending
           && res.data.from === loginUserId
           && res.data.to === user.id) {

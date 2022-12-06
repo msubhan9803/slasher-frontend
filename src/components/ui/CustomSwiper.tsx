@@ -39,11 +39,6 @@ const StyledSwiper = styled(Swiper)`
   align-items: center;
 }
 
-.swiper-slide img {
-  display: block;
-  height: 100%;
-  object-fit: cover;
-}
 .swiper-pagination {
   position: revert !important;
 }
@@ -56,6 +51,9 @@ const StyledSwiper = styled(Swiper)`
 `;
 const PostImage = styled.div`
   aspect-ratio : 1.9;
+  img {
+    object-fit: contain;
+  }
 `;
 function CustomSwiper({ images, initialSlide }: Props) {
   return (
@@ -71,13 +69,13 @@ function CustomSwiper({ images, initialSlide }: Props) {
               ? (
                 <Link to={image.linkUrl}>
                   <PostImage>
-                    <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
+                    <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
                   </PostImage>
                 </Link>
               )
               : (
                 <PostImage>
-                  <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
+                  <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
                 </PostImage>
               )}
           </SwiperSlide>

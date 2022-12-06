@@ -124,7 +124,7 @@ function UserMessageListItem({
         </StyledLink>
         <div className={`${sharedYPadding} message-bottom-border`}>
           <CustomDropDown onSelect={handleDropdownOption}>
-            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3">
+            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3 text-white">
               <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">

@@ -24,6 +24,7 @@ export interface Post {
   sharedList: number;
   likeIcon: boolean;
   hashTag?: string[];
+  userId?: string
 }
 
 export interface User {
@@ -34,4 +35,27 @@ export interface User {
   profilePic: string;
   coverPhoto: string;
   aboutMe: string;
+}
+
+export interface MessagesList {
+  _id: string;
+  unreadCount: number;
+  latestMessage: string;
+  updatedAt: string;
+  user: UserMesssage
+}
+
+export interface UserMesssage {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
+
+export enum FriendRequestReaction {
+  DeclinedOrCancelled = 0,
+  MaybeDatingDislike = 1,
+  MaybeDatingLike = 2,
+  Accepted = 3,
+  Blocked = 4,
+  Pending = 5,
 }

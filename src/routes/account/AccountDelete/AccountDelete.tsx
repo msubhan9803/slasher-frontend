@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { userAccountDelete } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
+import { clearSignInCookies } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 import DeleteAccountDialog from './DeleteAccountDialog';
 
 function AccountDelete() {
   const [show, setShow] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const navigate = useNavigate();
+
   const deleteAccount = () => {
     setShow(!show);
+  };
+  const handleDeleteAccount = () => {
+    userAccountDelete()
+      .then(() => clearSignInCookies())
+      .then(() => navigate('/sign-in'))
+      .catch((error) => setErrorMessage(error.response.data.message));
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -22,6 +35,11 @@ function AccountDelete() {
             </p>
           </Col>
         </Row>
+        {errorMessage && errorMessage.length > 0 && (
+          <div className="mt-3 text-start">
+            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          </div>
+        )}
         <Row className="mt-3">
           <Col md={3} lg={5}>
             <RoundButton className="fw-bold h-3 w-100" onClick={deleteAccount}>
@@ -30,7 +48,7 @@ function AccountDelete() {
           </Col>
         </Row>
       </div>
-      <DeleteAccountDialog show={show} setShow={setShow} />
+      <DeleteAccountDialog show={show} setShow={setShow} onDeleteClick={handleDeleteAccount} />
     </AuthenticatedPageWrapper>
   );
 }

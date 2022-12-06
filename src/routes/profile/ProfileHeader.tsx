@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+/* eslint-disable max-lines */
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Col, Image, Row,
-} from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { Col, Image, Row } from 'react-bootstrap';
+import { useNavigate, useParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
@@ -12,7 +12,11 @@ import postImage from '../../images/about-post.jpg';
 import CustomPopover from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
-import { User } from '../../types';
+import { User, FriendRequestReaction } from '../../types';
+import {
+  acceptFriendsRequest, addFriend, friendship, rejectFriendsRequest,
+} from '../../api/friends';
+import RoundButtonLink from '../../components/ui/RoundButtonLink';
 
 interface Props {
   tabKey: string;
@@ -31,7 +35,6 @@ const tabs = [
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
 ];
-
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -47,15 +50,52 @@ const StyledPopoverContainer = styled.div`
   right: 10px;
 `;
 function ProfileHeader({ tabKey, user }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [show, setShow] = useState<boolean>(false);
+  const [friendshipStatus, setFriendshipStatus] = useState<any>();
+  const [friendStatus, setFriendStatus] = useState<any>();
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
+  const loginUserName = Cookies.get('userName');
+  const loginUserId = Cookies.get('userId');
+  const { userName } = useParams();
+  const navigate = useNavigate();
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
+  };
+
+  useEffect(() => {
+    if (user && (loginUserName !== userName)) {
+      friendship(user.id).then((res) => {
+        if (res.data.reaction === FriendRequestReaction.Pending
+          && res.data.from === loginUserId
+          && res.data.to === user.id) {
+          setFriendStatus('Cancel pending request');
+        } else if (res.data.reaction === FriendRequestReaction.Pending
+          && res.data.from === user.id
+          && res.data.to === loginUserId) {
+          setFriendStatus('Accept friend request');
+        } else if (res.data.reaction === FriendRequestReaction.Accepted) {
+          setFriendStatus('Remove friend');
+        } else if (res.data.reaction === FriendRequestReaction.DeclinedOrCancelled
+          || res.data.reaction === null) {
+          setFriendStatus('Add friend');
+        }
+      });
+    }
+  }, [user, friendshipStatus]);
+
+  const friendRequestApi = (status: string) => {
+    if (user && user.id) {
+      if (status === 'Add friend') {
+        addFriend(user.id).then(() => setFriendshipStatus(status));
+      } else if (status === 'Accept friend request') {
+        acceptFriendsRequest(user.id).then(() => setFriendshipStatus(status));
+      } else if (status === 'Remove friend' || status === 'Cancel pending request') {
+        rejectFriendsRequest(user.id).then(() => setFriendshipStatus(status));
+      }
+    }
   };
 
   return (
@@ -71,7 +111,7 @@ function ProfileHeader({ tabKey, user }: Props) {
             <Row className="d-flex ms-3">
               <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
                 <AboutProfileImage size="11.25rem" src={user?.profilePic} />
-                {queryParam !== 'self'
+                {loginUserName !== userName
                   && (
                     <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
                       <CustomPopover
@@ -83,7 +123,7 @@ function ProfileHeader({ tabKey, user }: Props) {
               </CustomCol>
               <Col className="w-100 mt-md-4">
                 <Row className="d-flex justify-content-between">
-                  <Col xs={12} md={6} lg={12} xl={6} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
+                  <Col xs={12} md={4} lg={12} xl={4} className="text-center text-capitalize text-md-start text-lg-center text-xl-start  mt-4 mt-md-0 ps-md-0">
                     <h1 className="mb-md-0">
                       {user?.firstName}
                     </h1>
@@ -91,31 +131,32 @@ function ProfileHeader({ tabKey, user }: Props) {
                       @
                       {user?.userName}
                     </p>
-
                   </Col>
-                  <Col xs={12} md={6} lg={12} xl={6}>
-                    {queryParam === 'self'
+                  <Col xs={12} md={8} lg={12} xl={8}>
+                    {loginUserName === userName
                       && (
                         <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                          <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2">
+                          <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
                             <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
                             <h3 className="mb-0"> Edit profile</h3>
                           </RoundButton>
                         </div>
                       )}
-                    {queryParam !== 'self'
+                    {loginUserName !== userName
                       && (
-                        <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                          <Button className="btn btn-form bg-black rounded-5 d-flex px-4 me-2">
-                            <h3 className="mb-0">Unfriend</h3>
-                          </Button>
-                          <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
-                            <CustomPopover
-                              popoverOptions={popoverOption}
-                              onPopoverClick={handlePopoverOption}
-                            />
-                          </StyledPopoverContainer>
-                        </div>
+                      <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                        <RoundButtonLink variant="black" to={`/messages/conversation/user/${user?.id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>
+                        <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+                          {friendStatus}
+                        </RoundButton>
+
+                        <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
+                          <CustomPopover
+                            popoverOptions={popoverOption}
+                            onPopoverClick={handlePopoverOption}
+                          />
+                        </StyledPopoverContainer>
+                      </div>
                       )}
                   </Col>
                 </Row>
@@ -141,19 +182,19 @@ function ProfileHeader({ tabKey, user }: Props) {
             </div>
 
             <div className="align-self-center">
-              {queryParam === 'self'
+              {loginUserName === userName
                 && (
-                  <RoundButton className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 py-2">
+                  <RoundButton className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
                     <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
                     <h3 className="mb-0"> Edit profile</h3>
                   </RoundButton>
                 )}
-              {queryParam !== 'self'
+              {loginUserName !== userName
                 && (
                   <div className="d-flex align-items-center">
-                    <Button className="btn btn-form bg-black w-100 rounded-5 d-flex px-4 text-white">
-                      <h3 className="mb-0">Unfriend</h3>
-                    </Button>
+                    <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+                      {friendStatus}
+                    </RoundButton>
                     <CustomPopover
                       popoverOptions={popoverOption}
                       onPopoverClick={handlePopoverOption}
@@ -163,7 +204,6 @@ function ProfileHeader({ tabKey, user }: Props) {
             </div>
           </RoundDiv>
         )}
-
       <StyledBorder className="d-md-block d-none" />
       <TabLinks tabLink={tabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

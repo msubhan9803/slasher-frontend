@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
+import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { userPhotos } from '../../../../api/users';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 import { useAppSelector } from '../../../../redux/hooks';
 
+const ProfilePhoto = styled.div`
+  aspect-ratio:1;
+  img {
+    object-fit: cover;
+  }
+`;
 interface PhotoList {
   id: string,
   imageId: string,
@@ -50,11 +57,13 @@ function Photos() {
             return (
               <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
                 <Link to={`/${sidebarContext?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
-                  <img
-                    alt={`${photoIndex}`}
-                    src={photo.image}
-                    className={`img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
-                  />
+                  <ProfilePhoto>
+                    <img
+                      alt={`${photoIndex}`}
+                      src={photo.image}
+                      className={`w-100 h-100 img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
+                    />
+                  </ProfilePhoto>
                 </Link>
               </Col>
             );

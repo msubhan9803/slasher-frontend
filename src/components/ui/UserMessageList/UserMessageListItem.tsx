@@ -15,6 +15,7 @@ interface Props {
   count?: number;
   timeStamp?: string;
   handleDropdownOption?: (value: string) => void;
+  matchListId?: string;
 }
 
 const TrucatedText = styled.p`
@@ -92,14 +93,14 @@ export const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  userName, message, image, count, timeStamp, handleDropdownOption,
+  userName, message, image, count, timeStamp, handleDropdownOption, matchListId,
 }: Props) {
   const sharedYPadding = 'py-3 py-lg-4';
 
   return (
     <StyledItem className="bg-dark bg-mobile-transparent">
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
-        <StyledLink to="/" className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
+        <StyledLink to={`/messages/conversation/${matchListId}`} className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>
             <UserCircleImage src={image} />
           </div>
@@ -124,7 +125,7 @@ function UserMessageListItem({
         </StyledLink>
         <div className={`${sharedYPadding} message-bottom-border`}>
           <CustomDropDown onSelect={handleDropdownOption}>
-            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3">
+            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3 text-white">
               <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">
@@ -146,5 +147,6 @@ UserMessageListItem.defaultProps = {
   count: 0,
   timeStamp: null,
   handleDropdownOption: () => { },
+  matchListId: null,
 };
 export default UserMessageListItem;

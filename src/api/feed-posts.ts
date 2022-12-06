@@ -35,3 +35,19 @@ export async function createPost(message: string, file: any) {
   };
   return axios.post(`${apiUrl}/feed-posts`, formData, { headers });
 }
+
+export async function updateFeedPost(postId: string, message: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/feed-posts/${postId}`, { message }, { headers });
+}
+
+export async function deleteFeedPost(postId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/feed-posts/${postId}`, { headers });
+}

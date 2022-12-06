@@ -7,14 +7,18 @@ import RoundButton from './RoundButton';
 interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
-  slectedDropdownValue: string
+  slectedDropdownValue: string;
+  onConfirmClick?: () => void | undefined;
+  deleteText?: string;
 }
 const StyledTextarea = styled(Form)`
   .form-control {
     resize: none;
   }
 `;
-function ReportModal({ show, setShow, slectedDropdownValue }: Props) {
+function ReportModal({
+  show, setShow, slectedDropdownValue, onConfirmClick, deleteText,
+}: Props) {
   const closeModal = () => {
     setShow(false);
   };
@@ -39,8 +43,8 @@ function ReportModal({ show, setShow, slectedDropdownValue }: Props) {
       {slectedDropdownValue === 'Delete' && (
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 mb-0 text-primary">Delete</h1>
-          <p className="px-3">Are you sure you want to delete this conversation?</p>
-          <RoundButton className="mb-3 w-100">Yes</RoundButton>
+          <p className="px-3">{deleteText}</p>
+          <RoundButton className="mb-3 w-100" onClick={onConfirmClick}>Yes</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}
@@ -87,5 +91,8 @@ function ReportModal({ show, setShow, slectedDropdownValue }: Props) {
     </ModalContainer>
   );
 }
-
+ReportModal.defaultProps = {
+  onConfirmClick: undefined,
+  deleteText: 'Are you sure you want to delete?',
+};
 export default ReportModal;

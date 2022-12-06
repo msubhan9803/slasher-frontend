@@ -17,11 +17,11 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { getSuggestUserName } from '../../../api/users';
 import MessageTextarea from '../../../components/ui/MessageTextarea';
 
-interface MentionProps {
+export interface MentionProps {
   id: string;
   userName: string;
 }
-interface FormatMentionProps {
+export interface FormatMentionProps {
   id: string;
   value: string;
   format: string;

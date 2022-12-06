@@ -8,6 +8,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
+import Cookies from 'js-cookie';
 import PostFooter from './PostFooter';
 import { Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
@@ -15,6 +16,7 @@ import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
+import { PopoverClickProps } from '../CustomPopover';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -24,8 +26,9 @@ interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string) => void,
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage?: boolean
+  otherUserPopoverOptions?: string[]
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -55,13 +58,15 @@ const decryptMessage = (content: string) => {
 };
 
 function PostFeed({
-  postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
+  postFeedData, popoverOptions, isCommentSection,
+  onPopoverClick, detailPage, otherUserPopoverOptions,
 }: Props) {
-  const [postData, setPostData] = useState<Post[]>(postFeedData);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
+  const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -93,8 +98,11 @@ function PostFeed({
                 userName={post.userName}
                 postDate={post.postDate}
                 profileImage={post.profileImage}
-                popoverOptions={popoverOptions}
+                popoverOptions={post.userId && loginUserId !== post.userId
+                  ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}
+                content={post.content}
+                userId={post.userId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
@@ -184,5 +192,6 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
+  otherUserPopoverOptions: [],
 };
 export default PostFeed;

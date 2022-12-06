@@ -17,7 +17,7 @@ test.describe(pagePath, () => {
     });
 
     test('should display the expected content', async ({ page }) => {
-      await expect(page.locator('main')).toHaveText(/Hi, Aly/);
+      await expect(page.locator('input[placeholder="Type your message here..."]')).toHaveCount(1);
     });
   });
 });

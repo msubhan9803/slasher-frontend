@@ -78,8 +78,8 @@ function Messages() {
     <p className="text-center">
       {
         messages.length === 0
-          ? 'No chats available'
-          : 'No more chats'
+          ? 'No messages'
+          : 'No more messages'
       }
     </p>
   );

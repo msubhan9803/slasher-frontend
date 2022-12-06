@@ -10,10 +10,6 @@ export class FeedReplyUnusedFields {
 
   // NOT USED
   @Prop({ default: [] })
-  likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
-  @Prop({ default: [] })
   hideUsers: mongoose.Schema.Types.ObjectId[];
 
   // NOT USED

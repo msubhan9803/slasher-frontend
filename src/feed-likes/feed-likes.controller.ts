@@ -2,7 +2,7 @@ import {
   Controller, Delete, HttpException, HttpStatus, Param, Post, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { getUserFromRequest } from 'src/utils/request-utils';
+import { getUserFromRequest } from '../utils/request-utils';
 import { FeedLikesService } from './providers/feed-likes.service';
 import { FeedPostsIdDto } from './dto/feed-post-id.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';

@@ -84,24 +84,26 @@ feedReply;
       feedCommentsAndReplyObject.message,
       feedCommentsAndReplyObject.images,
     );
+    await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
+    await feedLikesService.createFeedCommentLike(feedComments.id, user0.id);
+    await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);
+    await feedLikesService.createFeedReplyLike(feedReply.id, user0.id);
   });
 
   it('should be defined', () => {
     expect(FeedLikesService).toBeDefined();
   });
-  //
+
   describe('#createFeedPostLike', () => {
     it('successfully creates a feed post likes.', async () => {
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.likes).toContain(activeUser.id);
+      expect(feedPostData.likes).toContainEqual(activeUser._id);
       expect(feedPostData.likeCount).toBe(2);
     });
 
-    //TODO
-    // it('when feed post id is not found', async () => {
-    //   const feedPostDetails = await feedLikesService.createFeedPostLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedPostDetails).rejects.toThrow('Post not found.');
-    // });
+    it('when feed post id is not found', async () => {
+      await expect(feedLikesService.createFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found.');
+    });
   });
 
   describe('#deleteFeedPostLike', () => {
@@ -112,66 +114,56 @@ feedReply;
       expect(feedPostData.likeCount).toBe(1);
     });
 
-    //TODO
-    // it('when feed post id is not found', async () => {
-    //   const feedPostDetails = await feedLikesService.deleteFeedPostLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedPostDetails).rejects.toThrow('Post not found.');
-    // });
+    it('when feed post id is not found', async () => {
+      await expect(feedLikesService.deleteFeedPostLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Post not found.');
+    });
   });
 
   describe('#createFeedCommentLike', () => {
     it('successfully create a feed comments likes.', async () => {
       await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
       const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
-      expect(feedCommentsData.likes).toContain(activeUser.id);
+      expect(feedCommentsData.likes).toContainEqual(activeUser._id);
     });
 
-    //TODO
-    // it('when feed comments id is not found', async () => {
-    //   const feedCommentsDetails = await feedLikesService.deleteFeedPostLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedCommentsDetails).rejects.toThrow('Comment not found.');
-    // });
+    it('when feed comments id is not found', async () => {
+      await expect(feedLikesService.createFeedCommentLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Comment not found.');
+    });
   });
 
   describe('#deleteFeedCommentLike', () => {
     it('successfully delete a feed comments likes.', async () => {
       await feedLikesService.deleteFeedCommentLike(feedComments.id, activeUser.id);
       const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
-      expect(feedCommentsData.likes).toHaveLength(0);
+      expect(feedCommentsData.likes).toHaveLength(1);
     });
 
-    //TODO
-    // it('when feed comments id is not found', async () => {
-    //   const feedCommentsDetails = await feedLikesService.deleteFeedCommentLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedCommentsDetails).rejects.toThrow('Comment not found.');
-    // });
+    it('when feed comments id is not found', async () => {
+      await expect(feedLikesService.deleteFeedCommentLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Comment not found.');
+    });
   });
 
   describe('#createFeedReplyLike', () => {
     it('successfully creates a feed reply like.', async () => {
       await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);
       const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
-      expect(feedReplyData.likes).toContain(activeUser.id);
+      expect(feedReplyData.likes).toContainEqual(activeUser._id);
     });
 
-    //TODO
-    // it('when feed reply id is not found', async () => {
-    //   const feedPostDetails = await feedLikesService.createFeedReplyLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedPostDetails).rejects.toThrow('Reply not found.');
-    // });
+    it('when feed reply id is not found', async () => {
+      await expect(feedLikesService.createFeedReplyLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Reply not found.');
+    });
   });
 
   describe('#deleteFeedReplyLike', () => {
     it('successfully delete a feed reply like.', async () => {
       await feedLikesService.deleteFeedReplyLike(feedReply.id, activeUser.id);
       const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
-      expect(feedReplyData.likes).toHaveLength(0);
+      expect(feedReplyData.likes).toHaveLength(1);
     });
 
-    //TODO
-    // it('when feed reply id is not found', async () => {
-    //   const feedPostDetails = await feedLikesService.deleteFeedReplyLike("634fc8986a5897b88a2d971b", activeUser.id);
-    //   expect(feedPostDetails).rejects.toThrow('Reply not found.');
-    // });
+    it('when feed reply id is not found', async () => {
+      await expect(feedLikesService.deleteFeedReplyLike('634fc8986a5897b88a2d971b', activeUser.id)).rejects.toThrow('Reply not found.');
+    });
   });
 });

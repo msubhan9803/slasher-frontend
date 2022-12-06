@@ -44,6 +44,9 @@ export class FeedReply extends FeedReplyUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  @Prop({ default: [] })
+  likes: mongoose.Schema.Types.ObjectId[];
+
   /***********
    * Methods *
    ***********/

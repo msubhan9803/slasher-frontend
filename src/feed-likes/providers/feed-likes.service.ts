@@ -30,7 +30,7 @@ export class FeedLikesService {
     transactionSession.startTransaction();
     await this.feedPostsModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedPostId) },
-      { $addToSet: { likes: userId }, $inc: { likeCount: 1 } },
+      { $addToSet: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: 1 } },
     );
     await this.feedLikesModel.create({ feedPostId, userId });
     transactionSession.endSession();
@@ -45,7 +45,7 @@ export class FeedLikesService {
     transactionSession.startTransaction();
     await this.feedPostsModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedPostId) },
-      { $pull: { likes: userId }, $inc: { likeCount: -1 } },
+      { $pull: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: -1 } },
     );
     await this.feedLikesModel.deleteOne({ feedPostId, userId });
     transactionSession.endSession();
@@ -58,7 +58,7 @@ export class FeedLikesService {
     }
     await this.feedCommentModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedCommentId) },
-      { $addToSet: { likes: userId } },
+      { $addToSet: { likes: new mongoose.Types.ObjectId(userId) } },
     );
   }
 
@@ -69,7 +69,7 @@ export class FeedLikesService {
     }
     await this.feedCommentModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedCommentId) },
-      { $pull: { likes: userId } },
+      { $pull: { likes: new mongoose.Types.ObjectId(userId) } },
     );
   }
 
@@ -82,7 +82,7 @@ export class FeedLikesService {
     transactionSession.startTransaction();
     await this.feedReplyModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedReplyId) },
-      { $addToSet: { likes: userId } },
+      { $addToSet: { likes: new mongoose.Types.ObjectId(userId) } },
     );
     await this.feedReplyLikeModel.create({ feedReplyId, userId });
     transactionSession.endSession();
@@ -97,7 +97,7 @@ export class FeedLikesService {
     transactionSession.startTransaction();
     await this.feedReplyModel.updateOne(
       { _id: new mongoose.Types.ObjectId(feedReplyId) },
-      { $pull: { likes: userId } },
+      { $pull: { likes: new mongoose.Types.ObjectId(userId) } },
     );
     await this.feedReplyLikeModel.create({ feedReplyId, userId });
     transactionSession.endSession();

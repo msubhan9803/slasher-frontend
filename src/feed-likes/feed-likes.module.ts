@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { FeedCommentsModule } from 'src/feed-comments/feed-comments.module';
+import { FeedCommentsModule } from '../feed-comments/feed-comments.module';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { FeedPostLike, FeedPostLikeSchema } from '../schemas/feedPostLike/feedPostLike.schema';
 import { FeedLikesService } from './providers/feed-likes.service';

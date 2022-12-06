@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, { createRef, useEffect } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
 
@@ -38,7 +38,11 @@ function MessageTextarea({
   const handleMessage = (e: string) => {
     setMessageContent(e);
   };
-
+  useEffect(() => {
+    if (defaultValue) {
+      setMessageContent(defaultValue);
+    }
+  }, []);
   const handleSelect = (option: OptionProps) => {
     const mentionString = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
     const addFormatObject = {

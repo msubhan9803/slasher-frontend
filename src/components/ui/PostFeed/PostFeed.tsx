@@ -26,7 +26,7 @@ interface Props {
   popoverOptions: string[],
   postFeedData: any[],
   isCommentSection?: boolean,
-  onPopoverClick: (value: string, popoverClickProps : PopoverClickProps) => void,
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage?: boolean
   otherUserPopoverOptions?: string[]
 }
@@ -61,7 +61,7 @@ function PostFeed({
   postFeedData, popoverOptions, isCommentSection,
   onPopoverClick, detailPage, otherUserPopoverOptions,
 }: Props) {
-  const [postData, setPostData] = useState<Post[]>(postFeedData);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();

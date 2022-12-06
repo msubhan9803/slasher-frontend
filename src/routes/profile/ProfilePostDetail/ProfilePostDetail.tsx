@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { updateFeedPost } from '../../../api/feed-posts';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { feedPostDetail } from '../../../api/feedpost';
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EditPostModal from '../../../components/ui/EditPostModal';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
-import { FormatMentionProps, MentionProps } from '../../posts/create-post/CreatePost';
+import { MentionProps } from '../../posts/create-post/CreatePost';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -18,6 +17,7 @@ interface Props {
   user: User
 }
 function ProfilePostDetail({ user }: Props) {
+  const { userName } = useParams<string>();
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
@@ -29,8 +29,6 @@ function ProfilePostDetail({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-  const [messageContent, setMessageContent] = useState<string>('');
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -64,7 +62,7 @@ function ProfilePostDetail({ user }: Props) {
               userId: res.data.userId._id,
             },
           ]);
-          setMessageContent(decryptMessage(res.data.message));
+          setPostContent(decryptMessage(res.data.message));
         })
         .catch((error) => {
           setErrorMessage(error.response.data.message);
@@ -79,10 +77,9 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
-
-  const onUpdatePost = () => {
-    if (postId && postContent) {
-      updateFeedPost(postId, postContent).then(() => {
+  const onUpdatePost = (message: string) => {
+    if (postId) {
+      updateFeedPost(postId, message).then(() => {
         setShow(false);
         feedPostDetail(postId)
           .then((res) => {
@@ -104,7 +101,7 @@ function ProfilePostDetail({ user }: Props) {
                 userId: res.data.userId._id,
               },
             ]);
-            setMessageContent(decryptMessage(res.data.message));
+            setPostContent(decryptMessage(res.data.message));
           })
           .catch((error) => {
             setErrorMessage(error.response.data.message);
@@ -114,15 +111,26 @@ function ProfilePostDetail({ user }: Props) {
       setShow(false);
     }
   };
-
+  const deletePostClick = () => {
+    if (postId) {
+      deleteFeedPost(postId)
+        .then(() => {
+          setShow(false);
+          navigate(`/${userName}/posts`);
+        })
+        /* eslint-disable no-console */
+        .catch((error) => console.error(error));
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
-          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          {errorMessage}
         </div>
       )}
       <PostFeed
+        detailPage
         postFeedData={postData}
         popoverOptions={loginUserPopoverOptions}
         isCommentSection={false}
@@ -130,8 +138,27 @@ function ProfilePostDetail({ user }: Props) {
         otherUserPopoverOptions={otherUserPopoverOptions}
       />
       {dropDownValue !== 'Edit'
-      && <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />}
-      {dropDownValue === 'Edit' && <EditPostModal show={show} setShow={setShow} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} formatMention={formatMention} setFormatMention={setFormatMention} content={messageContent} onUpdatePost={onUpdatePost} />}
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+          />
+        )}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </AuthenticatedPageWrapper>
   );
 }

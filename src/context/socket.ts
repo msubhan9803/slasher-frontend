@@ -10,9 +10,9 @@ export const socket = io(apiUrl!, {
   auth: { token },
 });
 
-socket.once('authSuccess', (payload) => {
-  // eslint-disable-next-line no-console
-  console.log('authSuccess payload =', payload);
-});
+// socket.once('authSuccess', (payload) => {
+//   // eslint-disable-next-line no-console
+//   console.log('authSuccess payload =', payload);
+// });
 
 export const SocketContext = React.createContext<Socket | null>(null);

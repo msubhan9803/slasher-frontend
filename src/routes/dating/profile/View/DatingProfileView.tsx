@@ -12,7 +12,7 @@ import profileImg5 from '../../../../images/dating/sample_profile/sample_profile
 import profileImg6 from '../../../../images/dating/sample_profile/sample_profile6.png';
 import profileImg7 from '../../../../images/dating/sample_profile/sample_profile7.png';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
-import ProfileMobileView from './ProfileMobileView';
+import ProfileMobileViewTopSection from './ProfileMobileViewTopSection';
 import {
   Gender, Heading, HeroProfileImg, Section, SubHeading, Title,
 } from './styledUtilsProfileView';
@@ -90,7 +90,7 @@ function DatingProfileView() {
 
         {/* Mobile and Tablet Section. *LEARN: Hide on xxl and wider screens */}
         <div className="d-xxl-none">
-          <ProfileMobileView state={state} />
+          <ProfileMobileViewTopSection state={state} />
         </div>
       </Section>
 

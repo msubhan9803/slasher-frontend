@@ -12,7 +12,7 @@ interface PostHeaderProps {
   profileImage: string;
   popoverOptions: string[];
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  detailPage: boolean | undefined
+  detailPage: boolean | undefined;
   content?: string;
   userId?: string;
 }

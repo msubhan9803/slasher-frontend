@@ -113,11 +113,14 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       />
       <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
-          <div className={`d-${desktopBreakPoint}-block d-none`}>
-            <LeftSidebarWrapper>
-              <SidebarNavContent />
-            </LeftSidebarWrapper>
-          </div>
+          {!show
+            && (
+              <div className={`d-${desktopBreakPoint}-block d-none`}>
+                <LeftSidebarWrapper>
+                  <SidebarNavContent />
+                </LeftSidebarWrapper>
+              </div>
+            )}
           <MainContentCol className="px-lg-3 flex-grow-1 min-width-0">
             {children}
           </MainContentCol>
@@ -148,7 +151,6 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}
-
     </div>
   );
 }

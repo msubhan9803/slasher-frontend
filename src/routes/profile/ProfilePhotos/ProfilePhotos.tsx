@@ -108,7 +108,7 @@ function ProfilePhotos({ user }: Props) {
           loadMore={() => { setRequestAdditionalPhotos(true); }}
           hasMore={!noMoreData}
         >
-          <Row className="justify-content-between">
+          <Row>
             {userPhotosList.map((data: UserPhotos) => (
               data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>

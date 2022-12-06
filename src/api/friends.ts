@@ -35,3 +35,10 @@ export async function rejectFriendsRequest(userId: string) {
   };
   return axios.delete(`${apiUrl}/friends?userId=${userId}`, { headers });
 }
+export async function frienship(userId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/friends/friendship?userId=${userId}`, { headers });
+}

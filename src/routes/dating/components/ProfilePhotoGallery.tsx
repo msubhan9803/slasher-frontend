@@ -14,10 +14,11 @@ interface Props {
   imageUpload: Image[];
   setImageUpload: (value: Image[]) => void;
   confirmationRemove?: boolean;
+  isSlim?: boolean;
 }
 
 function ProfilePhotoGallery({
-  imageIndex, imageUpload, setImageUpload, confirmationRemove,
+  imageIndex, imageUpload, setImageUpload, confirmationRemove, isSlim,
 }: Props) {
   const [show, setShow] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
@@ -45,7 +46,7 @@ function ProfilePhotoGallery({
   return (
     <div className="text-start">
       <PhotoUploadInput
-        height="9.688rem"
+        height={isSlim ? 'auto' : '9.688rem'}
         variant="outline"
         onChange={(file: any) => {
           handleFileChange(file, imageIndex);
@@ -70,6 +71,7 @@ function ProfilePhotoGallery({
 
 ProfilePhotoGallery.defaultProps = {
   confirmationRemove: false,
+  isSlim: false,
 };
 
 export default ProfilePhotoGallery;

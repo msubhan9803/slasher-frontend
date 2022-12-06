@@ -35,7 +35,7 @@ function UserMessageListItem({
         <UserCircleImage size="3.625rem" src={image} />
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
-        <p className="mb-0">
+        <p className="mb-0 text-capitalize">
           {userName}
         </p>
         <MessageSnippet className="mb-0 small text-light">{message}</MessageSnippet>

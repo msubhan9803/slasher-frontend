@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
@@ -150,12 +151,12 @@ export async function uploadUserCoverImage(file: File) {
   return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
 }
 
-export async function userPhotos(id: string, lastRetrievedPostId?: string) {
+export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = '?limit=10';
+  let queryParameter = `?limit=${limit || '10'}`;
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
@@ -191,4 +192,13 @@ export async function changePassword(
   return axios.patch(`${apiUrl}/users/change-password`, {
     currentPassword, newPassword, newPasswordConfirmation,
   }, { headers });
+}
+
+export async function userAccountDelete() {
+  const token = Cookies.get('sessionToken');
+  const userId = Cookies.get('userId');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
 }

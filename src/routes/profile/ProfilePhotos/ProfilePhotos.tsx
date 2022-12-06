@@ -11,8 +11,11 @@ import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
-const ProfilePhoto = styled(Image)`
-  acpect-ratio:1;
+const ProfilePhoto = styled.div`
+  aspect-ratio:1;
+  img {
+    object-fit: cover;
+  }
 `;
 const StyledPopover = styled.div`
   top: 25px;
@@ -113,15 +116,15 @@ function ProfilePhotos({ user }: Props) {
               data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>
                   <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                    <div className="position-relative">
-                      <ProfilePhoto src={images.image_path} className="rounded mt-4 w-100" key={images._id} />
+                    <ProfilePhoto className="position-relative">
+                      <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
                       <StyledPopover className="position-absolute">
                         <CustomPopover
                           popoverOptions={popoverOption}
                           onPopoverClick={handlePopoverOption}
                         />
                       </StyledPopover>
-                    </div>
+                    </ProfilePhoto>
                   </Link>
                 </Col>
               ))

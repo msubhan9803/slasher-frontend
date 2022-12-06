@@ -26,3 +26,19 @@ export async function getMoviesByFirstName(key: string) {
 
   return axios.get(`${apiUrl}/movies/firstBySortName?startsWith=${key}`, { headers });
 }
+export async function getMoviesById(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(`${apiUrl}/movies/${id}`, { headers });
+}
+export async function getMoviesDataById(movieDBId: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.get(`${apiUrl}/movies/movieDbData/${movieDBId}`, { headers });
+}

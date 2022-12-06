@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-interface Props {
-  embedId: string;
+interface PlayMovieProp {
+  embedId: string | undefined;
 }
 const StyledMoviePlay = styled.div`
   aspect-ratio: 1.78;
 `;
-function PlayMovie({ embedId }: Props) {
+function PlayMovie({ embedId }: PlayMovieProp) {
   return (
     <StyledMoviePlay className="position-relative">
       <iframe

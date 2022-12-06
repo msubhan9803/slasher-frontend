@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
-import { addFriend, rejectFriendsRequest } from '../../api/friends';
+import { addFriend, rejectFriendsRequest, removeSuggestedFriend } from '../../api/friends';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 const ProfileImage = styled(Image)`
@@ -81,6 +81,13 @@ function SuggestedFriend() {
     });
   };
 
+  const onCloseClick = (e: React.MouseEvent<SVGSVGElement, MouseEvent>, userId: string) => {
+    e.preventDefault();
+    removeSuggestedFriend(userId).then(() => {
+      getSuggestedFriends();
+    });
+  };
+
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
       {!friendListData ? <LoadingIndicator /> : (
@@ -100,7 +107,7 @@ function SuggestedFriend() {
                     <div className=" d-flex justify-content-center position-relative">
                       <ProfileImage src={user.profilePic} className="rounded-circle" />
                       <div className="position-absolute" style={{ right: '0' }}>
-                        <FontAwesomeIcon role="button" icon={solid('xmark')} size="lg" />
+                        <FontAwesomeIcon role="button" onClick={(e: React.MouseEvent<SVGSVGElement, MouseEvent>) => { onCloseClick(e, user._id); }} icon={solid('xmark')} size="lg" />
                       </div>
                     </div>
                     <p className="text-center my-2">{user.userName}</p>
@@ -126,7 +133,6 @@ function SuggestedFriend() {
         </div>
       )}
     </div>
-
   );
 }
 

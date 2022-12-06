@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
+import Cookies from 'js-cookie';
 import { getMessagesList } from '../../api/messages';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
@@ -26,6 +27,7 @@ function Messages() {
   const [messageOptionValue, setMessageOptionValue] = useState('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const userId = Cookies.get('userId');
 
   const handleMessagesOption = (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
@@ -41,14 +43,17 @@ function Messages() {
         messages.length > 1 ? messages[messages.length - 1]._id : undefined,
       ).then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
+          const userDetail = data.participants.find(
+            (participant: any) => participant._id !== userId,
+          );
           /* eslint no-underscore-dangle: 0 */
           const message = {
             _id: data._id,
-            id: data.user._id,
+            id: userDetail!._id,
             unreadCount: data.unreadCount,
             latestMessage: data.latestMessage,
-            userName: data.user.userName,
-            profilePic: data.user.profilePic,
+            userName: userDetail!.userName,
+            profilePic: userDetail!.profilePic,
             updatedAt: data.updatedAt,
           };
           return message;
@@ -73,8 +78,8 @@ function Messages() {
     <p className="text-center">
       {
         messages.length === 0
-          ? 'No chats available'
-          : 'No more chats'
+          ? 'No messages'
+          : 'No more messages'
       }
     </p>
   );
@@ -93,7 +98,7 @@ function Messages() {
         )}
         <InfiniteScroll
           pageStart={0}
-          initialLoad={false}
+          initialLoad
           loadMore={() => { setRequestAdditionalMessages(true); }}
           hasMore={!noMoreData}
         >
@@ -108,6 +113,7 @@ function Messages() {
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
                   handleDropdownOption={handleMessagesOption}
+                  matchListId={message._id}
                 />
               </div>
 

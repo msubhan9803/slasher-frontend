@@ -63,7 +63,6 @@ describe('Create Feed Post Like (e2e)', () => {
           },
         ),
       );
-      await feedLikesService.createFeedPostLike(feedPost.id, activeUser._id.toString());
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
@@ -73,8 +72,8 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.likes).toHaveLength(3);
-      expect(feedPostData.likeCount).toBe(3);
+      expect(feedPostData.likes).toHaveLength(2);
+      expect(feedPostData.likeCount).toBe(2);
     });
 
     it('when feed post id is not exist than expected response', async () => {

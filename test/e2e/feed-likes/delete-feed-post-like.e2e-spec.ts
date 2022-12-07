@@ -73,7 +73,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.likes).toHaveLength(2);
+      expect(feedPostData.likes).toHaveLength(1);
       expect(feedPostData.likeCount).toBe(1);
     });
 

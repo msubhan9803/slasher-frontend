@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { FeedPost } from '../feedPost/feedPost.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
 import { FeedCommentDeletionState } from './feedComment.enums';
@@ -13,7 +14,7 @@ export class FeedComment extends FeedCommentUnusedFields {
 
   readonly _id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'feedPosts', required: true })
+  @Prop({ default: null, ref: FeedPost.name, required: true })
   feedPostId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null, ref: User.name, required: true })

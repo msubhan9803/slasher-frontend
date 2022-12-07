@@ -64,7 +64,9 @@ describe('Find Feed Comments With Replies (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
-    activeUser = await usersService.create(userFactory.build());
+    activeUser = await usersService.create(userFactory.build({
+      profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+    }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -79,7 +81,6 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
   describe('GET /feed-comments', () => {
     it('get all feed comments with reply', async () => {
-      const message = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
       const feedComments1 = await feedCommentModel.create({
         feedPostId: feedPost.id,
         userId: activeUser._id.toString(),
@@ -92,8 +93,6 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           '637b39e078b0104f97582121',
         ],
       });
-      console.log('feedComments1', feedComments1);
-
       const feedComments2 = await feedCommentModel.create({
         feedPostId: feedPost.id,
         userId: activeUser._id.toString(),
@@ -105,19 +104,19 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           '637b39e078b0104f975821bh',
         ],
       });
-      console.log('feedComments2', feedComments2);
 
-      const reply1 = await feedReplyModel.create({
-        feedCommentId: feedComments1._id.toString(),
-        userId: activeUser._id.toString(),
-        message: 'Hello Test Reply Message 1',
-        images: sampleFindFeedCommentsWithRepliesObject.images,
-        likes: [
-          '63772b35611dc46e8fb42102',
-        ],
-      });
-      console.log('reply1', reply1);
-      const reply2 = await feedReplyModel.create({
+      for (let i = 0; i < 2; i += 1) {
+        await feedReplyModel.create({
+          feedCommentId: feedComments1._id.toString(),
+          userId: activeUser._id.toString(),
+          message: 'Hello Test Reply Message 1',
+          images: sampleFindFeedCommentsWithRepliesObject.images,
+          likes: [
+            '63772b35611dc46e8fb42102',
+          ],
+        });
+      }
+      await feedReplyModel.create({
         feedCommentId: feedComments2._id.toString(),
         userId: activeUser._id.toString(),
         message: 'Hello Test Reply Message 4',
@@ -127,23 +126,42 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           '63772b35611dc46e8fb45566',
         ],
       });
-      console.log('reply2', reply2);
-
-      const commentAndReply = [];
-      // feedComments1.replies = [reply1];
-      // feedComments2.replies = [reply2];
-      commentAndReply.push(feedComments1);
-      commentAndReply.push(feedComments2);
-      console.log('commentAndReply', commentAndReply);
 
       const limit = 20;
       const response = await request(app.getHttpServer())
         .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      console.log('response.body', response.body);
+      const getFeedPostData = await feedCommentModel.find({ feedPostId: feedPost._id });
+      const getFeedReplyData = await feedReplyModel.find({
+        feedCommentId:
+          { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
+      });
+      const userData = await usersService.findById(activeUser._id.toString());
 
+      const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
+      const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
+      for (let i = 0; i < feedCommentAndReply.length; i += 1) {
+        const filterReply = replyData
+          .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
+          .map((replyId) => {
+            // eslint-disable-next-line no-param-reassign
+            replyId.likeCount = replyId.likes.length;
+            // eslint-disable-next-line no-param-reassign
+            replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+            // eslint-disable-next-line no-param-reassign
+            delete replyId.likes;
+            return replyId;
+          });
+        feedCommentAndReply[i].likeCount = feedCommentAndReply[i].likes.length;
+        feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+        feedCommentAndReply[i].replies = filterReply;
+        delete feedCommentAndReply[i].likes;
+      }
+
+      feedCommentAndReply.sort((a, b) => -a.createdAt.localeCompare(b.createdAt));
       expect(response.body).toHaveLength(2);
+      expect(response.body).toEqual(feedCommentAndReply);
     });
 
     describe('when `before` argument is supplied', () => {

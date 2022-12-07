@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import mapPinIcon from '../../../../images/dating/dating-map-pin.svg';
 import profileImg1 from '../../../../images/dating/sample_profile/sample_profile1.png';
@@ -34,13 +34,13 @@ function ProfileMobileView({ state }: any) {
           <div className="text-light">{state.distance}</div>
         </div>
 
-        <Row className="mt-3 gy-3 justify-content-start">
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg2} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg3} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg4} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg5} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg6} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
-          <Col xs="4" sm="3" md="4"><img className="rounded-3 d-block m-auto" src={profileImg7} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+        <Row className="mt-3 gy-3 justify-content-start" xs="3" sm="4" md="3">
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg2} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg3} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg4} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg5} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg6} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
+          <Col><img className="rounded-3 d-block m-auto" src={profileImg7} alt="Profile Here" style={{ maxWidth: '92px' }} /></Col>
         </Row>
       </div>
     </div>

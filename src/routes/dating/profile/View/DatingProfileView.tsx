@@ -101,16 +101,16 @@ function DatingProfileView() {
 
       <Section>
         <Heading>Appearance</Heading>
-        <Row className="gy-3">
-          <Col xs="6" md="4" lg="6" xl="4">
+        <Row className="gy-3" xs="2" md="3" lg="2" xl="3">
+          <Col>
             <SubHeading>Height</SubHeading>
             <div className="fw-bold">{state.height}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Body type</SubHeading>
             <div className="fw-bold">{state.bodyType}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Tattoos</SubHeading>
             <div className="fw-bold">{state.tattoos}</div>
           </Col>
@@ -119,40 +119,40 @@ function DatingProfileView() {
 
       <Section>
         <Heading>Basic Info</Heading>
-        <Row className="gy-3">
-          <Col xs="6" md="4" lg="6" xl="4">
+        <Row className="gy-3" xs="2" md="3" lg="2" xl="3">
+          <Col>
             <SubHeading>I&apos;m looking for</SubHeading>
             <div className="fw-bold">{state.lookingFor}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Relationship Status</SubHeading>
             <div className="fw-bold">{state.relationshipState}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Sexual Orientation</SubHeading>
             <div className="fw-bold">{state.sexualOrientation}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Parental Status</SubHeading>
             <div className="fw-bold">{state.parentalStatus}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Employment</SubHeading>
             <div className="fw-bold">{state.employment}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Education Level</SubHeading>
             <div className="fw-bold">{state.educationLevel}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Drinking</SubHeading>
             <div className="fw-bold">{state.drinking}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Smoking</SubHeading>
             <div className="fw-bold">{state.smoking}</div>
           </Col>
-          <Col xs="6" md="4" lg="6" xl="4">
+          <Col>
             <SubHeading>Religion</SubHeading>
             <div className="fw-bold">{state.religion}</div>
           </Col>

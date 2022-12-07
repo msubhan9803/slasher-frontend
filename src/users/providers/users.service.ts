@@ -102,8 +102,11 @@ export class UsersService {
       .exec();
   }
 
-  async suggestUserName(userId: string, query: string, limit: number, activeOnly: boolean): Promise<UserNameSuggestion[]> {
-    const nameFindQuery: any = { userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'), _id: { $ne: userId } };
+  async suggestUserName(query: string, limit: number, activeOnly: boolean, excludeUserIds: User[]): Promise<UserNameSuggestion[]> {
+    const nameFindQuery: any = {
+      userName: new RegExp(`^${escapeStringForRegex(query)}`, 'i'),
+      _id: { $nin: excludeUserIds },
+    };
     if (activeOnly) {
       nameFindQuery.is_deleted = false;
       nameFindQuery.status = ActiveStatus.Active;

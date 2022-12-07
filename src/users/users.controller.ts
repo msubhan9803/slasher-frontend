@@ -334,7 +334,9 @@ export class UsersController {
     query: SuggestUserNameQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    return this.usersService.suggestUserName(user.id, query.query, query.limit, true);
+    const blockUsersIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
+    blockUsersIds.push(user._id);
+    return this.usersService.suggestUserName(query.query, query.limit, true, blockUsersIds);
   }
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')

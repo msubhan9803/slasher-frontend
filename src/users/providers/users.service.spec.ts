@@ -12,12 +12,17 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
 import { SocketUser, SocketUserDocument } from '../../schemas/socketUser/socketUser.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlocksService } from '../../blocks/providers/blocks.service';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 
 describe('UsersService', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let socketUsersModel: Model<SocketUserDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
+  let blocksService: BlocksService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -26,6 +31,8 @@ describe('UsersService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     usersService = moduleRef.get<UsersService>(UsersService);
     socketUsersModel = moduleRef.get<Model<SocketUserDocument>>(getModelToken(SocketUser.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    blocksService = moduleRef.get<BlocksService>(BlocksService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -258,11 +265,24 @@ describe('UsersService', () => {
   });
 
   describe('#suggestUserName', () => {
-    let user;
+    let user0;
+    let user1;
+    let user2;
+    let blockUsersIds;
     beforeEach(async () => {
-      user = await usersService.create(
+      user0 = await usersService.create(
         userFactory.build(
-          { userName: 'test5' },
+          { userName: 'test-user1' },
+        ),
+      );
+      user1 = await usersService.create(
+        userFactory.build(
+          { userName: 'test-user2' },
+        ),
+      );
+      user2 = await usersService.create(
+        userFactory.build(
+          { userName: 'test-user3' },
         ),
       );
       await usersService.create(
@@ -272,17 +292,12 @@ describe('UsersService', () => {
       );
       await usersService.create(
         userFactory.build(
-          { userName: 'te1' },
+          { userName: 'test2' },
         ),
       );
       await usersService.create(
         userFactory.build(
-          { userName: 'user1' },
-        ),
-      );
-      await usersService.create(
-        userFactory.build(
-          { userName: 'user2' },
+          { userName: 'test3' },
         ),
       );
       await usersService.create(
@@ -290,36 +305,49 @@ describe('UsersService', () => {
           { userName: 'te2', status: ActiveStatus.Deactivated, deleted: true },
         ),
       );
+      await blocksModel.create({
+        from: user0._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      blockUsersIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      blockUsersIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {
       const query = 'Te';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
       expect(suggestUserNames).toEqual([
-        pick(await usersService.findByUsername('te1'), ['userName', 'id']),
         pick(await usersService.findByUsername('test1'), ['userName', 'id']),
+        pick(await usersService.findByUsername('test2'), ['userName', 'id']),
+        pick(await usersService.findByUsername('test3'), ['userName', 'id']),
       ]);
     });
 
     it('when query is exists and limited is applied, returns expected response', async () => {
       const query = 'te';
       const limit = 1;
-      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
       expect(suggestUserNames).toHaveLength(1);
     });
 
     it('when query is wrong than expected response', async () => {
       const query = 'wq';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, true);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
       expect(suggestUserNames).toEqual([]);
     });
 
     it('when activeOnly is false then it gives expected response', async () => {
       const query = 'TE';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(user.id, query, limit, false);
-      expect(suggestUserNames).toHaveLength(3);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, false, blockUsersIds);
+      expect(suggestUserNames).toHaveLength(4);
     });
   });
 

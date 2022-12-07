@@ -1,6 +1,8 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -12,6 +14,7 @@ import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -39,6 +42,7 @@ function ProfilePosts() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -67,6 +71,10 @@ function ProfilePosts() {
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
           }
         ));
         setPosts((prev: Post[]) => [
@@ -115,6 +123,10 @@ function ProfilePosts() {
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
         }));
         setPosts(newPosts);
       });
@@ -134,6 +146,20 @@ function ProfilePosts() {
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+  };
+  const onLikeClick = (feedPostId: string) => {
+    const checkLike = posts.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) callLatestFeedPost();
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) callLatestFeedPost();
+      });
+    }
   };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -164,6 +190,7 @@ function ProfilePosts() {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
             />
           )
         }

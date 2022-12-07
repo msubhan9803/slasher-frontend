@@ -1,10 +1,14 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
+import {
+  likeFeedComment, likeFeedPost, unlikeFeedComment, unlikeFeedPost,
+} from '../../../api/feed-likes';
 import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -43,6 +47,7 @@ function ProfilePostDetail({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -105,6 +110,10 @@ function ProfilePostDetail({ user }: Props) {
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
+              likes: res.data.likes,
+              likeIcon: res.data.likes.includes(loginUserId),
+              likeCount: res.data.likeCount,
+              commentCount: res.data.commentCount,
             },
           ]);
           setPostContent(decryptMessage(res.data.message));
@@ -199,35 +208,43 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
+
+  const getFeedPostDetail = (feedPostId: string) => {
+    feedPostDetail(feedPostId)
+      .then((res) => {
+        if (res.data.userId.userName !== user.userName) {
+          navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          return;
+        }
+        setPostData([
+          {
+            ...res.data,
+            /* eslint no-underscore-dangle: 0 */
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            content: decryptMessage(res.data.message),
+            postUrl: res.data.images,
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likes: res.data.likes,
+            likeIcon: res.data.likes.includes(loginUserId),
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+          },
+        ]);
+        setPostContent(decryptMessage(res.data.message));
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
+  };
   const onUpdatePost = (message: string) => {
     if (postId) {
       updateFeedPost(postId, message).then(() => {
         setShow(false);
-        feedPostDetail(postId)
-          .then((res) => {
-            if (res.data.userId.userName !== user.userName) {
-              navigate(`/${res.data.userId.userName}/posts/${postId}`);
-              return;
-            }
-            setPostData([
-              {
-                ...res.data,
-                /* eslint no-underscore-dangle: 0 */
-                _id: res.data._id,
-                id: res.data._id,
-                postDate: res.data.createdAt,
-                content: decryptMessage(res.data.message),
-                postUrl: res.data.images,
-                userName: res.data.userId.userName,
-                profileImage: res.data.userId.profilePic,
-                userId: res.data.userId._id,
-              },
-            ]);
-            setPostContent(decryptMessage(res.data.message));
-          })
-          .catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
+        getFeedPostDetail(postId);
       });
     } else {
       setShow(false);
@@ -242,6 +259,51 @@ function ProfilePostDetail({ user }: Props) {
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));
+    }
+  };
+
+  const callLatestFeedComments = (feedPostId: string) => {
+    getFeedComments(feedPostId).then((res) => {
+      const comments = res.data;
+      setCommentData(comments);
+    });
+  };
+  const onPostLikeClick = (feedPostId: string) => {
+    const checkLike = postData.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) getFeedPostDetail(postId!);
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) getFeedPostDetail(postId!);
+      });
+    }
+  };
+
+  const onCommentLike = (feedCommentId: string) => {
+    if (feedCommentId === commentID) {
+      const checkCommentLike = commentData.some((comment: any) => comment.id === feedCommentId
+        && comment.likes?.includes(loginUserId));
+      if (checkCommentLike) {
+        unlikeFeedComment(feedCommentId).then((res) => {
+          if (res.status === 200) callLatestFeedComments(postId!);
+        });
+      } else {
+        likeFeedComment(feedCommentId).then((res) => {
+          if (res.status === 201) callLatestFeedComments(postId!);
+        });
+      }
+    }
+  };
+
+  const onLikeClick = (feedId: string) => {
+    if (feedId === postId) {
+      onPostLikeClick(feedId);
+    } else {
+      onCommentLike(feedId);
     }
   };
   return (
@@ -271,6 +333,7 @@ function ProfilePostDetail({ user }: Props) {
         setRequestAdditionalPosts={setRequestAdditionalPosts}
         noMoreData={noMoreData}
         loadingPosts={loadingPosts}
+        onLikeClick={onLikeClick}
       />
       {dropDownValue !== 'Edit'
         && (

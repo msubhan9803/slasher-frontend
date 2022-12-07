@@ -71,6 +71,7 @@ function PostCommentSection({
   otherUserPopoverOptions,
   isEdit,
   setIsEdit,
+  onLikeClick,
 }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const [show, setShow] = useState<boolean>(false);
@@ -123,7 +124,7 @@ function PostCommentSection({
           profilePic: replies.userId?.profilePic,
           name: replies.userId?.userName,
           time: replies.createdAt,
-          likes: replies.likes.length,
+          likes: replies?.likes?.length,
           commentMsg: replies.message,
           commentImg: replies.images,
           feedCommentId: replies.feedCommentId,
@@ -137,7 +138,7 @@ function PostCommentSection({
         profilePic: comment.userId?.profilePic,
         name: comment.userId?.userName,
         time: comment.createdAt,
-        likes: comment.likes.length,
+        likes: comment.likes?.length,
         commentMsg: comment.message,
         commentImg: comment.images,
         commentReplySection: commentReplies,
@@ -183,24 +184,24 @@ function PostCommentSection({
     }
   };
 
-  const handleLikeIcon = (likeId: string) => {
-    const tempData = [...commentData];
-    tempData.map((data: any) => {
-      const temp = data;
-      if (temp.id === likeId) {
-        temp.likeIcon = !temp.likeIcon;
-      }
-      data.commentReplySection.map((like: any) => {
-        const tempLike = like;
-        if (tempLike.id === likeId) {
-          tempLike.likeIcon = !tempLike.likeIcon;
-        }
-        return true;
-      });
-      return tempData;
-    });
-    setCommentData(tempData);
-  };
+  // const onLikeClick = (likeId: string) => {
+  //   const tempData = [...commentData];
+  //   tempData.map((data: any) => {
+  //     const temp = data;
+  //     if (temp.id === likeId) {
+  //       temp.likeIcon = !temp.likeIcon;
+  //     }
+  //     data.commentReplySection.map((like: any) => {
+  //       const tempLike = like;
+  //       if (tempLike.id === likeId) {
+  //         tempLike.likeIcon = !tempLike.likeIcon;
+  //       }
+  //       return true;
+  //     });
+  //     return tempData;
+  //   });
+  //   setCommentData(tempData);
+  // };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
     setCommentID(popoverData.id);
@@ -361,7 +362,7 @@ function PostCommentSection({
                     likeIcon={data.likeIcon}
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
-                    onIconClick={() => handleLikeIcon(data.id)}
+                    onIconClick={() => { onLikeClick(data.id); setCommentID(data.id); }}
                     popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
                       ? otherUserPopoverOptions! : popoverOption}
                     onPopoverClick={handlePopover}
@@ -388,7 +389,9 @@ function PostCommentSection({
                                 commentMsg={comment.commentMsg}
                                 commentMention={comment.commentMention}
                                 commentImg={comment.commentImg}
-                                onIconClick={() => handleLikeIcon(comment.id)}
+                                onIconClick={() => {
+                                  onLikeClick(comment.id); setCommentReplyID(comment.id);
+                                }}
                                 popoverOptions={
                                   comment.userId?._id && loginUserId !== comment?.userId._id
                                     ? otherUserPopoverOptions! : popoverOption

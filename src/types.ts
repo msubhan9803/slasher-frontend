@@ -23,6 +23,7 @@ export interface Post {
   likeCount: number;
   sharedList: number;
   likeIcon: boolean;
+  likes?: string[];
   hashTag?: string[];
   userId?: string
 }
@@ -51,6 +52,7 @@ export interface NewsPartnerPostProps {
   hashTag: string[];
   commentSection: boolean;
   likeIcon: boolean;
+  likes: string[];
 }
 
 export interface AdditionalMovieData {

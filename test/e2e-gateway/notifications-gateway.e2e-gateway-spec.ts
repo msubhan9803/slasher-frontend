@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 import { UserDocument } from '../../src/schemas/user/user.schema';
@@ -18,6 +18,7 @@ import { FeedPostsService } from '../../src/feed-posts/providers/feed-posts.serv
 import { NotificationType } from '../../src/schemas/notification/notification.enums';
 import { NotificationsService } from '../../src/notifications/providers/notifications.service';
 import { FeedPostDocument } from '../../src/schemas/feedPost/feedPost.schema';
+import { Notification, NotificationDocument } from '../../src/schemas/notification/notification.schema';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -28,10 +29,12 @@ describe('Notifications Gateway (e2e)', () => {
   let activeUser: UserDocument;
   let user1: UserDocument;
   let activeUserAuthToken: string;
+  let user1AuthToken: string;
   let notificationsGateway: NotificationsGateway;
   let feedPostsService: FeedPostsService;
   let notificationsService: NotificationsService;
   let feedPostData: FeedPostDocument;
+  let notificationModel: Model<NotificationDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -43,6 +46,7 @@ describe('Notifications Gateway (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsGateway = moduleRef.get<NotificationsGateway>(NotificationsGateway);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
 
@@ -67,6 +71,10 @@ describe('Notifications Gateway (e2e)', () => {
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+
+    user1AuthToken = user1.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
 
@@ -146,6 +154,38 @@ describe('Notifications Gateway (e2e)', () => {
 
     // Await socket response to receive emitted event
     await socketListenPromise;
+
+    client.close();
+
+    // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+    await waitForSocketUserCleanup(client, usersService);
+  });
+
+  it('a client should receive an event when a request is made to the POST /feed-posts endpoint', async () => {
+    const client = io(baseAddress, { auth: { token: user1AuthToken }, transports: ['websocket'] });
+    await waitForAuthSuccessMessage(client);
+
+    const socketListenPromise = new Promise<void>((resolve) => {
+      client.on('notificationReceived', async (...args) => {
+        const notification = await notificationModel.findOne({ userId: user1.id });
+        expect(args[0].notification._id).toBe(notification.id);
+        resolve();
+      });
+    });
+
+    // Make request that will trigger emitted event
+    const response = await request(app.getHttpServer())
+        .post('/feed-posts')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', `hello test user ##LINK_ID##${user1.id}@${user1.userName}##LINK_END##`)
+        .field('userId', activeUser.id)
+        .expect(HttpStatus.CREATED);
+
+    // Await socket response to receive emitted event
+    await socketListenPromise;
+
+    expect(response.body.message).toBe(`hello test user ##LINK_ID##${user1._id.toString()}@${user1.userName}##LINK_END##`);
 
     client.close();
 

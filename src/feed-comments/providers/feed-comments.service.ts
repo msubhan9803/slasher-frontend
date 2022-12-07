@@ -83,7 +83,6 @@ export class FeedCommentsService {
     limit: number,
     before?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies[]> {
-    //after == feedCommentId
     const beforeCreatedAt: any = {};
     if (before) {
       const beforeFeedComment = await this.feedCommentModel.findById(before);

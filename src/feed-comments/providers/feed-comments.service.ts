@@ -124,13 +124,10 @@ export class FeedCommentsService {
         .map((reply) => {
           // eslint-disable-next-line no-param-reassign
           reply.likeCount = reply.likes.length;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.likes;
           return reply;
         });
       comment.replies = filterReply;
       comment.likeCount = comment.likes.length;
-      delete comment.likes;
       commentReplies.push(comment);
     }
     return commentReplies;

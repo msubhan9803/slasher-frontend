@@ -149,14 +149,11 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             replyId.likeCount = replyId.likes.length;
             // eslint-disable-next-line no-param-reassign
             replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
-            // eslint-disable-next-line no-param-reassign
-            delete replyId.likes;
             return replyId;
           });
         feedCommentAndReply[i].likeCount = feedCommentAndReply[i].likes.length;
         feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
         feedCommentAndReply[i].replies = filterReply;
-        delete feedCommentAndReply[i].likes;
       }
 
       feedCommentAndReply.sort((a, b) => -a.createdAt.localeCompare(b.createdAt));

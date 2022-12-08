@@ -143,3 +143,8 @@ interface FeedCommentUserId {
   userName: string;
   profilePic: string;
 }
+
+export enum NotificationReadStatus {
+  Unread = 0,
+  Read = 1,
+}

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
-export async function getNotifications(lastRetrievedId?: string) {
+export default async function getNotifications(lastRetrievedId?: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

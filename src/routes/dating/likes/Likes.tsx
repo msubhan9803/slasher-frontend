@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import DatingLikesDialog from './DatingLikeDialog';
 import { LikesList, MatchesList } from './LikesData';
-import UnsubscriberLikes from './unsubscriber-likes/UnsubscriberLikes';
-import SubscriberLikes from './subscriber-likes/SubscriberLikes';
+import LikesAndMatches from './components/LikesAndMatches';
+import TabLinks from '../../../components/ui/Tabs/TabLinks';
+
+const tabs = [
+  { value: '', label: 'Likes' },
+  { value: 'matches', label: 'Matches' },
+];
 
 function Likes() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryParam = searchParams.get('user');
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
+  const location = useLocation();
+
+  const isMatchesTab = location.pathname.includes('dating/likes/matches');
+  const isLikesTab = !isMatchesTab;
+
+  const tabKey = isMatchesTab ? 'matches' : '';
+
   const handleLikesOption = (likeValue: string) => {
     if (likeValue === 'Message') {
       navigate('/dating/conversation');
@@ -23,24 +36,33 @@ function Likes() {
     setDropDownValue(likeValue);
   };
 
+  const tempToggleSubscriber = () => {
+    if (queryParam) {
+      setSearchParams({});
+    } else {
+      setSearchParams({ user: 'subscriber' });
+    }
+  };
+
   return (
     <DatingPageWrapper>
-      <div className="mt-5 pt-5 mt-lg-0 pt-lg-0">
-        {queryParam === 'subscriber' ? (
-          <SubscriberLikes
-            handleLikesOption={handleLikesOption}
-            MatchesList={MatchesList}
-            LikesList={LikesList}
-          />
-        ) : (
-          <UnsubscriberLikes
-            MatchesList={MatchesList}
-            LikesList={LikesList}
-            handleLikesOption={handleLikesOption}
-          />
-        )}
-        <DatingLikesDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink="/dating/likes" params={`?${searchParams.toString()}`} selectedTab={tabKey} />
+
+      <div className="mt-3">
+        <LikesAndMatches
+          handleLikesOption={handleLikesOption}
+          MatchesList={MatchesList}
+          LikesList={LikesList}
+          isMatchesTab={isMatchesTab}
+          isLikesTab={isLikesTab}
+          queryParam={queryParam}
+        />
       </div>
+      {/* Temporary only */}
+      <Button className="mb-3 mt-5" onClick={tempToggleSubscriber}>ToggleSubscriberView</Button>
+
+      <DatingLikesDialog show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+
     </DatingPageWrapper>
   );
 }

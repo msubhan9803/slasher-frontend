@@ -67,15 +67,15 @@ function CustomPopover({
       <OverlayTrigger trigger="focus" placement={userProfileIcon ? 'bottom' : 'left'} overlay={popover}>
         {userProfileIcon ? (
           /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-          <Link to="" tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
+          <a tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
             <UserCircle src={userProfileIcon} className="rounded-circle" />
             <p className="mb-0 mt-2 fs-6">Me</p>
-          </Link>
+          </a>
         ) : (
           /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-          <Link to="" tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
+          <a tabIndex={0} role="button" className="bg-transparent shadow-none border-0 pe-1">
             <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
-          </Link>
+          </a>
         )}
       </OverlayTrigger>
     </StyledPopover>

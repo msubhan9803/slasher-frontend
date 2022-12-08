@@ -96,7 +96,6 @@ test.describe(pagePath, () => {
     });
   });
 
-
   test.describe('for a signed-in user', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(pagePath);

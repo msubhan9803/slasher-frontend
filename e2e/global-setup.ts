@@ -1,20 +1,9 @@
 // global-setup.ts
 import { chromium, FullConfig, Page } from '@playwright/test';
-import { apiUrl } from '../src/api/constants';
+import setupMockResponses from './mock-responses/setupMockResponses';
 
 async function performSignIn(page: Page, baseURL: string) {
-  // Mock auth response
-  page.route(`${apiUrl}/users/sign-in`, (route) => {
-    route.fulfill({
-      status: 200,
-      body: JSON.stringify({
-        userName: 'SampleUser1',
-        email: 'sample1@example.com',
-        firstName: 'Sample1',
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzI5NGRmZmI2ODEyNmY5YzcyMThlM2MiLCJ1c2VyVHlwZSI6IjEiLCJwYXNzd29yZENoYW5nZWRBdCI6IjIwMjItMDktMjBUMDU6MjI6MDcuNzYxWiIsImlhdCI6MTY2MzczMTg5Nn0._eVEZJZ2ldXOPsjfWJwOb7JPI0jbsjzwzphC7eCmdYU',
-      }),
-    });
-  });
+  setupMockResponses(page);
 
   await Promise.all([
     page.goto(`${baseURL}/sign-in`),

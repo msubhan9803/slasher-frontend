@@ -128,9 +128,9 @@ export interface FeedComments {
   hideUsers: any;
   images: any;
   is_deleted: number;
-  likes: any;
+  likes: string[];
   message: string;
-  replies: any;
+  replies: FeedReplies[];
   reportUsers: any;
   status: number;
   type: number;
@@ -138,10 +138,31 @@ export interface FeedComments {
   userId: FeedCommentUserId;
   __v: number;
   _id: string;
+  likeCount: number;
+  commentCount: number;
 }
 
 interface FeedCommentUserId {
   _id: string;
   userName: string;
   profilePic: string;
+}
+
+interface FeedReplies {
+  createdAt: string;
+  feedPostId: string;
+  hideUsers: any;
+  images: any;
+  is_deleted: number;
+  likes: string[];
+  message: string;
+  reportUsers: any;
+  status: number;
+  type: number;
+  updatedAt: string;
+  userId: FeedCommentUserId;
+  __v: number;
+  _id: string;
+  likeCount: number;
+  commentCount: number;
 }

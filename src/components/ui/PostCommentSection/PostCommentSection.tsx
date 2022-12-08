@@ -92,7 +92,6 @@ function PostCommentSection({
   const loadMore = 10;
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
-
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -124,11 +123,14 @@ function PostCommentSection({
           profilePic: replies.userId?.profilePic,
           name: replies.userId?.userName,
           time: replies.createdAt,
-          likes: replies?.likes?.length,
           commentMsg: replies.message,
           commentImg: replies.images,
           feedCommentId: replies.feedCommentId,
           userId: replies.userId,
+          likes: replies.likes,
+          likeIcon: replies.likes.includes(loginUserId),
+          likeCount: replies.likeCount,
+          commentCount: replies.commentCount,
         };
         return feeedCommentReplies;
       });
@@ -138,11 +140,14 @@ function PostCommentSection({
         profilePic: comment.userId?.profilePic,
         name: comment.userId?.userName,
         time: comment.createdAt,
-        likes: comment.likes?.length,
         commentMsg: comment.message,
         commentImg: comment.images,
         commentReplySection: commentReplies,
         userId: comment.userId,
+        likes: comment.likes,
+        likeIcon: comment.likes.includes(loginUserId),
+        likeCount: comment.likeCount,
+        commentCount: comment.commentCount,
       };
       return feedComment;
     });
@@ -358,11 +363,10 @@ function PostCommentSection({
                     image={data.profilePic}
                     name={data.name}
                     time={data.time}
-                    likes={data.likes}
                     likeIcon={data.likeIcon}
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
-                    onIconClick={() => { onLikeClick(data.id); setCommentID(data.id); }}
+                    onIconClick={() => onLikeClick(data.id)}
                     popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
                       ? otherUserPopoverOptions! : popoverOption}
                     onPopoverClick={handlePopover}
@@ -371,6 +375,7 @@ function PostCommentSection({
                     setReplyUserName={setReplyUserName}
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
+                    likeCount={data.likeCount}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
@@ -383,7 +388,6 @@ function PostCommentSection({
                                 id={comment.id}
                                 image={comment.profilePic}
                                 name={comment.name}
-                                likes={comment.likes}
                                 time={comment.time}
                                 likeIcon={comment.likeIcon}
                                 commentMsg={comment.commentMsg}
@@ -404,6 +408,7 @@ function PostCommentSection({
                                 content={comment.commentMsg}
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
+                                likeCount={comment.likeCount}
                               />
                             </div>
                           ))}

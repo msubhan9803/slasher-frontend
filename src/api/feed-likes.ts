@@ -33,3 +33,19 @@ export async function unlikeFeedComment(feedCommentId: string) {
   };
   return axios.delete(`${apiUrl}/feed-likes/comment/${feedCommentId}`, { headers });
 }
+
+export async function likeFeedReply(feedCommentId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/feed-likes/reply/${feedCommentId}`, {}, { headers });
+}
+
+export async function unlikeFeedReply(feedCommentId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/feed-likes/reply/${feedCommentId}`, { headers });
+}

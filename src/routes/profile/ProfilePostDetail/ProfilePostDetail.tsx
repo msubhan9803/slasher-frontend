@@ -7,7 +7,7 @@ import {
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 import {
-  likeFeedComment, likeFeedPost, unlikeFeedComment, unlikeFeedPost,
+  likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
 import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { getSuggestUserName } from '../../../api/users';
@@ -284,15 +284,30 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   const onCommentLike = (feedCommentId: string) => {
-    if (feedCommentId === commentID) {
-      const checkCommentLike = commentData.some((comment: any) => comment.id === feedCommentId
-        && comment.likes?.includes(loginUserId));
+    const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
+    const checkReplyId = commentData.map(
+      (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
+    ).filter(Boolean);
+    if (feedCommentId === checkCommentId?._id) {
+      const checkCommentLike = checkCommentId?.likes.includes(loginUserId);
       if (checkCommentLike) {
         unlikeFeedComment(feedCommentId).then((res) => {
           if (res.status === 200) callLatestFeedComments(postId!);
         });
       } else {
         likeFeedComment(feedCommentId).then((res) => {
+          if (res.status === 201) callLatestFeedComments(postId!);
+        });
+      }
+    }
+    if (feedCommentId === checkReplyId[0]?._id) {
+      const checkReplyLike = checkReplyId[0].likes.includes(loginUserId);
+      if (checkReplyLike) {
+        unlikeFeedReply(feedCommentId).then((res) => {
+          if (res.status === 200) callLatestFeedComments(postId!);
+        });
+      } else {
+        likeFeedReply(feedCommentId).then((res) => {
           if (res.status === 201) callLatestFeedComments(postId!);
         });
       }

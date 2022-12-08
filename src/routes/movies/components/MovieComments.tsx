@@ -139,7 +139,6 @@ function MovieComments() {
                   image={data.profileImage}
                   name={data.userName}
                   time={data.profileDateTime}
-                  likes={data.like}
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
@@ -153,7 +152,6 @@ function MovieComments() {
                         id={comment.id}
                         image={comment.image}
                         name={comment.name}
-                        likes={comment.like}
                         time={comment.time}
                         likeIcon={comment.likeIcon}
                         commentMsg={comment.commentMsg}

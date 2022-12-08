@@ -268,7 +268,7 @@ describe('UsersService', () => {
     let user0;
     let user1;
     let user2;
-    let blockUsersIds;
+    let excludedUserIds;
     beforeEach(async () => {
       user0 = await usersService.create(
         userFactory.build(
@@ -315,13 +315,13 @@ describe('UsersService', () => {
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      blockUsersIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      blockUsersIds.push(user0._id);
+      excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
+      excludedUserIds.push(user0._id);
     });
     it('when query exists, returns expected response, with orders sorted alphabetically by username', async () => {
       const query = 'Te';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([
         pick(await usersService.findByUsername('test1'), ['userName', 'id']),
         pick(await usersService.findByUsername('test2'), ['userName', 'id']),
@@ -332,21 +332,21 @@ describe('UsersService', () => {
     it('when query is exists and limited is applied, returns expected response', async () => {
       const query = 'te';
       const limit = 1;
-      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toHaveLength(1);
     });
 
     it('when query is wrong than expected response', async () => {
       const query = 'wq';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(query, limit, true, blockUsersIds);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([]);
     });
 
     it('when activeOnly is false then it gives expected response', async () => {
       const query = 'TE';
       const limit = 5;
-      const suggestUserNames = await usersService.suggestUserName(query, limit, false, blockUsersIds);
+      const suggestUserNames = await usersService.suggestUserName(query, limit, false, excludedUserIds);
       expect(suggestUserNames).toHaveLength(4);
     });
   });

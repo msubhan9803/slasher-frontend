@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button, Image } from 'react-bootstrap';
-import SlasherQuestionMark from '../../../images/slasher-question-mark.png';
-import CustomPopover from '../../../components/ui/CustomPopover';
+import SlasherQuestionMark from '../../../../images/slasher-question-mark.png';
+import CustomPopover from '../../../../components/ui/CustomPopover';
 
 const ProfileImage = styled(Image)`
   height: 3.334rem;

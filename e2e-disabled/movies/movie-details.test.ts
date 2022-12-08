@@ -3,19 +3,11 @@ import {
   // expect
 } from '@playwright/test';
 
-import { performSignIn } from '../../e2e/e2e-test-helpers';
-import { testSignInRequirement } from '../shared-tests/sign-in';
-
 const pagePath = '/movies/1/details';
 
 test.describe(pagePath, () => {
-  test('shared tests', async ({ page, baseURL }) => {
-    await testSignInRequirement(pagePath, page, baseURL!);
-  });
-
   test.describe('for a signed-in user', () => {
     test.beforeEach(async ({ page }) => {
-      await performSignIn(page);
       await page.goto(pagePath);
     });
 

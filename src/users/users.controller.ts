@@ -329,10 +329,14 @@ export class UsersController {
 
   @Get('suggest-user-name')
   async suggestUserName(
+    @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: SuggestUserNameQueryDto,
   ) {
-    return this.usersService.suggestUserName(query.query, query.limit);
+    const user = getUserFromRequest(request);
+    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
+    excludedUserIds.push(user._id);
+    return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')

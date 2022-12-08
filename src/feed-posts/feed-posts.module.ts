@@ -7,12 +7,14 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { FriendsModule } from '../friends/friends.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
     RssFeedProviderFollowsModule,
     FriendsModule,
+    NotificationsModule,
   ],
   providers: [FeedPostsService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

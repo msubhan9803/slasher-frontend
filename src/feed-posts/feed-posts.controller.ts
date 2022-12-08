@@ -18,6 +18,9 @@ import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
+import { NotificationType } from '../schemas/notification/notification.enums';
+import { NotificationsService } from '../notifications/providers/notifications.service';
+import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -26,6 +29,8 @@ export class FeedPostsController {
     private readonly config: ConfigService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly notificationsService: NotificationsService,
+    private readonly notificationsGateway: NotificationsGateway,
   ) { }
 
   @Post()
@@ -81,6 +86,25 @@ export class FeedPostsController {
     feedPost.images = images;
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
+
+    if (createFeedPost && createFeedPost.message) {
+      const mentionUserData = createFeedPost.message.match(/[a-fA-F0-9]{24}@[a-zA-Z0-9_.-]+/g);
+      if (mentionUserData && mentionUserData.length) {
+        const mentionedUserIdList = mentionUserData.map((collectedUserData) => collectedUserData.split('@')[0]);
+        for (const mentionedUserId of mentionedUserIdList) {
+          const notificationObj: any = {
+            userId: new mongoose.Types.ObjectId(mentionedUserId),
+            feedPostId: createFeedPost._id,
+            senderId: user._id,
+            notifyType: NotificationType.PostMention,
+            notificationMsg: 'had mentioned you in a post',
+          };
+          const notification = await this.notificationsService.create(notificationObj);
+
+          this.notificationsGateway.emitMessageForNotification(notification);
+        }
+      }
+    }
 
     asyncDeleteMulterFiles(files);
     return {

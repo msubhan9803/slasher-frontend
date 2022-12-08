@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 import { performSignIn } from '../e2e-test-helpers';
-import { testSignInRequirement } from '../shared-tests/sign-in';
+import { testSignInRequirement } from '../../e2e/shared-tests/sign-in';
 
-const pagePath = '/shopping/slasher-deals';
+const pagePath = '/shopping/favorites';
 
 test.describe(pagePath, () => {
   test('shared tests', async ({ page, baseURL }) => {
@@ -17,7 +17,7 @@ test.describe(pagePath, () => {
     });
 
     test('should display the expected content', async ({ page }) => {
-      await expect(page.locator('main')).toHaveText(/Slasher deals/);
+      await expect(page.locator('main')).toHaveText(/Favorites/);
     });
   });
 });

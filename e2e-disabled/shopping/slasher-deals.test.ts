@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { performSignIn } from '../../e2e-test-helpers';
-import { testSignInRequirement } from '../../shared-tests/sign-in';
 
-const pagePath = '/news/partner/1/posts/1';
+import { performSignIn } from '../e2e-test-helpers';
+import { testSignInRequirement } from '../../e2e/shared-tests/sign-in';
+
+const pagePath = '/shopping/slasher-deals';
 
 test.describe(pagePath, () => {
   test('shared tests', async ({ page, baseURL }) => {
@@ -16,7 +17,7 @@ test.describe(pagePath, () => {
     });
 
     test('should display the expected content', async ({ page }) => {
-      await expect(page.locator('main')).toHaveText(/This space is used to help indie creators have a platform to promote their work./);
+      await expect(page.locator('main')).toHaveText(/Slasher deals/);
     });
   });
 });

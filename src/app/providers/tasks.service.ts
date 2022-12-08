@@ -13,8 +13,8 @@ export class TasksService {
     name: 'syncWithTheMovieDb',
     timeZone: 'America/New_York',
   })
-  async syncWithTheMovieDb() {
-    if (!this.configService.get<boolean>('CRON_ENABLED')) { return; }
+  async syncWithTheMovieDb(force = false) {
+    if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
     this.logger.debug('Start cron: syncWithTheMovieDb');
 
     const startYear = 1895;

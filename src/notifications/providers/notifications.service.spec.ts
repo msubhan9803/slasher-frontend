@@ -9,10 +9,12 @@ import { UsersService } from '../../users/providers/users.service';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
-import { NotificationType } from '../../schemas/notification/notification.enums';
+import {
+ NotificationType, NotificationDeletionStatus, NotificationReadStatus, NotificationStatus,
+} from '../../schemas/notification/notification.enums';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
-import { NotificationDeletionStatus, NotificationReadStatus, NotificationStatus } from '../../schemas/notification/notification.enums';
+
 import { notificationFactory } from '../../../test/factories/notification.factory';
 
 describe('NotificationsService', () => {
@@ -81,6 +83,7 @@ describe('NotificationsService', () => {
             userId: activeUser.id,
             is_deleted: NotificationDeletionStatus.NotDeleted,
             status: NotificationStatus.Active,
+            senderId: user1.id,
           }),
         );
       }

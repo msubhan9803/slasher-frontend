@@ -32,7 +32,7 @@ export class NotificationsService {
           before ? { createdAt: beforeCreatedAt } : {},
         ],
       })
-      .populate('userId', 'userName _id profilePic')
+      .populate('senderId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

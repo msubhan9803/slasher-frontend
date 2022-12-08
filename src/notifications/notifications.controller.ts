@@ -2,6 +2,7 @@ import {
   Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../schemas/notification/notification.enums';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -23,6 +24,9 @@ export class NotificationsController {
     return 'test';
   }
 
+  @TransformImageUrls(
+    '$[*].senderId.profilePic',
+  )
   @Get()
   async findAll(
     @Req() request: Request,

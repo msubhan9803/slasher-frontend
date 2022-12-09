@@ -91,6 +91,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           '637b39e078b0104f975821bd',
           '637b39e078b0104f975821be',
           '637b39e078b0104f97582121',
+          activeUser._id.toString(),
         ],
       });
       const feedComments2 = await feedCommentModel.create({
@@ -113,6 +114,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           images: sampleFindFeedCommentsWithRepliesObject.images,
           likes: [
             '63772b35611dc46e8fb42102',
+            activeUser._id.toString(),
           ],
         });
       }
@@ -144,13 +146,16 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       for (let i = 0; i < feedCommentAndReply.length; i += 1) {
         const filterReply = replyData
           .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
-          .map((replyId) => {
+          .map((replyId) => {// eslint-disable-line 
             // eslint-disable-next-line no-param-reassign
             replyId.likeCount = replyId.likes.length;
+            // eslint-disable-next-line no-param-reassign
+            replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
             // eslint-disable-next-line no-param-reassign
             replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
             return replyId;
           });
+        feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser._id.toString());
         feedCommentAndReply[i].likeCount = feedCommentAndReply[i].likes.length;
         feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
         feedCommentAndReply[i].replies = filterReply;

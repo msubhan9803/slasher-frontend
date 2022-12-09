@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -60,11 +61,19 @@ describe('FeedCommentsService', () => {
 
   let feedComments;
   let feedReply;
+  let feedPost1;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     feedPost = await feedPostsService.create(
+      feedPostFactory.build(
+        {
+          userId: activeUser._id,
+        },
+      ),
+    );
+    feedPost1 = await feedPostsService.create(
       feedPostFactory.build(
         {
           userId: activeUser._id,
@@ -190,6 +199,96 @@ describe('FeedCommentsService', () => {
       expect(feedCommentsWithReplies).toHaveLength(3);
     });
 
+    it('when add identifylikesforuser than expected response', async () => {
+      const feedComments1 = await feedCommentsModel.create({
+        feedPostId: feedPost1.id,
+        userId: activeUser._id.toString(),
+        message: sampleFeedCommentsObject.message,
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '637b39e078b0104f975821bc',
+          '637b39e078b0104f975821bd',
+          '637b39e078b0104f975821be',
+          '637b39e078b0104f97582121',
+          activeUser._id.toString(),
+        ],
+      });
+      const feedComments2 = await feedCommentsModel.create({
+        feedPostId: feedPost1.id,
+        userId: activeUser._id.toString(),
+        message: sampleFeedCommentsObject.message,
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '637b39e078b0104f975821bf',
+          '637b39e078b0104f975821bg',
+          '637b39e078b0104f975821bh',
+          activeUser._id.toString(),
+        ],
+      });
+
+      for (let i = 0; i < 2; i += 1) {
+        await feedReplyModel.create({
+          feedCommentId: feedComments1._id.toString(),
+          userId: activeUser._id.toString(),
+          message: 'Hello Test Reply Message 1',
+          images: sampleFeedCommentsObject.images,
+          likes: [
+            '63772b35611dc46e8fb42102',
+          activeUser._id.toString(),
+          ],
+        });
+      }
+      await feedReplyModel.create({
+        feedCommentId: feedComments2._id.toString(),
+        userId: activeUser._id.toString(),
+        message: 'Hello Test Reply Message 4',
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '63772b35611dc46e8fb44455',
+          '63772b35611dc46e8fb45566',
+          activeUser._id.toString(),
+        ],
+      });
+
+      await feedReplyModel.create({
+        feedCommentId: feedComments2._id.toString(),
+        userId: activeUser._id.toString(),
+        message: 'Hello Test Reply Message 5',
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '63772b35611dc46e8fb44455',
+          '63772b35611dc46e8fb45566',
+        ],
+      });
+
+      const getFeedPostData = await feedCommentsModel.find({ feedPostId: feedPost1._id });
+      const getFeedReplyData = await feedReplyModel.find({
+        feedCommentId:
+          { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
+      });
+      const userData = await usersService.findById(activeUser._id.toString());
+      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost1.id, 20, activeUser._id.toString());
+      const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
+      const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
+      for (let i = 0; i < feedCommentAndReply.length; i += 1) {
+        const filterReply = replyData
+          .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
+          .map((replyId) => {// eslint-disable-line 
+            // eslint-disable-next-line no-param-reassign
+            replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
+            // eslint-disable-next-line no-param-reassign
+            replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+            return replyId;
+          });
+        feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser._id.toString());
+        feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+        feedCommentAndReply[i].replies = filterReply;
+      }
+      feedCommentAndReply.sort((a, b) => -a.createdAt.localeCompare(b.createdAt));
+      expect(feedCommentsWithReplies).toHaveLength(2);
+      expect(feedCommentsWithReplies).toEqual(feedCommentAndReply);
+    });
+
     describe('when `before` argument is supplied', () => {
       it('get expected first and second sets of paginated results', async () => {
         const feedComments1 = await feedCommentsService
@@ -247,6 +346,7 @@ describe('FeedCommentsService', () => {
         const secondResults = await feedCommentsService.findFeedCommentsWithReplies(
           feedPost.id,
           limit,
+          null,
           new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
         );
         expect(secondResults).toHaveLength(1);

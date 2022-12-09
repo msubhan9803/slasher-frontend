@@ -81,6 +81,7 @@ export class FeedCommentsService {
   async findFeedCommentsWithReplies(
     parentFeedPostId: string,
     limit: number,
+    identifyLikesForUser?: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies[]> {
     const beforeCreatedAt: any = {};
@@ -101,9 +102,12 @@ export class FeedCommentsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-    const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((e) => {
-      e.replies = [];
-      return e;
+    const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((commentLike) => {
+      // eslint-disable-next-line no-param-reassign
+      commentLike.likedByUser = commentLike.likes.includes(identifyLikesForUser);
+      // eslint-disable-next-line no-param-reassign
+      commentLike.replies = [];
+      return commentLike;
     });
     const commentIds = comments.map((comment) => comment._id);
     const replies = await this.feedReplyModel
@@ -118,15 +122,13 @@ export class FeedCommentsService {
       .exec();
     const commentReplies = [];
     for (const comment of addRepliesKey) {
-      const filterReply = JSON.parse(JSON.stringify(replies))
-        .filter((reply) => reply.feedCommentId.toString() === comment._id)
-        .map((reply) => {
-          // eslint-disable-next-line no-param-reassign
-          reply.likeCount = reply.likes.length;
-          return reply;
-        });
-      comment.replies = filterReply;
-      comment.likeCount = comment.likes.length;
+      const filterReply = replies.filter((reply) => reply.feedCommentId.toString() === comment._id);
+      const addLikedByUser = JSON.parse(JSON.stringify(filterReply)).map((userLike) => {
+        // eslint-disable-next-line no-param-reassign
+        userLike.likedByUser = userLike.likes.includes(identifyLikesForUser);
+        return userLike;
+      });
+      comment.replies = addLikedByUser;
       commentReplies.push(comment);
     }
     return commentReplies;

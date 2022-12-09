@@ -154,7 +154,7 @@ describe('NotificationsService', () => {
             userId: activeUser.id,
             is_deleted: NotificationDeletionStatus.NotDeleted,
             status: NotificationStatus.Active,
-            isRead: NotificationReadStatus.Read,
+            isRead: NotificationReadStatus.Unread,
           }),
         );
       }

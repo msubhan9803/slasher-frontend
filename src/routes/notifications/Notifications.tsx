@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Image } from 'react-bootstrap';
+import { Image } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { DateTime } from 'luxon';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomPopover from '../../components/ui/CustomPopover';
 import RoundButton from '../../components/ui/RoundButton';
-import getNotifications from '../../api/notification';
+import { getNotifications, markAllRead } from '../../api/notification';
+import { NotificationReadStatus } from '../../types';
 
 const UserCircleImageContainer = styled.div`
   background-color: #171717;
@@ -40,7 +42,7 @@ function Notifications() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-
+  let lastTimeStampMessage = '';
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -64,7 +66,6 @@ function Notifications() {
       );
     }
   }, [requestAdditionalPosts, loadingPosts]);
-
   const handleLikesOption = (likeValue: string) => {
     <Link to={`/navigations/${likeValue}`} />;
   };
@@ -80,6 +81,34 @@ function Notifications() {
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
+  const onMarkAllReadClick = () => {
+    markAllRead()
+      .then((res) => {
+        if (res.data.success) {
+          getNotifications(undefined)
+            .then((result) => {
+              const notification = result.data;
+              setNotificationData([
+                ...notification,
+              ]);
+            }).catch(
+              (error) => {
+                setNoMoreData(true);
+                setErrorMessage(error.response?.data.message);
+              },
+            );
+        }
+      });
+  };
+  const notificationTimeStemp = (date) => {
+    if (DateTime.now().hasSame((DateTime.fromISO(date)), 'day')) {
+      return 'Today';
+    } if (DateTime.now().hasSame((DateTime.fromISO(date)), 'week') && !DateTime.now().hasSame((DateTime.fromISO(date)), 'day')) {
+      return 'This week';
+    } if (DateTime.now().hasSame((DateTime.fromISO(date)), 'month') && !DateTime.now().hasSame((DateTime.fromISO(date)), 'week')) {
+      return 'This month';
+    } return null;
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="notification">
       <div className="bg-dark bg-mobile-transparent p-lg-4 rounded-3">
@@ -96,49 +125,67 @@ function Notifications() {
         >
           {notificationData && notificationData.length > 0
             && (
-              <>
-                <div
-                  className="d-flex align-items-center justify-content-between"
-                >
-                  <h1 className="h3 fw-semibold mb-0">Today</h1>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <StyleBorderButton className="text-white bg-black px-4">Mark all read</StyleBorderButton>
-                    <span className="d-lg-none">
-                      <CustomPopover
-                        popoverOptions={popoverOption}
-                        onPopoverClick={handleLikesOption}
-                      />
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  {notificationData.map((today: any) => (
-                    <StyledBorder key={today._id} className="d-flex justify-content-between py-3">
-                      <Button className="px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                        <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-                          <Image src={today.senderId?.profilePic} alt="" className="rounded-circle" />
-                        </UserCircleImageContainer>
-                        <div>
-                          <div className="d-flex align-items-center">
-                            <h3 className="h4 mb-0 fw-bold me-1">
-                              {today.senderId?.userName}
-                              <span className="fs-4 mb-0 fw-normal">
-                                &nbsp;
-                                {today.notificationMsg}
-                                .&nbsp;&nbsp;
-                                {today.isRead === 0 && (
-                                  <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
-                                )}
-                              </span>
-                            </h3>
-                          </div>
-                          <h4 className="h5 mb-0 text-light">{today.timeStamp}</h4>
-                        </div>
-                      </Button>
-                    </StyledBorder>
-                  ))}
-                </div>
-              </>
+              <div>
+                {notificationData.map((today, index) => {
+                  lastTimeStampMessage = index > 0 ? notificationData[index - 1]?.createdAt : '';
+                  return (
+                    <React.Fragment key={today._id}>
+                      {DateTime.now().hasSame((DateTime.fromISO(today.createdAt)), 'month')
+                        && (
+                          <>
+                            {(!lastTimeStampMessage
+                              || DateTime.fromISO(lastTimeStampMessage).toISODate()
+                              !== DateTime.fromISO(today?.createdAt).toISODate())
+                              && (
+                                <div
+                                  className={`d-flex align-items-center justify-content-between ${index > 0 ? 'mt-4' : ''}`}
+                                >
+                                  <h1 className="h3 fw-semibold mb-0">
+                                    {notificationTimeStemp(today?.createdAt)}
+                                  </h1>
+                                  {index === 0
+                                    && (
+                                      <div className="d-flex justify-content-between align-items-center">
+                                        <StyleBorderButton className="text-white bg-black px-4" onClick={() => onMarkAllReadClick()}>Mark all read</StyleBorderButton>
+                                        <span className="d-lg-none">
+                                          <CustomPopover
+                                            popoverOptions={popoverOption}
+                                            onPopoverClick={handleLikesOption}
+                                          />
+                                        </span>
+                                      </div>
+                                    )}
+                                </div>
+                              )}
+                            <StyledBorder key={today._id} className="d-flex justify-content-between py-3">
+                              <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+                                <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                                  <Image src={today.senderId?.profilePic} alt="" className="rounded-circle" />
+                                </UserCircleImageContainer>
+                                <div>
+                                  <div className="d-flex align-items-center">
+                                    <h3 className="h4 mb-0 fw-bold me-1">
+                                      {today.senderId?.userName}
+                                      <span className="fs-4 mb-0 fw-normal">
+                                        &nbsp;
+                                        {today.notificationMsg}
+                                        .&nbsp;&nbsp;
+                                        {today.isRead === NotificationReadStatus.Unread && (
+                                          <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
+                                        )}
+                                      </span>
+                                    </h3>
+                                  </div>
+                                  <h4 className="h5 mb-0 text-light">{DateTime.fromISO(today.createdAt).toFormat('MM/dd/yyyy t')}</h4>
+                                </div>
+                              </Link>
+                            </StyledBorder>
+                          </>
+                        )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
             )}
         </InfiniteScroll>
         {loadingPosts && renderLoadingIndicator()}
@@ -147,5 +194,4 @@ function Notifications() {
     </AuthenticatedPageWrapper>
   );
 }
-
 export default Notifications;

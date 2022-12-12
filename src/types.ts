@@ -128,7 +128,7 @@ export interface FeedComments {
   hideUsers: any;
   images: any;
   is_deleted: number;
-  likes: string[];
+  likedByUser: boolean;
   message: string;
   replies: FeedReplies[];
   reportUsers: any;

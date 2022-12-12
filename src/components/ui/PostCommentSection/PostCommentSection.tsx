@@ -127,8 +127,7 @@ function PostCommentSection({
           commentImg: replies.images,
           feedCommentId: replies.feedCommentId,
           userId: replies.userId,
-          likes: replies.likes,
-          likeIcon: replies.likes.includes(loginUserId),
+          likeIcon: replies.likedByUser,
           likeCount: replies.likeCount,
           commentCount: replies.commentCount,
         };
@@ -144,8 +143,7 @@ function PostCommentSection({
         commentImg: comment.images,
         commentReplySection: commentReplies,
         userId: comment.userId,
-        likes: comment.likes,
-        likeIcon: comment.likes.includes(loginUserId),
+        likeIcon: comment.likedByUser,
         likeCount: comment.likeCount,
         commentCount: comment.commentCount,
       };

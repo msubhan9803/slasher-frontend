@@ -148,3 +148,17 @@ export enum NotificationReadStatus {
   Unread = 0,
   Read = 1,
 }
+
+export interface NotificationList {
+  _id: string;
+  createdAt: string,
+  isRead: number,
+  notificationMsg: string,
+  senderId: Sender,
+}
+
+interface Sender {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}

@@ -240,15 +240,21 @@ export class FeedCommentsController {
     );
     const commentReplies = [];
     for (const comment of allFeedCommentsWithReplies) {
-      const comments = JSON.parse(JSON.stringify(comment));
+      const comments = comment as any;
       const filterReply = comments.replies
         .map((reply) => {
           // eslint-disable-next-line no-param-reassign
           reply.likeCount = reply.likes.length;
+          // eslint-disable-next-line no-param-reassign
+          delete reply.likes;
+          // eslint-disable-next-line no-param-reassign
+          delete reply.__v;
           return reply;
         });
       comments.replies = filterReply;
       comments.likeCount = comments.likes.length;
+      delete comments.likes;
+      delete comments.__v;
       commentReplies.push(comments);
     }
     return commentReplies;

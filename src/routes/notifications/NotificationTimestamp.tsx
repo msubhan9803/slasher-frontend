@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { DateTime } from 'luxon';
 
-function NotificationTimestamp({ date }: any) {
-  const [timestampTitle, setTimestampTitle] = useState<string>();
+function NotificationTimestamp({ isoDateString }: any) {
+  const labelForIsoDateString = (value: string) => {
+    const dateTime = DateTime.fromISO(value);
 
-  useEffect(() => {
-    if (date) {
-      if (DateTime.now().diff(DateTime.fromISO(date)).as('hour') <= 24) {
-        setTimestampTitle('Today');
-      } else if (DateTime.now().diff(DateTime.fromISO(date)).as('hour') > 24
-                && DateTime.now().diff(DateTime.fromISO(date)).as('week') <= 1) {
-        setTimestampTitle('This week');
-      } else if (DateTime.now().diff(DateTime.fromISO(date)).as('week') > 1
-                && DateTime.now().diff(DateTime.fromISO(date)).as('month') <= 1) {
-        setTimestampTitle('This month');
-      } else if (DateTime.now().diff(DateTime.fromISO(date)).as('month') > 1) {
-        setTimestampTitle('Older notifications');
-      }
+    if (DateTime.now().diff(dateTime).as('hour') <= 24) {
+      return 'Today';
+    } if (DateTime.now().diff(dateTime).as('week') <= 1) {
+      return 'This week';
+    } if (DateTime.now().diff(dateTime).as('month') <= 1) {
+      return 'This month';
     }
-  }, [date]);
+    return 'Other notifications';
+  };
 
   return (
     <h1 className="h3 fw-semibold mb-0">
-      {timestampTitle}
+      {labelForIsoDateString(isoDateString)}
     </h1>
   );
 }

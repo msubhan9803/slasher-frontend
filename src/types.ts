@@ -149,7 +149,7 @@ export enum NotificationReadStatus {
   Read = 1,
 }
 
-export interface NotificationList {
+export interface Notification {
   _id: string;
   createdAt: string,
   isRead: number,

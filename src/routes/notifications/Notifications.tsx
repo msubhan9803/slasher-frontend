@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,7 +12,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 import CustomPopover from '../../components/ui/CustomPopover';
 import RoundButton from '../../components/ui/RoundButton';
 import { getNotifications, markAllRead } from '../../api/notification';
-import { NotificationList, NotificationReadStatus } from '../../types';
+import { Notification, NotificationReadStatus } from '../../types';
 import NotificationTimestamp from './NotificationTimestamp';
 
 const UserCircleImageContainer = styled.div`
@@ -38,12 +40,11 @@ const StyleBorderButton = styled(RoundButton)`
 `;
 function Notifications() {
   const popoverOption = ['Settings'];
-  const [notificationData, setNotificationData] = useState<NotificationList[]>([]);
+  const [notificationData, setNotificationData] = useState<Notification[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  let lastTimeStampMessage = '';
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -103,6 +104,82 @@ function Notifications() {
       });
   };
 
+  // TODO: Instead of a renderNotification method, create a Notification component
+  const renderNotification = (notification: Notification) => (
+    <StyledBorder key={notification._id} className="d-flex justify-content-between py-3">
+      <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+        {notification.senderId && (
+          <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+            <Image src={notification.senderId?.profilePic} alt="" className="rounded-circle" />
+          </UserCircleImageContainer>
+        )}
+        <div>
+          <div className="d-flex align-items-center">
+            <h3 className="h4 mb-0 fw-bold me-1">
+              {notification.senderId?.userName}
+              <span className="fs-4 mb-0 fw-normal">
+                &nbsp;
+                {notification.notificationMsg}
+                .&nbsp;&nbsp;
+                {notification.isRead === NotificationReadStatus.Unread && (
+                  <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
+                )}
+              </span>
+            </h3>
+          </div>
+          <h4 className="h5 mb-0 text-light">{DateTime.fromISO(notification.createdAt).toFormat('MM/dd/yyyy t')}</h4>
+        </div>
+      </Link>
+    </StyledBorder>
+  );
+
+  const groupNotificationsByDateRange = (notifications: Notification[]) => {
+    const groupedNotifications: {
+      today: Notification[],
+      thisWeek: Notification[],
+      thisMonth: Notification[],
+      other: Notification[]
+    } = {
+      today: [],
+      thisWeek: [],
+      thisMonth: [],
+      other: [],
+    };
+
+    notifications.forEach((notification) => {
+      const createdAtDateTime = DateTime.fromISO(notification.createdAt);
+      if (DateTime.now().diff(createdAtDateTime).as('hour') <= 24) {
+        groupedNotifications.today.push(notification);
+      } else if (DateTime.now().diff(createdAtDateTime).as('week') <= 1) {
+        groupedNotifications.thisWeek.push(notification);
+      } else if (DateTime.now().diff(createdAtDateTime).as('month') <= 1) {
+        groupedNotifications.thisMonth.push(notification);
+      } else {
+        groupedNotifications.other.push(notification);
+      }
+    });
+
+    return groupedNotifications;
+  };
+
+  const renderNotificationsWithLabels = (notifications: Notification[]) => {
+    const groupedNotifications = groupNotificationsByDateRange(notifications);
+
+    const elementsToRender: any = [];
+
+    Object.entries(groupedNotifications).forEach(([notificationGroupName, notificationsForGroup]) => {
+      if (notificationsForGroup.length > 0) {
+        elementsToRender.push(<NotificationTimestamp key={notificationGroupName} isoDateString={notificationsForGroup[0].createdAt} />);
+
+        notificationsForGroup.forEach((notification) => {
+          elementsToRender.push(renderNotification(notification));
+        });
+      }
+    });
+
+    return elementsToRender;
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="notification">
       <div className="bg-dark bg-mobile-transparent p-lg-4 rounded-3">
@@ -111,6 +188,15 @@ function Notifications() {
             {errorMessage}
           </div>
         )}
+        <div className="d-flex justify-content-between align-items-center">
+          <StyleBorderButton className="text-white bg-black px-4" onClick={() => onMarkAllReadClick()}>Mark all read</StyleBorderButton>
+          <span className="d-lg-none">
+            <CustomPopover
+              popoverOptions={popoverOption}
+              onPopoverClick={handleLikesOption}
+            />
+          </span>
+        </div>
         <InfiniteScroll
           pageStart={0}
           initialLoad
@@ -120,62 +206,7 @@ function Notifications() {
           {notificationData && notificationData.length > 0
             && (
               <div>
-                {notificationData.map((today, index) => {
-                  lastTimeStampMessage = index > 0 ? notificationData[index - 1]?.createdAt : '';
-                  return (
-                    <React.Fragment key={today._id}>
-                      {(!lastTimeStampMessage
-                        || DateTime.fromISO(lastTimeStampMessage).toISODate()
-                        !== DateTime.fromISO(today?.createdAt).toISODate())
-                        && (
-                          <div
-                            className={`d-flex align-items-center justify-content-between ${index > 0 ? 'mt-4' : ''}`}
-                          >
-                            <NotificationTimestamp date={today?.createdAt} />
-                            {index === 0
-                              && (
-                                <div className="d-flex justify-content-between align-items-center">
-                                  <StyleBorderButton className="text-white bg-black px-4" onClick={() => onMarkAllReadClick()}>Mark all read</StyleBorderButton>
-                                  <span className="d-lg-none">
-                                    <CustomPopover
-                                      popoverOptions={popoverOption}
-                                      onPopoverClick={handleLikesOption}
-                                    />
-                                  </span>
-                                </div>
-                              )}
-                          </div>
-                        )}
-                      <StyledBorder key={today._id} className="d-flex justify-content-between py-3">
-                        <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                          {today.senderId && (
-                            <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-                              <Image src={today.senderId?.profilePic} alt="" className="rounded-circle" />
-                            </UserCircleImageContainer>
-                          )}
-                          <div>
-                            <div className="d-flex align-items-center">
-                              <h3 className="h4 mb-0 fw-bold me-1">
-                                {today.senderId?.userName}
-                                <span className="fs-4 mb-0 fw-normal">
-                                  &nbsp;
-                                  {today.notificationMsg}
-                                  .&nbsp;&nbsp;
-                                  {today.isRead === NotificationReadStatus.Unread && (
-                                    <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
-                                  )}
-                                </span>
-                              </h3>
-                            </div>
-                            <h4 className="h5 mb-0 text-light">{DateTime.fromISO(today.createdAt).toFormat('MM/dd/yyyy t')}</h4>
-                          </div>
-                        </Link>
-                      </StyledBorder>
-                      {/* </> */}
-                      {/* )} */}
-                    </React.Fragment>
-                  );
-                })}
+                {renderNotificationsWithLabels(notificationData)}
               </div>
             )}
         </InfiniteScroll>

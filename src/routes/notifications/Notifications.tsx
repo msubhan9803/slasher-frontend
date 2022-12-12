@@ -148,9 +148,11 @@ function Notifications() {
                         )}
                       <StyledBorder key={today._id} className="d-flex justify-content-between py-3">
                         <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-                          <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-                            <Image src={today.senderId?.profilePic} alt="" className="rounded-circle" />
-                          </UserCircleImageContainer>
+                          {today.senderId && (
+                            <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+                              <Image src={today.senderId?.profilePic} alt="" className="rounded-circle" />
+                            </UserCircleImageContainer>
+                          )}
                           <div>
                             <div className="d-flex align-items-center">
                               <h3 className="h4 mb-0 fw-bold me-1">

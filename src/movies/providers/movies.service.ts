@@ -273,7 +273,6 @@ export class MoviesService {
   }
 
   async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
-    console.log('api call');
     const MOVIE_DB_API_BASE_URL = 'https://api.themoviedb.org/3/discover/movie?api_key='
       + `${this.configService.get<string>('MOVIE_DB_API_KEY')}`;
     try {
@@ -303,13 +302,17 @@ export class MoviesService {
     const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
     const promisesArray = [];
     for (const movie of movies) {
-      if (databaseMovieKeys.includes(34372)) {
-        console.log('update one called =', movie.id === 34372);
-        promisesArray.push(this.moviesModel.updateOne(({ movieDBId: movie.id }), DiscoverMovieMapper.toDomain(movie)));
+      if (databaseMovieKeys.includes(movie.id)) {
+        const movieData = await this.moviesModel.findOne({ movieDBId: movie.id });
+        if (movieData) {
+          for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(movie))) {
+            movie[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
+          }
+          promisesArray.push(movieData.save());
+        }
+      } else {
+        insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
       }
-      // else {
-      //   insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
-      // }
     }
 
     // Update all existing records

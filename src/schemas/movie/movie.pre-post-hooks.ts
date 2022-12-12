@@ -14,7 +14,6 @@ function generateSortRating(rating: number, id: string) {
 
 export function addPrePostHooks(schema: typeof MovieSchema) {
   schema.pre<MovieDocument>('save', async function () {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>> save pre >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     // If id AND name are present, then we can use them to generate the sort_name
     if (this.id?.length > 0 && this.name) {
       this.sort_name = generateSortName(this.name, this.id);
@@ -32,7 +31,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     }
 
     // If id AND rating are present, then we can use them to generate the sortRating
-    if (this.id?.length > 0 && this.rating) {
+    if (this.id?.length > 0 && typeof this.rating === 'number') {
       this.sortRating = generateSortRating(this.rating, this.id);
     } else {
       // Otherwise set sortRating to null (potentially clearing out an existing value)
@@ -41,7 +40,6 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
   });
 
   schema.post<MovieDocument>('save', async function () {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>> save post >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     // If, AFTER a save, id AND name have values but sort_name does not, then this is
     // probably a first-time save and we should set the sort_name value based on the name
     // and id values.
@@ -67,7 +65,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     // If, AFTER a save, sortRating is missing (and dependent fields are present), then this is
     // probably a first-time save and we should set the sortRating value based on the dependent
     // fields.
-    if (this.id?.length > 0 && this.rating && !this.sortRating) {
+    if (this.id?.length > 0 && typeof this.rating === 'number' && !this.sortRating) {
       this.sortRating = generateSortRating(this.rating, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to
@@ -77,82 +75,13 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
   });
 
   // post hooks for insertMany
-  schema.post<MovieDocument[]>('insertMany', async function (docs, next) {
+  schema.post<MovieDocument[]>('insertMany', async (docs) => {
     if (Array.isArray(docs) && docs.length) {
       docs.map(async (singleDoc) => {
         await singleDoc.save();
       });
-      next();
     } else {
-      return next(new Error('Movies list should not be empty'));
+      throw new Error('Movies list should not be empty');
     }
-  });
-
-  schema.pre<MovieDocument>('updateOne', async function() {
-    // If id AND name are present, then we can use them to generate the sort_name
-    if (this.id?.length > 0 && this.name) {
-      this.sort_name = generateSortName(this.name, this.id);
-    } else {
-      // Otherwise set sort_name to null (potentially clearing out an existing value)
-      this.sort_name = null;
-    }
-
-    // If id AND name AND releaseDate are present, then we can use them to generate the sortReleaseName
-    if (this.id?.length > 0 && this.name && this.releaseDate) {
-      this.sortReleaseDate = generateSortReleaseDate(this.releaseDate, this.sort_name, this.id);
-    } else {
-      // Otherwise set sortReleaseDate to null (potentially clearing out an existing value)
-      this.sortReleaseDate = null;
-    }
-
-    // If id AND rating are present, then we can use them to generate the sortRating
-    if (this.id?.length > 0 && this.rating) {
-      this.sortRating = generateSortRating(this.rating, this.id);
-    } else {
-      // Otherwise set sortRating to null (potentially clearing out an existing value)
-      this.sortRating = null;
-    }
-    console.log('sort_name =', this.sort_name);
-    console.log('sortReleaseDate =', this.sortReleaseDate);
-    console.log('sortRating =', this.sortRating);
-    
-    // await this.save()
-    // console.log('query criteria',this.getQuery());// { _id: 5bc8d61f28c8fc16a7ce9338 }
-    // console.log(this.update);// { '$set': { name: 'I was updated!' } }
-    // console.log(this._conditions);
-  });
-
-  schema.post<MovieDocument>('updateOne', async function() {
-    // If id AND name are present, then we can use them to generate the sort_name
-    if (this.id?.length > 0 && this.name) {
-      this.sort_name = generateSortName(this.name, this.id);
-    } else {
-      // Otherwise set sort_name to null (potentially clearing out an existing value)
-      this.sort_name = null;
-    }
-
-    // If id AND name AND releaseDate are present, then we can use them to generate the sortReleaseName
-    if (this.id?.length > 0 && this.name && this.releaseDate) {
-      this.sortReleaseDate = generateSortReleaseDate(this.releaseDate, this.sort_name, this.id);
-    } else {
-      // Otherwise set sortReleaseDate to null (potentially clearing out an existing value)
-      this.sortReleaseDate = null;
-    }
-
-    // If id AND rating are present, then we can use them to generate the sortRating
-    if (this.id?.length > 0 && this.rating) {
-      this.sortRating = generateSortRating(this.rating, this.id);
-    } else {
-      // Otherwise set sortRating to null (potentially clearing out an existing value)
-      this.sortRating = null;
-    }
-    console.log('sort_name post =', this.sort_name);
-    console.log('sortReleaseDate post =', this.sortReleaseDate);
-    console.log('sortRating post =', this.sortRating);
-    
-    await this.save()
-    // console.log('query criteria',this.getQuery());// { _id: 5bc8d61f28c8fc16a7ce9338 }
-    // console.log(this.update);// { '$set': { name: 'I was updated!' } }
-    // console.log(this._conditions);
   });
 }

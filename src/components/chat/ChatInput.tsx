@@ -28,7 +28,13 @@ const StyledChatInputGroup = styled.div`
   }  
 `;
 
-function ChatInput() {
+interface ChatInputProps {
+  sendMessageClick?: () => void;
+  setMessage?: (value: string) => void;
+  message?: string;
+}
+
+function ChatInput({ sendMessageClick, setMessage, message }: ChatInputProps) {
   return (
     <StyledChatInputGroup className="pt-4 pt-lg-3 pb-0 pb-lg-3 px-3 text-muted border-top-0 overflow-hidden">
       <InputGroup className="pe-2">
@@ -38,14 +44,24 @@ function ChatInput() {
         <Form.Control
           placeholder="Type your message here..."
           className="border-end-0 fs-5 border-start-0"
+          value={message}
+          onChange={
+            (messageInput) => setMessage!(messageInput.target.value)
+          }
         />
         <InputGroup.Text className="border-start-0">
-          <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" />
+          <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" onClick={sendMessageClick} />
         </InputGroup.Text>
 
       </InputGroup>
     </StyledChatInputGroup>
   );
 }
+
+ChatInput.defaultProps = {
+  sendMessageClick: null,
+  setMessage: null,
+  message: null,
+};
 
 export default ChatInput;

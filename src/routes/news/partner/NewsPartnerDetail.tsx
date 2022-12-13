@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { getRssFeedProviderDetail } from '../../../api/rss-feed';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
-import userImage from '../../../images/placeholder-user.jpg';
 import NewsPostData from '../components/NewsPostData';
 
 const CustomButton = styled(RoundButton)`
@@ -18,7 +19,18 @@ const CustomButton = styled(RoundButton)`
   }
 `;
 function NewsPartnerDetail() {
+  const { partnerId } = useParams<string>();
+  const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<any>();
   const [following, setFollowing] = useState(true);
+
+  useEffect(() => {
+    if (partnerId) {
+      getRssFeedProviderDetail(partnerId)
+        .then((res) => {
+          setRssFeedProviderDetail(res.data);
+        });
+    }
+  }, [partnerId]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="news">
@@ -26,14 +38,12 @@ function NewsPartnerDetail() {
         <Col>
           <Row className="bg-dark rounded-3 mx-0">
             <Col md="auto" className="d-flex justify-content-center p-4 pb-md-4 pb-0">
-              <UserCircleImage size="11.25rem" src={userImage} className="rounded-4" />
+              <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} className="rounded-4" />
             </Col>
             <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
-              <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">Horror Oasis</h2>
+              <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">{rssFeedProviderDetail?.title}</h2>
               <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
-                Take a deep dive and try our list of over 40 unique generators,
-                find placeholder images for your next design,
-                or add a lorem ipsum plugin to the CMS or text editor of your choice.
+                {rssFeedProviderDetail?.description}
               </p>
             </Col>
             <Col className="d-md-none">
@@ -52,7 +62,7 @@ function NewsPartnerDetail() {
               </div>
             </Col>
           </Row>
-          <NewsPostData />
+          <NewsPostData partnerId={partnerId!} />
         </Col>
       </Row>
     </AuthenticatedPageWrapper>

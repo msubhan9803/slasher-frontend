@@ -32,6 +32,8 @@
     "linkify-html": "^4.0.2",
     "linkify-plugin-mention": "^4.0.2",
     "linkifyjs": "^4.0.2",
+    "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "luxon": "^2.4.0",
     "moment": "^2.29.4",
     "rc-mentions": "^1.10.0",
@@ -46,6 +48,7 @@
     "react-responsive": "^9.0.0-beta.8",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
+    "socket.io-client": "^4.5.2",
     "styled-components": "^5.3.5",
     "swiper": "^8.4.4",
     "typescript": "^4.6.4",
@@ -53,6 +56,7 @@
   },
   "scripts": {
     "build": "CI=false react-scripts build",
+    "analyze": "npm run build && source-map-explorer 'build/static/js/*.js'",
     "eject": "react-scripts eject",
     "lint": "eslint \"{src,e2e}/**/*.{ts,js,tsx, jsx}\" --max-warnings=0",
     "start": "react-scripts start",
@@ -104,6 +108,7 @@
     "@storybook/react": "^6.5.13",
     "@storybook/testing-library": "^0.0.13",
     "@types/js-cookie": "^3.0.2",
+    "@types/lodash": "^4.14.189",
     "@types/luxon": "^2.3.2",
     "@types/react-infinite-scroller": "^1.2.3",
     "@types/react-leaflet": "^2.8.2",
@@ -124,6 +129,7 @@
     "prop-types": "^15.8.1",
     "sass": "^1.51.0",
     "serve": "^13.0.2",
+    "source-map-explorer": "^2.5.3",
     "webpack": "^5.75.0",
     "wrangler": "^2.1.10"
   }

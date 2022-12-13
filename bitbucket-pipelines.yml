@@ -19,6 +19,8 @@ definitions:
           # Set CHROME_BIN environment variable to point to Chrome install location.
           # This is used by karma as part of the ng test script.
           - export CHROME_BIN='/usr/bin/google-chrome-stable'
+          # Load TEST environment env variables (find to do since we're only building for the test environment)
+          - set -o allexport; source .env.test
           # Install NPM dependencies
           - npm ci
           # Set up playwright for e2e tests

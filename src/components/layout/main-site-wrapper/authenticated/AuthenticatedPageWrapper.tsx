@@ -127,8 +127,8 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           {
             rightSidebarType
             && (
-              <div>
-                <RightSidebarWrapper className={`d-${desktopBreakPoint}-block d-none`}>
+              <div id="desktop-sidebar" className={`d-${desktopBreakPoint}-block d-none`}>
+                <RightSidebarWrapper>
                   {renderSidebarForType(rightSidebarType)}
                 </RightSidebarWrapper>
               </div>

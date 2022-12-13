@@ -115,7 +115,7 @@ const config: PlaywrightTestConfig = {
   webServer: {
     command: process.env.CI
       ? `npm run serve-build -- -l ${port}`
-      : `cross-env PORT=${port} npm run start`,
+      : `cross-env NODE_ENV=test PORT=${port} npm run start`,
     port,
   },
 };

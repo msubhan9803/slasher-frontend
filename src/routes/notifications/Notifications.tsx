@@ -1,43 +1,15 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Image } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import CustomPopover from '../../components/ui/CustomPopover';
-import RoundButton from '../../components/ui/RoundButton';
 import { getNotifications, markAllRead } from '../../api/notification';
-import { Notification, NotificationReadStatus } from '../../types';
+import { Notification } from '../../types';
 import NotificationTimestamp from './NotificationTimestamp';
+import NotificationCard from './NotificationCard';
 
-const UserCircleImageContainer = styled.div`
-  background-color: #171717;
-  img {
-    height: 50px;
-    width: 50px;
-  }
-`;
-const StyledBorder = styled.div`
-  border-bottom: 1px solid #3A3B46;
-  svg {
-    width: 8px;
-  }
-  &:last-of-type {
-    border-bottom: none !important;
-    padding-bottom: 0 !important
-  }
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
 function Notifications() {
   const popoverOption = ['Settings'];
   const [notificationData, setNotificationData] = useState<Notification[]>([]);
@@ -104,35 +76,6 @@ function Notifications() {
       });
   };
 
-  // TODO: Instead of a renderNotification method, create a Notification component
-  const renderNotification = (notification: Notification) => (
-    <StyledBorder key={notification._id} className="d-flex justify-content-between py-3">
-      <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
-        {notification.senderId && (
-          <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-            <Image src={notification.senderId?.profilePic} alt="" className="rounded-circle" />
-          </UserCircleImageContainer>
-        )}
-        <div>
-          <div className="d-flex align-items-center">
-            <h3 className="h4 mb-0 fw-bold me-1">
-              {notification.senderId?.userName}
-              <span className="fs-4 mb-0 fw-normal">
-                &nbsp;
-                {notification.notificationMsg}
-                .&nbsp;&nbsp;
-                {notification.isRead === NotificationReadStatus.Unread && (
-                  <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
-                )}
-              </span>
-            </h3>
-          </div>
-          <h4 className="h5 mb-0 text-light">{DateTime.fromISO(notification.createdAt).toFormat('MM/dd/yyyy t')}</h4>
-        </div>
-      </Link>
-    </StyledBorder>
-  );
-
   const groupNotificationsByDateRange = (notifications: Notification[]) => {
     const groupedNotifications: {
       today: Notification[],
@@ -163,16 +106,25 @@ function Notifications() {
   };
 
   const renderNotificationsWithLabels = (notifications: Notification[]) => {
+    let markButton = true;
     const groupedNotifications = groupNotificationsByDateRange(notifications);
 
     const elementsToRender: any = [];
 
     Object.entries(groupedNotifications).forEach(([notificationGroupName, notificationsForGroup]) => {
       if (notificationsForGroup.length > 0) {
-        elementsToRender.push(<NotificationTimestamp key={notificationGroupName} isoDateString={notificationsForGroup[0].createdAt} />);
-
-        notificationsForGroup.forEach((notification) => {
-          elementsToRender.push(renderNotification(notification));
+        elementsToRender.push(<NotificationTimestamp
+          key={notificationGroupName}
+          isoDateString={notificationsForGroup[0].createdAt}
+          show={markButton}
+          onMarkAllReadClick={onMarkAllReadClick}
+          popoverOption={popoverOption}
+          handleLikesOption={handleLikesOption}
+        />);
+        markButton = false;
+        notificationsForGroup.forEach((notification, index) => {
+          const lastCard = notificationsForGroup.length - 1 === index;
+          elementsToRender.push(<NotificationCard notification={notification} lastCard={lastCard} />);
         });
       }
     });
@@ -188,15 +140,7 @@ function Notifications() {
             {errorMessage}
           </div>
         )}
-        <div className="d-flex justify-content-between align-items-center">
-          <StyleBorderButton className="text-white bg-black px-4" onClick={() => onMarkAllReadClick()}>Mark all read</StyleBorderButton>
-          <span className="d-lg-none">
-            <CustomPopover
-              popoverOptions={popoverOption}
-              onPopoverClick={handleLikesOption}
-            />
-          </span>
-        </div>
+
         <InfiniteScroll
           pageStart={0}
           initialLoad

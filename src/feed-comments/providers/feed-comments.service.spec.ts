@@ -402,4 +402,70 @@ describe('FeedCommentsService', () => {
       expect(feedReplyDetails).toBeNull();
     });
   });
+
+  describe('#findOneFeedCommentWithReplies', () => {
+    let feedPost2;
+    let feedComments1;
+    beforeEach(async () => {
+      feedPost2 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      feedComments1 = await feedCommentsModel.create({
+        feedPostId: feedPost2.id,
+        userId: activeUser._id.toString(),
+        message: sampleFeedCommentsObject.message,
+        images: sampleFeedCommentsObject.images,
+        likes: [
+          '637b39e078b0104f975821bc',
+          '637b39e078b0104f975821bd',
+          '637b39e078b0104f975821be',
+          '637b39e078b0104f97582121',
+          activeUser._id.toString(),
+        ],
+      });
+      for (let i = 0; i < 2; i += 1) {
+        await feedReplyModel.create({
+          feedCommentId: feedComments1._id.toString(),
+          userId: activeUser._id.toString(),
+          message: 'Hello Test Reply Message 1',
+          images: sampleFeedCommentsObject.images,
+          likes: [
+            '63772b35611dc46e8fb42102',
+            activeUser._id.toString(),
+          ],
+        });
+      }
+    });
+
+    it('successfully find single feed comments and reply.', async () => {
+      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies(feedComments1.id, true, activeUser.id);
+      const getFeedPostData = await feedCommentsModel.findOne({ feedPostId: feedPost2._id });
+      const getFeedReplyData = await feedReplyModel.find({
+        feedCommentId: feedComments1._id.toString(),
+      });
+      const userData = await usersService.findById(activeUser._id.toString());
+      const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
+      const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
+      const filterReply = replyData.map((replyId) => {
+        // eslint-disable-next-line no-param-reassign
+        replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
+        // eslint-disable-next-line no-param-reassign
+        replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+        return replyId;
+      });
+      feedCommentAndReply.likedByUser = feedCommentAndReply.likes.includes(activeUser._id.toString());
+      feedCommentAndReply.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
+      feedCommentAndReply.replies = filterReply;
+      expect(feedCommentAndReplyDetails).toEqual(feedCommentAndReply);
+    });
+
+    it('when feed comment id is not exists than expected response.', async () => {
+      const feedCommentAndReplyDetails = await feedCommentsService.findOneFeedCommentWithReplies('637b39e078b0104f975821be', true);
+      expect(feedCommentAndReplyDetails).toBeNull();
+    });
+  });
 });

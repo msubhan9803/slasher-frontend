@@ -152,4 +152,41 @@ export class FeedCommentsService {
       .exec();
     return feedReply;
   }
+
+  async findOneFeedCommentWithReplies(
+    feedCommentId: string,
+    activeOnly: boolean,
+    identifyLikesForUser?: mongoose.Types.ObjectId,
+  ): Promise<FeedCommentWithReplies> {
+    const commentAndReplyQuery: any = { _id: feedCommentId };
+    if (activeOnly) {
+      commentAndReplyQuery.is_deleted = FeedCommentDeletionState.NotDeleted;
+      commentAndReplyQuery.status = FeedCommentStatus.Active;
+    }
+    const feedComment = await this.feedCommentModel
+      .findOne(commentAndReplyQuery)
+      .populate('userId', 'userName _id profilePic')
+      .exec();
+    if (!feedComment) {
+      return null;
+    }
+    const feedCommentData = JSON.parse(JSON.stringify(feedComment));
+    feedCommentData.likedByUser = feedCommentData.likes.includes(identifyLikesForUser);
+    const feedReply = await this.feedReplyModel
+      .find({
+        feedCommentId: feedCommentData._id,
+        deleted: FeedCommentDeletionState.NotDeleted,
+        status: FeedCommentStatus.Active,
+      })
+      .populate('userId', 'userName _id profilePic')
+      .sort({ createdAt: 1 })
+      .exec();
+    const feedReplyData = JSON.parse(JSON.stringify(feedReply)).map((reply) => {
+      // eslint-disable-next-line no-param-reassign
+      reply.likedByUser = reply.likes.includes(identifyLikesForUser);
+      return reply;
+    });
+    feedCommentData.replies = feedReplyData;
+    return feedCommentData;
+  }
 }

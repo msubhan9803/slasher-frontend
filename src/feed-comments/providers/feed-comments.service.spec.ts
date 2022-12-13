@@ -143,6 +143,17 @@ describe('FeedCommentsService', () => {
         );
       expect(feedReplyData.feedCommentId).toEqual(feedComments._id);
     });
+
+    it('when feed comment id is not found', async () => {
+      const feedCommentId = '634fc8986a5897b88a2d971b';
+      await expect(feedCommentsService
+        .createFeedReply(
+          feedCommentId,
+          activeUser.id,
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        )).rejects.toThrow(`Comment with id ${feedCommentId} not found`);
+    });
   });
 
   describe('#updateFeedReply', () => {
@@ -234,7 +245,7 @@ describe('FeedCommentsService', () => {
           images: sampleFeedCommentsObject.images,
           likes: [
             '63772b35611dc46e8fb42102',
-          activeUser._id.toString(),
+            activeUser._id.toString(),
           ],
         });
       }

@@ -46,11 +46,16 @@ export class FeedCommentsService {
   }
 
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
+    const feedComment = await this.findFeedComment(parentFeedCommentId);
+    if (!feedComment) {
+      throw new Error(`Comment with id ${parentFeedCommentId} not found`);
+    }
     const feedReply = await this.feedReplyModel.create({
       feedCommentId: parentFeedCommentId,
       userId,
       message,
       images,
+      feedPostId: feedComment.feedPostId,
     });
     // TODO: Uncomment the code below later on.  Right now, the old API only increments post comment
     // count when a FeedComment is added/removed, but not when a FeedReply is added/removed. So for

@@ -5,7 +5,6 @@ import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
 import ChatOptions from './ChatOptions';
-import ChatTimestamp from './ChatTimestamp';
 import ChatUserStatus from './ChatUserStatus';
 
 const StyledChatContainer = styled.div`
@@ -49,20 +48,25 @@ const StyledChatContainer = styled.div`
   }
 `;
 
-function Chat({ messages }: ChatProps) {
+function Chat({
+  messages, userData, sendMessageClick, setMessage, message,
+}: ChatProps) {
   return (
     <StyledChatContainer>
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
-          <ChatUserStatus />
+          <ChatUserStatus userData={userData} />
           <ChatOptions />
         </Card.Header>
         <Card.Body className="position-relative overflow-auto p-0">
           <div className="conversation-container">
-            <ChatTimestamp />
             <ChatMessage messages={messages} />
           </div>
-          <ChatInput />
+          <ChatInput
+            sendMessageClick={sendMessageClick}
+            setMessage={setMessage}
+            message={message}
+          />
         </Card.Body>
       </Card>
     </StyledChatContainer>
@@ -71,6 +75,10 @@ function Chat({ messages }: ChatProps) {
 
 Chat.defaulProps = {
   messages: [],
+  userData: {},
+  sendMessageClick: null,
+  setMessage: null,
+  message: null,
 };
 
 export default Chat;

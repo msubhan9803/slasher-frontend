@@ -5,7 +5,7 @@ import ReportModal from '../../../components/ui/ReportModal';
 import CommentInput from './CommentInput';
 
 interface Props {
-  id: number;
+  id: string;
   profileImage: string;
   userName: string;
   profileDateTime: string;
@@ -16,7 +16,7 @@ interface Props {
   likeIcon: boolean;
 }
 interface Values {
-  id: number;
+  id: string;
   image: string;
   name: string;
   time: string;
@@ -24,8 +24,12 @@ interface Values {
   likeIcon: boolean;
   commentMention: string;
   commentMsg: string;
-  commentImg?: string;
+  commentImg?: ImageList[];
   onIconClick: (value: number) => void;
+}
+interface ImageList {
+  image_path: string;
+  _id: string;
 }
 const commentSection = [
   {
@@ -99,7 +103,7 @@ function MovieComments() {
   const popoverOption = ['Report', 'Delete'];
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const handleLikeIcon = (likeId: number) => {
+  const handleLikeIcon = (likeId: string) => {
     const tempData = [...postData];
     tempData.map((data: any) => {
       const temp = data;

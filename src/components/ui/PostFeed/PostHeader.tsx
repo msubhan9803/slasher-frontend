@@ -2,7 +2,7 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
-import CustomPopover from '../CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface PostHeaderProps {
@@ -11,12 +11,15 @@ interface PostHeaderProps {
   postDate: string;
   profileImage: string;
   popoverOptions: string[];
-  onPopoverClick: (value: string) => void;
-  detailPage: boolean | undefined
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
+  detailPage: boolean | undefined;
+  content?: string;
+  userId?: string;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
+  content, userId,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -59,10 +62,21 @@ function PostHeader({
         </Row>
       </Col>
       <Col xs="auto" className="d-block">
-        <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
+        <CustomPopover
+          popoverOptions={popoverOptions}
+          onPopoverClick={onPopoverClick}
+          content={content}
+          id={id}
+          userId={userId}
+        />
       </Col>
     </Row>
   );
 }
+
+PostHeader.defaultProps = {
+  content: null,
+  userId: null,
+};
 
 export default PostHeader;

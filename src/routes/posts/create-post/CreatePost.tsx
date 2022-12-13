@@ -12,16 +12,16 @@ import { useNavigate } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
-import { createPost } from '../../../api/posts';
+import { createPost } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { getSuggestUserName } from '../../../api/users';
 import MessageTextarea from '../../../components/ui/MessageTextarea';
 
-interface MentionProps {
+export interface MentionProps {
   id: string;
   userName: string;
 }
-interface FormatMentionProps {
+export interface FormatMentionProps {
   id: string;
   value: string;
   format: string;

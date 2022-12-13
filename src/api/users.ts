@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
@@ -177,4 +178,27 @@ export async function getUsersFriends() {
     Authorization: `Bearer ${token}`,
   };
   return axios.get(`${apiUrl}/users/${userId}/friends?limit=6`, { headers });
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  newPasswordConfirmation: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/users/change-password`, {
+    currentPassword, newPassword, newPasswordConfirmation,
+  }, { headers });
+}
+
+export async function userAccountDelete() {
+  const token = Cookies.get('sessionToken');
+  const userId = Cookies.get('userId');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
@@ -39,6 +39,8 @@ function ProfileFriends({ user }: Props) {
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const myRef = useRef<any>(null);
+  const [y, setY] = useState<number>(0);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -87,6 +89,20 @@ function ProfileFriends({ user }: Props) {
         });
     }
   };
+  const getYPosition = () => {
+    const yPosition = myRef.current?.lastElementChild?.offsetTop;
+    setY(yPosition);
+  };
+  useEffect(() => {
+    getYPosition();
+  }, [friendsList]);
+
+  useEffect(() => {
+    const bottomLine = window.scrollY + window.innerHeight > y;
+    if (bottomLine) {
+      fetchMoreFriendList();
+    }
+  }, [y]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -129,7 +145,7 @@ function ProfileFriends({ user }: Props) {
             loadMore={fetchMoreFriendList}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4">
+            <Row className="mt-4" ref={myRef}>
               {friendsList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

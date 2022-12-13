@@ -111,16 +111,16 @@ export class FeedCommentsController {
   async deleteFeedComment(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
-    ) {
-      const user = getUserFromRequest(request);
-      const feedComment = await this.feedCommentsService.findFeedComment(params.feedCommentId);
-      if (!feedComment) {
-        throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
-      }
+  ) {
+    const user = getUserFromRequest(request);
+    const feedComment = await this.feedCommentsService.findFeedComment(params.feedCommentId);
+    if (!feedComment) {
+      throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
+    }
 
-      if (feedComment.userId.toString() !== user.id) {
-        throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
-      }
+    if (feedComment.userId.toString() !== user.id) {
+      throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
+    }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
     return { success: true };
   }
@@ -176,6 +176,7 @@ export class FeedCommentsController {
 
     asyncDeleteMulterFiles(files);
     return {
+      feedCommentId: createFeedComment.feedCommentId,
       feedPostId: createFeedComment.feedPostId,
       message: createFeedComment.message,
       userId: createFeedComment.userId,
@@ -206,16 +207,16 @@ export class FeedCommentsController {
   async deleteFeedReply(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedReplyIdDto,
-    ) {
-      const user = getUserFromRequest(request);
-      const feedReply = await this.feedCommentsService.findFeedReply(params.feedReplyId);
-      if (!feedReply) {
-        throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
-      }
+  ) {
+    const user = getUserFromRequest(request);
+    const feedReply = await this.feedCommentsService.findFeedReply(params.feedReplyId);
+    if (!feedReply) {
+      throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
+    }
 
-      if (feedReply.userId.toString() !== user.id) {
-        throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
-      }
+    if (feedReply.userId.toString() !== user.id) {
+      throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
+    }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);
     return { success: true };
   }
@@ -228,13 +229,35 @@ export class FeedCommentsController {
   )
   @Get()
   async findFeedCommentsWithReplies(
+    @Req() request: Request,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFeedCommentsDto,
   ) {
+    const user = getUserFromRequest(request);
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
+      user.id,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
-    return allFeedCommentsWithReplies;
+    const commentReplies = [];
+    for (const comment of allFeedCommentsWithReplies) {
+      const comments = comment as any;
+      const filterReply = comments.replies
+        .map((reply) => {
+          // eslint-disable-next-line no-param-reassign
+          reply.likeCount = reply.likes.length;
+          // eslint-disable-next-line no-param-reassign
+          delete reply.likes;
+          // eslint-disable-next-line no-param-reassign
+          delete reply.__v;
+          return reply;
+        });
+      comments.replies = filterReply;
+      comments.likeCount = comments.likes.length;
+      delete comments.likes;
+      delete comments.__v;
+      commentReplies.push(comments);
+    }
+    return commentReplies;
   }
 }

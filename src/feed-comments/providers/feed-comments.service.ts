@@ -46,11 +46,16 @@ export class FeedCommentsService {
   }
 
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
+    const feedComment = await this.findFeedComment(parentFeedCommentId);
+    if (!feedComment) {
+      throw new Error(`Comment with id ${parentFeedCommentId} not found`);
+    }
     const feedReply = await this.feedReplyModel.create({
       feedCommentId: parentFeedCommentId,
       userId,
       message,
       images,
+      feedPostId: feedComment.feedPostId,
     });
     // TODO: Uncomment the code below later on.  Right now, the old API only increments post comment
     // count when a FeedComment is added/removed, but not when a FeedReply is added/removed. So for
@@ -81,9 +86,9 @@ export class FeedCommentsService {
   async findFeedCommentsWithReplies(
     parentFeedPostId: string,
     limit: number,
+    identifyLikesForUser?: mongoose.Types.ObjectId,
     before?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies[]> {
-    //after == feedCommentId
     const beforeCreatedAt: any = {};
     if (before) {
       const beforeFeedComment = await this.feedCommentModel.findById(before);
@@ -102,9 +107,12 @@ export class FeedCommentsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-    const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((e) => {
-      e.replies = [];
-      return e;
+    const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((commentLike) => {
+      // eslint-disable-next-line no-param-reassign
+      commentLike.likedByUser = commentLike.likes.includes(identifyLikesForUser);
+      // eslint-disable-next-line no-param-reassign
+      commentLike.replies = [];
+      return commentLike;
     });
     const commentIds = comments.map((comment) => comment._id);
     const replies = await this.feedReplyModel
@@ -120,7 +128,12 @@ export class FeedCommentsService {
     const commentReplies = [];
     for (const comment of addRepliesKey) {
       const filterReply = replies.filter((reply) => reply.feedCommentId.toString() === comment._id);
-      comment.replies = filterReply;
+      const addLikedByUser = JSON.parse(JSON.stringify(filterReply)).map((userLike) => {
+        // eslint-disable-next-line no-param-reassign
+        userLike.likedByUser = userLike.likes.includes(identifyLikesForUser);
+        return userLike;
+      });
+      comment.replies = addLikedByUser;
       commentReplies.push(comment);
     }
     return commentReplies;

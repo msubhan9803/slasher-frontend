@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import mapPinIcon from '../../../../images/dating/dating-map-pin.svg';
 import profileImg1 from '../../../../images/dating/sample_profile/sample_profile1.png';

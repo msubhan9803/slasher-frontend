@@ -6,6 +6,8 @@ import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 
 interface SliderImage {
+  postId: string;
+  imageId: string;
   imageUrl: string;
   linkUrl?: string;
 }
@@ -39,11 +41,6 @@ const StyledSwiper = styled(Swiper)`
   align-items: center;
 }
 
-.swiper-slide img {
-  display: block;
-  height: 100%;
-  object-fit: cover;
-}
 .swiper-pagination {
   position: revert !important;
 }
@@ -56,6 +53,9 @@ const StyledSwiper = styled(Swiper)`
 `;
 const PostImage = styled.div`
   aspect-ratio : 1.9;
+  img {
+    object-fit: contain;
+  }
 `;
 function CustomSwiper({ images, initialSlide }: Props) {
   return (
@@ -66,18 +66,18 @@ function CustomSwiper({ images, initialSlide }: Props) {
     >
       {
         images.map((image: SliderImage) => (
-          <SwiperSlide key={image.imageUrl}>
+          <SwiperSlide key={`${image.imageId}${image.postId}`}>
             {image.linkUrl
               ? (
                 <Link to={image.linkUrl}>
                   <PostImage>
-                    <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
+                    <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
                   </PostImage>
                 </Link>
               )
               : (
                 <PostImage>
-                  <img src={image.imageUrl} className="w-100" alt="user uploaded content" />
+                  <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
                 </PostImage>
               )}
           </SwiperSlide>

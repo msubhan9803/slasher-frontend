@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 
 describe('Find Users(e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,16 @@ describe('Find Users(e2e)', () => {
 
     activeUser = await usersService.create(userFactory.build({ userName: 'Count Rock' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Jack' }));
+    await usersService.create(userFactory.build({
+      userName: 'Count Denial',
+      deleted: true,
+      status: ActiveStatus.Active,
+    }));
+    await usersService.create(userFactory.build({
+      userName: 'Count Jonny',
+      deleted: false,
+      status: ActiveStatus.Inactive,
+    }));
     await usersService.create(userFactory.build({ userName: 'Deni' }));
     await usersService.create(userFactory.build({ userName: 'The Count' }));
     await usersService.create(userFactory.build({ userName: 'Count Dracula' }));

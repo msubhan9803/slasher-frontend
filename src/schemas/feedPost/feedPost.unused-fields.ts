@@ -28,15 +28,6 @@ export class FeedPostUnusedFields {
   shareUsers: mongoose.Schema.Types.ObjectId[];
 
   // NOT USED
-  // The actual values in this field seem to be mostly used for displaying the count of the number
-  // of likes a post has, so it might be possible to change this field to likeCount
-  // and just have it store a number.  Feed post likes are also (redundantly) stored in the
-  // feedpostlikes collection, and feedpostlikes entries are used to check whether or not the
-  // current user has liked something.
-  @Prop({ default: [] })
-  likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
   // Note: The current DB mostly used FeedPostType.Text and FeedPostType.Image,
   // but there are 36 posts of type FeedPostType.TextAndImages (15 are from a test account, 8 are
   // from Damon, and the other 13 seem to be a mix of possible test account or possible real users)

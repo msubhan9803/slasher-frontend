@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { FeedComment } from '../feedComment/feedComment.schema';
+import { FeedPost } from '../feedPost/feedPost.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
 import { FeedReplyDeletionState } from './feedReply.enums';
@@ -43,6 +44,12 @@ export class FeedReply extends FeedReplyUnusedFields {
 
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
+
+  @Prop({ default: [] })
+  likes: mongoose.Schema.Types.ObjectId[];
+
+  @Prop({ default: null, ref: FeedPost.name })
+  feedPostId: mongoose.Schema.Types.ObjectId;
 
   /***********
    * Methods *

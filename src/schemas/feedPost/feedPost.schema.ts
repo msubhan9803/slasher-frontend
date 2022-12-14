@@ -55,6 +55,14 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ default: 0 })
   commentCount: number;
 
+  // The actual values in this field seem to be mostly used for displaying the count of the number
+  // of likes a post has, so it might be possible to change this field to likeCount
+  // and just have it store a number.  Feed post likes are also (redundantly) stored in the
+  // feedpostlikes collection, and feedpostlikes entries are used to check whether or not the
+  // current user has liked something.
+  @Prop({ default: [] })
+  likes: mongoose.Schema.Types.ObjectId[];
+
   /***********
    * Methods *
    ***********/

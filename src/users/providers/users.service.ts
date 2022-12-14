@@ -108,7 +108,7 @@ export class UsersService {
       _id: { $nin: excludeUserIds },
     };
     if (activeOnly) {
-      nameFindQuery.is_deleted = false;
+      nameFindQuery.deleted = false;
       nameFindQuery.status = ActiveStatus.Active;
     }
     const users = await this.userModel

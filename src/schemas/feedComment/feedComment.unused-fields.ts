@@ -14,10 +14,6 @@ export class FeedCommentUnusedFields {
   reportUsers: ReportUser[];
 
   // NOT USED
-  @Prop({ default: [] })
-  likes: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
   @Prop({
     required: true,
     enum: [

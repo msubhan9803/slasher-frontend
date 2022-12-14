@@ -28,6 +28,7 @@ import { BlocksModule } from './blocks/blocks.module';
 import { FeedCommentsModule } from './feed-comments/feed-comments.module';
 import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
+import { FeedLikesModule } from './feed-likes/feed-likes.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { validateEnv } from './utils/env-validation';
     BlocksModule,
     FeedCommentsModule,
     SearchModule,
+    FeedLikesModule,
   ],
   controllers: [AppController],
   providers: [

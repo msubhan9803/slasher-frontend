@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { DateTime } from 'luxon';
 import { UsersService } from '../../users/providers/users.service';
 
 @Injectable()
@@ -53,6 +54,22 @@ export class JwtAuthenticationMiddleware implements NestMiddleware {
     // JWT tokens as expired because the passwordChangedAt values won't match.
     if (passwordChangedAt !== user.passwordChangedAt?.toISOString()) {
       throw new HttpException('Expired token', HttpStatus.UNAUTHORIZED);
+    }
+
+    // Check the user's updatedAt time. If it's greater than 6 hours ago, update it.
+    // This is how we will keep track of how recently a user has been "active" on the site.
+    // We mostly just want to know if they logged in within the last day, so that's why 6 hour
+    // checks are fine.
+    if (DateTime.fromJSDate(user.updatedAt).diffNow().as('hours') < -6) {
+      try {
+        // user.save will be a no-op if no properties are modified,
+        // so we'll just clear updatedAt because it's automatically regenerated on save.
+        user.updatedAt = null;
+        user.save();
+      } catch (e) {
+        // DB may be in read-only mode, which would make the above update fail.  That's fine.
+        // In that case, catch will make this fail silently.
+      }
     }
 
     (req as any).user = user;

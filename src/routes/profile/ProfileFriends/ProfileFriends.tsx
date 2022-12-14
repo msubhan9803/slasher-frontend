@@ -39,7 +39,7 @@ function ProfileFriends({ user }: Props) {
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
-  const friendContainerElmentRef = useRef<any>(null);
+  const friendContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
 
   const friendsTabs = [
@@ -89,7 +89,7 @@ function ProfileFriends({ user }: Props) {
     }
   };
   const getYPosition = () => {
-    const yPosition = friendContainerElmentRef.current?.lastElementChild?.offsetTop;
+    const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
   };
   useEffect(() => {
@@ -144,7 +144,7 @@ function ProfileFriends({ user }: Props) {
             loadMore={fetchMoreFriendList}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4" ref={friendContainerElmentRef}>
+            <Row className="mt-4" ref={friendContainerElementRef}>
               {friendsList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

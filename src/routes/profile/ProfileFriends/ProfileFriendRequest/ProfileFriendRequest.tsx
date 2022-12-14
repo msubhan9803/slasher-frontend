@@ -37,7 +37,7 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
-  const friendRequestContainerElmentRef = useRef<any>(null);
+  const friendRequestContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
 
   const friendsTabs = [
@@ -102,7 +102,7 @@ function ProfileFriendRequest({ user }: Props) {
       });
   };
   const getYPosition = () => {
-    const yPosition = friendRequestContainerElmentRef.current?.lastElementChild?.offsetTop;
+    const yPosition = friendRequestContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
   };
   useEffect(() => {
@@ -138,7 +138,7 @@ function ProfileFriendRequest({ user }: Props) {
             loadMore={fetchMoreFriendReqList}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4" ref={friendRequestContainerElmentRef}>
+            <Row className="mt-4" ref={friendRequestContainerElementRef}>
               {friendsReqList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

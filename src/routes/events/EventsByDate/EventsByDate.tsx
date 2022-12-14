@@ -120,8 +120,8 @@ function EventsByDate() {
   const selectedDateString = DateTime.fromJSDate(selectedDate).toFormat('yyyy-MM-dd');
   const startDate = `${selectedDateString}T00:00:00Z`;
   const endDate = `${selectedDateString}T23:59:59Z`;
-  const eventContainerElmentRef = useRef<any>(null);
-  const [yPositionOfLastEventElement, setYPositionOfLastEveentElement] = useState<number>(0);
+  const eventContainerElementRef = useRef<any>(null);
+  const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -206,8 +206,8 @@ function EventsByDate() {
     </p>
   );
   const getYPosition = () => {
-    const yPosition = eventContainerElmentRef.current?.lastElementChild?.offsetTop;
-    setYPositionOfLastEveentElement(yPosition);
+    const yPosition = eventContainerElementRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastEventElement(yPosition);
   };
   useEffect(() => {
     getYPosition();
@@ -246,7 +246,7 @@ function EventsByDate() {
           hasMore={!noMoreData}
           element="span"
         >
-          <Row ref={eventContainerElmentRef}>
+          <Row ref={eventContainerElementRef}>
             {eventsList && eventsList.length > 0
               && (eventsList.map((eventDetail) => (
                 <Col md={6} key={eventDetail.id}>

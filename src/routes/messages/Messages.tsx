@@ -28,7 +28,7 @@ function Messages() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const userId = Cookies.get('userId');
-  const messageContainerElmentRef = useRef<any>(null);
+  const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
 
   const handleMessagesOption = (messageOption: string) => {
@@ -113,7 +113,7 @@ function Messages() {
       .catch((error) => setErrorMessage(error.response.data.message));
   };
   const getYPosition = () => {
-    const yPosition = messageContainerElmentRef.current?.lastElementChild?.offsetTop;
+    const yPosition = messageContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastMessageElement(yPosition);
   };
   useEffect(() => {
@@ -143,7 +143,7 @@ function Messages() {
           {
             messages.length > 0
             && messages.map((message) => (
-              <div key={message._id} ref={messageContainerElmentRef}>
+              <div key={message._id} ref={messageContainerElementRef}>
                 <UserMessageListItem
                   image={message.profilePic}
                   userName={message.userName}

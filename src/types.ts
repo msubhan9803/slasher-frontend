@@ -23,6 +23,7 @@ export interface Post {
   likeCount: number;
   sharedList: number;
   likeIcon: boolean;
+  likes?: string[];
   hashTag?: string[];
   userId?: string
 }
@@ -51,6 +52,7 @@ export interface NewsPartnerPostProps {
   hashTag: string[];
   commentSection: boolean;
   likeIcon: boolean;
+  likes: string[];
 }
 
 export interface AdditionalMovieData {
@@ -126,9 +128,9 @@ export interface FeedComments {
   hideUsers: any;
   images: any;
   is_deleted: number;
-  likes: any;
+  likedByUser: boolean;
   message: string;
-  replies: any;
+  replies: FeedReplies[];
   reportUsers: any;
   status: number;
   type: number;
@@ -136,10 +138,31 @@ export interface FeedComments {
   userId: FeedCommentUserId;
   __v: number;
   _id: string;
+  likeCount: number;
+  commentCount: number;
 }
 
 interface FeedCommentUserId {
   _id: string;
   userName: string;
   profilePic: string;
+}
+
+interface FeedReplies {
+  createdAt: string;
+  feedPostId: string;
+  hideUsers: any;
+  images: any;
+  is_deleted: number;
+  likes: string[];
+  message: string;
+  reportUsers: any;
+  status: number;
+  type: number;
+  updatedAt: string;
+  userId: FeedCommentUserId;
+  __v: number;
+  _id: string;
+  likeCount: number;
+  commentCount: number;
 }

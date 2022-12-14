@@ -7,6 +7,7 @@ import {
 import { DateTime } from 'luxon';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NewsPartnerPostFooter from './NewsPartnerPostFooter';
 import CustomPopover from '../../../components/ui/CustomPopover';
@@ -16,6 +17,7 @@ import { feedPostDetail } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { NewsPartnerPostProps } from '../../../types';
 import CustomSwiper from '../../../components/ui/CustomSwiper';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -34,33 +36,40 @@ function NewsPartnerPost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const navigate = useNavigate();
   const popoverOption = ['Report'];
+  const loginUserId = Cookies.get('userId');
+
+  const getFeedPostDetail = (feedPostId: string) => {
+    feedPostDetail(feedPostId).then((res) => {
+      /* eslint no-underscore-dangle: 0 */
+      if (newsPartnerId !== res.data.rssfeedProviderId?._id) {
+        navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
+      }
+      const newsPost: any = {
+        /* eslint no-underscore-dangle: 0 */
+        _id: res.data._id,
+        id: res.data._id,
+        postDate: res.data.createdAt,
+        title: res.data.rssfeedProviderId?.title,
+        content: res.data.message,
+        images: res.data.images,
+        rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
+        commentCount: res.data.commentCount,
+        likeCount: res.data.likeCount,
+        sharedList: res.data.sharedList,
+        likes: res.data.likes,
+        likeIcon: res.data.likes.includes(loginUserId),
+      };
+      setPostData(newsPost);
+    }).catch(
+      (error) => {
+        setErrorMessage(error.response.data.message);
+      },
+    );
+  };
 
   useEffect(() => {
     if (postId) {
-      feedPostDetail(postId).then((res) => {
-        /* eslint no-underscore-dangle: 0 */
-        if (newsPartnerId !== res.data.rssfeedProviderId?._id) {
-          navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
-        }
-        const newsPost: any = {
-          /* eslint no-underscore-dangle: 0 */
-          _id: res.data._id,
-          id: res.data._id,
-          postDate: res.data.createdAt,
-          title: res.data.rssfeedProviderId?.title,
-          content: res.data.message,
-          images: res.data.images,
-          rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
-          commentCount: res.data.commentCount,
-          likeCount: res.data.likeCount,
-          sharedList: res.data.sharedList,
-        };
-        setPostData(newsPost);
-      }).catch(
-        (error) => {
-          setErrorMessage(error.response.data.message);
-        },
-      );
+      getFeedPostDetail(postId);
     }
   }, [postId]);
 
@@ -70,11 +79,23 @@ function NewsPartnerPost() {
   };
 
   const onLikeClick = (likeId: string) => {
-    let checkLikeId = postData;
-    if (checkLikeId && checkLikeId.id === likeId) {
-      checkLikeId = { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
+    const checkLike = postData?.likes?.includes(loginUserId!);
+    if (postId) {
+      if (checkLike) {
+        unlikeFeedPost(likeId).then((res) => {
+          if (res.status === 200) getFeedPostDetail(postId);
+        });
+      } else {
+        likeFeedPost(likeId).then((res) => {
+          if (res.status === 201) getFeedPostDetail(postId);
+        });
+      }
     }
-    setPostData(checkLikeId);
+    // let checkLikeId = postData;
+    // if (checkLikeId && checkLikeId.id === likeId) {
+    //   checkLikeId = { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
+    // }
+    // setPostData(checkLikeId);
   };
 
   return (

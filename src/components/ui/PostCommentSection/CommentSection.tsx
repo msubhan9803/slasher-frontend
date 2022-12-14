@@ -17,7 +17,6 @@ interface Props {
   image: string;
   name: string;
   time: string;
-  likes?: number;
   commentMention?: string;
   commentMsg: string;
   commentImg?: ImageList[];
@@ -33,6 +32,7 @@ interface Props {
   userId?: string;
   userName?: string;
   handleSeeCompleteList?: () => void;
+  likeCount?: number;
 }
 interface ImageList {
   image_path: string;
@@ -71,9 +71,9 @@ const decryptMessage = (content: string) => {
 };
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
-  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
+  onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
   setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
-  handleSeeCompleteList,
+  handleSeeCompleteList, likeCount,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
 
@@ -133,25 +133,25 @@ function CommentSection({
               </div>
             ))}
           </div>
-          {/* {
-            likes
-            && ( */}
-          <Likes className="rounded d-flex justify-content-end position-absolute">
-            <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
-              <LinearIcon uniqueId="comment-like-count">
-                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                <span className="fs-5">{likes}</span>
-              </LinearIcon>
-            </LikesButton>
-            <svg width="0" height="0">
-              <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-              </linearGradient>
-            </svg>
-          </Likes>
-          {/* )
-          } */}
+          {
+            likeCount! > 0
+            && (
+              <Likes className="rounded d-flex justify-content-end position-absolute">
+                <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
+                  <LinearIcon uniqueId="comment-like-count">
+                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                    <span className="fs-5">{likeCount}</span>
+                  </LinearIcon>
+                </LikesButton>
+                <svg width="0" height="0">
+                  <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                  </linearGradient>
+                </svg>
+              </Likes>
+            )
+          }
         </CommentBox>
         <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
@@ -197,7 +197,6 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
-  likes: undefined,
   setIsReply: () => { },
   setReplyId: () => { },
   setReplyUserName: () => { },
@@ -206,5 +205,6 @@ CommentSection.defaultProps = {
   userId: null,
   userName: null,
   handleSeeCompleteList: () => { },
+  likeCount: 0,
 };
 export default CommentSection;

@@ -297,7 +297,12 @@ describe('UsersService', () => {
       );
       await usersService.create(
         userFactory.build(
-          { userName: 'test3' },
+          { userName: 'test3', status: ActiveStatus.Deactivated, deleted: false },
+        ),
+      );
+      await usersService.create(
+        userFactory.build(
+          { userName: 'test4', status: ActiveStatus.Active, deleted: true },
         ),
       );
       await usersService.create(
@@ -325,8 +330,8 @@ describe('UsersService', () => {
       expect(suggestUserNames).toEqual([
         pick(await usersService.findByUsername('test1'), ['userName', 'id']),
         pick(await usersService.findByUsername('test2'), ['userName', 'id']),
-        pick(await usersService.findByUsername('test3'), ['userName', 'id']),
       ]);
+      expect(suggestUserNames.map((suggestUserName) => suggestUserName.userName)).not.toContain('test4');
     });
 
     it('when query is exists and limited is applied, returns expected response', async () => {
@@ -347,7 +352,7 @@ describe('UsersService', () => {
       const query = 'TE';
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit, false, excludedUserIds);
-      expect(suggestUserNames).toHaveLength(4);
+      expect(suggestUserNames).toHaveLength(5);
     });
   });
 

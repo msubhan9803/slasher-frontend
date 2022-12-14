@@ -4,7 +4,7 @@ import { FeedComment } from '../feedComment/feedComment.schema';
 import { FeedPost } from '../feedPost/feedPost.schema';
 import { User } from '../user/user.schema';
 import {
-  NotificationType, NotificationStatus, NotificationDeletionStatus, NotificationReadStatus,
+  NotificationType, NotificationReadStatus,
 } from './notification.enums';
 
 export class NotificationUnusedFields {
@@ -78,23 +78,6 @@ export class NotificationUnusedFields {
     default: NotificationReadStatus.Unread,
   })
   isRead: number;
-
-  // NOT USED
-  @Prop({
-    enum: [NotificationStatus.Inactive, NotificationStatus.Active],
-    default: NotificationStatus.Inactive,
-  })
-  status: number;
-
-  // NOT USED
-  @Prop({
-    enum: [
-      NotificationDeletionStatus.NotDeleted,
-      NotificationDeletionStatus.Deleted,
-    ],
-    default: NotificationDeletionStatus.NotDeleted,
-  })
-  is_deleted: number; // This should be a boolean value, but using number for old API compatibility. 0-false, 1-true
 
   // NOT USED
   @Prop({ default: Date.now })

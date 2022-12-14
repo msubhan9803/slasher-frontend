@@ -82,10 +82,20 @@ const StyleBorderButton = styled(RoundButton)`
 `;
 function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
   const [show, setShow] = useState(false);
+
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
     return `${hours}h ${minutes}m`;
+  };
+
+  const getCertification = () => {
+    const releaseDateForUS = aboutMovieDetail?.mainData?.release_dates?.results?.find((result: MovieReleaseResults) => result.iso_3166_1 === 'US');
+    const certificationData = releaseDateForUS?.release_dates?.find(
+      (movieCertificate: ReleaseDate) => movieCertificate.certification.length > 0,
+    );
+
+    return certificationData ? certificationData.certification : '';
   };
 
   return (
@@ -100,9 +110,11 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       <StyledRateBorder className="pb-xxl-3 align-items-center d-block d-xxl-flex justify-content-center justify-content-xl-between">
         <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-center justify-content-xl-start text-light">
           <p className="m-0 fs-3">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData.release_date)).toFormat('yyyy')}</p>
-          <p className="fs-3 p-1 mb-0 mx-3 align-items-center border border-primary d-flex justify-content-center text-primary">
-            {aboutMovieDetail?.mainData?.release_dates.results.find((result: MovieReleaseResults) => result.iso_3166_1 === 'US').release_dates.find((movieCertificate: ReleaseDate) => movieCertificate.certification.length > 0).certification}
-          </p>
+          {getCertification() && (
+            <p className="fs-3 p-1 mb-0 mx-3 align-items-center border border-primary d-flex justify-content-center text-primary">
+              {getCertification()}
+            </p>
+          )}
           <span className="fs-3 align-items-center d-flex">
             <p className="my-0">
               {aboutMovieDetail?.mainData?.production_countries.map((country: Country) => country.iso_3166_1).join('/')}

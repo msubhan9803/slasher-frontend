@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
@@ -28,6 +28,8 @@ function Messages() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const userId = Cookies.get('userId');
+  const messageContainerElmentRef = useRef<any>(null);
+  const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
 
   const handleMessagesOption = (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
@@ -87,7 +89,43 @@ function Messages() {
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
+  const fetchMoreMessages = () => {
+    getMessagesList()
+      .then((res) => {
+        const newMessages = res.data.map((data: MessagesList) => {
+          const userDetail = data.participants.find(
+            (participant: any) => participant._id !== userId,
+          );
+          /* eslint no-underscore-dangle: 0 */
+          const message = {
+            _id: data._id,
+            id: userDetail!._id,
+            unreadCount: data.unreadCount,
+            latestMessage: data.latestMessage,
+            userName: userDetail!.userName,
+            profilePic: userDetail!.profilePic,
+            updatedAt: data.updatedAt,
+          };
+          return message;
+        });
+        setMessages(newMessages);
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
+  };
+  const getYPosition = () => {
+    const yPosition = messageContainerElmentRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastMessageElement(yPosition);
+  };
+  useEffect(() => {
+    getYPosition();
+  }, [messages]);
 
+  useEffect(() => {
+    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
+    if (bottomLine) {
+      fetchMoreMessages();
+    }
+  }, [yPositionOfLastMessageElement]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <div className="mb-3">
@@ -105,7 +143,7 @@ function Messages() {
           {
             messages.length > 0
             && messages.map((message) => (
-              <div key={message._id}>
+              <div key={message._id} ref={messageContainerElmentRef}>
                 <UserMessageListItem
                   image={message.profilePic}
                   userName={message.userName}

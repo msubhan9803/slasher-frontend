@@ -74,7 +74,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     }
   });
 
-  // post hooks for insertMany
+  // post hooks for insertMany (to ensure that 'save' hooks are run after insertMany)
   schema.post<MovieDocument[]>('insertMany', async (docs) => {
     if (Array.isArray(docs) && docs.length) {
       docs.map(async (singleDoc) => {

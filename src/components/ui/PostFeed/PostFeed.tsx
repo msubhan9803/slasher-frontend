@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -164,10 +165,10 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                  <HashLink to={`/${post.userName}/posts/${post.id}#comment`} className="text-decoration-none">
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
-                  </Link>
+                  </HashLink>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
   Controller, HttpStatus, Post, UseInterceptors, Body, UploadedFiles, HttpException, Param, Patch, Delete, Query, Get, ValidationPipe, Req,
 } from '@nestjs/common';
@@ -259,5 +260,39 @@ export class FeedCommentsController {
       commentReplies.push(comments);
     }
     return commentReplies;
+  }
+
+  @TransformImageUrls(
+    '$.images[*].image_path',
+    '$.userId.profilePic',
+    '$.replies[*].images[*].image_path',
+    '$.replies[*].userId.profilePic',
+  )
+  @Get(':feedCommentId')
+  async findOneFeedCommentWithReplies(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedCommentWithReplies = await this.feedCommentsService.findOneFeedCommentWithReplies(params.feedCommentId, true, user.id);
+    if (!feedCommentWithReplies) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
+    const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));
+    const filterReply = commentAndReplies.replies
+      .map((reply) => {
+        // eslint-disable-next-line no-param-reassign
+        reply.likeCount = reply.likes.length;
+        // eslint-disable-next-line no-param-reassign
+        delete reply.likes;
+        // eslint-disable-next-line no-param-reassign
+        delete reply.__v;
+        return reply;
+      });
+    commentAndReplies.replies = filterReply;
+    commentAndReplies.likeCount = commentAndReplies.likes.length;
+    delete commentAndReplies.likes;
+    delete commentAndReplies.__v;
+    return commentAndReplies;
   }
 }

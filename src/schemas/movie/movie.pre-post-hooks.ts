@@ -31,7 +31,7 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     }
 
     // If id AND rating are present, then we can use them to generate the sortRating
-    if (this.id?.length > 0 && this.rating) {
+    if (this.id?.length > 0 && typeof this.rating === 'number') {
       this.sortRating = generateSortRating(this.rating, this.id);
     } else {
       // Otherwise set sortRating to null (potentially clearing out an existing value)
@@ -65,12 +65,23 @@ export function addPrePostHooks(schema: typeof MovieSchema) {
     // If, AFTER a save, sortRating is missing (and dependent fields are present), then this is
     // probably a first-time save and we should set the sortRating value based on the dependent
     // fields.
-    if (this.id?.length > 0 && this.rating && !this.sortRating) {
+    if (this.id?.length > 0 && typeof this.rating === 'number' && !this.sortRating) {
       this.sortRating = generateSortRating(this.rating, this.id);
       // Because this change is happening after a save, we need to trigger one additional save.
       // Be careful when saving inside the post-save hook, because a mistake here can lead to
       // an infinite loop!
       await this.save();
+    }
+  });
+
+  // post hooks for insertMany (to ensure that 'save' hooks are run after insertMany)
+  schema.post<MovieDocument[]>('insertMany', async (docs) => {
+    if (Array.isArray(docs) && docs.length) {
+      docs.map(async (singleDoc) => {
+        await singleDoc.save();
+      });
+    } else {
+      throw new Error('Movies list should not be empty');
     }
   });
 }

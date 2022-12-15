@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { User } from '../user/user.schema';
+import { NotificationDeletionStatus, NotificationStatus } from './notification.enums';
 import { NotificationUnusedFields } from './notification.unused-fields';
 
 @Schema({ timestamps: true })
@@ -22,6 +23,21 @@ export class Notification extends NotificationUnusedFields {
 
   @Prop({ required: true, default: null, trim: true })
   notificationMsg: string;
+
+  @Prop({
+    enum: [NotificationStatus.Inactive, NotificationStatus.Active],
+    default: NotificationStatus.Inactive,
+  })
+  status: number;
+
+  @Prop({
+    enum: [
+      NotificationDeletionStatus.NotDeleted,
+      NotificationDeletionStatus.Deleted,
+    ],
+    default: NotificationDeletionStatus.NotDeleted,
+  })
+  is_deleted: number; // This should be a boolean value, but using number for old API compatibility. 0-false, 1-true
 
   /***********
    * Methods *

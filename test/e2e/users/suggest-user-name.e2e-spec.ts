@@ -79,7 +79,7 @@ describe('Suggested user name (e2e)', () => {
         );
         await usersService.create(
           userFactory.build(
-            { userName: 'test3' },
+            { userName: 'test3', status: ActiveStatus.Deactivated, deleted: false },
           ),
         );
         await usersService.create(
@@ -108,8 +108,8 @@ describe('Suggested user name (e2e)', () => {
         expect(response.body).toEqual([
           pick(await usersService.findByUsername('test1'), ['userName', 'id']),
           pick(await usersService.findByUsername('test2'), ['userName', 'id']),
-          pick(await usersService.findByUsername('test3'), ['userName', 'id']),
         ]);
+        expect(response.body.map((suggestUserName) => suggestUserName.userName)).not.toContain('test3');
       });
 
       it('when query is wrong than expected response', async () => {

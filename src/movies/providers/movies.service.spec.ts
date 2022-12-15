@@ -437,7 +437,7 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
       expect(firstResults).toHaveLength(2);
-      expect(firstResults[0].name).toBe('Terrifier 5');
+      expect(firstResults[1].name).toBe('Terrifier 5');
     });
 
     it('Check for update the movie record in database', async () => {
@@ -458,8 +458,8 @@ describe('MoviesService', () => {
       await moviesService.syncWithTheMovieDb(startYear, endYear);
       const firstResults = await moviesService.findAll(limit, false, 'name');
 
-      expect(firstResults[0].name).toBe('Terrifier 2');
-      expect(firstResults[0].deleted).toBe(0);
+      expect(firstResults[1].name).toBe('Terrifier 2');
+      expect(firstResults[1].deleted).toBe(0);
     });
 
     it('Check if any movie has been deleted from movies db in our collection', async () => {

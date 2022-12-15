@@ -57,6 +57,7 @@ describe('GET Movie (e2e)', () => {
         const movie = await moviesService.create(
           moviesFactory.build({
             status: MovieActiveStatus.Active,
+            logo: null,
           }),
         );
         const response = await request(app.getHttpServer())
@@ -65,6 +66,7 @@ describe('GET Movie (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body._id).toEqual(movie._id.toString());
+        expect(response.body.logo).toBe('http://localhost:4444/placeholders/movie_poster.png');
       });
 
       it('returns the expected response when the user is not found', async () => {

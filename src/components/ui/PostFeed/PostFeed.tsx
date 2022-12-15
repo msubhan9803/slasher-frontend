@@ -73,6 +73,13 @@ const decryptMessage = (content: string) => {
   return found;
 };
 
+const indentifyYouTubeLinkAndKey = (content: string) => {
+  const youtubeLinkRegex = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]+)/;
+  const foundYoutube = content.match(new RegExp(youtubeLinkRegex, 'img'));
+  // const foundYoutube2 = content.match(youtubeLinkRegex, 'img');
+  return foundYoutube && foundYoutube.length >= 6 && foundYoutube[6] ? foundYoutube[6] : '';
+};
+
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
@@ -144,6 +151,7 @@ function PostFeed({
               </div>
               {post?.images && (
                 <CustomSwiper
+                  videoUrlKey={indentifyYouTubeLinkAndKey(post.content)}
                   images={
                     post.images.map((imageData: any) => ({
                       imageUrl: imageData.image_path,

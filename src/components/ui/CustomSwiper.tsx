@@ -15,6 +15,7 @@ interface SliderImage {
 interface Props {
   images: SliderImage[];
   initialSlide?: number;
+  videoUrlKey?: string;
 }
 const StyledSwiper = styled(Swiper)`
   width: 100%;
@@ -57,13 +58,27 @@ const PostImage = styled.div`
     object-fit: contain;
   }
 `;
-function CustomSwiper({ images, initialSlide }: Props) {
+function CustomSwiper({ images, initialSlide, videoUrlKey }: Props) {
   return (
     <StyledSwiper
       pagination={{ type: 'fraction' }}
       initialSlide={initialSlide}
       modules={[Pagination]}
     >
+      {videoUrlKey && (
+        <div>
+          <iframe
+            width="100%"
+            height="100%"
+            className="rounded-2 position-relative"
+            src={`https://www.youtube.com/embed/${videoUrlKey}`}
+            title="YouTube video player"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      )}
       {
         images.map((image: SliderImage) => (
           <SwiperSlide key={`${image.imageId}${image.postId}`}>
@@ -88,5 +103,6 @@ function CustomSwiper({ images, initialSlide }: Props) {
 }
 CustomSwiper.defaultProps = {
   initialSlide: 0,
+  videoUrlKey: '',
 };
 export default CustomSwiper;

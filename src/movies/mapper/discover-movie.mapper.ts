@@ -1,4 +1,4 @@
-import { MovieType } from '../../schemas/movie/movie.enums';
+import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { Movie } from '../../schemas/movie/movie.schema';
 import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 
@@ -14,6 +14,9 @@ export class DiscoverMovieMapper {
         dbObj.popularity = movieApiResponse.vote_average;
         dbObj.releaseDate = movieApiResponse.release_date;
         dbObj.type = MovieType.MovieDb;
+
+        // Movies fromt TMDB are always set to Active when created
+        dbObj.status = MovieActiveStatus.Active;
 
         return dbObj;
     }

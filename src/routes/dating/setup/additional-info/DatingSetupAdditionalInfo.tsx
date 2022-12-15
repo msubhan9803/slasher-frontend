@@ -15,7 +15,7 @@ function DatingSetupAdditionalInfo() {
         <Section>
           <Row className="d-flex justify-content-start mt-2">
             <Col md={4}>
-              <RoundButton className="w-100" size="sm" height="40px">
+              <RoundButton className="w-100">
                 Next step
               </RoundButton>
             </Col>

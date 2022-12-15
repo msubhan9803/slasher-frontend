@@ -81,7 +81,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
         }
       });
     }
-  }, []);
+  // }, []);
 
   const [show, setShow] = useState(false);
   const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });

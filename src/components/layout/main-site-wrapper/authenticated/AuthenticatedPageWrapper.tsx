@@ -71,7 +71,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       return;
     }
 
-    if (userData.userName === '') {
+    if (userData.user.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -106,7 +106,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
-        userName={userData.userName}
+        userName={userData.user.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}

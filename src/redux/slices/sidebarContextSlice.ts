@@ -5,12 +5,14 @@ export const sidebarContextSlice = createSlice({
   initialState: {
     userName: '',
     userId: '',
+    profilePic: '',
   },
   reducers: {
     setSidebarUserData: (state, action) => ({
       ...state,
       userName: action.payload.userName,
       userId: action.payload.id,
+      profilePic: action.payload.profilePic,
     }),
   },
 });

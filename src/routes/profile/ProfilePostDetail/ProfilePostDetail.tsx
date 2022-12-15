@@ -98,6 +98,7 @@ function ProfilePostDetail({ user }: Props) {
             navigate(`/${res.data.userId.userName}/posts/${postId}`);
             return;
           }
+          console.log('res', res);
           setPostData([
             {
               ...res.data,

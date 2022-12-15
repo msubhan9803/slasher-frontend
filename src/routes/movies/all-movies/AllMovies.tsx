@@ -16,7 +16,7 @@ function AllMovies() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [sortVal, setSortVal] = useState<string>('releaseDate');
+  const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   useEffect(() => {

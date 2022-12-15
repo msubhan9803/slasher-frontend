@@ -310,7 +310,11 @@ export class UsersController {
     };
   }
 
-  @TransformImageUrls('$.recentFriendRequests[*].profilePic', '$.recentMessages[*].participants[*].profilePic')
+  @TransformImageUrls(
+    '$.recentFriendRequests[*].profilePic',
+    '$.recentMessages[*].participants[*].profilePic',
+    '$.user.profilePic',
+    )
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);
@@ -318,8 +322,7 @@ export class UsersController {
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
     const recentMessages: any = await this.chatService.getConversations(user._id, 3);
     return {
-      userId: user.id,
-      userName: user.userName,
+      user: pick(user, ['id', 'userName', 'profilePic']),
       unreadNotificationCount: 6,
       recentMessages,
       friendRequestCount,

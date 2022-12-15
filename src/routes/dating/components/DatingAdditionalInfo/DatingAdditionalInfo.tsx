@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Row, Col, Form } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import CustomSelect from '../../../../components/ui/CustomSelect';
 import CustomToggleButton from '../../../../components/ui/CustomToggleButton';
 import {
@@ -143,42 +143,23 @@ function DatingAdditionalInfo() {
           </Col>
         </Section>
       </Row>
-      <Row className="mt-3 d-none d-md-flex mb-4 mx-0">
+      <Row className="mt-3 d-flex mb-4 mx-0">
         <Heading>Interests</Heading>
-        <Section>
+        <div className="mx-auto d-flex flex-wrap px-0 px-lg-4">
           {interestsList.map((interest: string, index: number) => (
-            <Col xs={6} md={4} key={interest}>
-              <CustomToggleButton
-                id={`interest-${index}`}
-                label={interest}
-                value={interest}
-                checked={interests.has(interest)}
-                type="checkbox"
-                variant="form"
-                className="fw-normal my-1 w-100 text-nowrap"
-                onChange={interestsChangeHandler}
-              />
-            </Col>
+            <CustomToggleButton
+              key={interest}
+              id={`interest-${index}`}
+              label={interest}
+              value={interest}
+              checked={interests.has(interest)}
+              type="checkbox"
+              variant="form"
+              className="my-1 w-100"
+              onChange={interestsChangeHandler}
+            />
           ))}
-        </Section>
-      </Row>
-      <Row className="d-flex d-md-none mb-4 mx-0">
-        <Heading>Interests</Heading>
-        <Section>
-          {interestsList.map((interest: string, index: number) => (
-            <Col xs={6} key={interest}>
-              <Form.Check
-                type="checkbox"
-                id={`interest-${index}`}
-                checked={interests.has(interest)}
-                className="mb-2"
-                label={interest}
-                value={interest}
-                onChange={interestsChangeHandler}
-              />
-            </Col>
-          ))}
-        </Section>
+        </div>
       </Row>
     </>
   );

@@ -12,6 +12,7 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { relativeToFullImagePath } from '../../../src/utils/image-utils';
+import { pick } from '../../../src/utils/object-utils';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -55,7 +56,9 @@ describe('Users suggested friends (e2e)', () => {
       let chat0;
 
       beforeEach(async () => {
-        activeUser = await usersService.create(userFactory.build());
+        activeUser = await usersService.create(userFactory.build({
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        }));
         activeUserAuthToken = activeUser.generateNewJwtToken(
           configService.get<string>('JWT_SECRET_KEY'),
         );
@@ -93,8 +96,7 @@ describe('Users suggested friends (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          userId: activeUser.id,
-          userName: activeUser.userName,
+          user: pick(activeUser, ['id', 'userName', 'profilePic']),
           unreadNotificationCount: 6,
           recentMessages,
           friendRequestCount: 4,

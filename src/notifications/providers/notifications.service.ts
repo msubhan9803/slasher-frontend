@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
-import { NotificationDeletionStatus, NotificationReadStatus, NotificationStatus } from '../../schemas/notification/notification.enums';
+import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
 
 @Injectable()
 export class NotificationsService {
@@ -27,7 +27,6 @@ export class NotificationsService {
           {
             userId,
             is_deleted: NotificationDeletionStatus.NotDeleted,
-            status: NotificationStatus.Active,
           },
           before ? { createdAt: beforeCreatedAt } : {},
         ],
@@ -36,7 +35,7 @@ export class NotificationsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
-      return notification;
+    return notification;
   }
 
   async findById(id: string): Promise<NotificationDocument> {
@@ -45,13 +44,13 @@ export class NotificationsService {
 
   async update(id: string, notificationData: Partial<NotificationDocument>): Promise<NotificationDocument> {
     return this.notificationModel
-    .findOneAndUpdate({ _id: id }, notificationData, { new: true })
-    .exec();
+      .findOneAndUpdate({ _id: id }, notificationData, { new: true })
+      .exec();
   }
 
   async markAllAsReadForUser(userId: string) {
     return this.notificationModel
-    .updateMany({ userId }, { isRead: NotificationReadStatus.Read })
-    .exec();
+      .updateMany({ userId }, { isRead: NotificationReadStatus.Read })
+      .exec();
   }
 }

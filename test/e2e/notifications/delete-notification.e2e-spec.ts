@@ -10,7 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { notificationFactory } from '../../factories/notification.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { NotificationDeletionStatus, NotificationStatus } from '../../../src/schemas/notification/notification.enums';
+import { NotificationDeletionStatus } from '../../../src/schemas/notification/notification.enums';
 
 describe('Delete Notifications (e2e)', () => {
   let app: INestApplication;
@@ -54,7 +54,6 @@ describe('Delete Notifications (e2e)', () => {
     notification = await notificationsService.create(
       notificationFactory.build({
         is_deleted: NotificationDeletionStatus.NotDeleted,
-        status: NotificationStatus.Active,
         userId: activeUser._id.toString(),
       }),
     );
@@ -62,7 +61,6 @@ describe('Delete Notifications (e2e)', () => {
     notification1 = await notificationsService.create(
       notificationFactory.build({
         is_deleted: NotificationDeletionStatus.NotDeleted,
-        status: NotificationStatus.Active,
         userId: user0._id.toString(),
       }),
     );

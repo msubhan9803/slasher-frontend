@@ -10,7 +10,7 @@ import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service'
 import { UserDocument } from '../../schemas/user/user.schema';
 import { userFactory } from '../../../test/factories/user.factory';
 import {
- NotificationType, NotificationDeletionStatus, NotificationReadStatus, NotificationStatus,
+  NotificationType, NotificationDeletionStatus, NotificationReadStatus,
 } from '../../schemas/notification/notification.enums';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
@@ -82,7 +82,6 @@ describe('NotificationsService', () => {
           notificationFactory.build({
             userId: activeUser.id,
             is_deleted: NotificationDeletionStatus.NotDeleted,
-            status: NotificationStatus.Active,
             senderId: user1.id,
           }),
         );
@@ -153,7 +152,6 @@ describe('NotificationsService', () => {
           notificationFactory.build({
             userId: activeUser.id,
             is_deleted: NotificationDeletionStatus.NotDeleted,
-            status: NotificationStatus.Active,
             isRead: NotificationReadStatus.Unread,
           }),
         );

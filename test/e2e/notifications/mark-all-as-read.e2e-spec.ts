@@ -13,7 +13,6 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import {
   NotificationDeletionStatus,
   NotificationReadStatus,
-  NotificationStatus,
 } from '../../../src/schemas/notification/notification.enums';
 
 describe('All Mark As Read Notifications (e2e)', () => {
@@ -54,7 +53,6 @@ describe('All Mark As Read Notifications (e2e)', () => {
       await notificationsService.create(
         notificationFactory.build({
           is_deleted: NotificationDeletionStatus.NotDeleted,
-          status: NotificationStatus.Active,
           userId: activeUser._id.toString(),
         }),
       );

@@ -4,7 +4,7 @@ import { FeedComment } from '../feedComment/feedComment.schema';
 import { FeedPost } from '../feedPost/feedPost.schema';
 import { User } from '../user/user.schema';
 import {
-  NotificationType, NotificationReadStatus,
+  NotificationType, NotificationStatus,
 } from './notification.enums';
 
 export class NotificationUnusedFields {
@@ -60,54 +60,45 @@ export class NotificationUnusedFields {
   @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: FeedComment.name })
   feedCommentId: FeedComment;
 
-  // TODO: Fix this typo after old API is retired
+  // TODO: Fix 'feedreplays' typo after old API is retired. Typo comes from old API.
   @Prop({ default: null, type: mongoose.Schema.Types.ObjectId, ref: 'feedreplays' })
   feedReplyId: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'movies' })
   movieId: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null })
   movieDBId: number;
 
-  // NOT USED
-  @Prop({
-    enum: [NotificationReadStatus.Unread, NotificationReadStatus.Read],
-    default: NotificationReadStatus.Unread,
-  })
-  isRead: number;
-
-  // NOT USED
   @Prop({ default: Date.now })
   lastUpdateAt: Date;
 
-  // NOT USED
   @Prop({ default: null, ref: 'movieComments' })
   movieMainCommentID: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'messagePosts' })
   messageMainPostID: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'movieReplays' })
   movieReplyID: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'messageComments' })
   messageCommentID: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'rssFeedProvider' })
   rssFeedProviderId: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'rssFeed' })
   rssFeedId: mongoose.Schema.Types.ObjectId;
 
-  // NOT USED
   @Prop({ default: null, ref: 'rssFeedComments' })
   rssFeedCommentId: mongoose.Schema.Types.ObjectId;
+
+  // TODO: Delete this field when the old API is retired.
+  // The old API sets this value to `NotificationStatus.Inactive` 100% of the time, so it is not used.
+  @Prop({
+    enum: [NotificationStatus.Inactive, NotificationStatus.Active],
+    default: NotificationStatus.Inactive,
+  })
+  status: number;
 }

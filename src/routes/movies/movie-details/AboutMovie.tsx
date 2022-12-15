@@ -17,7 +17,6 @@ import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import MovieOverview from './MovieOverview';
 import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
-import MovieComments from '../components/MovieComments';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
 import { AdditionalMovieData } from '../../../types';
@@ -179,7 +178,6 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
               />
               <MovieCasts castList={aboutMovieData && aboutMovieData.cast as any} />
               <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />
-              <MovieComments />
             </>
           )}
         />

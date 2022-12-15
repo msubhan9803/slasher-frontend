@@ -86,7 +86,7 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-  console.log('postFeedData', postFeedData);
+
   useEffect(() => {
     // const likeData = postFeedData.includes
     setPostData(postFeedData);

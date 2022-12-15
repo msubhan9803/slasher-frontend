@@ -98,7 +98,6 @@ function ProfilePostDetail({ user }: Props) {
             navigate(`/${res.data.userId.userName}/posts/${postId}`);
             return;
           }
-          console.log('res', res);
           setPostData([
             {
               ...res.data,
@@ -290,7 +289,8 @@ function ProfilePostDetail({ user }: Props) {
       (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
     ).filter(Boolean);
     if (feedCommentId === checkCommentId?._id) {
-      const checkCommentLike = checkCommentId?.likes.includes(loginUserId);
+      const checkCommentLike = checkCommentId?.likedByUser;
+
       if (checkCommentLike) {
         unlikeFeedComment(feedCommentId).then((res) => {
           if (res.status === 200) callLatestFeedComments(postId!);
@@ -302,7 +302,7 @@ function ProfilePostDetail({ user }: Props) {
       }
     }
     if (feedCommentId === checkReplyId[0]?._id) {
-      const checkReplyLike = checkReplyId[0].likes.includes(loginUserId);
+      const checkReplyLike = checkReplyId[0].likedByUser;
       if (checkReplyLike) {
         unlikeFeedReply(feedCommentId).then((res) => {
           if (res.status === 200) callLatestFeedComments(postId!);

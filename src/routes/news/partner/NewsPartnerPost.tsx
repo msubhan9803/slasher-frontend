@@ -1,38 +1,21 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Button, Card, Col, Row,
-} from 'react-bootstrap';
-import { DateTime } from 'luxon';
+import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
 import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import NewsPartnerPostFooter from './NewsPartnerPostFooter';
-import CustomPopover from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
-import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { feedPostDetail } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { NewsPartnerPostProps } from '../../../types';
-import CustomSwiper from '../../../components/ui/CustomSwiper';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import {
-  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply, removeFeedComments, updateFeedCommentReply, updateFeedComments,
+  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
+  removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
-
-interface LinearIconProps {
-  uniqueId?: string
-}
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-`;
 
 function NewsPartnerPost() {
   const { newsPartnerId, postId } = useParams<string>();
@@ -229,7 +212,7 @@ function NewsPartnerPost() {
       (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
     ).filter(Boolean);
     if (feedCommentId === checkCommentId?._id) {
-      const checkCommentLike = checkCommentId?.likes.includes(loginUserId);
+      const checkCommentLike = checkCommentId?.likedByUser;
       if (checkCommentLike) {
         unlikeFeedComment(feedCommentId).then((res) => {
           if (res.status === 200) callLatestFeedComments(postId!);
@@ -241,7 +224,7 @@ function NewsPartnerPost() {
       }
     }
     if (feedCommentId === checkReplyId[0]?._id) {
-      const checkReplyLike = checkReplyId[0].likes.includes(loginUserId);
+      const checkReplyLike = checkReplyId[0].likedByUser;
       if (checkReplyLike) {
         unlikeFeedReply(feedCommentId).then((res) => {
           if (res.status === 200) callLatestFeedComments(postId!);
@@ -292,86 +275,6 @@ function NewsPartnerPost() {
             loadingPosts={loadingPosts}
             onLikeClick={onLikeClick}
           />
-          {/* {postData && (
-            <Card className="rounded-3 bg-mobile-transparent bg-dark mb-0 pt-3 px-sm-0 px-md-4" key={postData.id}>
-              <Card.Header className="border-0 px-sm-3 px-md-0">
-                <Row className="justify-content-between">
-                  <Col xs="auto">
-                    <Row className="d-flex">
-                      <Col className="my-auto rounded-circle" xs="auto">
-                        <div className="rounded-circle">
-                          <UserCircleImage src={postData.rssFeedProviderLogo} className="bg-secondary" />
-                        </div>
-                      </Col>
-                      <Col xs="auto" className="ps-0 align-self-center">
-                        <h3 className="mb-0">{postData.title}</h3>
-                        <p className="fs-6 text-light mb-0">
-                          {DateTime.fromISO(postData.postDate).toFormat('MM/dd/yyyy t')}
-                        </p>
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Col xs="auto" className="d-block">
-                    <CustomPopover popoverOptions={popoverOption} onPopoverClick={handlePopover} />
-                  </Col>
-                </Row>
-              </Card.Header>
-              <Card.Body className="px-0 py-3">
-                <Row>
-                  <Col className="px-4 px-md-2 ms-md-1">
-                    <p className="fs-4 mb-0">
-                      {postData.content}
-                    </p>
-                  </Col>
-                </Row>
-                {postData.images && (
-                  <CustomSwiper
-                    images={
-                      postData.images.map((imageData: any) => ({
-                        imageUrl: imageData.image_path,
-                        postId: postData.id,
-                        imageId: imageData._id,
-                      }))
-                    }
-                  />
-                )}
-                <Row className="fs-3 d-flex justify-content-evenly ps-1 mt-2">
-                  <Col className="align-self-center">
-                    <Button variant="link" className="shadow-none fw-normal fs-3">
-                      <LinearIcon uniqueId="like-button">
-                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                        {postData.likeCount}
-                      </LinearIcon>
-                    </Button>
-                  </Col>
-                  <Col className="text-center">
-                    <Button variant="link" className="shadow-none fw-normal fs-3">
-                      <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                      {postData.commentCount}
-                    </Button>
-                  </Col>
-                  <Col className="text-end">
-                    <Button variant="link" className="shadow-none fw-normal fs-3">
-                      <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                      {postData.sharedList}
-                    </Button>
-                  </Col>
-                  <svg width="0" height="0">
-                    <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                      <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                    </linearGradient>
-                  </svg>
-                </Row>
-              </Card.Body>
-              <NewsPartnerPostFooter
-                likeIcon={postData.likeIcon}
-                id={postData.id}
-                onLikeClick={() => onLikeClick(postData.id)}
-                isComment={false}
-              />
-            </Card>
-          )} */}
         </Col>
       </Row>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

@@ -3,7 +3,7 @@ import {
   Col, Form, Image, Row,
 } from 'react-bootstrap';
 import Cookies from 'js-cookie';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import signInImage from '../../images/sign-in.png';
@@ -54,6 +54,7 @@ function SignIn() {
     emailOrUsername: '',
     password: '',
   });
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (Cookies.get('sessionToken')) {
@@ -75,7 +76,8 @@ function SignIn() {
     signIn(credentials.emailOrUsername, credentials.password).then((res) => {
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName);
-      navigate('/home');
+      const targetPath = searchParams.get('path');
+      navigate(`${targetPath ?? '/home'}`);
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });

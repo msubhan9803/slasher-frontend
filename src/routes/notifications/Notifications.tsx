@@ -81,12 +81,12 @@ function Notifications() {
       today: Notification[],
       thisWeek: Notification[],
       thisMonth: Notification[],
-      other: Notification[]
+      older: Notification[]
     } = {
       today: [],
       thisWeek: [],
       thisMonth: [],
-      other: [],
+      older: [],
     };
 
     notifications.forEach((notification) => {
@@ -98,7 +98,7 @@ function Notifications() {
       } else if (DateTime.now().diff(createdAtDateTime).as('month') <= 1) {
         groupedNotifications.thisMonth.push(notification);
       } else {
-        groupedNotifications.other.push(notification);
+        groupedNotifications.older.push(notification);
       }
     });
 

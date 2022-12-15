@@ -27,7 +27,7 @@ function NotificationTimestamp({
     } if (DateTime.now().diff(dateTime).as('month') <= 1) {
       return 'This month';
     }
-    return 'Other notifications';
+    return 'Older notifications';
   };
 
   return (

@@ -169,7 +169,6 @@ function DatingSetupIdentity() {
             variant="primary"
             type="submit"
             className="w-100 px-5"
-            height="40px"
           >
             Next Step
           </RoundButton>

@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { escapeStringForRegex } from '../../utils/escape-utils';
 import { User, UserDocument } from '../../schemas/user/user.schema';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 export interface UserSearchResult {
   id: string;
@@ -23,6 +24,8 @@ export class SearchService {
         $and: [
           { userName: new RegExp(escapeStringForRegex(query), 'i') },
           { _id: { $nin: excludeUserIds } },
+          { deleted: false },
+          { status: ActiveStatus.Active },
         ],
       })
       .select({

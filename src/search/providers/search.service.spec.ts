@@ -11,6 +11,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { ActiveStatus } from '../../schemas/user/user.enums';
 
 describe('SearchService', () => {
   let app: INestApplication;
@@ -46,6 +47,16 @@ describe('SearchService', () => {
 
     user0 = await usersService.create(userFactory.build({ userName: 'Count Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Count Michael' }));
+    await usersService.create(userFactory.build({
+      userName: 'Count Denial',
+      deleted: true,
+      status: ActiveStatus.Active,
+    }));
+    await usersService.create(userFactory.build({
+      userName: 'Count Jonny',
+      deleted: false,
+      status: ActiveStatus.Inactive,
+    }));
     await usersService.create(userFactory.build({ userName: 'Freddy' }));
     await usersService.create(userFactory.build({ userName: 'Count Orlok' }));
     await usersService.create(userFactory.build({ userName: 'Count Jack' }));

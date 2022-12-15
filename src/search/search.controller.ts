@@ -7,6 +7,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { SearchService } from './providers/search.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { FindUsersDto } from './dto/find-users-dto';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('search')
 export class SearchController {
@@ -15,6 +16,7 @@ export class SearchController {
     private readonly blocksService: BlocksService,
   ) { }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('users')
   async findUsers(
     @Req() request: Request,

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -63,11 +63,12 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
     if (!token) {
-      navigate('/sign-in');
+      navigate(`/sign-in?path=${pathname}`);
       return;
     }
 

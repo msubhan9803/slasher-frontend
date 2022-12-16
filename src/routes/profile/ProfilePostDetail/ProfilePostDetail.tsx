@@ -15,7 +15,9 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import EditPostModal from '../../../components/ui/EditPostModal';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
-import { Post, User } from '../../../types';
+import {
+  CommentValue, FeedComments, Post, User,
+} from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
@@ -35,15 +37,13 @@ function ProfilePostDetail({ user }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const [commentValue, setCommentValue] = useState('');
-  const [feedImageArray, setfeedImageArray] = useState<any>([]);
-  const [commentData, setCommentData] = useState<any>([]);
-  const [deleteComment, setDeleteComment] = useState<boolean>(false);
+  const [commentValue, setCommentValue] = useState<CommentValue>();
+  const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
-  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+  const [loadingComments, setLoadingComments] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
@@ -53,42 +53,35 @@ function ProfilePostDetail({ user }: Props) {
     setShow(true);
     setDropDownValue(value);
   };
-
   const decryptMessage = (content: string) => {
     const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
     return found;
   };
 
-  const feedComments = (feedPostId: string, comment: any) => {
-    setNoMoreData(false);
-    setCommentData(comment);
-    const data = comment.length > 1 ? comment[comment.length - 1]._id : undefined;
-    getFeedComments(
-      feedPostId,
-      data,
-    ).then((res) => {
-      const comments = res.data;
-      setCommentData((prev: any) => [
-        ...prev,
-        ...comments,
-      ]);
-      if (res.data.length === 0) { setNoMoreData(true); }
-    }).catch(
-      (error) => {
-        setNoMoreData(true);
-        setErrorMessage(error.response.data.message);
-      },
-    ).finally(
-      () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-    );
-  };
-
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts && postId) {
-      setLoadingPosts(true);
-      feedComments(postId, commentData);
+    if (requestAdditionalPosts && !loadingComments) {
+      setLoadingComments(true);
+      setNoMoreData(false);
+      getFeedComments(
+        postId!,
+        commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined,
+      ).then((res) => {
+        const comments = res.data;
+        setCommentData((prev: any) => [
+          ...prev,
+          ...comments,
+        ]);
+        if (res.data.length === 0) { setNoMoreData(true); }
+      }).catch(
+        (error) => {
+          setNoMoreData(true);
+          setErrorMessage(error.response.data.message);
+        },
+      ).finally(
+        () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
+      );
     }
-  }, [postId, requestAdditionalPosts, loadingPosts, commentData]);
+  }, [requestAdditionalPosts, loadingComments]);
 
   useEffect(() => {
     if (postId) {
@@ -124,26 +117,47 @@ function ProfilePostDetail({ user }: Props) {
     }
   }, [postId, user]);
 
+  const callLatestFeedComments = () => {
+    getFeedComments(postId!).then((res) => {
+      const updateComment = res.data;
+      setCommentData(updateComment);
+      setLoadingComments(false);
+    });
+  };
+
   useEffect(() => {
     setNoMoreData(false);
-    if (commentValue && postId) {
-      setLoadingPosts(true);
+    if (commentValue && (commentValue.commentMessage !== '' || commentValue.replyMessage !== '')) {
+      setLoadingComments(true);
       if (!isEdit) {
         if (!commentID) {
-          addFeedComments(postId, commentValue, feedImageArray)
+          addFeedComments(postId!, commentValue.commentMessage, commentValue.imageArray)
             .then(() => {
-              feedComments(postId, []);
+              callLatestFeedComments();
               setErrorMessage([]);
-              setCommentValue('');
+              setCommentValue({
+                commentMessage: '',
+                replyMessage: '',
+                imageArray: [],
+              });
             })
             .catch((error) => {
               setErrorMessage(error.response.data.message);
             });
         } else {
-          addFeedReplyComments(postId, commentValue, feedImageArray, commentID).then(() => {
-            feedComments(postId, []);
+          addFeedReplyComments(
+            postId!,
+            commentValue.replyMessage,
+            commentValue.imageArray,
+            commentID,
+          ).then(() => {
+            callLatestFeedComments();
             setErrorMessage([]);
-            setCommentValue('');
+            setCommentValue({
+              commentMessage: '',
+              replyMessage: '',
+              imageArray: [],
+            });
             setCommentID('');
           }).catch((error) => {
             setErrorMessage(error.response.data.message);
@@ -151,11 +165,15 @@ function ProfilePostDetail({ user }: Props) {
         }
       } else {
         if (commentID) {
-          updateFeedComments(postId, commentValue, commentID)
+          updateFeedComments(postId!, commentValue.commentMessage, commentID)
             .then(() => {
-              feedComments(postId, []);
+              callLatestFeedComments();
               setErrorMessage([]);
-              setCommentValue('');
+              setCommentValue({
+                commentMessage: '',
+                replyMessage: '',
+                imageArray: [],
+              });
               setCommentID('');
               setIsEdit(false);
             })
@@ -164,10 +182,14 @@ function ProfilePostDetail({ user }: Props) {
             });
         }
         if (commentReplyID) {
-          updateFeedCommentReply(postId, commentValue, commentReplyID).then(() => {
-            feedComments(postId, []);
+          updateFeedCommentReply(postId!, commentValue.replyMessage, commentReplyID).then(() => {
+            callLatestFeedComments();
             setErrorMessage([]);
-            setCommentValue('');
+            setCommentValue({
+              commentMessage: '',
+              replyMessage: '',
+              imageArray: [],
+            });
             setCommentReplyID('');
             setIsEdit(false);
           }).catch((error) => {
@@ -176,30 +198,21 @@ function ProfilePostDetail({ user }: Props) {
         }
       }
     }
-  }, [commentValue, postId, feedImageArray, commentID, commentReplyID, isEdit]);
+  }, [commentValue, postId, commentID, commentReplyID, isEdit]);
 
   const removeComment = () => {
     if (commentID) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
+        callLatestFeedComments();
       });
-    }
-    if (commentReplyID) {
+    } else if (commentReplyID) {
       removeFeedCommentReply(commentReplyID).then(() => {
         setCommentReplyID('');
+        callLatestFeedComments();
       });
     }
-    setDeleteComment(false);
-    setDeleteComment(false);
-    setfeedImageArray([]);
-    if (postId) feedComments(postId, []);
   };
-
-  useEffect(() => {
-    if (deleteComment) {
-      removeComment();
-    }
-  }, [deleteComment, commentID, commentReplyID]);
 
   const handleSearch = (text: string) => {
     setMentionList([]);
@@ -262,12 +275,6 @@ function ProfilePostDetail({ user }: Props) {
     }
   };
 
-  const callLatestFeedComments = (feedPostId: string) => {
-    getFeedComments(feedPostId).then((res) => {
-      const comments = res.data;
-      setCommentData(comments);
-    });
-  };
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
       && post.likes?.includes(loginUserId!));
@@ -293,11 +300,11 @@ function ProfilePostDetail({ user }: Props) {
 
       if (checkCommentLike) {
         unlikeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 200) callLatestFeedComments(postId!);
+          if (res.status === 200) callLatestFeedComments();
         });
       } else {
         likeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 201) callLatestFeedComments(postId!);
+          if (res.status === 201) callLatestFeedComments();
         });
       }
     }
@@ -305,11 +312,11 @@ function ProfilePostDetail({ user }: Props) {
       const checkReplyLike = checkReplyId[0].likedByUser;
       if (checkReplyLike) {
         unlikeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 200) callLatestFeedComments(postId!);
+          if (res.status === 200) callLatestFeedComments();
         });
       } else {
         likeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 201) callLatestFeedComments(postId!);
+          if (res.status === 201) callLatestFeedComments();
         });
       }
     }
@@ -338,8 +345,7 @@ function ProfilePostDetail({ user }: Props) {
         isCommentSection
         setCommentValue={setCommentValue}
         commentsData={commentData}
-        setfeedImageArray={setfeedImageArray}
-        setDeleteComment={setDeleteComment}
+        removeComment={removeComment}
         setCommentID={setCommentID}
         setCommentReplyID={setCommentReplyID}
         commentID={commentID}
@@ -348,7 +354,7 @@ function ProfilePostDetail({ user }: Props) {
         setIsEdit={setIsEdit}
         setRequestAdditionalPosts={setRequestAdditionalPosts}
         noMoreData={noMoreData}
-        loadingPosts={loadingPosts}
+        loadingPosts={loadingComments}
         onLikeClick={onLikeClick}
       />
       {dropDownValue !== 'Edit'

@@ -123,6 +123,7 @@ export enum FriendRequestReaction {
 }
 
 export interface FeedComments {
+  id: string;
   createdAt: string;
   feedPostId: string;
   hideUsers: any;
@@ -184,4 +185,10 @@ interface FeedReplies {
   _id: string;
   likeCount: number;
   commentCount: number;
+}
+
+export interface CommentValue {
+  commentMessage: string,
+  replyMessage: string,
+  imageArray?: string[],
 }

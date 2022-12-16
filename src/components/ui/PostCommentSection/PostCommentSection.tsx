@@ -43,9 +43,7 @@ function PostCommentSection({
   commentImage,
   popoverOption,
   setCommentValue,
-  setfeedImageArray,
-  setDeleteComment,
-  setDeleteCommentReply,
+  removeComment,
   setCommentID,
   setCommentReplyID,
   commentID,
@@ -56,7 +54,7 @@ function PostCommentSection({
   setIsEdit,
   onLikeClick,
 }: any) {
-  const [commentData, setCommentData] = useState<any[]>(commentSectionData);
+  const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const textRef = useRef<any>();
@@ -93,7 +91,8 @@ function PostCommentSection({
     if (tabs) {
       tabs.scrollIntoView({
         behavior: 'smooth',
-        block: 'start',
+        block: 'center',
+        Inline: 'center',
       });
     }
   };
@@ -125,7 +124,7 @@ function PostCommentSection({
         time: comment.createdAt,
         commentMsg: comment.message,
         commentImg: comment.images,
-        commentReplySection: commentReplies,
+        commentReplySection: commentReplies.reverse(),
         userId: comment.userId,
         likeIcon: comment.likedByUser,
         likeCount: comment.likeCount,
@@ -146,15 +145,21 @@ function PostCommentSection({
 
   const sendComment = (commentId?: string) => {
     if (commentId === undefined) {
-      setCommentValue(message);
-      setfeedImageArray(imageArray);
+      setCommentValue({
+        commentMessage: message,
+        replyMessage: '',
+        imageArray,
+      });
       setMessage('');
       setImageArray([]);
     } else {
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
-      setCommentValue(mentionReplyString);
-      setfeedImageArray(replyImageArray);
+      setCommentValue({
+        commentMessage: '',
+        replyMessage: mentionReplyString,
+        imageArray: replyImageArray,
+      });
       setReplyMessage('');
       setReplyImageArray([]);
     }
@@ -178,7 +183,6 @@ function PostCommentSection({
 
     if (value === 'Edit') {
       setIsEdit(true);
-      // setShowEdit(true);
     } else {
       setShow(true);
       setDropDownValue(value);
@@ -192,7 +196,6 @@ function PostCommentSection({
     setEditContent(popoverData.content);
     if (value === 'Edit') {
       setIsEdit(true);
-      // setShowEdit(true);
     } else {
       setShow(true);
       setDropDownValue(value);
@@ -471,8 +474,7 @@ function PostCommentSection({
         show={show}
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
-        setDeleteComment={setDeleteComment}
-        setDeleteCommentReply={setDeleteCommentReply}
+        removeComment={removeComment}
       />
       {
         isEdit
@@ -495,6 +497,5 @@ function PostCommentSection({
 }
 PostCommentSection.defaultProps = {
   commentReplySection: undefined,
-  setfeedImageArray: () => [],
 };
 export default PostCommentSection;

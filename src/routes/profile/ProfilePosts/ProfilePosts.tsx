@@ -43,6 +43,21 @@ function ProfilePosts() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+
+  const indentifyYouTubeLinkAndKey = (content: string) => {
+    const youtubeLinkRegex = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
+    const foundYoutube = content.match(youtubeLinkRegex);
+    return foundYoutube && foundYoutube.length >= 6 && foundYoutube[6] ? foundYoutube[6] : '';
+  };
+
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    if (indentifyYouTubeLinkAndKey(postMessage)) {
+      postImageList.splice(0, 0, {
+        videoKey: indentifyYouTubeLinkAndKey(postMessage),
+      });
+    }
+    return postImageList;
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -67,7 +82,7 @@ function ProfilePosts() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -119,7 +134,7 @@ function ProfilePosts() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: data.images,
+          images: formatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,

@@ -10,12 +10,12 @@ interface SliderImage {
   imageId: string;
   imageUrl: string;
   linkUrl?: string;
+  videoKey?: string;
 }
 
 interface Props {
   images: SliderImage[];
   initialSlide?: number;
-  videoUrlKey?: string;
 }
 const StyledSwiper = styled(Swiper)`
   width: 100%;
@@ -58,43 +58,47 @@ const PostImage = styled.div`
     object-fit: contain;
   }
 `;
-function CustomSwiper({ images, initialSlide, videoUrlKey }: Props) {
+function CustomSwiper({ images, initialSlide }: Props) {
+  const displayVideoAndImage = (imageAndVideo: SliderImage) => {
+    if (imageAndVideo.videoKey) {
+      return (
+        <iframe
+          width="100%"
+          height="425"
+          src={`https://www.youtube.com/embed/${imageAndVideo.videoKey}`}
+          title="YouTube video player"
+          className="border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      );
+    }
+    if (imageAndVideo.linkUrl) {
+      return (
+        <Link to={imageAndVideo.linkUrl}>
+          <PostImage>
+            <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
+          </PostImage>
+        </Link>
+      );
+    }
+    return (
+      <PostImage>
+        <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
+      </PostImage>
+    );
+  };
+
   return (
     <StyledSwiper
       pagination={{ type: 'fraction' }}
       initialSlide={initialSlide}
       modules={[Pagination]}
     >
-      {videoUrlKey && (
-        <div>
-          <iframe
-            width="100%"
-            height="100%"
-            className="rounded-2 position-relative"
-            src={`https://www.youtube.com/embed/${videoUrlKey}`}
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      )}
       {
         images.map((image: SliderImage) => (
           <SwiperSlide key={`${image.imageId}${image.postId}`}>
-            {image.linkUrl
-              ? (
-                <Link to={image.linkUrl}>
-                  <PostImage>
-                    <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
-                  </PostImage>
-                </Link>
-              )
-              : (
-                <PostImage>
-                  <img src={image.imageUrl} className="w-100 h-100" alt="user uploaded content" />
-                </PostImage>
-              )}
+            {displayVideoAndImage(image)}
           </SwiperSlide>
         ))
       }
@@ -103,6 +107,5 @@ function CustomSwiper({ images, initialSlide, videoUrlKey }: Props) {
 }
 CustomSwiper.defaultProps = {
   initialSlide: 0,
-  videoUrlKey: '',
 };
 export default CustomSwiper;

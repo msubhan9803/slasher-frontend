@@ -49,6 +49,21 @@ function Home() {
     }
   };
 
+  const indentifyYouTubeLinkAndKey = (content: string) => {
+    const youtubeLinkRegex = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
+    const foundYoutube = content.match(youtubeLinkRegex);
+    return foundYoutube && foundYoutube.length >= 6 && foundYoutube[6] ? foundYoutube[6] : '';
+  };
+
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    if (indentifyYouTubeLinkAndKey(postMessage)) {
+      postImageList.splice(0, 0, {
+        videoKey: indentifyYouTubeLinkAndKey(postMessage),
+      });
+    }
+    return postImageList;
+  };
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -64,7 +79,7 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: data.images,
+              images: formatImageVideoList(data.images, data.message),
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -80,7 +95,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
@@ -123,7 +138,7 @@ function Home() {
         id: data._id,
         postDate: data.createdAt,
         content: data.message,
-        images: data.images,
+        images: formatImageVideoList(data.images, data.message),
         userName: data.userId.userName,
         profileImage: data.userId.profilePic,
         userId: data.userId.userId,

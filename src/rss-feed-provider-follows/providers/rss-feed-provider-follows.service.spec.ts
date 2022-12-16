@@ -100,4 +100,56 @@ describe('RssFeedProviderFollowsService', () => {
       expect(reloadedRssFeedProviderFollow.rssfeedProviderId).toEqual(updatedRssFeedProviderFollow.rssfeedProviderId);
     });
   });
+
+  describe('#findAllByUserId', () => {
+    beforeEach(async () => {
+      for (let index = 0; index < 5; index += 1) {
+        await rssFeedProviderFollowsService.create(
+          {
+            userId: activeUser._id,
+            rssfeedProviderId: rssFeedProviderData._id,
+          },
+        );
+      }
+    });
+    it('finds the expected rss feed provider follow details', async () => {
+      const rssFeedProvidersFollowsList = await rssFeedProviderFollowsService.findAllByUserId(activeUser._id.toString());
+      for (const rssFeedProvidersFollow of rssFeedProvidersFollowsList) {
+        expect(rssFeedProvidersFollow.userId).toEqual(activeUser._id);
+      }
+      expect(rssFeedProvidersFollowsList).toHaveLength(5);
+    });
+  });
+
+  describe('#findByUserAndRssFeedProvider', () => {
+    it('finds the expected rss feed provider follow details', async () => {
+      const rssFeedProviderFollows = await rssFeedProviderFollowsService.create(
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
+      );
+      const rssFeedProvidersFollowsData = await rssFeedProviderFollowsService
+        .findByUserAndRssFeedProvider(
+          rssFeedProviderFollows.userId.toString(),
+          rssFeedProviderFollows.rssfeedProviderId.toString(),
+        );
+      expect(rssFeedProvidersFollowsData.rssfeedProviderId).toEqual(rssFeedProviderFollows.rssfeedProviderId);
+      expect(rssFeedProvidersFollowsData.userId).toEqual(rssFeedProviderFollows.userId);
+    });
+  });
+
+  describe('#deleteById', () => {
+    it('delete rss feed provider follow details', async () => {
+      const rssFeedProviderFollows = await rssFeedProviderFollowsService.create(
+        {
+          userId: activeUser._id,
+          rssfeedProviderId: rssFeedProviderData._id,
+        },
+      );
+      await rssFeedProviderFollowsService.deleteById(rssFeedProviderFollows._id);
+      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollows._id);
+      expect(rssFeedProviderFollowDetails).toBeNull();
+    });
+  });
 });

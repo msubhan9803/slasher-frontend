@@ -21,8 +21,18 @@ export class RssFeedProviderFollowsService {
     return this.rssFeedProviderFollowModel.findOne({ _id: id }).exec();
   }
 
-  // TODO: Add test
   async findAllByUserId(userId: string): Promise<RssFeedProviderFollow[]> {
     return this.rssFeedProviderFollowModel.find({ userId }).exec();
+  }
+
+  async findByUserAndRssFeedProvider(userId: string, rssfeedProviderId: string): Promise<RssFeedProviderFollow> {
+    return this.rssFeedProviderFollowModel.findOne({
+      userId,
+      rssfeedProviderId,
+    }).exec();
+  }
+
+  async deleteById(id: string): Promise<void> {
+    await this.rssFeedProviderFollowModel.deleteOne({ _id: id }).exec();
   }
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {
-  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
+  addFeedComments, addFeedReplyComments, getFeedComments, getSingleComment, removeFeedCommentReply,
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 import {
@@ -48,7 +48,8 @@ function ProfilePostDetail({ user }: Props) {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const loginUserId = Cookies.get('userId');
-
+  const queryCommentId = searchParams.get('commentId');
+  const queryReplyId = searchParams.get('replyId');
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
@@ -59,7 +60,7 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments) {
+    if (requestAdditionalPosts && !loadingComments && !queryCommentId) {
       setLoadingComments(true);
       setNoMoreData(false);
       getFeedComments(
@@ -329,6 +330,19 @@ function ProfilePostDetail({ user }: Props) {
       onCommentLike(feedId);
     }
   };
+
+  useEffect(() => {
+    if (queryCommentId) {
+      navigate(`/${user.userName}/posts/${postId}?commentId=${queryCommentId}`)
+      getSingleComment(queryCommentId).then((res) => {
+        if (postId !== res.data.feedPostId) {
+          navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`)
+        }
+        setCommentData([res.data]);
+      })
+    }
+  }, [queryCommentId, queryReplyId]);
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (

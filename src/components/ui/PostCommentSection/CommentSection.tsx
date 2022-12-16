@@ -197,14 +197,14 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
-  setIsReply: () => { },
-  setReplyId: () => { },
-  setReplyUserName: () => { },
+  setIsReply: undefined,
+  setReplyId: undefined,
+  setReplyUserName: undefined,
   feedCommentId: '',
   content: null,
   userId: null,
   userName: null,
-  handleSeeCompleteList: () => { },
+  handleSeeCompleteList: undefined,
   likeCount: 0,
 };
 export default CommentSection;

@@ -157,14 +157,14 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
       const limit = 20;
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
+        .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(2);
       expect(response.body).toEqual(getFeedCommentsResponse);
     });
 
-    describe('when `before` argument is supplied', () => {
+    describe('when `after` argument is supplied', () => {
       it('get expected first and second sets of paginated results', async () => {
         const feedComments1 = await feedCommentsService
           .createFeedComment(
@@ -217,7 +217,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           );
         const limit = 2;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < firstResponse.body.length; index += 1) {
@@ -225,7 +225,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         }
         expect(firstResponse.body).toHaveLength(2);
         const secondResponse = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst&after=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < secondResponse.body.length; index += 1) {
@@ -238,7 +238,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -247,7 +247,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -256,21 +256,37 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       it('limit should not be grater than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
       });
 
-      it('`before` must match regular expression', async () => {
-        const limit = 3;
-        const before = '634912b2@2c2f4f5e0e6228#';
+      it('sortBy should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&before=${before}`)
+          .get(`/feed-comments?feedPostId=${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('sortBy should not be empty');
+      });
+
+      it('sortBy must be an allowed value', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/feed-comments?feedPostId=${feedPost._id}&sortBy=banana`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('sortBy must be one of the following values: newestFirst, oldestFirst');
+      });
+
+      it('`after` must match regular expression', async () => {
+        const limit = 3;
+        const after = '634912b2@2c2f4f5e0e6228#';
+        const response = await request(app.getHttpServer())
+          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&after=${after}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain(
-          'before must be a mongodb id',
+          'after must be a mongodb id',
         );
       });
     });

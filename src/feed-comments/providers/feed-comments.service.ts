@@ -86,13 +86,21 @@ export class FeedCommentsService {
   async findFeedCommentsWithReplies(
     parentFeedPostId: string,
     limit: number,
+    sortBy: 'newestFirst' | 'oldestFirst',
     identifyLikesForUser?: mongoose.Types.ObjectId,
-    before?: mongoose.Types.ObjectId,
+    after?: mongoose.Types.ObjectId,
   ): Promise<FeedCommentWithReplies[]> {
-    const beforeCreatedAt: any = {};
-    if (before) {
-      const beforeFeedComment = await this.feedCommentModel.findById(before);
-      beforeCreatedAt.createdAt = { $lt: beforeFeedComment.createdAt };
+    const sortClause: any = {
+      createdAt: (sortBy === 'newestFirst' ? -1 : 1),
+    };
+    const queryForAfterFilter: any = {};
+    if (after) {
+      const feedCommentForAfterFilter = await this.feedCommentModel.findById(after);
+      if (sortBy === 'newestFirst') {
+        queryForAfterFilter.createdAt = { $lt: feedCommentForAfterFilter.createdAt };
+      } else {
+        queryForAfterFilter.createdAt = { $gt: feedCommentForAfterFilter.createdAt };
+      }
     }
     const comments: any = await this.feedCommentModel
       .find({
@@ -100,11 +108,11 @@ export class FeedCommentsService {
           { feedPostId: parentFeedPostId },
           { is_deleted: FeedCommentDeletionState.NotDeleted },
           { status: FeedCommentStatus.Active },
-          beforeCreatedAt,
+          queryForAfterFilter,
         ],
       })
       .populate('userId', 'userName _id profilePic')
-      .sort({ createdAt: -1 })
+      .sort(sortClause)
       .limit(limit)
       .exec();
     const addRepliesKey = JSON.parse(JSON.stringify(comments)).map((commentLike) => {
@@ -122,7 +130,7 @@ export class FeedCommentsService {
         status: FeedCommentStatus.Active,
       })
       .populate('userId', 'userName _id profilePic')
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: 1 }) // replies are always sorted by { createdAt: 1 }, regardless of comment sort
       .limit(limit)
       .exec();
     const commentReplies = [];

@@ -70,57 +70,77 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
   });
 
   describe('GET /movies/movieDbData/:movieDBId', () => {
-    it('get movie db data', async () => {
-      jest.spyOn(httpService, 'get').mockImplementation(
-        (url: any) => {
-          switch (url) {
-            case 'https://api.themoviedb.org/3/movie/2907/credits?api_key='
-              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
-              return of({
-                data: moviedbid2907ApiCreditsResponse,
-                status: 200,
-                statusText: '',
-                headers: {},
-                config: {},
-              });
-            case 'https://api.themoviedb.org/3/movie/2907/videos?api_key='
-              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
-              return of({
-                data: moviedbid2907ApiVideosResponse,
-                status: 200,
-                statusText: '',
-                headers: {},
-                config: {},
-              });
-            case 'https://api.themoviedb.org/3/movie/2907?api_key='
-              + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US&append_to_response=release_dates`:
-              return of({
-                data: moviedbid2907ApiMainMovieResponse,
-                status: 200,
-                statusText: '',
-                headers: {},
-                config: {},
-              });
-            case 'https://api.themoviedb.org/3/configuration?api_key='
-              + `${configService.get<string>('MOVIE_DB_API_KEY')}`:
-              return of({
-                data: moviedbid2907ApiConfigurationResponse,
-                status: 200,
-                statusText: '',
-                headers: {},
-                config: {},
-              });
-            default:
-              throw new Error(`unhandled url: ${url}`);
-          }
-        },
-      );
-      const movieDBId = 2907;
-      const response = await request(app.getHttpServer())
-        .get(`/movies/movieDbData/${movieDBId}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      expect(response.body).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
+    // eslint-disable-next-line arrow-body-style
+    const createTmdbHttpServiceMockFunction = (setNullMoviePosterPath: boolean) => {
+      return (url: any) => {
+        switch (url) {
+          case 'https://api.themoviedb.org/3/movie/2907/credits?api_key='
+            + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
+            return of({
+              data: moviedbid2907ApiCreditsResponse,
+              status: 200,
+              statusText: '',
+              headers: {},
+              config: {},
+            });
+          case 'https://api.themoviedb.org/3/movie/2907/videos?api_key='
+            + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US`:
+            return of({
+              data: moviedbid2907ApiVideosResponse,
+              status: 200,
+              statusText: '',
+              headers: {},
+              config: {},
+            });
+          case 'https://api.themoviedb.org/3/movie/2907?api_key='
+            + `${configService.get<string>('MOVIE_DB_API_KEY')}&language=en-US&append_to_response=release_dates`:
+            return of({
+              data: { ...moviedbid2907ApiMainMovieResponse, ...(setNullMoviePosterPath ? { poster_path: null } : {}) },
+              status: 200,
+              statusText: '',
+              headers: {},
+              config: {},
+            });
+          case 'https://api.themoviedb.org/3/configuration?api_key='
+            + `${configService.get<string>('MOVIE_DB_API_KEY')}`:
+            return of({
+              data: moviedbid2907ApiConfigurationResponse,
+              status: 200,
+              statusText: '',
+              headers: {},
+              config: {},
+            });
+          default:
+            throw new Error(`unhandled url: ${url}`);
+        }
+      };
+    };
+    describe('get movie db data', () => {
+      it('responds with the expected value for a movie', async () => {
+        jest.spyOn(httpService, 'get').mockImplementation(createTmdbHttpServiceMockFunction(false));
+        const movieDBId = 2907;
+        const response = await request(app.getHttpServer())
+          .get(`/movies/movieDbData/${movieDBId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
+      });
+
+      it('responds with the expected value for a movie that has a null poster_path', async () => {
+        jest.spyOn(httpService, 'get').mockImplementation(createTmdbHttpServiceMockFunction(true));
+        const movieDBId = 2907;
+        const response = await request(app.getHttpServer())
+          .get(`/movies/movieDbData/${movieDBId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual({
+          ...movieDbId2907ExpectedFetchMovieDbDataReturnValue,
+          mainData: {
+            ...movieDbId2907ExpectedFetchMovieDbDataReturnValue.mainData,
+            poster_path: 'http://localhost:4444/placeholders/movie_poster.png',
+          },
+        });
+      });
     });
   });
 

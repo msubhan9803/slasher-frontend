@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -64,6 +65,21 @@ describe('All Movies (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body[0].logo).toBe('https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg');
+    });
+
+    it('when logo is null than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active, name: 'a', logo: null,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .get('/movies?limit=1&sortBy=name')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body[0].logo).toBe('http://localhost:4444/placeholders/movie_poster.png');
     });
 
     it('when sortBy is name than expected all movies response', async () => {

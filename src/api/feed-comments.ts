@@ -8,9 +8,9 @@ export async function getFeedComments(feedPostId: string, lastRetrievedCommentId
     Authorization: `Bearer ${token}`,
   };
 
-  let queryParameter = `?feedPostId=${feedPostId}&limit=20`;
+  let queryParameter = `?feedPostId=${feedPostId}&limit=20&sortBy=newestFirst`;
   if (lastRetrievedCommentId) {
-    queryParameter += `&before=${lastRetrievedCommentId}`;
+    queryParameter += `&after=${lastRetrievedCommentId}`;
   }
 
   return axios.get(`${apiUrl}/feed-comments${queryParameter}`, { headers });

@@ -27,7 +27,7 @@ export default {
   original_title: 'The Addams Family',
   overview: "When a man claiming to be long-lost Uncle Fester reappears after 25 years lost, the family plans a celebration to wake the dead. But the kids barely have time to warm up the electric chair before Morticia begins to suspect Fester is fraud when he can't recall any of the details of Fester's life.",
   popularity: 88.529,
-  poster_path: null,
+  poster_path: '/qFf8anju5f2epI0my8RdwwIXFIP.jpg',
   production_companies: [
     {
       id: 41,

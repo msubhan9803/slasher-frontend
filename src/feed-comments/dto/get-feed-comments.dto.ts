@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  IsIn,
   IsMongoId,
   IsNotEmpty, IsNumber, IsOptional, IsString, Max,
 } from 'class-validator';
@@ -14,9 +15,14 @@ export class GetFeedCommentsDto {
   @IsString()
   @IsOptional()
   @IsMongoId()
-  before: string;
+  after: string;
 
   @IsNotEmpty()
   @IsMongoId()
   feedPostId: string;
+
+  @IsNotEmpty()
+  @IsIn(['newestFirst', 'oldestFirst'])
+  @IsString()
+  sortBy: 'newestFirst' | 'oldestFirst';
 }

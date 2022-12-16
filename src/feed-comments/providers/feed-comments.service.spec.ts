@@ -206,7 +206,7 @@ describe('FeedCommentsService', () => {
           'Hello Test Reply Message 4',
           sampleFeedCommentsObject.images,
         );
-      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, 20);
+      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, 20, 'newestFirst');
       expect(feedCommentsWithReplies).toHaveLength(3);
     });
 
@@ -278,13 +278,18 @@ describe('FeedCommentsService', () => {
           { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
       });
       const userData = await usersService.findById(activeUser._id.toString());
-      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost1.id, 20, activeUser._id.toString());
+      const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
+        feedPost1.id,
+        20,
+        'newestFirst',
+        activeUser._id.toString(),
+      );
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
       for (let i = 0; i < feedCommentAndReply.length; i += 1) {
         const filterReply = replyData
           .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
-          .map((replyId) => {// eslint-disable-line 
+          .map((replyId) => {// eslint-disable-line
             // eslint-disable-next-line no-param-reassign
             replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
             // eslint-disable-next-line no-param-reassign
@@ -352,11 +357,12 @@ describe('FeedCommentsService', () => {
             sampleFeedCommentsObject.images,
           );
         const limit = 3;
-        const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit);
+        const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit, 'newestFirst');
         expect(firstResults).toHaveLength(3);
         const secondResults = await feedCommentsService.findFeedCommentsWithReplies(
           feedPost.id,
           limit,
+          'newestFirst',
           null,
           new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
         );

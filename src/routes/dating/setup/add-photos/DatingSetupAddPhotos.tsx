@@ -4,9 +4,9 @@ import {
   Col, Container, Row,
 } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import ProfilePhotoGallery from '../../components/ProfilePhotoGallery';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 interface Image {
   title: string;
@@ -25,11 +25,11 @@ function DatingSetupAddPhotos() {
   ]);
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
+    <DatingPageWrapper>
       <Container fluid>
         <Row className="justify-content-center text-center">
           <Col md={9} xl={7}>
-            <h1>Add Photos</h1>
+            <h1 className="fw-bold">Add Photos</h1>
             <p className="fw-normal">
               You must add at least one photo to your dating profile, otherwise
               <br />
@@ -62,6 +62,7 @@ function DatingSetupAddPhotos() {
                     imageIndex={imageIndex}
                     imageUpload={imageUpload}
                     setImageUpload={setImageUpload}
+                    isSlim
                   />
                 </Col>
               ))}
@@ -69,19 +70,23 @@ function DatingSetupAddPhotos() {
           </Col>
         </Row>
         <Row className="justify-content-center">
-          <Col md={7} className="mt-3">
-            <RoundButton
-              variant="primary"
-              type="submit"
-              className="w-100 px-5"
-              size="lg"
-            >
-              Next Step
-            </RoundButton>
+          <Col md={9} className="mt-3">
+            <Row>
+              <Col sm={4} className="my-3">
+                <RoundButton
+                  variant="primary"
+                  type="submit"
+                  className="w-100 px-5"
+                  size="md"
+                >
+                  Next Step
+                </RoundButton>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Container>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 

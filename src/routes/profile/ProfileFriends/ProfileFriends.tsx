@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
@@ -39,15 +39,13 @@ function ProfileFriends({ user }: Props) {
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const friendContainerElementRef = useRef<any>(null);
+  const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
-
-  useEffect(() => {
-    navigate(`/${params.userName}/friends`);
-  }, []);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Report' || value === 'Block user') {
@@ -68,6 +66,9 @@ function ProfileFriends({ user }: Props) {
         } else {
           setPage(page + 1);
         }
+        if (res.data.friends.length === 0) {
+          setNoMoreData(true);
+        }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
   }, [search]);
@@ -87,6 +88,20 @@ function ProfileFriends({ user }: Props) {
         });
     }
   };
+  const getYPosition = () => {
+    const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastFriendElement(yPosition);
+  };
+  useEffect(() => {
+    getYPosition();
+  }, [friendsList]);
+
+  useEffect(() => {
+    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+    if (bottomLine) {
+      fetchMoreFriendList();
+    }
+  }, [yPositionOfLastFriendElement]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -129,7 +144,7 @@ function ProfileFriends({ user }: Props) {
             loadMore={fetchMoreFriendList}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4">
+            <Row className="mt-4" ref={friendContainerElementRef}>
               {friendsList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

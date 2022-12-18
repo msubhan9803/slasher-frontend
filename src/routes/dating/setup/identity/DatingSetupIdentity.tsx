@@ -4,7 +4,6 @@ import {
   Button,
   Col, Form, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
 import DatingPageWrapper from '../../components/DatingPageWrapper';
@@ -12,14 +11,6 @@ import DatingPageWrapper from '../../components/DatingPageWrapper';
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
 const dayOptions = generateDayOptions(1, 31);
-
-const BigTitle = styled.h1`
-  font-size: 2rem;
-`;
-
-const ButtonSized = styled(Button)`
-  height: 40px;
-`;
 
 function DatingSetupIdentity() {
   const [gender, setGender] = useState('male');
@@ -80,31 +71,29 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col sm={6}>
           <Row>
-            <BigTitle>I am a</BigTitle>
+            <h1>I am a</h1>
             <Row>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <ButtonSized
+                <Button
                   variant="form"
-                  size="sm"
                   className="w-100"
                   name="male"
                   active={gender === 'male'}
                   onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Male
-                </ButtonSized>
+                </Button>
               </Col>
               <Col xs={6} md={4} sm={4} lg={4}>
-                <ButtonSized
+                <Button
                   variant="form"
-                  size="sm"
                   className="w-100"
                   name="female"
                   active={gender === 'female'}
                   onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Female
-                </ButtonSized>
+                </Button>
               </Col>
             </Row>
           </Row>
@@ -113,43 +102,40 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col md={6}>
           <Row>
-            <BigTitle> I am looking for</BigTitle>
+            <h1> I am looking for</h1>
             <Row>
               <Col xs={4}>
-                <ButtonSized
+                <Button
                   variant="form"
-                  size="sm"
                   className="w-100"
                   name="men"
                   active={selectGender === 'men'}
                   onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Men
-                </ButtonSized>
+                </Button>
               </Col>
               <Col xs={4}>
-                <ButtonSized
+                <Button
                   variant="form"
-                  size="sm"
                   className="w-100"
                   name="women"
                   active={selectGender === 'women'}
                   onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Women
-                </ButtonSized>
+                </Button>
               </Col>
               <Col xs={4}>
-                <ButtonSized
+                <Button
                   variant="form"
-                  size="sm"
                   className="w-100"
                   name="both"
                   active={selectGender === 'both'}
                   onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Both
-                </ButtonSized>
+                </Button>
               </Col>
             </Row>
           </Row>
@@ -183,8 +169,6 @@ function DatingSetupIdentity() {
             variant="primary"
             type="submit"
             className="w-100 px-5"
-            size="sm"
-            height="40px"
           >
             Next Step
           </RoundButton>

@@ -9,12 +9,14 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
 import NewPostHeader from './NewPostHeader';
 import LikeShareModal from '../../../components/ui/LikeShareModal';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed';
 import { NewsPartnerPostProps } from '../../../types';
 import CustomSwiper from '../../../components/ui/CustomSwiper';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 
 interface Props {
   partnerId: string;
@@ -42,19 +44,11 @@ function NewsPostData({ partnerId }: Props) {
   const [buttonClick, setButtonClck] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
+  const loginUserId = Cookies.get('userId');
 
   const openDialogue = (click: string) => {
     setOpenLikeShareModal(true);
     setButtonClck(click);
-  };
-  const onLikeClick = (likeId: string) => {
-    const likeData = postData.map((checkLikeId: any) => {
-      if (checkLikeId.id === likeId) {
-        return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
-      }
-      return checkLikeId;
-    });
-    setPostData(likeData);
   };
 
   useEffect(() => {
@@ -73,6 +67,10 @@ function NewsPostData({ partnerId }: Props) {
           images: data.images,
           userName: data.rssfeedProviderId?.title,
           rssFeedProviderLogo: data.rssfeedProviderId?.logo,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
         }));
         setPostData((prev: NewsPartnerPostProps[]) => [
           ...prev,
@@ -103,6 +101,40 @@ function NewsPostData({ partnerId }: Props) {
     </p>
   );
 
+  const callLatestFeedPost = () => {
+    getRssFeedProviderPosts(partnerId).then((res) => {
+      const newPosts = res.data.map((data: any) => ({
+        _id: data._id,
+        id: data._id,
+        postDate: data.createdAt,
+        content: data.message,
+        images: data.images,
+        userName: data.rssfeedProviderId?.title,
+        rssFeedProviderLogo: data.rssfeedProviderId?.logo,
+        likes: data.likes,
+        likeIcon: data.likes.includes(loginUserId),
+        likeCount: data.likeCount,
+        commentCount: data.commentCount,
+      }));
+      setPostData(newPosts);
+    });
+  };
+
+  const onLikeClick = (likeId: string) => {
+    const checkLike = postData.some((post: any) => post.id === likeId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(likeId).then((res) => {
+        if (res.status === 200) callLatestFeedPost();
+      });
+    } else {
+      likeFeedPost(likeId).then((res) => {
+        if (res.status === 201) callLatestFeedPost();
+      });
+    }
+  };
+
   return (
     <>
       <InfiniteScroll
@@ -132,7 +164,7 @@ function NewsPostData({ partnerId }: Props) {
                     images={
                       post.images.map((imageData: any) => ({
                         imageUrl: imageData.image_path,
-                        linkUrl: `/${post.title}/posts/${post.id}?imageId=${imageData._id}`,
+                        linkUrl: `/news/partner/${partnerId}/posts/${post.id}`,
                         postId: post.id,
                         imageId: imageData._id,
                       }))

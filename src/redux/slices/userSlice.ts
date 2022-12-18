@@ -7,8 +7,11 @@ export const userSlice = createSlice({
     recentFriendRequests: [],
     unreadNotificationCount: 0,
     recentMessages: [],
-    userName: '',
-    userId: '',
+    user: {
+      userName: '',
+      userId: '',
+      profilePic: '',
+    },
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -17,8 +20,7 @@ export const userSlice = createSlice({
       recentFriendRequests: action.payload.recentFriendRequests,
       unreadNotificationCount: action.payload.unreadNotificationCount,
       recentMessages: action.payload.recentMessages,
-      userName: action.payload.userName,
-      userId: action.payload.userId,
+      user: action.payload.user,
     }),
   },
 });

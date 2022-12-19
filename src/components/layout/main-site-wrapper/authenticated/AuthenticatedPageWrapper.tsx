@@ -65,24 +65,24 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    const token = Cookies.get('sessionToken');
-    if (!token) {
-      navigate(`/sign-in?path=${pathname}`);
-      return;
-    }
+  // useEffect(() => {
+  //   const token = Cookies.get('sessionToken');
+  //   if (!token) {
+  //     navigate(`/sign-in?path=${pathname}`);
+  //     return;
+  //   }
 
-    if (userData.user.userName === '') {
-      userInitialData().then((res) => {
-        dispatch(setUserInitialData(res.data));
-      }).catch((err) => {
-        if (err.response.status === 401) {
-          clearSignInCookies();
-          navigate('/sign-in');
-        }
-      });
-    }
-  }, []);
+  //   if (userData.user.userName === '') {
+  //     userInitialData().then((res) => {
+  //       dispatch(setUserInitialData(res.data));
+  //     }).catch((err) => {
+  //       if (err.response.status === 401) {
+  //         clearSignInCookies();
+  //         navigate('/sign-in');
+  //       }
+  //     });
+  //   }
+  // }, []);
 
   const [show, setShow] = useState(false);
   const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });

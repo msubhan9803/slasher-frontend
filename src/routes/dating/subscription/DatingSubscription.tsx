@@ -5,6 +5,8 @@ import {
 } from 'react-bootstrap';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import GreenTick from '../../../images/dating-green-tick.png';
+import RoundedGreenTick from '../../../images/dating-round-tick.png';
+import DatingBestDeal from '../../../images/dating-best-deal-sticker.png';
 import HeartEmoji from '../../../images/dating-heart-icon.png';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import FormOptions from './form-options';
@@ -19,80 +21,108 @@ function GreenTicked({ text }: { text: string }) {
   );
 }
 
+function ResponsiveContainer({ children }: any) {
+  return (
+    <>
+      <Container className="d-none d-md-block bg-dark rounded-3 py-5 px-4">
+        {children}
+      </Container>
+      <div className="d-md-none">
+        {children}
+      </div>
+    </>
+  );
+}
+
 function DatingSubscription() {
   const [userHasAgreedToTerms, setUserHasAgreedToTerms] = useState(false);
   const [planMonths, setPlanMonths] = useState(1);
 
   return (
     <DatingPageWrapper>
-      <Container className="bg-dark rounded-3 py-5">
+      <ResponsiveContainer>
         <img className="d-flex mx-auto mb-4" src={HeartEmoji} alt="heart" style={{ width: 60 }} />
         <h1 className="text-center mb-3">Slasher Dating is FREE to try!</h1>
         <div className="text-center text-light mb-4">Choose a premium plan for even more!</div>
 
-        <Row className="w-50 mx-auto">
-          <Col>
-            <h2>Free</h2>
-            <GreenTicked text="Browse Profiles" />
-            <GreenTicked text="Send likes (3 per day)" />
-          </Col>
-          <Col>
-            <h2>Premium</h2>
-            <div className="text-primary fw-bold mb-2">Get more</div>
-            <GreenTicked text="Browse profiles" />
-            <GreenTicked text="Send unlimited likes" />
-            <GreenTicked text="See who likes you" />
-            <GreenTicked text="See who messages you" />
-            <GreenTicked text="Send messages" />
-          </Col>
-        </Row>
+        <Row>
+          <Col className="col-12 col-md-10 col-lg-11 col-xl-8 mx-auto">
+            <Row>
+              <Col>
+                <h2>Free</h2>
+                <GreenTicked text="Browse Profiles" />
+                <GreenTicked text="Send likes (3 per day)" />
+              </Col>
+              <Col>
+                <h2>Premium</h2>
+                <div className="text-primary fw-bold mb-2">Get more</div>
+                <GreenTicked text="Browse profiles" />
+                <GreenTicked text="Send unlimited likes" />
+                <GreenTicked text="See who likes you" />
+                <GreenTicked text="See who messages you" />
+                <GreenTicked text="Send messages" />
+              </Col>
 
-        <Row className="w-50 mx-auto">
-          <div>Select one</div>
-          <Row>
-            <Col md={6}>
+              <div className="text-center mt-5 mb-3">Select one</div>
               <Button
-                variant="form"
-                className="w-100"
+                variant={planMonths === 1 ? 'success' : 'dark'}
+                className="mx-auto bg-dark mb-3 position-relative rounded-4 p-4 d-flex justify-content-between align-items-center"
                 name="1-month"
-                active={planMonths === 1}
                 onClick={() => setPlanMonths(1)}
+                style={{ borderColor: planMonths === 1 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%' }}
               >
-                <span className="text-success fw-bold">1</span>
-                <span> month</span>
-                <span>$20</span>
+                {planMonths === 1 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
+                <div className="d-flex justify-content-center align-items-center">
+                  <span className="text-success fw-bold fs-1 me-3">1</span>
+                  <span className="fw-normal text-light"> month</span>
+                </div>
+                <span className="text-primary me-3 fs-2">$20</span>
               </Button>
-            </Col>
-            <Col md={6}>
               <Button
-                variant="form"
-                className="w-100"
+                variant={planMonths === 3 ? 'success' : 'dark'}
+                className="mx-auto bg-dark mb-3 position-relative rounded-4 p-4 d-flex justify-content-between align-items-center"
                 name="3-month"
-                active={planMonths === 3}
                 onClick={() => setPlanMonths(3)}
+                style={{
+                  borderColor: planMonths === 3 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%',
+                }}
               >
-                <span className="text-success fw-bold">3</span>
-                <span>months</span>
-                <span>$50</span>
+                {planMonths === 3 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
+                <div className="d-flex justify-content-center align-items-center">
+                  <span className="text-success fw-bold fs-1 me-3">3</span>
+                  <span className="fw-normal text-light"> months</span>
+                </div>
+                <div className="text-primary me-3 fs-2 d-flex flex-column align-items-end">
+                  <div>$50</div>
+                  <div className="fs-3 fw-normal text-light">Save $10</div>
+                </div>
               </Button>
-            </Col>
-            <Col md={6}>
               <Button
-                variant="form"
-                className="w-100"
+                variant={planMonths === 6 ? 'success' : 'dark'}
+                className="mx-auto bg-dark mb-3 position-relative rounded-4 px-4 pb-4 d-flex justify-content-between align-items-center"
                 name="6-month"
-                active={planMonths === 6}
                 onClick={() => setPlanMonths(6)}
+                style={{
+                  borderColor: planMonths === 6 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%', paddingTop: 30,
+                }}
               >
-                <span className="text-success fw-bold">6</span>
-                <span>months</span>
-                <span>$90</span>
+                {planMonths === 6 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
+                <img className="position-absolute top-0 start-0" src={DatingBestDeal} height="30" alt="Best Deal Sticker" />
+
+                <div className="d-flex justify-content-center align-items-center">
+                  <span className="text-success fw-bold fs-1 me-3">6</span>
+                  <span className="fw-normal text-light"> months</span>
+                </div>
+                <div className="text-primary me-3 fs-2 d-flex flex-column align-items-end">
+                  <div>$90</div>
+                  <div className="fs-3 fw-normal text-light">Save $30</div>
+                </div>
               </Button>
-            </Col>
-          </Row>
+            </Row>
+          </Col>
         </Row>
 
-        <Row className="mx-2 mt-5 mb-4 align-items-start">
+        <Row xs={1} md={2} className="mt-5 mb-4 align-items-start gx-2 gy-3">
           <Col>
             <CustomSelect
               name="height"
@@ -102,15 +132,15 @@ function DatingSubscription() {
           </Col>
           <Col>
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label className="d-none d-sm-block ">Zip code</Form.Label>
+              <Form.Label>Zip code</Form.Label>
               <Form.Control type="text" placeholder="Please enter your zip code" />
             </Form.Group>
           </Col>
         </Row>
 
-        <Row className="mx-2">
-          <div className="">{FormOptions.subscriptionAutoRenewMessage}</div>
-          <div className="mt-4">
+        <Row className="px-3 px-md-2">
+          <div className="p-0">{FormOptions.subscriptionAutoRenewMessage}</div>
+          <div className="p-0 mt-4">
             <label htmlFor="term-agreement-checkbox">
               <input
                 id="dating-term-agreement-checkbox"
@@ -127,7 +157,7 @@ function DatingSubscription() {
           </div>
           <RoundButton className="mt-4 px-5 col-auto">Checkout</RoundButton>
         </Row>
-      </Container>
+      </ResponsiveContainer>
     </DatingPageWrapper>
   );
 }

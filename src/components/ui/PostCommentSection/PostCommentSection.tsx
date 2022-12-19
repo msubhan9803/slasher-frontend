@@ -150,6 +150,7 @@ function PostCommentSection({
   }, [replyUserName]);
 
   const sendComment = (commentId?: string) => {
+    textRef.current.style.height = '36px';
     if (commentId === undefined) {
       setCommentValue({
         commentMessage: message,
@@ -172,14 +173,6 @@ function PostCommentSection({
     setIsReply(false);
     setReplyId('');
     setReplyUserName('');
-  };
-
-  const onKeyDownHandler = (e: any, inpuId?: string) => {
-    if (e.keyCode === 13) {
-      e.preventDefault();
-      sendComment(inpuId);
-      textRef.current.style.height = '36px';
-    }
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -266,7 +259,6 @@ function PostCommentSection({
                   value={message}
                   onFocus={() => setIsReply(false)}
                   onChange={onChangeHandler}
-                  onKeyDown={onKeyDownHandler}
                 />
                 <InputGroup.Text>
                   <FontAwesomeIcon
@@ -431,7 +423,6 @@ function PostCommentSection({
                                       ref={textRef}
                                       value={replyMessage}
                                       onChange={(e: any) => onChangeHandler(e, data.id)}
-                                      onKeyDown={(e: any) => onKeyDownHandler(e, data.id)}
                                     />
                                     <InputGroup.Text>
                                       <FontAwesomeIcon role="button" onClick={() => replyInputFile.current?.click()} icon={solid('camera')} size="lg" />

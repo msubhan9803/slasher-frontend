@@ -2,6 +2,7 @@ import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Card, Col, Dropdown, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -12,42 +13,46 @@ interface LinearIconProps {
 }
 interface PostFooterProps {
   likeIcon: boolean;
-  id: string;
+  postId: string;
   onLikeClick: (id: string) => void
 }
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid  #3A3B46
 `;
-const LinearIcon = styled.div<LinearIconProps>`
+const LinearIcon = styled.span<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-function PostFooter({ likeIcon, id, onLikeClick }: PostFooterProps) {
+function PostFooter({ likeIcon, postId, onLikeClick }: PostFooterProps) {
   return (
     <CardFooter className="p-0">
-      <Row className=" d-flex justify-content-evenly py-3 px-md-3">
-        <Col role="button" onClick={() => onLikeClick(id)}>
-          {likeIcon ? (
-            <LinearIcon uniqueId="like-button-footer">
-              <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-              <span className="fs-3">Like</span>
-            </LinearIcon>
-          )
-            : (
-              <>
-                <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+      <Row className="justify-content-evenly py-3 px-md-3">
+        <Col>
+          <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
+            {likeIcon ? (
+              <LinearIcon uniqueId="like-button-footer">
+                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
                 <span className="fs-3">Like</span>
-              </>
-            )}
+              </LinearIcon>
+            )
+              : (
+                <>
+                  <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                  <span className="fs-3">Like</span>
+                </>
+              )}
+          </Button>
         </Col>
-        <Col className="text-center" role="button">
-          <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-          <span className="fs-3">Comment</span>
+        <Col className="text-center">
+          <Button className="p-0" variant="link">
+            <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+            <span className="fs-3">Comment</span>
+          </Button>
         </Col>
-        <Col className="text-end" role="button">
+        <Col className="text-end">
           <CustomDropDown>
-            <Dropdown.Toggle className=" bg-transparent p-0 text-white">
+            <Dropdown.Toggle className="cursor-pointer bg-transparent p-0 text-white">
               <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>

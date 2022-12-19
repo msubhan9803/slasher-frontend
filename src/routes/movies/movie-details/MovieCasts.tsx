@@ -5,7 +5,16 @@ import {
   Button, Card, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { MovieCast } from '../../../types';
 
+interface CastListProps {
+  castList: CastLists[]
+}
+interface CastLists {
+  profile_path: string;
+  name: string;
+  character: string,
+}
 const StyledCast = styled(Row)`
   overflow-x: auto;
   overflow-y: hidden;
@@ -21,15 +30,7 @@ const StyledSlideButton = styled(Button)`
   margin-top: -3.125rem;
 `;
 
-const movieCasts = [
-  { image: 'https://i.pravatar.cc/300?img=19', name: 'Luciana', designation: 'Singer' },
-  { image: 'https://i.pravatar.cc/300?img=23', name: 'Patrick R.', designation: 'Director' },
-  { image: 'https://i.pravatar.cc/300?img=14', name: 'Gillie Jones', designation: 'Director' },
-  { image: 'https://i.pravatar.cc/300?img=21', name: 'AJ Jones', designation: 'Director' },
-  { image: 'https://i.pravatar.cc/300?img=11', name: 'Najah Bradley', designation: 'Director' },
-  { image: 'https://i.pravatar.cc/300?img=18', name: 'Najah Bley', designation: 'Director' },
-];
-function MovieCasts() {
+function MovieCasts({ castList }: CastListProps) {
   const slideCastsLeft = () => {
     const slider = document.getElementById('slideCasts');
     if (slider !== null) {
@@ -51,18 +52,18 @@ function MovieCasts() {
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </StyledSlideButton>
         <StyledCast id="slideCasts" className="flex-nowrap">
-          {movieCasts.map((cast: any) => (
+          {castList && castList.map((cast: MovieCast) => (
             <Col key={cast.name} xs={6} sm={3} md={2} lg={3} xl={2}>
               <Card className="bg-transparent border-0">
                 <div className="casts-image">
-                  <Card.Img variant="top" src={cast.image} className="w-100 h-100 rounded-3" />
+                  <Card.Img variant="top" src={cast.profile_path} className="w-100 h-100 rounded-3" />
                 </div>
                 <Card.Body className="px-0 pb-0">
                   <Card.Title className="fs-3 m-0">
                     {cast.name}
                   </Card.Title>
                   <Card.Text className="text-primary fs-5">
-                    {cast.designation}
+                    {cast.character}
                   </Card.Text>
                 </Card.Body>
               </Card>

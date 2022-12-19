@@ -10,7 +10,7 @@ import CommentSection from '../../../components/ui/PostCommentSection/CommentSec
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface Props {
-  id: number;
+  id: string;
   profileImage: string;
   userName: string;
   profileDateTime: string;
@@ -23,7 +23,7 @@ interface Props {
   onPopoverClick: (value: string) => void;
 }
 interface Values {
-  id: number;
+  id: string;
   image: string;
   name: string;
   time: string;
@@ -31,11 +31,15 @@ interface Values {
   likeIcon: boolean;
   commentMention: string;
   commentMsg: string;
-  commentImg?: string;
+  commentImg?: ImageList[];
   onIconClick: (value: number) => void;
   popoverOption: string;
   onPopoverClick: (value: string) => void;
 
+}
+interface ImageList {
+  image_path: string;
+  _id: string;
 }
 const commentSection = [
   {
@@ -106,7 +110,7 @@ function NewsPartnerComments() {
     setShow(true);
     setDropDownValue(selectedOption);
   };
-  const handleLikeIcon = (likeId: number) => {
+  const handleLikeIcon = (likeId: string) => {
     const tempData = [...postData];
     tempData.map((data: any) => {
       const temp = data;
@@ -152,7 +156,6 @@ function NewsPartnerComments() {
                   image={data.profileImage}
                   name={data.userName}
                   time={data.profileDateTime}
-                  likes={data.like}
                   likeIcon={data.likeIcon}
                   commentMsg={data.userMessage}
                   onIconClick={() => handleLikeIcon(data.id)}
@@ -166,7 +169,6 @@ function NewsPartnerComments() {
                         id={comment.id}
                         image={comment.image}
                         name={comment.name}
-                        likes={comment.like}
                         time={comment.time}
                         likeIcon={comment.likeIcon}
                         commentMsg={comment.commentMsg}

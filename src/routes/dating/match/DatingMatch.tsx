@@ -79,7 +79,7 @@ function DatingMatch() {
             <span className=""><img style={{}} src={mapPinIcon} alt="Map Icon Here" /></span>
             <div className="text-muted ms-1">{location}</div>
           </div>
-          <RoundButton $invertColorOnHover $lightBorder className="mx-2 text-white bg-black border-white my-4" onClick={() => { }}>View Profile</RoundButton>
+          <RoundButton className="mx-2 text-white bg-black border-white my-4" onClick={() => { }}>View Profile</RoundButton>
         </Row>
 
         <Row className="d-flex justify-content-center">

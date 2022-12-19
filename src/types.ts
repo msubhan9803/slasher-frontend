@@ -23,7 +23,9 @@ export interface Post {
   likeCount: number;
   sharedList: number;
   likeIcon: boolean;
+  likes?: string[];
   hashTag?: string[];
+  userId?: string
 }
 
 export interface User {
@@ -36,12 +38,73 @@ export interface User {
   aboutMe: string;
 }
 
+export interface NewsPartnerPostProps {
+  _id: string;
+  id: string;
+  postDate: string;
+  content: string;
+  images: PostImage[];
+  title: string;
+  rssFeedProviderLogo: string;
+  commentCount: number;
+  likeCount: number;
+  sharedList: number;
+  hashTag: string[];
+  commentSection: boolean;
+  likeIcon: boolean;
+  likes: string[];
+}
+
+export interface AdditionalMovieData {
+  cast: MovieCast;
+  video: Video[];
+  mainData: MainData;
+}
+
+export interface MovieCast {
+  profile_path: string;
+  name: string;
+  character: string,
+}
+
+export interface Video {
+  key: string;
+}
+
+export interface MainData {
+  release_date: string;
+  poster_path: string;
+  original_title: string;
+  overview: string;
+  release_dates: any;
+  runtime: number;
+  production_countries: Country[];
+}
+
+export interface Country {
+  iso_3166_1: string;
+  name: string;
+}
+
+export interface MovieReleaseDate {
+  results: MovieReleaseResults[];
+}
+
+export interface MovieReleaseResults {
+  iso_3166_1: string;
+  release_dates: ReleaseDate[];
+}
+
+export interface ReleaseDate {
+  certification: string;
+}
+
 export interface MessagesList {
   _id: string;
   unreadCount: number;
   latestMessage: string;
   updatedAt: string;
-  user: UserMesssage
+  participants: UserMesssage[]
 }
 
 export interface UserMesssage {
@@ -57,4 +120,68 @@ export enum FriendRequestReaction {
   Accepted = 3,
   Blocked = 4,
   Pending = 5,
+}
+
+export interface FeedComments {
+  createdAt: string;
+  feedPostId: string;
+  hideUsers: any;
+  images: any;
+  is_deleted: number;
+  likedByUser: boolean;
+  message: string;
+  replies: FeedReplies[];
+  reportUsers: any;
+  status: number;
+  type: number;
+  updatedAt: string;
+  userId: FeedCommentUserId;
+  __v: number;
+  _id: string;
+  likeCount: number;
+  commentCount: number;
+}
+
+interface FeedCommentUserId {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
+
+export enum NotificationReadStatus {
+  Unread = 0,
+  Read = 1,
+}
+
+export interface Notification {
+  _id: string;
+  createdAt: string,
+  isRead: number,
+  notificationMsg: string,
+  senderId: Sender,
+}
+
+interface Sender {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
+
+interface FeedReplies {
+  createdAt: string;
+  feedPostId: string;
+  hideUsers: any;
+  images: any;
+  is_deleted: number;
+  likes: string[];
+  message: string;
+  reportUsers: any;
+  status: number;
+  type: number;
+  updatedAt: string;
+  userId: FeedCommentUserId;
+  __v: number;
+  _id: string;
+  likeCount: number;
+  commentCount: number;
 }

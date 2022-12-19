@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -63,15 +63,16 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
     if (!token) {
-      navigate('/sign-in');
+      navigate(`/sign-in?path=${pathname}`);
       return;
     }
 
-    if (userData.userName === '') {
+    if (userData.user.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
@@ -106,7 +107,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
-        userName={userData.userName}
+        userName={userData.user.userName}
         onToggleClick={showOffcanvasSidebar}
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
@@ -127,8 +128,8 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           {
             rightSidebarType
             && (
-              <div>
-                <RightSidebarWrapper className={`d-${desktopBreakPoint}-block d-none`}>
+              <div id="desktop-sidebar" className={`d-${desktopBreakPoint}-block d-none`}>
+                <RightSidebarWrapper>
                   {renderSidebarForType(rightSidebarType)}
                 </RightSidebarWrapper>
               </div>

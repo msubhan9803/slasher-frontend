@@ -1,21 +1,27 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getUser } from '../../../api/users';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
 import { User, Post } from '../../../types';
+import EditPostModal from '../../../components/ui/EditPostModal';
+import { MentionProps } from '../../posts/create-post/CreatePost';
+import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 
-const popoverOptions = ['Edit', 'Delete'];
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
 
 function ProfilePosts() {
   const { userName } = useParams<string>();
   const [user, setUser] = useState<User>();
-
   useEffect(() => {
     if (userName) {
       getUser(userName)
@@ -24,7 +30,6 @@ function ProfilePosts() {
         });
     }
   }, [userName]);
-
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
@@ -34,14 +39,20 @@ function ProfilePosts() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-
-  const handlePopoverOption = (value: string) => {
-    if (value === 'Delete') {
-      setShowReportModal(true);
-      setDropDownValue(value);
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [postId, setPostId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.content) {
+      setPostContent(popoverClickProps.content);
     }
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+    setShowReportModal(true);
+    setDropDownValue(value);
   };
-
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && user) {
       setLoadingPosts(true);
@@ -59,6 +70,11 @@ function ProfilePosts() {
             images: data.images,
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
           }
         ));
         setPosts((prev: Post[]) => [
@@ -76,7 +92,6 @@ function ProfilePosts() {
       );
     }
   }, [requestAdditionalPosts, loadingPosts, user]);
-
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -86,11 +101,66 @@ function ProfilePosts() {
       }
     </p>
   );
-
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
+    }
+  };
+  const callLatestFeedPost = () => {
+    if (user) {
+      getProfilePosts(user.id).then((res) => {
+        const newPosts = res.data.map((data: any) => ({
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          content: data.message,
+          images: data.images,
+          userName: data.userId.userName,
+          profileImage: data.userId.profilePic,
+          userId: data.userId.userId,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+        }));
+        setPosts(newPosts);
+      });
+    }
+  };
+  const onUpdatePost = (message: string) => {
+    updateFeedPost(postId, message).then(() => {
+      setShowReportModal(false);
+      callLatestFeedPost();
+    });
+  };
+  const deletePostClick = () => {
+    deleteFeedPost(postId)
+      .then(() => {
+        setShowReportModal(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const onLikeClick = (feedPostId: string) => {
+    const checkLike = posts.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
 
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) callLatestFeedPost();
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) callLatestFeedPost();
+      });
+    }
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
@@ -100,13 +170,11 @@ function ProfilePosts() {
             <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
           </div>
         )}
-
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
-          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          {errorMessage}
         </div>
       )}
-
       <InfiniteScroll
         pageStart={0}
         initialLoad
@@ -118,9 +186,11 @@ function ProfilePosts() {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={popoverOptions}
+              popoverOptions={loginUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
             />
           )
         }
@@ -132,6 +202,17 @@ function ProfilePosts() {
         setShow={setShowReportModal}
         slectedDropdownValue={dropDownValue}
       />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={showReportModal}
+            setShow={setShowReportModal}
+            slectedDropdownValue={dropDownValue}
+          />
+        )}
+      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
     </AuthenticatedPageWrapper>
   );
 }

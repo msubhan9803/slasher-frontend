@@ -1,15 +1,22 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
-import { getHomeFeedPosts } from '../../api/feed-posts';
-import ErrorMessageList from '../../components/ui/ErrorMessageList';
+import { deleteFeedPost, getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
 import { Post } from '../../types';
+import { MentionProps } from '../posts/create-post/CreatePost';
+import { getSuggestUserName } from '../../api/users';
+import EditPostModal from '../../components/ui/EditPostModal';
+import { PopoverClickProps } from '../../components/ui/CustomPopover';
+import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 
-const popoverOptions = ['Edit', 'Delete'];
+const loginUserPopoverOptions = ['Edit', 'Delete'];
+const otherUserPopoverOptions = ['Report', 'Block user'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -19,11 +26,26 @@ function Home() {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [postContent, setPostContent] = useState<string>('');
+  const [postId, setPostId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.content) {
+      setPostContent(popoverClickProps.content);
+    }
+    if (popoverClickProps.id) {
+      setPostId(popoverClickProps.id);
+    }
+    setShow(true);
+    setDropDownValue(value);
+  };
 
-  const handlePopoverOption = (value: string) => {
-    if (value === 'Delete') {
-      setShow(true);
-      setDropDownValue(value);
+  const handleSearch = (text: string) => {
+    setMentionList([]);
+    if (text) {
+      getSuggestUserName(text)
+        .then((res) => setMentionList(res.data));
     }
   };
 
@@ -45,11 +67,15 @@ function Home() {
               images: data.images,
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
             };
           }
           // RSS feed post
           return {
-            /* eslint no-underscore-dangle: 0 */
             _id: data._id,
             id: data._id,
             postDate: data.createdAt,
@@ -57,6 +83,8 @@ function Home() {
             images: data.images,
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
           };
         });
         setPosts((prev: Post[]) => [
@@ -84,10 +112,61 @@ function Home() {
       }
     </p>
   );
-
   const renderLoadingIndicator = () => (
     <p className="text-center">Loading...</p>
   );
+
+  const callLatestFeedPost = () => {
+    getHomeFeedPosts().then((res) => {
+      const newPosts = res.data.map((data: any) => ({
+        _id: data._id,
+        id: data._id,
+        postDate: data.createdAt,
+        content: data.message,
+        images: data.images,
+        userName: data.userId.userName,
+        profileImage: data.userId.profilePic,
+        userId: data.userId.userId,
+        likes: data.likes,
+        likeIcon: data.likes.includes(loginUserId),
+        likeCount: data.likeCount,
+        commentCount: data.commentCount,
+      }));
+      setPosts(newPosts);
+    });
+  };
+
+  const onUpdatePost = (message: string) => {
+    updateFeedPost(postId, message).then(() => {
+      setShow(false);
+      callLatestFeedPost();
+    });
+  };
+
+  const deletePostClick = () => {
+    deleteFeedPost(postId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const onLikeClick = (feedPostId: string) => {
+    const checkLike = posts.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) callLatestFeedPost();
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) callLatestFeedPost();
+      });
+    }
+  };
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -96,7 +175,7 @@ function Home() {
       <SuggestedFriend />
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
-          <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          {errorMessage}
         </div>
       )}
       <InfiniteScroll
@@ -110,16 +189,39 @@ function Home() {
           && (
             <PostFeed
               postFeedData={posts}
-              popoverOptions={popoverOptions}
+              popoverOptions={loginUserPopoverOptions}
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
             />
           )
         }
       </InfiniteScroll>
       {loadingPosts && renderLoadingIndicator()}
       {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+          />
+        )}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </AuthenticatedPageWrapper>
   );
 }

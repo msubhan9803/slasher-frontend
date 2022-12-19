@@ -77,8 +77,7 @@ function DatingSetupAddPhotos() {
                   variant="primary"
                   type="submit"
                   className="w-100 px-5"
-                  size="sm"
-                  height="40px"
+                  size="md"
                 >
                   Next Step
                 </RoundButton>

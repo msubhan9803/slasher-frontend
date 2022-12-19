@@ -13,14 +13,13 @@ import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
-import MovieDetailPoster from '../../../images/movie-detail-poster.jpg';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import MovieOverview from './MovieOverview';
 import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
-import MovieComments from '../components/MovieComments';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
+import { AdditionalMovieData } from '../../../types';
 
 interface MovieIconProps {
   label: string;
@@ -30,6 +29,9 @@ interface MovieIconProps {
   width: string;
   height: string;
   addMovie: boolean;
+}
+interface AboutMovieData {
+  aboutMovieData: AdditionalMovieData
 }
 const StyledMoviePoster = styled.div`
   aspect-ratio: 0.67;
@@ -67,7 +69,8 @@ const FollowStyledButton = styled(RoundButton)`
     border: 1px solid #3A3B46;
   }
 `;
-function AboutMovie() {
+
+function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const selfView = searchParams.get('view') === 'self';
   const tabs = selfView ? tabsForSelf : tabsForViewer;
@@ -75,7 +78,7 @@ function AboutMovie() {
   const params = useParams();
 
   useEffect(() => {
-    if (params.summary === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
+    if (params['*'] === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -96,7 +99,7 @@ function AboutMovie() {
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledMoviePoster className="mx-4">
-              <Image src={MovieDetailPoster} className="rounded-3 w-100 h-100" />
+              <Image src={aboutMovieData?.mainData?.poster_path} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
             <div className="d-none d-xl-block mt-3">
               <p className="fs-5">Your lists</p>
@@ -117,7 +120,7 @@ function AboutMovie() {
             </div>
           </Col>
           <Col xl={7}>
-            <AboutDetails />
+            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
           </Col>
         </Row>
         <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
@@ -157,7 +160,7 @@ function AboutMovie() {
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
           <Col xs={12} md={6} lg={selfView ? 10 : 12} xl={9}>
-            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params.summary} params={selfView ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>
@@ -168,10 +171,13 @@ function AboutMovie() {
           path="details"
           element={(
             <>
-              <MovieOverview />
-              <MovieCasts />
-              <MovieTrailers />
-              <MovieComments />
+              <MovieOverview overView={aboutMovieData
+                && aboutMovieData.mainData
+                && aboutMovieData.mainData
+                && aboutMovieData.mainData.overview}
+              />
+              <MovieCasts castList={aboutMovieData && aboutMovieData.cast as any} />
+              <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />
             </>
           )}
         />

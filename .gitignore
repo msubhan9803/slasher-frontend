@@ -27,3 +27,6 @@ yarn-error.log*
 
 # VS Code
 .vscode/
+
+# Playwright saved browser state
+e2e/*.browser-storage-state.json

@@ -1,27 +1,42 @@
-import React from 'react';
+/* eslint-disable max-lines */
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
+import { DateTime } from 'luxon';
+import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
-import CustomPopover from '../CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 
 interface LinearIconProps {
   uniqueId?: string
 }
 interface Props {
-  id: number;
+  id: string;
   image: string;
   name: string;
   time: string;
-  likes?: number;
   commentMention?: string;
-  commentMsg?: string;
-  commentImg?: string;
-  onIconClick: (value: number) => void;
+  commentMsg: string;
+  commentImg?: ImageList[];
+  onIconClick: (value: string) => void;
   likeIcon: boolean;
   popoverOptions: string[];
-  onPopoverClick: (value: string) => void;
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
+  setIsReply?: (value: boolean) => void;
+  setReplyId?: (value: string) => void;
+  setReplyUserName?: (value: string) => void;
+  feedCommentId?: string;
+  content?: string;
+  userId?: string;
+  userName?: string;
+  handleSeeCompleteList?: () => void;
+  likeCount?: number;
+}
+interface ImageList {
+  image_path: string;
+  _id: string;
 }
 const CommentMessage = styled.span`
   color: #CCCCCC;
@@ -46,10 +61,35 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
+const Content = styled.div`
+  white-space: pre-line;
+`;
+
+const decryptMessage = (content: string) => {
+  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+  return found;
+};
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
-  likes, onIconClick, likeIcon, popoverOptions, onPopoverClick,
+  onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
+  setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
+  handleSeeCompleteList, likeCount,
 }: Props) {
+  const [images, setImages] = useState<ImageList[]>([]);
+
+  useEffect(() => {
+    if (commentImg && commentImg.length > 0) {
+      setImages(commentImg);
+    }
+  }, [commentImg]);
+
+  const handleReply = (replyId: string, replyName: string) => {
+    if (setIsReply) setIsReply(true);
+    if (setReplyId) setReplyId(replyId);
+    if (setReplyUserName) setReplyUserName(replyName);
+    if (handleSeeCompleteList) handleSeeCompleteList();
+  };
+
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
@@ -60,38 +100,51 @@ function CommentSection({
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
               <h3 className="mb-0 ">{name}</h3>
-              <p className="fs-6 text-light mb-0">{time}</p>
+              <p className="fs-6 text-light mb-0">
+                {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
+              </p>
             </div>
             <div className="d-block pe-0">
-              <CustomPopover popoverOptions={popoverOptions} onPopoverClick={onPopoverClick} />
+              <CustomPopover
+                popoverOptions={popoverOptions}
+                onPopoverClick={onPopoverClick}
+                content={content}
+                id={id}
+                userId={userId}
+                userName={userName}
+              />
             </div>
           </div>
           <span className="text-primary">
             {commentMention}
           </span>
+
           <CommentMessage className="mb-0 fs-4">
-            {commentMsg}
+            <Content dangerouslySetInnerHTML={
+              { __html: linkifyHtml(decryptMessage(commentMsg)) }
+            }
+            />
           </CommentMessage>
-          {
-            commentImg
-            && (
-              <div>
-                <UserCircleImage size="5.625rem" src={commentImg} className="mt-2 rounded" />
+          <div className="d-flex flex-wrap">
+            {images && images.length > 0 && images.map((imageC: ImageList) => (
+              /* eslint no-underscore-dangle: 0 */
+              <div key={imageC._id} className="me-3">
+                <UserCircleImage size="5.625rem" src={imageC.image_path} className="mt-2 rounded" />
               </div>
-            )
-          }
+            ))}
+          </div>
           {
-            likes
+            likeCount! > 0
             && (
               <Likes className="rounded d-flex justify-content-end position-absolute">
                 <LikesButton className="p-1 px-2 text-light me-2 mt-1 rounded-pill text-white">
-                  <LinearIcon uniqueId="like-button-comment">
+                  <LinearIcon uniqueId="comment-like-count">
                     <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-5">{likes}</span>
+                    <span className="fs-5">{likeCount}</span>
                   </LinearIcon>
                 </LikesButton>
                 <svg width="0" height="0">
-                  <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                  <linearGradient id="comment-like-count" x1="00%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
                     <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
                   </linearGradient>
@@ -105,12 +158,20 @@ function CommentSection({
             {
               likeIcon
                 ? (
-                  <LinearIcon uniqueId="like-button-comment">
-                    <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
-                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                      <span className="fs-5">Like</span>
-                    </Button>
-                  </LinearIcon>
+                  <>
+                    <LinearIcon uniqueId="like-button-comment">
+                      <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
+                        <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                        <span className="fs-5">Like</span>
+                      </Button>
+                    </LinearIcon>
+                    <svg width="0" height="0">
+                      <linearGradient id="like-button-comment" x1="00%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                        <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                      </linearGradient>
+                    </svg>
+                  </>
                 )
                 : (
                   <Button variant="link" className="shadow-none me-2" onClick={() => onIconClick(id)}>
@@ -119,7 +180,11 @@ function CommentSection({
                   </Button>
                 )
             }
-            <Button variant="link" className="shadow-none">
+            <Button
+              variant="link"
+              className="shadow-none"
+              onClick={() => handleReply(feedCommentId || id, name)}
+            >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
             </Button>
@@ -131,8 +196,15 @@ function CommentSection({
 }
 CommentSection.defaultProps = {
   commentMention: '',
-  commentMsg: '',
-  commentImg: '',
-  likes: undefined,
+  commentImg: [],
+  setIsReply: () => { },
+  setReplyId: () => { },
+  setReplyUserName: () => { },
+  feedCommentId: '',
+  content: null,
+  userId: null,
+  userName: null,
+  handleSeeCompleteList: () => { },
+  likeCount: 0,
 };
 export default CommentSection;

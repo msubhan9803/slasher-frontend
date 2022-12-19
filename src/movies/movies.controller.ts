@@ -1,7 +1,9 @@
 import {
   Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { FindAllMoviesDto } from './dto/find-all-movies.dto';
 import { ValidateMovieDbIdDto } from './dto/movie-db-id.dto';
@@ -12,7 +14,10 @@ import { MoviesService } from './providers/movies.service';
 
 @Controller('movies')
 export class MoviesController {
-  constructor(private readonly moviesService: MoviesService) { }
+  constructor(
+    private readonly moviesService: MoviesService,
+    private configService: ConfigService,
+    ) { }
 
   @Get('firstBySortName')
   async findFirstBySortName(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: SortNameQueryDto) {
@@ -38,6 +43,9 @@ export class MoviesController {
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
+    if (movieData.logo === null) {
+      movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+    }
     return movieData;
   }
 
@@ -53,11 +61,14 @@ export class MoviesController {
     if (!movies) {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);
     }
-
     movies.forEach((movie) => {
       if (movie.logo?.length > 1) {
         // eslint-disable-next-line no-param-reassign
         movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
       }
     });
 

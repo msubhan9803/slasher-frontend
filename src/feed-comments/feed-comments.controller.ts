@@ -237,8 +237,9 @@ export class FeedCommentsController {
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
+      query.sortBy,
       user.id,
-      query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
     const commentReplies = [];
     for (const comment of allFeedCommentsWithReplies) {

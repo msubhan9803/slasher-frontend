@@ -357,7 +357,13 @@ export class MoviesService {
       )),
     ]);
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
-    mainData.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
+    if (mainData.poster_path) {
+      // eslint-disable-next-line no-param-reassign
+      mainData.poster_path = `https://image.tmdb.org/t/p/w300_and_h450_bestv2${mainDetails.data.poster_path}`;
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+    }
 
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
     const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));

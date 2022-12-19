@@ -14,6 +14,7 @@ import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -49,16 +50,11 @@ function Home() {
     }
   };
 
-  const indentifyYouTubeLinkAndKey = (content: string) => {
-    const youtubeLinkRegex = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
-    const foundYoutube = content.match(youtubeLinkRegex);
-    return foundYoutube && foundYoutube.length >= 6 && foundYoutube[6] ? foundYoutube[6] : '';
-  };
-
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    if (indentifyYouTubeLinkAndKey(postMessage)) {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
       postImageList.splice(0, 0, {
-        videoKey: indentifyYouTubeLinkAndKey(postMessage),
+        videoKey: youTubeVideoId,
       });
     }
     return postImageList;

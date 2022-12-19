@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { MouseEvent, useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
+import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Modal } from 'react-bootstrap';
+import CustomModal from './CustomModal';
 
 interface SliderImage {
   postId: string;
@@ -17,6 +21,19 @@ interface Props {
   images: SliderImage[];
   initialSlide?: number;
 }
+const StyledYouTubeButton = styled(Button)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  margin-left: -2em;
+  margin-top: -2em;
+`;
+const StyledIframe = styled.iframe`
+  max-height: 75vh;
+  aspect-ratio: 1.77777778;
+`;
+
 const StyledSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
@@ -25,7 +42,8 @@ const StyledSwiper = styled(Swiper)`
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
-  background: #fff;
+  background: #000;
+  height:450px;
 
   /* Center slide text vertically */
   display: -webkit-box;
@@ -45,37 +63,39 @@ const StyledSwiper = styled(Swiper)`
 .swiper-pagination {
   position: revert !important;
 }
-.swiper-pagination-bullet {
-  border:0.063rem solid !important;
-}
-.swiper-pagination-bullet-active{
-  background: white !important;
-}
 `;
 const PostImage = styled.div`
-  aspect-ratio : 1.9;
+  aspect-ratio: 1.9;
+  height: 100%;
+  position: relative;
   img {
     object-fit: contain;
   }
 `;
 function CustomSwiper({ images, initialSlide }: Props) {
+  const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
+
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
     if (imageAndVideo.videoKey) {
       return (
-        <iframe
-          width="100%"
-          height="425"
-          src={`https://www.youtube.com/embed/${imageAndVideo.videoKey}`}
-          title="YouTube video player"
-          className="border-0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+        <PostImage>
+          <img
+            src={`https://img.youtube.com/vi/${imageAndVideo.videoKey}/hqdefault.jpg`}
+            className="w-100 h-100"
+            alt="user uploaded content"
+          />
+          <StyledYouTubeButton
+            variant="link"
+            onClick={(e: React.MouseEvent) => { e.preventDefault(); setShowYouTubeModal(true); }}
+          >
+            <FontAwesomeIcon icon={brands('youtube')} size="4x" />
+          </StyledYouTubeButton>
+        </PostImage>
       );
     }
     if (imageAndVideo.linkUrl) {
       return (
-        <Link to={imageAndVideo.linkUrl}>
+        <Link to={imageAndVideo.linkUrl} className="h-100">
           <PostImage>
             <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
           </PostImage>
@@ -89,20 +109,53 @@ function CustomSwiper({ images, initialSlide }: Props) {
     );
   };
 
-  return (
-    <StyledSwiper
-      pagination={{ type: 'fraction' }}
-      initialSlide={initialSlide}
-      modules={[Pagination]}
+  const renderVideoPlayerModal = (
+    show: boolean,
+    youTubeVideoId: string,
+  ) => showVideoPlayerModal && (
+    <CustomModal
+      show={show}
+      size="xl"
+      fullscreen="lg-down"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+      onHide={() => { setShowYouTubeModal(false); }}
     >
-      {
-        images.map((image: SliderImage) => (
-          <SwiperSlide key={`${image.imageId}${image.postId}`}>
-            {displayVideoAndImage(image)}
-          </SwiperSlide>
-        ))
-      }
-    </StyledSwiper>
+      <Modal.Header closeButton />
+      <Modal.Body>
+        <div className="d-flex h-100">
+          <StyledIframe
+            width="100%"
+            height="725"
+            src={`https://www.youtube.com/embed/${youTubeVideoId}?autoplay=1`}
+            title="YouTube video player"
+            className="border-0"
+            allow="accelerometer; autoplay;
+         clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </Modal.Body>
+    </CustomModal>
+  );
+
+  return (
+    <>
+      <StyledSwiper
+        pagination={{ type: 'fraction' }}
+        initialSlide={initialSlide}
+        modules={[Pagination]}
+      >
+        {
+          images.map((image: SliderImage) => (
+            <SwiperSlide key={`${image.imageId}${image.postId}`}>
+              {displayVideoAndImage(image)}
+            </SwiperSlide>
+          ))
+        }
+      </StyledSwiper>
+      {images?.[0]?.videoKey && renderVideoPlayerModal(showVideoPlayerModal, images?.[0]?.videoKey)}
+    </>
   );
 }
 CustomSwiper.defaultProps = {

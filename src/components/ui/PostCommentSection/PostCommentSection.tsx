@@ -54,6 +54,8 @@ function PostCommentSection({
   isEdit,
   setIsEdit,
   onLikeClick,
+  loadNewerComment,
+  previousCommentsAvailable,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -322,6 +324,18 @@ function PostCommentSection({
           ))}
         </Row>
       </Form>
+      {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
+        && (
+          <div className="text-center">
+            <Button
+              variant="link"
+              className="shadow-none"
+              onClick={loadNewerComment}
+            >
+              Load newer comments
+            </Button>
+          </div>
+        )}
       {commentData && commentData.length > 0
         && commentData.map((data: any) => (
           <Row className="ps-md-4 pt-md-1" key={data.id}>

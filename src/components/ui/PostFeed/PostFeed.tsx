@@ -45,6 +45,8 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  loadNewerComment?: () => void;
+  previousCommentsAvailable?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -78,7 +80,7 @@ function PostFeed({
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick,
+  loadingPosts, onLikeClick, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -214,6 +216,8 @@ function PostFeed({
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
+                      loadNewerComment={loadNewerComment}
+                      previousCommentsAvailable={previousCommentsAvailable}
                     />
                   </InfiniteScroll>
                   {loadingPosts && renderLoadingIndicator()}
@@ -254,5 +258,7 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  loadNewerComment: undefined,
+  previousCommentsAvailable: false,
 };
 export default PostFeed;

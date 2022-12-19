@@ -50,6 +50,7 @@ function ProfilePostDetail({ user }: Props) {
   const loginUserId = Cookies.get('userId');
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
+  const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
   const handlePopoverOption = (value: string) => {
     setShow(true);
     setDropDownValue(value);
@@ -59,20 +60,25 @@ function ProfilePostDetail({ user }: Props) {
     return found;
   };
 
-  useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments && !queryCommentId) {
+  const feedComments = () => {
+    if (requestAdditionalPosts && !loadingComments) {
       setLoadingComments(true);
       setNoMoreData(false);
       getFeedComments(
         postId!,
         commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined,
+        previousCommentsAvailable,
       ).then((res) => {
         const comments = res.data;
         setCommentData((prev: any) => [
           ...prev,
           ...comments,
         ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
+        if (res.data.length === 0) setNoMoreData(true);
+        if (res.data.length < 20) {
+          setPreviousCommentsAvailable(false);
+          setNoMoreData(true);
+        }
       }).catch(
         (error) => {
           setNoMoreData(true);
@@ -82,7 +88,13 @@ function ProfilePostDetail({ user }: Props) {
         () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  };
+
+  useEffect(() => {
+    if (!queryCommentId) {
+      feedComments();
+    }
+  }, [requestAdditionalPosts, loadingComments, queryCommentId]);
 
   useEffect(() => {
     if (postId) {
@@ -333,9 +345,12 @@ function ProfilePostDetail({ user }: Props) {
 
   const getSingleComment = () => {
     singleComment(queryCommentId!).then((res) => {
+      setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
         if (queryReplyId) {
-          if (queryCommentId !== res.data._id) navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${res.data._id}&replyId=${queryReplyId}`);
+          if (queryCommentId !== res.data._id) {
+            navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${res.data._id}&replyId=${queryReplyId}`);
+          }
         } else {
           navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
@@ -345,8 +360,14 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   useEffect(() => {
-    getSingleComment();
+    if (queryCommentId) {
+      getSingleComment();
+    }
   }, [queryCommentId, queryReplyId]);
+
+  const loadNewerComment = () => {
+    feedComments();
+  };
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
@@ -375,6 +396,8 @@ function ProfilePostDetail({ user }: Props) {
         noMoreData={noMoreData}
         loadingPosts={loadingComments}
         onLikeClick={onLikeClick}
+        loadNewerComment={loadNewerComment}
+        previousCommentsAvailable={previousCommentsAvailable}
       />
       {dropDownValue !== 'Edit'
         && (

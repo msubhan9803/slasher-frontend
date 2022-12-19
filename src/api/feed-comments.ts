@@ -2,13 +2,17 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from './constants';
 
-export async function getFeedComments(feedPostId: string, lastRetrievedCommentId?: string) {
+export async function getFeedComments(
+  feedPostId: string,
+  lastRetrievedCommentId?: string,
+  showComments?: boolean,
+) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
 
-  let queryParameter = `?feedPostId=${feedPostId}&limit=20&sortBy=newestFirst`;
+  let queryParameter = `?feedPostId=${feedPostId}&limit=20&sortBy=${showComments ? 'oldestFirst' : 'newestFirst'}`;
   if (lastRetrievedCommentId) {
     queryParameter += `&after=${lastRetrievedCommentId}`;
   }

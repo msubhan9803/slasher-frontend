@@ -37,6 +37,7 @@ function NewsPartnerPost() {
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
+  const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
 
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
@@ -86,20 +87,25 @@ function NewsPartnerPost() {
     });
   };
 
-  useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments && !queryCommentId) {
+  const feedComments = () => {
+    if (requestAdditionalPosts && !loadingComments) {
       setLoadingComments(true);
       setNoMoreData(false);
       getFeedComments(
         postId!,
         commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined,
+        previousCommentsAvailable,
       ).then((res) => {
         const comments = res.data;
         setCommentData((prev: any) => [
           ...prev,
           ...comments,
         ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
+        if (res.data.length === 0) setNoMoreData(true);
+        if (res.data.length < 20) {
+          setPreviousCommentsAvailable(false);
+          setNoMoreData(true);
+        }
       }).catch(
         (error) => {
           setNoMoreData(true);
@@ -109,7 +115,13 @@ function NewsPartnerPost() {
         () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  };
+
+  useEffect(() => {
+    if (!queryCommentId) {
+      feedComments();
+    }
+  }, [requestAdditionalPosts, loadingComments, queryCommentId]);
 
   useEffect(() => {
     setNoMoreData(false);
@@ -258,10 +270,12 @@ function NewsPartnerPost() {
 
   const getSingleComment = () => {
     singleComment(queryCommentId!).then((res) => {
-      console.log('res', res.data)
+      setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
         if (queryReplyId) {
-          navigate(`/news/partner/${newsPartnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          if (queryCommentId !== res.data._id) {
+            navigate(`/news/partner/${newsPartnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+          }
         } else {
           navigate(`/news/partner/${newsPartnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
@@ -271,9 +285,14 @@ function NewsPartnerPost() {
   };
 
   useEffect(() => {
-    if (queryCommentId)
+    if (queryCommentId) {
       getSingleComment();
+    }
   }, [queryCommentId, queryReplyId]);
+
+  const loadNewerComment = () => {
+    feedComments();
+  };
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -303,6 +322,8 @@ function NewsPartnerPost() {
             noMoreData={noMoreData}
             loadingPosts={loadingComments}
             onLikeClick={onLikeClick}
+            loadNewerComment={loadNewerComment}
+            previousCommentsAvailable={previousCommentsAvailable}
           />
         </Col>
       </Row>

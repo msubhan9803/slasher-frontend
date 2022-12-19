@@ -1,8 +1,9 @@
 import {
-  Controller, Get, HttpException, HttpStatus, Param, Query, ValidationPipe,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { Request } from 'express';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { relativeToFullImagePath } from '../utils/image-utils';
@@ -12,11 +13,16 @@ import { FindFeedPostsForProviderQueryDto } from './dto/find-feed-posts-provider
 import { ParamRssFeedProviderIdDto } from './dto/params-rss-feed-provider-id.dto';
 import { RssFeedProvidersIdDto } from './dto/rss-feed-providers-id.dto';
 import { RssFeedProvidersService } from './providers/rss-feed-providers.service';
+import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
+import { RssFeedProvidersIdAndUserDto } from './dto/rss-feed-providers-id-and-user-dto';
+import { getUserFromRequest } from '../utils/request-utils';
+import { RssFeedProviderFollowNotificationsEnabled } from '../schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 
 @Controller('rss-feed-providers')
 export class RssFeedProvidersController {
   constructor(
     private readonly rssFeedProvidersService: RssFeedProvidersService,
+    private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly config: ConfigService,
     private readonly feedPostsService: FeedPostsService,
   ) { }
@@ -70,5 +76,116 @@ export class RssFeedProvidersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts;
+  }
+
+  @Get(':id/follows/:userId')
+  async findFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    params: RssFeedProvidersIdAndUserDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) {
+      throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('News partner not found', HttpStatus.NOT_FOUND);
+    }
+
+    const rssFeedProviderFollow = await this.rssFeedProviderFollowsService.findByUserAndRssFeedProvider(user.id, rssFeedProvider.id);
+    if (!rssFeedProviderFollow) {
+      throw new HttpException('Follow not found.', HttpStatus.NOT_FOUND);
+    }
+    return rssFeedProviderFollow;
+  }
+
+  @Post(':id/follows/:userId')
+  async createFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdAndUserDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('News partner not found', HttpStatus.NOT_FOUND);
+    }
+
+    let rssFeedProviderFollow = await this.rssFeedProviderFollowsService.findByUserAndRssFeedProvider(user.id, rssFeedProvider.id);
+    if (!rssFeedProviderFollow) {
+      rssFeedProviderFollow = await this.rssFeedProviderFollowsService.create({ userId: user._id, rssfeedProviderId: rssFeedProvider._id });
+    }
+    return rssFeedProviderFollow;
+  }
+
+  @Delete(':id/follows/:userId')
+  async deleteFollow(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdAndUserDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('News partner not found', HttpStatus.NOT_FOUND);
+    }
+
+    const rssFeedProviderFollow = await this.rssFeedProviderFollowsService.findByUserAndRssFeedProvider(user.id, rssFeedProvider.id);
+    if (rssFeedProviderFollow) {
+      await this.rssFeedProviderFollowsService.deleteById(rssFeedProviderFollow._id.toString());
+    }
+    return { success: true };
+  }
+
+  @Patch(':id/follows/:userId/enable-notifications')
+  async enableFollowNotifications(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdAndUserDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('News partner not found', HttpStatus.NOT_FOUND);
+    }
+
+    let rssFeedProviderFollow = await this.rssFeedProviderFollowsService.findByUserAndRssFeedProvider(user.id, rssFeedProvider.id);
+    if (!rssFeedProviderFollow) {
+      throw new HttpException('Not currently following this news partner', HttpStatus.BAD_REQUEST);
+    }
+    rssFeedProviderFollow = await this.rssFeedProviderFollowsService.update(
+      rssFeedProviderFollow._id.toString(),
+      { notification: RssFeedProviderFollowNotificationsEnabled.Enabled },
+    );
+    return rssFeedProviderFollow;
+  }
+
+  @Patch(':id/follows/:userId/disable-notifications')
+  async disableFollowNotifications(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: RssFeedProvidersIdAndUserDto,
+  ) {
+    const user = getUserFromRequest(request);
+    if (user.id !== params.userId) { throw new HttpException('Not authorized', HttpStatus.UNAUTHORIZED); }
+
+    const rssFeedProvider = await this.rssFeedProvidersService.findById(params.id, true);
+    if (!rssFeedProvider) {
+      throw new HttpException('News partner not found', HttpStatus.NOT_FOUND);
+    }
+
+    let rssFeedProviderFollow = await this.rssFeedProviderFollowsService.findByUserAndRssFeedProvider(user.id, rssFeedProvider.id);
+    if (!rssFeedProviderFollow) {
+      throw new HttpException('Not currently following this news partner', HttpStatus.BAD_REQUEST);
+    }
+    rssFeedProviderFollow = await this.rssFeedProviderFollowsService.update(
+      rssFeedProviderFollow._id.toString(),
+      { notification: RssFeedProviderFollowNotificationsEnabled.NotEnabled },
+    );
+    return rssFeedProviderFollow;
   }
 }

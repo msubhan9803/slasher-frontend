@@ -185,3 +185,8 @@ interface FeedReplies {
   likeCount: number;
   commentCount: number;
 }
+
+export enum RssFeedProviderFollowNotificationsEnabled {
+  NotEnabled = 0,
+  Enabled = 1,
+}

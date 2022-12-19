@@ -8,8 +8,8 @@ import LikesAndMatches from './components/LikesAndMatches';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 
 const tabs = [
-  { value: '', label: 'Likes' },
-  { value: 'matches', label: 'Matches' },
+  { value: 'matches', label: 'Likes' },
+  { value: 'likes/matches', label: 'Matches' },
 ];
 
 function Likes() {
@@ -23,7 +23,7 @@ function Likes() {
   const isMatchesTab = location.pathname.includes('dating/likes/matches');
   const isLikesTab = !isMatchesTab;
 
-  const tabKey = isMatchesTab ? 'matches' : '';
+  const selectedTab = isMatchesTab ? 'likes/matches' : 'matches';
 
   const handleLikesOption = (likeValue: string) => {
     if (likeValue === 'Message') {
@@ -46,7 +46,7 @@ function Likes() {
 
   return (
     <DatingPageWrapper>
-      <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink="/dating/likes" params={`?${searchParams.toString()}`} selectedTab={tabKey} />
+      <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink="/dating" params={`?${searchParams.toString()}`} selectedTab={selectedTab} />
 
       <div className="mt-3">
         <LikesAndMatches

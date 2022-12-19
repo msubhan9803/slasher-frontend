@@ -60,7 +60,7 @@ function ItemRow({
         <div className="d-flex align-self-center">
           <CustomPopover
             popoverOptions={shouldShowPopover ? popoverOptions : []}
-            onPopoverClick={handlePopover}
+            onPopoverClick={handlePopover!}
           />
         </div>
         )

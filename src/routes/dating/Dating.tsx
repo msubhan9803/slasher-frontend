@@ -24,7 +24,7 @@ function Dating() {
       <Route path="/setup/*" element={<DatingSetup />} />
       <Route path="/profile/*" element={<DatingProfile />} />
       <Route path="/conversation" element={<DatingConversation />} />
-      <Route path="/likes" element={<Likes />} />
+      <Route path="/matches" element={<Likes />} />
       <Route path="/likes/matches" element={<Likes />} />
       <Route path="/tutorial/*" element={<DatingTutorial />} />
       <Route path="/deck" element={<DatingMatch />} />

@@ -104,7 +104,7 @@ export async function updateFeedCommentReply(
   return axios.patch(`${apiUrl}/feed-comments/replies/${feedReplyId}`, reqBody, { headers });
 }
 
-export async function getSingleComment(commentId: string) {
+export async function singleComment(commentId: string) {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,

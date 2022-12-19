@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ReportModal from '../../../components/ui/ReportModal';
@@ -14,7 +14,7 @@ import {
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
-  removeFeedComments, updateFeedCommentReply, updateFeedComments,
+  removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 
 function NewsPartnerPost() {
@@ -34,11 +34,14 @@ function NewsPartnerPost() {
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
+  const queryCommentId = searchParams.get('commentId');
+  const queryReplyId = searchParams.get('replyId');
 
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
       /* eslint no-underscore-dangle: 0 */
-      if (newsPartnerId !== res.data.rssfeedProviderId?._id) {
+      if (newsPartnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
         navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
       }
       const newsPost: any = {
@@ -84,7 +87,7 @@ function NewsPartnerPost() {
   };
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments) {
+    if (requestAdditionalPosts && !loadingComments && !queryCommentId) {
       setLoadingComments(true);
       setNoMoreData(false);
       getFeedComments(
@@ -252,6 +255,26 @@ function NewsPartnerPost() {
       onCommentLike(feedId);
     }
   };
+
+  const getSingleComment = () => {
+    singleComment(queryCommentId!).then((res) => {
+      console.log('res', res.data)
+      if (postId !== res.data.feedPostId) {
+        if (queryReplyId) {
+          navigate(`/news/partner/${newsPartnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+        } else {
+          navigate(`/news/partner/${newsPartnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
+        }
+      }
+      setCommentData([res.data]);
+    });
+  };
+
+  useEffect(() => {
+    if (queryCommentId)
+      getSingleComment();
+  }, [queryCommentId, queryReplyId]);
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="mb-5 px-2">

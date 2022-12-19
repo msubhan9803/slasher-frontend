@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {
-  addFeedComments, addFeedReplyComments, getFeedComments, getSingleComment, removeFeedCommentReply,
-  removeFeedComments, updateFeedCommentReply, updateFeedComments,
+  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
+  removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
@@ -331,16 +331,21 @@ function ProfilePostDetail({ user }: Props) {
     }
   };
 
-  useEffect(() => {
-    if (queryCommentId) {
-      navigate(`/${user.userName}/posts/${postId}?commentId=${queryCommentId}`)
-      getSingleComment(queryCommentId).then((res) => {
-        if (postId !== res.data.feedPostId) {
-          navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`)
+  const getSingleComment = () => {
+    singleComment(queryCommentId!).then((res) => {
+      if (postId !== res.data.feedPostId) {
+        if (queryReplyId) {
+          if (queryCommentId !== res.data._id) navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${res.data._id}&replyId=${queryReplyId}`);
+        } else {
+          navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
-        setCommentData([res.data]);
-      })
-    }
+      }
+      setCommentData([res.data]);
+    });
+  };
+
+  useEffect(() => {
+    getSingleComment();
   }, [queryCommentId, queryReplyId]);
 
   return (

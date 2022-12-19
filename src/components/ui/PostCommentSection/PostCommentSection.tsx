@@ -8,6 +8,7 @@ import {
   Col, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
@@ -74,6 +75,9 @@ function PostCommentSection({
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
+  const [searchParams] = useSearchParams();
+  const queryCommentId = searchParams.get('commentId');
+  const queryReplyId = searchParams.get('replyId');
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -342,6 +346,7 @@ function PostCommentSection({
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
                     likeCount={data.likeCount}
+                    active={!queryReplyId ? data.id === queryCommentId : false}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
@@ -375,6 +380,7 @@ function PostCommentSection({
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
                                 likeCount={comment.likeCount}
+                                active={queryReplyId ? comment.id === queryReplyId : false}
                               />
                             </div>
                           ))}

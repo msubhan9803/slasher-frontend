@@ -15,6 +15,7 @@ import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -44,16 +45,12 @@ function ProfilePosts() {
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
 
-  const indentifyYouTubeLinkAndKey = (content: string) => {
-    const youtubeLinkRegex = /((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\\-]+\?v=|embed\/|v\/)?)([\w\\-]+)(\S+)?/;
-    const foundYoutube = content.match(youtubeLinkRegex);
-    return foundYoutube && foundYoutube.length >= 6 && foundYoutube[6] ? foundYoutube[6] : '';
-  };
-
+  // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    if (indentifyYouTubeLinkAndKey(postMessage)) {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
       postImageList.splice(0, 0, {
-        videoKey: indentifyYouTubeLinkAndKey(postMessage),
+        videoKey: youTubeVideoId,
       });
     }
     return postImageList;

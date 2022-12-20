@@ -50,6 +50,7 @@ function Home() {
     }
   };
 
+  // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
     const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
     if (youTubeVideoId) {

@@ -1,4 +1,4 @@
-import React, { MouseEvent, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper';
@@ -117,7 +117,7 @@ function CustomSwiper({ images, initialSlide }: Props) {
       show={show}
       size="xl"
       fullscreen="lg-down"
-      aria-labelledby="contained-modal-title-vcenter"
+      aria-label="YouTube video modal"
       centered
       onHide={() => { setShowYouTubeModal(false); }}
     >
@@ -130,8 +130,7 @@ function CustomSwiper({ images, initialSlide }: Props) {
             src={`https://www.youtube.com/embed/${youTubeVideoId}?autoplay=1`}
             title="YouTube video player"
             className="border-0"
-            allow="accelerometer; autoplay;
-         clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         </div>

@@ -1,10 +1,14 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
+import {
+  likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
+} from '../../../api/feed-likes';
 import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -13,6 +17,7 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
+import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -43,6 +48,7 @@ function ProfilePostDetail({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -52,6 +58,17 @@ function ProfilePostDetail({ user }: Props) {
   const decryptMessage = (content: string) => {
     const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
     return found;
+  };
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
   };
 
   const feedComments = (feedPostId: string, comment: any) => {
@@ -101,10 +118,14 @@ function ProfilePostDetail({ user }: Props) {
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
-              postUrl: res.data.images,
+              postUrl: formatImageVideoList(res.data.images, res.data.message),
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
+              likes: res.data.likes,
+              likeIcon: res.data.likes.includes(loginUserId),
+              likeCount: res.data.likeCount,
+              commentCount: res.data.commentCount,
             },
           ]);
           setPostContent(decryptMessage(res.data.message));
@@ -199,35 +220,43 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
+
+  const getFeedPostDetail = (feedPostId: string) => {
+    feedPostDetail(feedPostId)
+      .then((res) => {
+        if (res.data.userId.userName !== user.userName) {
+          navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
+          return;
+        }
+        setPostData([
+          {
+            ...res.data,
+            /* eslint no-underscore-dangle: 0 */
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            content: decryptMessage(res.data.message),
+            postUrl: formatImageVideoList(res.data.images, res.data.message),
+            userName: res.data.userId.userName,
+            profileImage: res.data.userId.profilePic,
+            userId: res.data.userId._id,
+            likes: res.data.likes,
+            likeIcon: res.data.likes.includes(loginUserId),
+            likeCount: res.data.likeCount,
+            commentCount: res.data.commentCount,
+          },
+        ]);
+        setPostContent(decryptMessage(res.data.message));
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
+  };
   const onUpdatePost = (message: string) => {
     if (postId) {
       updateFeedPost(postId, message).then(() => {
         setShow(false);
-        feedPostDetail(postId)
-          .then((res) => {
-            if (res.data.userId.userName !== user.userName) {
-              navigate(`/${res.data.userId.userName}/posts/${postId}`);
-              return;
-            }
-            setPostData([
-              {
-                ...res.data,
-                /* eslint no-underscore-dangle: 0 */
-                _id: res.data._id,
-                id: res.data._id,
-                postDate: res.data.createdAt,
-                content: decryptMessage(res.data.message),
-                postUrl: res.data.images,
-                userName: res.data.userId.userName,
-                profileImage: res.data.userId.profilePic,
-                userId: res.data.userId._id,
-              },
-            ]);
-            setPostContent(decryptMessage(res.data.message));
-          })
-          .catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
+        getFeedPostDetail(postId);
       });
     } else {
       setShow(false);
@@ -242,6 +271,67 @@ function ProfilePostDetail({ user }: Props) {
         })
         /* eslint-disable no-console */
         .catch((error) => console.error(error));
+    }
+  };
+
+  const callLatestFeedComments = (feedPostId: string) => {
+    getFeedComments(feedPostId).then((res) => {
+      const comments = res.data;
+      setCommentData(comments);
+    });
+  };
+  const onPostLikeClick = (feedPostId: string) => {
+    const checkLike = postData.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) getFeedPostDetail(postId!);
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) getFeedPostDetail(postId!);
+      });
+    }
+  };
+
+  const onCommentLike = (feedCommentId: string) => {
+    const checkCommentId = commentData.find((comment: any) => comment._id === feedCommentId);
+    const checkReplyId = commentData.map(
+      (comment: any) => comment.replies.find((reply: any) => reply._id === feedCommentId),
+    ).filter(Boolean);
+    if (feedCommentId === checkCommentId?._id) {
+      const checkCommentLike = checkCommentId?.likedByUser;
+
+      if (checkCommentLike) {
+        unlikeFeedComment(feedCommentId).then((res) => {
+          if (res.status === 200) callLatestFeedComments(postId!);
+        });
+      } else {
+        likeFeedComment(feedCommentId).then((res) => {
+          if (res.status === 201) callLatestFeedComments(postId!);
+        });
+      }
+    }
+    if (feedCommentId === checkReplyId[0]?._id) {
+      const checkReplyLike = checkReplyId[0].likedByUser;
+      if (checkReplyLike) {
+        unlikeFeedReply(feedCommentId).then((res) => {
+          if (res.status === 200) callLatestFeedComments(postId!);
+        });
+      } else {
+        likeFeedReply(feedCommentId).then((res) => {
+          if (res.status === 201) callLatestFeedComments(postId!);
+        });
+      }
+    }
+  };
+
+  const onLikeClick = (feedId: string) => {
+    if (feedId === postId) {
+      onPostLikeClick(feedId);
+    } else {
+      onCommentLike(feedId);
     }
   };
   return (
@@ -271,6 +361,7 @@ function ProfilePostDetail({ user }: Props) {
         setRequestAdditionalPosts={setRequestAdditionalPosts}
         noMoreData={noMoreData}
         loadingPosts={loadingPosts}
+        onLikeClick={onLikeClick}
       />
       {dropDownValue !== 'Edit'
         && (

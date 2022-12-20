@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -37,6 +37,8 @@ function ProfileFriendRequest({ user }: Props) {
   const [friendsReqList, setFriendsReqList] = useState<FriendProps[]>([]);
   const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
+  const friendRequestContainerElementRef = useRef<any>(null);
+  const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -44,34 +46,31 @@ function ProfileFriendRequest({ user }: Props) {
   ];
 
   useEffect(() => {
-    if (loginUserName === user.userName) {
-      navigate(`/${params.userName}/friends/request`);
-    } else {
-      navigate(`/${params.userName}/friends`);
-    }
-  }, []);
-
-  useEffect(() => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
         setFriendsReqList(res.data);
-        setFriendRequestPage(friendRequestPage + 1);
-      })
-      .catch((error) => setErrorMessage(error.response.data.message));
-  }, []);
-  const fetchMoreFriendReqList = () => {
-    userProfileFriendsRequest(friendRequestPage)
-      .then((res) => {
-        setFriendsReqList((prev: FriendProps[]) => [
-          ...prev,
-          ...res.data,
-        ]);
         setFriendRequestPage(friendRequestPage + 1);
         if (res.data.length === 0) {
           setNoMoreData(true);
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
+  }, []);
+  const fetchMoreFriendReqList = () => {
+    if (friendRequestPage > 0) {
+      userProfileFriendsRequest(friendRequestPage)
+        .then((res) => {
+          setFriendsReqList((prev: FriendProps[]) => [
+            ...prev,
+            ...res.data,
+          ]);
+          setFriendRequestPage(friendRequestPage + 1);
+          if (res.data.length === 0) {
+            setNoMoreData(true);
+          }
+        })
+        .catch((error) => setErrorMessage(error.response.data.message));
+    }
   };
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -102,6 +101,25 @@ function ProfileFriendRequest({ user }: Props) {
         });
       });
   };
+  const getYPosition = () => {
+    const yPosition = friendRequestContainerElementRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastFriendElement(yPosition);
+  };
+  useEffect(() => {
+    if (loginUserName === user.userName) {
+      navigate(`/${params.userName}/friends/request`);
+    } else {
+      navigate(`/${params.userName}/friends`);
+    }
+    getYPosition();
+  }, [friendsReqList]);
+
+  useEffect(() => {
+    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+    if (bottomLine) {
+      fetchMoreFriendReqList();
+    }
+  }, [yPositionOfLastFriendElement]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <ProfileHeader tabKey="friends" user={user} />
@@ -120,7 +138,7 @@ function ProfileFriendRequest({ user }: Props) {
             loadMore={fetchMoreFriendReqList}
             hasMore={!noMoreData}
           >
-            <Row className="mt-4">
+            <Row className="mt-4" ref={friendRequestContainerElementRef}>
               {friendsReqList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

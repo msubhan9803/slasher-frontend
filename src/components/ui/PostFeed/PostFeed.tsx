@@ -44,6 +44,7 @@ interface Props {
   noMoreData?: boolean;
   loadingPosts?: boolean;
   isEdit?: boolean;
+  onLikeClick?: (value: string) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -77,7 +78,7 @@ function PostFeed({
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts,
+  loadingPosts, onLikeClick,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -87,21 +88,13 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
+    // const likeData = postFeedData.includes
     setPostData(postFeedData);
   }, [postFeedData]);
 
   const openDialogue = (click: string) => {
     setOpenLikeShareModal(true);
     setButtonClck(click);
-  };
-  const onLikeClick = (likeId: string) => {
-    const likeData = postData.map((checkLikeId: Post) => {
-      if (checkLikeId.id === likeId) {
-        return { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
-      }
-      return checkLikeId;
-    });
-    setPostData(likeData);
   };
 
   const renderNoMoreDataMessage = () => (
@@ -126,9 +119,9 @@ function PostFeed({
               <PostHeader
                 detailPage={detailPage}
                 id={post.id}
-                userName={post.userName}
+                userName={post.userName || post.title}
                 postDate={post.postDate}
-                profileImage={post.profileImage}
+                profileImage={post.profileImage || post.rssFeedProviderLogo}
                 popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
                   ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}
@@ -153,10 +146,11 @@ function PostFeed({
                 <CustomSwiper
                   images={
                     post.images.map((imageData: any) => ({
+                      videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
                       linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
                       postId: post.id,
-                      imageId: imageData._id,
+                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
                   }
                   /* eslint no-underscore-dangle: 0 */
@@ -190,8 +184,8 @@ function PostFeed({
             </Card.Body>
             <PostFooter
               likeIcon={post.likeIcon}
-              id={post.id}
-              onLikeClick={() => onLikeClick(post.id)}
+              postId={post.id}
+              onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
             />
             {
               isCommentSection
@@ -221,6 +215,7 @@ function PostFeed({
                       otherUserPopoverOptions={otherUserPopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
+                      onLikeClick={onLikeClick}
                     />
                   </InfiniteScroll>
                   {loadingPosts && renderLoadingIndicator()}
@@ -261,5 +256,6 @@ PostFeed.defaultProps = {
   setRequestAdditionalPosts: () => { },
   noMoreData: false,
   loadingPosts: false,
+  onLikeClick: undefined,
 };
 export default PostFeed;

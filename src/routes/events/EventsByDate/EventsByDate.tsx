@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallbackProperties } from 'react-calendar';
@@ -120,6 +120,8 @@ function EventsByDate() {
   const selectedDateString = DateTime.fromJSDate(selectedDate).toFormat('yyyy-MM-dd');
   const startDate = `${selectedDateString}T00:00:00Z`;
   const endDate = `${selectedDateString}T23:59:59Z`;
+  const eventContainerElementRef = useRef<any>(null);
+  const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -160,6 +162,9 @@ function EventsByDate() {
     setNoMoreData(false); // reset when day changes
     getEvents(startDate, endDate).then((res) => {
       setEventList(eventsFromResponse(res));
+      if (res.data.length === 0) {
+        setNoMoreData(true);
+      }
     }).catch(() => { });
   }, [startDate]);
 
@@ -191,6 +196,29 @@ function EventsByDate() {
     }
   };
 
+  const renderNoMoreDataMessage = () => (
+    <p className="text-center">
+      {
+        eventsList.length === 0
+          ? 'No events on the selected date.'
+          : 'No more events'
+      }
+    </p>
+  );
+  const getYPosition = () => {
+    const yPosition = eventContainerElementRef.current?.lastElementChild?.offsetTop;
+    setYPositionOfLastEventElement(yPosition);
+  };
+  useEffect(() => {
+    getYPosition();
+  }, [eventsList]);
+
+  useEffect(() => {
+    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastEventElement;
+    if (bottomLine) {
+      fetchMoreEvent();
+    }
+  }, [yPositionOfLastEventElement]);
   return (
     <AuthenticatedPageWrapper rightSidebarType="event">
       <EventHeader tabKey="by-date" />
@@ -218,18 +246,18 @@ function EventsByDate() {
           hasMore={!noMoreData}
           element="span"
         >
-          <Row>
+          <Row ref={eventContainerElementRef}>
             {eventsList && eventsList.length > 0
-              ? (eventsList.map((eventDetail) => (
+              && (eventsList.map((eventDetail) => (
                 <Col md={6} key={eventDetail.id}>
                   <EventsPosterCard
                     listDetail={eventDetail}
                   />
                 </Col>
-              )))
-              : <p className="text-center mt-3">No events on the selected date.</p>}
+              )))}
           </Row>
         </InfiniteScroll>
+        {noMoreData && renderNoMoreDataMessage()}
       </div>
     </AuthenticatedPageWrapper>
   );

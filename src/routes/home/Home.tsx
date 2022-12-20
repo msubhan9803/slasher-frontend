@@ -1,5 +1,7 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
@@ -11,6 +13,8 @@ import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
+import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -26,6 +30,7 @@ function Home() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -44,6 +49,18 @@ function Home() {
         .then((res) => setMentionList(res.data));
     }
   };
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
+  };
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -59,10 +76,14 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: data.images,
+              images: formatImageVideoList(data.images, data.message),
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
             };
           }
           // RSS feed post
@@ -71,9 +92,11 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
           };
         });
         setPosts((prev: Post[]) => [
@@ -112,10 +135,14 @@ function Home() {
         id: data._id,
         postDate: data.createdAt,
         content: data.message,
-        images: data.images,
+        images: formatImageVideoList(data.images, data.message),
         userName: data.userId.userName,
         profileImage: data.userId.profilePic,
         userId: data.userId.userId,
+        likes: data.likes,
+        likeIcon: data.likes.includes(loginUserId),
+        likeCount: data.likeCount,
+        commentCount: data.commentCount,
       }));
       setPosts(newPosts);
     });
@@ -137,6 +164,22 @@ function Home() {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+
+  const onLikeClick = (feedPostId: string) => {
+    const checkLike = posts.some((post) => post.id === feedPostId
+      && post.likes?.includes(loginUserId!));
+
+    if (checkLike) {
+      unlikeFeedPost(feedPostId).then((res) => {
+        if (res.status === 200) callLatestFeedPost();
+      });
+    } else {
+      likeFeedPost(feedPostId).then((res) => {
+        if (res.status === 201) callLatestFeedPost();
+      });
+    }
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
@@ -162,6 +205,7 @@ function Home() {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
             />
           )
         }

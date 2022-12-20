@@ -7,6 +7,7 @@ import {
   Button,
   Col, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
@@ -15,24 +16,6 @@ import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
-
-// interface Props {
-//   commentSectionData?: any;
-//   commentImage?: string;
-//   popoverOption?: string[];
-//   setCommentValue?: (value: string) => {};
-//   setfeedImageArray?: (value: any) => {};
-//   setDeleteComment?: (value: boolean) => {};
-//   setDeleteCommentReply?: (value: boolean) => {};
-//   setCommentID?: (value: string) => {};
-//   setCommentReplyID?: (value: string) => {};
-//   commentID?: string;
-//   commentReplyID?: string;
-//   loginUserId?: string;
-//   otherUserPopoverOptions?: string;
-//   isEdit?: boolean;
-//   setIsEdit?: (value: boolean) => {};
-// }
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -71,6 +54,7 @@ function PostCommentSection({
   otherUserPopoverOptions,
   isEdit,
   setIsEdit,
+  onLikeClick,
 }: any) {
   const [commentData, setCommentData] = useState<any[]>(commentSectionData);
   const [show, setShow] = useState<boolean>(false);
@@ -91,7 +75,7 @@ function PostCommentSection({
   const loadMore = 10;
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
-
+  const userData = useSelector((state: any) => state.user);
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -123,11 +107,13 @@ function PostCommentSection({
           profilePic: replies.userId?.profilePic,
           name: replies.userId?.userName,
           time: replies.createdAt,
-          likes: replies.likes.length,
           commentMsg: replies.message,
           commentImg: replies.images,
           feedCommentId: replies.feedCommentId,
           userId: replies.userId,
+          likeIcon: replies.likedByUser,
+          likeCount: replies.likeCount,
+          commentCount: replies.commentCount,
         };
         return feeedCommentReplies;
       });
@@ -137,11 +123,13 @@ function PostCommentSection({
         profilePic: comment.userId?.profilePic,
         name: comment.userId?.userName,
         time: comment.createdAt,
-        likes: comment.likes.length,
         commentMsg: comment.message,
         commentImg: comment.images,
         commentReplySection: commentReplies,
         userId: comment.userId,
+        likeIcon: comment.likedByUser,
+        likeCount: comment.likeCount,
+        commentCount: comment.commentCount,
       };
       return feedComment;
     });
@@ -181,25 +169,6 @@ function PostCommentSection({
       sendComment(inpuId);
       textRef.current.style.height = '36px';
     }
-  };
-
-  const handleLikeIcon = (likeId: string) => {
-    const tempData = [...commentData];
-    tempData.map((data: any) => {
-      const temp = data;
-      if (temp.id === likeId) {
-        temp.likeIcon = !temp.likeIcon;
-      }
-      data.commentReplySection.map((like: any) => {
-        const tempLike = like;
-        if (tempLike.id === likeId) {
-          tempLike.likeIcon = !tempLike.likeIcon;
-        }
-        return true;
-      });
-      return tempData;
-    });
-    setCommentData(tempData);
   };
 
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
@@ -274,7 +243,7 @@ function PostCommentSection({
       <Form>
         <Row className="ps-3 pt-2 order-last order-sm-0">
           <Col xs="auto" className="pe-0">
-            <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
+            <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />
           </Col>
           <Col className="ps-0 pe-4">
             <div className="d-flex align-items-end mb-4">
@@ -357,11 +326,10 @@ function PostCommentSection({
                     image={data.profilePic}
                     name={data.name}
                     time={data.time}
-                    likes={data.likes}
                     likeIcon={data.likeIcon}
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
-                    onIconClick={() => handleLikeIcon(data.id)}
+                    onIconClick={() => onLikeClick(data.id)}
                     popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
                       ? otherUserPopoverOptions! : popoverOption}
                     onPopoverClick={handlePopover}
@@ -370,6 +338,7 @@ function PostCommentSection({
                     setReplyUserName={setReplyUserName}
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
+                    likeCount={data.likeCount}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
@@ -382,13 +351,14 @@ function PostCommentSection({
                                 id={comment.id}
                                 image={comment.profilePic}
                                 name={comment.name}
-                                likes={comment.likes}
                                 time={comment.time}
                                 likeIcon={comment.likeIcon}
                                 commentMsg={comment.commentMsg}
                                 commentMention={comment.commentMention}
                                 commentImg={comment.commentImg}
-                                onIconClick={() => handleLikeIcon(comment.id)}
+                                onIconClick={() => {
+                                  onLikeClick(comment.id); setCommentReplyID(comment.id);
+                                }}
                                 popoverOptions={
                                   comment.userId?._id && loginUserId !== comment?.userId._id
                                     ? otherUserPopoverOptions! : popoverOption
@@ -401,6 +371,7 @@ function PostCommentSection({
                                 content={comment.commentMsg}
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
+                                likeCount={comment.likeCount}
                               />
                             </div>
                           ))}

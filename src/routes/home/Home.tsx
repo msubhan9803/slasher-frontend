@@ -182,7 +182,7 @@ function Home() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+      <CustomCreatePost />
       <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
       <SuggestedFriend />
       {errorMessage && errorMessage.length > 0 && (

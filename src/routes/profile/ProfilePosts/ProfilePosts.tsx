@@ -44,6 +44,7 @@ function ProfilePosts() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const loginUserName = Cookies.get('userName');
 
   // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
@@ -176,10 +177,10 @@ function ProfilePosts() {
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
-      {queryParam === 'self'
+      {loginUserName === userName
         && (
-          <div className="mt-4">
-            <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+          <div className="my-4">
+            <CustomCreatePost />
           </div>
         )}
       {errorMessage && errorMessage.length > 0 && (

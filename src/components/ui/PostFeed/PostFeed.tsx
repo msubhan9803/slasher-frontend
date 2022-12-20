@@ -20,6 +20,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { scrollWithOffset } from '../../../utils/scrollFunctions';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -165,7 +166,7 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <HashLink to={`/${post.userName}/posts/${post.id}#comment`} className="text-decoration-none">
+                  <HashLink to={`/${post.userName}/posts/${post.id}#comments`} className="text-decoration-none" scroll={scrollWithOffset}>
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
                   </HashLink>

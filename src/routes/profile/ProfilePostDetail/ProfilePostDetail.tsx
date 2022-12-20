@@ -372,6 +372,7 @@ function ProfilePostDetail({ user }: Props) {
             onUpdatePost={onUpdatePost}
           />
         )}
+      <div style={{ height: '100vh' }} />
     </AuthenticatedPageWrapper>
   );
 }

@@ -13,7 +13,7 @@ import Cookies from 'js-cookie';
 import { CustomDropDown } from '../../../components/ui/UserMessageList/UserMessageListItem';
 import NewPostHeader from './NewPostHeader';
 import LikeShareModal from '../../../components/ui/LikeShareModal';
-import { getRssFeedProviderPosts } from '../../../api/rss-feed';
+import { getRssFeedProviderPosts } from '../../../api/rss-feed-providers';
 import { NewsPartnerPostProps } from '../../../types';
 import CustomSwiper from '../../../components/ui/CustomSwiper';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';

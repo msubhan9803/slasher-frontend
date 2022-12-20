@@ -15,6 +15,7 @@ import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -43,6 +44,17 @@ function ProfilePosts() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -67,7 +79,7 @@ function ProfilePosts() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -119,7 +131,7 @@ function ProfilePosts() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: data.images,
+          images: formatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,

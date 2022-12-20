@@ -192,3 +192,8 @@ export interface CommentValue {
   replyMessage: string,
   imageArray?: string[],
 }
+
+export enum RssFeedProviderFollowNotificationsEnabled {
+  NotEnabled = 0,
+  Enabled = 1,
+}

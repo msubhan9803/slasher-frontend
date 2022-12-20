@@ -148,10 +148,11 @@ function PostFeed({
                 <CustomSwiper
                   images={
                     post.images.map((imageData: any) => ({
+                      videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
                       linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
                       postId: post.id,
-                      imageId: imageData._id,
+                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
                   }
                   /* eslint no-underscore-dangle: 0 */

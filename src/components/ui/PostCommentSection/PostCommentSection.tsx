@@ -400,7 +400,7 @@ function PostCommentSection({
                                 handleShowMorePosts(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load 10 more commnts
+                              Load 10 more comments
                             </Button>
                           </div>
                         )}

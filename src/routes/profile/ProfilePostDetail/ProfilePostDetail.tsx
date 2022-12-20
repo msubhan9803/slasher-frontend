@@ -71,7 +71,7 @@ function ProfilePostDetail({ user }: Props) {
     }
     return postImageList;
   };
-  
+
   const feedComments = () => {
     if (requestAdditionalPosts && !loadingComments) {
       setLoadingComments(true);

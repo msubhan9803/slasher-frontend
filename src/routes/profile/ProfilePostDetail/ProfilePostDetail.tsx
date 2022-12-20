@@ -17,6 +17,7 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
+import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -57,6 +58,17 @@ function ProfilePostDetail({ user }: Props) {
   const decryptMessage = (content: string) => {
     const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
     return found;
+  };
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
   };
 
   const feedComments = (feedPostId: string, comment: any) => {
@@ -106,7 +118,7 @@ function ProfilePostDetail({ user }: Props) {
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
-              postUrl: res.data.images,
+              postUrl: formatImageVideoList(res.data.images, res.data.message),
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
@@ -224,7 +236,7 @@ function ProfilePostDetail({ user }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: res.data.images,
+            postUrl: formatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,

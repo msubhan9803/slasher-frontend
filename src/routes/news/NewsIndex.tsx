@@ -5,7 +5,7 @@ import { Card, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import { rssFeedInitialData } from '../../api/rss-feed';
+import { rssFeedInitialData } from '../../api/rss-feed-providers';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;

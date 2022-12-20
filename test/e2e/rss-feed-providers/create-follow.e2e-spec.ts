@@ -64,14 +64,14 @@ describe('Create Follow (e2e)', () => {
           .post(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        await rssFeedProviderFollowsService
+        const follow = await rssFeedProviderFollowsService
           .findByUserAndRssFeedProvider(
             activeUser._id.toString(),
             rssFeedProviderData._id.toString(),
           );
         expect(response.body).toMatchObject({
-          userId: activeUser._id,
-          rssfeedProviderId: rssFeedProviderData._id,
+          userId: follow.userId,
+          rssfeedProviderId: follow.rssfeedProviderId,
         });
       });
 

@@ -11,10 +11,6 @@ export class FeedPostUnusedFields {
   movieId: mongoose.Schema.Types.ObjectId;
 
   // NOT USED
-  @Prop({ default: null, ref: 'rssFeed' })
-  rssFeedId: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
   @Prop({ type: [ReportUserSchema] })
   reportUsers: ReportUser[];
 

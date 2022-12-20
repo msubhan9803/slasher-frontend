@@ -14,6 +14,8 @@ import { RssFeedProvidersService } from '../../../src/rss-feed-providers/provide
 import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service';
+import { rssFeedFactory } from '../../factories/rss-feed.factory';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +27,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let rssFeedProvidersService: RssFeedProvidersService;
   let rssFeedProviderData: RssFeedProvider;
+  let rssFeedService: RssFeedService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,6 +39,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
+    rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -50,12 +54,17 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   });
 
   describe('Single Feed Post Details', () => {
+    let rssFeed;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
       rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+      rssFeed = await rssFeedService.create(rssFeedFactory.build({
+        rssfeedProviderId: rssFeedProviderData._id,
+        content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
+      }));
     });
     it('returns the expected feed post response', async () => {
       const feedPost = await feedPostsService.create(
@@ -63,6 +72,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           {
             userId: activeUser._id,
             rssfeedProviderId: rssFeedProviderData._id,
+            rssFeedId: rssFeed._id,
           },
         ),
       );
@@ -70,6 +80,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      expect((response.body.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(response.body._id).toEqual(feedPost._id.toString());
       expect(response.body.rssfeedProviderId._id).toEqual(rssFeedProviderData._id.toString());
     });

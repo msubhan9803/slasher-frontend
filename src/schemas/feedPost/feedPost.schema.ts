@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
+import { RssFeed } from '../rssFeed/rssFeed.schema';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
@@ -62,6 +63,9 @@ export class FeedPost extends FeedPostUnusedFields {
   // current user has liked something.
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
+
+  @Prop({ default: null, ref: RssFeed.name })
+  rssFeedId: mongoose.Schema.Types.ObjectId;
 
   /***********
    * Methods *

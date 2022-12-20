@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import {
-  Button,
   Col, Container, Form, Row,
 } from 'react-bootstrap';
 import DatingPageWrapper from '../components/DatingPageWrapper';
 import GreenTick from '../../../images/dating-green-tick.png';
-import RoundedGreenTick from '../../../images/dating-round-tick.png';
-import DatingBestDeal from '../../../images/dating-best-deal-sticker.png';
 import HeartEmoji from '../../../images/dating-heart-icon.png';
 import CustomSelect from '../../../components/ui/CustomSelect';
 import FormOptions from './form-options';
 import RoundButton from '../../../components/ui/RoundButton';
+import BuyButton from './components/BuyButton';
 
 function GreenTicked({ text }: { text: string }) {
   return (
@@ -24,12 +22,8 @@ function GreenTicked({ text }: { text: string }) {
 function ResponsiveContainer({ children }: any) {
   return (
     <>
-      <Container className="d-none d-md-block bg-dark rounded-3 py-5 px-4">
-        {children}
-      </Container>
-      <div className="d-md-none">
-        {children}
-      </div>
+      <Container className="d-none d-md-block bg-dark rounded-3 py-5 px-4">{children}</Container>
+      <div className="d-md-none">{children}</div>
     </>
   );
 }
@@ -64,71 +58,27 @@ function DatingSubscription() {
               </Col>
 
               <div className="text-center mt-5 mb-3">Select one</div>
-              <Button
-                variant={planMonths === 1 ? 'success' : 'dark'}
-                className="mx-auto bg-dark mb-3 position-relative rounded-4 p-4 d-flex justify-content-between align-items-center"
-                name="1-month"
-                onClick={() => setPlanMonths(1)}
-                style={{ borderColor: planMonths === 1 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%' }}
-              >
-                {planMonths === 1 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
-                <div className="d-flex justify-content-center align-items-center">
-                  <span className="text-success fw-bold fs-1 me-3">1</span>
-                  <span className="fw-normal text-light"> month</span>
-                </div>
-                <span className="text-primary me-3 fs-2">$20</span>
-              </Button>
-              <Button
-                variant={planMonths === 3 ? 'success' : 'dark'}
-                className="mx-auto bg-dark mb-3 position-relative rounded-4 p-4 d-flex justify-content-between align-items-center"
-                name="3-month"
-                onClick={() => setPlanMonths(3)}
-                style={{
-                  borderColor: planMonths === 3 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%',
-                }}
-              >
-                {planMonths === 3 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
-                <div className="d-flex justify-content-center align-items-center">
-                  <span className="text-success fw-bold fs-1 me-3">3</span>
-                  <span className="fw-normal text-light"> months</span>
-                </div>
-                <div className="text-primary me-3 fs-2 d-flex flex-column align-items-end">
-                  <div>$50</div>
-                  <div className="fs-3 fw-normal text-light">Save $10</div>
-                </div>
-              </Button>
-              <Button
-                variant={planMonths === 6 ? 'success' : 'dark'}
-                className="mx-auto bg-dark mb-3 position-relative rounded-4 px-4 pb-4 d-flex justify-content-between align-items-center"
-                name="6-month"
-                onClick={() => setPlanMonths(6)}
-                style={{
-                  borderColor: planMonths === 6 ? '#00FF0A' : '#464646', borderWidth: 2, width: '93%', paddingTop: 30,
-                }}
-              >
-                {planMonths === 6 && <img className="position-absolute" src={RoundedGreenTick} width="30" alt="rounded active tick" style={{ right: -15 }} />}
-                <img className="position-absolute top-0 start-0" src={DatingBestDeal} height="30" alt="Best Deal Sticker" />
-
-                <div className="d-flex justify-content-center align-items-center">
-                  <span className="text-success fw-bold fs-1 me-3">6</span>
-                  <span className="fw-normal text-light"> months</span>
-                </div>
-                <div className="text-primary me-3 fs-2 d-flex flex-column align-items-end">
-                  <div>$90</div>
-                  <div className="fs-3 fw-normal text-light">Save $30</div>
-                </div>
-              </Button>
+              <BuyButton currentMonth={1} currentPrice={20} {...{ planMonths, setPlanMonths }} />
+              <BuyButton
+                currentMonth={3}
+                currentPrice={50}
+                currentSavings={10}
+                {...{ planMonths, setPlanMonths }}
+              />
+              <BuyButton
+                currentMonth={6}
+                currentPrice={90}
+                currentSavings={30}
+                isBestDeal
+                {...{ planMonths, setPlanMonths }}
+              />
             </Row>
           </Col>
         </Row>
 
         <Row xs={1} md={2} className="mt-5 mb-4 align-items-start gx-2 gy-3">
           <Col>
-            <CustomSelect
-              name="height"
-              options={FormOptions.countryOptions}
-              label="Select Country"
-            />
+            <CustomSelect name="height" options={FormOptions.countryOptions} label="Select Country" />
           </Col>
           <Col>
             <Form.Group className="mb-3" controlId="formBasicName">

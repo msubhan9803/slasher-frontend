@@ -69,6 +69,7 @@ describe('Update Feed Post (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
       const feedPostDetails = await feedPostsService.findById(response.body.id, true);
+      expect(feedPostDetails.lastUpdateAt < new Date()).toBe(true);
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body.message).toContain(feedPostDetails.message);
     });

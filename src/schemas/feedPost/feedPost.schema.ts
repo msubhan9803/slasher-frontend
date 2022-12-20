@@ -63,6 +63,9 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ default: [] })
   likes: mongoose.Schema.Types.ObjectId[];
 
+  @Prop({ default: Date.now })
+  lastUpdateAt: Date;
+
   /***********
    * Methods *
    ***********/

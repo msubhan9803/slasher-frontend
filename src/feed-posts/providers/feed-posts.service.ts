@@ -20,7 +20,7 @@ export class FeedPostsService {
 
   async update(id: string, feedPostData: Partial<FeedPost>): Promise<FeedPostDocument> {
     return this.feedPostModel
-      .findOneAndUpdate({ _id: id }, feedPostData, { new: true })
+      .findOneAndUpdate({ _id: id }, { ...feedPostData, lastUpdateAt: Date.now() }, { new: true })
       .exec();
   }
 

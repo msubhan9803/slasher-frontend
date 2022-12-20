@@ -56,15 +56,24 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         if (user && user.passwordChangedAt?.toISOString() === passwordChangedAt) {
           // User is valid. Create SocketUser entry for this socketId + userId combination.
-          await this.usersService.createSocketUserEntry(client.id, user.id);
-          // Emit an "authSuccess" event to let the client know that we have successfully
-          // authenticated and are ready to receive additional socket messages.
-          setTimeout(() => {
-            // This is done in a timeout so that a client has time to connect and bind an
-            // authSuccess immediately after initiating a connection.
-            client.emit('authSuccess', { success: true });
-          }, 50);
-          return;
+
+          try {
+            await this.usersService.createSocketUserEntry(client.id, user.id);
+            // Emit an "authSuccess" event to let the client know that we have successfully
+            // authenticated and are ready to receive additional socket messages.
+            setTimeout(() => {
+              // This is done in a timeout so that a client has time to connect and bind an
+              // authSuccess immediately after initiating a connection.
+              client.emit('authSuccess', { success: true });
+            }, 50);
+            return;
+          } catch (e) {
+            if (e.name !== 'MongoServerError') {
+              // Handle db read-only scenario. But if it's another type of unexpected exception
+              // then we should re-throw it.
+              throw e;
+            }
+          }
         }
       } catch (e) {
         if (e.name !== 'JsonWebTokenError') {
@@ -82,7 +91,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleDisconnect(client: any) {
     // During a disconnect, we always want to clean up the SocketUser entry
-    await this.usersService.deleteSocketUserEntry(client.id);
+    try {
+      await this.usersService.deleteSocketUserEntry(client.id);
+    } catch (e) {
+      if (e.name !== 'MongoServerError') {
+        // Handle db read-only scenario. But if it's another type of unexpected exception
+        // then we should re-throw it.
+        throw e;
+      }
+    }
   }
 
   // This is just an end point for verifying a connection

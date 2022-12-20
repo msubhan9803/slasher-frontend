@@ -142,7 +142,15 @@ export class UsersController {
     // the database-stored version of the token.
     user.token = `Bearer ${token}`;
     user.addOrUpdateDeviceEntry(deviceEntry);
-    await user.save();
+    try {
+      await user.save();
+    } catch (e) {
+      if (e.name !== 'MongoServerError') {
+        // Handle db read-only scenario. But if it's another type of unexpected exception
+        // then we should re-throw it.
+        throw e;
+      }
+    }
 
     // Only return the subset of useful fields
     return {
@@ -314,7 +322,7 @@ export class UsersController {
     '$.recentFriendRequests[*].profilePic',
     '$.recentMessages[*].participants[*].profilePic',
     '$.user.profilePic',
-    )
+  )
   @Get('initial-data')
   async initialData(@Req() request: Request) {
     const user: UserDocument = getUserFromRequest(request);

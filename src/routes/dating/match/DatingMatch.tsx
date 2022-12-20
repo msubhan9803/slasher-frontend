@@ -59,7 +59,9 @@ button{
 `;
 
 function DatingMatch() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [nameAge, setNameAge] = useState('Eliza Williams 23');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState('25mi / 40km California');
   const [subscriberMatchShow, setSubscriberMatchShow] = useState<boolean>(false);
   const [subscriber, setSubscriber] = useState<string>('');

@@ -34,6 +34,7 @@ export class FeedPostsService {
     .findOne(feedPostFindQuery)
     .populate('userId', 'userName _id profilePic')
     .populate('rssfeedProviderId', 'title _id logo')
+    .populate('rssFeedId', 'content')
     .exec();
   }
 

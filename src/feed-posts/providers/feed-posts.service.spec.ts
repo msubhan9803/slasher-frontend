@@ -17,6 +17,8 @@ import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/fe
 import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { RssFeedService } from '../../rss-feed/providers/rss-feed.service';
+import { rssFeedFactory } from '../../../test/factories/rss-feed.factory';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -29,6 +31,7 @@ describe('FeedPostsService', () => {
   let friendsService: FriendsService;
   let activeUser: UserDocument;
   let rssFeedProvider: RssFeedProvider;
+  let rssFeedService: RssFeedService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -41,6 +44,7 @@ describe('FeedPostsService', () => {
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -49,12 +53,16 @@ describe('FeedPostsService', () => {
   afterAll(async () => {
     await app.close();
   });
-
+  let rssFeed;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
     rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+    rssFeed = await rssFeedService.create(rssFeedFactory.build({
+      rssfeedProviderId: rssFeedProvider._id,
+      content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
+    }));
   });
 
   it('should be defined', () => {
@@ -95,12 +103,14 @@ describe('FeedPostsService', () => {
         feedPostFactory.build(
           {
             userId: activeUser._id,
+            rssFeedId: rssFeed._id,
           },
         ),
       );
     });
     it('finds the expected feed post details', async () => {
       const feedPostDetails = await feedPostsService.findById(feedPost._id, false);
+      expect((feedPostDetails.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(feedPostDetails.message).toEqual(feedPost.message);
     });
 

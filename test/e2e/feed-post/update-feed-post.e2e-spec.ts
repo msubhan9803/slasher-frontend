@@ -10,7 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
-import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Update Feed Post (e2e)', () => {
@@ -104,12 +104,12 @@ describe('Update Feed Post (e2e)', () => {
 
   describe('Validation', () => {
     it('check message length validation', async () => {
-      sampleFeedPostObject.message = new Array(1002).join('z');
+      sampleFeedPostObject.message = new Array(20_002).join('z');
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
-      expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+      expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
     });
   });
 });

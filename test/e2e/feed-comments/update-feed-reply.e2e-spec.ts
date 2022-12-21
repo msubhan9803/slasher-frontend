@@ -132,12 +132,12 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
 
     describe('Validation', () => {
       it('check message length validation', async () => {
-        sampleFeedCommentsObject.message = new Array(1002).join('z');
+        sampleFeedCommentsObject.message = new Array(8_002).join('z');
         const response = await request(app.getHttpServer())
           .patch(`/feed-comments/replies/${feedReply._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFeedCommentsObject);
-        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+        expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
       });
 
       it('message should not be empty', async () => {

@@ -164,13 +164,13 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .post('/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', new Array(1002).join('z'))
+          .field('message', new Array(8002).join('z'))
 
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+        expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
     });
   });

@@ -156,12 +156,12 @@ describe('Feed-Post / Post File (e2e)', () => {
           .post('/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('message', new Array(1002).join('z'))
+          .field('message', new Array(20_002).join('z'))
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+        expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
     });
   });

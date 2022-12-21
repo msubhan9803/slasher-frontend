@@ -109,12 +109,12 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
     it('when feed comment id and login user id is not match than expected response', async () => {
       const feedComments1 = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        user0._id.toString(),
-        sampleFeedCommentsObject.message,
-        sampleFeedCommentsObject.images,
-      );
+        .createFeedComment(
+          feedPost.id,
+          user0._id.toString(),
+          sampleFeedCommentsObject.message,
+          sampleFeedCommentsObject.images,
+        );
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -124,12 +124,12 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
     describe('Validation', () => {
       it('check message length validation', async () => {
-        sampleFeedCommentsObject.message = new Array(1002).join('z');
+        sampleFeedCommentsObject.message = new Array(8002).join('z');
         const response = await request(app.getHttpServer())
           .patch(`/feed-comments/${feedComments._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFeedCommentsObject);
-        expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+        expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
       });
 
       it('message should not be empty', async () => {

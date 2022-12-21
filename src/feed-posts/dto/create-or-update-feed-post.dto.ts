@@ -4,6 +4,6 @@ import {
 
 export class CreateOrUpdateFeedPostsDto {
   @IsOptional()
-  @MaxLength(1000, { message: 'message cannot be longer than 1000 characters' })
+  @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
   message?: string;
 }

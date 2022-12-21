@@ -102,12 +102,12 @@ describe('Update Feed Post (e2e)', () => {
 
   describe('Validation', () => {
     it('check message length validation', async () => {
-      sampleFeedPostObject.message = new Array(1002).join('z');
+      sampleFeedPostObject.message = new Array(20_002).join('z');
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
-      expect(response.body.message).toContain('message cannot be longer than 1000 characters');
+      expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
     });
   });
 });

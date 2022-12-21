@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
-import userProfileIconPlaceholder from '../../../../placeholder-images/placeholder-user.jpg';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import CustomPopover from '../../../ui/CustomPopover';
@@ -95,7 +94,7 @@ function AuthenticatedPageHeader(
       <CustomPopover
         popoverOptions={popoverOption}
         onPopoverClick={handleNavigate}
-        userProfileIcon={userProfileIconPlaceholder}
+        userProfileIcon={userData.user.profilePic}
       />
     </div>,
   ];

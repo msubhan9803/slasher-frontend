@@ -121,9 +121,9 @@ function PostFeed({
               <PostHeader
                 detailPage={detailPage}
                 id={post.id}
-                userName={post.userName}
+                userName={post.userName || post.title}
                 postDate={post.postDate}
-                profileImage={post.profileImage}
+                profileImage={post.profileImage || post.rssFeedProviderLogo}
                 popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
                   ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}

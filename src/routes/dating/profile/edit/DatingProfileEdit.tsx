@@ -19,17 +19,10 @@ interface Images {
   image: string;
   id: number
 }
-const HEADING = 'bg-secondary h2 m-0 mb-3 p-3 rounded-3';
-const SECTION_INNER = 'row gx-3 mx-auto';
 
-const ResponsiveContainer = styled.div`
-  padding-left: 0px;
-  padding-right: 0px;
-  @media (min-width: 991px){
-    padding-left: 50px;
-    padding-right: 50px;
-  }
-`;
+const ResponsiveContainer = styled.div.attrs({
+  className: 'px-0 px-lg-3',
+})``;
 
 const Title = styled.h1`
   margin-bottom: 30px;
@@ -57,8 +50,8 @@ function DatingProfileEdit() {
         <Title className="h1">Edit Dating Profile</Title>
         <Form>
           <Row className="mx-0 mb-5">
-            <Heading className={HEADING}>My Photos</Heading>
-            <Section className={SECTION_INNER}>
+            <Heading>My Photos</Heading>
+            <Section>
               {imageUpload.map((image, imageIndex) => (
                 <Col key={image.id} xs={4} className="my-3">
                   <ProfilePhotoGallery
@@ -74,8 +67,8 @@ function DatingProfileEdit() {
 
           </Row>
           <Row className="mx-0 mb-4">
-            <h2 className={HEADING}>My Information</h2>
-            <Section className={SECTION_INNER}>
+            <h2>My Information</h2>
+            <Section>
               <Col>
                 <Form.Group className="mb-3" controlId="about-me">
                   <Form.Label>About Me</Form.Label>
@@ -93,7 +86,7 @@ function DatingProfileEdit() {
             </Section>
 
             <Row className="">
-              <Section className={SECTION_INNER}>
+              <Section>
                 <Col sm={6} lg={12} xl={6} className="mb-4">
                   <p>I am a</p>
                   <Row>

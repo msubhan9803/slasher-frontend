@@ -148,6 +148,25 @@ interface FeedCommentUserId {
   profilePic: string;
 }
 
+export enum NotificationReadStatus {
+  Unread = 0,
+  Read = 1,
+}
+
+export interface Notification {
+  _id: string;
+  createdAt: string,
+  isRead: number,
+  notificationMsg: string,
+  senderId: Sender,
+}
+
+interface Sender {
+  _id: string;
+  userName: string;
+  profilePic: string;
+}
+
 interface FeedReplies {
   createdAt: string;
   feedPostId: string;

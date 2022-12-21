@@ -7,6 +7,7 @@ import {
   Button,
   Col, Form, Image, InputGroup, Row,
 } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
@@ -15,24 +16,6 @@ import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
-
-// interface Props {
-//   commentSectionData?: any;
-//   commentImage?: string;
-//   popoverOption?: string[];
-//   setCommentValue?: (value: string) => {};
-//   setfeedImageArray?: (value: any) => {};
-//   setDeleteComment?: (value: boolean) => {};
-//   setDeleteCommentReply?: (value: boolean) => {};
-//   setCommentID?: (value: string) => {};
-//   setCommentReplyID?: (value: string) => {};
-//   commentID?: string;
-//   commentReplyID?: string;
-//   loginUserId?: string;
-//   otherUserPopoverOptions?: string;
-//   isEdit?: boolean;
-//   setIsEdit?: (value: boolean) => {};
-// }
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -92,6 +75,7 @@ function PostCommentSection({
   const loadMore = 10;
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
+  const userData = useSelector((state: any) => state.user);
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -187,25 +171,6 @@ function PostCommentSection({
     }
   };
 
-  // const onLikeClick = (likeId: string) => {
-  //   const tempData = [...commentData];
-  //   tempData.map((data: any) => {
-  //     const temp = data;
-  //     if (temp.id === likeId) {
-  //       temp.likeIcon = !temp.likeIcon;
-  //     }
-  //     data.commentReplySection.map((like: any) => {
-  //       const tempLike = like;
-  //       if (tempLike.id === likeId) {
-  //         tempLike.likeIcon = !tempLike.likeIcon;
-  //       }
-  //       return true;
-  //     });
-  //     return tempData;
-  //   });
-  //   setCommentData(tempData);
-  // };
-
   const handlePopover = (value: string, popoverData: PopoverClickProps) => {
     setCommentID(popoverData.id);
     setCommentReplyID('');
@@ -278,7 +243,7 @@ function PostCommentSection({
       <Form>
         <Row className="ps-3 pt-2 order-last order-sm-0">
           <Col xs="auto" className="pe-0">
-            <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
+            <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />
           </Col>
           <Col className="ps-0 pe-4">
             <div className="d-flex align-items-end mb-4">

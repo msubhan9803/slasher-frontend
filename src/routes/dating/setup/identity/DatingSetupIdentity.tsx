@@ -1,11 +1,12 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Button, Col, Form, Row,
+  Button,
+  Col, Form, Row,
 } from 'react-bootstrap';
-import AuthenticatedPageWrapper from '../../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../../components/ui/RoundButton';
 import { generate18OrOlderYearList, generateMonthOptions, generateDayOptions } from '../../../../utils/date-utils';
+import DatingPageWrapper from '../../components/DatingPageWrapper';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -16,7 +17,7 @@ function DatingSetupIdentity() {
   const [selectGender, setSelectGender] = useState('');
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
+    <DatingPageWrapper>
       <Row>
         <Col md={5}>
           <Form.Group className="mb-3" controlId="formBasicName">
@@ -70,16 +71,15 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col sm={6}>
           <Row>
-            <h3>I am a</h3>
+            <h1>I am a</h1>
             <Row>
               <Col xs={6} md={4} sm={4} lg={4}>
                 <Button
                   variant="form"
-                  size="lg"
                   className="w-100"
                   name="male"
                   active={gender === 'male'}
-                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Male
                 </Button>
@@ -87,11 +87,10 @@ function DatingSetupIdentity() {
               <Col xs={6} md={4} sm={4} lg={4}>
                 <Button
                   variant="form"
-                  size="lg"
                   className="w-100"
                   name="female"
                   active={gender === 'female'}
-                  onClick={(e) => setGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setGender((e.target as HTMLButtonElement).name)}
                 >
                   Female
                 </Button>
@@ -103,16 +102,15 @@ function DatingSetupIdentity() {
       <Row className="mt-3 mb-4">
         <Col md={6}>
           <Row>
-            <h3> I am looking for</h3>
+            <h1> I am looking for</h1>
             <Row>
               <Col xs={4}>
                 <Button
                   variant="form"
-                  size="lg"
                   className="w-100"
                   name="men"
                   active={selectGender === 'men'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Men
                 </Button>
@@ -120,11 +118,10 @@ function DatingSetupIdentity() {
               <Col xs={4}>
                 <Button
                   variant="form"
-                  size="lg"
                   className="w-100"
                   name="women"
                   active={selectGender === 'women'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Women
                 </Button>
@@ -132,11 +129,10 @@ function DatingSetupIdentity() {
               <Col xs={4}>
                 <Button
                   variant="form"
-                  size="lg"
                   className="w-100"
                   name="both"
                   active={selectGender === 'both'}
-                  onClick={(e) => setSelectGender((e.target as HTMLButtonElement).name)}
+                  onClick={(e: any) => setSelectGender((e.target as HTMLButtonElement).name)}
                 >
                   Both
                 </Button>
@@ -173,13 +169,12 @@ function DatingSetupIdentity() {
             variant="primary"
             type="submit"
             className="w-100 px-5"
-            size="lg"
           >
             Next Step
           </RoundButton>
         </Col>
       </Row>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 export default DatingSetupIdentity;

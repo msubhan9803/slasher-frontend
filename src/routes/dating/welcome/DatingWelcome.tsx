@@ -8,12 +8,12 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import RoundButton from '../../../components/ui/RoundButton';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import DatingPageWrapper from '../components/DatingPageWrapper';
 
 function DatingWelcome() {
   return (
-    <AuthenticatedPageWrapper rightSidebarType="dating">
-      <Row className="text-center pt-5 justify-content-center">
+    <DatingPageWrapper>
+      <Row className="text-center pt-4 justify-content-center">
         <Col md={8}>
           <h1>Welcome!</h1>
           <p className="fs-5">
@@ -58,11 +58,16 @@ function DatingWelcome() {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={6}>
-          <RoundButton className="w-100">Agree</RoundButton>
+
+        <Col md={8}>
+          <Row className="justify-content-center">
+            <Col md={5}>
+              <RoundButton className="w-100">Agree</RoundButton>
+            </Col>
+          </Row>
         </Col>
       </Row>
-    </AuthenticatedPageWrapper>
+    </DatingPageWrapper>
   );
 }
 

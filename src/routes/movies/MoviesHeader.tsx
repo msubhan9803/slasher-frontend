@@ -28,8 +28,8 @@ const tabs = [
   { value: 'my-movies', label: 'My movies' },
 ];
 const sortoptions = [
-  { value: 'releaseDate', label: 'Release Date' },
   { value: 'name', label: 'Alphabetical' },
+  { value: 'releaseDate', label: 'Release Date' },
   { value: 'rating', label: 'User Rating' },
 ];
 function MoviesHeader({

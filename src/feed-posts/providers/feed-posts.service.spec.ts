@@ -195,6 +195,7 @@ describe('FeedPostsService', () => {
       );
     });
     it('finds the expected feed post and update the details', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost._id, false);
       const feedPostData = {
         message: 'Test message',
         images: [
@@ -206,11 +207,12 @@ describe('FeedPostsService', () => {
           },
         ],
       };
-      const updatedFindPost = await feedPostsService.update(feedPost._id, feedPostData);
-      const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id, false);
-      expect(updatedFindPost.lastUpdateAt).toEqual(reloadedFindPost.lastUpdateAt);
-      expect(reloadedFindPost.message).toEqual(updatedFindPost.message);
-      expect(reloadedFindPost.toJSON().images).toEqual(updatedFindPost.toJSON().images);
+      const updatedPost = await feedPostsService.update(feedPost._id, feedPostData);
+      const reloadedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(updatedPost.updatedAt).toEqual(reloadedPost.updatedAt);
+      expect(reloadedPost.message).toEqual(feedPostData.message);
+      expect(reloadedPost.images.map((el) => el.image_path)).toEqual(feedPostData.images.map((el) => el.image_path));
+      expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
     });
   });
 

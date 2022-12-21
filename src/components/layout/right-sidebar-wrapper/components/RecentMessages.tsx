@@ -18,7 +18,7 @@ function RecentMessages() {
   const userId = Cookies.get('userId');
   return (
     <div className="mt-5">
-      <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />
+      <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/messages" />
       <UserMessageList className="mb-4">
         {recentMessageDetails && recentMessageDetails.length > 0
           && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (

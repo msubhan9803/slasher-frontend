@@ -10,6 +10,7 @@ interface RecentMessage {
   latestMessage: string;
   unreadCount: number;
   participants: UserMesssage[];
+  _id: string;
 }
 
 function RecentMessages() {
@@ -23,14 +24,14 @@ function RecentMessages() {
           && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
               /* eslint no-underscore-dangle: 0 */
-              key={recentMessageDetail.participants
-                .find((participant) => participant._id !== userId)!._id}
+              key={recentMessageDetail._id}
               userName={recentMessageDetail.participants
                 .find((participant) => participant._id !== userId)!.userName}
               message={recentMessageDetail.latestMessage}
               count={recentMessageDetail.unreadCount}
               image={recentMessageDetail.participants
                 .find((participant) => participant._id !== userId)!.profilePic}
+              messageId={recentMessageDetail._id}
             />
           ))}
       </UserMessageList>

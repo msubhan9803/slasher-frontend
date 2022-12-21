@@ -43,7 +43,7 @@ function PlacesPosts() {
   };
   return (
     <div className="mt-4">
-      {queryParam === 'self' && <CustomCreatePost imageUrl={postImage} />}
+      {queryParam === 'self' && <CustomCreatePost />}
       <PostFeed
         postFeedData={postData}
         popoverOptions={popoverOptions}

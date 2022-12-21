@@ -10,7 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
-import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Update Feed Post (e2e)', () => {
@@ -22,7 +22,7 @@ describe('Update Feed Post (e2e)', () => {
   let user1: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
-  let feedPost: FeedPost;
+  let feedPost: FeedPostDocument;
 
   const sampleFeedPostObject = {
     message: 'hello all test user upload your feed post',
@@ -63,12 +63,14 @@ describe('Update Feed Post (e2e)', () => {
   });
 
   describe('Update Feed Post Details', () => {
-    it('successfully update feed post details', async () => {
+    it('successfully update feed post details, and updates the lastUpdateAt time', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost.id, true);
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
       const feedPostDetails = await feedPostsService.findById(response.body.id, true);
+      expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body.message).toContain(feedPostDetails.message);
     });

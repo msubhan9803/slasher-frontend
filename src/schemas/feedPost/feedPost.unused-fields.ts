@@ -50,10 +50,6 @@ export class FeedPostUnusedFields {
   privacyType: FeedPostPrivacyType;
 
   // NOT USED
-  @Prop({ default: Date.now })
-  lastUpdateAt: Date;
-
-  // NOT USED
   @Prop({ default: null })
   shareId: string;
 

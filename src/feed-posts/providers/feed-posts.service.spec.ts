@@ -204,7 +204,8 @@ describe('FeedPostsService', () => {
         }),
       );
     });
-    it('finds the expected feed post and update the details', async () => {
+    it('finds the expected feed post and update the details, and also updates the lastUpdateAt time', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost._id, false);
       const feedPostData = {
         message: 'Test message',
         images: [
@@ -216,10 +217,12 @@ describe('FeedPostsService', () => {
           },
         ],
       };
-      const updatedFindPost = await feedPostsService.update(feedPost._id, feedPostData);
-      const reloadedFindPost = await feedPostsService.findById(updatedFindPost._id, false);
-      expect(reloadedFindPost.message).toEqual(updatedFindPost.message);
-      expect(reloadedFindPost.toJSON().images).toEqual(updatedFindPost.toJSON().images);
+      const updatedPost = await feedPostsService.update(feedPost._id, feedPostData);
+      const reloadedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(updatedPost.updatedAt).toEqual(reloadedPost.updatedAt);
+      expect(reloadedPost.message).toEqual(feedPostData.message);
+      expect(reloadedPost.images.map((el) => el.image_path)).toEqual(feedPostData.images.map((el) => el.image_path));
+      expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
     });
   });
 
@@ -327,7 +330,7 @@ describe('FeedPostsService', () => {
 
       // And we expect them to be sorted by updatedAt date
       for (let i = 1; i < feedPosts.length; i += 1) {
-        expect(feedPosts[i].updatedAt < feedPosts[i - 1].updatedAt).toBe(true);
+        expect(feedPosts[i].lastUpdateAt < feedPosts[i - 1].lastUpdateAt).toBe(true);
       }
     });
 
@@ -335,12 +338,12 @@ describe('FeedPostsService', () => {
       const limit = 6;
       const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
       for (let index = 1; index < firstResults.length; index += 1) {
-        expect(firstResults[index].updatedAt < firstResults[index - 1].updatedAt).toBe(true);
+        expect(firstResults[index].lastUpdateAt < firstResults[index - 1].lastUpdateAt).toBe(true);
       }
       expect(firstResults).toHaveLength(6);
       const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
       for (let index = 1; index < secondResults.length; index += 1) {
-        expect(secondResults[index].updatedAt < secondResults[index - 1].updatedAt).toBe(true);
+        expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
       }
       expect(secondResults).toHaveLength(4);
     });

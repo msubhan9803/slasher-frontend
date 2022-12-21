@@ -72,41 +72,52 @@ function ProfilePostDetail({ user }: Props) {
     return postImageList;
   };
 
-  const feedComments = () => {
-    if (requestAdditionalPosts && !loadingComments) {
-      setLoadingComments(true);
-      setNoMoreData(false);
-      getFeedComments(
-        postId!,
-        commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined,
-        previousCommentsAvailable,
-      ).then((res) => {
-        const comments = res.data;
-        setCommentData((prev: any) => [
+  const feedComments = (sortBy?: boolean) => {
+    let data;
+    if (sortBy) {
+      data = commentData.length > 0 ? commentData[0]._id : undefined;
+    } else {
+      data = commentData.length > 0 ? commentData[commentData.length - 1]._id : undefined;
+    }
+    getFeedComments(
+      postId!,
+      data,
+      sortBy,
+    ).then((res) => {
+      const comments = sortBy ? res.data.reverse() : res.data;
+      setCommentData((prev: any) => {
+        if (sortBy) {
+          return [
+            ...comments,
+            ...prev,
+          ];
+        }
+        return [
           ...prev,
           ...comments,
-        ]);
-        if (res.data.length === 0) setNoMoreData(true);
-        if (res.data.length < 20) {
-          setPreviousCommentsAvailable(false);
-          setNoMoreData(true);
-        }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
-      );
-    }
+        ];
+      });
+      if (res.data.length === 0) setNoMoreData(true);
+      if (res.data.length < 20 && sortBy) {
+        setPreviousCommentsAvailable(false);
+      }
+    }).catch(
+      (error) => {
+        setNoMoreData(true);
+        setErrorMessage(error.response.data.message);
+      },
+    ).finally(
+      () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
+    );
   };
 
   useEffect(() => {
-    if (!queryCommentId) {
+    if (requestAdditionalPosts && !loadingComments) {
+      setLoadingComments(true);
+      setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments, queryCommentId]);
+  }, [requestAdditionalPosts, loadingComments]);
 
   useEffect(() => {
     if (postId) {
@@ -378,7 +389,7 @@ function ProfilePostDetail({ user }: Props) {
   }, [queryCommentId, queryReplyId]);
 
   const loadNewerComment = () => {
-    feedComments();
+    feedComments(true);
   };
 
   return (

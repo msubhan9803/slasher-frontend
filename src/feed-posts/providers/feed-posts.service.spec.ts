@@ -194,7 +194,7 @@ describe('FeedPostsService', () => {
         }),
       );
     });
-    it('finds the expected feed post and update the details', async () => {
+    it('finds the expected feed post and update the details, and also updates the lastUpdateAt time', async () => {
       const postBeforeUpdate = await feedPostsService.findById(feedPost._id, false);
       const feedPostData = {
         message: 'Test message',

@@ -4,17 +4,18 @@ import { ReportAndUnreport, ReportAndUnreportSchema } from '../schemas/reportAnd
 import { ReportAndUnreportService } from './providers/reports.service';
 import { ReportsController } from './reports.controller';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
-import { MailService } from '../providers/mail.service';
 import { FeedCommentsModule } from '../feed-comments/feed-comments.module';
+import { MailModule } from '../providers/mail.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: ReportAndUnreport.name, schema: ReportAndUnreportSchema }]),
     FeedPostsModule,
     FeedCommentsModule,
+    MailModule,
   ],
   controllers: [ReportsController],
-  providers: [ReportAndUnreportService, MailService],
+  providers: [ReportAndUnreportService],
   exports: [ReportAndUnreportService],
 })
 export class ReportsModule { }

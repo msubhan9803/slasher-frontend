@@ -57,16 +57,18 @@ function DatingSubscriptionMobile({ className, testState, handleCancelSub }: any
       </Row>
 
       <Row className="g-0 mt-4">
-        {testState.PAID && (
+        <Col xs={12} sm={6}>
+          {testState.PAID && (
           <>
             <RoundButton className="btn-secondary w-100 mb-3">Edit subscription</RoundButton>
             <RoundButton className="btn-secondary w-100 border-primary text-nowrap" onClick={handleCancelSub}>
               Cancel subscription
             </RoundButton>
           </>
-        )}
-        {testState.FREE && <RoundButton className="btn-primary w-100 mx-2">Upgrade to premium</RoundButton>}
-        {testState.CANCELLED && <RoundButton className="btn-primary w-100 mx-2">Renew</RoundButton>}
+          )}
+          {testState.FREE && <RoundButton className="btn-primary w-100 mx-2">Upgrade to premium</RoundButton>}
+          {testState.CANCELLED && <RoundButton className="btn-primary w-100 mx-2">Renew</RoundButton>}
+        </Col>
       </Row>
     </Row>
   );

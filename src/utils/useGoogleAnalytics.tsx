@@ -8,9 +8,7 @@ declare global {
   }
 }
 
-const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS || 'G-NWPS6ZB302'; // Temporary.
-
-const useGoogleAnalytics = () => {
+const useGoogleAnalytics = (analyticsId: string) => {
   const location = useLocation();
   const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`);
 

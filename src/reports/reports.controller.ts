@@ -3,23 +3,23 @@ import {
   Controller, HttpException, HttpStatus, Post, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { ReportAndUnreportService } from './providers/reports.service';
 import { getUserFromRequest } from '../utils/request-utils';
 import { CreateReportDto } from './dto/create-report.dto';
 import { ReportReaction } from '../schemas/reportAndUnreport/reportAndUnreport.enums';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
-import { FeedComment, FeedCommentDocument } from '../schemas/feedComment/feedComment.schema';
-import { FeedReply, FeedReplyDocument } from '../schemas/feedReply/feedReply.schema';
+import { MailService } from '../providers/mail.service';
+import { UsersService } from '../users/providers/users.service';
+import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 
 @Controller('reports')
 export class ReportsController {
   constructor(
     private readonly reportAndUnreportService: ReportAndUnreportService,
     private readonly feedPostsService: FeedPostsService,
-    @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
-    @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
+    private readonly mailService: MailService,
+    private readonly usersService: UsersService,
+    private readonly feedCommentsService: FeedCommentsService,
   ) { }
 
   @Post()
@@ -29,7 +29,11 @@ export class ReportsController {
   ) {
     const user = getUserFromRequest(request);
     switch (createReportDto.reportType) {
-      case 'profile':
+      case 'profile': {
+        const userData = await this.usersService.findById(createReportDto.targetId);
+        if (!userData) {
+          throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
+        }
         const reportAndUnreportObj: any = {
           from: user._id,
           to: createReportDto.targetId,
@@ -38,7 +42,8 @@ export class ReportsController {
         };
         await this.reportAndUnreportService.create(reportAndUnreportObj);
         break;
-      case 'post':
+      }
+      case 'post': {
         const feedPost = await this.feedPostsService.findById(createReportDto.targetId, false);
         if (!feedPost) {
           throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
@@ -46,25 +51,33 @@ export class ReportsController {
         feedPost.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedPost.save();
         break;
-      case 'comment':
-        const feedComment = await this.feedCommentModel.findOne({ feedPostId: createReportDto.targetId });
+      }
+      case 'comment': {
+        const feedComment = await this.feedCommentsService.findFeedComment(createReportDto.targetId);
         if (!feedComment) {
           throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
         }
         feedComment.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedComment.save();
         break;
-      case 'reply':
-        const feedReply = await this.feedReplyModel.findOne({ feedPostId: createReportDto.targetId });
+      }
+      case 'reply': {
+        const feedReply = await this.feedCommentsService.findFeedReply(createReportDto.targetId);
         if (!feedReply) {
-          throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+          throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
         }
         feedReply.reportUsers.push({ userId: user._id, reason: createReportDto.reason });
         feedReply.save();
         break;
+      }
       default:
         throw new HttpException('Invalid report type', HttpStatus.BAD_REQUEST);
     }
+    await this.mailService.sendReportNotificationEmail(
+      createReportDto.reportType,
+      user.userName,
+      createReportDto.reason,
+    );
     return { success: true };
   }
 }

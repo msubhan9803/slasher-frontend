@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { clearDatabase } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
+import { ReportType } from '../types';
 import { MailService } from './mail.service';
 
 describe('MailService', () => {
@@ -91,6 +92,28 @@ describe('MailService', () => {
         mailService.getDefaultSender(),
         'Activate your Slasher account',
         `Here is the verification token that will be used to activate your slasher account: ${token}`,
+      );
+    });
+  });
+
+  describe('#sendReportNotificationEmail', () => {
+    it('sends the correct mail details to the sendEmail function', async () => {
+      const to = 'example-report-recipient@example.com';
+      const reportType: ReportType = 'profile';
+      const reportingUserName = 'ExampleUser';
+      const reportReason = 'This content shocked my sensibilities.';
+
+      jest
+        .spyOn(mailService, 'sendEmail')
+        .mockReturnValue(Promise.resolve(null));
+
+      await mailService.sendReportNotificationEmail(reportType, reportingUserName, reportReason);
+      expect(mailService.sendEmail).toHaveBeenCalledWith(
+        to,
+        mailService.getDefaultSender(),
+        `Slasher Content Report: ${reportType}`,
+        `A user (${reportingUserName}) has reported a ${reportType}:\n\n${reportReason}\n\n`
+        + 'View the Slasher admin console for more information.',
       );
     });
   });

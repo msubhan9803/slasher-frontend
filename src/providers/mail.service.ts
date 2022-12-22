@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { ReportType } from '../types';
 
 @Injectable()
 export class MailService {
@@ -26,6 +27,15 @@ export class MailService {
       'Activate your Slasher account',
       // TODO: Change text below to actually include link to account activation page
       `Here is the verification token that will be used to activate your slasher account: ${verificationToken}`,
+    );
+  }
+
+  async sendReportNotificationEmail(reportType: ReportType, reportedBy: string, reason: string) {
+    return this.sendEmail(
+      this.config.get<string>('REPORT_EMAIL_RECIPIENT'),
+      this.getDefaultSender(),
+      `Slasher Content Report: ${reportType}`,
+      `A user (${reportedBy}) has reported a ${reportType}:\n\n${reason}\n\nView the Slasher admin console for more information.`,
     );
   }
 

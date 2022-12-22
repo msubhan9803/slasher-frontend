@@ -4,9 +4,7 @@ import useScript from './useScript';
 
 declare global {
   interface Window {
-    gtag?: (key: string, trackingId: string, config: { page_path: string }) => void;
     dataLayer: any;
-    title: any;
   }
 }
 

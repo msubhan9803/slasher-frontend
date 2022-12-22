@@ -390,7 +390,10 @@ function PostCommentSection({
                               />
                             </div>
                           ))}
-                      {data.commentReplySection && data.commentReplySection.length > 2
+                      {data.commentReplySection
+                        && data.commentReplySection.length > 2
+                        && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
+                          && next >= data.commentReplySection.length)
                         && (
                           <div className="text-center">
                             <Button

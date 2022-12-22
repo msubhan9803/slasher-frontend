@@ -25,15 +25,14 @@ interface LinearIconProps {
 }
 
 interface Props {
-  popoverOptions: string[],
-  postFeedData: any[],
-  commentsData?: any[],
-  isCommentSection?: boolean,
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  setCommentValue?: (value: CommentValue) => void,
-  detailPage?: boolean
-  // setfeedImageArray?: (value: any[]) => void
-  removeComment?: () => void
+  popoverOptions: string[];
+  postFeedData: any[];
+  commentsData?: any[];
+  isCommentSection?: boolean;
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
+  setCommentValue?: (value: CommentValue) => void;
+  detailPage?: boolean;
+  removeComment?: () => void;
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
   commentID?: string;
@@ -90,7 +89,6 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
-    // const likeData = postFeedData.includes
     setPostData(postFeedData);
   }, [postFeedData]);
 

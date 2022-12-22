@@ -24,6 +24,7 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
+import useGoogleAnalytics from './utils/useGoogleAnalytics';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -31,6 +32,7 @@ import AccountActivated from './routes/account-activated/AccountActivated';
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
+  useGoogleAnalytics();
 
   return (
     <Routes>

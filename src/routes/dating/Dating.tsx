@@ -14,6 +14,7 @@ import Likes from './likes/Likes';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import DatingTutorial from './tutorial/DatingTutorial';
 import DatingMatch from './match/DatingMatch';
+import DatingManageSubscription from './manage-subscription/DatingManageSubscription';
 
 function Dating() {
   return (
@@ -27,6 +28,7 @@ function Dating() {
       <Route path="/likes" element={<Likes />} />
       <Route path="/tutorial/*" element={<DatingTutorial />} />
       <Route path="/deck" element={<DatingMatch />} />
+      <Route path="/manage-subscription" element={<DatingManageSubscription />} />
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );

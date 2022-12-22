@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
@@ -24,6 +24,7 @@ import { userInitialData } from '../../../../api/users';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
+import { SocketContext } from '../../../../context/socket';
 
 interface Props {
   children: React.ReactNode;
@@ -64,6 +65,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
@@ -103,6 +105,30 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     event: <EventRightSidebar />,
     podcast: <PodcastsSidebar />,
   }[type]);
+
+  useEffect(() => {
+    dispatch(setUserInitialData(userData));
+  }, []);
+
+  const onNotificationReceivedHandler = (payload: any) => {
+    const notificationCount = payload.notification
+      ? {
+        ...userData,
+        unreadNotificationCount: userData.unreadNotificationCount + 1,
+      }
+      : userData;
+    dispatch(setUserInitialData(notificationCount));
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('notificationReceived', onNotificationReceivedHandler);
+      return () => {
+        socket.off('notificationReceived', onNotificationReceivedHandler);
+      };
+    }
+    return () => { };
+  }, [userData]);
 
   return (
     <div className="page-wrapper full">

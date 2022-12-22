@@ -45,6 +45,7 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  isNewsPartnerPost?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -78,7 +79,7 @@ function PostFeed({
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick,
+  loadingPosts, onLikeClick, isNewsPartnerPost,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -132,7 +133,16 @@ function PostFeed({
             <Card.Body className="px-0 pt-3">
               <div>
                 <Content dangerouslySetInnerHTML={
-                  { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
+                  {
+                    __html: isNewsPartnerPost
+                      ? post.content
+                      : linkifyHtml(decryptMessage(post.content
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll("'", '&#039;'))),
+                  }
                 }
                 />
                 {post.hashTag?.map((hashtag: string) => (
@@ -257,5 +267,6 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  isNewsPartnerPost: false,
 };
 export default PostFeed;

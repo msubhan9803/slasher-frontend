@@ -274,6 +274,7 @@ function NewsPartnerPost() {
             noMoreData={noMoreData}
             loadingPosts={loadingPosts}
             onLikeClick={onLikeClick}
+            isNewsPartnerPost
           />
         </Col>
       </Row>

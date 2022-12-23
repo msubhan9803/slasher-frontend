@@ -19,6 +19,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -136,12 +137,7 @@ function PostFeed({
                   {
                     __html: isNewsPartnerPost
                       ? post.content
-                      : linkifyHtml(decryptMessage(post.content
-                        .replaceAll('&', '&amp;')
-                        .replaceAll('<', '&lt;')
-                        .replaceAll('>', '&gt;')
-                        .replaceAll('"', '&quot;')
-                        .replaceAll("'", '&#039;'))),
+                      : linkifyHtml(decryptMessage(replaceHtmlToText(post.content))),
                   }
                 }
                 />

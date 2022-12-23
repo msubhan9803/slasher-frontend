@@ -111,6 +111,13 @@ function PostFeed({
     <p className="text-center">Loading...</p>
   );
 
+  const imageLinkUrl = (post: any, imageId: string) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+    }
+    return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -128,6 +135,7 @@ function PostFeed({
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
+                rssfeedProviderId={post.rssfeedProviderId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
@@ -158,7 +166,7 @@ function PostFeed({
                     post.images.map((imageData: any) => ({
                       videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                       postId: post.id,
                       imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
@@ -175,7 +183,12 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                  <Link
+                    to={post.rssfeedProviderId
+                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`
+                      : `/${post.userName}/posts/${post.id}`}
+                    className="text-decoration-none"
+                  >
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
                   </Link>

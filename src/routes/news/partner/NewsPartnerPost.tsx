@@ -18,7 +18,7 @@ import {
 } from '../../../api/feed-comments';
 
 function NewsPartnerPost() {
-  const { newsPartnerId, postId } = useParams<string>();
+  const { partnerId, postId } = useParams<string>();
   const [postData, setPostData] = useState<NewsPartnerPostProps[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
@@ -40,7 +40,7 @@ function NewsPartnerPost() {
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
       /* eslint no-underscore-dangle: 0 */
-      if (newsPartnerId !== res.data.rssfeedProviderId?._id) {
+      if (partnerId !== res.data.rssfeedProviderId?._id) {
         navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
       }
       const newsPost: any = {

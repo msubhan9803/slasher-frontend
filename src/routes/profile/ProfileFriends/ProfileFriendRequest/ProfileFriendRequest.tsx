@@ -115,9 +115,11 @@ function ProfileFriendRequest({ user }: Props) {
   }, [friendsReqList]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-    if (bottomLine) {
-      fetchMoreFriendReqList();
+    if (yPositionOfLastFriendElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+      if (bottomLine) {
+        fetchMoreFriendReqList();
+      }
     }
   }, [yPositionOfLastFriendElement]);
   return (

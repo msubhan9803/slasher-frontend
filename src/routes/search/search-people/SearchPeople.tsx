@@ -32,18 +32,20 @@ function SearchPeople() {
     setLoadUser(true);
     setNoMoreData(false);
     if (criteria && criteria.length >= 3) {
-      await getSearchUser(page, criteria).then((res) => {
+      await getSearchUser(criteria ? 0 : page, criteria).then((res) => {
         if (res.data && res.data.length > 0) {
-          setSearchPeople((prev: any) => [
-            ...prev,
-            ...res.data,
-          ]);
-          setPage(page + 1);
+          setSearchPeople(res.data);
+          if (criteria) {
+            setPage(1);
+          } else {
+            setPage(page + 1);
+          }
           setLoadUser(false);
         } else {
           setSearchPeople([]);
           setNoMoreData(true);
           setLoadUser(false);
+          setPage(page + 1);
         }
       });
     } else {
@@ -74,7 +76,6 @@ function SearchPeople() {
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    setPage(0);
     setSearchPeople([]);
     let searchUser = value;
     if (searchUser.charAt(0) === '@') {
@@ -82,6 +83,7 @@ function SearchPeople() {
     }
     setFilteredSearch(searchUser);
     debouncedSearch(searchUser);
+    setPage(0);
   };
 
   const renderNoMoreDataMessage = () => (

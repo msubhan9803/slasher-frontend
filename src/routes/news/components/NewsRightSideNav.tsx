@@ -22,21 +22,23 @@ function NewsRightSideNav() {
   const userData = useAppSelector((state) => state.user);
 
   const callGetFollowUnfollowDetail = () => {
-    getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
-      if (res.data) {
-        setFollowing(true);
-        if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.NotEnabled) {
-          setNotificationToggle(false);
-        } else if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.Enabled) {
-          setNotificationToggle(true);
+    if (userData?.user) {
+      getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
+        if (res.data) {
+          setFollowing(true);
+          if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.NotEnabled) {
+            setNotificationToggle(false);
+          } else if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.Enabled) {
+            setNotificationToggle(true);
+          }
         }
-      }
-    }).catch((error) => {
-      if (error.response.status === 404) {
-        setFollowing(false);
-        setNotificationToggle(false);
-      }
-    });
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          setFollowing(false);
+          setNotificationToggle(false);
+        }
+      });
+    }
   };
 
   useEffect(() => {

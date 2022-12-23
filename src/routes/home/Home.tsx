@@ -18,6 +18,7 @@ import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const newsPostPopoverOptions = ['Report'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -97,6 +98,8 @@ function Home() {
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
             likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
             rssfeedProviderId: data.rssfeedProviderId._id,
           };
         });
@@ -131,20 +134,41 @@ function Home() {
 
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
-      const newPosts = res.data.map((data: any) => ({
-        _id: data._id,
-        id: data._id,
-        postDate: data.createdAt,
-        content: data.message,
-        images: formatImageVideoList(data.images, data.message),
-        userName: data.userId.userName,
-        profileImage: data.userId.profilePic,
-        userId: data.userId.userId,
-        likes: data.likes,
-        likeIcon: data.likes.includes(loginUserId),
-        likeCount: data.likeCount,
-        commentCount: data.commentCount,
-      }));
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: formatImageVideoList(data.images, data.message),
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          content: data.message,
+          images: formatImageVideoList(data.images, data.message),
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
       setPosts(newPosts);
     });
   };
@@ -207,6 +231,7 @@ function Home() {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
+              newsPostPopoverOptions={newsPostPopoverOptions}
               onLikeClick={onLikeClick}
             />
           )

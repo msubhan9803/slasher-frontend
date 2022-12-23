@@ -46,6 +46,7 @@ interface Props {
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
   isNewsPartnerPost?: boolean;
+  newsPostPopoverOptions?: string[];
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -79,7 +80,7 @@ function PostFeed({
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, isNewsPartnerPost,
+  loadingPosts, onLikeClick, isNewsPartnerPost, newsPostPopoverOptions,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -118,6 +119,16 @@ function PostFeed({
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
   };
 
+  const showPopoverOption = (postDetail: any) => {
+    if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
+      return newsPostPopoverOptions;
+    }
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+      return otherUserPopoverOptions!;
+    }
+    return popoverOptions;
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -130,8 +141,7 @@ function PostFeed({
                 userName={post.userName || post.title}
                 postDate={post.postDate}
                 profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId && loginUserId !== post.userId
-                  ? otherUserPopoverOptions! : popoverOptions}
+                popoverOptions={showPopoverOption(post)}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
@@ -281,5 +291,6 @@ PostFeed.defaultProps = {
   loadingPosts: false,
   onLikeClick: undefined,
   isNewsPartnerPost: false,
+  newsPostPopoverOptions: [],
 };
 export default PostFeed;

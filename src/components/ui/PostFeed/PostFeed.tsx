@@ -130,7 +130,7 @@ function PostFeed({
                 userName={post.userName || post.title}
                 postDate={post.postDate}
                 profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
+                popoverOptions={post.userId && loginUserId !== post.userId
                   ? otherUserPopoverOptions! : popoverOptions}
                 onPopoverClick={onPopoverClick}
                 content={post.content}

@@ -45,12 +45,12 @@ function Conversation() {
 
   useEffect(() => {
     if (conversationId) {
+      setRecentMessageList([]);
       getMatchIdDetail(conversationId).then((res) => {
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
         setRequestAdditionalPosts(true);
-        setRecentMessageList([]);
       });
     }
   }, [conversationId]);

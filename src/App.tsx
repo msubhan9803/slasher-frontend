@@ -30,11 +30,12 @@ import useGoogleAnalytics from './utils/useGoogleAnalytics';
 // import Places from './routes/places/Places';
 // import Podcasts from './routes/podcasts/Podcasts';
 
-const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS || 'G-NWPS6ZB302'; // Temporary.
+const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
-  useGoogleAnalytics(analyticsId);
+
+  if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
   return (
     <Routes>

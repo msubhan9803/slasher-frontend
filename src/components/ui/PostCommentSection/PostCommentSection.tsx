@@ -16,6 +16,7 @@ import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
+import { createBlockUser } from '../../../api/blocks';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -76,6 +77,8 @@ function PostCommentSection({
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
+  const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
+
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -176,6 +179,10 @@ function PostCommentSection({
     setCommentReplyID('');
     setEditContent(popoverData.content);
 
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
       // setShowEdit(true);
@@ -190,6 +197,11 @@ function PostCommentSection({
     setCommentReplyID(popoverData.id);
     setCommentID('');
     setEditContent(popoverData.content);
+
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
       // setShowEdit(true);
@@ -236,6 +248,15 @@ function PostCommentSection({
     setLoadMoreId(loadId);
     setNext(next + loadMore);
     setIsReply(false);
+  };
+
+  const onBlockYesClick = () => {
+    createBlockUser(commentReplyUserId)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -339,6 +360,7 @@ function PostCommentSection({
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
                     likeCount={data.likeCount}
+                    userId={data.userId?._id}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
@@ -372,6 +394,7 @@ function PostCommentSection({
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
                                 likeCount={comment.likeCount}
+                                userId={comment.userId?._id}
                               />
                             </div>
                           ))}
@@ -473,6 +496,7 @@ function PostCommentSection({
         slectedDropdownValue={dropDownValue}
         setDeleteComment={setDeleteComment}
         setDeleteCommentReply={setDeleteCommentReply}
+        onBlockYesClick={onBlockYesClick}
       />
       {
         isEdit

@@ -16,6 +16,7 @@ import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { createBlockUser } from '../../../api/blocks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -45,6 +46,7 @@ function ProfilePosts() {
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const loginUserName = Cookies.get('userName');
+  const [postUserId, setPostUserId] = useState<string>('');
 
   // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
@@ -62,6 +64,9 @@ function ProfilePosts() {
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShowReportModal(true);
     setDropDownValue(value);
@@ -174,6 +179,17 @@ function ProfilePosts() {
       });
     }
   };
+
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShowReportModal(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
@@ -223,6 +239,7 @@ function ProfilePosts() {
             show={showReportModal}
             setShow={setShowReportModal}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
           />
         )}
       {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}

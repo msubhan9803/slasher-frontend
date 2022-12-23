@@ -15,6 +15,7 @@ import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
+import { createBlockUser } from '../../api/blocks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -31,6 +32,7 @@ function Home() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
+  const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -38,6 +40,9 @@ function Home() {
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShow(true);
     setDropDownValue(value);
@@ -205,6 +210,16 @@ function Home() {
     }
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <CustomCreatePost />
@@ -247,6 +262,7 @@ function Home() {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
           />
         )}
       {dropDownValue === 'Edit'

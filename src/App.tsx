@@ -24,7 +24,7 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
-import useGoogleAnalytics from './utils/useGoogleAnalytics';
+import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';

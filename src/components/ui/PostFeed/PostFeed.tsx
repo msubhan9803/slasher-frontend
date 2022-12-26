@@ -45,7 +45,7 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
-  isNewsPartnerPost?: boolean;
+  escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
 }
@@ -81,7 +81,7 @@ function PostFeed({
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, isNewsPartnerPost, loadNewerComment, previousCommentsAvailable,
+  loadingPosts, onLikeClick, escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -135,7 +135,7 @@ function PostFeed({
               <div>
                 <Content dangerouslySetInnerHTML={
                   {
-                    __html: isNewsPartnerPost
+                    __html: !escapeHtml
                       ? post.content
                       : linkifyHtml(decryptMessage(replaceHtmlToText(post.content))),
                   }
@@ -263,7 +263,7 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
-  isNewsPartnerPost: false,
+  escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
 };

@@ -332,7 +332,7 @@ function NewsPartnerPost() {
             noMoreData={noMoreData}
             loadingPosts={loadingComments}
             onLikeClick={onLikeClick}
-            isNewsPartnerPost
+            escapeHtml={false}
             loadNewerComment={loadNewerComment}
             previousCommentsAvailable={previousCommentsAvailable}
           />

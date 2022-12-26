@@ -71,7 +71,7 @@ function ProfileFriends({ user }: Props) {
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  }, [search]);
+  }, [search, user]);
 
   const fetchMoreFriendList = () => {
     if (page > 0) {

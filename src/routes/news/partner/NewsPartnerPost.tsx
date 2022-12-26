@@ -49,7 +49,7 @@ function NewsPartnerPost() {
         id: res.data._id,
         postDate: res.data.createdAt,
         title: res.data.rssfeedProviderId?.title,
-        content: res.data.message,
+        content: res.data.rssFeedId ? res.data.rssFeedId.content : res.data.message,
         images: res.data.images,
         rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
         commentCount: res.data.commentCount,

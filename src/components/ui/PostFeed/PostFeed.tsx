@@ -132,7 +132,7 @@ function PostFeed({
             <Card.Body className="px-0 pt-3">
               <div>
                 <Content dangerouslySetInnerHTML={
-                  { __html: linkifyHtml(decryptMessage(post.content)) }
+                  { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
                 }
                 />
                 {post.hashTag?.map((hashtag: string) => (

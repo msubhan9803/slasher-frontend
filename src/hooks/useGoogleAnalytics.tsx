@@ -32,7 +32,6 @@ const useGoogleAnalytics = (analyticsId: string) => {
     gtag('js', new Date()); // necessary
     gtag('config', analyticsId); // necessary
 
-    // console.log('event sent for path?', path); // USE THIS TO TEST THE ACTUALY SENDING OF EVENT.
     gtag('event', 'page_view', {
       page_location: path,
       page_title: document.title,

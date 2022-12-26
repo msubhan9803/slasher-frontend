@@ -14,14 +14,14 @@ interface RecentMessage {
 }
 
 function RecentMessages() {
-  const recentMessageDetails = useAppSelector((state) => state.user.recentMessages);
+  const recentMessages = useAppSelector((state) => state.user.recentMessages);
   const userId = Cookies.get('userId');
   return (
     <div className="mt-5">
       <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/messages" />
       <UserMessageList className="mb-4">
-        {recentMessageDetails && recentMessageDetails.length > 0
-          && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (
+        {recentMessages && recentMessages.length > 0
+          && recentMessages.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
               /* eslint no-underscore-dangle: 0 */
               key={recentMessageDetail._id}

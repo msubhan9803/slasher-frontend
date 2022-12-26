@@ -3,7 +3,7 @@ import {
   Controller, HttpException, HttpStatus, Post, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ReportAndUnreportService } from './providers/reports.service';
+import { ReportAndUnreportService } from './providers/report-and-unreports.service';
 import { getUserFromRequest } from '../utils/request-utils';
 import { CreateReportDto } from './dto/create-report.dto';
 import { ReportReaction } from '../schemas/reportAndUnreport/reportAndUnreport.enums';

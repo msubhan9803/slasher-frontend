@@ -7,7 +7,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { UsersService } from '../../users/providers/users.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
-import { ReportAndUnreportService } from './reports.service';
+import { ReportAndUnreportService } from './report-and-unreports.service';
 import { ReportReaction } from '../../schemas/reportAndUnreport/reportAndUnreport.enums';
 
 describe('ReportAndUnreportService', () => {

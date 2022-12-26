@@ -13,7 +13,7 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
-import { ReportAndUnreportService } from '../../../src/reports/providers/reports.service';
+import { ReportAndUnreportService } from '../../../src/reports/providers/report-and-unreports.service';
 import { ReportAndUnreport, ReportAndUnreportDocument } from '../../../src/schemas/reportAndUnreport/reportAndUnreport.schema';
 import { MailService } from '../../../src/providers/mail.service';
 

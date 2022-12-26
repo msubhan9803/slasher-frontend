@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ReportAndUnreport, ReportAndUnreportSchema } from '../schemas/reportAndUnreport/reportAndUnreport.schema';
-import { ReportAndUnreportService } from './providers/reports.service';
+import { ReportAndUnreportService } from './providers/report-and-unreports.service';
 import { ReportsController } from './reports.controller';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { FeedCommentsModule } from '../feed-comments/feed-comments.module';

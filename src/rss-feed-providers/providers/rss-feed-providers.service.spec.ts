@@ -6,7 +6,11 @@ import { AppModule } from '../../app.module';
 import { RssFeedProvidersService } from './rss-feed-providers.service';
 import { RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
-import { RssFeedProviderActiveStatus } from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
+import {
+  RssFeedProviderActiveStatus,
+  RssFeedProviderAutoFollow,
+  RssFeedProviderDeletionStatus,
+} from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 describe('RssFeedProvidersService', () => {
@@ -116,6 +120,25 @@ describe('RssFeedProvidersService', () => {
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
+    });
+  });
+
+  describe('#findAllRssFeedProvider', () => {
+    it('finds all expected rss feed provider details', async () => {
+      for (let i = 0; i < 3; i += 1) {
+        await rssFeedProvidersService.create(rssFeedProviderFactory.build({
+          auto_follow: RssFeedProviderAutoFollow.Yes,
+          status: RssFeedProviderActiveStatus.Active,
+          deleted: RssFeedProviderDeletionStatus.NotDeleted,
+        }));
+        await rssFeedProvidersService.create(rssFeedProviderFactory.build({
+          auto_follow: RssFeedProviderAutoFollow.No,
+          status: RssFeedProviderActiveStatus.Active,
+          deleted: RssFeedProviderDeletionStatus.Deleted,
+        }));
+      }
+      const rssFeedProvidersDetails = await rssFeedProvidersService.findAllRssFeedProvider();
+      expect(rssFeedProvidersDetails).toHaveLength(3);
     });
   });
 });

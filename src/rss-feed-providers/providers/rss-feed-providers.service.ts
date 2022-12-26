@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { RssFeedProvider, RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
-import { RssFeedProviderActiveStatus, RssFeedProviderDeletionStatus } from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
+import {
+  RssFeedProviderActiveStatus,
+  RssFeedProviderAutoFollow,
+  RssFeedProviderDeletionStatus,
+} from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
 
 @Injectable()
 export class RssFeedProvidersService {
@@ -44,6 +48,16 @@ export class RssFeedProvidersService {
     return this.rssFeedProviderModel.find(rssFeedProviderFindAllQuery)
       .sort({ sortTitle: 1 })
       .limit(limit)
+      .exec();
+  }
+
+  async findAllRssFeedProvider(): Promise<RssFeedProviderDocument[]> {
+    return this.rssFeedProviderModel
+      .find({
+        auto_follow: RssFeedProviderAutoFollow.Yes,
+        status: RssFeedProviderActiveStatus.Active,
+        deleted: RssFeedProviderDeletionStatus.NotDeleted,
+      })
       .exec();
   }
 }

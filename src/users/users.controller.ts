@@ -56,6 +56,8 @@ import { ChatService } from '../chat/providers/chat.service';
 import { DeleteAccountQueryDto } from './dto/delete-account-query.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { BlocksService } from '../blocks/providers/blocks.service';
+import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
+import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 
 @Controller('users')
 export class UsersController {
@@ -70,6 +72,8 @@ export class UsersController {
     private readonly userSettingsService: UserSettingsService,
     private readonly chatService: ChatService,
     private readonly blocksService: BlocksService,
+    private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
+    private readonly rssFeedProvidersService: RssFeedProvidersService,
   ) { }
 
   @Post('sign-in')
@@ -268,6 +272,13 @@ export class UsersController {
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
     await userDetails.save();
+    const rssFeedProvider = await this.rssFeedProvidersService.findAllRssFeedProvider();
+    rssFeedProvider.forEach((rssfeed) => {
+      this.rssFeedProviderFollowsService.create({
+        rssfeedProviderId: rssfeed._id,
+        userId: userDetails._id,
+      });
+    });
     return {
       success: true,
     };

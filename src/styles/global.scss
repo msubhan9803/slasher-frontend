@@ -33,11 +33,7 @@ html {
   // Ideally, this is the only place where we want to set a pixel font size.
   // Everything else will be in rems (relative to this base size)
   // or ems (relative to parent element font size).
-  font-size: 14px;
-
-  @media (min-width: 992px) {
-    font-size: 15px;
-  }
+  font-size: 15px;
 }
 
 body {

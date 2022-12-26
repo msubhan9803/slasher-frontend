@@ -272,10 +272,10 @@ export class UsersController {
     userDetails.status = ActiveStatus.Active;
     userDetails.verification_token = null;
     await userDetails.save();
-    const rssFeedProvider = await this.rssFeedProvidersService.findAllRssFeedProvider();
-    rssFeedProvider.forEach((rssfeed) => {
+    const autoFollowRssFeedProviders = await this.rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
+    autoFollowRssFeedProviders.forEach((rssFeedProvider) => {
       this.rssFeedProviderFollowsService.create({
-        rssfeedProviderId: rssfeed._id,
+        rssfeedProviderId: rssFeedProvider._id,
         userId: userDetails._id,
       });
     });

@@ -76,20 +76,21 @@ describe('Users activate account (e2e)', () => {
     });
 
     describe('Email and verification_token existence cases', () => {
-      it('when email and verification_token both exist, it returns the expected response', async () => {
-        const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
-          .send(postBody);
-        const rssFeedProviderData = (await rssFeedProvidersService.findAllRssFeedProvider())
-          .map((rssFeedProviderId) => rssFeedProviderId._id);
-        const rssFeedProviderFollowData = await rssFeedProvidersFollowModel.find({
-          rssfeedProviderId: { $in: rssFeedProviderData },
-          userId: user._id,
+      it('when email and verification_token both exist, it successfully activates, creates '
+        + 'the expected RssFeedProviderFollow records, and returns the expected response', async () => {
+          const response = await request(app.getHttpServer())
+            .post('/users/activate-account')
+            .send(postBody);
+          const idsForExpectedRssFeedProvidersToFollow = (await rssFeedProvidersService.findAllAutoFollowRssFeedProviders())
+            .map((rssFeedProviderId) => rssFeedProviderId._id);
+          const rssFeedProviderFollowData = await rssFeedProvidersFollowModel.find({
+            rssfeedProviderId: { $in: idsForExpectedRssFeedProvidersToFollow },
+            userId: user._id,
+          });
+          expect(response.status).toEqual(HttpStatus.CREATED);
+          expect(rssFeedProviderFollowData).toHaveLength(3);
+          expect(response.body).toEqual({ success: true });
         });
-        expect(response.status).toEqual(HttpStatus.CREATED);
-        expect(rssFeedProviderFollowData).toHaveLength(3);
-        expect(response.body).toEqual({ success: true });
-      });
 
       it('when email does not exist, but verification_token does exist, it returns the expected response', async () => {
         postBody.email = 'usertestuser@gmail.com';

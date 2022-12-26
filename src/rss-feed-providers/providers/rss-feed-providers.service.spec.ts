@@ -123,8 +123,8 @@ describe('RssFeedProvidersService', () => {
     });
   });
 
-  describe('#findAllRssFeedProvider', () => {
-    it('finds all expected rss feed provider details', async () => {
+  describe('#findAllAutoFollowRssFeedProviders', () => {
+    it('finds all active, non-deleted RssFeedProviders that have auto_follow set to RssFeedProviderAutoFollow.Yes', async () => {
       for (let i = 0; i < 3; i += 1) {
         await rssFeedProvidersService.create(rssFeedProviderFactory.build({
           auto_follow: RssFeedProviderAutoFollow.Yes,
@@ -137,7 +137,7 @@ describe('RssFeedProvidersService', () => {
           deleted: RssFeedProviderDeletionStatus.Deleted,
         }));
       }
-      const rssFeedProvidersDetails = await rssFeedProvidersService.findAllRssFeedProvider();
+      const rssFeedProvidersDetails = await rssFeedProvidersService.findAllAutoFollowRssFeedProviders();
       expect(rssFeedProvidersDetails).toHaveLength(3);
     });
   });

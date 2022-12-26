@@ -51,7 +51,7 @@ export class RssFeedProvidersService {
       .exec();
   }
 
-  async findAllRssFeedProvider(): Promise<RssFeedProviderDocument[]> {
+  async findAllAutoFollowRssFeedProviders(): Promise<RssFeedProviderDocument[]> {
     return this.rssFeedProviderModel
       .find({
         auto_follow: RssFeedProviderAutoFollow.Yes,

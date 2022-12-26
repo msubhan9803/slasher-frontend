@@ -12,7 +12,7 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
-import { Post } from '../../../types';
+import { CommentValue, Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -25,15 +25,14 @@ interface LinearIconProps {
 }
 
 interface Props {
-  popoverOptions: string[],
-  postFeedData: any[],
-  commentsData?: any[],
-  isCommentSection?: boolean,
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  setCommentValue?: (value: string) => void,
-  detailPage?: boolean
-  setfeedImageArray?: (value: any[]) => void
-  setDeleteComment?: (value: boolean) => void
+  popoverOptions: string[];
+  postFeedData: any[];
+  commentsData?: any[];
+  isCommentSection?: boolean;
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
+  setCommentValue?: (value: CommentValue) => void;
+  detailPage?: boolean;
+  removeComment?: () => void;
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
   commentID?: string;
@@ -47,6 +46,8 @@ interface Props {
   onLikeClick?: (value: string) => void;
   isNewsPartnerPost?: boolean;
   newsPostPopoverOptions?: string[];
+  loadNewerComment?: () => void;
+  previousCommentsAvailable?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -77,10 +78,11 @@ const decryptMessage = (content: string) => {
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
-  setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
+  setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
   loadingPosts, onLikeClick, isNewsPartnerPost, newsPostPopoverOptions,
+  loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -90,7 +92,6 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
-    // const likeData = postFeedData.includes
     setPostData(postFeedData);
   }, [postFeedData]);
 
@@ -227,7 +228,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad
+                    initialLoad={false}
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}
@@ -238,8 +239,7 @@ function PostFeed({
                       commentImage={post.profileImage}
                       popoverOption={popoverOptions}
                       setCommentValue={setCommentValue}
-                      setfeedImageArray={setfeedImageArray}
-                      setDeleteComment={setDeleteComment}
+                      removeComment={removeComment}
                       setCommentID={setCommentID}
                       setCommentReplyID={setCommentReplyID}
                       commentID={commentID}
@@ -249,6 +249,8 @@ function PostFeed({
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
+                      loadNewerComment={loadNewerComment}
+                      previousCommentsAvailable={previousCommentsAvailable}
                     />
                   </InfiniteScroll>
                   {loadingPosts && renderLoadingIndicator()}
@@ -275,22 +277,23 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
-  setCommentValue: () => { },
+  setCommentValue: undefined,
   commentsData: [],
-  setfeedImageArray: () => { },
-  setDeleteComment: () => { },
-  setCommentID: () => { },
-  setCommentReplyID: () => { },
+  removeComment: undefined,
+  setCommentID: undefined,
+  setCommentReplyID: undefined,
   commentID: '',
   commentReplyID: '',
   otherUserPopoverOptions: [],
-  setIsEdit: () => { },
+  setIsEdit: undefined,
   isEdit: false,
-  setRequestAdditionalPosts: () => { },
+  setRequestAdditionalPosts: undefined,
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
   isNewsPartnerPost: false,
   newsPostPopoverOptions: [],
+  loadNewerComment: undefined,
+  previousCommentsAvailable: false,
 };
 export default PostFeed;

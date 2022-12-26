@@ -10,10 +10,9 @@ interface Props {
   slectedDropdownValue: string;
   onConfirmClick?: () => void | undefined;
   deleteText?: string;
-  setDeleteComment?: (value: boolean) => void;
-  setDeleteCommentReply?: (value: boolean) => void;
   onBlockYesClick?: () => void | undefined;
-  handleReport?: (value: string) => void | undefined;
+  handleReport?: (value: string) => void;
+  removeComment?: () => void;
 }
 const StyledTextarea = styled(Form)`
   .form-control {
@@ -21,9 +20,8 @@ const StyledTextarea = styled(Form)`
   }
 `;
 function ReportModal({
-  show, setShow, slectedDropdownValue, setDeleteComment,
-  setDeleteCommentReply, onConfirmClick, deleteText, onBlockYesClick,
-  handleReport,
+  show, setShow, slectedDropdownValue, onConfirmClick, deleteText, onBlockYesClick,
+  handleReport, removeComment,
 }: Props) {
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<string>('');
@@ -33,8 +31,7 @@ function ReportModal({
     setShow(false);
   };
   const removeData = () => {
-    if (setDeleteComment) setDeleteComment(true);
-    if (setDeleteCommentReply) setDeleteCommentReply(true);
+    if (removeComment) removeComment();
     if (onConfirmClick) onConfirmClick();
     closeModal();
   };
@@ -125,10 +122,9 @@ function ReportModal({
 ReportModal.defaultProps = {
   onConfirmClick: undefined,
   deleteText: 'Are you sure you want to delete?',
-  setDeleteComment: () => { },
-  setDeleteCommentReply: () => { },
   onBlockYesClick: undefined,
   handleReport: undefined,
+  removeComment: undefined,
 };
 
 export default ReportModal;

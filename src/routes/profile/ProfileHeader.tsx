@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import postImage from '../../images/about-post.jpg';
-import CustomPopover from '../../components/ui/CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../../components/ui/CustomPopover';
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
 import { User, FriendRequestReaction } from '../../types';
@@ -17,6 +17,7 @@ import {
   acceptFriendsRequest, addFriend, friendship, rejectFriendsRequest,
 } from '../../api/friends';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
+import { createBlockUser } from '../../api/blocks';
 
 interface Props {
   tabKey: string;
@@ -59,8 +60,13 @@ function ProfileHeader({ tabKey, user }: Props) {
   const loginUserId = Cookies.get('userId');
   const { userName } = useParams();
   const navigate = useNavigate();
+  const [clickedUserId, setClickedUserId] = useState<string>('');
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.userId) {
+      setClickedUserId(popoverClickProps.userId);
+    }
+
     setShow(true);
     setDropDownValue(value);
   };
@@ -98,6 +104,15 @@ function ProfileHeader({ tabKey, user }: Props) {
     }
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(clickedUserId)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       {tabKey === 'about'
@@ -117,6 +132,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                       <CustomPopover
                         popoverOptions={popoverOption}
                         onPopoverClick={handlePopoverOption}
+                        userId={user?.id}
                       />
                     </StyledPopoverContainer>
                   )}
@@ -154,6 +170,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                           <CustomPopover
                             popoverOptions={popoverOption}
                             onPopoverClick={handlePopoverOption}
+                            userId={user?.id}
                           />
                         </StyledPopoverContainer>
                       </div>
@@ -198,6 +215,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                     <CustomPopover
                       popoverOptions={popoverOption}
                       onPopoverClick={handlePopoverOption}
+                      userId={user?.id}
                     />
                   </div>
                 )}
@@ -206,7 +224,12 @@ function ProfileHeader({ tabKey, user }: Props) {
         )}
       <StyledBorder className="d-md-block d-none" />
       <TabLinks tabLink={tabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        onBlockYesClick={onBlockYesClick}
+      />
     </div>
   );
 }

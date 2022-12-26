@@ -15,9 +15,11 @@ import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
+import { createBlockUser } from '../../api/blocks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const newsPostPopoverOptions = ['Report'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -30,6 +32,7 @@ function Home() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
+  const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -37,6 +40,9 @@ function Home() {
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShow(true);
     setDropDownValue(value);
@@ -97,6 +103,9 @@ function Home() {
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
             likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            rssfeedProviderId: data.rssfeedProviderId._id,
           };
         });
         setPosts((prev: Post[]) => [
@@ -130,20 +139,41 @@ function Home() {
 
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
-      const newPosts = res.data.map((data: any) => ({
-        _id: data._id,
-        id: data._id,
-        postDate: data.createdAt,
-        content: data.message,
-        images: formatImageVideoList(data.images, data.message),
-        userName: data.userId.userName,
-        profileImage: data.userId.profilePic,
-        userId: data.userId.userId,
-        likes: data.likes,
-        likeIcon: data.likes.includes(loginUserId),
-        likeCount: data.likeCount,
-        commentCount: data.commentCount,
-      }));
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: formatImageVideoList(data.images, data.message),
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          content: data.message,
+          images: formatImageVideoList(data.images, data.message),
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
       setPosts(newPosts);
     });
   };
@@ -180,6 +210,16 @@ function Home() {
     }
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <CustomCreatePost />
@@ -206,6 +246,7 @@ function Home() {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
+              newsPostPopoverOptions={newsPostPopoverOptions}
               onLikeClick={onLikeClick}
             />
           )
@@ -221,6 +262,7 @@ function Home() {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
           />
         )}
       {dropDownValue === 'Edit'

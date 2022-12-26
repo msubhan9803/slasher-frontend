@@ -45,6 +45,8 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  isNewsPartnerPost?: boolean;
+  newsPostPopoverOptions?: string[];
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -78,7 +80,7 @@ function PostFeed({
   setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick,
+  loadingPosts, onLikeClick, isNewsPartnerPost, newsPostPopoverOptions,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -110,6 +112,23 @@ function PostFeed({
     <p className="text-center">Loading...</p>
   );
 
+  const imageLinkUrl = (post: any, imageId: string) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+    }
+    return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const showPopoverOption = (postDetail: any) => {
+    if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
+      return newsPostPopoverOptions;
+    }
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+      return otherUserPopoverOptions!;
+    }
+    return popoverOptions;
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -122,17 +141,26 @@ function PostFeed({
                 userName={post.userName || post.title}
                 postDate={post.postDate}
                 profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
-                  ? otherUserPopoverOptions! : popoverOptions}
+                popoverOptions={showPopoverOption(post)}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
+                rssfeedProviderId={post.rssfeedProviderId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
               <div>
                 <Content dangerouslySetInnerHTML={
-                  { __html: linkifyHtml(decryptMessage(post.content)) }
+                  {
+                    __html: isNewsPartnerPost
+                      ? post.content
+                      : linkifyHtml(decryptMessage(post.content
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll("'", '&#039;'))),
+                  }
                 }
                 />
                 {post.hashTag?.map((hashtag: string) => (
@@ -148,7 +176,7 @@ function PostFeed({
                     post.images.map((imageData: any) => ({
                       videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                       postId: post.id,
                       imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
@@ -165,7 +193,12 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                  <Link
+                    to={post.rssfeedProviderId
+                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`
+                      : `/${post.userName}/posts/${post.id}`}
+                    className="text-decoration-none"
+                  >
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
                   </Link>
@@ -257,5 +290,7 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  isNewsPartnerPost: false,
+  newsPostPopoverOptions: [],
 };
 export default PostFeed;

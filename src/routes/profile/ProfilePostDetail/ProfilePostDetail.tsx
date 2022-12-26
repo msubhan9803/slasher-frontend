@@ -13,11 +13,13 @@ import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/fee
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EditPostModal from '../../../components/ui/EditPostModal';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import { Post, User } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { reportData } from '../../../api/report';
+import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -49,10 +51,12 @@ function ProfilePostDetail({ user }: Props) {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(value);
+    setPopoverClick(popoverClickProps);
   };
 
   const decryptMessage = (content: string) => {
@@ -74,7 +78,7 @@ function ProfilePostDetail({ user }: Props) {
   const feedComments = (feedPostId: string, comment: any) => {
     setNoMoreData(false);
     setCommentData(comment);
-    const data = comment.length > 1 ? comment[comment.length - 1]._id : undefined;
+    const data = comment.length > 0 ? comment[comment.length - 1]._id : undefined;
     getFeedComments(
       feedPostId,
       data,
@@ -334,6 +338,21 @@ function ProfilePostDetail({ user }: Props) {
       onCommentLike(feedId);
     }
   };
+
+  const reportProfilePost = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) getFeedPostDetail(postId!);
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
@@ -371,6 +390,7 @@ function ProfilePostDetail({ user }: Props) {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            handleReport={reportProfilePost}
           />
         )}
       {dropDownValue === 'Edit'

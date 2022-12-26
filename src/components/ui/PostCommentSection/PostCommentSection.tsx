@@ -17,6 +17,7 @@ import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -259,6 +260,19 @@ function PostCommentSection({
       .catch((error) => console.error(error));
   };
 
+  const handleCommentReplyReport = (reason: string) => {
+    const reportPayload = {
+      targetId: commentID || commentReplyID,
+      reason,
+      reportType: commentID ? 'comment' : 'reply',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <>
       <Form>
@@ -497,6 +511,7 @@ function PostCommentSection({
         setDeleteComment={setDeleteComment}
         setDeleteCommentReply={setDeleteCommentReply}
         onBlockYesClick={onBlockYesClick}
+        handleReport={handleCommentReplyReport}
       />
       {
         isEdit

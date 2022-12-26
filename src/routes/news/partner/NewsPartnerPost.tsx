@@ -16,6 +16,8 @@ import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { reportData } from '../../../api/report';
 
 function NewsPartnerPost() {
   const { partnerId, postId } = useParams<string>();
@@ -36,6 +38,10 @@ function NewsPartnerPost() {
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+
+  const loginUserPopoverOptions = ['Edit', 'Delete'];
+  const otherUserPopoverOptions = ['Report', 'Block user'];
 
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
@@ -72,9 +78,10 @@ function NewsPartnerPost() {
     }
   }, [postId]);
 
-  const handlePopover = (selectedOption: string) => {
+  const handlePopover = (selectedOption: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(selectedOption);
+    setPopoverClick(popoverClickProps);
   };
 
   const feedComments = (feedPostId: string, comment: any) => {
@@ -245,6 +252,20 @@ function NewsPartnerPost() {
     }
   };
 
+  const reportNewsPost = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedComments(postId!);
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <Row className="mb-5 px-2">
@@ -257,7 +278,7 @@ function NewsPartnerPost() {
           <PostFeed
             detailPage
             postFeedData={postData}
-            popoverOptions={popoverOption}
+            popoverOptions={loginUserPopoverOptions}
             onPopoverClick={handlePopover}
             isCommentSection
             setCommentValue={setCommentValue}
@@ -275,10 +296,17 @@ function NewsPartnerPost() {
             loadingPosts={loadingPosts}
             onLikeClick={onLikeClick}
             isNewsPartnerPost
+            newsPostPopoverOptions={popoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
           />
         </Col>
       </Row>
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportNewsPost}
+      />
     </AuthenticatedPageWrapper>
   );
 }

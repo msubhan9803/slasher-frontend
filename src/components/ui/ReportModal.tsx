@@ -13,6 +13,7 @@ interface Props {
   setDeleteComment?: (value: boolean) => void;
   setDeleteCommentReply?: (value: boolean) => void;
   onBlockYesClick?: () => void | undefined;
+  handleReport?: (value: string) => void | undefined;
 }
 const StyledTextarea = styled(Form)`
   .form-control {
@@ -22,9 +23,10 @@ const StyledTextarea = styled(Form)`
 function ReportModal({
   show, setShow, slectedDropdownValue, setDeleteComment,
   setDeleteCommentReply, onConfirmClick, deleteText, onBlockYesClick,
+  handleReport,
 }: Props) {
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
-  const [reports, setReports] = useState<Set<string>>(new Set<string>());
+  const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
 
   const closeModal = () => {
@@ -38,15 +40,21 @@ function ReportModal({
   };
 
   const reportChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked, value } = e.target;
-    const newSet = new Set<string>(reports);
-    if (checked) { newSet.add(value); } else { newSet.delete(value); }
-    setReports(newSet);
+    const { value } = e.target;
+    setReports(value);
   };
 
   const handleClickModal = () => {
     if (onBlockYesClick) onBlockYesClick();
     closeModal();
+  };
+
+  const handleReportData = () => {
+    const reason = reports === 'Other' ? otherReport : reports;
+    if (reason) {
+      if (handleReport) handleReport(reason);
+      closeModal();
+    }
   };
 
   return (
@@ -84,27 +92,29 @@ function ReportModal({
               {blockOptions.map((label: string, index: number) => (
                 <Form.Check
                   key={label}
-                  type="checkbox"
+                  type="radio"
                   id={`report-${index}`}
-                  checked={reports.has(label)}
+                  checked={reports === label}
                   className="mb-2"
                   label={label}
                   value={label}
                   onChange={reportChangeHandler}
                 />
               ))}
-              {reports.has('Other') && (
+              {reports === 'Other' && (
                 <Form.Control
                   rows={4}
                   as="textarea"
                   value={otherReport}
+                  // onChange={reportChangeHandler}
                   onChange={(other) => setOtherReport(other.target.value)}
                   placeholder="Please describe the issue"
                   className="mt-3"
+                  maxLength={1000}
                 />
               )}
             </StyledTextarea>
-            <RoundButton className="mb-3 w-100">Send report</RoundButton>
+            <RoundButton className="mb-3 w-100" onClick={handleReportData}>Send report</RoundButton>
             <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel report</RoundButton>
           </Modal.Body>
         )
@@ -118,6 +128,7 @@ ReportModal.defaultProps = {
   setDeleteComment: () => { },
   setDeleteCommentReply: () => { },
   onBlockYesClick: undefined,
+  handleReport: undefined,
 };
 
 export default ReportModal;

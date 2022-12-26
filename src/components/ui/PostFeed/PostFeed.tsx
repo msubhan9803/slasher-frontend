@@ -19,6 +19,8 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import PubWiseAd from '../PubWiseAd';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -74,6 +76,15 @@ const decryptMessage = (content: string) => {
   return found;
 };
 
+/* (IGNORE THIS as this is supposed to be removed on doing PR) */
+/* let arr = ["hello", "nice", "stack", "hi", "question", "random"]
+let interval = 2
+let word = 'cat'
+let result = arr.flatMap((w,i) => (i+1) % interval === 0 ? [w, word] : w);
+console.log(result); */
+
+/* const interval = 3; */
+
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   setCommentValue, commentsData, removeComment,
@@ -87,6 +98,7 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
+  const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -112,6 +124,9 @@ function PostFeed({
 
   return (
     <StyledPostFeed>
+      { isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web" key="Event-detail_web" /> }
+      { isSlotsDefined && <PubWiseAd className="text-center my-3" id="Timeline_web" key="Timeline_web" /> }
+
       {postData.map((post: any) => (
         <div key={post.id} className="post">
           <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">

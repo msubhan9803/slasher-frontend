@@ -25,6 +25,7 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import useGoogleAnalytics from './hooks/useGoogleAnalytics';
+import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -36,6 +37,7 @@ function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
 
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  usePubWiseAdSlots();
 
   return (
     <Routes>

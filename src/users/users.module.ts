@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
-import { MailService } from '../providers/mail.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
@@ -15,6 +14,7 @@ import { ChatModule } from '../chat/chat.module';
 import { BlocksModule } from '../blocks/blocks.module';
 import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers.module';
+import { MailModule } from '../providers/mail.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -30,9 +30,10 @@ import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers
     BlocksModule,
     RssFeedProviderFollowsModule,
     RssFeedProvidersModule,
+    MailModule,
   ],
   controllers: [UsersController],
-  providers: [UsersService, MailService, LocalStorageService, S3StorageService],
+  providers: [UsersService, LocalStorageService, S3StorageService],
   exports: [UsersService],
 })
 export class UsersModule { }

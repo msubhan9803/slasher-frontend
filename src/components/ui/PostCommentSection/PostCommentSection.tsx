@@ -240,6 +240,16 @@ function PostCommentSection({
     setIsReply(false);
   };
 
+  const loadMoreReply = (data: any) => {
+    if (data.id === queryCommentId) {
+      return data.commentReplySection.length;
+    }
+    if (loadMoreId === data.id) {
+      return next;
+    }
+    return 2;
+  };
+
   return (
     <>
       <Form>
@@ -358,7 +368,7 @@ function PostCommentSection({
                     <div className="ms-md-4">
                       {data.commentReplySection && data.commentReplySection.length > 0
                         && data.commentReplySection
-                          .slice(0, loadMoreId === data.id ? next : 2)
+                          .slice(0, loadMoreReply(data))
                           .map((comment: any) => (
                             <div key={comment.id}>
                               <CommentSection
@@ -394,6 +404,7 @@ function PostCommentSection({
                         && data.commentReplySection.length > 2
                         && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
                           && next >= data.commentReplySection.length)
+                        && (data.commentReplySection[0]?.feedCommentId !== queryCommentId)
                         && (
                           <div className="text-center">
                             <Button

@@ -135,9 +135,9 @@ function PostFeed({
               <div>
                 <Content dangerouslySetInnerHTML={
                   {
-                    __html: !escapeHtml
-                      ? post.content
-                      : linkifyHtml(decryptMessage(replaceHtmlToText(post.content))),
+                    __html: escapeHtml
+                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
+                      : post.content,
                   }
                 }
                 />

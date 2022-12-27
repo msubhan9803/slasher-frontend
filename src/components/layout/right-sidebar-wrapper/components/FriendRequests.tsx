@@ -14,6 +14,7 @@ interface FriendRequest {
 
 function FriendRequests() {
   const recentFriendRequests = useAppSelector((state) => state.user.recentFriendRequests);
+  const loginUserName = useAppSelector((state) => state.user.user.userName);
   const dispatch = useAppDispatch();
 
   const handleAcceptRequest = (userId: string) => {
@@ -30,7 +31,7 @@ function FriendRequests() {
   };
   return (
     <div className="mt-5">
-      <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo="/" />
+      <SidebarHeaderWithLink headerLabel="Friend requests" linkLabel="View All" linkTo={`/${loginUserName}/friends/request`} />
       {recentFriendRequests && recentFriendRequests.length > 0
         && recentFriendRequests.map((request: FriendRequest, i: number) => (
           <FriendRequestItem

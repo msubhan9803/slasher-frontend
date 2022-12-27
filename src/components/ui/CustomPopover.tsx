@@ -2,14 +2,11 @@ import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  OverlayTrigger, Popover, Image,
+  OverlayTrigger, Popover,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import UserCircleImage from './UserCircleImage';
 
-const UserCircle = styled(Image)`
-  width: 2rem;
-  height: 2rem;
-`;
 interface Props {
   popoverOptions: string[];
   onPopoverClick: (val: string, popoverClickProps: PopoverClickProps) => void,
@@ -88,7 +85,7 @@ function CustomPopover({
         {userProfileIcon ? (
           /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
           <a href={undefined} tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
-            <UserCircle src={userProfileIcon} className="rounded-circle" />
+            <UserCircleImage size="2rem" src={userProfileIcon} />
             <p className="mb-0 mt-2 fs-6">Me</p>
           </a>
         ) : (

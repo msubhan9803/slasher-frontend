@@ -113,7 +113,7 @@ function UserMessageListItem({
             </div>
             <div className="d-flex justify-content-between align-items-center">
               <TrucatedText className="mb-0">
-                {message}
+                {decodeURIComponent(message)}
               </TrucatedText>
               {
                 count !== 0

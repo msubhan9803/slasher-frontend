@@ -8,6 +8,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -138,12 +139,7 @@ function CommentSection({
           <CommentMessage className="mb-0 fs-4">
             <Content dangerouslySetInnerHTML={
               {
-                __html: linkifyHtml(decryptMessage(commentMsg
-                  .replaceAll('&', '&amp;')
-                  .replaceAll('<', '&lt;')
-                  .replaceAll('>', '&gt;')
-                  .replaceAll('"', '&quot;')
-                  .replaceAll("'", '&#039;'))),
+                __html: linkifyHtml(decryptMessage(replaceHtmlToText(commentMsg))),
               }
             }
             />

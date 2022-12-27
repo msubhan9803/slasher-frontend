@@ -25,7 +25,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    
+
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -41,6 +41,11 @@ const PostImageContainer = styled.div`
   height: 4.25rem;
   border: 0.125rem solid #3A3B46
 `;
+
+const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
+  margin: -1rem 0 1rem;
+`;
+
 function PostCommentSection({
   commentSectionData,
   commentImage,
@@ -62,7 +67,8 @@ function PostCommentSection({
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const textRef = useRef<any>();
+  const commentRef = useRef<any>();
+  const textReplyRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<any>();
   const replyInputFile = useRef<HTMLInputElement>(null);
@@ -86,13 +92,16 @@ function PostCommentSection({
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
+      textReplyRef.current.style.height = '36px';
+      textReplyRef.current.style.height = `${target.scrollHeight}px`;
+      textReplyRef.current.style.maxHeight = '100px';
       setReplyMessage(target.value);
     } else {
+      commentRef.current.style.height = '36px';
+      commentRef.current.style.height = `${target.scrollHeight}px`;
+      commentRef.current.style.maxHeight = '100px';
       setMessage(target.value);
     }
-    textRef.current.style.height = '36px';
-    textRef.current.style.height = `${target.scrollHeight}px`;
-    textRef.current.style.maxHeight = '100px';
   };
 
   const handleSeeCompleteList = () => {
@@ -150,11 +159,11 @@ function PostCommentSection({
       const mentionString = `@${replyUserName} `;
       setReplyMessage(mentionString);
     }
-  }, [replyUserName]);
+  }, [replyUserName, isReply]);
 
   const sendComment = (commentId?: string) => {
-    textRef.current.style.height = '36px';
     if (commentId === undefined) {
+      commentRef.current.style.height = '36px';
       setCommentValue({
         commentMessage: message,
         replyMessage: '',
@@ -163,6 +172,7 @@ function PostCommentSection({
       setMessage('');
       setImageArray([]);
     } else {
+      textReplyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
       setCommentValue({
@@ -246,7 +256,7 @@ function PostCommentSection({
     setReplyImageArray(removePostImage);
   };
 
-  const handleShowMorePosts = (loadId: string) => {
+  const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
     setNext(next + loadMore);
     setIsReply(false);
@@ -259,6 +269,15 @@ function PostCommentSection({
       })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
+  };
+  const loadMoreReply = (data: any) => {
+    if (data.id === queryCommentId) {
+      return data.commentReplySection.length;
+    }
+    if (loadMoreId === data.id) {
+      return next;
+    }
+    return 2;
   };
 
   const handleCommentReplyReport = (reason: string) => {
@@ -289,7 +308,7 @@ function PostCommentSection({
                   className="fs-5 border-end-0"
                   rows={1}
                   as="textarea"
-                  ref={textRef}
+                  ref={commentRef}
                   value={message}
                   onFocus={() => setIsReply(false)}
                   onChange={onChangeHandler}
@@ -393,7 +412,7 @@ function PostCommentSection({
                     <div className="ms-md-4">
                       {data.commentReplySection && data.commentReplySection.length > 0
                         && data.commentReplySection
-                          .slice(0, loadMoreId === data.id ? next : 2)
+                          .slice(0, loadMoreReply(data))
                           .map((comment: any) => (
                             <div key={comment.id}>
                               <CommentSection
@@ -430,18 +449,19 @@ function PostCommentSection({
                         && data.commentReplySection.length > 2
                         && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
                           && next >= data.commentReplySection.length)
+                        && (data.commentReplySection[0]?.feedCommentId !== queryCommentId)
                         && (
-                          <div className="text-center">
+                          <LoadMoreCommentsWrapper>
                             <Button
                               variant="link"
                               className="text-primary shadow-none"
                               onClick={() => {
-                                handleShowMorePosts(data.commentReplySection[0]?.feedCommentId);
+                                handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load 10 more comments
+                              Load more comments
                             </Button>
-                          </div>
+                          </LoadMoreCommentsWrapper>
                         )}
                       {
                         isReply && (replyId === data.id
@@ -459,7 +479,7 @@ function PostCommentSection({
                                       className="fs-5 border-end-0"
                                       rows={1}
                                       as="textarea"
-                                      ref={textRef}
+                                      ref={textReplyRef}
                                       value={replyMessage}
                                       onChange={(e: any) => onChangeHandler(e, data.id)}
                                     />

@@ -19,6 +19,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -44,8 +45,8 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
-  isNewsPartnerPost?: boolean;
   newsPostPopoverOptions?: string[];
+  escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
 }
@@ -81,8 +82,8 @@ function PostFeed({
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, isNewsPartnerPost, newsPostPopoverOptions,
-  loadNewerComment, previousCommentsAvailable,
+  loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -153,14 +154,9 @@ function PostFeed({
               <div>
                 <Content dangerouslySetInnerHTML={
                   {
-                    __html: isNewsPartnerPost
-                      ? post.content
-                      : linkifyHtml(decryptMessage(post.content
-                        .replaceAll('&', '&amp;')
-                        .replaceAll('<', '&lt;')
-                        .replaceAll('>', '&gt;')
-                        .replaceAll('"', '&quot;')
-                        .replaceAll("'", '&#039;'))),
+                    __html: escapeHtml
+                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
+                      : post.content,
                   }
                 }
                 />
@@ -291,8 +287,8 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
-  isNewsPartnerPost: false,
   newsPostPopoverOptions: [],
+  escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
 };

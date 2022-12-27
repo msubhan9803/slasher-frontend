@@ -16,6 +16,8 @@ import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { reportData } from '../../../api/report';
 
 function NewsPartnerPost() {
   const { partnerId, postId } = useParams<string>();
@@ -34,6 +36,10 @@ function NewsPartnerPost() {
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+
+  const loginUserPopoverOptions = ['Edit', 'Delete'];
+  const otherUserPopoverOptions = ['Report', 'Block user'];
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
@@ -74,9 +80,10 @@ function NewsPartnerPost() {
     }
   }, [postId]);
 
-  const handlePopover = (selectedOption: string) => {
+  const handlePopover = (selectedOption: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(selectedOption);
+    setPopoverClick(popoverClickProps);
   };
 
   const callLatestFeedComments = () => {
@@ -279,6 +286,20 @@ function NewsPartnerPost() {
     }
   };
 
+  const reportNewsPost = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedComments();
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   const getSingleComment = () => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
@@ -316,7 +337,7 @@ function NewsPartnerPost() {
           <PostFeed
             detailPage
             postFeedData={postData}
-            popoverOptions={popoverOption}
+            popoverOptions={loginUserPopoverOptions}
             onPopoverClick={handlePopover}
             isCommentSection
             setCommentValue={setCommentValue}
@@ -332,13 +353,20 @@ function NewsPartnerPost() {
             noMoreData={noMoreData}
             loadingPosts={loadingComments}
             onLikeClick={onLikeClick}
+            newsPostPopoverOptions={popoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
             escapeHtml={false}
             loadNewerComment={loadNewerComment}
             previousCommentsAvailable={previousCommentsAvailable}
           />
         </Col>
       </Row>
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportNewsPost}
+      />
     </AuthenticatedPageWrapper>
   );
 }

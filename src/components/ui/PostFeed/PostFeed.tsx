@@ -19,6 +19,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -44,6 +45,7 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
 }
@@ -79,7 +81,7 @@ function PostFeed({
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, loadNewerComment, previousCommentsAvailable,
+  loadingPosts, onLikeClick, escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -132,7 +134,11 @@ function PostFeed({
             <Card.Body className="px-0 pt-3">
               <div>
                 <Content dangerouslySetInnerHTML={
-                  { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
+                  {
+                    __html: escapeHtml
+                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
+                      : post.content,
+                  }
                 }
                 />
                 {post.hashTag?.map((hashtag: string) => (
@@ -257,6 +263,7 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
 };

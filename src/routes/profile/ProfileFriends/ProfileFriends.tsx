@@ -71,7 +71,7 @@ function ProfileFriends({ user }: Props) {
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  }, [search]);
+  }, [search, user]);
 
   const fetchMoreFriendList = () => {
     if (page > 0) {
@@ -97,9 +97,11 @@ function ProfileFriends({ user }: Props) {
   }, [friendsList]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-    if (bottomLine) {
-      fetchMoreFriendList();
+    if (yPositionOfLastFriendElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+      if (bottomLine) {
+        fetchMoreFriendList();
+      }
     }
   }, [yPositionOfLastFriendElement]);
 

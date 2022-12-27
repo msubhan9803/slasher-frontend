@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Col, Image, Row } from 'react-bootstrap';
+import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 import { debounce } from 'lodash';
 import { getSearchUser } from '../../../api/searchUser';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import SearchHeader from '../SearchHeader';
+import UserCircleImage from '../../../components/ui/UserCircleImage';
 
 interface SearchPeopleProps {
   _id: number;
@@ -15,11 +15,6 @@ interface SearchPeopleProps {
   profilePic: string;
   userName: string;
 }
-const StyledPeopleCircle = styled(Image)`
-  border-radius: 50%;
-  height: 3.125rem;
-  width: 3.125rem;
-`;
 function SearchPeople() {
   const [search, setSearch] = useState<string>('');
   const [filteredSearch, setFilteredSearch] = useState<string>('');
@@ -119,7 +114,7 @@ function SearchPeople() {
             /* eslint no-underscore-dangle: 0 */
             <Col md={6} key={peopleDetail._id}>
               <Link className="pb-4 d-flex align-items-center text-decoration-none" to="/search/people">
-                <StyledPeopleCircle className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light" src={peopleDetail.profilePic} />
+                <UserCircleImage className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light" src={peopleDetail.profilePic} />
                 <div className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
                   <p className="fw-bold mb-0">
                     {peopleDetail.userName}

@@ -29,7 +29,7 @@ function Dating() {
       <Route path="/tutorial/*" element={<DatingTutorial />} />
       <Route path="/deck" element={<DatingMatch />} />
       <Route path="/deck" element={<DatingMatch />} />
-      <Route path="/subscription" element={<DatingSubscription />} />
+      <Route path="/subscription/purchase" element={<DatingSubscription />} />
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );

@@ -11,7 +11,6 @@ function BuyButton({
   planMonths,
   setPlanMonths,
 }: any) {
-  const successColorBootstrap = getComputedStyle(document.body).getPropertyValue('--bs-success');
   return (
     <Button
       variant={planMonths === currentMonth ? 'success' : 'dark'}
@@ -19,7 +18,7 @@ function BuyButton({
       name="6-month"
       onClick={() => setPlanMonths(currentMonth)}
       style={{
-        borderColor: planMonths === currentMonth ? successColorBootstrap : '#464646',
+        borderColor: planMonths === currentMonth ? 'var(--bs-success)' : '#464646',
         borderWidth: 2,
         width: '93%',
         paddingTop: isBestDeal ? 30 : '1.5rem',

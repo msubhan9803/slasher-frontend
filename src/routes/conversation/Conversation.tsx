@@ -17,7 +17,7 @@ function Conversation() {
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
-  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
 
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
@@ -46,9 +46,11 @@ function Conversation() {
   useEffect(() => {
     if (conversationId) {
       getMatchIdDetail(conversationId).then((res) => {
+        setRecentMessageList([]);
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
+        setRequestAdditionalPosts(true);
       });
     }
   }, [conversationId]);
@@ -73,9 +75,10 @@ function Conversation() {
   };
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalPosts && !loadingMessages) {
       setNoMoreData(false);
       if (conversationId) {
+        setLoadingMessages(true);
         socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
           const messageList = recentMessagesResponse.map((recentMessage: any) => {
             const finalData: any = {
@@ -98,12 +101,12 @@ function Conversation() {
           if (recentMessagesResponse.length === 0) { setNoMoreData(true); }
           if (messageList.length === 0) {
             setRequestAdditionalPosts(false);
-            setLoadingPosts(false);
           }
+          setLoadingMessages(false);
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, recentMessageList, loadingPosts]);
+  }, [conversationId, requestAdditionalPosts, recentMessageList, loadingMessages]);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">

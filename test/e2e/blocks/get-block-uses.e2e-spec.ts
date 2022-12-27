@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -64,14 +64,28 @@ describe('Get Blocked Users (e2e)', () => {
 
   describe('Get /blocks', () => {
     describe('Get Blocked Users Request', () => {
-      it('find all pending request', async () => {
+      it('finds the expected blocks', async () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())
           .get(`/blocks?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.body).toHaveLength(2);
+          .send()
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual([
+          {
+            _id: expect.any(String),
+            userName: 'Username3',
+            firstName: 'First name 3',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.any(String),
+            userName: 'Username2',
+            firstName: 'First name 2',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
       });
     });
 

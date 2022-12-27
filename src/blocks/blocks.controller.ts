@@ -9,6 +9,7 @@ import { FriendsService } from '../friends/providers/friends.service';
 import { CreateBlockDto } from './dto/create-lock.dto';
 import { DeleteBlockQueryDto } from './dto/delete.block.query.dto';
 import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
+import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
 @Controller('blocks')
 export class BlocksController {
@@ -35,6 +36,7 @@ export class BlocksController {
     return { success: true };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get()
   async getBlockedUsers(
     @Req() request: Request,

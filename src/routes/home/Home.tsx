@@ -97,6 +97,7 @@ function Home() {
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
             likeIcon: data.likes.includes(loginUserId),
+            rssfeedProviderId: data.rssfeedProviderId._id,
           };
         });
         setPosts((prev: Post[]) => [

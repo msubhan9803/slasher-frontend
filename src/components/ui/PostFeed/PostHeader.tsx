@@ -15,11 +15,12 @@ interface PostHeaderProps {
   detailPage: boolean | undefined;
   content?: string;
   userId?: string;
+  rssfeedProviderId?: string;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId,
+  content, userId, rssfeedProviderId,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -33,7 +34,12 @@ function PostHeader({
                 </div>
               )
               : (
-                <Link to={`/${userName}/posts/${id}`} className="text-decoration-none">
+                <Link
+                  to={rssfeedProviderId
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}`
+                    : `/${userName}/posts/${id}`}
+                  className="text-decoration-none"
+                >
                   <div className="rounded-circle">
                     <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
                   </div>
@@ -51,7 +57,12 @@ function PostHeader({
                 </>
               )
               : (
-                <Link to={`/${userName}/posts/${id}`} className="text-decoration-none">
+                <Link
+                  to={rssfeedProviderId
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}`
+                    : `/${userName}/posts/${id}`}
+                  className="text-decoration-none"
+                >
                   <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
@@ -77,6 +88,7 @@ function PostHeader({
 PostHeader.defaultProps = {
   content: null,
   userId: null,
+  rssfeedProviderId: null,
 };
 
 export default PostHeader;

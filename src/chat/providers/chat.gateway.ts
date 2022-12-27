@@ -8,6 +8,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
@@ -51,13 +52,18 @@ export class ChatGateway {
   @SubscribeMessage('recentMessages')
   async recentMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
-
     if (inValidData) return { success: false };
 
     const user = await this.usersService.findBySocketId(client.id);
     const userId = user._id.toString();
 
     const { matchListId, before } = data;
+
+    const matchList = await this.chatService.findMatchList(matchListId);
+    if (!matchList) return { error: 'Permission denied' };
+
+    const matchUserIds = matchList.participants.filter((participantsId) => participantsId._id.toString() === user._id.toString());
+    if (matchUserIds.length === 0) return { error: 'Permission denied' };
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
     return messages;

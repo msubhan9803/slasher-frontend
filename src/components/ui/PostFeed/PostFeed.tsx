@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Card, Col, Row,
 } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -55,7 +56,7 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const Content = styled.div`
+const Content = styled.span`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
@@ -91,6 +92,10 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
+  const [readPostId, setReadPostId] = useState('');
+  const toggleReadMore = (readId: string) => {
+    setReadPostId(readId);
+  };
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -131,6 +136,41 @@ function PostFeed({
     return popoverOptions;
   };
 
+  const handleReadMore = (post: any) => {
+    let { content } = post;
+    if (!detailPage && post.content.length >= 240) {
+      content = (post.id !== readPostId
+        ? post.content.slice(0, post.content.substring(0, 240).lastIndexOf(' '))
+        : post.content);
+    }
+    return (
+      <div className="">
+        <Content dangerouslySetInnerHTML={
+          {
+            __html: escapeHtml
+              ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
+              : content,
+          }
+        }
+        />
+        {post.hashTag?.map((hashtag: string) => (
+          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+            #
+            {hashtag}
+          </span>
+        ))}
+        {!detailPage
+          && post.id !== readPostId
+          && post.content.length >= 240
+          && (
+            <Button variant="link" onClick={() => toggleReadMore(post.id)} className="text-primary">
+              ...read more
+            </Button>
+          )}
+      </div>
+    );
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -151,22 +191,7 @@ function PostFeed({
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
-              <div>
-                <Content dangerouslySetInnerHTML={
-                  {
-                    __html: escapeHtml
-                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
-                      : post.content,
-                  }
-                }
-                />
-                {post.hashTag?.map((hashtag: string) => (
-                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                    #
-                    {hashtag}
-                  </span>
-                ))}
-              </div>
+              {handleReadMore(post)}
               {post?.images && (
                 <CustomSwiper
                   images={

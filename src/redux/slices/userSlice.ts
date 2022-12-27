@@ -9,7 +9,7 @@ export const userSlice = createSlice({
     recentMessages: [],
     user: {
       userName: '',
-      userId: '',
+      id: '',
       profilePic: '',
     },
   },

@@ -2,6 +2,7 @@ import React, {
   SyntheticEvent, useRef, useState, useEffect,
 } from 'react';
 import { Form, Modal } from 'react-bootstrap';
+import { CommentValue } from '../../types';
 import ModalContainer from './CustomModal';
 import RoundButton from './RoundButton';
 
@@ -12,7 +13,7 @@ interface Props {
   commentReplyID: string;
   editContent?: string;
   isReply: boolean;
-  setCommentValue: (value: string) => void;
+  setCommentValue: (value: CommentValue) => void;
   setCommentID: (value: string) => void;
   setCommentReplyID: (value: string) => void;
 }
@@ -37,9 +38,6 @@ function EditCommentModal({
   const onChangeHandler = (e: SyntheticEvent) => {
     const target = e.target as HTMLTextAreaElement;
     setEditMessage(target.value);
-    // textRef.current.style.height = '36px';
-    // textRef.current.style.height = `${target.scrollHeight}px`;
-    // textRef.current.style.maxHeight = '100px';
   };
 
   const onUpdatePost = () => {
@@ -50,12 +48,19 @@ function EditCommentModal({
       setCommentReplyID(commentReplyID);
       setCommentID('');
       mentionReplyString = editMessage.replace(getMentionUser, `##LINK_ID##${commentReplyID}${getMentionUser}##LINK_END##`);
+      setCommentValue({
+        commentMessage: '',
+        replyMessage: mentionReplyString,
+      });
     } else {
       setCommentID(commentID);
       setCommentReplyID('');
       mentionReplyString = editMessage;
+      setCommentValue({
+        commentMessage: mentionReplyString,
+        replyMessage: '',
+      });
     }
-    setCommentValue(mentionReplyString);
   };
 
   const closeModal = () => {

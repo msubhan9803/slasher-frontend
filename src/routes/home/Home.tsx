@@ -14,6 +14,7 @@ import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -49,6 +50,17 @@ function Home() {
     }
   };
 
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
+  };
+
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -64,7 +76,7 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: data.images,
+              images: formatImageVideoList(data.images, data.message),
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -80,7 +92,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
@@ -123,7 +135,7 @@ function Home() {
         id: data._id,
         postDate: data.createdAt,
         content: data.message,
-        images: data.images,
+        images: formatImageVideoList(data.images, data.message),
         userName: data.userId.userName,
         profileImage: data.userId.profilePic,
         userId: data.userId.userId,
@@ -170,7 +182,7 @@ function Home() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+      <CustomCreatePost />
       <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
       <SuggestedFriend />
       {errorMessage && errorMessage.length > 0 && (
@@ -179,6 +191,7 @@ function Home() {
         </div>
       )}
       <InfiniteScroll
+        threshold={2000}
         pageStart={0}
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}

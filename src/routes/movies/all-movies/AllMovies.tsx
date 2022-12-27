@@ -93,6 +93,7 @@ function AllMovies() {
         )}
         <div className="m-md-2">
           <InfiniteScroll
+            threshold={2000}
             pageStart={0}
             initialLoad
             loadMore={() => { setRequestAdditionalPosts(true); }}

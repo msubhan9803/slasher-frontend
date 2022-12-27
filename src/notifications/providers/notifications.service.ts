@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
@@ -52,5 +52,19 @@ export class NotificationsService {
     return this.notificationModel
       .updateMany({ userId }, { isRead: NotificationReadStatus.Read })
       .exec();
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    const friendsCount = await this.notificationModel
+      .find({
+        $and: [{
+          userId: new mongoose.Types.ObjectId(userId),
+          isRead: NotificationReadStatus.Unread,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+        }],
+      })
+      .count()
+      .exec();
+    return friendsCount;
   }
 }

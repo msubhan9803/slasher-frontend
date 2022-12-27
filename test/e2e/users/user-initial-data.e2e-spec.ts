@@ -13,6 +13,9 @@ import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 import { pick } from '../../../src/utils/object-utils';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { notificationFactory } from '../../factories/notification.factory';
+import { NotificationDeletionStatus, NotificationReadStatus } from '../../../src/schemas/notification/notification.enums';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +26,7 @@ describe('Users suggested friends (e2e)', () => {
   let configService: ConfigService;
   let friendsService: FriendsService;
   let chatService: ChatService;
+  let notificationsService: NotificationsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -34,6 +38,7 @@ describe('Users suggested friends (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     chatService = moduleRef.get<ChatService>(ChatService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -76,6 +81,23 @@ describe('Users suggested friends (e2e)', () => {
         await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
         await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
         chat0 = await chatService.getConversations(activeUser._id.toString(), 3);
+
+        for (let index = 0; index < 5; index += 1) {
+          await notificationsService.create(
+            notificationFactory.build({
+              userId: activeUser.id,
+              is_deleted: NotificationDeletionStatus.NotDeleted,
+              isRead: NotificationReadStatus.Unread,
+            }),
+          );
+        }
+        await notificationsService.create(
+          notificationFactory.build({
+            userId: activeUser.id,
+            is_deleted: NotificationDeletionStatus.Deleted,
+            isRead: NotificationReadStatus.Unread,
+          }),
+        );
       });
       it('returns the expected user initial data', async () => {
         const recentMessages = [];
@@ -97,7 +119,7 @@ describe('Users suggested friends (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           user: pick(activeUser, ['id', 'userName', 'profilePic']),
-          unreadNotificationCount: 6,
+          unreadNotificationCount: 5,
           recentMessages,
           friendRequestCount: 4,
           recentFriendRequests: [

@@ -28,7 +28,7 @@ function Dating() {
       <Route path="/likes" element={<Likes />} />
       <Route path="/tutorial/*" element={<DatingTutorial />} />
       <Route path="/deck" element={<DatingMatch />} />
-      <Route path="/manage-subscription" element={<DatingManageSubscription />} />
+      <Route path="/subscription/manage" element={<DatingManageSubscription />} />
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );

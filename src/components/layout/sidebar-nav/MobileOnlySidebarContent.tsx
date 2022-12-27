@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
 import UserCircleImage from '../../ui/UserCircleImage';
+import { useAppSelector } from '../../../redux/hooks';
 
 const SpecificHeightLink = styled(Link)`
   display: flex;
@@ -20,6 +21,8 @@ interface Props {
 }
 
 function MobileOnlySidebarContent({ className }: Props) {
+  const loggedinUserName = useAppSelector((state) => state.user.user.userName);
+
   return (
     <div className={className}>
       <Container fluid className="px-0">
@@ -31,7 +34,7 @@ function MobileOnlySidebarContent({ className }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={4}>
-            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
+            <SpecificHeightLink to={`/${loggedinUserName}/friends`} className="btn btn-dark btn-sidebar w-100 pt-2">
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
             </SpecificHeightLink>

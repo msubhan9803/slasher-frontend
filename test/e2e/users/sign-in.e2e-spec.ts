@@ -82,6 +82,20 @@ describe('Users sign-in (e2e)', () => {
           expect(response.body.userName).toMatch(activeUser.userName);
         }
       });
+
+      it('updates the lastSignInIp when the user signs in', async () => {
+        const userBeforeSignIn = await usersService.findByEmail(activeUser.email);
+        await request(app.getHttpServer())
+          .post('/users/sign-in')
+          .send({
+            emailOrUsername: activeUser.email,
+            password: activeUserUnhashedPassword,
+            ...deviceAndAppVersionPlaceholderSignInFields,
+          });
+        const userAfterSignIn = await usersService.findByEmail(activeUser.email);
+        expect(userAfterSignIn.lastSignInIp.length).toBeGreaterThan(4); // test for presence of IP value
+        expect(userAfterSignIn.lastSignInIp).not.toEqual(userBeforeSignIn.lastSignInIp); // make sure IP value has changed
+      });
     });
 
     // This is temporary, but required during the beta release phase

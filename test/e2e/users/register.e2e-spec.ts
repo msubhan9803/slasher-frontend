@@ -88,6 +88,17 @@ describe('Users / Register (e2e)', () => {
           registeredUser.verification_token,
         );
       });
+
+      it('sets the registrationIp', async () => {
+        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody)
+          .expect(HttpStatus.CREATED);
+        const registeredUser = await usersService.findById(response.body.id);
+
+        expect(registeredUser.registrationIp.length).toBeGreaterThan(4); // test for presence of IP value
+      });
     });
 
     describe('Validation', () => {

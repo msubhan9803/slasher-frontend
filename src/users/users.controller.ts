@@ -15,6 +15,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Delete,
+  Ip,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
@@ -73,7 +74,7 @@ export class UsersController {
   ) { }
 
   @Post('sign-in')
-  async signIn(@Body() userSignInDto: UserSignInDto) {
+  async signIn(@Body() userSignInDto: UserSignInDto, @Ip() ip) {
     const user = await this.usersService.findByEmailOrUsername(
       userSignInDto.emailOrUsername,
     );
@@ -136,6 +137,7 @@ export class UsersController {
 
     // During successful sign-in, update certain fields and re-save the object:
     user.last_login = new Date();
+    user.lastSignInIp = ip;
 
     // Store the user's latest token in the database.  This is mostly just done for compatibility
     // with the old API, which does the same thing, but we don't actually do any comparisons with
@@ -189,7 +191,7 @@ export class UsersController {
   }
 
   @Post('register')
-  async register(@Body() userRegisterDto: UserRegisterDto) {
+  async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
     if (await this.usersService.userNameExists(userRegisterDto.userName)) {
       throw new HttpException(
@@ -208,6 +210,7 @@ export class UsersController {
     const user = new User(userRegisterDto);
     user.setUnhashedPassword(userRegisterDto.password);
     user.verification_token = uuidv4();
+    user.registrationIp = ip; // save registration IP to detect malicious user activity
     const registeredUser = await this.usersService.create(user);
 
     // Create associated UserSetting record with default values

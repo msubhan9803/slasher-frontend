@@ -127,6 +127,12 @@ export class User extends UserUnusedFields {
   @Prop({ default: '', trim: true })
   aboutMe: string;
 
+  @Prop({ default: null })
+  registrationIp: string;
+
+  @Prop({ default: null })
+  lastSignInIp: string;
+
   /***********
    * Methods *
    ***********/

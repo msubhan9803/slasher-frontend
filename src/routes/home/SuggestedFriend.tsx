@@ -30,12 +30,7 @@ const StyleFriend = styled(Row)`
 const Card = styled.div`
   height:12.857rem;
   width:11.71rem;
-  &:first-of-type {
-    padding-left: 0rem;
-  }
-  &:last-of-type {
-    padding-right: 0rem;
-  }
+  padding-right: 1rem;
 `;
 
 const slideFriendRight = () => {
@@ -97,7 +92,7 @@ function SuggestedFriend() {
           </Button>
           <StyleFriend
             id="slideFriend"
-            className="d-flex flex-nowrap w-100 mx-3"
+            className="d-flex flex-nowrap w-100 mx-3 g-0"
           >
             {friendListData?.map((user: any) => (
               /* eslint no-underscore-dangle: 0 */

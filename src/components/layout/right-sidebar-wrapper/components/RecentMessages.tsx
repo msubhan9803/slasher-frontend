@@ -10,27 +10,28 @@ interface RecentMessage {
   latestMessage: string;
   unreadCount: number;
   participants: UserMesssage[];
+  _id: string;
 }
 
 function RecentMessages() {
-  const recentMessageDetails = useAppSelector((state) => state.user.recentMessages);
+  const recentMessages = useAppSelector((state) => state.user.recentMessages);
   const userId = Cookies.get('userId');
   return (
     <div className="mt-5">
-      <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/" />
+      <SidebarHeaderWithLink headerLabel="Recent messages" linkLabel="View All" linkTo="/messages" />
       <UserMessageList className="mb-4">
-        {recentMessageDetails && recentMessageDetails.length > 0
-          && recentMessageDetails.map((recentMessageDetail: RecentMessage) => (
+        {recentMessages && recentMessages.length > 0
+          && recentMessages.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
               /* eslint no-underscore-dangle: 0 */
-              key={recentMessageDetail.participants
-                .find((participant) => participant._id !== userId)!._id}
+              key={recentMessageDetail._id}
               userName={recentMessageDetail.participants
                 .find((participant) => participant._id !== userId)!.userName}
               message={recentMessageDetail.latestMessage}
               count={recentMessageDetail.unreadCount}
               image={recentMessageDetail.participants
                 .find((participant) => participant._id !== userId)!.profilePic}
+              messageId={recentMessageDetail._id}
             />
           ))}
       </UserMessageList>

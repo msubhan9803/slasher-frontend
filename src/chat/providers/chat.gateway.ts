@@ -5,16 +5,12 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
   ConnectedSocket,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
-import { sleep } from '../../utils/timer-utils';
 import { Message } from '../../schemas/message/message.schema';
 
 const RECENT_MESSAGES_LIMIT = 10;

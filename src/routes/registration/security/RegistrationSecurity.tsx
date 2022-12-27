@@ -1,8 +1,8 @@
 import React, { ChangeEvent, useState } from 'react';
 import {
-  Button, Col, Form, InputGroup, Row,
+  Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
+import { CustomVisibilityButton } from '../../../components/ui/CustomVisibilityButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setSecurityFields } from '../../../redux/slices/registrationSlice';
@@ -16,16 +16,6 @@ const dayOptions = generateDayOptions(1, 31);
 interface Props {
   activeStep: number;
 }
-const CustomVisibilityButton = styled(Button)`
-  background-color: rgb(31, 31, 31);
-  border-color: #3a3b46 !important;
-  &:hover {
-    background-color: rgb(31, 31, 31);
-  }
-  &:focus {
-    background-color: rgb(31, 31, 31);
-  }
-`;
 
 function RegistrationSecurity({ activeStep }: Props) {
   const [showPassword, setShowPassword] = useState(false);

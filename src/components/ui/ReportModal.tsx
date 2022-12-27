@@ -10,8 +10,7 @@ interface Props {
   slectedDropdownValue: string;
   onConfirmClick?: () => void | undefined;
   deleteText?: string;
-  setDeleteComment?: (value: boolean) => void;
-  setDeleteCommentReply?: (value: boolean) => void;
+  removeComment?: () => void;
 }
 const StyledTextarea = styled(Form)`
   .form-control {
@@ -19,8 +18,8 @@ const StyledTextarea = styled(Form)`
   }
 `;
 function ReportModal({
-  show, setShow, slectedDropdownValue, setDeleteComment,
-  setDeleteCommentReply, onConfirmClick, deleteText,
+  show, setShow, slectedDropdownValue, removeComment,
+  onConfirmClick, deleteText,
 }: Props) {
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<Set<string>>(new Set<string>());
@@ -30,8 +29,7 @@ function ReportModal({
     setShow(false);
   };
   const removeData = () => {
-    if (setDeleteComment) setDeleteComment(true);
-    if (setDeleteCommentReply) setDeleteCommentReply(true);
+    if (removeComment) removeComment();
     if (onConfirmClick) onConfirmClick();
     closeModal();
   };
@@ -108,8 +106,7 @@ function ReportModal({
 ReportModal.defaultProps = {
   onConfirmClick: undefined,
   deleteText: 'Are you sure you want to delete?',
-  setDeleteComment: () => { },
-  setDeleteCommentReply: () => { },
+  removeComment: undefined,
 };
 
 export default ReportModal;

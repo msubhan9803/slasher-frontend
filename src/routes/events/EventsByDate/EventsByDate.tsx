@@ -214,9 +214,11 @@ function EventsByDate() {
   }, [eventsList]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastEventElement;
-    if (bottomLine) {
-      fetchMoreEvent();
+    if (yPositionOfLastEventElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastEventElement;
+      if (bottomLine) {
+        fetchMoreEvent();
+      }
     }
   }, [yPositionOfLastEventElement]);
   return (

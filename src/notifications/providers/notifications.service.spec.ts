@@ -166,4 +166,30 @@ describe('NotificationsService', () => {
       }
     });
   });
+
+  describe('#getUnreadNotificationCount', () => {
+    beforeEach(async () => {
+      for (let index = 0; index < 5; index += 1) {
+        await notificationsService.create(
+          notificationFactory.build({
+            userId: activeUser.id,
+            is_deleted: NotificationDeletionStatus.NotDeleted,
+            isRead: NotificationReadStatus.Unread,
+          }),
+        );
+      }
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          is_deleted: NotificationDeletionStatus.Deleted,
+          isRead: NotificationReadStatus.Unread,
+        }),
+      );
+    });
+
+    it('finds all the expected notifications count', async () => {
+      const getAllReadNotificationsCount = await notificationsService.getUnreadNotificationCount(activeUser.id);
+      expect(getAllReadNotificationsCount).toBe(5);
+    });
+  });
 });

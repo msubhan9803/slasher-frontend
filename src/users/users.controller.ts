@@ -59,6 +59,7 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
+import { NotificationsService } from '../notifications/providers/notifications.service';
 
 @Controller('users')
 export class UsersController {
@@ -75,6 +76,7 @@ export class UsersController {
     private readonly blocksService: BlocksService,
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly rssFeedProvidersService: RssFeedProvidersService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   @Post('sign-in')
@@ -343,9 +345,10 @@ export class UsersController {
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
     const recentMessages: any = await this.chatService.getConversations(user._id, 3);
+    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user._id);
     return {
       user: pick(user, ['id', 'userName', 'profilePic']),
-      unreadNotificationCount: 6,
+      unreadNotificationCount,
       recentMessages,
       friendRequestCount,
       recentFriendRequests: receivedFriendRequestsData,

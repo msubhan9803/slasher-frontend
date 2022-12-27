@@ -16,6 +16,7 @@ import { createPost } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { getSuggestUserName } from '../../../api/users';
 import MessageTextarea from '../../../components/ui/MessageTextarea';
+import { useAppSelector } from '../../../redux/hooks';
 
 export interface MentionProps {
   id: string;
@@ -43,6 +44,7 @@ function CreatePost() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
+  const loggedInUser = useAppSelector((state) => state.user.user);
 
   const navigate = useNavigate();
 
@@ -112,9 +114,9 @@ function CreatePost() {
       <Form className="bg-dark px-4 py-4 rounded-2">
         <Form.Group controlId="about-me">
           <div className="align-items-center d-flex form-label mb-4 w-100 mb-4">
-            <UserCircleImage src="https://i.pravatar.cc/300?img=12" className="me-3" />
+            <UserCircleImage src={loggedInUser.profilePic} className="me-3" />
             <h2 className="h3 mb-0 align-self-center">
-              Aly Khan
+              {loggedInUser.userName}
             </h2>
           </div>
         </Form.Group>

@@ -43,7 +43,7 @@ function UserMessageListItem({
           <p className="mb-0 text-capitalize">
             {userName}
           </p>
-          <MessageSnippet className="mb-0 small text-light">{message}</MessageSnippet>
+          <MessageSnippet className="mb-0 small text-light">{decodeURIComponent(message)}</MessageSnippet>
         </Link>
       </div>
       {count !== 0 && <span className="badge rounded-pill bg-primary me-3">{count}</span>}

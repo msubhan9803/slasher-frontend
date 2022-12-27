@@ -10,6 +10,7 @@ interface Props {
   slectedDropdownValue: string;
   onConfirmClick?: () => void | undefined;
   deleteText?: string;
+  onBlockYesClick?: () => void | undefined;
   removeComment?: () => void;
 }
 const StyledTextarea = styled(Form)`
@@ -18,8 +19,8 @@ const StyledTextarea = styled(Form)`
   }
 `;
 function ReportModal({
-  show, setShow, slectedDropdownValue, removeComment,
-  onConfirmClick, deleteText,
+  show, setShow, slectedDropdownValue, onConfirmClick, deleteText,
+  onBlockYesClick, removeComment,
 }: Props) {
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<Set<string>>(new Set<string>());
@@ -40,6 +41,12 @@ function ReportModal({
     if (checked) { newSet.add(value); } else { newSet.delete(value); }
     setReports(newSet);
   };
+
+  const handleClickModal = () => {
+    if (onBlockYesClick) onBlockYesClick();
+    closeModal();
+  };
+
   return (
     <ModalContainer
       show={show}
@@ -61,7 +68,7 @@ function ReportModal({
           <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
             <h1 className="h3 mb-0 text-primary">Block</h1>
             <p className="px-3">Are you sure you want to block this user?</p>
-            <RoundButton className="mb-3 w-100 fs-3">Yes</RoundButton>
+            <RoundButton className="mb-3 w-100 fs-3" onClick={handleClickModal}>Yes</RoundButton>
             <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white fs-3" onClick={closeModal}>Cancel</RoundButton>
           </Modal.Body>
         )
@@ -106,6 +113,7 @@ function ReportModal({
 ReportModal.defaultProps = {
   onConfirmClick: undefined,
   deleteText: 'Are you sure you want to delete?',
+  onBlockYesClick: undefined,
   removeComment: undefined,
 };
 

@@ -42,7 +42,7 @@ function Messages() {
     if (requestAdditionalMessages && !loadingChats) {
       setLoadingChats(true);
       getMessagesList(
-        messages.length > 1 ? messages[messages.length - 1]._id : undefined,
+        messages.length > 0 ? messages[messages.length - 1]._id : undefined,
       ).then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
           const userDetail = data.participants.find(
@@ -121,9 +121,11 @@ function Messages() {
   }, [messages]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
-    if (bottomLine) {
-      fetchMoreMessages();
+    if (yPositionOfLastMessageElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
+      if (bottomLine) {
+        fetchMoreMessages();
+      }
     }
   }, [yPositionOfLastMessageElement]);
   return (

@@ -16,11 +16,12 @@ interface PostHeaderProps {
   detailPage: boolean | undefined;
   content?: string;
   userId?: string;
+  rssfeedProviderId?: string;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId,
+  content, userId, rssfeedProviderId,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -34,7 +35,15 @@ function PostHeader({
                 </div>
               )
               : (
-                <HashLink to={`/${userName}/posts/${id}`} scroll={scrollToTop} className="text-decoration-none">
+                // Do *not* remove the trailing # in below `to` path
+                // else the `scrollToTop/scrollWithOffset` won't work.
+                <HashLink
+                  to={rssfeedProviderId
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    : `/${userName}/posts/${id}#`}
+                  scroll={scrollToTop}
+                  className="text-decoration-none"
+                >
                   <div className="rounded-circle">
                     <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
                   </div>
@@ -55,7 +64,9 @@ function PostHeader({
                 // Do *not* remove the trailing # in below `to` path
                 // else the `scrollToTop/scrollWithOffset` won't work.
                 <HashLink
-                  to={`/${userName}/posts/${id}#`}
+                  to={rssfeedProviderId
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    : `/${userName}/posts/${id}#`}
                   scroll={scrollToTop}
                   className="text-decoration-none"
                 >
@@ -84,6 +95,7 @@ function PostHeader({
 PostHeader.defaultProps = {
   content: null,
   userId: null,
+  rssfeedProviderId: null,
 };
 
 export default PostHeader;

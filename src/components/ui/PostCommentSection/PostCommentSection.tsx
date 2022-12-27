@@ -17,6 +17,7 @@ import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
+import { createBlockUser } from '../../../api/blocks';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -65,7 +66,8 @@ function PostCommentSection({
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const textRef = useRef<any>();
+  const commentRef = useRef<any>();
+  const textReplyRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<any>();
   const replyInputFile = useRef<HTMLInputElement>(null);
@@ -82,19 +84,23 @@ function PostCommentSection({
   const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
+  const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
+      textReplyRef.current.style.height = '36px';
+      textReplyRef.current.style.height = `${target.scrollHeight}px`;
+      textReplyRef.current.style.maxHeight = '100px';
       setReplyMessage(target.value);
     } else {
+      commentRef.current.style.height = '36px';
+      commentRef.current.style.height = `${target.scrollHeight}px`;
+      commentRef.current.style.maxHeight = '100px';
       setMessage(target.value);
     }
-    textRef.current.style.height = '36px';
-    textRef.current.style.height = `${target.scrollHeight}px`;
-    textRef.current.style.maxHeight = '100px';
   };
 
   const handleSeeCompleteList = () => {
@@ -152,11 +158,11 @@ function PostCommentSection({
       const mentionString = `@${replyUserName} `;
       setReplyMessage(mentionString);
     }
-  }, [replyUserName]);
+  }, [replyUserName, isReply]);
 
   const sendComment = (commentId?: string) => {
-    textRef.current.style.height = '36px';
     if (commentId === undefined) {
+      commentRef.current.style.height = '36px';
       setCommentValue({
         commentMessage: message,
         replyMessage: '',
@@ -165,6 +171,7 @@ function PostCommentSection({
       setMessage('');
       setImageArray([]);
     } else {
+      textReplyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
       setCommentValue({
@@ -185,6 +192,10 @@ function PostCommentSection({
     setCommentReplyID('');
     setEditContent(popoverData.content);
 
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
     } else {
@@ -198,6 +209,11 @@ function PostCommentSection({
     setCommentReplyID(popoverData.id);
     setCommentID('');
     setEditContent(popoverData.content);
+
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
     } else {
@@ -245,6 +261,14 @@ function PostCommentSection({
     setIsReply(false);
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(commentReplyUserId)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   const loadMoreReply = (data: any) => {
     if (data.id === queryCommentId) {
       return data.commentReplySection.length;
@@ -270,7 +294,7 @@ function PostCommentSection({
                   className="fs-5 border-end-0"
                   rows={1}
                   as="textarea"
-                  ref={textRef}
+                  ref={commentRef}
                   value={message}
                   onFocus={() => setIsReply(false)}
                   onChange={onChangeHandler}
@@ -367,6 +391,7 @@ function PostCommentSection({
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
                     likeCount={data.likeCount}
+                    userId={data.userId?._id}
                     active={!queryReplyId ? data.id === queryCommentId : false}
                   />
                   <div className="ms-5 ps-2">
@@ -401,6 +426,7 @@ function PostCommentSection({
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
                                 likeCount={comment.likeCount}
+                                userId={comment.userId?._id}
                                 active={queryReplyId ? comment.id === queryReplyId : false}
                               />
                             </div>
@@ -439,7 +465,7 @@ function PostCommentSection({
                                       className="fs-5 border-end-0"
                                       rows={1}
                                       as="textarea"
-                                      ref={textRef}
+                                      ref={textReplyRef}
                                       value={replyMessage}
                                       onChange={(e: any) => onChangeHandler(e, data.id)}
                                     />
@@ -504,6 +530,7 @@ function PostCommentSection({
         show={show}
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
+        onBlockYesClick={onBlockYesClick}
         removeComment={removeComment}
       />
       {

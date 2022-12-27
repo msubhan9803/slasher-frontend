@@ -23,7 +23,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    
+
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -39,6 +39,11 @@ const PostImageContainer = styled.div`
   height: 4.25rem;
   border: 0.125rem solid #3A3B46
 `;
+
+const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
+  margin: -1rem 0 1rem;
+`;
+
 function PostCommentSection({
   commentSectionData,
   commentImage,
@@ -234,7 +239,7 @@ function PostCommentSection({
     setReplyImageArray(removePostImage);
   };
 
-  const handleShowMorePosts = (loadId: string) => {
+  const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
     setNext(next + loadMore);
     setIsReply(false);
@@ -406,17 +411,17 @@ function PostCommentSection({
                           && next >= data.commentReplySection.length)
                         && (data.commentReplySection[0]?.feedCommentId !== queryCommentId)
                         && (
-                          <div className="text-center">
+                          <LoadMoreCommentsWrapper>
                             <Button
                               variant="link"
                               className="text-primary shadow-none"
                               onClick={() => {
-                                handleShowMorePosts(data.commentReplySection[0]?.feedCommentId);
+                                handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load 10 more comments
+                              Load more comments
                             </Button>
-                          </div>
+                          </LoadMoreCommentsWrapper>
                         )}
                       {
                         isReply && (replyId === data.id

@@ -97,9 +97,11 @@ function ProfileFriends({ user }: Props) {
   }, [friendsList]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-    if (bottomLine) {
-      fetchMoreFriendList();
+    if (yPositionOfLastFriendElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+      if (bottomLine) {
+        fetchMoreFriendList();
+      }
     }
   }, [yPositionOfLastFriendElement]);
 

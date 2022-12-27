@@ -12,28 +12,28 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
-import { Post } from '../../../types';
+import { CommentValue, Post } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
 }
 
 interface Props {
-  popoverOptions: string[],
-  postFeedData: any[],
-  commentsData?: any[],
-  isCommentSection?: boolean,
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  setCommentValue?: (value: string) => void,
-  detailPage?: boolean
-  setfeedImageArray?: (value: any[]) => void
-  setDeleteComment?: (value: boolean) => void
+  popoverOptions: string[];
+  postFeedData: any[];
+  commentsData?: any[];
+  isCommentSection?: boolean;
+  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
+  setCommentValue?: (value: CommentValue) => void;
+  detailPage?: boolean;
+  removeComment?: () => void;
   setCommentID?: (value: string) => void;
   setCommentReplyID?: (value: string) => void;
   commentID?: string;
@@ -45,6 +45,10 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  newsPostPopoverOptions?: string[];
+  escapeHtml?: boolean;
+  loadNewerComment?: () => void;
+  previousCommentsAvailable?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -75,10 +79,11 @@ const decryptMessage = (content: string) => {
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
-  setCommentValue, commentsData, setfeedImageArray, setDeleteComment,
+  setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick,
+  loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -88,7 +93,6 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
 
   useEffect(() => {
-    // const likeData = postFeedData.includes
     setPostData(postFeedData);
   }, [postFeedData]);
 
@@ -110,6 +114,23 @@ function PostFeed({
     <p className="text-center">Loading...</p>
   );
 
+  const imageLinkUrl = (post: any, imageId: string) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+    }
+    return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const showPopoverOption = (postDetail: any) => {
+    if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
+      return newsPostPopoverOptions;
+    }
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+      return otherUserPopoverOptions!;
+    }
+    return popoverOptions;
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -122,17 +143,21 @@ function PostFeed({
                 userName={post.userName || post.title}
                 postDate={post.postDate}
                 profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
-                  ? otherUserPopoverOptions! : popoverOptions}
+                popoverOptions={showPopoverOption(post)}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
+                rssfeedProviderId={post.rssfeedProviderId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
               <div>
                 <Content dangerouslySetInnerHTML={
-                  { __html: linkifyHtml(decryptMessage(post.content)) }
+                  {
+                    __html: escapeHtml
+                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
+                      : post.content,
+                  }
                 }
                 />
                 {post.hashTag?.map((hashtag: string) => (
@@ -146,10 +171,11 @@ function PostFeed({
                 <CustomSwiper
                   images={
                     post.images.map((imageData: any) => ({
+                      videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                       postId: post.id,
-                      imageId: imageData._id,
+                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
                   }
                   /* eslint no-underscore-dangle: 0 */
@@ -164,7 +190,12 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                  <Link
+                    to={post.rssfeedProviderId
+                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`
+                      : `/${post.userName}/posts/${post.id}`}
+                    className="text-decoration-none"
+                  >
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
                   </Link>
@@ -193,7 +224,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad
+                    initialLoad={false}
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}
@@ -204,8 +235,7 @@ function PostFeed({
                       commentImage={post.profileImage}
                       popoverOption={popoverOptions}
                       setCommentValue={setCommentValue}
-                      setfeedImageArray={setfeedImageArray}
-                      setDeleteComment={setDeleteComment}
+                      removeComment={removeComment}
                       setCommentID={setCommentID}
                       setCommentReplyID={setCommentReplyID}
                       commentID={commentID}
@@ -215,6 +245,8 @@ function PostFeed({
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
+                      loadNewerComment={loadNewerComment}
+                      previousCommentsAvailable={previousCommentsAvailable}
                     />
                   </InfiniteScroll>
                   {loadingPosts && renderLoadingIndicator()}
@@ -241,20 +273,23 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
-  setCommentValue: () => { },
+  setCommentValue: undefined,
   commentsData: [],
-  setfeedImageArray: () => { },
-  setDeleteComment: () => { },
-  setCommentID: () => { },
-  setCommentReplyID: () => { },
+  removeComment: undefined,
+  setCommentID: undefined,
+  setCommentReplyID: undefined,
   commentID: '',
   commentReplyID: '',
   otherUserPopoverOptions: [],
-  setIsEdit: () => { },
+  setIsEdit: undefined,
   isEdit: false,
-  setRequestAdditionalPosts: () => { },
+  setRequestAdditionalPosts: undefined,
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  newsPostPopoverOptions: [],
+  escapeHtml: true,
+  loadNewerComment: undefined,
+  previousCommentsAvailable: false,
 };
 export default PostFeed;

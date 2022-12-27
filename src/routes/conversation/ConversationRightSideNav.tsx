@@ -27,7 +27,7 @@ const RejectRequestStyled = styled(FontAwesomeIcon)`
 function ConversationRightSideNav() {
   return (
     <>
-      <h2 className="h4 mb-3">Advertisment</h2>
+      <h2 className="h4 mb-3">Advertisement</h2>
       <AdvertisementBox className="w-100" />
       <Row className="align-items-center mt-4">
         <Col xs={9}>

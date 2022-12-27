@@ -9,7 +9,7 @@ export const userSlice = createSlice({
     recentMessages: [],
     user: {
       userName: '',
-      userId: '',
+      id: '',
       profilePic: '',
     },
   },
@@ -22,9 +22,13 @@ export const userSlice = createSlice({
       recentMessages: action.payload.recentMessages,
       user: action.payload.user,
     }),
+    /* eslint-disable no-param-reassign */
+    incrementUnreadNotificationCount: (state) => {
+      state.unreadNotificationCount += 1;
+    },
   },
 });
 
-export const { setUserInitialData } = userSlice.actions;
+export const { setUserInitialData, incrementUnreadNotificationCount } = userSlice.actions;
 
 export default userSlice.reducer;

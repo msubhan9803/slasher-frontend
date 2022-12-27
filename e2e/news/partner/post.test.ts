@@ -10,7 +10,7 @@ test.describe(pagePath, () => {
 
     test('should display the expected content', async ({ page }) => {
       // TODO: Update this test to look for real content in the future
-      await expect(page.locator('#desktop-sidebar')).toHaveText(/Advertisment/);
+      await expect(page.locator('#desktop-sidebar')).toHaveText(/Advertisement/);
     });
   });
 });

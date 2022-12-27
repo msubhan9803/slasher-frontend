@@ -21,7 +21,7 @@ import NotificationsRIghtSideNav from '../../../../routes/notifications/Notifica
 import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 import { userInitialData } from '../../../../api/users';
-import { setUserInitialData } from '../../../../redux/slices/userSlice';
+import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
@@ -110,14 +110,8 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     dispatch(setUserInitialData(userData));
   }, []);
 
-  const onNotificationReceivedHandler = (payload: any) => {
-    const notificationCount = payload.notification
-      ? {
-        ...userData,
-        unreadNotificationCount: userData.unreadNotificationCount + 1,
-      }
-      : userData;
-    dispatch(setUserInitialData(notificationCount));
+  const onNotificationReceivedHandler = () => {
+    dispatch(incrementUnreadNotificationCount());
   };
 
   useEffect(() => {
@@ -128,7 +122,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       };
     }
     return () => { };
-  }, [userData]);
+  }, []);
 
   return (
     <div className="page-wrapper full">

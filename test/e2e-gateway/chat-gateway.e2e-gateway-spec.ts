@@ -134,11 +134,11 @@ describe('Chat Gateway (e2e)', () => {
     let matchList;
 
     beforeEach(async () => {
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-      message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
-      await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Hi, Test!');
+      await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+      message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
+      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
       matchList = await matchListModel.findOne({
-        participants: user1._id,
+        participants: activeUser._id,
       });
     });
 
@@ -188,6 +188,45 @@ describe('Chat Gateway (e2e)', () => {
       await new Promise<void>((resolve) => {
         client.emit('recentMessages', payload, (data) => {
           expect(data.success).toBe(false);
+          resolve();
+        });
+      });
+      client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+    });
+
+    it('matchListId is not match than expected response', async () => {
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const payload = {
+        matchListId: '639041536cf487d9419d3425',
+      };
+      await new Promise<void>((resolve) => {
+        client.emit('recentMessages', payload, (data) => {
+          expect(data.error).toBe('Permission denied');
+          resolve();
+        });
+      });
+      client.close();
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+    });
+
+    it('when active user is not exists in participants than expected response', async () => {
+      const activeUserAuthToken1 = user0.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken1 }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const payload = {
+        matchListId: matchList._id,
+      };
+      await new Promise<void>((resolve) => {
+        client.emit('recentMessages', payload, (data) => {
+          expect(data.error).toBe('Permission denied');
           resolve();
         });
       });

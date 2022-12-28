@@ -38,7 +38,6 @@ function Profile() {
   }, [userName]);
 
   if (userNotFound) {
-    // return <p>User not found</p>;
     return (
       <UnauthenticatedPageWrapper>
         <NotFound />

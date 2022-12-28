@@ -3,12 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button,
   Card, Col, Row,
 } from 'react-bootstrap';
-import {
-  Link, useNavigate, useSearchParams,
-} from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -94,13 +91,12 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-  const navigate = useNavigate();
 
   const toggleReadMore = (post: any) => {
     if (post.rssfeedProviderId) {
-      navigate(`/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
-    navigate(`/${post.userName}/posts/${post.id}`);
+    return `/${post.userName}/posts/${post.id}`;
   };
 
   useEffect(() => {
@@ -166,9 +162,9 @@ function PostFeed({
         {!detailPage
           && post.content.length >= 240
           && (
-            <Button variant="link" onClick={() => toggleReadMore(post)} className="text-primary">
+            <Link to={toggleReadMore(post)} className="text-decoration-none text-primary">
               ...read more
-            </Button>
+            </Link>
           )}
       </div>
     );

@@ -76,6 +76,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('#usersExistAndAreActive', () => {
+    let users;
+    beforeEach(async () => {
+      users = await Promise.all([
+        userFactory.build(),
+        userFactory.build(),
+        userFactory.build({ deleted: true }),
+        userFactory.build({ status: ActiveStatus.Inactive }),
+      ].map((userData) => usersService.create(userData)));
+    });
+    it('returns the expected response when requesting only active users', async () => {
+      expect(await usersService.usersExistAndAreActive([users[0]._id, users[1]._id])).toBeTruthy();
+    });
+    it('returns the expected response when requesting a mix of active and deleted users', async () => {
+      expect(await usersService.usersExistAndAreActive([users[0]._id, users[1]._id, users[2]._id])).toBeFalsy();
+    });
+    it('returns the expected response when requesting a mix of active and inactive users', async () => {
+      expect(await usersService.usersExistAndAreActive([users[0]._id, users[1]._id, users[3]._id])).toBeFalsy();
+    });
+  });
+
   describe('#findByEmail', () => {
     let user: UserDocument;
     beforeEach(async () => {

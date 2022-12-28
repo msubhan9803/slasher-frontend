@@ -81,6 +81,51 @@ describe('ChatService', () => {
     });
   });
 
+  describe('#createPrivateDirectMessageConversation', () => {
+    let users;
+    beforeEach(async () => {
+      users = await Promise.all([
+        userFactory.build(),
+        userFactory.build(),
+      ].map((userData) => usersService.create(userData)));
+    });
+
+    it('successfully creates the expected MatchList', async () => {
+      const matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
+      expect(matchList).toBeTruthy();
+      expect(matchList.participants).toEqual([users[0]._id, users[1]._id]);
+    });
+  });
+
+  describe('#createOrFindPrivateDirectMessageConversationByParticipants', () => {
+    let users;
+    let matchList;
+
+    beforeEach(async () => {
+      users = await Promise.all([
+        userFactory.build(),
+        userFactory.build(),
+        userFactory.build(),
+      ].map((userData) => usersService.create(userData)));
+
+      matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
+    });
+
+    it('finds an existing conversation by searching for the participants of that conversation', async () => {
+      const foundMatchList = await chatService.createOrFindPrivateDirectMessageConversationByParticipants([users[0]._id, users[1]._id]);
+      expect(foundMatchList._id).toEqual(matchList._id);
+    });
+
+    it('creates a conversation if one does not exist with the given participants', async () => {
+      const matchListCount = await matchListModel.count();
+      const partcipants = [users[0]._id, users[2]._id];
+      const foundMatchList = await chatService.createOrFindPrivateDirectMessageConversationByParticipants(partcipants);
+      expect(foundMatchList.participants).toEqual(partcipants);
+      const newMatchListCount = await matchListModel.count();
+      expect(newMatchListCount - matchListCount).toBe(1);
+    });
+  });
+
   describe('#getConversations', () => {
     beforeEach(async () => {
       // User 1 sends a message and receives a message. Received message is unread.

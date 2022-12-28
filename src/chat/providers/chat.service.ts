@@ -11,6 +11,7 @@ import {
   MatchListDocument,
 } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
+import { UsersService } from '../../users/providers/users.service';
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -21,9 +22,39 @@ export interface Conversation extends MatchList {
 export class ChatService {
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
-    @InjectModel(MatchList.name)
-    private matchListModel: Model<MatchListDocument>,
+    @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
+    private usersService: UsersService,
   ) { }
+
+  async createPrivateDirectMessageConversation(participants: mongoose.Types.ObjectId[]) {
+    // Make sure that all of the participants exist
+    if (participants.length < 2) {
+      throw new Error('A conversation must have at least two participants.');
+    }
+
+    if (!this.usersService.usersExistAndAreActive(participants)) {
+      throw new Error('One or more conversation participants could not be found');
+    }
+
+    const insertData = {
+      participants,
+      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+      roomType: MatchListRoomType.Match,
+      roomCategory: MatchListRoomCategory.DirectMessage,
+    };
+    return this.matchListModel.create(insertData);
+  }
+
+  async createOrFindPrivateDirectMessageConversationByParticipants(participants: mongoose.Types.ObjectId[]) {
+    const matchList = await this.matchListModel.findOne({
+      participants: { $all: participants },
+      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+      roomType: MatchListRoomType.Match,
+      roomCategory: MatchListRoomCategory.DirectMessage,
+    });
+
+    return matchList || this.createPrivateDirectMessageConversation(participants);
+  }
 
   async sendPrivateDirectMessage(
     fromUser: string,
@@ -35,19 +66,12 @@ export class ChatService {
       new mongoose.Types.ObjectId(fromUser),
       new mongoose.Types.ObjectId(toUser),
     ];
-    let matchList = await this.matchListModel.findOne({
-      participants: { $all: participants },
-    });
 
-    if (!matchList) {
-      const insertData = {
-        participants,
-        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        roomType: MatchListRoomType.Match,
-        roomCategory: MatchListRoomCategory.DirectMessage,
-      };
-      matchList = await this.matchListModel.create(insertData);
-    }
+    // In addition to getting the correct MatchList, this also verifies that:
+    // - The participants are all real users.
+    // - The fromUser and toUser are definitely participants in the returned conversation.
+    const matchList = await this.createOrFindPrivateDirectMessageConversationByParticipants(participants);
+
     const messageObject = await this.messageModel.create({
       matchId: matchList,
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),

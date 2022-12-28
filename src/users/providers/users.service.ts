@@ -35,6 +35,18 @@ export class UsersService {
     return this.userModel.findById(id).exec();
   }
 
+  /**
+   * For the given array of user ids, returns true if they are ALL existing, active users.
+   * @param participants
+   */
+  async usersExistAndAreActive(userIds: mongoose.Types.ObjectId[]) {
+    return (await this.userModel.find({
+      _id: { $in: userIds },
+      deleted: false,
+      status: ActiveStatus.Active,
+    }).count()) === userIds.length;
+  }
+
   async findByEmail(email: string): Promise<UserDocument> {
     return this.userModel
       .findOne({ email })

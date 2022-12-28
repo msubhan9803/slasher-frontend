@@ -224,7 +224,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad={false}
+                    initialLoad
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}

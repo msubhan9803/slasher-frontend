@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
@@ -21,7 +21,9 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import { replaceHtmlToText } from '../../../utils/text-utils';
+import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
+
+const READ_MORE_TEXT_LIMIT = 300;
 
 interface LinearIconProps {
   uniqueId?: string
@@ -57,7 +59,7 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const Content = styled.div`
+const Content = styled.span`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
@@ -93,6 +95,13 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
+
+  const generateReadMoreLink = (post: any) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+    }
+    return `/${post.userName}/posts/${post.id}`;
+  };
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -133,6 +142,45 @@ function PostFeed({
     return popoverOptions;
   };
 
+  const renderPostContent = (post: any) => {
+    let { content } = post;
+    let showReadMoreLink = false;
+    if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
+      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      content = post.content.substring(0, reducedContentLength);
+      showReadMoreLink = true;
+    }
+
+    return (
+      <div>
+        <Content dangerouslySetInnerHTML={
+          {
+            __html: escapeHtml
+              ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
+              : escapeScriptTags(content),
+          }
+        }
+        />
+        {post.hashTag?.map((hashtag: string) => (
+          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+            #
+            {hashtag}
+          </span>
+        ))}
+        {!detailPage
+          && showReadMoreLink
+          && (
+            <>
+              {' '}
+              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                ...read more
+              </Link>
+            </>
+          )}
+      </div>
+    );
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -153,22 +201,7 @@ function PostFeed({
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
-              <div>
-                <Content dangerouslySetInnerHTML={
-                  {
-                    __html: escapeHtml
-                      ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
-                      : post.content,
-                  }
-                }
-                />
-                {post.hashTag?.map((hashtag: string) => (
-                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                    #
-                    {hashtag}
-                  </span>
-                ))}
-              </div>
+              {renderPostContent(post)}
               {post?.images && (
                 <CustomSwiper
                   images={
@@ -227,7 +260,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad={false}
+                    initialLoad
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}

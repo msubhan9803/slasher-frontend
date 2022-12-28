@@ -18,6 +18,7 @@ import {
 } from '../../api/friends';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import { createBlockUser } from '../../api/blocks';
+import { reportData } from '../../api/report';
 
 interface Props {
   tabKey: string;
@@ -113,6 +114,19 @@ function ProfileHeader({ tabKey, user }: Props) {
       .catch((error) => console.error(error));
   };
 
+  const reportUserProfile = (reason: string) => {
+    const reportPayload = {
+      targetId: clickedUserId,
+      reason,
+      reportType: 'profile',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <div className="bg-dark bg-mobile-transparent rounded mb-4">
       {tabKey === 'about'
@@ -160,20 +174,20 @@ function ProfileHeader({ tabKey, user }: Props) {
                       )}
                     {loginUserName !== userName
                       && (
-                      <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                        <RoundButtonLink variant="black" to={`/messages/conversation/user/${user?.id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>
-                        <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
-                          {friendStatus}
-                        </RoundButton>
+                        <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
+                          <RoundButtonLink variant="black" to={`/messages/conversation/new?userId=${user?.id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>
+                          <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+                            {friendStatus}
+                          </RoundButton>
 
-                        <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
-                          <CustomPopover
-                            popoverOptions={popoverOption}
-                            onPopoverClick={handlePopoverOption}
-                            userId={user?.id}
-                          />
-                        </StyledPopoverContainer>
-                      </div>
+                          <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
+                            <CustomPopover
+                              popoverOptions={popoverOption}
+                              onPopoverClick={handlePopoverOption}
+                              userId={user?.id}
+                            />
+                          </StyledPopoverContainer>
+                        </div>
                       )}
                   </Col>
                 </Row>
@@ -229,6 +243,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         onBlockYesClick={onBlockYesClick}
+        handleReport={reportUserProfile}
       />
     </div>
   );

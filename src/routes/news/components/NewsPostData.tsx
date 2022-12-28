@@ -5,8 +5,10 @@ import Cookies from 'js-cookie';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed-providers';
 import { NewsPartnerPostProps } from '../../../types';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
+import { reportData } from '../../../api/report';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 
 interface Props {
   partnerId: string;
@@ -21,6 +23,7 @@ function NewsPostData({ partnerId }: Props) {
   const popoverOption = ['Report'];
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
   useEffect(() => {
     if (partnerId && requestAdditionalPosts && !loadingPosts) {
@@ -108,9 +111,24 @@ function NewsPostData({ partnerId }: Props) {
     }
   };
 
-  const handlePopoverOption = (selectedOption: string) => {
+  const handlePopoverOption = (selectedOption: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(selectedOption);
+    setPopoverClick(popoverClickProps);
+  };
+
+  const reportNewsPost = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedPost();
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -136,7 +154,12 @@ function NewsPostData({ partnerId }: Props) {
       </InfiniteScroll>
       {loadingPosts && renderLoadingIndicator()}
       {noMoreData && renderNoMoreDataMessage()}
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportNewsPost}
+      />
     </>
   );
 }

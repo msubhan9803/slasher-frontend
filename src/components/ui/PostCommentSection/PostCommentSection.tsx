@@ -81,8 +81,6 @@ function PostCommentSection({
   const [replyId, setReplyId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [editContent, setEditContent] = useState<string>();
-  const loadMore = 10;
-  const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
@@ -258,7 +256,6 @@ function PostCommentSection({
 
   const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
-    setNext(next + loadMore);
     setIsReply(false);
   };
 
@@ -271,11 +268,8 @@ function PostCommentSection({
       .catch((error) => console.error(error));
   };
   const loadMoreReply = (data: any) => {
-    if (data.id === queryCommentId) {
+    if (data.id === queryCommentId || data.id === loadMoreId) {
       return data.commentReplySection.length;
-    }
-    if (loadMoreId === data.id) {
-      return next;
     }
     return 2;
   };
@@ -447,9 +441,8 @@ function PostCommentSection({
                           ))}
                       {data.commentReplySection
                         && data.commentReplySection.length > 2
-                        && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
-                          && next >= data.commentReplySection.length)
-                        && (data.commentReplySection[0]?.feedCommentId !== queryCommentId)
+                        && data.commentReplySection[0]?.feedCommentId !== loadMoreId
+                        && data.commentReplySection[0]?.feedCommentId !== queryCommentId
                         && (
                           <LoadMoreCommentsWrapper>
                             <Button
@@ -459,7 +452,7 @@ function PostCommentSection({
                                 handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load more comments
+                              {`Load ${data.commentReplySection.length - 2} more ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
                             </Button>
                           </LoadMoreCommentsWrapper>
                         )}

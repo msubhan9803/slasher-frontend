@@ -87,6 +87,8 @@ function PostCommentSection({
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
+  const [checkLoadMoreId, setCheckLoadMoreId] = useState<string[]>([]);
+
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -257,6 +259,7 @@ function PostCommentSection({
   const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
     setIsReply(false);
+    setCheckLoadMoreId([...checkLoadMoreId, loadId]);
   };
 
   const onBlockYesClick = () => {
@@ -268,7 +271,9 @@ function PostCommentSection({
       .catch((error) => console.error(error));
   };
   const loadMoreReply = (data: any) => {
-    if (data.id === queryCommentId || data.id === loadMoreId) {
+    if (data.id === queryCommentId
+      || data.id === loadMoreId
+      || (checkLoadMoreId.includes(data.id))) {
       return data.commentReplySection.length;
     }
     return 2;
@@ -441,7 +446,8 @@ function PostCommentSection({
                           ))}
                       {data.commentReplySection
                         && data.commentReplySection.length > 2
-                        && data.commentReplySection[0]?.feedCommentId !== loadMoreId
+                        && !checkLoadMoreId.includes(data.commentReplySection[0]?.feedCommentId)
+                        // && data.commentReplySection[0]?.feedCommentId !== loadMoreId
                         && data.commentReplySection[0]?.feedCommentId !== queryCommentId
                         && (
                           <LoadMoreCommentsWrapper>

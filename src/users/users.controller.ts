@@ -371,18 +371,24 @@ export class UsersController {
 
   @TransformImageUrls('$.profilePic', '$.coverPhoto')
   @Get(':userNameOrId')
-  async findOne(@Param('userNameOrId') userNameOrId: string) {
+  async findOne(
+    @Req() request: Request,
+    @Param('userNameOrId') userNameOrId: string,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
     let user: UserDocument;
     if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
       user = await this.usersService.findById(userNameOrId);
     } else {
       user = await this.usersService.findByUsername(userNameOrId);
     }
-
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     return pick(user, ['id', 'firstName', 'userName', 'email', 'profilePic', 'coverPhoto', 'aboutMe']);
   }
 

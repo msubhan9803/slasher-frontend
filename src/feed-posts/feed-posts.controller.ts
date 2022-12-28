@@ -21,6 +21,7 @@ import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
+import { StorageLocationService } from '../global/providers/storage-location.service';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -29,6 +30,7 @@ export class FeedPostsController {
     private readonly config: ConfigService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
     private readonly notificationsGateway: NotificationsGateway,
   ) { }
@@ -73,7 +75,7 @@ export class FeedPostsController {
     const user = getUserFromRequest(request);
     const images = [];
     for (const file of files) {
-      const storageLocation = `/feed/feed_${file.filename}`;
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {

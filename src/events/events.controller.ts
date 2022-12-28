@@ -20,6 +20,7 @@ import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { StorageLocationService } from '../global/providers/storage-location.service';
 
 @Controller('events')
 export class EventsController {
@@ -28,6 +29,7 @@ export class EventsController {
     private readonly config: ConfigService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly storageLocationService: StorageLocationService,
   ) { }
 
   @Post()
@@ -102,7 +104,7 @@ export class EventsController {
 
     const images = [];
     for (const file of files) {
-      const storageLocation = `/event/event_${file.filename}`;
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('event', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {

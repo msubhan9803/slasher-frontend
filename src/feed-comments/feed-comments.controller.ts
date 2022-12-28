@@ -21,12 +21,14 @@ import { FeedCommentsIdDto } from './dto/feed-comment-id-dto';
 import { FeedReplyIdDto } from './dto/feed-reply-id.dto';
 import { getUserFromRequest } from '../utils/request-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
+import { StorageLocationService } from '../global/providers/storage-location.service';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
   constructor(
     private readonly feedCommentsService: FeedCommentsService,
     private readonly localStorageService: LocalStorageService,
+    private readonly storageLocationService: StorageLocationService,
     private readonly config: ConfigService,
     private readonly s3StorageService: S3StorageService,
   ) { }
@@ -65,7 +67,7 @@ export class FeedCommentsController {
     const user = getUserFromRequest(request);
     const images = [];
     for (const file of files) {
-      const storageLocation = `/feed/feed_${file.filename}`;
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {
@@ -160,7 +162,7 @@ export class FeedCommentsController {
     const user = getUserFromRequest(request);
     const images = [];
     for (const file of files) {
-      const storageLocation = `/feed/feed_${file.filename}`;
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
       if (this.config.get<string>('FILE_STORAGE') === 's3') {
         await this.s3StorageService.write(storageLocation, file);
       } else {

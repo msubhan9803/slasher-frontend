@@ -60,6 +60,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
+import { StorageLocationService } from '../global/providers/storage-location.service';
 
 @Controller('users')
 export class UsersController {
@@ -69,6 +70,7 @@ export class UsersController {
     private readonly mailService: MailService,
     private readonly localStorageService: LocalStorageService,
     private readonly s3StorageService: S3StorageService,
+    private readonly storageLocationService: StorageLocationService,
     private readonly feedPostsService: FeedPostsService,
     private readonly friendsService: FriendsService,
     private readonly userSettingsService: UserSettingsService,
@@ -441,8 +443,8 @@ export class UsersController {
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
-    const storageLocation = `/profile/profile_${file.filename}`;
 
+    const storageLocation = this.storageLocationService.generateNewStorageLocationFor('profile', file.filename);
     if (this.config.get<string>('FILE_STORAGE') === 's3') {
       await this.s3StorageService.write(storageLocation, file);
     } else {
@@ -500,8 +502,8 @@ export class UsersController {
     file: Express.Multer.File,
   ) {
     const user = getUserFromRequest(request);
-    const storageLocation = `/cover/cover_${file.filename}`;
 
+    const storageLocation = this.storageLocationService.generateNewStorageLocationFor('cover', file.filename);
     if (this.config.get<string>('FILE_STORAGE') === 's3') {
       await this.s3StorageService.write(storageLocation, file);
     } else {

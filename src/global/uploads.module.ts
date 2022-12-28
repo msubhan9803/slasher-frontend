@@ -6,6 +6,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { v4 as uuidv4 } from 'uuid';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { StorageLocationService } from './providers/storage-location.service';
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import * as path from 'path';
       }),
     }),
   ],
-  exports: [MulterModule],
+  providers: [StorageLocationService],
+  exports: [MulterModule, StorageLocationService],
 })
 export class UploadsModule { }

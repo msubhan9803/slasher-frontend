@@ -21,6 +21,8 @@ import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
 
+const READ_MORE_TEXT_LIMIT = 300;
+
 interface LinearIconProps {
   uniqueId?: string
 }
@@ -138,13 +140,17 @@ function PostFeed({
     return popoverOptions;
   };
 
-  const handleReadMore = (post: any) => {
+  const renderPostContent = (post: any) => {
     let { content } = post;
-    if (!detailPage && post.content.length >= 300) {
-      content = post.content.slice(0, post.content.substring(0, 300).lastIndexOf(' '));
+    let showReadMoreLink = false;
+    if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
+      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      content = post.content.substring(0, reducedContentLength);
+      showReadMoreLink = true;
     }
+
     return (
-      <div className="">
+      <div>
         <Content dangerouslySetInnerHTML={
           {
             __html: escapeHtml
@@ -160,11 +166,14 @@ function PostFeed({
           </span>
         ))}
         {!detailPage
-          && post.content.length >= 240
+          && showReadMoreLink
           && (
-            <Link to={toggleReadMore(post)} className="text-decoration-none text-primary">
-              ...read more
-            </Link>
+            <>
+              {' '}
+              <Link to={toggleReadMore(post)} className="text-decoration-none text-primary">
+                ...read more
+              </Link>
+            </>
           )}
       </div>
     );
@@ -190,7 +199,7 @@ function PostFeed({
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
-              {handleReadMore(post)}
+              {renderPostContent(post)}
               {post?.images && (
                 <CustomSwiper
                   images={

@@ -14,9 +14,13 @@ import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
+import { createBlockUser } from '../../api/blocks';
+import { reportData } from '../../api/report';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const newsPostPopoverOptions = ['Report'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -29,6 +33,7 @@ function Home() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
+  const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -36,6 +41,9 @@ function Home() {
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShow(true);
     setDropDownValue(value);
@@ -47,6 +55,17 @@ function Home() {
       getSuggestUserName(text)
         .then((res) => setMentionList(res.data));
     }
+  };
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
   };
 
   useEffect(() => {
@@ -64,7 +83,7 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: data.images,
+              images: formatImageVideoList(data.images, data.message),
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -80,11 +99,14 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
             likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            rssfeedProviderId: data.rssfeedProviderId._id,
           };
         });
         setPosts((prev: Post[]) => [
@@ -118,20 +140,41 @@ function Home() {
 
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
-      const newPosts = res.data.map((data: any) => ({
-        _id: data._id,
-        id: data._id,
-        postDate: data.createdAt,
-        content: data.message,
-        images: data.images,
-        userName: data.userId.userName,
-        profileImage: data.userId.profilePic,
-        userId: data.userId.userId,
-        likes: data.likes,
-        likeIcon: data.likes.includes(loginUserId),
-        likeCount: data.likeCount,
-        commentCount: data.commentCount,
-      }));
+      const newPosts = res.data.map((data: any) => {
+        if (data.userId) {
+          // Regular post
+          return {
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: formatImageVideoList(data.images, data.message),
+            userName: data.userId.userName,
+            profileImage: data.userId.profilePic,
+            userId: data.userId._id,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+          };
+        }
+        // RSS feed post
+        return {
+          _id: data._id,
+          id: data._id,
+          postDate: data.createdAt,
+          content: data.message,
+          images: formatImageVideoList(data.images, data.message),
+          userName: data.rssfeedProviderId?.title,
+          profileImage: data.rssfeedProviderId?.logo,
+          likes: data.likes,
+          likeIcon: data.likes.includes(loginUserId),
+          likeCount: data.likeCount,
+          commentCount: data.commentCount,
+          rssfeedProviderId: data.rssfeedProviderId._id,
+        };
+      });
       setPosts(newPosts);
     });
   };
@@ -168,9 +211,32 @@ function Home() {
     }
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShow(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const reportHomePost = (reason: string) => {
+    const reportPayload = {
+      targetId: postId,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedPost();
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+      <CustomCreatePost />
       <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
       <SuggestedFriend />
       {errorMessage && errorMessage.length > 0 && (
@@ -179,6 +245,7 @@ function Home() {
         </div>
       )}
       <InfiniteScroll
+        threshold={2000}
         pageStart={0}
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
@@ -193,6 +260,7 @@ function Home() {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
+              newsPostPopoverOptions={newsPostPopoverOptions}
               onLikeClick={onLikeClick}
             />
           )
@@ -208,6 +276,8 @@ function Home() {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportHomePost}
           />
         )}
       {dropDownValue === 'Edit'

@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
@@ -8,6 +8,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
+import { replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -33,6 +34,7 @@ interface Props {
   userName?: string;
   handleSeeCompleteList?: () => void;
   likeCount?: number;
+  active?: boolean;
 }
 interface ImageList {
   image_path: string;
@@ -73,9 +75,10 @@ function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
   setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
-  handleSeeCompleteList, likeCount,
+  handleSeeCompleteList, likeCount, active,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
+  const highlightRef = useRef<any>();
 
   useEffect(() => {
     if (commentImg && commentImg.length > 0) {
@@ -90,13 +93,27 @@ function CommentSection({
     if (handleSeeCompleteList) handleSeeCompleteList();
   };
 
+  useEffect(() => {
+    const tabs = highlightRef.current;
+    if (tabs) {
+      tabs.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        Inline: 'center',
+      });
+    }
+  }, []);
+
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
         <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
       </div>
       <div className="w-100">
-        <CommentBox className="ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative">
+        <CommentBox
+          className={`ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative ${active ? 'border border-primary' : ''}`}
+          ref={active ? highlightRef : null}
+        >
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
               <h3 className="mb-0 ">{name}</h3>
@@ -121,7 +138,9 @@ function CommentSection({
 
           <CommentMessage className="mb-0 fs-4">
             <Content dangerouslySetInnerHTML={
-              { __html: linkifyHtml(decryptMessage(commentMsg)) }
+              {
+                __html: linkifyHtml(decryptMessage(replaceHtmlToText(commentMsg))),
+              }
             }
             />
           </CommentMessage>
@@ -197,14 +216,15 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
-  setIsReply: () => { },
-  setReplyId: () => { },
-  setReplyUserName: () => { },
+  setIsReply: undefined,
+  setReplyId: undefined,
+  setReplyUserName: undefined,
   feedCommentId: '',
   content: null,
   userId: null,
   userName: null,
-  handleSeeCompleteList: () => { },
+  handleSeeCompleteList: undefined,
   likeCount: 0,
+  active: false,
 };
 export default CommentSection;

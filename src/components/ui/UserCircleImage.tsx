@@ -9,6 +9,7 @@ const UserCircleImage = styled(Image) <UserCircleImageProps>`
   width: ${(props) => props.size};
   height: ${(props) => props.size};
   border-radius: 50%;
+  object-fit: cover;
 `;
 
 UserCircleImage.defaultProps = {

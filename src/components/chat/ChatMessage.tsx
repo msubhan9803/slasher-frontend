@@ -55,7 +55,7 @@ function ChatMessage({ messages }: ChatProps) {
         <div className="other-message mb-3">
           <div className="mb-2 d-flex">
             <p className="fs-4 mb-0 p-3 text-small">
-              {message.message}
+              {decodeURIComponent(message.message)}
             </p>
           </div>
           <span className="fs-6 time-stamp align-items-center d-flex">
@@ -68,7 +68,7 @@ function ChatMessage({ messages }: ChatProps) {
         <div className="self-message align-items-end d-flex flex-column mb-3">
           <div className="mb-2">
             <p className="fs-4 mb-0 p-3 text-small text-white">
-              {message.message}
+              {decodeURIComponent(message.message)}
             </p>
           </div>
           <span className="time-stamp fs-6">{DateTime.fromISO(message.time).toFormat('h:mm a')}</span>

@@ -15,6 +15,9 @@ import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
+import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -43,12 +46,28 @@ function ProfilePosts() {
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const loginUserName = Cookies.get('userName');
+  const [postUserId, setPostUserId] = useState<string>('');
+
+  // TODO: Make this a shared function becuase it also exists in other places
+  const formatImageVideoList = (postImageList: any, postMessage: string) => {
+    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
+    if (youTubeVideoId) {
+      postImageList.splice(0, 0, {
+        videoKey: youTubeVideoId,
+      });
+    }
+    return postImageList;
+  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShowReportModal(true);
     setDropDownValue(value);
@@ -67,7 +86,7 @@ function ProfilePosts() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: data.images,
+            images: formatImageVideoList(data.images, data.message),
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -119,7 +138,7 @@ function ProfilePosts() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: data.images,
+          images: formatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
@@ -161,13 +180,37 @@ function ProfilePosts() {
       });
     }
   };
+
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShowReportModal(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const reportProfilePost = (reason: string) => {
+    const reportPayload = {
+      targetId: postId!,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedPost();
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
-      {queryParam === 'self'
+      {loginUserName === userName
         && (
-          <div className="mt-4">
-            <CustomCreatePost imageUrl="https://i.pravatar.cc/300?img=12" />
+          <div className="my-4">
+            <CustomCreatePost />
           </div>
         )}
       {errorMessage && errorMessage.length > 0 && (
@@ -210,6 +253,8 @@ function ProfilePosts() {
             show={showReportModal}
             setShow={setShowReportModal}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportProfilePost}
           />
         )}
       {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}

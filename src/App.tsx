@@ -24,13 +24,18 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
+import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
 // import Podcasts from './routes/podcasts/Podcasts';
 
+const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
+
 function App() {
   const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
+
+  if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
   return (
     <Routes>

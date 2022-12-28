@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
@@ -21,9 +21,10 @@ import NotificationsRIghtSideNav from '../../../../routes/notifications/Notifica
 import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 import { userInitialData } from '../../../../api/users';
-import { setUserInitialData } from '../../../../redux/slices/userSlice';
+import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
+import { SocketContext } from '../../../../context/socket';
 
 interface Props {
   children: React.ReactNode;
@@ -64,6 +65,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
@@ -85,7 +87,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   }, []);
 
   const [show, setShow] = useState(false);
-  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });
+  const isDesktopResponsiveSize = useMediaQuery({ query: '(min-width: 992px)' });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
@@ -104,6 +106,24 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     podcast: <PodcastsSidebar />,
   }[type]);
 
+  useEffect(() => {
+    dispatch(setUserInitialData(userData));
+  }, []);
+
+  const onNotificationReceivedHandler = () => {
+    dispatch(incrementUnreadNotificationCount());
+  };
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('notificationReceived', onNotificationReceivedHandler);
+      return () => {
+        socket.off('notificationReceived', onNotificationReceivedHandler);
+      };
+    }
+    return () => { };
+  }, []);
+
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
@@ -114,7 +134,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       />
       <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
-          {!show
+          {isDesktopResponsiveSize
             && (
               <div className={`d-${desktopBreakPoint}-block d-none`}>
                 <LeftSidebarWrapper>
@@ -140,7 +160,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       {show && (
         <StyledOffcanvas
           id={offcanvasId}
-          show={show && !forceHideOffcanvasSidebar}
+          show={show && !isDesktopResponsiveSize}
           onHide={hideOffcanvasSidebar}
         >
           <Offcanvas.Header closeButton>

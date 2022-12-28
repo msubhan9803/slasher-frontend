@@ -94,7 +94,7 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
 
-  const toggleReadMore = (post: any) => {
+  const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
@@ -170,7 +170,7 @@ function PostFeed({
           && (
             <>
               {' '}
-              <Link to={toggleReadMore(post)} className="text-decoration-none text-primary">
+              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
                 ...read more
               </Link>
             </>

@@ -1,8 +1,8 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -10,6 +10,8 @@ import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -20,6 +22,7 @@ describe('GET /users/:id (e2e)', () => {
   let otherUserAuthToken: string;
   let otherUser: UserDocument;
   let configService: ConfigService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -29,6 +32,7 @@ describe('GET /users/:id (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -151,6 +155,23 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
           coverPhoto: relativeToFullImagePath(configService, null),
         });
+      });
+    });
+
+    it('returns the expected response when block exists between users', async () => {
+      await blocksModel.create({
+        from: activeUser._id,
+        to: otherUser._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .get(`/users/${otherUser._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.body).toEqual({
+        message: 'User not found',
+        statusCode: 404,
       });
     });
   });

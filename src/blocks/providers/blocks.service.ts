@@ -74,4 +74,16 @@ export class BlocksService {
       },
     );
   }
+
+  async blockExistsBetweenUsers(userId1: string, userId2: string): Promise<boolean> {
+      const blockAndUnblock: any = await this.blocksModel
+      .findOne({
+        $or: [
+          { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
+          { from: new mongoose.Types.ObjectId(userId2), to: new mongoose.Types.ObjectId(userId1) },
+        ],
+      })
+      .exec();
+      return !!blockAndUnblock;
+  }
 }

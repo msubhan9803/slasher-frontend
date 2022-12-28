@@ -1,0 +1,103 @@
+import * as request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
+import { AppModule } from '../../../src/app.module';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { userFactory } from '../../factories/user.factory';
+import { User } from '../../../src/schemas/user/user.schema';
+import { ChatService } from '../../../src/chat/providers/chat.service';
+import { clearDatabase } from '../../helpers/mongo-helpers';
+import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
+
+describe('Create Or Find Direct Message Conversation / (e2e)', () => {
+  let app: INestApplication;
+  let connection: Connection;
+  let chatService: ChatService;
+  let usersService: UsersService;
+  let activeUserAuthToken: string;
+  let activeUser: User;
+  let configService: ConfigService;
+  let matchListModel: Model<MatchListDocument>;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    connection = moduleRef.get<Connection>(getConnectionToken());
+
+    chatService = moduleRef.get<ChatService>(ChatService);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
+    matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+
+    app = moduleRef.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    // Drop database so we start fresh before each test
+    await clearDatabase(connection);
+
+    activeUser = await usersService.create(userFactory.build());
+    activeUserAuthToken = activeUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+  });
+  describe('POST /chat/conversations/create-or-find-direct-message-conversation', () => {
+    describe('create or find direct message conversation', () => {
+      let users;
+      let matchList;
+
+      beforeEach(async () => {
+        users = await Promise.all([
+          userFactory.build(),
+          userFactory.build(),
+          userFactory.build(),
+        ].map((userData) => usersService.create(userData)));
+
+        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id]);
+      });
+      it('finds an existing conversation by searching for the participants of that conversation', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ userId: users[0]._id });
+        expect(response.body._id).toEqual(matchList.id);
+      });
+
+      it('creates a conversation if one does not exist with the given participants', async () => {
+        const matchListCount = await matchListModel.count();
+        const response = await request(app.getHttpServer())
+          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ userId: users[1]._id });
+        expect(response.body.participants).toEqual([
+          activeUser._id.toString(), users[1].id,
+        ]);
+        const newMatchListCount = await matchListModel.count();
+        expect(newMatchListCount - matchListCount).toBe(1);
+      });
+    });
+
+    describe('Validation', () => {
+      it('userId must be a mongodb id', async () => {
+        const userId = '634912b2@2c2f4f5e0e6228#';
+        const response = await request(app.getHttpServer())
+          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ userId });
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'userId must be a mongodb id',
+        );
+      });
+    });
+  });
+});

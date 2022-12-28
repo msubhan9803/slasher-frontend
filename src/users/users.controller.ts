@@ -373,21 +373,24 @@ export class UsersController {
   @Get(':userNameOrId')
   async findOne(@Req() request: Request, @Param('userNameOrId') userNameOrId: string) {
     const loggedInUser = getUserFromRequest(request);
-
     let user: UserDocument;
     if (SIMPLE_MONGODB_ID_REGEX.test(userNameOrId)) {
       user = await this.usersService.findById(userNameOrId);
     } else {
       user = await this.usersService.findByUsername(userNameOrId);
     }
-
     if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe'];
 
-    // expose email to loggged in user only
+    // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) pickFields.push('email');
 
     return pick(user, pickFields);

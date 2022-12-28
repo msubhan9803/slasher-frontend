@@ -56,7 +56,7 @@ describe('GET /users/:id (e2e)', () => {
     });
 
     describe('Find a user by id', () => {
-      it('returns the expected user', async () => {
+      it('returns the expected response when logged in users requests their own user data', async () => {
         const response = await request(app.getHttpServer())
           .get(`/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -66,6 +66,24 @@ describe('GET /users/:id (e2e)', () => {
           id: activeUser.id,
           aboutMe: activeUser.aboutMe,
           email: activeUser.email,
+          userName: activeUser.userName,
+          firstName: activeUser.firstName,
+          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
+        });
+      });
+
+      it('returns the expected response (omitting email field) when logged in users requests different user data', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.id}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        // Hide email for users other than active user
+        expect(response.body.email).toBeUndefined();
+        expect(response.body).toEqual({
+          id: activeUser.id,
+          aboutMe: activeUser.aboutMe,
           userName: activeUser.userName,
           firstName: activeUser.firstName,
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
@@ -83,24 +101,6 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body).toEqual({
           message: 'User not found',
           statusCode: 404,
-        });
-      });
-
-      it('returns the expected user and omit email field for other user', async () => {
-        const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}`)
-          .auth(otherUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.status).toEqual(HttpStatus.OK);
-        // Hide email for users other than active user
-        expect(response.body.email).toBeUndefined();
-        expect(response.body).toEqual({
-          id: activeUser.id,
-          aboutMe: activeUser.aboutMe,
-          userName: activeUser.userName,
-          firstName: activeUser.firstName,
-          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
         });
       });
     });

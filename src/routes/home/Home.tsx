@@ -16,6 +16,7 @@ import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 import { createBlockUser } from '../../api/blocks';
+import { reportData } from '../../api/report';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -220,6 +221,19 @@ function Home() {
       .catch((error) => console.error(error));
   };
 
+  const reportHomePost = (reason: string) => {
+    const reportPayload = {
+      targetId: postId,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedPost();
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <CustomCreatePost />
@@ -263,6 +277,7 @@ function Home() {
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             onBlockYesClick={onBlockYesClick}
+            handleReport={reportHomePost}
           />
         )}
       {dropDownValue === 'Edit'

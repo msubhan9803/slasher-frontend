@@ -43,6 +43,7 @@ function ResetPassword() {
               name="newPassword"
               value={resetPassword.newPassword}
               onChangeValue={handleResetPassword}
+              autoComplete="new-password"
             />
             <p className="my-3">Your new password must be at least 8 characters and contain at least one (1) special character and at least one (1) capital letter.</p>
             <CustomInputGroup

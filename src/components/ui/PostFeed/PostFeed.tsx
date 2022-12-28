@@ -6,7 +6,9 @@ import {
   Button,
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import {
+  Link, useNavigate, useSearchParams,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -92,9 +94,13 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-  const [readPostId, setReadPostId] = useState('');
-  const toggleReadMore = (readId: string) => {
-    setReadPostId(readId);
+  const navigate = useNavigate();
+
+  const toggleReadMore = (post: any) => {
+    if (post.rssfeedProviderId) {
+      navigate(`/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    }
+    navigate(`/${post.userName}/posts/${post.id}`);
   };
 
   useEffect(() => {
@@ -138,10 +144,8 @@ function PostFeed({
 
   const handleReadMore = (post: any) => {
     let { content } = post;
-    if (!detailPage && post.content.length >= 240) {
-      content = (post.id !== readPostId
-        ? post.content.slice(0, post.content.substring(0, 240).lastIndexOf(' '))
-        : post.content);
+    if (!detailPage && post.content.length >= 300) {
+      content = post.content.slice(0, post.content.substring(0, 300).lastIndexOf(' '));
     }
     return (
       <div className="">
@@ -160,10 +164,9 @@ function PostFeed({
           </span>
         ))}
         {!detailPage
-          && post.id !== readPostId
           && post.content.length >= 240
           && (
-            <Button variant="link" onClick={() => toggleReadMore(post.id)} className="text-primary">
+            <Button variant="link" onClick={() => toggleReadMore(post)} className="text-primary">
               ...read more
             </Button>
           )}

@@ -146,24 +146,19 @@ describe('BlocksService', () => {
   });
 
   describe('#blockExistsBetweenUsers', () => {
-    it('get blocked exists between users', async () => {
-      await blocksModel.create({
-        from: user0._id,
-        to: user3._id,
-        reaction: BlockAndUnblockReaction.Block,
-      });
+    it('returns true when a block exists between users', async () => {
       await blocksModel.create({
         from: user0._id,
         to: user2._id,
         reaction: BlockAndUnblockReaction.Block,
       });
-      const block = await blocksService.blockExistsBetweenUsers(user0._id, user2._id);
-      expect(block).toBe(true);
+      // Checking that block check works in both directions (from/to)
+      expect(await blocksService.blockExistsBetweenUsers(user0._id, user2._id)).toBe(true);
+      expect(await blocksService.blockExistsBetweenUsers(user2._id, user0._id)).toBe(true);
     });
 
-    it('when block user is not exists', async () => {
-      const block = await blocksService.blockExistsBetweenUsers(user0._id, user1._id);
-      expect(block).toBe(false);
+    it('returns false when a block does not exist between users', async () => {
+      expect(await blocksService.blockExistsBetweenUsers(user0._id, user1._id)).toBe(false);
     });
   });
 });

@@ -131,7 +131,7 @@
     "sass": "^1.51.0",
     "serve": "^13.0.2",
     "source-map-explorer": "^2.5.3",
-    "webpack": "^5.75.0",
+    "webpack": "5.64.4",
     "wrangler": "^2.1.10"
   }
 }

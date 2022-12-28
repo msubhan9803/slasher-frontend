@@ -19,7 +19,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
-import { replaceHtmlToText } from '../../../utils/text-utils';
+import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -149,7 +149,7 @@ function PostFeed({
           {
             __html: escapeHtml
               ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
-              : content,
+              : escapeScriptTags(content),
           }
         }
         />
@@ -248,7 +248,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad={false}
+                    initialLoad
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}

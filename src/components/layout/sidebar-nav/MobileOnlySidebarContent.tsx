@@ -27,19 +27,25 @@ function MobileOnlySidebarContent({ className }: Props) {
     <div className={className}>
       <Container fluid className="px-0">
         <Row>
-          <Col xs={4}>
+          <Col xs={3}>
             <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
               <UserCircleImage size="1.25em" className="mb-1" src={userProfileIconPlaceholder} alt="User icon" />
               Me
             </SpecificHeightLink>
           </Col>
-          <Col xs={4}>
+          <Col xs={3}>
             <SpecificHeightLink to={`/${loggedinUserName}/friends`} className="btn btn-dark btn-sidebar w-100 pt-2">
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
             </SpecificHeightLink>
           </Col>
-          <Col xs={4}>
+          <Col xs={3}>
+            <SpecificHeightLink to="/account/settings" className="btn btn-dark btn-sidebar w-100 pt-2">
+              <FontAwesomeIcon icon={solid('gear')} size="lg" className="mb-1" />
+              Settings
+            </SpecificHeightLink>
+          </Col>
+          <Col xs={3}>
             <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help

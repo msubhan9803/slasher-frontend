@@ -17,6 +17,8 @@ describe('GET /users/:id (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
+  let otherUserAuthToken: string;
+  let otherUser: UserDocument;
   let configService: ConfigService;
 
   beforeAll(async () => {
@@ -44,6 +46,11 @@ describe('GET /users/:id (e2e)', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
+        configService.get<string>('JWT_SECRET_KEY'),
+      );
+
+      otherUser = await usersService.create(userFactory.build());
+      otherUserAuthToken = otherUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
@@ -78,6 +85,24 @@ describe('GET /users/:id (e2e)', () => {
           statusCode: 404,
         });
       });
+
+      it('returns the expected user and omit email field for other user', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.id}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        // Hide email for users other than active user
+        expect(response.body.email).toBeUndefined();
+        expect(response.body).toEqual({
+          id: activeUser.id,
+          aboutMe: activeUser.aboutMe,
+          userName: activeUser.userName,
+          firstName: activeUser.firstName,
+          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
+        });
+      });
     });
     describe('Find a user by userName', () => {
       it('returns the expected user', async () => {
@@ -107,6 +132,24 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body).toEqual({
           message: 'User not found',
           statusCode: 404,
+        });
+      });
+
+      it('returns the expected user and omit email field for other user', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.userName}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        // Hide email for users other than active user
+        expect(response.body.email).toBeUndefined();
+        expect(response.body).toEqual({
+          id: activeUser.id,
+          aboutMe: activeUser.aboutMe,
+          userName: activeUser.userName,
+          firstName: activeUser.firstName,
+          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
         });
       });
     });

@@ -17,13 +17,15 @@ import UserCircleImage from '../UserCircleImage';
 import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
     border-radius: 1.875rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0rem;
-    
+
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -39,6 +41,11 @@ const PostImageContainer = styled.div`
   height: 4.25rem;
   border: 0.125rem solid #3A3B46
 `;
+
+const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
+  margin: -1rem 0 1rem;
+`;
+
 function PostCommentSection({
   commentSectionData,
   commentImage,
@@ -60,7 +67,8 @@ function PostCommentSection({
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const textRef = useRef<any>();
+  const commentRef = useRef<any>();
+  const textReplyRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<any>();
   const replyInputFile = useRef<HTMLInputElement>(null);
@@ -73,23 +81,25 @@ function PostCommentSection({
   const [replyId, setReplyId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [editContent, setEditContent] = useState<string>();
-  const loadMore = 10;
-  const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
+  const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
+      textReplyRef.current.style.height = '36px';
+      textReplyRef.current.style.height = `${target.scrollHeight}px`;
+      textReplyRef.current.style.maxHeight = '100px';
       setReplyMessage(target.value);
     } else {
+      commentRef.current.style.height = '36px';
+      commentRef.current.style.height = `${target.scrollHeight}px`;
+      commentRef.current.style.maxHeight = '100px';
       setMessage(target.value);
     }
-    textRef.current.style.height = '36px';
-    textRef.current.style.height = `${target.scrollHeight}px`;
-    textRef.current.style.maxHeight = '100px';
   };
 
   const handleSeeCompleteList = () => {
@@ -147,11 +157,11 @@ function PostCommentSection({
       const mentionString = `@${replyUserName} `;
       setReplyMessage(mentionString);
     }
-  }, [replyUserName]);
+  }, [replyUserName, isReply]);
 
   const sendComment = (commentId?: string) => {
-    textRef.current.style.height = '36px';
     if (commentId === undefined) {
+      commentRef.current.style.height = '36px';
       setCommentValue({
         commentMessage: message,
         replyMessage: '',
@@ -160,6 +170,7 @@ function PostCommentSection({
       setMessage('');
       setImageArray([]);
     } else {
+      textReplyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
       setCommentValue({
@@ -180,6 +191,10 @@ function PostCommentSection({
     setCommentReplyID('');
     setEditContent(popoverData.content);
 
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
     } else {
@@ -193,6 +208,11 @@ function PostCommentSection({
     setCommentReplyID(popoverData.id);
     setCommentID('');
     setEditContent(popoverData.content);
+
+    if (popoverData.userId) {
+      setCommentReplyUserId(popoverData.userId);
+    }
+
     if (value === 'Edit') {
       setIsEdit(true);
     } else {
@@ -234,10 +254,37 @@ function PostCommentSection({
     setReplyImageArray(removePostImage);
   };
 
-  const handleShowMorePosts = (loadId: string) => {
+  const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
-    setNext(next + loadMore);
     setIsReply(false);
+  };
+
+  const onBlockYesClick = () => {
+    createBlockUser(commentReplyUserId)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const loadMoreReply = (data: any) => {
+    if (data.id === queryCommentId || data.id === loadMoreId) {
+      return data.commentReplySection.length;
+    }
+    return 2;
+  };
+
+  const handleCommentReplyReport = (reason: string) => {
+    const reportPayload = {
+      targetId: commentID || commentReplyID,
+      reason,
+      reportType: commentID ? 'comment' : 'reply',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -255,7 +302,7 @@ function PostCommentSection({
                   className="fs-5 border-end-0"
                   rows={1}
                   as="textarea"
-                  ref={textRef}
+                  ref={commentRef}
                   value={message}
                   onFocus={() => setIsReply(false)}
                   onChange={onChangeHandler}
@@ -352,13 +399,14 @@ function PostCommentSection({
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
                     likeCount={data.likeCount}
+                    userId={data.userId?._id}
                     active={!queryReplyId ? data.id === queryCommentId : false}
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
                       {data.commentReplySection && data.commentReplySection.length > 0
                         && data.commentReplySection
-                          .slice(0, loadMoreId === data.id ? next : 2)
+                          .slice(0, loadMoreReply(data))
                           .map((comment: any) => (
                             <div key={comment.id}>
                               <CommentSection
@@ -386,26 +434,27 @@ function PostCommentSection({
                                 userName={comment.name}
                                 handleSeeCompleteList={handleSeeCompleteList}
                                 likeCount={comment.likeCount}
+                                userId={comment.userId?._id}
                                 active={queryReplyId ? comment.id === queryReplyId : false}
                               />
                             </div>
                           ))}
                       {data.commentReplySection
                         && data.commentReplySection.length > 2
-                        && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
-                          && next >= data.commentReplySection.length)
+                        && data.commentReplySection[0]?.feedCommentId !== loadMoreId
+                        && data.commentReplySection[0]?.feedCommentId !== queryCommentId
                         && (
-                          <div className="text-center">
+                          <LoadMoreCommentsWrapper>
                             <Button
                               variant="link"
                               className="text-primary shadow-none"
                               onClick={() => {
-                                handleShowMorePosts(data.commentReplySection[0]?.feedCommentId);
+                                handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load 10 more comments
+                              {`Load ${data.commentReplySection.length - 2} more ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
                             </Button>
-                          </div>
+                          </LoadMoreCommentsWrapper>
                         )}
                       {
                         isReply && (replyId === data.id
@@ -423,7 +472,7 @@ function PostCommentSection({
                                       className="fs-5 border-end-0"
                                       rows={1}
                                       as="textarea"
-                                      ref={textRef}
+                                      ref={textReplyRef}
                                       value={replyMessage}
                                       onChange={(e: any) => onChangeHandler(e, data.id)}
                                     />
@@ -488,6 +537,8 @@ function PostCommentSection({
         show={show}
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
+        onBlockYesClick={onBlockYesClick}
+        handleReport={handleCommentReplyReport}
         removeComment={removeComment}
       />
       {

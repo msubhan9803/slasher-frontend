@@ -19,6 +19,9 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
+
+const READ_MORE_TEXT_LIMIT = 300;
 
 interface LinearIconProps {
   uniqueId?: string
@@ -44,6 +47,8 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  newsPostPopoverOptions?: string[];
+  escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
 }
@@ -52,7 +57,7 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const Content = styled.div`
+const Content = styled.span`
   white-space: pre-line;
 `;
 const StyledBorder = styled.div`
@@ -79,7 +84,8 @@ function PostFeed({
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, loadNewerComment, previousCommentsAvailable,
+  loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -87,6 +93,13 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
+
+  const generateReadMoreLink = (post: any) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+    }
+    return `/${post.userName}/posts/${post.id}`;
+  };
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -110,6 +123,62 @@ function PostFeed({
     <p className="text-center">Loading...</p>
   );
 
+  const imageLinkUrl = (post: any, imageId: string) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+    }
+    return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const showPopoverOption = (postDetail: any) => {
+    if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
+      return newsPostPopoverOptions;
+    }
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+      return otherUserPopoverOptions!;
+    }
+    return popoverOptions;
+  };
+
+  const renderPostContent = (post: any) => {
+    let { content } = post;
+    let showReadMoreLink = false;
+    if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
+      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      content = post.content.substring(0, reducedContentLength);
+      showReadMoreLink = true;
+    }
+
+    return (
+      <div>
+        <Content dangerouslySetInnerHTML={
+          {
+            __html: escapeHtml
+              ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
+              : escapeScriptTags(content),
+          }
+        }
+        />
+        {post.hashTag?.map((hashtag: string) => (
+          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+            #
+            {hashtag}
+          </span>
+        ))}
+        {!detailPage
+          && showReadMoreLink
+          && (
+            <>
+              {' '}
+              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                ...read more
+              </Link>
+            </>
+          )}
+      </div>
+    );
+  };
+
   return (
     <StyledPostFeed>
       {postData.map((post: any) => (
@@ -122,33 +191,22 @@ function PostFeed({
                 userName={post.userName || post.title}
                 postDate={post.postDate}
                 profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
-                  ? otherUserPopoverOptions! : popoverOptions}
+                popoverOptions={showPopoverOption(post)}
                 onPopoverClick={onPopoverClick}
                 content={post.content}
                 userId={post.userId}
+                rssfeedProviderId={post.rssfeedProviderId}
               />
             </Card.Header>
             <Card.Body className="px-0 pt-3">
-              <div>
-                <Content dangerouslySetInnerHTML={
-                  { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
-                }
-                />
-                {post.hashTag?.map((hashtag: string) => (
-                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                    #
-                    {hashtag}
-                  </span>
-                ))}
-              </div>
+              {renderPostContent(post)}
               {post?.images && (
                 <CustomSwiper
                   images={
                     post.images.map((imageData: any) => ({
                       videoKey: imageData.videoKey,
                       imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                       postId: post.id,
                       imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                     }))
@@ -165,7 +223,12 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                  <Link
+                    to={post.rssfeedProviderId
+                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`
+                      : `/${post.userName}/posts/${post.id}`}
+                    className="text-decoration-none"
+                  >
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
                   </Link>
@@ -194,7 +257,7 @@ function PostFeed({
                   <StyledBorder className="d-md-block d-none mb-4" />
                   <InfiniteScroll
                     pageStart={0}
-                    initialLoad={false}
+                    initialLoad
                     loadMore={() => {
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}
@@ -257,6 +320,8 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  newsPostPopoverOptions: [],
+  escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
 };

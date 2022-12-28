@@ -19,7 +19,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
-import { replaceHtmlToText } from '../../../utils/text-utils';
+import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -156,7 +156,7 @@ function PostFeed({
                   {
                     __html: escapeHtml
                       ? linkifyHtml(decryptMessage(replaceHtmlToText(post.content)))
-                      : post.content,
+                      : escapeScriptTags(post.content),
                   }
                 }
                 />

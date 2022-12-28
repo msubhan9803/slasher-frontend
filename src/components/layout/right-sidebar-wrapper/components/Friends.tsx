@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 import { Row, Col } from 'react-bootstrap';
 import { getUsersFriends } from '../../../../api/users';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
@@ -15,7 +14,6 @@ interface FriendProps {
 
 function Friends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
-  const userName = Cookies.get('userName');
   const sidebarContext = useAppSelector((state) => state.sidebarContext);
   useEffect(() => {
     if (sidebarContext.userId) {

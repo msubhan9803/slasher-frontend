@@ -65,6 +65,7 @@ function NewsPartnerPost() {
         sharedList: res.data.sharedList,
         likes: res.data.likes,
         likeIcon: res.data.likes.includes(loginUserId),
+        rssfeedProviderId: res.data.rssfeedProviderId?._id,
       };
       setPostData([newsPost]);
     }).catch(

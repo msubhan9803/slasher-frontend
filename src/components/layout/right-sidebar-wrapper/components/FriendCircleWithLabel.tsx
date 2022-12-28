@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import UserCircleImage from '../../../ui/UserCircleImage';
 
 interface Props {
   className?: string;
@@ -19,10 +20,11 @@ function FriendCircleWithLabel({
 }: Props) {
   return (
     <StyledLink to={linkTo} className={`d-block text-center text-white ${className}`}>
-      <img
+      <UserCircleImage
         className="img-fluid rounded-circle mb-2"
         alt={photoAlt}
         src={photo}
+        size="5.334rem"
       />
       <div className="overflow-hidden text-truncate">
         {userName}

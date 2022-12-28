@@ -144,4 +144,26 @@ describe('BlocksService', () => {
       expect(await blocksModel.find({ to: user0._id })).toHaveLength(0);
     });
   });
+
+  describe('#blockExistsBetweenUsers', () => {
+    it('get blocked exists between users', async () => {
+      await blocksModel.create({
+        from: user0._id,
+        to: user3._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      await blocksModel.create({
+        from: user0._id,
+        to: user2._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const block = await blocksService.blockExistsBetweenUsers(user0._id, user2._id);
+      expect(block).toBe(true);
+    });
+
+    it('when block user is not exists', async () => {
+      const block = await blocksService.blockExistsBetweenUsers(user0._id, user1._id);
+      expect(block).toBe(false);
+    });
+  });
 });

@@ -1,8 +1,13 @@
 import React from 'react';
+import Spinner from 'react-bootstrap/Spinner';
 
 function LoadingIndicator() {
   return (
-    <p className="text-center">Loading...</p>
+    <div className="text-center">
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    </div>
   );
 }
 

@@ -130,8 +130,8 @@ function EventsByDate() {
   };
 
   const eventsFromResponse = (res: any) => res.data.map((event: any) => {
-    const formattedStartDate = DateTime.fromISO(event.startDate).toUTC().toFormat('dd/MM/yyyy');
-    const formattedEndDate = DateTime.fromISO(event.endDate).toUTC().toFormat('dd/MM/yyyy');
+    const formattedStartDate = DateTime.fromISO(event.startDate).toUTC().toLocaleString();
+    const formattedEndDate = DateTime.fromISO(event.endDate).toUTC().toLocaleString();
     const formattedDate = formattedStartDate === formattedEndDate ? formattedStartDate : `${formattedStartDate} - ${formattedEndDate}`;
     return {
       ...event,

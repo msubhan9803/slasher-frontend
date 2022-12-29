@@ -24,8 +24,6 @@ function Profile() {
   const [user, setUser] = useState<User>();
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const userNameCookies = Cookies.get('userName');
-  const isUnAuthorizedUser = userName !== userNameCookies;
 
   useEffect(() => {
     if (userName) {
@@ -51,7 +49,7 @@ function Profile() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={isUnAuthorizedUser ? 'about' : 'posts'} replace />} />
+      <Route path="/" element={<Navigate to="posts" replace />} />
       <Route path="/posts" element={<ProfilePosts />} />
       <Route path="/posts/:postId" element={<ProfilePostDetail user={user} />} />
       <Route path="/friends" element={<ProfileFriends user={user} />} />

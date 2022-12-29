@@ -50,10 +50,6 @@ export class UserUnusedFields {
   unreadCount: number;
 
   // NOT USED
-  @Prop({ default: 0 })
-  profile_status: number;
-
-  // NOT USED
   // TODO: if we use this, probably more useful to store date of
   // agreement rather than boolean of agreement.
   @Prop({ default: false })
@@ -81,7 +77,8 @@ export class UserUnusedFields {
   @Prop({ default: false })
   is_email_verified: boolean;
 
-  // NOT USED
+  // Note: Don't use this field in this app.  Currently not clear what it actually does.
+  // See: profile_status field instead.
   @Prop({ default: false })
   profileStatus: boolean;
 

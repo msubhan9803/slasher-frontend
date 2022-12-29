@@ -5,7 +5,7 @@ import mongoose, { Document } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { UserUnusedFields } from './user.unused-fields';
-import { UserType, ActiveStatus } from './user.enums';
+import { UserType, ActiveStatus, ProfileVisibility } from './user.enums';
 
 @Schema({ toJSON: { virtuals: true } })
 export class Device {
@@ -132,6 +132,9 @@ export class User extends UserUnusedFields {
 
   @Prop({ default: null })
   lastSignInIp: string;
+
+  @Prop({ default: ProfileVisibility.Public })
+  profile_status: ProfileVisibility;
 
   /***********
    * Methods *

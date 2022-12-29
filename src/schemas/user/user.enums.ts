@@ -12,3 +12,8 @@ export enum ActiveStatus {
   Active = '1',
   Deactivated = '2',
 }
+
+export enum ProfileVisibility {
+  Public = 0,
+  Private = 1,
+}

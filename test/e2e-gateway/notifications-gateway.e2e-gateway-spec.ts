@@ -136,7 +136,7 @@ describe('Notifications Gateway (e2e)', () => {
       userId: activeUser.id,
       feedPostId: feedPostData.id,
       senderId: user1.id,
-      notifyType: NotificationType.PostMention,
+      notifyType: NotificationType.UserMentionedYouInPost,
       notificationMsg: 'had mentioned you in a post',
     };
 
@@ -175,12 +175,12 @@ describe('Notifications Gateway (e2e)', () => {
 
     // Make request that will trigger emitted event
     const response = await request(app.getHttpServer())
-        .post('/feed-posts')
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .set('Content-Type', 'multipart/form-data')
-        .field('message', `hello test user ##LINK_ID##${user1.id}@${user1.userName}##LINK_END##`)
-        .field('userId', activeUser.id)
-        .expect(HttpStatus.CREATED);
+      .post('/feed-posts')
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .set('Content-Type', 'multipart/form-data')
+      .field('message', `hello test user ##LINK_ID##${user1.id}@${user1.userName}##LINK_END##`)
+      .field('userId', activeUser.id)
+      .expect(HttpStatus.CREATED);
 
     // Await socket response to receive emitted event
     await socketListenPromise;

@@ -3,22 +3,23 @@ export enum NotificationType {
   // (we need to determine what they are, by looking at the notification content)
   Type1 = 1,
   Type2 = 2,
-  Type11 = 11,
+  UserSentYouAFriendRequest = 11,
   Type12 = 12,
-  Type13 = 13,
-  Type14 = 14,
-  Type15 = 15,
+  UserLikedYourPost = 13,
+  UserLikedYourComment = 14,
+  UserCommentedOnYourPost = 15,
   Type16 = 16,
   Type17 = 17,
   Type18 = 18,
   Type19 = 19,
-  PostMention = 99,
-  Type101 = 101,
+  UserMentionedYouInPost = 99,
+  // for some reason, 101 is used for both "replied on your post" and "liked your reply"
+  UserRepliedOnYourPostOrLikedYourReply = 101,
   Type102 = 102,
   Type103 = 103,
   Type121 = 121,
   Type122 = 122,
-  Type125 = 125,
+  NewPostFromFollowedRssFeedProvider = 125,
 }
 
 export enum NotificationStatus {

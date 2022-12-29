@@ -22,6 +22,7 @@ import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -89,23 +90,17 @@ export class FeedPostsController {
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
-    if (createFeedPost && createFeedPost.message) {
-      const mentionUserData = createFeedPost.message.match(/[a-fA-F0-9]{24}@[a-zA-Z0-9_.-]+/g);
-      if (mentionUserData && mentionUserData.length) {
-        const mentionedUserIdList = mentionUserData.map((collectedUserData) => collectedUserData.split('@')[0]);
-        for (const mentionedUserId of mentionedUserIdList) {
-          const notificationObj: any = {
-            userId: new mongoose.Types.ObjectId(mentionedUserId),
-            feedPostId: createFeedPost._id,
-            senderId: user._id,
-            notifyType: NotificationType.PostMention,
-            notificationMsg: 'had mentioned you in a post',
-          };
-          const notification = await this.notificationsService.create(notificationObj);
-
-          this.notificationsGateway.emitMessageForNotification(notification);
-        }
-      }
+    const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
+    for (const mentionedUserId of mentionedUserIds) {
+      const notificationObj: any = {
+        userId: new mongoose.Types.ObjectId(mentionedUserId),
+        feedPostId: createFeedPost._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInPost,
+        notificationMsg: 'had mentioned you in a post',
+      };
+      const notification = await this.notificationsService.create(notificationObj);
+      this.notificationsGateway.emitMessageForNotification(notification);
     }
 
     asyncDeleteMulterFiles(files);

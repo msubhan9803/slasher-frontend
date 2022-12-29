@@ -67,7 +67,7 @@ describe('NotificationsService', () => {
         userId: activeUser.id,
         feedPostId: feedPostData.id,
         senderId: user1.id,
-        notifyType: NotificationType.PostMention,
+        notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'had mentioned you in a post',
       };
       const notificationData = await notificationsService.create(notificationObj);

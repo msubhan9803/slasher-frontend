@@ -2,12 +2,14 @@ import React, {
   useContext, useEffect, useRef, useState,
 } from 'react';
 import Cookies from 'js-cookie';
-import { useParams } from 'react-router-dom';
+import {
+  useLocation, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import { getMatchIdDetail } from '../../api/messages';
+import { getMatchIdDetail, getMatchListData } from '../../api/messages';
 import { SocketContext } from '../../context/socket';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
@@ -23,8 +25,21 @@ function Conversation() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
-  const [isUnAuthorizedUser, setIsUnAuthorizedUser] = useState(false);
+  const [showPageDoesNotExist, setPageDoesNotExist] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (location.pathname.includes('new')) {
+      /* eslint no-underscore-dangle: 0 */
+      getMatchListData(searchParams.get('userId')!).then((res) => {
+        navigate(location.pathname.replace('/new', `/${res.data._id}`));
+      }).catch(() => {
+      });
+    }
+  }, []);
 
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
@@ -51,13 +66,15 @@ function Conversation() {
   }, []);
 
   useEffect(() => {
-    if (conversationId) {
+    if (conversationId && !location.pathname.includes('new')) {
       const isSameConversation = lastConversationIdRef.current === conversationId;
       if (isSameConversation) return;
 
       lastConversationIdRef.current = conversationId;
 
       getMatchIdDetail(conversationId).then((res) => {
+        setIsLoading(false);
+
         setRecentMessageList([]);
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
@@ -73,11 +90,9 @@ function Conversation() {
         // false so if we set it to false again then it would set messages twice
         // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
         if (loadingMessages) setLoadingMessages(false);
-      }).catch((e) => {
-        if (e.response.data.statusCode === 401) {
-          setIsLoading(false);
-          setIsUnAuthorizedUser(true);
-        }
+      }).catch(() => {
+        setIsLoading(false);
+        setPageDoesNotExist(true);
       });
     }
   }, [conversationId]);
@@ -143,7 +158,7 @@ function Conversation() {
 
   if (isLoading) return null;
 
-  if (isUnAuthorizedUser) {
+  if (showPageDoesNotExist) {
     return (
       <UnauthenticatedPageWrapper>
         <NotFound />

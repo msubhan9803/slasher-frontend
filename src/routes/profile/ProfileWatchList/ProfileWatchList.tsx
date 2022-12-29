@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
 import FilterModal from '../../../components/filter-sort/FilterModal';
 import FilterOptions from '../../../components/filter-sort/FilterOptions';
 import SortData from '../../../components/filter-sort/SortData';
@@ -10,6 +9,7 @@ import CustomSearchInput from '../../../components/ui/CustomerSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import MoviePost from '../../../images/movie-poster.jpg';
 import { User } from '../../../types';
+import { useAppSelector } from '../../../redux/hooks';
 
 const allMovies = [
   {
@@ -41,13 +41,12 @@ interface Props {
   user: User
 }
 function ProfileWatchList({ user }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [search, setSearch] = useState<string>('');
   const [showKeys, setShowKeys] = useState<boolean>(false);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="watched-list" user={user} />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">

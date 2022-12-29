@@ -1,8 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -19,6 +18,7 @@ import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useAppSelector } from '../../../redux/hooks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -36,8 +36,6 @@ function ProfilePosts() {
   }, [userName]);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -46,8 +44,7 @@ function ProfilePosts() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
-  const loginUserName = Cookies.get('userName');
+  const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
 
   // TODO: Make this a shared function becuase it also exists in other places
@@ -92,7 +89,7 @@ function ProfilePosts() {
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
             likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
+            likeIcon: data.likes.includes(loginUserData.id),
             likeCount: data.likeCount,
             commentCount: data.commentCount,
           }
@@ -142,7 +139,7 @@ function ProfilePosts() {
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
           likes: data.likes,
-          likeIcon: data.likes.includes(loginUserId),
+          likeIcon: data.likes.includes(loginUserData.id),
           likeCount: data.likeCount,
           commentCount: data.commentCount,
         }));
@@ -167,7 +164,7 @@ function ProfilePosts() {
   };
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likes?.includes(loginUserData.id));
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -204,9 +201,9 @@ function ProfilePosts() {
   };
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
-      {loginUserName === userName
+      {loginUserData.userName === userName
         && (
           <div className="my-4">
             <CustomCreatePost />

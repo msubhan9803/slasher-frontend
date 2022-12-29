@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -11,6 +11,7 @@ import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useAppSelector } from '../../../redux/hooks';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -34,8 +35,6 @@ interface Props {
   user: User
 }
 function ProfilePhotos({ user }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [requestAdditionalPhotos, setRequestAdditionalPhotos] = useState<boolean>(false);
   const [show, setShow] = useState(false);
   const [userPhotosList, setUserPhotosList] = useState<UserPhotos[]>([]);
@@ -43,9 +42,10 @@ function ProfilePhotos({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const viewerOptions = ['Unfriend', 'Block user', 'Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
-  const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
+  const popoverOption = loginUserId === user?.id ? selfOptions : viewerOptions;
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -95,7 +95,7 @@ function ProfilePhotos({ user }: Props) {
   );
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" user={user} />
       <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
         {errorMessage && errorMessage.length > 0 && (

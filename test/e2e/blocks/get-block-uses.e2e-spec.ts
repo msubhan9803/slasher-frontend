@@ -62,9 +62,9 @@ describe('Get Blocked Users (e2e)', () => {
     });
   });
 
-  describe('Get /blocks', () => {
+  describe('GET /blocks', () => {
     describe('Get Blocked Users Request', () => {
-      it('finds the expected blocks', async () => {
+      it('returns the expected response', async () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())

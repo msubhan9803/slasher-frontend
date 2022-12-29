@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import { getMatchIdDetail, getMatchListData } from '../../api/messages';
+import { getConversation, createOrFindConversation } from '../../api/messages';
 import { SocketContext } from '../../context/socket';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
@@ -32,12 +32,14 @@ function Conversation() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (location.pathname.includes('new')) {
-      /* eslint no-underscore-dangle: 0 */
-      getMatchListData(searchParams.get('userId')!).then((res) => {
-        navigate(location.pathname.replace('/new', `/${res.data._id}`));
-      }).catch(() => {
-      });
+    if (location.pathname.includes('/new')) {
+      const newConversationUserId = searchParams.get('userId');
+      if (newConversationUserId) {
+        createOrFindConversation(newConversationUserId).then((res) => {
+          // eslint-disable-next-line no-underscore-dangle
+          navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
+        }).catch((e) => { throw e; });
+      }
     }
   }, []);
 
@@ -72,7 +74,7 @@ function Conversation() {
 
       lastConversationIdRef.current = conversationId;
 
-      getMatchIdDetail(conversationId).then((res) => {
+      getConversation(conversationId).then((res) => {
         setIsLoading(false);
 
         setRecentMessageList([]);

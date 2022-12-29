@@ -30,8 +30,12 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
-  const [publicStatus, setPublic] = useState<boolean>(user.profile_status === ProfileVisibility.Public || false);
-  const [privateStatus, setPrivate] = useState<boolean>(user.profile_status === ProfileVisibility.Private || false);
+  const [publicStatus, setPublic] = useState<boolean>(
+    user.profile_status === ProfileVisibility.Public,
+  );
+  const [privateStatus, setPrivate] = useState<boolean>(
+    user.profile_status === ProfileVisibility.Private,
+  );
   const { userName } = useParams<string>();
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
@@ -91,10 +95,10 @@ function ProfileEdit({ user }: Props) {
     );
   }
 
-  const label = (label:string, text:string) => (
+  const radioButtonLabelDescription = (radioButtonLable: string, description: string) => (
     <>
-      <span className="fs-3 fw-normal">{label}</span>
-      <p className="text-light">{text}</p>
+      <span className="fs-3 fw-normal">{radioButtonLable}</span>
+      <p className="text-light">{description}</p>
     </>
   );
 
@@ -233,47 +237,25 @@ function ProfileEdit({ user }: Props) {
 
             <Col md={6}>
               <Form.Group className="mb-4">
-                <Form.Label className="h3">Profile visibilitys</Form.Label>
+                <Form.Label className="h3">Profile visibility</Form.Label>
                 <Form.Check
-                  key="label"
+                  key="profileVisibility"
                   type="radio"
-                  id={`report-${0}`}
+                  id="report-public"
                   checked={publicStatus}
                   className="mb-2"
-                  label={label('Anyone on Slasher', 'This will allow your profile to be visible to any Slasher user.')}
+                  label={radioButtonLabelDescription('Anyone on Slasher', 'This will allow your profile to be visible to any Slasher user.')}
                   onChange={publicChangeHandler}
                 />
                 <Form.Check
-                  key="label"
+                  key="profileVisibility"
                   type="radio"
-                  id={`report-${0}`}
+                  id="report-private"
                   checked={privateStatus}
                   className="mb-2"
-                  label={label('Private', 'This reduces how much of your profile is visible to Slasher members who are not your friend.')}
+                  label={radioButtonLabelDescription('Private', 'This reduces how much of your profile is visible to Slasher members who are not your friend.')}
                   onChange={privateChangeHandler}
                 />
-                {/* <Form.Control
-                  type="email"
-                  placeholder="Email"
-                  value={locallyStoredUserData.email || ''}
-                  onChange={
-                    (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
-                  }
-                  className="my-3 fs-5"
-                /> */}
-                {/* <Form.Text className="text-muted fs-4">
-                  In order to edit your email address, we will ask your
-                  security question.
-                </Form.Text>
-                <Form.Text className="text-muted d-flex my-3 fs-4">
-                  When you change your email address, we will send an email to that
-                  address with an update button.
-                </Form.Text>
-                <Form.Text className="text-muted fs-4">
-                  Be sure to click the button in the email to activate your new email address.
-                  If you do not, this can cause issues with your account, such as your ability
-                  to login.
-                </Form.Text> */}
               </Form.Group>
             </Col>
           </Row>

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 

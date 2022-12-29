@@ -25,14 +25,11 @@ interface Props {
   likeIcon: boolean;
   popoverOptions: string[];
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  setIsReply?: (value: boolean) => void;
-  setReplyId?: (value: string) => void;
-  setReplyUserName?: (value: string) => void;
   feedCommentId?: string;
   content?: string;
   userId?: string;
   userName?: string;
-  handleSeeCompleteList?: () => void;
+  handleSeeCompleteList?: (id: string, name: string, replyId: string) => void;
   likeCount?: number;
   active?: boolean;
 }
@@ -73,8 +70,8 @@ const decryptMessage = (content: string) => {
 };
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
-  onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
-  setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
+  onIconClick, likeIcon, popoverOptions, onPopoverClick,
+  feedCommentId, content, userId, userName,
   handleSeeCompleteList, likeCount, active,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
@@ -85,13 +82,6 @@ function CommentSection({
       setImages(commentImg);
     }
   }, [commentImg]);
-
-  const handleReply = (replyId: string, replyName: string) => {
-    if (setIsReply) setIsReply(true);
-    if (setReplyId) setReplyId(replyId);
-    if (setReplyUserName) setReplyUserName(replyName);
-    if (handleSeeCompleteList) handleSeeCompleteList();
-  };
 
   useEffect(() => {
     const tabs = highlightRef.current;
@@ -202,7 +192,9 @@ function CommentSection({
             <Button
               variant="link"
               className="shadow-none"
-              onClick={() => handleReply(feedCommentId || id, name)}
+              onClick={() => {
+                if (handleSeeCompleteList) handleSeeCompleteList(feedCommentId || id, name, id);
+              }}
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
@@ -216,9 +208,6 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
-  setIsReply: undefined,
-  setReplyId: undefined,
-  setReplyUserName: undefined,
   feedCommentId: '',
   content: null,
   userId: null,

@@ -17,6 +17,7 @@ import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -133,9 +134,6 @@ function Home() {
           : 'No more posts'
       }
     </p>
-  );
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
   );
 
   const callLatestFeedPost = () => {
@@ -266,7 +264,7 @@ function Home() {
           )
         }
       </InfiniteScroll>
-      {loadingPosts && renderLoadingIndicator()}
+      {loadingPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       {dropDownValue !== 'Edit'
         && (

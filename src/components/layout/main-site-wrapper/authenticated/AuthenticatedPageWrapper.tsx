@@ -87,7 +87,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   }, []);
 
   const [show, setShow] = useState(false);
-  const forceHideOffcanvasSidebar = useMediaQuery({ query: '(min-width: 992px)' });
+  const isDesktopResponsiveSize = useMediaQuery({ query: '(min-width: 992px)' });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
@@ -134,7 +134,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       />
       <Container fluid="xxl" className="py-3 px-lg-4">
         <div className="d-flex">
-          {!show
+          {isDesktopResponsiveSize
             && (
               <div className={`d-${desktopBreakPoint}-block d-none`}>
                 <LeftSidebarWrapper>
@@ -160,7 +160,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
       {show && (
         <StyledOffcanvas
           id={offcanvasId}
-          show={show && !forceHideOffcanvasSidebar}
+          show={show && !isDesktopResponsiveSize}
           onHide={hideOffcanvasSidebar}
         >
           <Offcanvas.Header closeButton>

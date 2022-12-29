@@ -15,6 +15,8 @@ import { User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { setSidebarUserData } from '../../redux/slices/sidebarContextSlice';
 import { useAppDispatch } from '../../redux/hooks';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import NotFound from '../../components/NotFound';
 
 function Profile() {
   const { userName } = useParams<string>();
@@ -33,7 +35,11 @@ function Profile() {
   }, [userName]);
 
   if (userNotFound) {
-    return <p>User not found</p>;
+    return (
+      <UnauthenticatedPageWrapper>
+        <NotFound />
+      </UnauthenticatedPageWrapper>
+    );
   }
 
   if (!user) {

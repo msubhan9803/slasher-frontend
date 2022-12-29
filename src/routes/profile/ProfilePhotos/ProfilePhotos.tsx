@@ -10,6 +10,7 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -93,9 +94,6 @@ function ProfilePhotos({ user }: Props) {
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" user={user} />
@@ -131,7 +129,7 @@ function ProfilePhotos({ user }: Props) {
             ))}
           </Row>
         </InfiniteScroll>
-        {loadingPhotos && renderLoadingIndicator()}
+        {loadingPhotos && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
       </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

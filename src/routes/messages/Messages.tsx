@@ -8,6 +8,7 @@ import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -86,9 +87,6 @@ function Messages() {
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
   const fetchMoreMessages = () => {
     getMessagesList()
       .then((res) => {
@@ -161,7 +159,7 @@ function Messages() {
           }
         </InfiniteScroll>
       </div>
-      {loadingChats && renderLoadingIndicator()}
+      {loadingChats && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       <MessagesOptionDialog
         show={show}

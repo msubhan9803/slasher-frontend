@@ -7,6 +7,7 @@ import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import { posts } from '../../search/SearchResult';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -69,10 +70,6 @@ function AllMovies() {
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
-
   return (
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <MoviesHeader
@@ -102,7 +99,7 @@ function AllMovies() {
           >
             <PosterCardList dataList={filteredMovies} />
           </InfiniteScroll>
-          {loadingPosts && renderLoadingIndicator()}
+          {loadingPosts && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
         </div>
       </div>

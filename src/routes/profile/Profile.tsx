@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Navigate, Route, Routes, useParams,
 } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import ProfileAbout from './ProfileAbout/ProfileAbout';
 import ProfileFriends from './ProfileFriends/ProfileFriends';
 import ProfilePhotos from './ProfilePhotos/ProfilePhotos';

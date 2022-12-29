@@ -18,6 +18,7 @@ import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -120,9 +121,7 @@ function ProfilePosts() {
       }
     </p>
   );
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
+
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -238,7 +237,7 @@ function ProfilePosts() {
           )
         }
       </InfiniteScroll>
-      {loadingPosts && renderLoadingIndicator()}
+      {loadingPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       <ReportModal
         show={showReportModal}

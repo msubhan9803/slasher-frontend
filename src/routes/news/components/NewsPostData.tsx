@@ -9,6 +9,7 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { reportData } from '../../../api/report';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 interface Props {
   partnerId: string;
@@ -61,10 +62,6 @@ function NewsPostData({ partnerId }: Props) {
       );
     }
   }, [partnerId, requestAdditionalPosts, loadingPosts]);
-
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -152,7 +149,7 @@ function NewsPostData({ partnerId }: Props) {
           )
         }
       </InfiniteScroll>
-      {loadingPosts && renderLoadingIndicator()}
+      {loadingPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       <ReportModal
         show={show}

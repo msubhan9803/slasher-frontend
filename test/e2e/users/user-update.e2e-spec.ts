@@ -115,7 +115,6 @@ describe('Users / :id (e2e)', () => {
         expect(userDetails.userName).toEqual(postBody.userName);
         expect(userDetails.email).toEqual(postBody.email);
         expect(userDetails.firstName).toEqual(postBody.firstName);
-        expect(userDetails.profile_status).not.toEqual(profile_status);
       });
     });
 
@@ -264,7 +263,7 @@ describe('Users / :id (e2e)', () => {
         );
       });
 
-      it('profile_status must be one of the mentioned values', async () => {
+      it('profile_status must be one of the allowed values', async () => {
         postBody.profile_status = 2;
         const response = await request(app.getHttpServer())
           .patch(`/users/${activeUser._id}`)

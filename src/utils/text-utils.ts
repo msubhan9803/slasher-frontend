@@ -12,3 +12,7 @@ export function replaceHtmlToText(content: string) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
+
+export function escapeScriptTags(content: string) {
+  return content.replaceAll(/(<)([^>]*script[^>]*)(>)/gi, '&lt;$2&gt;');
+}

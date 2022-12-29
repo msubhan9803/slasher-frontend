@@ -4,6 +4,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
+import Cookies from 'js-cookie';
 import {
   uploadUserCoverImage, uploadUserProfileImage, updateUser,
 } from '../../../api/users';
@@ -13,6 +14,8 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
+import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import NotFound from '../../../components/NotFound';
 
 interface Props {
   user: User
@@ -25,6 +28,9 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
+  const { userName } = useParams<string>();
+  const userNameCookies = Cookies.get('userName');
+  const isUnAuthorizedUser = userName !== userNameCookies;
 
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -72,6 +78,14 @@ function ProfileEdit({ user }: Props) {
   const handleChange = (value: string, key: string) => {
     setLocallyStoredUserData({ ...locallyStoredUserData, [key]: value });
   };
+
+  if (isUnAuthorizedUser) {
+    return (
+      <UnauthenticatedPageWrapper>
+        <NotFound />
+      </UnauthenticatedPageWrapper>
+    );
+  }
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">

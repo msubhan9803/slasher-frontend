@@ -1,9 +1,10 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import { Link } from 'react-router-dom';
 import { Col, Row } from 'react-bootstrap';
+import { HashLink } from 'react-router-hash-link';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
+import { scrollToTop } from '../../../utils/scrollFunctions';
 
 interface PostHeaderProps {
   userName: string;
@@ -34,16 +35,19 @@ function PostHeader({
                 </div>
               )
               : (
-                <Link
+                // Do *not* remove the trailing # in below `to` path
+                // else the `scrollToTop/scrollWithOffset` won't work.
+                <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}`
-                    : `/${userName}/posts/${id}`}
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    : `/${userName}/posts/${id}#`}
+                  scroll={scrollToTop}
                   className="text-decoration-none"
                 >
                   <div className="rounded-circle">
                     <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
                   </div>
-                </Link>
+                </HashLink>
               )}
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
@@ -57,17 +61,20 @@ function PostHeader({
                 </>
               )
               : (
-                <Link
+                // Do *not* remove the trailing # in below `to` path
+                // else the `scrollToTop/scrollWithOffset` won't work.
+                <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}`
-                    : `/${userName}/posts/${id}`}
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    : `/${userName}/posts/${id}#`}
+                  scroll={scrollToTop}
                   className="text-decoration-none"
                 >
                   <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
                   </p>
-                </Link>
+                </HashLink>
               )}
           </Col>
         </Row>

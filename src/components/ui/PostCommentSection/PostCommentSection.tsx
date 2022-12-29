@@ -298,6 +298,7 @@ function PostCommentSection({
             <div className="d-flex align-items-end mb-4">
               <StyledCommentInputGroup>
                 <Form.Control
+                  id="comments"
                   placeholder="Write a comment"
                   className="fs-5 border-end-0"
                   rows={1}

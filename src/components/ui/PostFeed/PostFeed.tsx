@@ -6,6 +6,7 @@ import {
   Card, Col, Row,
 } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -19,6 +20,7 @@ import PostHeader from './PostHeader';
 import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
+import { scrollWithOffset } from '../../../utils/scrollFunctions';
 import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -223,15 +225,16 @@ function PostFeed({
                   </LinearIcon>
                 </Col>
                 <Col className="text-center" role="button">
-                  <Link
+                  <HashLink
                     to={post.rssfeedProviderId
-                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`
-                      : `/${post.userName}/posts/${post.id}`}
+                      ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
+                      : `/${post.userName}/posts/${post.id}#comments`}
                     className="text-decoration-none"
+                    scroll={scrollWithOffset}
                   >
                     <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                     <span className="fs-3">{post.commentCount}</span>
-                  </Link>
+                  </HashLink>
                 </Col>
                 <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                   <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />

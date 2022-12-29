@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 
@@ -36,6 +37,7 @@ export interface User {
   profilePic: string;
   coverPhoto: string;
   aboutMe: string;
+  profile_status: number;
 }
 
 export interface NewsPartnerPostProps {
@@ -196,4 +198,9 @@ export interface CommentValue {
 export enum RssFeedProviderFollowNotificationsEnabled {
   NotEnabled = 0,
   Enabled = 1,
+}
+
+export enum ProfileVisibility {
+  Public = 0,
+  Private = 1,
 }

@@ -39,6 +39,8 @@ function Conversation() {
           // eslint-disable-next-line no-underscore-dangle
           navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
         }).catch((e) => { throw e; });
+      } else {
+        navigate('/messages', { replace: true });
       }
     }
   }, []);

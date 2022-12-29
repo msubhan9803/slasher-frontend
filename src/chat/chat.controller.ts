@@ -10,6 +10,7 @@ import { GetConversationsQueryDto } from './dto/get-conversations-query.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { GetConversationQueryDto } from './dto/get-conversation-query.dto';
 import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversation-query.dto';
+import { pick } from '../utils/object-utils';
 
 @Controller('chat')
 export class ChatController {
@@ -43,7 +44,9 @@ export class ChatController {
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
-    return matchList;
+    const pickConversationFields = ['_id', 'roomName', 'roomImage', 'flag', 'createdBy', 'relationId', 'roomCategory', 'roomType', 'participants', 'status', 'deleted'];
+
+    return pick(matchList, pickConversationFields);
   }
 
   @TransformImageUrls('$.participants[*].profilePic')

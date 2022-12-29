@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -63,6 +64,34 @@ describe('Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body._id).toEqual(matchList1.matchId.id);
+        expect(response.body).toEqual(
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            roomName: '0',
+            roomImage: null,
+            flag: 1,
+            createdBy: null,
+            relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            roomCategory: 1,
+            roomType: 1,
+            participants: [
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                userName: 'Username3',
+                firstName: 'First name 3',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              },
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                userName: 'Username1',
+                firstName: 'First name 1',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              },
+            ],
+            status: '0',
+            deleted: false,
+          },
+        );
       });
 
       it('when active user is not participants than expected response', async () => {

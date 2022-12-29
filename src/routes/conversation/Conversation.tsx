@@ -9,6 +9,8 @@ import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getMatchIdDetail } from '../../api/messages';
 import { SocketContext } from '../../context/socket';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import NotFound from '../../components/NotFound';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -21,6 +23,8 @@ function Conversation() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const [isUnAuthorizedUser, setIsUnAuthorizedUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
@@ -60,7 +64,20 @@ function Conversation() {
         setChatUser(userDetail);
         setRequestAdditionalPosts(true);
 
+        // We need to set `loadingMessages` to false only if its not false currently.
+        // Why?
+        // 1. Consider messages for conversation1 is already loading, then if we change
+        // conversation then do want to set `loadingMessages` to false so that messages
+        // are loaded in the ```other useEffect``` hook.
+        // 2. Consider page load event, so at that time `loadingMessages` is already
+        // false so if we set it to false again then it would set messages twice
+        // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
         if (loadingMessages) setLoadingMessages(false);
+      }).catch((e) => {
+        if (e.response.data.statusCode === 401) {
+          setIsLoading(false);
+          setIsUnAuthorizedUser(true);
+        }
       });
     }
   }, [conversationId]);
@@ -123,6 +140,16 @@ function Conversation() {
       }
     }
   }, [conversationId, requestAdditionalPosts, recentMessageList, loadingMessages]);
+
+  if (isLoading) return null;
+
+  if (isUnAuthorizedUser) {
+    return (
+      <UnauthenticatedPageWrapper>
+        <NotFound />
+      </UnauthenticatedPageWrapper>
+    );
+  }
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">

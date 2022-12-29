@@ -1,6 +1,8 @@
+import { Type } from 'class-transformer';
 import {
-  IsEmail, IsNotEmpty, IsOptional, MaxLength,
+  IsEmail, IsIn, IsNotEmpty, IsNumber, IsOptional, MaxLength,
 } from 'class-validator';
+import { ProfileVisibility } from '../../schemas/user/user.enums';
 import { IsValidUsername } from '../../app/decorators/class-validator/user-name.decorator';
 
 export class UpdateUserDto {
@@ -20,4 +22,10 @@ export class UpdateUserDto {
   @IsOptional()
   @MaxLength(1000, { message: 'About Me cannot be longer than 1000 characters' })
   aboutMe?: string;
+
+  @IsOptional()
+  @IsIn([ProfileVisibility.Public, ProfileVisibility.Private])
+  @Type(() => Number)
+  @IsNumber()
+  profile_status: ProfileVisibility;
 }

@@ -388,7 +388,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe'];
+    const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) pickFields.push('email');

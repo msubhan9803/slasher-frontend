@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('Users / :id (e2e)', () => {
     userName: 'TestUser',
     email: 'testuser@gmail.com',
     aboutMe: 'I am a human being',
+    profile_status: ProfileVisibility.Private,
   };
 
   beforeAll(async () => {
@@ -98,6 +100,22 @@ describe('Users / :id (e2e)', () => {
         expect(userDetails.userName).toEqual(postBody.userName);
         expect(userDetails.email).toEqual(activeUser.email);
         expect(userDetails.firstName).toEqual(activeUser.firstName);
+      });
+
+      it('when the profile_status is not provided, updated to other fields are still successful', async () => {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const { profile_status, ...restPostBody } = postBody;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(restPostBody);
+        const userDetails = await usersService.findById(response.body.id);
+        expect(response.status).toEqual(HttpStatus.OK);
+
+        expect(userDetails.userName).toEqual(postBody.userName);
+        expect(userDetails.email).toEqual(postBody.email);
+        expect(userDetails.firstName).toEqual(postBody.firstName);
+        expect(userDetails.profile_status).not.toEqual(profile_status);
       });
     });
 
@@ -243,6 +261,18 @@ describe('Users / :id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
           'About Me cannot be longer than 1000 characters',
+        );
+      });
+
+      it('profile_status must be one of the mentioned values', async () => {
+        postBody.profile_status = 2;
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain(
+          'profile_status must be one of the following values: 0, 1',
         );
       });
     });

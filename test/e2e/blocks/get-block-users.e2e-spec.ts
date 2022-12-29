@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Get Blocked Users (e2e)', () => {
   let app: INestApplication;
@@ -74,13 +75,13 @@ describe('Get Blocked Users (e2e)', () => {
           .expect(HttpStatus.OK);
         expect(response.body).toEqual([
           {
-            _id: expect.any(String),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             userName: 'Username3',
             firstName: 'First name 3',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           {
-            _id: expect.any(String),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             userName: 'Username2',
             firstName: 'First name 2',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',

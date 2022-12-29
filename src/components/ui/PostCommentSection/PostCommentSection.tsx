@@ -132,7 +132,7 @@ function PostCommentSection({
         const removeLoadMoreId = checkLoadMoreId.filter(
           (loadMore: string) => loadMore !== replyCommentId,
         );
-        if (~~comment?.commentReplySection?.length - 1 !== index) {
+        if (comment?.commentReplySection?.length as number - 1 !== index) {
           setCheckLoadMoreId(removeLoadMoreId);
         }
       }

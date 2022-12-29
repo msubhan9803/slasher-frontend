@@ -14,16 +14,25 @@ import { BlockSuggestedFriendDto } from './dto/block-suggest-friend.dto';
 import { GetFriendshipDto } from './dto/get-frienship.dto';
 import { LimitOffSetDto } from './dto/limit-offset.dto';
 import { FriendsService } from './providers/friends.service';
+import { BlocksService } from '../blocks/providers/blocks.service';
 
 @Controller('friends')
 export class FriendsController {
   constructor(
     private readonly friendsService: FriendsService,
+    private readonly blocksService: BlocksService,
   ) { }
 
   @Post()
   async createFriendRequest(@Req() request: Request, @Body() createFriendRequestDto: CreateFriendRequestDto) {
     const user = getUserFromRequest(request);
+    if (user.id === createFriendRequestDto.userId) {
+      throw new HttpException('You cannot send a friend request to yourself', HttpStatus.BAD_REQUEST);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, createFriendRequestDto.userId);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
     await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
   }
 

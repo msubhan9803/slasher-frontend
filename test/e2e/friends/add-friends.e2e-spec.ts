@@ -12,6 +12,8 @@ import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schem
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +25,7 @@ describe('Add Friends (e2e)', () => {
   let user1: UserDocument;
   let configService: ConfigService;
   let friendsModel: Model<FriendDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -33,6 +36,7 @@ describe('Add Friends (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -92,6 +96,35 @@ describe('Add Friends (e2e)', () => {
         .send({ userId: user1._id });
 
       expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
+    });
+
+    it('user cannot send a friend request to yourself', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/friends')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ userId: activeUser._id });
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'You cannot send a friend request to yourself',
+        statusCode: 400,
+      });
+    });
+
+    it('when user is block than expected response.', async () => {
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/friends')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send({ userId: user1._id });
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block.',
+        statusCode: 400,
+      });
     });
 
     describe('Validation', () => {

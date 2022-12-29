@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import Cookies from 'js-cookie';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -7,10 +9,13 @@ import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getMatchIdDetail } from '../../api/messages';
 import { SocketContext } from '../../context/socket';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import NotFound from '../../components/NotFound';
 
 function Conversation() {
   const userId = Cookies.get('userId');
   const { conversationId } = useParams();
+  const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
   const [recentMessageList, setRecentMessageList] = useState<any>([]);
   const socket = useContext(SocketContext);
@@ -18,6 +23,8 @@ function Conversation() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const [isUnAuthorizedUser, setIsUnAuthorizedUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
@@ -45,12 +52,32 @@ function Conversation() {
 
   useEffect(() => {
     if (conversationId) {
+      const isSameConversation = lastConversationIdRef.current === conversationId;
+      if (isSameConversation) return;
+
+      lastConversationIdRef.current = conversationId;
+
       getMatchIdDetail(conversationId).then((res) => {
         setRecentMessageList([]);
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
         setRequestAdditionalPosts(true);
+
+        // We need to set `loadingMessages` to false only if its not false currently.
+        // Why?
+        // 1. Consider messages for conversation1 is already loading, then if we change
+        // conversation then do want to set `loadingMessages` to false so that messages
+        // are loaded in the ```other useEffect``` hook.
+        // 2. Consider page load event, so at that time `loadingMessages` is already
+        // false so if we set it to false again then it would set messages twice
+        // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
+        if (loadingMessages) setLoadingMessages(false);
+      }).catch((e) => {
+        if (e.response.data.statusCode === 401) {
+          setIsLoading(false);
+          setIsUnAuthorizedUser(true);
+        }
       });
     }
   }, [conversationId]);
@@ -80,6 +107,12 @@ function Conversation() {
       if (conversationId) {
         setLoadingMessages(true);
         socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
+          /* We need to check conversationId before setting `recentMessageList`
+          (Why? Ans. If we don't check for this we end up setting `recentMessageList`
+          for a previous conversation in a newer conversation when we rapidly switch
+          between two conversations. (TESTED) */
+          if (lastConversationIdRef.current !== conversationId) return;
+
           const messageList = recentMessagesResponse.map((recentMessage: any) => {
             const finalData: any = {
               // eslint-disable-next-line no-underscore-dangle
@@ -107,6 +140,16 @@ function Conversation() {
       }
     }
   }, [conversationId, requestAdditionalPosts, recentMessageList, loadingMessages]);
+
+  if (isLoading) return null;
+
+  if (isUnAuthorizedUser) {
+    return (
+      <UnauthenticatedPageWrapper>
+        <NotFound />
+      </UnauthenticatedPageWrapper>
+    );
+  }
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">

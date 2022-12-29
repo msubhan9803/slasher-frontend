@@ -18,6 +18,7 @@ import { FeedComments } from '../../../types';
 import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -80,8 +81,6 @@ function PostCommentSection({
   const [replyId, setReplyId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [editContent, setEditContent] = useState<string>();
-  const loadMore = 10;
-  const [next, setNext] = useState(2);
   const [loadMoreId, setLoadMoreId] = useState<string>('');
   const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
@@ -257,7 +256,6 @@ function PostCommentSection({
 
   const handleShowMoreComments = (loadId: string) => {
     setLoadMoreId(loadId);
-    setNext(next + loadMore);
     setIsReply(false);
   };
 
@@ -270,13 +268,23 @@ function PostCommentSection({
       .catch((error) => console.error(error));
   };
   const loadMoreReply = (data: any) => {
-    if (data.id === queryCommentId) {
+    if (data.id === queryCommentId || data.id === loadMoreId) {
       return data.commentReplySection.length;
     }
-    if (loadMoreId === data.id) {
-      return next;
-    }
     return 2;
+  };
+
+  const handleCommentReplyReport = (reason: string) => {
+    const reportPayload = {
+      targetId: commentID || commentReplyID,
+      reason,
+      reportType: commentID ? 'comment' : 'reply',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
   };
 
   return (
@@ -290,6 +298,7 @@ function PostCommentSection({
             <div className="d-flex align-items-end mb-4">
               <StyledCommentInputGroup>
                 <Form.Control
+                  id="comments"
                   placeholder="Write a comment"
                   className="fs-5 border-end-0"
                   rows={1}
@@ -433,9 +442,8 @@ function PostCommentSection({
                           ))}
                       {data.commentReplySection
                         && data.commentReplySection.length > 2
-                        && !(data.commentReplySection[0]?.feedCommentId === loadMoreId
-                          && next >= data.commentReplySection.length)
-                        && (data.commentReplySection[0]?.feedCommentId !== queryCommentId)
+                        && data.commentReplySection[0]?.feedCommentId !== loadMoreId
+                        && data.commentReplySection[0]?.feedCommentId !== queryCommentId
                         && (
                           <LoadMoreCommentsWrapper>
                             <Button
@@ -445,7 +453,7 @@ function PostCommentSection({
                                 handleShowMoreComments(data.commentReplySection[0]?.feedCommentId);
                               }}
                             >
-                              Load more comments
+                              {`Load ${data.commentReplySection.length - 2} more ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
                             </Button>
                           </LoadMoreCommentsWrapper>
                         )}
@@ -531,6 +539,7 @@ function PostCommentSection({
         setShow={setShow}
         slectedDropdownValue={dropDownValue}
         onBlockYesClick={onBlockYesClick}
+        handleReport={handleCommentReplyReport}
         removeComment={removeComment}
       />
       {

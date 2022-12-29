@@ -11,6 +11,8 @@ import IconWithTextNavButton from './IconWithTextNavButton';
 import CustomPopover from '../../../ui/CustomPopover';
 import { useAppSelector } from '../../../../redux/hooks';
 
+const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
 const StyledNavbar = styled(Navbar)`
   z-index:1;
   background-color: #101010 !important;
@@ -94,7 +96,7 @@ function AuthenticatedPageHeader(
       <CustomPopover
         popoverOptions={popoverOption}
         onPopoverClick={handleNavigate}
-        userProfileIcon={userData.user.profilePic}
+        userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64}
       />
     </div>,
   ];

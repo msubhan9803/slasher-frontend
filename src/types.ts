@@ -36,6 +36,7 @@ export interface User {
   profilePic: string;
   coverPhoto: string;
   aboutMe: string;
+  profile_status: number;
 }
 
 export interface NewsPartnerPostProps {
@@ -196,4 +197,9 @@ export interface CommentValue {
 export enum RssFeedProviderFollowNotificationsEnabled {
   NotEnabled = 0,
   Enabled = 1,
+}
+
+export enum ProfileVisibility {
+  Public = 0,
+  Private = 1,
 }

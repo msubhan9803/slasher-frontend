@@ -117,6 +117,7 @@ export async function updateUser(
   firstName: string,
   email: string,
   id: string,
+  profile_status: number,
 ) {
   const token = Cookies.get('sessionToken');
   const headers = {
@@ -126,6 +127,7 @@ export async function updateUser(
     userName,
     firstName,
     email,
+    profile_status,
   }, { headers });
 }
 

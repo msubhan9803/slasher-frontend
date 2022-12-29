@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
 import React, { ChangeEvent, useState } from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import {
+  Alert, Col, Form, Row,
+} from 'react-bootstrap';
 import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
@@ -12,7 +14,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
-import { User } from '../../../types';
+import { ProfileVisibility, User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
 import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../../components/NotFound';
@@ -28,10 +30,11 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
+  const [publicStatus, setPublic] = useState<boolean>(user.profile_status === ProfileVisibility.Public || false);
+  const [privateStatus, setPrivate] = useState<boolean>(user.profile_status === ProfileVisibility.Private || false);
   const { userName } = useParams<string>();
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
-
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     let errorList: string[] = [];
@@ -58,6 +61,7 @@ function ProfileEdit({ user }: Props) {
         locallyStoredUserData.firstName,
         locallyStoredUserData.email,
         locallyStoredUserData.id,
+        locallyStoredUserData.profile_status,
       );
     } catch (requestError: any) {
       errorList = errorList.concat(requestError.response.data.message);
@@ -87,8 +91,28 @@ function ProfileEdit({ user }: Props) {
     );
   }
 
+  const label = (label:string, text:string) => (
+    <>
+      <span className="fs-3 fw-normal">{label}</span>
+      <p className="text-light">{text}</p>
+    </>
+  );
+
+  const privateChangeHandler = () => {
+    setPrivate(true);
+    setPublic(false);
+    handleChange('1', 'profile_status');
+  };
+
+  const publicChangeHandler = () => {
+    setPublic(true);
+    setPrivate(false);
+    handleChange('0', 'profile_status');
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
+      {locallyStoredUserData.profilePic.includes('default_user_icon')
+        && <Alert variant="info">Hey! It looks like you don’t have a profile image yet!   Adding one will make people more likely to friend you!</Alert>}
       <Form>
         <div className="bg-dark p-4 rounded bg-mobile-transparent">
           <Row>
@@ -204,6 +228,52 @@ function ProfileEdit({ user }: Props) {
                   If you do not, this can cause issues with your account, such as your ability
                   to login.
                 </Form.Text>
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group className="mb-4">
+                <Form.Label className="h3">Profile visibilitys</Form.Label>
+                <Form.Check
+                  key="label"
+                  type="radio"
+                  id={`report-${0}`}
+                  checked={publicStatus}
+                  className="mb-2"
+                  label={label('Anyone on Slasher', 'This will allow your profile to be visible to any Slasher user.')}
+                  onChange={publicChangeHandler}
+                />
+                <Form.Check
+                  key="label"
+                  type="radio"
+                  id={`report-${0}`}
+                  checked={privateStatus}
+                  className="mb-2"
+                  label={label('Private', 'This reduces how much of your profile is visible to Slasher members who are not your friend.')}
+                  onChange={privateChangeHandler}
+                />
+                {/* <Form.Control
+                  type="email"
+                  placeholder="Email"
+                  value={locallyStoredUserData.email || ''}
+                  onChange={
+                    (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
+                  }
+                  className="my-3 fs-5"
+                /> */}
+                {/* <Form.Text className="text-muted fs-4">
+                  In order to edit your email address, we will ask your
+                  security question.
+                </Form.Text>
+                <Form.Text className="text-muted d-flex my-3 fs-4">
+                  When you change your email address, we will send an email to that
+                  address with an update button.
+                </Form.Text>
+                <Form.Text className="text-muted fs-4">
+                  Be sure to click the button in the email to activate your new email address.
+                  If you do not, this can cause issues with your account, such as your ability
+                  to login.
+                </Form.Text> */}
               </Form.Group>
             </Col>
           </Row>

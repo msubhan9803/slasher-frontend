@@ -67,13 +67,6 @@ describe('Conversation / (e2e)', () => {
         expect(response.body).toEqual(
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            roomName: '0',
-            roomImage: null,
-            flag: 1,
-            createdBy: null,
-            relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            roomCategory: 1,
-            roomType: 1,
             participants: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -88,8 +81,6 @@ describe('Conversation / (e2e)', () => {
                 profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               },
             ],
-            status: '0',
-            deleted: false,
           },
         );
       });

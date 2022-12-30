@@ -44,21 +44,23 @@ export class ChatController {
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
-    const pickConversationFields = ['_id', 'roomName', 'roomImage', 'flag', 'createdBy', 'relationId', 'roomCategory', 'roomType', 'participants', 'status', 'deleted'];
+    const pickConversationFields = ['_id', 'participants'];
 
     return pick(matchList, pickConversationFields);
   }
 
-  @TransformImageUrls('$.participants[*].profilePic')
   @Post('conversations/create-or-find-direct-message-conversation')
   async createOrFindDirectMessageConversation(
     @Req() request: Request,
     @Body() createEventDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    return this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
+    const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
       new mongoose.Types.ObjectId(createEventDto.userId),
     ]);
+    const pickConversationFields = ['_id', 'participants'];
+
+    return pick(chat, pickConversationFields);
   }
 }

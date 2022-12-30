@@ -11,6 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Create Or Find Direct Message Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -78,9 +79,13 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
-        expect(response.body.participants).toEqual([
-          activeUser._id.toString(), users[1].id,
-        ]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          participants: [
+            expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          ],
+        });
         const newMatchListCount = await matchListModel.count();
         expect(newMatchListCount - matchListCount).toBe(1);
       });

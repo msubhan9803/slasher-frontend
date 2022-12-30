@@ -52,7 +52,7 @@ function ProfileFriends({ user }: Props) {
       setShow(true);
       setDropDownValue(value);
     } else if (value === 'View profile') {
-      navigate(`/${popoverClickProps.userName}/about`);
+      navigate(`/${popoverClickProps.userName}`);
     }
   };
 

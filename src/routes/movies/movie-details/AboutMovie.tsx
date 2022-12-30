@@ -177,7 +177,8 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                 && aboutMovieData.mainData.overview}
               />
               <MovieCasts castList={aboutMovieData && aboutMovieData.cast as any} />
-              <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />
+              {aboutMovieData && aboutMovieData.video && aboutMovieData.video.length > 0
+                && <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />}
             </>
           )}
         />

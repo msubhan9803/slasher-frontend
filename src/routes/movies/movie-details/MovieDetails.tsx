@@ -32,11 +32,15 @@ function MovieDetails() {
     <AuthenticatedPageWrapper rightSidebarType="movie">
       <Container fluid className="mb-5">
         <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>
-        <PlayMovie embedId={
-          additionalMovieData && additionalMovieData.video
+        {additionalMovieData && additionalMovieData.video
           && additionalMovieData.video[0] && additionalMovieData.video[0].key
-        }
-        />
+          && (
+          <PlayMovie embedId={
+            additionalMovieData && additionalMovieData.video
+            && additionalMovieData.video[0] && additionalMovieData.video[0].key
+          }
+          />
+          )}
         <AboutMovie aboutMovieData={additionalMovieData as AdditionalMovieData} />
       </Container>
     </AuthenticatedPageWrapper>

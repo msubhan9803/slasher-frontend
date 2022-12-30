@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { getUsersFriends } from '../../../../api/users';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
@@ -15,12 +15,19 @@ interface FriendProps {
 function Friends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const sidebarContext = useAppSelector((state) => state.sidebarContext);
+  const sidebarUserIdRef = useRef('');
+
   useEffect(() => {
+    setFriendsList([]);
+    const isSameUserId = sidebarUserIdRef.current === sidebarContext.userId;
+    if (isSameUserId) return;
     if (sidebarContext.userId) {
+      sidebarUserIdRef.current = sidebarContext.userId;
       getUsersFriends(sidebarContext.userId)
         .then((res) => setFriendsList(res.data.friends));
     }
   }, [sidebarContext]);
+
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${sidebarContext.userName}/friends`} />

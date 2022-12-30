@@ -39,8 +39,8 @@ function PostHeader({
                 // else the `scrollToTop/scrollWithOffset` won't work.
                 <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
-                    : `/${userName}/posts/${id}#`}
+                    ? `/news/partner/${rssfeedProviderId}#`
+                    : `/${userName}#`}
                   scroll={scrollToTop}
                   className="text-decoration-none"
                 >
@@ -65,12 +65,22 @@ function PostHeader({
                 // else the `scrollToTop/scrollWithOffset` won't work.
                 <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
-                    : `/${userName}/posts/${id}#`}
+                    ? `/news/partner/${rssfeedProviderId}#`
+                    : `/${userName}#`}
                   scroll={scrollToTop}
                   className="text-decoration-none"
                 >
                   <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+                </HashLink>
+              )}
+            {!detailPage
+              && (
+                <HashLink
+                  to={rssfeedProviderId
+                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    : `/${userName}/posts/${id}#`}
+                  className="text-decoration-none"
+                >
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
                   </p>

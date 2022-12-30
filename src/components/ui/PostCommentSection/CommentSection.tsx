@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
+import { HashLink } from 'react-router-hash-link';
 import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
@@ -107,7 +108,9 @@ function CommentSection({
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
+        <HashLink to={`/${name}#`}>
+          <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
+        </HashLink>
       </div>
       <div className="w-100">
         <CommentBox
@@ -116,7 +119,9 @@ function CommentSection({
         >
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
-              <h3 className="mb-0 ">{name}</h3>
+              <HashLink to={`/${name}#`} className="text-decoration-none">
+                <h3 className="mb-0 ">{name}</h3>
+              </HashLink>
               <p className="fs-6 text-light mb-0">
                 {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
               </p>

@@ -108,7 +108,6 @@ describe('Notifications Cleanup', () => {
         const expectedCount = USERS * AMOUNT;
         expect(await notificationsService.estimatedDocumentCount()).toBe(expectedCount);
         expect(await notificationsService._find({ createdAt: today })).toHaveLength(expectedCount);
-        expect(1).toBe(1);
       },
       TEST_TIMEOUT,
     );

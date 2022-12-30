@@ -67,4 +67,24 @@ export class NotificationsService {
       .exec();
     return friendsCount;
   }
+
+  async insertMany(notifications: Array<Partial<Notification>>) {
+    return this.notificationModel.insertMany(notifications);
+  }
+
+  async estimatedDocumentCount() {
+    return this.notificationModel.estimatedDocumentCount();
+  }
+
+  async deleteMany(...args) {
+    return this.notificationModel.deleteMany(...args);
+  }
+
+  async aggregate(...args) {
+    return this.notificationModel.aggregate(...args);
+  }
+
+  async _find(...args) {
+    return this.notificationModel.find(...args);
+  }
 }

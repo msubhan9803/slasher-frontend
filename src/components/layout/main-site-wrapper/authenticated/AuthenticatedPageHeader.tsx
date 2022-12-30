@@ -114,7 +114,14 @@ function AuthenticatedPageHeader(
               {
                 desktopNavLinkElements.map((el, index) => {
                   const uniqueId = `nav-link-${index}`;
-                  return <div key={uniqueId} style={{ width: desktopTopNavIconWidth }}>{el}</div>;
+                  return (
+                    <div
+                      key={uniqueId}
+                      style={{ width: desktopTopNavIconWidth, paddingTop: 3 }}
+                    >
+                      {el}
+                    </div>
+                  );
                 })
               }
             </StyledNav>

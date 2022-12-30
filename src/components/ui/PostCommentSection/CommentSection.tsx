@@ -29,9 +29,17 @@ interface Props {
   content?: string;
   userId?: string;
   userName?: string;
-  handleSeeCompleteList?: (id: string, name: string, replyId: string) => void;
+  handleSeeCompleteList?: (
+    id: string,
+    name: string,
+    replyId: string,
+    scrollId: string,
+    e: any,
+  ) => void;
   likeCount?: number;
   active?: boolean;
+  isComment?: string;
+  isReply?: string;
 }
 interface ImageList {
   image_path: string;
@@ -71,8 +79,8 @@ const decryptMessage = (content: string) => {
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick,
-  feedCommentId, content, userId, userName,
-  handleSeeCompleteList, likeCount, active,
+  feedCommentId, content, userId, userName, handleSeeCompleteList,
+  likeCount, active, isComment, isReply,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
   const highlightRef = useRef<any>();
@@ -93,6 +101,13 @@ function CommentSection({
       });
     }
   }, []);
+
+  const handleReply = (e: any) => {
+    const scrollId = isReply ? isReply + id : isComment + id;
+    if (handleSeeCompleteList) {
+      handleSeeCompleteList(feedCommentId || id, name, id, scrollId, e);
+    }
+  };
 
   return (
     <div key={id} className="d-flex">
@@ -192,9 +207,7 @@ function CommentSection({
             <Button
               variant="link"
               className="shadow-none"
-              onClick={() => {
-                if (handleSeeCompleteList) handleSeeCompleteList(feedCommentId || id, name, id);
-              }}
+              onClick={(e: any) => handleReply(e)}
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
@@ -215,5 +228,7 @@ CommentSection.defaultProps = {
   handleSeeCompleteList: undefined,
   likeCount: 0,
   active: false,
+  isComment: '',
+  isReply: '',
 };
 export default CommentSection;

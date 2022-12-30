@@ -265,7 +265,6 @@ function PostFeed({
                   >
                     <PostCommentSection
                       commentSectionData={commentsData}
-                      commentImage={post.profileImage}
                       popoverOption={popoverOptions}
                       setCommentValue={setCommentValue}
                       removeComment={removeComment}

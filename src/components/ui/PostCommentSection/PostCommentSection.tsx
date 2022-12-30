@@ -48,7 +48,6 @@ const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
 
 function PostCommentSection({
   commentSectionData,
-  commentImage,
   popoverOption,
   setCommentValue,
   removeComment,
@@ -78,7 +77,7 @@ function PostCommentSection({
   const [message, setMessage] = useState<string>('');
   const [replyMessage, setReplyMessage] = useState<string>('');
   const [isReply, setIsReply] = useState<boolean>(false);
-  const [replyId, setReplyId] = useState<string>('');
+  const [selectedReplyCommentId, setSelectedReplyCommentId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
   const [editContent, setEditContent] = useState<string>();
   const [loadMoreId, setLoadMoreId] = useState<string>('');
@@ -86,9 +85,11 @@ function PostCommentSection({
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
-  const queryReplyId = searchParams.get('replyId');
+  const queryReplyId = searchParams.get('replyCommentId');
   const [checkLoadMoreId, setCheckLoadMoreId] = useState<string[]>([]);
   const [replyIndex, setReplyIndex] = useState<number>(2);
+  const [scrollId, setScrollId] = useState<string>('');
+  const [selectedReplyId, setSelectedReplyId] = useState<string>('');
 
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
@@ -106,13 +107,16 @@ function PostCommentSection({
   };
 
   const handleSeeCompleteList = (
-    replyCommentId: string,
+    commentReplyId: string,
     replyName: string,
-    selectedReplyId: string,
+    selectedReply?: string,
+    scrollReplyId?: string,
   ) => {
     setIsReply(true);
-    setReplyId(replyCommentId);
+    setSelectedReplyCommentId(commentReplyId);
     setReplyUserName(replyName);
+    setSelectedReplyId(selectedReply!);
+    setScrollId(scrollReplyId!);
 
     const tabs = tabsRef.current;
     if (tabs) {
@@ -125,20 +129,24 @@ function PostCommentSection({
     const loadCommentData: any = commentData;
     let index: number = 0;
     loadCommentData.forEach((comment: any) => {
-      if (comment.id === replyCommentId) {
+      if (comment.id === commentReplyId) {
         index = comment?.commentReplySection?.findIndex(
           (reply: any) => reply.id === selectedReplyId,
         );
         const removeLoadMoreId = checkLoadMoreId.filter(
-          (loadMore: string) => loadMore !== replyCommentId,
+          (loadMore: string) => loadMore !== commentReplyId,
         );
         if (comment?.commentReplySection?.length as number - 1 !== index) {
           setCheckLoadMoreId(removeLoadMoreId);
         }
       }
     });
-    setReplyIndex(index + 1);
+    setReplyIndex(index === -1 ? 2 : index + 1);
   };
+
+  useEffect(() => {
+    handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
+  }, [selectedReplyCommentId, replyUserName, scrollId, tabsRef, selectedReplyId]);
 
   useEffect(() => {
     const comments = commentSectionData.map((comment: FeedComments) => {
@@ -198,7 +206,7 @@ function PostCommentSection({
       setImageArray([]);
     } else {
       replyRef.current.style.height = '36px';
-      const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${replyId}@${replyUserName}##LINK_END##`);
+      const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${selectedReplyCommentId}@${replyUserName}##LINK_END##`);
       setCommentID(commentId);
       setCommentValue({
         commentMessage: '',
@@ -209,7 +217,8 @@ function PostCommentSection({
       setReplyImageArray([]);
     }
     setIsReply(false);
-    setReplyId('');
+    setSelectedReplyCommentId('');
+    setSelectedReplyId('');
     setReplyUserName('');
   };
 
@@ -430,6 +439,7 @@ function PostCommentSection({
                     likeCount={data.likeCount}
                     userId={data.userId?._id}
                     active={!queryReplyId ? data.id === queryCommentId : false}
+                    isComment="comment-"
                   />
                   <div className="ms-5 ps-2">
                     <div className="ms-md-4">
@@ -462,16 +472,41 @@ function PostCommentSection({
                                 likeCount={comment.likeCount}
                                 userId={comment.userId?._id}
                                 active={queryReplyId ? comment.id === queryReplyId : false}
+                                isReply="reply-"
                               />
                             </div>
                           ))}
+                      {data.commentReplySection
+                        && data.commentReplySection.length > 2
+                        && !checkLoadMoreId.includes(data.commentReplySection[0]?.feedCommentId)
+                        && data.commentReplySection[0]?.feedCommentId !== queryCommentId
+                        && (
+                          <LoadMoreCommentsWrapper>
+                            <Button
+                              variant="link"
+                              className="text-primary shadow-none"
+                              onClick={() => {
+                                handleShowMoreComments(
+                                  data.commentReplySection[0]?.feedCommentId,
+                                  data.commentReplySection.length,
+                                );
+                              }}
+                            >
+                              {`Load 
+                              ${data.commentReplySection.length - (data.commentReplySection[0]?.feedCommentId === selectedReplyCommentId ? replyIndex : 2)}
+                              more
+                              ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
+                            </Button>
+                          </LoadMoreCommentsWrapper>
+                        )}
                       {
-                        isReply && (replyId === data.id
-                          || replyId === data.commentReplySection[0]?.feedCommentId) && (
-                          <Form ref={tabsRef}>
+                        isReply && (selectedReplyCommentId === data.id
+                          || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId)
+                        && (
+                          <Form id={scrollId} ref={tabsRef}>
                             <Row className="ps-3 pt-2 order-last order-sm-0">
                               <Col xs="auto" className="pe-0">
-                                <UserCircleImage src={commentImage} className="me-3 bg-secondary" />
+                                <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />
                               </Col>
                               <Col className="ps-0 pe-4">
                                 <div className="d-flex align-items-end mb-4">
@@ -535,29 +570,6 @@ function PostCommentSection({
                           </Form>
                         )
                       }
-                      {data.commentReplySection
-                        && data.commentReplySection.length > 2
-                        && !checkLoadMoreId.includes(data.commentReplySection[0]?.feedCommentId)
-                        && data.commentReplySection[0]?.feedCommentId !== queryCommentId
-                        && (
-                          <LoadMoreCommentsWrapper>
-                            <Button
-                              variant="link"
-                              className="text-primary shadow-none"
-                              onClick={() => {
-                                handleShowMoreComments(
-                                  data.commentReplySection[0]?.feedCommentId,
-                                  data.commentReplySection.length,
-                                );
-                              }}
-                            >
-                              {`Load 
-                              ${data.commentReplySection.length - (data.commentReplySection[0]?.feedCommentId === replyId ? replyIndex : 2)}
-                              more
-                              ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
-                            </Button>
-                          </LoadMoreCommentsWrapper>
-                        )}
                     </div>
                   </div>
                 </Col>

@@ -192,4 +192,59 @@ describe('NotificationsService', () => {
       expect(getAllReadNotificationsCount).toBe(5);
     });
   });
+
+  describe('#cleanupNotifications', () => {
+    const TEST_TIMEOUT = 60_000;
+    // const TEST_TIMEOUT = 10 * 60_000;
+    it('keep 80 notifications for each user', async () => {
+      function addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+      }
+
+      function getManyNotifications(user, sender, number, inputDate: Date) {
+        const n = [];
+        for (let i = 0; i < number; i += 1) {
+          n.push({
+            userId: user.id,
+            feedPostId: feedPostData.id,
+            senderId: sender.id,
+            notifyType: NotificationType.UserMentionedYouInPost,
+            notificationMsg: 'had mentioned you in a post',
+            createdAt: inputDate,
+          });
+        }
+        return n;
+      }
+
+      const today = new Date();
+      const yesterday = addDays(today, -1);
+      const yesterday2 = addDays(today, -2);
+      const yesterday3 = addDays(today, -3);
+
+      // SPECS: 46k Users, 13.2M Notifications, 330 notifications each
+      const AMOUNT = 80;
+      const USERS = 3; // NEEDS to be 46K to mimic real data
+      const DAYS = [yesterday3, today, yesterday2, yesterday];
+
+      const sender = await usersService.create(userFactory.build());
+
+      for (let i = 0; i < USERS; i += 1) {
+        const user = await usersService.create(userFactory.build());
+        // Number of notification created for a user for 4 days (80*4days = 320 notifications)
+        const bulkNotifications = DAYS.map((day) => getManyNotifications(user, sender, AMOUNT, day)).flatMap(
+          (a) => a,
+        );
+        await notificationsService.insertMany(bulkNotifications);
+      }
+
+      // An optional argument is available which we can use to specify the number of latest notifications for each user
+      await notificationsService.cleanupNotifications(80);
+
+      const expectedCount = USERS * AMOUNT;
+      expect(await notificationsService.estimatedDocumentCount()).toBe(expectedCount);
+      expect(await notificationsService._find({ createdAt: today })).toHaveLength(expectedCount);
+    }, TEST_TIMEOUT);
+  });
 });

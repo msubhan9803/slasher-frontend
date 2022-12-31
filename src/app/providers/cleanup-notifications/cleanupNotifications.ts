@@ -17,12 +17,18 @@ async function cleanupNotifications(notificationsService, LIMIT_LATEST = 80) {
   // console.log(nots.map((n: any) => n.notifications.map((nf) => nf.createdAt)));
 
   // For each group of notifications, use the deleteMany() method to delete all the notifications except the latest 80
-  for (const n of nots) {
-    await notificationsService.deleteMany({
-      userId: n._id,
-      _id: { $nin: n.notifications.map((doc) => doc._id) },
-    });
-  }
+  // for (const n of nots) {
+  //   await notificationsService.deleteMany({
+  //     userId: n._id,
+  //     _id: { $nin: n.notifications.map((doc) => doc._id) },
+  //   });
+  // }
+
+  // Delete at once
+  const requiredIds = nots.map((n) => n.notifications.map((doc) => doc._id.toString())).flatMap((a) => a);
+  await notificationsService.deleteMany({
+    _id: { $nin: requiredIds },
+  });
 }
 
 export default cleanupNotifications;

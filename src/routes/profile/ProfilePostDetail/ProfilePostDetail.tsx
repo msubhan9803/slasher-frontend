@@ -129,7 +129,7 @@ function ProfilePostDetail({ user }: Props) {
       feedPostDetail(postId)
         .then((res) => {
           if (res.data.userId.userName !== user.userName) {
-            navigate(`/${res.data.userId.userName}/posts/${postId}`);
+            navigate(`/${res.data.userId.userName}/posts/${postId}`, { replace: true });
             return;
           }
           setPostData([

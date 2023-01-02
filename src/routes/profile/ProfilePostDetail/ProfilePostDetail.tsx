@@ -15,7 +15,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import EditPostModal from '../../../components/ui/EditPostModal';
 import ReportModal from '../../../components/ui/ReportModal';
 import {
-  CommentValue, FeedComments, Post, User,
+  CommentValue, FeedComments, Post, ReplyValue, User,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
@@ -40,7 +40,6 @@ function ProfilePostDetail({ user }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const [commentValue, setCommentValue] = useState<CommentValue>();
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
@@ -166,80 +165,55 @@ function ProfilePostDetail({ user }: Props) {
     });
   };
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (commentValue && (commentValue.commentMessage !== '' || commentValue.replyMessage !== '')) {
-      setLoadingComments(true);
-      if (!isEdit) {
-        if (!commentID) {
-          addFeedComments(postId!, commentValue.commentMessage, commentValue.imageArray)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
-            });
-        } else {
-          addFeedReplyComments(
-            postId!,
-            commentValue.replyMessage,
-            commentValue.imageArray,
-            commentID,
-          ).then(() => {
-            callLatestFeedComments();
-            setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentID('');
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-        }
+  const addUpdateComment = (comment: CommentValue) => {
+    if (comment?.commentId) {
+      updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
+        .then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setIsEdit(false);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    } else {
+      addFeedComments(postId!, comment.commentMessage, comment.imageArray)
+        .then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
+
+  const addUpdateReply = (reply: ReplyValue) => {
+    if (reply.replyMessage) {
+      if (reply.replyId) {
+        updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId).then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setIsEdit(false);
+        }).catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
       } else {
-        if (commentID) {
-          updateFeedComments(postId!, commentValue.commentMessage, commentID)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-              setCommentID('');
-              setIsEdit(false);
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
-            });
-        }
-        if (commentReplyID) {
-          updateFeedCommentReply(postId!, commentValue.replyMessage, commentReplyID).then(() => {
-            callLatestFeedComments();
-            setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentReplyID('');
-            setIsEdit(false);
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-        }
+        addFeedReplyComments(
+          postId!,
+          reply.replyMessage,
+          reply?.imageArray,
+          reply.commentId!,
+        ).then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setCommentID('');
+        }).catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
       }
     }
-  }, [commentValue, postId, commentID, commentReplyID, isEdit]);
+  };
 
   const removeComment = () => {
     if (commentID) {
@@ -423,7 +397,6 @@ function ProfilePostDetail({ user }: Props) {
         onPopoverClick={handlePopoverOption}
         otherUserPopoverOptions={otherUserPopoverOptions}
         isCommentSection
-        setCommentValue={setCommentValue}
         commentsData={commentData}
         removeComment={removeComment}
         setCommentID={setCommentID}
@@ -438,6 +411,8 @@ function ProfilePostDetail({ user }: Props) {
         onLikeClick={onLikeClick}
         loadNewerComment={loadNewerComment}
         previousCommentsAvailable={previousCommentsAvailable}
+        addUpdateReply={addUpdateReply}
+        addUpdateComment={addUpdateComment}
       />
       {dropDownValue !== 'Edit'
         && (

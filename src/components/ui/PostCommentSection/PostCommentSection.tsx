@@ -49,7 +49,6 @@ const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
 function PostCommentSection({
   commentSectionData,
   popoverOption,
-  setCommentValue,
   removeComment,
   setCommentID,
   setCommentReplyID,
@@ -62,6 +61,8 @@ function PostCommentSection({
   onLikeClick,
   loadNewerComment,
   previousCommentsAvailable,
+  addUpdateReply,
+  addUpdateComment,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -197,9 +198,9 @@ function PostCommentSection({
   const sendComment = (commentId?: string) => {
     if (commentId === undefined) {
       commentRef.current.style.height = '36px';
-      setCommentValue({
+      addUpdateComment({
         commentMessage: message,
-        replyMessage: '',
+        commentId,
         imageArray,
       });
       setMessage('');
@@ -207,11 +208,11 @@ function PostCommentSection({
     } else {
       replyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${selectedReplyCommentId}@${replyUserName}##LINK_END##`);
-      setCommentID(commentId);
-      setCommentValue({
-        commentMessage: '',
+      addUpdateReply({
         replyMessage: mentionReplyString,
-        imageArray: replyImageArray,
+        commentId,
+        imageArray,
+        commentReplyID,
       });
       setReplyMessage('');
       setReplyImageArray([]);
@@ -597,7 +598,8 @@ function PostCommentSection({
             setCommentReplyID={setCommentReplyID}
             editContent={editContent}
             isReply={!commentID}
-            setCommentValue={setCommentValue}
+            addUpdateComment={addUpdateComment}
+            addUpdateReply={addUpdateReply}
           />
         )
       }

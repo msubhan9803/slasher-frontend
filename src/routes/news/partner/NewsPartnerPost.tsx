@@ -7,7 +7,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import ReportModal from '../../../components/ui/ReportModal';
 import { feedPostDetail } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { CommentValue, NewsPartnerPostProps } from '../../../types';
+import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
@@ -32,7 +32,6 @@ function NewsPartnerPost() {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
-  const [commentValue, setCommentValue] = useState<CommentValue>();
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -142,80 +141,55 @@ function NewsPartnerPost() {
     }
   }, [requestAdditionalPosts, loadingComments]);
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (commentValue && (commentValue.commentMessage !== '' || commentValue.replyMessage !== '')) {
-      setLoadingComments(true);
-      if (!isEdit) {
-        if (!commentID) {
-          addFeedComments(postId!, commentValue.commentMessage, commentValue.imageArray)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
-            });
-        } else {
-          addFeedReplyComments(
-            postId!,
-            commentValue.replyMessage,
-            commentValue.imageArray,
-            commentID,
-          ).then(() => {
-            callLatestFeedComments();
-            setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentID('');
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-        }
+  const addUpdateComment = (comment: CommentValue) => {
+    if (comment?.commentId) {
+      updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
+        .then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setIsEdit(false);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    } else {
+      addFeedComments(postId!, comment.commentMessage, comment.imageArray)
+        .then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
+
+  const addUpdateReply = (reply: ReplyValue) => {
+    if (reply.replyMessage) {
+      if (reply.replyId) {
+        updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId).then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setIsEdit(false);
+        }).catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
       } else {
-        if (commentID) {
-          updateFeedComments(postId!, commentValue.commentMessage, commentID)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-              setCommentID('');
-              setIsEdit(false);
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
-            });
-        }
-        if (commentReplyID) {
-          updateFeedCommentReply(postId!, commentValue.replyMessage, commentReplyID).then(() => {
-            callLatestFeedComments();
-            setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentReplyID('');
-            setIsEdit(false);
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-        }
+        addFeedReplyComments(
+          postId!,
+          reply.replyMessage,
+          reply?.imageArray,
+          reply.commentId!,
+        ).then(() => {
+          callLatestFeedComments();
+          setErrorMessage([]);
+          setCommentID('');
+        }).catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
       }
     }
-  }, [commentValue, postId, commentID, commentReplyID, isEdit]);
+  };
 
   const removeComment = () => {
     if (commentID) {
@@ -341,7 +315,6 @@ function NewsPartnerPost() {
             popoverOptions={loginUserPopoverOptions}
             onPopoverClick={handlePopover}
             isCommentSection
-            setCommentValue={setCommentValue}
             commentsData={commentData}
             removeComment={removeComment}
             setCommentID={setCommentID}
@@ -359,6 +332,8 @@ function NewsPartnerPost() {
             escapeHtml={false}
             loadNewerComment={loadNewerComment}
             previousCommentsAvailable={previousCommentsAvailable}
+            addUpdateReply={addUpdateReply}
+            addUpdateComment={addUpdateComment}
           />
         </Col>
       </Row>

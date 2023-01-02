@@ -238,4 +238,19 @@ describe('ChatService', () => {
       expect(matchListDetails._id).toEqual(matchList.matchId._id);
     });
   });
+
+  describe('#getUnreadDirectPrivateMessageCount', () => {
+    beforeEach(async () => {
+      const firstMessage = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 1');
+      firstMessage.isRead = true;
+      firstMessage.save();
+      await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Reply 1');
+      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 2');
+      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
+    });
+
+    it('returns the expected count', async () => {
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(2);
+    });
+  });
 });

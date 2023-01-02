@@ -1,6 +1,5 @@
 import { Module, Global } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationsModule } from '../notifications/notifications.module';
 import { UsersController } from './users.controller';
 import { UsersService } from './providers/users.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -23,7 +22,6 @@ import { MailModule } from '../providers/mail.module';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
     FeedPostsModule,
-    NotificationsModule,
     FriendsModule,
     UserSettingModule,
     ChatModule,

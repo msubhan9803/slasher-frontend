@@ -14,4 +14,4 @@ import { BlocksModule } from '../blocks/blocks.module';
   controllers: [SearchController],
   exports: [SearchService],
 })
-export class SearchModule {}
+export class SearchModule { }

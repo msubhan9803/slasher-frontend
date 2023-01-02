@@ -68,42 +68,12 @@ export class NotificationsService {
     return friendsCount;
   }
 
-  async cleanupNotifications(LIMIT_LATEST = 80) {
+  async cleanupNotifications(lastDate: Date) {
     try {
-      const nots: any = await this.notificationModel.aggregate([
-        { $sort: { createdAt: -1 } }, // latest date first
-        {
-          $group: {
-            _id: '$userId',
-            notifications: { $push: '$$ROOT' },
-          },
-        },
-        {
-          $project: {
-            notifications: { $slice: ['$notifications', LIMIT_LATEST] }, // return first 80
-          },
-        },
-      ]);
-      // eslint-disable-next-line no-console
-      // console.log(nots.map((n: any) => n.notifications.map((nf) => nf.createdAt)));
-
-      // For each group of notifications, use the deleteMany() method to delete all the notifications except the latest 80
-      // for (const n of nots) {
-      //   await this.notificationModel.deleteMany({
-      //     userId: n._id,
-      //     _id: { $nin: n.notifications.map((doc) => doc._id) },
-      //   });
-      // }
-
-      // Delete at once
-      const requiredIds = nots.map((n) => n.notifications.map((doc) => doc._id.toString())).flatMap((a) => a);
-      await this.notificationModel.deleteMany({
-        _id: { $nin: requiredIds },
-      });
-
+      await this.notificationModel.deleteMany({ createdAt: { $lt: lastDate } });
       return {
         success: true,
-        message: 'Successfully completed the cron job',
+        message: 'Successfully completed the cleanupNotifications cron job',
       };
     } catch (error) {
       return {
@@ -117,16 +87,8 @@ export class NotificationsService {
     return this.notificationModel.insertMany(notifications);
   }
 
-  async estimatedDocumentCount() {
-    return this.notificationModel.estimatedDocumentCount();
-  }
-
-  async deleteMany(...args) {
-    return this.notificationModel.deleteMany(...args);
-  }
-
-  async aggregate(...args) {
-    return this.notificationModel.aggregate(...args);
+  async count() {
+    return this.notificationModel.count();
   }
 
   async _find(...args) {

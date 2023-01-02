@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NotificationsService } from '../../notifications/providers/notifications.service';
 import { MoviesService } from '../../movies/providers/movies.service';
+import { addDays } from '../../utils/date-utils';
 
 @Injectable()
 export class TasksService {
@@ -35,7 +36,7 @@ export class TasksService {
     }
   }
 
-  @Cron(CronExpression.EVERY_WEEK, {
+  @Cron(CronExpression.EVERY_DAY_AT_4AM, {
     name: 'cleanupNotifications',
     timeZone: 'America/New_York',
   })
@@ -43,8 +44,10 @@ export class TasksService {
     if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
     this.logger.debug('Start cron: cleanupNotifications');
 
-    // An optional argument is available which we can use to specify the number of latest notifications for each user
-    const { success, error } = await this.notificationsService.cleanupNotifications(80);
+    const MONTH_AGO = addDays(new Date(), -30);
+
+    // Provide a date argument to specify the last date before which all the notifications would be deleted
+    const { success, error } = await this.notificationsService.cleanupNotifications(MONTH_AGO);
 
     if (success) {
       this.logger.debug('End cron: cleanupNotifications (success)');

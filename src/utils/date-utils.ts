@@ -28,3 +28,9 @@ export const toUtcEndOfDay = (date: Date) => DateTime.now().setZone('utc').set({
   second: 59,
   millisecond: 0,
 }).toJSDate();
+
+export function addDays(date, days) {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}

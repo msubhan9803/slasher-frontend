@@ -28,7 +28,7 @@ export class NotificationUnusedFields {
       NotificationType.Type18,
       NotificationType.Type19,
       NotificationType.UserMentionedYouInPost,
-      NotificationType.UserRepliedOnYourPostOrLikedYourReply,
+      NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
       NotificationType.Type102,
       NotificationType.Type103,
       NotificationType.Type121,

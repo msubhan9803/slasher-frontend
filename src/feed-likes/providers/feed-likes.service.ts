@@ -4,7 +4,6 @@ import mongoose, { Model } from 'mongoose';
 import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
 import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 import { NotFoundError } from '../../errors';
-import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feedComment.schema';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
 import { FeedReplyLike, FeedReplyLikeDocument } from '../../schemas/feedReplyLike/feedReplyLike.schema';
@@ -14,7 +13,6 @@ export class FeedLikesService {
   constructor(
     @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(FeedPostLike.name) private feedLikesModel: Model<FeedPostLikeDocument>,
-    @InjectModel(FeedPost.name) private feedPostsModel: Model<FeedPostDocument>,
     @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
     @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
     @InjectModel(FeedReplyLike.name) private feedReplyLikeModel: Model<FeedReplyLikeDocument>,
@@ -28,10 +26,7 @@ export class FeedLikesService {
     }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
-    await this.feedPostsModel.updateOne(
-      { _id: new mongoose.Types.ObjectId(feedPostId) },
-      { $addToSet: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: 1 } },
-    );
+    await this.feedPostsService.addLike(feedPostId, userId);
     await this.feedLikesModel.create({ feedPostId, userId });
     transactionSession.endSession();
   }
@@ -43,10 +38,7 @@ export class FeedLikesService {
     }
     const transactionSession = await this.connection.startSession();
     transactionSession.startTransaction();
-    await this.feedPostsModel.updateOne(
-      { _id: new mongoose.Types.ObjectId(feedPostId) },
-      { $pull: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: -1 } },
-    );
+    await this.feedPostsService.removeLike(feedPostId, userId);
     await this.feedLikesModel.deleteOne({ feedPostId, userId });
     transactionSession.endSession();
   }

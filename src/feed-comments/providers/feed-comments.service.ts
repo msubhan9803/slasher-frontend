@@ -6,7 +6,7 @@ import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feed
 import { FeedCommentDeletionState, FeedCommentStatus } from '../../schemas/feedComment/feedComment.enums';
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
 import { FeedReply, FeedReplyDocument } from '../../schemas/feedReply/feedReply.schema';
-import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
+import { FeedPostsService } from '../../feed-posts/providers/feed-posts.service';
 
 export interface FeedCommentWithReplies extends FeedComment {
   replies: FeedReply[];
@@ -17,7 +17,7 @@ export class FeedCommentsService {
   constructor(
     @InjectModel(FeedComment.name) private feedCommentModel: Model<FeedCommentDocument>,
     @InjectModel(FeedReply.name) private feedReplyModel: Model<FeedReplyDocument>,
-    @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
+    private feedPostService: FeedPostsService,
   ) { }
 
   async createFeedComment(parentFeedPostId: string, userId: string, message: string, images: Image[]): Promise<FeedComment> {
@@ -27,7 +27,8 @@ export class FeedCommentsService {
       message,
       images,
     });
-    await this.feedPostModel.updateOne({ _id: parentFeedPostId }, { $inc: { commentCount: 1 } });
+    await this.feedPostService.incrementCommentCount(parentFeedPostId);
+
     return insertFeedComments;
   }
 
@@ -42,7 +43,7 @@ export class FeedCommentsService {
       .updateOne({ _id: feedCommentId }, { $set: { is_deleted: FeedCommentDeletionState.Deleted } }, { new: true })
       .exec();
     const getFeedPostData = await this.findFeedComment(feedCommentId);
-    await this.feedPostModel.updateOne({ _id: getFeedPostData.feedPostId }, { $inc: { commentCount: -1 } });
+    await this.feedPostService.decrementCommentCount(getFeedPostData.feedPostId.toString());
   }
 
   async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {

@@ -31,11 +31,11 @@ export class FeedPostsService {
       feedPostFindQuery.status = FeedPostStatus.Active;
     }
     return this.feedPostModel
-    .findOne(feedPostFindQuery)
-    .populate('userId', 'userName _id profilePic')
-    .populate('rssfeedProviderId', 'title _id logo')
-    .populate('rssFeedId', 'content')
-    .exec();
+      .findOne(feedPostFindQuery)
+      .populate('userId', 'userName _id profilePic')
+      .populate('rssfeedProviderId', 'title _id logo')
+      .populate('rssFeedId', 'content')
+      .exec();
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -142,5 +142,27 @@ export class FeedPostsService {
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+  }
+
+  async incrementCommentCount(id: string) {
+    await this.feedPostModel.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $inc: { commentCount: 1 } });
+  }
+
+  async decrementCommentCount(id: string) {
+    await this.feedPostModel.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $inc: { commentCount: -1 } });
+  }
+
+  async addLike(id: string, userId: string) {
+    await this.feedPostModel.updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $addToSet: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: 1 } },
+    );
+  }
+
+  async removeLike(id: string, userId: string) {
+    await this.feedPostModel.updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $pull: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: -1 } },
+    );
   }
 }

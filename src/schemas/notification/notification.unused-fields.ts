@@ -2,6 +2,7 @@ import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { FeedComment } from '../feedComment/feedComment.schema';
 import { FeedPost } from '../feedPost/feedPost.schema';
+import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { User } from '../user/user.schema';
 import {
   NotificationType, NotificationStatus,
@@ -85,7 +86,7 @@ export class NotificationUnusedFields {
   @Prop({ default: null, ref: 'messageComments' })
   messageCommentID: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'rssFeedProvider' })
+  @Prop({ default: null, ref: RssFeedProvider.name })
   rssFeedProviderId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null, ref: 'rssFeed' })

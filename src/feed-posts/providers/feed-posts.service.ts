@@ -144,14 +144,17 @@ export class FeedPostsService {
       .exec();
   }
 
+  // TODO: Add a test for this method
   async incrementCommentCount(id: string) {
     await this.feedPostModel.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $inc: { commentCount: 1 } });
   }
 
+  // TODO: Add a test for this method
   async decrementCommentCount(id: string) {
     await this.feedPostModel.updateOne({ _id: new mongoose.Types.ObjectId(id) }, { $inc: { commentCount: -1 } });
   }
 
+  // TODO: Add a test for this method
   async addLike(id: string, userId: string) {
     await this.feedPostModel.updateOne(
       { _id: new mongoose.Types.ObjectId(id) },
@@ -159,10 +162,20 @@ export class FeedPostsService {
     );
   }
 
+  // TODO: Add a test for this method
   async removeLike(id: string, userId: string) {
     await this.feedPostModel.updateOne(
       { _id: new mongoose.Types.ObjectId(id) },
       { $pull: { likes: new mongoose.Types.ObjectId(userId) }, $inc: { likeCount: -1 } },
     );
+  }
+
+  /**
+   * For the given array of rssFeedId values, finds all posts that match those values.
+   * @param rssFeedIds
+   */
+  // TODO: Add a test for this method
+  async findAllByRssFeedId(rssFeedIds: string[]) {
+    return this.feedPostModel.find({ rssFeedId: { $in: rssFeedIds } });
   }
 }

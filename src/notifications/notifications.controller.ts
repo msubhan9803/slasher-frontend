@@ -3,7 +3,9 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
-import { NotificationDeletionStatus, NotificationReadStatus } from '../schemas/notification/notification.enums';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { NotificationDeletionStatus, NotificationReadStatus, NotificationType } from '../schemas/notification/notification.enums';
+import { NotificationDocument } from '../schemas/notification/notification.schema';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { GetNotificationsDto } from './dto/get-notifications.dto';
@@ -16,6 +18,7 @@ export class NotificationsController {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly notificationsGateway: NotificationsGateway,
+    private readonly feedPostsService: FeedPostsService,
   ) { }
 
   @Post('socket-test')
@@ -26,6 +29,7 @@ export class NotificationsController {
 
   @TransformImageUrls(
     '$[*].senderId.profilePic',
+    '$[*].rssFeedProviderId.logo',
   )
   @Get()
   async findAll(
@@ -34,7 +38,24 @@ export class NotificationsController {
     query: GetNotificationsDto,
   ) {
     const user = getUserFromRequest(request);
-    return this.notificationsService.findAllByUser(user.id, query.limit, query.before);
+    const notifications = await this.notificationsService.findAllByUser(user.id, query.limit, query.before);
+
+    // Note: Right now, the old API is generating FeedPosts from RssFeedProviders, but for some
+    // reason the feedPostId is never set by the old API.  For this reason, we need to add
+    // feedPostIds to the response before it is returned.
+    // TODO: Delete the method call below (and the rssFeedIdsToFeedPostIdsForNotifications
+    // method itself) after the NEW api generates notifications for rss-based FeedPosts and
+    // includes the feedPostId in the notification data.
+    const rssFeedIdsToFeedPostIds = await this.rssFeedIdsToFeedPostIdsForNotifications(notifications);
+
+    // Assign the post id values to the notfications, when needed
+    return notifications.map((notification) => {
+      const notificationAsObject = notification.toObject();
+      if (notificationAsObject.rssFeedId && !notificationAsObject.feedPostId) {
+        notificationAsObject.feedPostId = { _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id };
+      }
+      return notificationAsObject;
+    });
   }
 
   @Delete(':id')
@@ -80,5 +101,36 @@ export class NotificationsController {
     const user = getUserFromRequest(request);
     await this.notificationsService.markAllAsReadForUser(user.id);
     return { success: true };
+  }
+
+  /**
+   * Looks through the given array of notifications and for any that are of type
+   * NotificationType.NewPostFromFollowedRssFeedProvider, and returns a map of rssFeedIds
+   * to feedPost ids.
+   *
+   * @param notifications
+   */
+  // TODO: Add test for this
+  async rssFeedIdsToFeedPostIdsForNotifications(notifications: NotificationDocument[]) {
+    const rssFeedNotifications = notifications.filter(
+      (notification) => (
+        notification.notifyType === NotificationType.NewPostFromFollowedRssFeedProvider
+        && notification.rssFeedId
+      ),
+    );
+    if (rssFeedNotifications.length === 0) { return {}; }
+
+    // Find the associated posts
+    const postsForRssFeedNotifications = await this.feedPostsService.findAllByRssFeedId(
+      rssFeedNotifications.map((notification) => notification.rssFeedId.toString()),
+    );
+    // Generate a map of rssFeedIdsToPostIds
+    const rssFeedIdsToPosts = postsForRssFeedNotifications.reduce(
+      // eslint-disable-next-line no-param-reassign
+      (obj, value) => { obj[value.rssFeedId.toString()] = value; return obj; },
+      {},
+    );
+
+    return rssFeedIdsToPosts;
   }
 }

@@ -62,6 +62,7 @@ export class NotificationsService {
       })
       .populate('senderId', 'userName _id profilePic')
       .populate('feedPostId', '_id userId')
+      .populate('rssFeedProviderId', '_id logo title')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

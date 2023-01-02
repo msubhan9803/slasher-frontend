@@ -7,14 +7,12 @@ import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schem
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
-import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedComment.name, schema: FeedCommentSchema }]),
     MongooseModule.forFeature([{ name: FeedReply.name, schema: FeedReplySchema }]),
     FeedPostsModule,
-    NotificationsModule,
   ],
   providers: [FeedCommentsService, LocalStorageService, S3StorageService],
   exports: [FeedCommentsService],

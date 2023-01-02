@@ -22,6 +22,7 @@ import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import { useAppSelector } from '../../../redux/hooks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -54,6 +55,8 @@ function ProfilePostDetail({ user }: Props) {
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
+  const userData = useAppSelector((state) => state.user);
+  const [updateState, setUpdateState] = useState(false);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -189,6 +192,14 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   const addUpdateReply = (reply: ReplyValue) => {
+    let staticData: any = {
+      feedPostId: "",
+      feedCommentId: "",
+      imageArray: [],
+      message: "",
+      userId: userData.user,
+      createdAt: new Date().toISOString(),
+    }
     if (reply.replyMessage) {
       if (reply.replyId) {
         updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId).then(() => {
@@ -205,7 +216,24 @@ function ProfilePostDetail({ user }: Props) {
           reply?.imageArray,
           reply.commentId!,
         ).then(() => {
-          callLatestFeedComments();
+          // callLatestFeedComments();
+          let newCommentArray: any = commentData;
+          staticData = {
+            feedPostId: postId,
+            feedCommentId: commentID,
+            imageArray: reply.imageArray,
+            message: reply.replyMessage,
+            userId: userData.user,
+            createdAt: new Date().toISOString(),
+          };
+          newCommentArray.map((comment: any) => {
+            let staticReplies = comment.replies;
+            if (comment._id === commentID) {
+              staticReplies.push({ ...staticData, _id: staticReplies.length + 1 });
+            }
+          });
+          setCommentData(newCommentArray);
+          setUpdateState(true);
           setErrorMessage([]);
           setCommentID('');
         }).catch((error) => {
@@ -382,7 +410,7 @@ function ProfilePostDetail({ user }: Props) {
   const loadNewerComment = () => {
     feedComments(true);
   };
-
+  console.log('commentData', commentData);
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
@@ -413,6 +441,7 @@ function ProfilePostDetail({ user }: Props) {
         previousCommentsAvailable={previousCommentsAvailable}
         addUpdateReply={addUpdateReply}
         addUpdateComment={addUpdateComment}
+        updateState={updateState}
       />
       {dropDownValue !== 'Edit'
         && (

@@ -63,6 +63,7 @@ function PostCommentSection({
   previousCommentsAvailable,
   addUpdateReply,
   addUpdateComment,
+  updateState,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -149,7 +150,7 @@ function PostCommentSection({
     handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
   }, [selectedReplyCommentId, replyUserName, scrollId, tabsRef, selectedReplyId]);
 
-  useEffect(() => {
+  const feedCommentData = () => {
     const comments = commentSectionData.map((comment: FeedComments) => {
       const commentReplies = comment.replies.map((replies: any) => {
         const feeedCommentReplies: any = {
@@ -185,7 +186,19 @@ function PostCommentSection({
       return feedComment;
     });
     setCommentData(comments);
+  }
+  // console.log('updateState', updateState);
+  // console.log('commentSectionData', commentSectionData);
+  // console.log('CommentData', commentData);
+  useEffect(() => {
+    feedCommentData();
   }, [commentSectionData]);
+  // console.log('CommentData', commentData);
+  // useEffect(() => {
+  //   if (updateState) {
+  //     feedCommentData();
+  //   }
+  // }, [updateState]);
 
   useEffect(() => {
     setReplyMessage('');

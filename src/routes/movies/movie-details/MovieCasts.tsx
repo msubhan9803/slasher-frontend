@@ -44,6 +44,9 @@ function MovieCasts({ castList }: CastListProps) {
       slider.scrollLeft += 300;
     }
   };
+
+  if (!castList || castList.length === 0) { return null; }
+
   return (
     <div className="bg-dark p-3 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Top billed cast</h1>

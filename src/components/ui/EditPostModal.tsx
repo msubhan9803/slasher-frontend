@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
+import { decryptMessage } from '../../utils/text-utils';
 import ModalContainer from './CustomModal';
 import MessageTextarea, { MentionListProps } from './MessageTextarea';
 import RoundButton from './RoundButton';
@@ -40,10 +41,6 @@ function EditPostModal({
   }, []);
   const closeModal = () => {
     setShow(false);
-  };
-  const decryptMessage = (content: string) => {
-    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-    return found;
   };
   const mentionReplacementMatchFunc = (match: string) => {
     if (match) {

@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import { Form, Modal } from 'react-bootstrap';
 import { CommentValue } from '../../types';
+import { decryptMessage } from '../../utils/text-utils';
 import ModalContainer from './CustomModal';
 import RoundButton from './RoundButton';
 
@@ -17,11 +18,6 @@ interface Props {
   setCommentID: (value: string) => void;
   setCommentReplyID: (value: string) => void;
 }
-
-const decryptMessage = (content: any) => {
-  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
-  return found;
-};
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,

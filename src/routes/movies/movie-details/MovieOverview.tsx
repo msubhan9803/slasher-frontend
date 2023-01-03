@@ -5,6 +5,7 @@ interface Props {
 }
 
 function MovieOverview({ overView }: Props) {
+  if (!overView) { return null; }
   return (
     <div className="bg-dark p-3 rounded-2">
       <h1 className="h2 mb-3 fw-bold">Overview</h1>

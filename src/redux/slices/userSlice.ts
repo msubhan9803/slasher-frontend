@@ -6,6 +6,7 @@ export const userSlice = createSlice({
     friendRequestCount: 0,
     recentFriendRequests: [],
     unreadNotificationCount: 0,
+    unreadMessageCount: 0,
     recentMessages: [],
     user: {
       userName: '',
@@ -19,6 +20,7 @@ export const userSlice = createSlice({
       friendRequestCount: action.payload.friendRequestCount,
       recentFriendRequests: action.payload.recentFriendRequests,
       unreadNotificationCount: action.payload.unreadNotificationCount,
+      unreadMessageCount: action.payload.unreadMessageCount,
       recentMessages: action.payload.recentMessages,
       user: action.payload.user,
     }),
@@ -26,9 +28,17 @@ export const userSlice = createSlice({
     incrementUnreadNotificationCount: (state) => {
       state.unreadNotificationCount += 1;
     },
+    /* eslint-disable no-param-reassign */
+    incrementUnreadMessageCount: (state) => {
+      state.unreadMessageCount += 1;
+    },
   },
 });
 
-export const { setUserInitialData, incrementUnreadNotificationCount } = userSlice.actions;
+export const {
+  setUserInitialData,
+  incrementUnreadNotificationCount,
+  incrementUnreadMessageCount,
+} = userSlice.actions;
 
 export default userSlice.reducer;

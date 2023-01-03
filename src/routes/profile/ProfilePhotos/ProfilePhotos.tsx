@@ -113,17 +113,17 @@ function ProfilePhotos({ user }: Props) {
             {userPhotosList.map((data: UserPhotos) => (
               data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>
-                  <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                    <ProfilePhoto className="position-relative">
+                  <ProfilePhoto className="position-relative">
+                    <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
                       <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
-                      <StyledPopover className="position-absolute">
-                        <CustomPopover
-                          popoverOptions={popoverOption}
-                          onPopoverClick={handlePopoverOption}
-                        />
-                      </StyledPopover>
-                    </ProfilePhoto>
-                  </Link>
+                    </Link>
+                    <StyledPopover className="position-absolute">
+                      <CustomPopover
+                        popoverOptions={popoverOption}
+                        onPopoverClick={handlePopoverOption}
+                      />
+                    </StyledPopover>
+                  </ProfilePhoto>
                 </Col>
               ))
             ))}

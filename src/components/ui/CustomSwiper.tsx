@@ -65,7 +65,6 @@ const StyledSwiper = styled(Swiper)`
 }
 `;
 const PostImage = styled.div`
-  aspect-ratio: 1.9;
   height: 100%;
   position: relative;
   img {

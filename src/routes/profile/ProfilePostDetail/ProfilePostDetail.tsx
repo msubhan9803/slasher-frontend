@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
@@ -22,6 +21,7 @@ import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import { useAppSelector } from '../../../redux/hooks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -35,7 +35,6 @@ function ProfilePostDetail({ user }: Props) {
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
-  const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
@@ -50,11 +49,11 @@ function ProfilePostDetail({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -406,7 +405,7 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
           {errorMessage}

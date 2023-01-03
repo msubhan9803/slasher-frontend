@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
+import React, { useEffect, useRef, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { getUsersFriends } from '../../../../api/users';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
+import { useAppSelector } from '../../../../redux/hooks';
 
 interface FriendProps {
   /* eslint no-underscore-dangle: 0 */
@@ -14,14 +14,23 @@ interface FriendProps {
 
 function Friends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
-  const userName = Cookies.get('userName');
+  const sidebarContext = useAppSelector((state) => state.sidebarContext);
+  const sidebarUserIdRef = useRef('');
+
   useEffect(() => {
-    getUsersFriends()
-      .then((res) => setFriendsList(res.data.friends));
-  }, []);
+    setFriendsList([]);
+    const isSameUserId = sidebarUserIdRef.current === sidebarContext.userId;
+    if (isSameUserId) return;
+    if (sidebarContext.userId) {
+      sidebarUserIdRef.current = sidebarContext.userId;
+      getUsersFriends(sidebarContext.userId)
+        .then((res) => setFriendsList(res.data.friends));
+    }
+  }, [sidebarContext]);
+
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${userName}/friends`} />
+      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${sidebarContext.userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {friendsList.map((friend: FriendProps, i: number) => (

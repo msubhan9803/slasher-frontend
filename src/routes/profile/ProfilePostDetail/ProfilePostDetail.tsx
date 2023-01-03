@@ -193,13 +193,13 @@ function ProfilePostDetail({ user }: Props) {
 
   const addUpdateReply = (reply: ReplyValue) => {
     let staticData: any = {
-      feedPostId: "",
-      feedCommentId: "",
+      feedPostId: '',
+      feedCommentId: '',
       imageArray: [],
-      message: "",
+      message: '',
       userId: userData.user,
       createdAt: new Date().toISOString(),
-    }
+    };
     if (reply.replyMessage) {
       if (reply.replyId) {
         updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId).then(() => {
@@ -215,9 +215,8 @@ function ProfilePostDetail({ user }: Props) {
           reply.replyMessage,
           reply?.imageArray,
           reply.commentId!,
-        ).then(() => {
-          // callLatestFeedComments();
-          let newCommentArray: any = commentData;
+        ).then((res) => {
+          const newCommentArray: any = commentData;
           staticData = {
             feedPostId: postId,
             feedCommentId: commentID,
@@ -225,12 +224,14 @@ function ProfilePostDetail({ user }: Props) {
             message: reply.replyMessage,
             userId: userData.user,
             createdAt: new Date().toISOString(),
+            new: true,
           };
           newCommentArray.map((comment: any) => {
-            let staticReplies = comment.replies;
-            if (comment._id === commentID) {
-              staticReplies.push({ ...staticData, _id: staticReplies.length + 1 });
+            const staticReplies = comment.replies;
+            if (comment._id === reply.commentId) {
+              staticReplies.push({ ...staticData, _id: res.data._id });
             }
+            return null;
           });
           setCommentData(newCommentArray);
           setUpdateState(true);
@@ -410,7 +411,6 @@ function ProfilePostDetail({ user }: Props) {
   const loadNewerComment = () => {
     feedComments(true);
   };
-  console.log('commentData', commentData);
   return (
     <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
@@ -442,6 +442,7 @@ function ProfilePostDetail({ user }: Props) {
         addUpdateReply={addUpdateReply}
         addUpdateComment={addUpdateComment}
         updateState={updateState}
+        setUpdateState={setUpdateState}
       />
       {dropDownValue !== 'Edit'
         && (

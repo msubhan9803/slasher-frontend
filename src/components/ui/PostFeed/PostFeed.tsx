@@ -56,6 +56,7 @@ interface Props {
   addUpdateReply?: (value: ReplyValue) => void;
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
+  setUpdateState?: (value: boolean) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -90,7 +91,7 @@ function PostFeed({
   commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
-  addUpdateComment, updateState,
+  addUpdateComment, updateState, setUpdateState,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -98,7 +99,6 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-  // console.log('commentsData', commentsData);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -283,6 +283,7 @@ function PostFeed({
                       addUpdateReply={addUpdateReply}
                       addUpdateComment={addUpdateComment}
                       updateState={updateState}
+                      setUpdateState={setUpdateState}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -329,5 +330,6 @@ PostFeed.defaultProps = {
   addUpdateReply: undefined,
   addUpdateComment: undefined,
   updateState: false,
+  setUpdateState: undefined,
 };
 export default PostFeed;

@@ -35,11 +35,13 @@ interface Props {
     replyId: string,
     scrollId: string,
     e: any,
+    index?: number
   ) => void;
   likeCount?: number;
   active?: boolean;
-  isComment?: string;
-  isReply?: string;
+  isReply?: boolean;
+  setIsReply?: (value: boolean) => void;
+  replyCommentIndex?: number;
 }
 interface ImageList {
   image_path: string;
@@ -80,7 +82,7 @@ function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick,
   feedCommentId, content, userId, userName, handleSeeCompleteList,
-  likeCount, active, isComment, isReply,
+  likeCount, active, isReply, setIsReply, replyCommentIndex,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
   const highlightRef = useRef<any>();
@@ -103,9 +105,10 @@ function CommentSection({
   }, []);
 
   const handleReply = (e: any) => {
-    const scrollId = isReply ? isReply + id : isComment + id;
+    if (setIsReply) setIsReply(true);
+    const scrollId = isReply ? `reply-${id}` : `comment-${id}`;
     if (handleSeeCompleteList) {
-      handleSeeCompleteList(feedCommentId || id, name, id, scrollId, e);
+      handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, e, replyCommentIndex);
     }
   };
 
@@ -207,7 +210,7 @@ function CommentSection({
             <Button
               variant="link"
               className="shadow-none"
-              onClick={(e: any) => handleReply(e)}
+              onClick={handleReply}
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
@@ -228,7 +231,8 @@ CommentSection.defaultProps = {
   handleSeeCompleteList: undefined,
   likeCount: 0,
   active: false,
-  isComment: '',
-  isReply: '',
+  isReply: false,
+  setIsReply: undefined,
+  replyCommentIndex: 0,
 };
 export default CommentSection;

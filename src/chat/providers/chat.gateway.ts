@@ -45,8 +45,8 @@ export class ChatGateway {
     return { success: true, message: messageObject };
   }
 
-  @SubscribeMessage('recentMessages')
-  async recentMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
+  @SubscribeMessage('getMessages')
+  async getMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
     if (inValidData) return { success: false };
 

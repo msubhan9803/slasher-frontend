@@ -129,7 +129,7 @@ describe('Chat Gateway (e2e)', () => {
     });
   });
 
-  describe('#recentMessages', () => {
+  describe('#getMessages', () => {
     let message1;
     let matchList;
 
@@ -142,7 +142,7 @@ describe('Chat Gateway (e2e)', () => {
       });
     });
 
-    it('should get recentMessages', async () => {
+    it('should return messages for a valid request', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -150,7 +150,7 @@ describe('Chat Gateway (e2e)', () => {
         matchListId: matchList._id,
       };
       await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
+        client.emit('getMessages', payload, (data) => {
           expect(data).toHaveLength(2);
           resolve();
         });
@@ -160,7 +160,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForSocketUserCleanup(client, usersService);
     });
 
-    it('should get recentMessages with optional: `before` messageId', async () => {
+    it('should return the expected messages when optional `before` messageId is given', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -168,7 +168,7 @@ describe('Chat Gateway (e2e)', () => {
         matchListId: matchList._id, before: message1._id.toString(),
       };
       await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
+        client.emit('getMessages', payload, (data) => {
           expect(data).toHaveLength(1);
           resolve();
         });
@@ -178,7 +178,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForSocketUserCleanup(client, usersService);
     });
 
-    it('should NOT get recentMessages', async () => {
+    it('should NOT return messages when matchListId is null', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -186,7 +186,7 @@ describe('Chat Gateway (e2e)', () => {
         matchListId: null, before: message1._id.toString(),
       };
       await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
+        client.emit('getMessages', payload, (data) => {
           expect(data.success).toBe(false);
           resolve();
         });
@@ -196,7 +196,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForSocketUserCleanup(client, usersService);
     });
 
-    it('matchListId is not match than expected response', async () => {
+    it('should return a permission denied error message when the matchList cannot be found', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
@@ -204,7 +204,7 @@ describe('Chat Gateway (e2e)', () => {
         matchListId: '639041536cf487d9419d3425',
       };
       await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
+        client.emit('getMessages', payload, (data) => {
           expect(data.error).toBe('Permission denied');
           resolve();
         });
@@ -214,7 +214,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForSocketUserCleanup(client, usersService);
     });
 
-    it('when active user is not exists in participants than expected response', async () => {
+    it('should return a permission denied error message when a matchListId is given that the user is not a participant in', async () => {
       const activeUserAuthToken1 = user0.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -225,7 +225,7 @@ describe('Chat Gateway (e2e)', () => {
         matchListId: matchList._id,
       };
       await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
+        client.emit('getMessages', payload, (data) => {
           expect(data.error).toBe('Permission denied');
           resolve();
         });

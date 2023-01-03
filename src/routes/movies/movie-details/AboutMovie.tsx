@@ -171,14 +171,12 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
           path="details"
           element={(
             <>
-              <MovieOverview overView={aboutMovieData
-                && aboutMovieData.mainData
-                && aboutMovieData.mainData
-                && aboutMovieData.mainData.overview}
-              />
-              <MovieCasts castList={aboutMovieData && aboutMovieData.cast as any} />
-              {aboutMovieData && aboutMovieData.video && aboutMovieData.video.length > 0
-                && <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />}
+              <MovieOverview overView={aboutMovieData?.mainData?.overview} />
+              <MovieCasts castList={aboutMovieData?.cast as any} />
+              {
+                aboutMovieData?.video?.length > 0
+                && <MovieTrailers trailerList={aboutMovieData && aboutMovieData.video as any} />
+              }
             </>
           )}
         />

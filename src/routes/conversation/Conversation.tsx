@@ -19,7 +19,7 @@ function Conversation() {
   const { conversationId } = useParams();
   const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
-  const [recentMessageList, setRecentMessageList] = useState<any>([]);
+  const [messageList, setMessageList] = useState<any>([]);
   const socket = useContext(SocketContext);
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -53,7 +53,7 @@ function Conversation() {
       time: DateTime.now().toISO().toString(),
       participant: 'other',
     };
-    setRecentMessageList((prev: any) => [
+    setMessageList((prev: any) => [
       ...prev,
       chatreceivedObj,
     ]);
@@ -79,7 +79,7 @@ function Conversation() {
       getConversation(conversationId).then((res) => {
         setIsLoading(false);
 
-        setRecentMessageList([]);
+        setMessageList([]);
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
@@ -105,7 +105,7 @@ function Conversation() {
     // eslint-disable-next-line no-underscore-dangle
     socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
       if (chatMessageResponse.success) {
-        setRecentMessageList((prev: any) => [
+        setMessageList((prev: any) => [
           ...prev,
           {
             // eslint-disable-next-line no-underscore-dangle
@@ -125,40 +125,40 @@ function Conversation() {
       setNoMoreData(false);
       if (conversationId) {
         setLoadingMessages(true);
-        socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
-          /* We need to check conversationId before setting `recentMessageList`
-          (Why? Ans. If we don't check for this we end up setting `recentMessageList`
+        socket?.emit('getMessages', { matchListId: conversationId, before: messageList.length > 0 ? messageList[0].id : undefined }, (getMessagesResponse: any) => {
+          /* We need to check conversationId before setting `messageList`
+          (Why? Ans. If we don't check for this we end up setting `messageList`
           for a previous conversation in a newer conversation when we rapidly switch
           between two conversations. (TESTED) */
           if (lastConversationIdRef.current !== conversationId) return;
 
-          const messageList = recentMessagesResponse.map((recentMessage: any) => {
+          const newMessages = getMessagesResponse.map((newMessage: any) => {
             const finalData: any = {
               // eslint-disable-next-line no-underscore-dangle
-              id: recentMessage._id,
-              message: recentMessage.message,
-              time: recentMessage.createdAt,
+              id: newMessage._id,
+              message: newMessage.message,
+              time: newMessage.createdAt,
             };
-            if (recentMessage.fromId === userId) {
+            if (newMessage.fromId === userId) {
               finalData.participant = 'self';
             } else {
               finalData.participant = 'other';
             }
             return finalData;
           }).reverse();
-          setRecentMessageList((prev: any) => [
-            ...messageList,
+          setMessageList((prev: any) => [
+            ...newMessages,
             ...prev,
           ]);
-          if (recentMessagesResponse.length === 0) { setNoMoreData(true); }
-          if (messageList.length === 0) {
+          if (getMessagesResponse.length === 0) { setNoMoreData(true); }
+          if (newMessages.length === 0) {
             setRequestAdditionalPosts(false);
           }
           setLoadingMessages(false);
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, recentMessageList, loadingMessages]);
+  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
 
   if (isLoading) return null;
 
@@ -180,7 +180,7 @@ function Conversation() {
         isReverse
       >
         <Chat
-          messages={recentMessageList}
+          messages={messageList}
           userData={chatUser}
           sendMessageClick={sendMessageClick}
           setMessage={setMessage}

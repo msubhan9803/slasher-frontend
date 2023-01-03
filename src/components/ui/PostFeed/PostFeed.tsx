@@ -6,6 +6,7 @@ import {
   Card, Col, Row,
 } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -21,6 +22,16 @@ import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import PubWiseAd from '../PubWiseAd';
 import { useAppSelector } from '../../../redux/hooks';
+import { scrollWithOffset } from '../../../utils/scrollFunctions';
+import {
+  decryptMessage,
+  cleanExternalHtmlContent,
+  escapeHtmlSpecialCharacters,
+  newLineToBr,
+} from '../../../utils/text-utils';
+import LoadingIndicator from '../LoadingIndicator';
+
+const READ_MORE_TEXT_LIMIT = 300;
 
 interface LinearIconProps {
   uniqueId?: string
@@ -46,6 +57,8 @@ interface Props {
   loadingPosts?: boolean;
   isEdit?: boolean;
   onLikeClick?: (value: string) => void;
+  newsPostPopoverOptions?: string[];
+  escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
 }
@@ -53,9 +66,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const Content = styled.div`
-  white-space: pre-line;
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
@@ -71,26 +81,13 @@ const StyledPostFeed = styled.div`
   }
 `;
 
-const decryptMessage = (content: string) => {
-  const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-  return found;
-};
-
-/* (IGNORE THIS as this is supposed to be removed on doing PR) */
-/* let arr = ["hello", "nice", "stack", "hi", "question", "random"]
-let interval = 2
-let word = 'cat'
-let result = arr.flatMap((w,i) => (i+1) % interval === 0 ? [w, word] : w);
-console.log(result); */
-
-/* const interval = 3; */
-
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   setCommentValue, commentsData, removeComment,
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, loadNewerComment, previousCommentsAvailable,
+  loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -99,6 +96,13 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
+
+  const generateReadMoreLink = (post: any) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+    }
+    return `/${post.userName}/posts/${post.id}`;
+  };
 
   useEffect(() => {
     setPostData(postFeedData);
@@ -118,9 +122,61 @@ function PostFeed({
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
+  const imageLinkUrl = (post: any, imageId: string) => {
+    if (post.rssfeedProviderId) {
+      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+    }
+    return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const showPopoverOption = (postDetail: any) => {
+    if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
+      return newsPostPopoverOptions;
+    }
+    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+      return otherUserPopoverOptions!;
+    }
+    return popoverOptions;
+  };
+
+  const renderPostContent = (post: any) => {
+    let { content } = post;
+    let showReadMoreLink = false;
+    if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
+      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      content = post.content.substring(0, reducedContentLength);
+      showReadMoreLink = true;
+    }
+    return (
+      <div>
+        {/* eslint-disable-next-line react/no-danger */}
+        <div dangerouslySetInnerHTML={
+          {
+            __html: escapeHtml
+              ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+              : cleanExternalHtmlContent(content),
+          }
+        }
+        />
+        {post.hashTag?.map((hashtag: string) => (
+          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+            #
+            {hashtag}
+          </span>
+        ))}
+        {!detailPage
+          && showReadMoreLink
+          && (
+            <>
+              {' '}
+              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                ...read more
+              </Link>
+            </>
+          )}
+      </div>
+    );
+  };
 
   return (
     <StyledPostFeed>
@@ -135,33 +191,22 @@ function PostFeed({
                   userName={post.userName || post.title}
                   postDate={post.postDate}
                   profileImage={post.profileImage || post.rssFeedProviderLogo}
-                  popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
-                    ? otherUserPopoverOptions! : popoverOptions}
+                  popoverOptions={showPopoverOption(post)}
                   onPopoverClick={onPopoverClick}
                   content={post.content}
                   userId={post.userId}
+                  rssfeedProviderId={post.rssfeedProviderId}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
-                <div>
-                  <Content dangerouslySetInnerHTML={
-                    { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
-                  }
-                  />
-                  {post.hashTag?.map((hashtag: string) => (
-                    <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                      #
-                      {hashtag}
-                    </span>
-                  ))}
-                </div>
+                {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
                     images={
                       post.images.map((imageData: any) => ({
                         videoKey: imageData.videoKey,
                         imageUrl: imageData.image_path,
-                        linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
                         postId: post.id,
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                       }))
@@ -178,10 +223,16 @@ function PostFeed({
                     </LinearIcon>
                   </Col>
                   <Col className="text-center" role="button">
-                    <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                    <HashLink
+                      to={post.rssfeedProviderId
+                        ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
+                        : `/${post.userName}/posts/${post.id}#comments`}
+                      className="text-decoration-none"
+                      scroll={scrollWithOffset}
+                    >
                       <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
                       <span className="fs-3">{post.commentCount}</span>
-                    </Link>
+                    </HashLink>
                   </Col>
                   <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
                     <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
@@ -207,7 +258,7 @@ function PostFeed({
                     <StyledBorder className="d-md-block d-none mb-4" />
                     <InfiniteScroll
                       pageStart={0}
-                      initialLoad={false}
+                      initialLoad
                       loadMore={() => {
                         if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                       }}
@@ -232,7 +283,7 @@ function PostFeed({
                         previousCommentsAvailable={previousCommentsAvailable}
                       />
                     </InfiniteScroll>
-                    {loadingPosts && renderLoadingIndicator()}
+                    {loadingPosts && <LoadingIndicator />}
                     {noMoreData && renderNoMoreDataMessage()}
                   </>
                 )
@@ -241,6 +292,7 @@ function PostFeed({
           </div>
           { (i + 1) % 3 === 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id={`Event-detail_web-0-${(i + 1) / 3}`} /> }
         </div>
+
       ))}
       {postData.length < 3 && postData.length !== 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web-0-0" /> }
       {
@@ -273,6 +325,8 @@ PostFeed.defaultProps = {
   noMoreData: false,
   loadingPosts: false,
   onLikeClick: undefined,
+  newsPostPopoverOptions: [],
+  escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
 };

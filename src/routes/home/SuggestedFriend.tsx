@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import {
-  Button, Image, Row,
-} from 'react-bootstrap';
+import { Button, Row } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
@@ -10,12 +8,7 @@ import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
 import { addFriend, rejectFriendsRequest, removeSuggestedFriend } from '../../api/friends';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
-
-const ProfileImage = styled(Image)`
-  height:6.25rem;
-  width:6.25rem;
-  border:2px solid #FFFFFF;
-`;
+import UserCircleImage from '../../components/ui/UserCircleImage';
 
 const StyleFriend = styled(Row)`
   overflow-x: auto;
@@ -30,12 +23,7 @@ const StyleFriend = styled(Row)`
 const Card = styled.div`
   height:12.857rem;
   width:11.71rem;
-  &:first-of-type {
-    padding-left: 0rem;
-  }
-  &:last-of-type {
-    padding-right: 0rem;
-  }
+  padding-right: 1rem;
 `;
 
 const slideFriendRight = () => {
@@ -97,7 +85,7 @@ function SuggestedFriend() {
           </Button>
           <StyleFriend
             id="slideFriend"
-            className="d-flex flex-nowrap w-100 mx-3"
+            className="d-flex flex-nowrap w-100 mx-3 g-0"
           >
             {friendListData?.map((user: any) => (
               /* eslint no-underscore-dangle: 0 */
@@ -105,7 +93,7 @@ function SuggestedFriend() {
                 <div className="bg-dark rounded p-2">
                   <Link className="text-decoration-none" to={`/${user.userName}/about`}>
                     <div className=" d-flex justify-content-center position-relative">
-                      <ProfileImage src={user.profilePic} className="rounded-circle" />
+                      <UserCircleImage size="6.25rem" src={user.profilePic} />
                       <div className="position-absolute" style={{ right: '0' }}>
                         <FontAwesomeIcon role="button" onClick={(e: React.MouseEvent<SVGSVGElement, MouseEvent>) => { onCloseClick(e, user._id); }} icon={solid('xmark')} size="lg" />
                       </div>

@@ -11,6 +11,8 @@ import IconWithTextNavButton from './IconWithTextNavButton';
 import CustomPopover from '../../../ui/CustomPopover';
 import { useAppSelector } from '../../../../redux/hooks';
 
+const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
 const StyledNavbar = styled(Navbar)`
   z-index:1;
   background-color: #101010 !important;
@@ -80,7 +82,7 @@ function AuthenticatedPageHeader(
     />,
     <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" iconSize="lg" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={userData.unreadNotificationCount} />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" badge={userData.unreadMessageCount} />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
   ];
 
@@ -88,13 +90,13 @@ function AuthenticatedPageHeader(
     <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} badge={userData.friendRequestCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
     <div key="me">
       <CustomPopover
         popoverOptions={popoverOption}
         onPopoverClick={handleNavigate}
-        userProfileIcon={userData.user.profilePic}
+        userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64}
       />
     </div>,
   ];
@@ -112,7 +114,14 @@ function AuthenticatedPageHeader(
               {
                 desktopNavLinkElements.map((el, index) => {
                   const uniqueId = `nav-link-${index}`;
-                  return <div key={uniqueId} style={{ width: desktopTopNavIconWidth }}>{el}</div>;
+                  return (
+                    <div
+                      key={uniqueId}
+                      style={{ width: desktopTopNavIconWidth, paddingTop: 3 }}
+                    >
+                      {el}
+                    </div>
+                  );
                 })
               }
             </StyledNav>

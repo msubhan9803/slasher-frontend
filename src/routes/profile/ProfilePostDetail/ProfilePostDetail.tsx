@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
@@ -13,13 +12,16 @@ import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/fee
 import { getSuggestUserName } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EditPostModal from '../../../components/ui/EditPostModal';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { PopoverClickProps } from '../../../components/ui/CustomPopover';
+import { reportData } from '../../../api/report';
+import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import { useAppSelector } from '../../../redux/hooks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -33,7 +35,6 @@ function ProfilePostDetail({ user }: Props) {
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
-  const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
@@ -48,17 +49,16 @@ function ProfilePostDetail({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
-  const handlePopoverOption = (value: string) => {
+  const loginUserId = useAppSelector((state) => state.user.user.id);
+
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(value);
-  };
-  const decryptMessage = (content: string) => {
-    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-    return found;
+    setPopoverClick(popoverClickProps);
   };
 
   // TODO: Make this a shared function becuase it also exists in other places
@@ -124,7 +124,7 @@ function ProfilePostDetail({ user }: Props) {
       feedPostDetail(postId)
         .then((res) => {
           if (res.data.userId.userName !== user.userName) {
-            navigate(`/${res.data.userId.userName}/posts/${postId}`);
+            navigate(`/${res.data.userId.userName}/posts/${postId}`, { replace: true });
             return;
           }
           setPostData([
@@ -366,6 +366,19 @@ function ProfilePostDetail({ user }: Props) {
     }
   };
 
+  const reportProfilePost = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) getFeedPostDetail(postId!);
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   const getSingleComment = () => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
@@ -381,7 +394,6 @@ function ProfilePostDetail({ user }: Props) {
       setCommentData([res.data]);
     });
   };
-
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
@@ -393,7 +405,7 @@ function ProfilePostDetail({ user }: Props) {
   };
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
           {errorMessage}
@@ -430,6 +442,7 @@ function ProfilePostDetail({ user }: Props) {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
+            handleReport={reportProfilePost}
           />
         )}
       {dropDownValue === 'Edit'
@@ -444,6 +457,7 @@ function ProfilePostDetail({ user }: Props) {
             onUpdatePost={onUpdatePost}
           />
         )}
+      <div style={{ height: '100vh' }} />
     </AuthenticatedPageWrapper>
   );
 }

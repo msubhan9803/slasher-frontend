@@ -9,6 +9,7 @@ import { getNotifications, markAllRead } from '../../api/notification';
 import { Notification } from '../../types';
 import NotificationTimestamp from './NotificationTimestamp';
 import NotificationCard from './NotificationCard';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -52,9 +53,7 @@ function Notifications() {
       }
     </p>
   );
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
+
   const onMarkAllReadClick = () => {
     setNoMoreData(false);
     markAllRead()
@@ -154,7 +153,7 @@ function Notifications() {
               </div>
             )}
         </InfiniteScroll>
-        {loadingPosts && renderLoadingIndicator()}
+        {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
       </div>
     </AuthenticatedPageWrapper>

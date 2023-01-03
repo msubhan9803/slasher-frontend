@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 // This file can be used for declaring TypeScript types/interfaces
 // that are shared across multiple places in the app.
 
@@ -36,6 +37,7 @@ export interface User {
   profilePic: string;
   coverPhoto: string;
   aboutMe: string;
+  profile_status: number;
 }
 
 export interface NewsPartnerPostProps {
@@ -149,9 +151,30 @@ interface FeedCommentUserId {
   profilePic: string;
 }
 
+interface NotificationFeedPostId {
+  _id: string;
+  userId: string;
+}
+
+interface NotificationRssFeedProviderId {
+  _id: string;
+  logo: string;
+  title: string;
+}
+
 export enum NotificationReadStatus {
   Unread = 0,
   Read = 1,
+}
+
+export enum NotificationType {
+  UserSentYouAFriendRequest = 11,
+  UserLikedYourPost = 13,
+  UserLikedYourComment = 14,
+  UserCommentedOnYourPost = 15,
+  UserMentionedYouInPost = 99,
+  UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  NewPostFromFollowedRssFeedProvider = 125,
 }
 
 export interface Notification {
@@ -160,6 +183,13 @@ export interface Notification {
   isRead: number,
   notificationMsg: string,
   senderId: Sender,
+  feedPostId: NotificationFeedPostId,
+  feedCommentId: String,
+  feedReplyId: String,
+  userId: String,
+  rssFeedProviderId: NotificationRssFeedProviderId,
+  rssFeedId: String,
+  notifyType: NotificationType,
 }
 
 interface Sender {
@@ -196,4 +226,9 @@ export interface CommentValue {
 export enum RssFeedProviderFollowNotificationsEnabled {
   NotEnabled = 0,
   Enabled = 1,
+}
+
+export enum ProfileVisibility {
+  Public = 0,
+  Private = 1,
 }

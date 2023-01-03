@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Button } from 'react-bootstrap';
+import { HashLink } from 'react-router-hash-link';
 import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
+import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -62,14 +64,7 @@ background-color: #171717;
 const Likes = styled.div`
   right:.063rem;
 `;
-const Content = styled.div`
-  white-space: pre-line;
-`;
 
-const decryptMessage = (content: string) => {
-  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
-  return found;
-};
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
@@ -106,7 +101,9 @@ function CommentSection({
   return (
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
-        <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
+        <HashLink to={`/${name}#`}>
+          <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
+        </HashLink>
       </div>
       <div className="w-100">
         <CommentBox
@@ -115,7 +112,9 @@ function CommentSection({
         >
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
-              <h3 className="mb-0 ">{name}</h3>
+              <HashLink to={`/${name}#`} className="text-decoration-none">
+                <h3 className="mb-0 ">{name}</h3>
+              </HashLink>
               <p className="fs-6 text-light mb-0">
                 {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
               </p>
@@ -135,12 +134,16 @@ function CommentSection({
             {commentMention}
           </span>
 
-          <CommentMessage className="mb-0 fs-4">
-            <Content dangerouslySetInnerHTML={
-              { __html: linkifyHtml(decryptMessage(commentMsg)) }
+          <CommentMessage
+            className="mb-0 fs-4"
+            dangerouslySetInnerHTML={
+              {
+                __html: newLineToBr(
+                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg))),
+                ),
+              }
             }
-            />
-          </CommentMessage>
+          />
           <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
               /* eslint no-underscore-dangle: 0 */

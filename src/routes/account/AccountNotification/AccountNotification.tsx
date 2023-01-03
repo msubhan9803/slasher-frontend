@@ -47,6 +47,7 @@ function AccountNotification() {
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <AccountHeader tabKey="notifications" />
       <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
+        <h1 className="mb-5">Push Notifications</h1>
         <div>
           <div className="mb-4">
             <span className="fs-3">Dating</span>
@@ -76,7 +77,7 @@ function AccountNotification() {
           </StyledBorder>
         </div>
         <div className="mt-5">
-          <h1 className="h3 mb-3">Friends</h1>
+          <h2 className="h3 mb-3">Friends</h2>
           <StyledBorder className="mt-2 mb-3">
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Friend request</span>
@@ -104,7 +105,7 @@ function AccountNotification() {
           </StyledBorder>
         </div>
         <div className="mt-5">
-          <h1 className="h3 mb-3">Groups</h1>
+          <h2 className="h3 mb-3">Groups</h2>
           <StyledBorder className="mt-2 mb-3">
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>
@@ -148,7 +149,7 @@ function AccountNotification() {
           </StyledBorder>
         </div>
         <div className="mt-5">
-          <h1 className="h3 mb-3">Mentions</h1>
+          <h2 className="h3 mb-3">Mentions</h2>
           <div className="fs-3  d-flex justify-content-between">
             <span className="fs-4">Mention on post/comment/reply</span>
             <Switch
@@ -161,7 +162,7 @@ function AccountNotification() {
           </div>
         </div>
         <div className="mt-5">
-          <h1 className="h3 mb-3">Posts</h1>
+          <h2 className="h3 mb-3">Posts</h2>
           <StyledBorder className="mt-2 mb-3">
             <div className="fs-3  d-flex justify-content-between">
               <span className="fs-4">Like on your post/comment/reply</span>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -10,6 +10,8 @@ import ReportModal from '../../../components/ui/ReportModal';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useAppSelector } from '../../../redux/hooks';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -33,8 +35,6 @@ interface Props {
   user: User
 }
 function ProfilePhotos({ user }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [requestAdditionalPhotos, setRequestAdditionalPhotos] = useState<boolean>(false);
   const [show, setShow] = useState(false);
   const [userPhotosList, setUserPhotosList] = useState<UserPhotos[]>([]);
@@ -42,9 +42,10 @@ function ProfilePhotos({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const viewerOptions = ['Unfriend', 'Block user', 'Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
-  const popoverOption = queryParam === 'self' ? selfOptions : viewerOptions;
+  const popoverOption = loginUserId === user?.id ? selfOptions : viewerOptions;
 
   const handlePopoverOption = (value: string) => {
     setShow(true);
@@ -93,11 +94,8 @@ function ProfilePhotos({ user }: Props) {
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" user={user} />
       <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
         {errorMessage && errorMessage.length > 0 && (
@@ -115,23 +113,23 @@ function ProfilePhotos({ user }: Props) {
             {userPhotosList.map((data: UserPhotos) => (
               data.imagesList && data.imagesList.map((images: ImageList) => (
                 <Col xs={4} md={3} key={images._id}>
-                  <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                    <ProfilePhoto className="position-relative">
+                  <ProfilePhoto className="position-relative">
+                    <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
                       <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
-                      <StyledPopover className="position-absolute">
-                        <CustomPopover
-                          popoverOptions={popoverOption}
-                          onPopoverClick={handlePopoverOption}
-                        />
-                      </StyledPopover>
-                    </ProfilePhoto>
-                  </Link>
+                    </Link>
+                    <StyledPopover className="position-absolute">
+                      <CustomPopover
+                        popoverOptions={popoverOption}
+                        onPopoverClick={handlePopoverOption}
+                      />
+                    </StyledPopover>
+                  </ProfilePhoto>
                 </Col>
               ))
             ))}
           </Row>
         </InfiniteScroll>
-        {loadingPhotos && renderLoadingIndicator()}
+        {loadingPhotos && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
       </div>
       <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />

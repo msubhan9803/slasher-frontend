@@ -22,21 +22,23 @@ function NewsRightSideNav() {
   const userData = useAppSelector((state) => state.user);
 
   const callGetFollowUnfollowDetail = () => {
-    getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
-      if (res.data) {
-        setFollowing(true);
-        if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.NotEnabled) {
-          setNotificationToggle(false);
-        } else if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.Enabled) {
-          setNotificationToggle(true);
+    if (userData?.user) {
+      getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
+        if (res.data) {
+          setFollowing(true);
+          if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.NotEnabled) {
+            setNotificationToggle(false);
+          } else if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.Enabled) {
+            setNotificationToggle(true);
+          }
         }
-      }
-    }).catch((error) => {
-      if (error.response.status === 404) {
-        setFollowing(false);
-        setNotificationToggle(false);
-      }
-    });
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          setFollowing(false);
+          setNotificationToggle(false);
+        }
+      });
+    }
   };
 
   useEffect(() => {
@@ -83,15 +85,18 @@ function NewsRightSideNav() {
             </RoundButton>
           </Col>
         </Row>
-        <Row className="mt-3">
-          <Col>
-            <p className="fs-3 fw-bold">Get updates for this movie</p>
-            <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
-              <span>Push notifications</span>
-              <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-            </div>
-          </Col>
-        </Row>
+        {following
+          && (
+          <Row className="mt-3">
+            <Col>
+              <p className="fs-3 fw-bold">Get updates for this news partner</p>
+              <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
+                <span>Push notifications</span>
+                <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+              </div>
+            </Col>
+          </Row>
+          )}
       </div>
       <AdvertisementBox />
       <RecentMessages />

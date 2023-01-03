@@ -14,6 +14,9 @@ interface LinearIconProps {
 }
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
+  img {
+    object-fit: contain;
+  }
 `;
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -55,7 +58,7 @@ function EventDetails() {
       </Row>
       <div className="bg-dark p-4 rounded">
         <EventBanner>
-          <Image src={eventDetails?.images?.[0]} alt="event banner" className="h-100 w-100" />
+          <Image src={eventDetails?.images?.[0]} alt="event banner" className="h-100 w-100 bg-black" />
         </EventBanner>
         <Row className="mt-4">
           <Col md={7}>

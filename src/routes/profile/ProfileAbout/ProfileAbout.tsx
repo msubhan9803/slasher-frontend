@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useSearchParams } from 'react-router-dom';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
+import { useAppSelector } from '../../../redux/hooks';
 
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.43rem;
@@ -19,22 +19,23 @@ interface Props {
   user: User
 }
 function ProfileAbout({ user }: Props) {
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [isEdit, setEdit] = useState<boolean>(false);
   const [message, setMessage] = useState<string>(AboutMessage);
   const [charCount, setCharCount] = useState<number>(0);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
+
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
     setMessage(e.target.value);
   };
+
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="about" user={user} />
       <div className="bg-dark rounded p-4 my-3">
         <div className="d-flex justify-content-between">
           <h2 className="mb-4">About me</h2>
-          {queryParam === 'self'
+          {loginUserId === user?.id
             && <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" onClick={() => setEdit(!isEdit)} />}
         </div>
         {isEdit

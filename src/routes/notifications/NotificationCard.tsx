@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Image } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Notification, NotificationReadStatus } from '../../types';
+import { Notification, NotificationReadStatus, NotificationType } from '../../types';
 
 interface Props {
   notification: Notification;
@@ -29,26 +29,56 @@ const UserCircleImageContainer = styled.div`
     width: 50px;
   }
 `;
+
+function urlForNotification(notification: Notification) {
+  switch (notification.notifyType) {
+    case NotificationType.UserSentYouAFriendRequest:
+      return `/${notification.userId}/friends/request`;
+    case NotificationType.UserLikedYourPost:
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
+    case NotificationType.UserLikedYourComment:
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    case NotificationType.UserCommentedOnYourPost:
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+    case NotificationType.UserMentionedYouInPost:
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
+    // eslint-disable-next-line max-len
+    case NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost:
+      // This enum is very long because the old API has too many things associated with the same
+      // notification type id on the backend. We will change this after retiring the old API.
+      if (notification.feedReplyId) {
+        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}&replyId=${notification.feedReplyId}`;
+      } if (notification.feedCommentId) {
+        return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}?commentId=${notification.feedCommentId}`;
+      }
+      return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
+    case NotificationType.NewPostFromFollowedRssFeedProvider:
+      return `/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
+    default:
+      return '/notifications';
+  }
+}
+
 function NotificationCard({ notification, lastCard }: Props) {
   return (
-  /* eslint no-underscore-dangle: 0 */
+    /* eslint no-underscore-dangle: 0 */
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
-      <Link to="/notifications/placeholder-link-target" className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+      <Link to={urlForNotification(notification)} className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
         {notification.senderId && (
-        <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
-          <Image src={notification.senderId?.profilePic} alt="" className="rounded-circle" />
-        </UserCircleImageContainer>
+          <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
+            <Image src={notification.rssFeedProviderId?.logo || notification.senderId?.profilePic} alt="" className="rounded-circle" />
+          </UserCircleImageContainer>
         )}
         <div>
           <div className="d-flex align-items-center">
             <h3 className="h4 mb-0 fw-bold me-1">
-              {notification.senderId?.userName}
+              {notification.rssFeedProviderId ? '' : notification.senderId?.userName}
               <span className="fs-4 mb-0 fw-normal">
-                                &nbsp;
+                &nbsp;
                 {notification.notificationMsg}
                 .&nbsp;&nbsp;
                 {notification.isRead === NotificationReadStatus.Unread && (
-                <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
+                  <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
                 )}
               </span>
             </h3>

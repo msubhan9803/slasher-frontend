@@ -117,6 +117,7 @@ export async function updateUser(
   firstName: string,
   email: string,
   id: string,
+  profile_status: number,
 ) {
   const token = Cookies.get('sessionToken');
   const headers = {
@@ -126,6 +127,7 @@ export async function updateUser(
     userName,
     firstName,
     email,
+    profile_status,
   }, { headers });
 }
 
@@ -171,9 +173,8 @@ export async function getSuggestFriends() {
   return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
 }
 
-export async function getUsersFriends() {
+export async function getUsersFriends(userId: string) {
   const token = Cookies.get('sessionToken');
-  const userId = Cookies.get('userId');
   const headers = {
     Authorization: `Bearer ${token}`,
   };

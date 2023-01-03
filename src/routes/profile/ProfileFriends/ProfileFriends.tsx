@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import { userProfileFriends } from '../../../api/users';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
@@ -37,10 +36,10 @@ function ProfileFriends({ user }: Props) {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
-  const loginUserName = Cookies.get('userName');
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
+  const loginUserData = useAppSelector((state) => state.user.user);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -52,7 +51,7 @@ function ProfileFriends({ user }: Props) {
       setShow(true);
       setDropDownValue(value);
     } else if (value === 'View profile') {
-      navigate(`/${popoverClickProps.userName}/about`);
+      navigate(`/${popoverClickProps.userName}`);
     }
   };
 
@@ -71,7 +70,7 @@ function ProfileFriends({ user }: Props) {
         }
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  }, [search]);
+  }, [search, user]);
 
   const fetchMoreFriendList = () => {
     if (page > 0) {
@@ -97,9 +96,11 @@ function ProfileFriends({ user }: Props) {
   }, [friendsList]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-    if (bottomLine) {
-      fetchMoreFriendList();
+    if (yPositionOfLastFriendElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
+      if (bottomLine) {
+        fetchMoreFriendList();
+      }
     }
   }, [yPositionOfLastFriendElement]);
 
@@ -114,7 +115,7 @@ function ProfileFriends({ user }: Props) {
   );
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
+    <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-3">
         <div className="d-sm-flex d-block justify-content-between">
@@ -136,7 +137,7 @@ function ProfileFriends({ user }: Props) {
           </div>
         </div>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-          {loginUserName === user.userName
+          {loginUserData.userName === user.userName
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
             pageStart={0}

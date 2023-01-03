@@ -8,6 +8,7 @@ import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
+import LoadingIndicator from '../../components/ui/LoadingIndicator';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -42,7 +43,7 @@ function Messages() {
     if (requestAdditionalMessages && !loadingChats) {
       setLoadingChats(true);
       getMessagesList(
-        messages.length > 1 ? messages[messages.length - 1]._id : undefined,
+        messages.length > 0 ? messages[messages.length - 1]._id : undefined,
       ).then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
           const userDetail = data.participants.find(
@@ -86,9 +87,6 @@ function Messages() {
     </p>
   );
 
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
   const fetchMoreMessages = () => {
     getMessagesList()
       .then((res) => {
@@ -121,9 +119,11 @@ function Messages() {
   }, [messages]);
 
   useEffect(() => {
-    const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
-    if (bottomLine) {
-      fetchMoreMessages();
+    if (yPositionOfLastMessageElement) {
+      const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastMessageElement;
+      if (bottomLine) {
+        fetchMoreMessages();
+      }
     }
   }, [yPositionOfLastMessageElement]);
   return (
@@ -159,7 +159,7 @@ function Messages() {
           }
         </InfiniteScroll>
       </div>
-      {loadingChats && renderLoadingIndicator()}
+      {loadingChats && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       <MessagesOptionDialog
         show={show}

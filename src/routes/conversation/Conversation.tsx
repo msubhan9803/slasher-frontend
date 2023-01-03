@@ -1,23 +1,49 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useRef, useState,
+} from 'react';
 import Cookies from 'js-cookie';
-import { useParams } from 'react-router-dom';
+import {
+  useLocation, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
-import { getMatchIdDetail } from '../../api/messages';
+import { getConversation, createOrFindConversation } from '../../api/messages';
 import { SocketContext } from '../../context/socket';
+import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import NotFound from '../../components/NotFound';
 
 function Conversation() {
   const userId = Cookies.get('userId');
   const { conversationId } = useParams();
+  const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
-  const [recentMessageList, setRecentMessageList] = useState<any>([]);
+  const [messageList, setMessageList] = useState<any>([]);
   const socket = useContext(SocketContext);
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
-  const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const [showPageDoesNotExist, setPageDoesNotExist] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (location.pathname.includes('/new')) {
+      const newConversationUserId = searchParams.get('userId');
+      if (newConversationUserId) {
+        createOrFindConversation(newConversationUserId).then((res) => {
+          // eslint-disable-next-line no-underscore-dangle
+          navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
+        }).catch((e) => { throw e; });
+      } else {
+        navigate('/messages', { replace: true });
+      }
+    }
+  }, []);
 
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
@@ -27,7 +53,7 @@ function Conversation() {
       time: DateTime.now().toISO().toString(),
       participant: 'other',
     };
-    setRecentMessageList((prev: any) => [
+    setMessageList((prev: any) => [
       ...prev,
       chatreceivedObj,
     ]);
@@ -44,11 +70,33 @@ function Conversation() {
   }, []);
 
   useEffect(() => {
-    if (conversationId) {
-      getMatchIdDetail(conversationId).then((res) => {
+    if (conversationId && !location.pathname.includes('new')) {
+      const isSameConversation = lastConversationIdRef.current === conversationId;
+      if (isSameConversation) return;
+
+      lastConversationIdRef.current = conversationId;
+
+      getConversation(conversationId).then((res) => {
+        setIsLoading(false);
+
+        setMessageList([]);
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
+        setRequestAdditionalPosts(true);
+
+        // We need to set `loadingMessages` to false only if its not false currently.
+        // Why?
+        // 1. Consider messages for conversation1 is already loading, then if we change
+        // conversation then do want to set `loadingMessages` to false so that messages
+        // are loaded in the ```other useEffect``` hook.
+        // 2. Consider page load event, so at that time `loadingMessages` is already
+        // false so if we set it to false again then it would set messages twice
+        // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
+        if (loadingMessages) setLoadingMessages(false);
+      }).catch(() => {
+        setIsLoading(false);
+        setPageDoesNotExist(true);
       });
     }
   }, [conversationId]);
@@ -57,7 +105,7 @@ function Conversation() {
     // eslint-disable-next-line no-underscore-dangle
     socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
       if (chatMessageResponse.success) {
-        setRecentMessageList((prev: any) => [
+        setMessageList((prev: any) => [
           ...prev,
           {
             // eslint-disable-next-line no-underscore-dangle
@@ -73,37 +121,54 @@ function Conversation() {
   };
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalPosts && !loadingMessages) {
       setNoMoreData(false);
       if (conversationId) {
-        socket?.emit('recentMessages', { matchListId: conversationId, before: recentMessageList.length > 0 ? recentMessageList[0].id : undefined }, (recentMessagesResponse: any) => {
-          const messageList = recentMessagesResponse.map((recentMessage: any) => {
+        setLoadingMessages(true);
+        socket?.emit('getMessages', { matchListId: conversationId, before: messageList.length > 0 ? messageList[0].id : undefined }, (getMessagesResponse: any) => {
+          /* We need to check conversationId before setting `messageList`
+          (Why? Ans. If we don't check for this we end up setting `messageList`
+          for a previous conversation in a newer conversation when we rapidly switch
+          between two conversations. (TESTED) */
+          if (lastConversationIdRef.current !== conversationId) return;
+
+          const newMessages = getMessagesResponse.map((newMessage: any) => {
             const finalData: any = {
               // eslint-disable-next-line no-underscore-dangle
-              id: recentMessage._id,
-              message: recentMessage.message,
-              time: recentMessage.createdAt,
+              id: newMessage._id,
+              message: newMessage.message,
+              time: newMessage.createdAt,
             };
-            if (recentMessage.fromId === userId) {
+            if (newMessage.fromId === userId) {
               finalData.participant = 'self';
             } else {
               finalData.participant = 'other';
             }
             return finalData;
           }).reverse();
-          setRecentMessageList((prev: any) => [
-            ...messageList,
+          setMessageList((prev: any) => [
+            ...newMessages,
             ...prev,
           ]);
-          if (recentMessagesResponse.length === 0) { setNoMoreData(true); }
-          if (messageList.length === 0) {
+          if (getMessagesResponse.length === 0) { setNoMoreData(true); }
+          if (newMessages.length === 0) {
             setRequestAdditionalPosts(false);
-            setLoadingPosts(false);
           }
+          setLoadingMessages(false);
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, recentMessageList, loadingPosts]);
+  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
+
+  if (isLoading) return null;
+
+  if (showPageDoesNotExist) {
+    return (
+      <UnauthenticatedPageWrapper>
+        <NotFound />
+      </UnauthenticatedPageWrapper>
+    );
+  }
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -115,7 +180,7 @@ function Conversation() {
         isReverse
       >
         <Chat
-          messages={recentMessageList}
+          messages={messageList}
           userData={chatUser}
           sendMessageClick={sendMessageClick}
           setMessage={setMessage}

@@ -1,8 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
-import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -16,6 +15,10 @@ import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { createBlockUser } from '../../../api/blocks';
+import { reportData } from '../../../api/report';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useAppSelector } from '../../../redux/hooks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -33,8 +36,6 @@ function ProfilePosts() {
   }, [userName]);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [searchParams] = useSearchParams();
-  const queryParam = searchParams.get('view');
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -43,8 +44,8 @@ function ProfilePosts() {
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
-  const loginUserName = Cookies.get('userName');
+  const loginUserData = useAppSelector((state) => state.user.user);
+  const [postUserId, setPostUserId] = useState<string>('');
 
   // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
@@ -62,6 +63,9 @@ function ProfilePosts() {
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
+    }
+    if (popoverClickProps.userId) {
+      setPostUserId(popoverClickProps.userId);
     }
     setShowReportModal(true);
     setDropDownValue(value);
@@ -85,7 +89,7 @@ function ProfilePosts() {
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
             likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
+            likeIcon: data.likes.includes(loginUserData.id),
             likeCount: data.likeCount,
             commentCount: data.commentCount,
           }
@@ -114,9 +118,7 @@ function ProfilePosts() {
       }
     </p>
   );
-  const renderLoadingIndicator = () => (
-    <p className="text-center">Loading...</p>
-  );
+
   const handleSearch = (text: string) => {
     setMentionList([]);
     if (text) {
@@ -137,7 +139,7 @@ function ProfilePosts() {
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
           likes: data.likes,
-          likeIcon: data.likes.includes(loginUserId),
+          likeIcon: data.likes.includes(loginUserData.id),
           likeCount: data.likeCount,
           commentCount: data.commentCount,
         }));
@@ -162,7 +164,7 @@ function ProfilePosts() {
   };
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likes?.includes(loginUserData.id));
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -174,10 +176,34 @@ function ProfilePosts() {
       });
     }
   };
+
+  const onBlockYesClick = () => {
+    createBlockUser(postUserId)
+      .then(() => {
+        setShowReportModal(false);
+        callLatestFeedPost();
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
+  const reportProfilePost = (reason: string) => {
+    const reportPayload = {
+      targetId: postId!,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then((res) => {
+      if (res.status === 200) callLatestFeedPost();
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="posts" user={user} />
-      {loginUserName === userName
+      {loginUserData.userName === userName
         && (
           <div className="my-4">
             <CustomCreatePost />
@@ -208,7 +234,7 @@ function ProfilePosts() {
           )
         }
       </InfiniteScroll>
-      {loadingPosts && renderLoadingIndicator()}
+      {loadingPosts && <LoadingIndicator />}
       {noMoreData && renderNoMoreDataMessage()}
       <ReportModal
         show={showReportModal}
@@ -223,6 +249,8 @@ function ProfilePosts() {
             show={showReportModal}
             setShow={setShowReportModal}
             slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportProfilePost}
           />
         )}
       {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}

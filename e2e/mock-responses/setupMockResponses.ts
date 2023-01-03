@@ -24,6 +24,7 @@ function mockInitialDataResponse(page: Page) {
         userId: '638ef1b71164457367491b3c',
         userName: 'SampleUser1',
         unreadNotificationCount: 0,
+        unreadMessageCount: 0,
         recentMessages: [],
         friendRequestCount: 0,
         recentFriendRequests: [],

@@ -18,7 +18,7 @@ import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
@@ -60,10 +60,6 @@ function ProfilePostDetail({ user }: Props) {
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
-  };
-  const decryptMessage = (content: string) => {
-    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-    return found;
   };
 
   // TODO: Make this a shared function becuase it also exists in other places

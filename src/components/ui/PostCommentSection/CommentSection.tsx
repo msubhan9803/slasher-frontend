@@ -8,7 +8,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
-import { replaceHtmlToText } from '../../../utils/text-utils';
+import { decryptMessage, replaceHtmlToText } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -67,10 +67,6 @@ const Content = styled.div`
   white-space: pre-line;
 `;
 
-const decryptMessage = (content: string) => {
-  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
-  return found;
-};
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
   onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,

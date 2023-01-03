@@ -14,6 +14,7 @@ interface Props {
 
 const BadgeSpan = styled.span`
   font-size: xx-small;
+  padding-top: 5px;
 `;
 
 function IconWithTextNavItemInnerElement({

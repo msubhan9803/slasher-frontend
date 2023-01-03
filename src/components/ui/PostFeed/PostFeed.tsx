@@ -21,7 +21,7 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import { escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
+import { decryptMessage, escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -79,11 +79,6 @@ const StyledPostFeed = styled.div`
     }
   }
 `;
-
-const decryptMessage = (content: string) => {
-  const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-  return found;
-};
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,

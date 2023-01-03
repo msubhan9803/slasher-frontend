@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
@@ -18,7 +17,7 @@ import {
   CommentValue, FeedComments, Post, ReplyValue, User,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
@@ -36,7 +35,6 @@ function ProfilePostDetail({ user }: Props) {
   const [searchParams] = useSearchParams();
   const { postId } = useParams<string>();
   const navigate = useNavigate();
-  const queryParam = searchParams.get('view');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
@@ -50,7 +48,6 @@ function ProfilePostDetail({ user }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
-  const loginUserId = Cookies.get('userId');
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
@@ -62,10 +59,6 @@ function ProfilePostDetail({ user }: Props) {
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
-  };
-  const decryptMessage = (content: string) => {
-    const found = content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '');
-    return found;
   };
 
   // TODO: Make this a shared function becuase it also exists in other places
@@ -131,7 +124,7 @@ function ProfilePostDetail({ user }: Props) {
       feedPostDetail(postId)
         .then((res) => {
           if (res.data.userId.userName !== user.userName) {
-            navigate(`/${res.data.userId.userName}/posts/${postId}`);
+            navigate(`/${res.data.userId.userName}/posts/${postId}`, { replace: true });
             return;
           }
           setPostData([
@@ -147,7 +140,7 @@ function ProfilePostDetail({ user }: Props) {
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
               likes: res.data.likes,
-              likeIcon: res.data.likes.includes(loginUserId),
+              likeIcon: res.data.likes.includes(userData.user.id),
               likeCount: res.data.likeCount,
               commentCount: res.data.commentCount,
             },
@@ -286,7 +279,7 @@ function ProfilePostDetail({ user }: Props) {
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
             likes: res.data.likes,
-            likeIcon: res.data.likes.includes(loginUserId),
+            likeIcon: res.data.likes.includes(userData.user.id),
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           },
@@ -321,7 +314,7 @@ function ProfilePostDetail({ user }: Props) {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likes?.includes(userData.user.id!));
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -412,7 +405,7 @@ function ProfilePostDetail({ user }: Props) {
     feedComments(true);
   };
   return (
-    <AuthenticatedPageWrapper rightSidebarType={queryParam === 'self' ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={userData.user.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
           {errorMessage}

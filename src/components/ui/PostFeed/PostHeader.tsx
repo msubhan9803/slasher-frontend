@@ -28,54 +28,56 @@ function PostHeader({
       <Col xs="auto">
         <Row className="d-flex">
           <Col className="my-auto rounded-circle" xs="auto">
-            {detailPage
-              ? (
-                <div className="rounded-circle">
-                  <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
-                </div>
-              )
-              : (
-                // Do *not* remove the trailing # in below `to` path
-                // else the `scrollToTop/scrollWithOffset` won't work.
-                <HashLink
-                  to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
-                    : `/${userName}/posts/${id}#`}
-                  scroll={scrollToTop}
-                  className="text-decoration-none"
-                >
-                  <div className="rounded-circle">
-                    <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
-                  </div>
-                </HashLink>
-              )}
+            {
+              // Do *not* remove the trailing # in below `to` path
+              // else the `scrollToTop/scrollWithOffset` won't work.
+            }
+            <HashLink
+              to={rssfeedProviderId
+                ? `/news/partner/${rssfeedProviderId}#`
+                : `/${userName}#`}
+              scroll={scrollToTop}
+              className="text-decoration-none"
+            >
+              <div className="rounded-circle">
+                <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
+              </div>
+            </HashLink>
           </Col>
           <Col xs="auto" className="ps-0 align-self-center">
-            {detailPage
-              ? (
-                <>
-                  <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
-                  <p className="mb-0 fs-6 text-light">
-                    {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
-                  </p>
-                </>
-              )
-              : (
-                // Do *not* remove the trailing # in below `to` path
-                // else the `scrollToTop/scrollWithOffset` won't work.
+            {
+              // Do *not* remove the trailing # in below `to` path
+              // else the `scrollToTop/scrollWithOffset` won't work.
+            }
+            <HashLink
+              to={rssfeedProviderId
+                ? `/news/partner/${rssfeedProviderId}#`
+                : `/${userName}#`}
+              scroll={scrollToTop}
+              className="text-decoration-none"
+            >
+              <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
+            </HashLink>
+            {
+              // Do *not* remove the trailing # in below `to` path
+              // else the `scrollToTop/scrollWithOffset` won't work.
+              detailPage ? (
+                <p className="mb-0 fs-6 text-light">
+                  {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
+                </p>
+              ) : (
                 <HashLink
                   to={rssfeedProviderId
                     ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
-                  scroll={scrollToTop}
                   className="text-decoration-none"
                 >
-                  <h1 className="mb-0 h3 text-capitalize">{userName}</h1>
                   <p className="mb-0 fs-6 text-light">
                     {DateTime.fromISO(postDate).toFormat('MM/dd/yyyy t')}
                   </p>
                 </HashLink>
-              )}
+              )
+            }
           </Col>
         </Row>
       </Col>

@@ -47,7 +47,7 @@ function Photos() {
           setPhotos(newPhotoList);
         });
     }
-  }, []);
+  }, [sidebarContext]);
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${sidebarContext?.userName}/photos`} />

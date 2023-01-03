@@ -16,3 +16,8 @@ export function replaceHtmlToText(content: string) {
 export function escapeScriptTags(content: string) {
   return content.replaceAll(/(<)([^>]*script[^>]*)(>)/gi, '&lt;$2&gt;');
 }
+
+export function decryptMessage(content: any) {
+  const found = content ? content.replace(/##LINK_ID##[a-fA-F0-9]{24}|##LINK_END##/g, '') : '';
+  return found;
+}

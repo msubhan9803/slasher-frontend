@@ -173,9 +173,8 @@ export async function getSuggestFriends() {
   return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
 }
 
-export async function getUsersFriends() {
+export async function getUsersFriends(userId: string) {
   const token = Cookies.get('sessionToken');
-  const userId = Cookies.get('userId');
   const headers = {
     Authorization: `Bearer ${token}`,
   };

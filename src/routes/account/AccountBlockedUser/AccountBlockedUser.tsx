@@ -80,7 +80,7 @@ function AccountBlockedUser() {
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
       <AccountHeader tabKey="blocked-users" />
-      <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+      <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3">
         <InfiniteScroll
           pageStart={0}
           initialLoad={false}
@@ -88,8 +88,8 @@ function AccountBlockedUser() {
           hasMore={!noMoreData}
         >
           <Row>
-            {blockUsersList
-              && blockUsersList.length > 0
+            {
+              blockUsersList.length > 0
               && blockUsersList.map((blockUser) => (
                 <Col xs sm={6} md={4} lg={6} xl={4} key={blockUser._id}>
                   <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
@@ -119,7 +119,11 @@ function AccountBlockedUser() {
                     </div>
                   </Container>
                 </Col>
-              ))}
+              ))
+            }
+            {
+              blockUsersList.length === 0 && <p className="mb-0">You have not blocked any users.</p>
+            }
           </Row>
         </InfiniteScroll>
         {noMoreData && renderNoMoreDataMessage()}

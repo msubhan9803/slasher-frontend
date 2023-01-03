@@ -151,9 +151,30 @@ interface FeedCommentUserId {
   profilePic: string;
 }
 
+interface NotificationFeedPostId {
+  _id: string;
+  userId: string;
+}
+
+interface NotificationRssFeedProviderId {
+  _id: string;
+  logo: string;
+  title: string;
+}
+
 export enum NotificationReadStatus {
   Unread = 0,
   Read = 1,
+}
+
+export enum NotificationType {
+  UserSentYouAFriendRequest = 11,
+  UserLikedYourPost = 13,
+  UserLikedYourComment = 14,
+  UserCommentedOnYourPost = 15,
+  UserMentionedYouInPost = 99,
+  UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+  NewPostFromFollowedRssFeedProvider = 125,
 }
 
 export interface Notification {
@@ -162,6 +183,13 @@ export interface Notification {
   isRead: number,
   notificationMsg: string,
   senderId: Sender,
+  feedPostId: NotificationFeedPostId,
+  feedCommentId: String,
+  feedReplyId: String,
+  userId: String,
+  rssFeedProviderId: NotificationRssFeedProviderId,
+  rssFeedId: String,
+  notifyType: NotificationType,
 }
 
 interface Sender {

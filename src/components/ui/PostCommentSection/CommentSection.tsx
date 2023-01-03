@@ -9,7 +9,7 @@ import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
-import { decryptMessage, replaceHtmlToText } from '../../../utils/text-utils';
+import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -63,9 +63,6 @@ background-color: #171717;
 `;
 const Likes = styled.div`
   right:.063rem;
-`;
-const Content = styled.div`
-  white-space: pre-line;
 `;
 
 function CommentSection({
@@ -137,14 +134,16 @@ function CommentSection({
             {commentMention}
           </span>
 
-          <CommentMessage className="mb-0 fs-4">
-            <Content dangerouslySetInnerHTML={
+          <CommentMessage
+            className="mb-0 fs-4"
+            dangerouslySetInnerHTML={
               {
-                __html: linkifyHtml(decryptMessage(replaceHtmlToText(commentMsg))),
+                __html: newLineToBr(
+                  linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(commentMsg))),
+                ),
               }
             }
-            />
-          </CommentMessage>
+          />
           <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
               /* eslint no-underscore-dangle: 0 */

@@ -21,7 +21,12 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import { decryptMessage, escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
+import {
+  decryptMessage,
+  cleanExternalHtmlContent,
+  escapeHtmlSpecialCharacters,
+  newLineToBr,
+} from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -59,9 +64,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const Content = styled.span`
-  white-space: pre-line;
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
@@ -142,14 +144,14 @@ function PostFeed({
       content = post.content.substring(0, reducedContentLength);
       showReadMoreLink = true;
     }
-
     return (
       <div>
-        <Content dangerouslySetInnerHTML={
+        {/* eslint-disable-next-line react/no-danger */}
+        <div dangerouslySetInnerHTML={
           {
             __html: escapeHtml
-              ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
-              : escapeScriptTags(content),
+              ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+              : cleanExternalHtmlContent(content),
           }
         }
         />

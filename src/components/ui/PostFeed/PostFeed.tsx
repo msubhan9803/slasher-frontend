@@ -124,124 +124,125 @@ function PostFeed({
 
   return (
     <StyledPostFeed>
-      { isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web" key="Event-detail_web" /> }
-      { isSlotsDefined && <PubWiseAd className="text-center my-3" id="Timeline_web" key="Timeline_web" /> }
-
-      {postData.map((post: any) => (
-        <div key={post.id} className="post">
-          <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
-            <Card.Header className="border-0 px-0 bg-transparent">
-              <PostHeader
-                detailPage={detailPage}
-                id={post.id}
-                userName={post.userName || post.title}
-                postDate={post.postDate}
-                profileImage={post.profileImage || post.rssFeedProviderLogo}
-                popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
-                  ? otherUserPopoverOptions! : popoverOptions}
-                onPopoverClick={onPopoverClick}
-                content={post.content}
-                userId={post.userId}
-              />
-            </Card.Header>
-            <Card.Body className="px-0 pt-3">
-              <div>
-                <Content dangerouslySetInnerHTML={
-                  { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
-                }
+      {postData.map((post: any, i) => (
+        <div key={post.id}>
+          <div className="post">
+            <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+              <Card.Header className="border-0 px-0 bg-transparent">
+                <PostHeader
+                  detailPage={detailPage}
+                  id={post.id}
+                  userName={post.userName || post.title}
+                  postDate={post.postDate}
+                  profileImage={post.profileImage || post.rssFeedProviderLogo}
+                  popoverOptions={post.userId?._id && loginUserId !== post.userId?._id
+                    ? otherUserPopoverOptions! : popoverOptions}
+                  onPopoverClick={onPopoverClick}
+                  content={post.content}
+                  userId={post.userId}
                 />
-                {post.hashTag?.map((hashtag: string) => (
-                  <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                    #
-                    {hashtag}
-                  </span>
-                ))}
-              </div>
-              {post?.images && (
-                <CustomSwiper
-                  images={
-                    post.images.map((imageData: any) => ({
-                      videoKey: imageData.videoKey,
-                      imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
-                      postId: post.id,
-                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                    }))
+              </Card.Header>
+              <Card.Body className="px-0 pt-3">
+                <div>
+                  <Content dangerouslySetInnerHTML={
+                    { __html: /<\/?[a-z][\s\S]*>/i.test(post.content) ? post.content : linkifyHtml(decryptMessage(post.content)) }
                   }
-                  /* eslint no-underscore-dangle: 0 */
-                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
-                />
-              )}
-              <Row className="pt-3 px-md-3">
-                <Col>
-                  <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
-                    <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                    <span className="fs-3">{post.likeCount}</span>
-                  </LinearIcon>
-                </Col>
-                <Col className="text-center" role="button">
-                  <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
-                    <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                    <span className="fs-3">{post.commentCount}</span>
-                  </Link>
-                </Col>
-                <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
-                  <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                  <span className="fs-3">{post.sharedList}</span>
-                </Col>
-                <svg width="0" height="0">
-                  <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                    <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                  </linearGradient>
-                </svg>
-              </Row>
-            </Card.Body>
-            <PostFooter
-              likeIcon={post.likeIcon}
-              postId={post.id}
-              onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
-            />
-            {
-              isCommentSection
-              && (
-                <>
-                  <StyledBorder className="d-md-block d-none mb-4" />
-                  <InfiniteScroll
-                    pageStart={0}
-                    initialLoad={false}
-                    loadMore={() => {
-                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
-                    }}
-                    hasMore={!noMoreData}
-                  >
-                    <PostCommentSection
-                      commentSectionData={commentsData}
-                      commentImage={post.profileImage}
-                      popoverOption={popoverOptions}
-                      setCommentValue={setCommentValue}
-                      removeComment={removeComment}
-                      setCommentID={setCommentID}
-                      setCommentReplyID={setCommentReplyID}
-                      commentID={commentID}
-                      commentReplyID={commentReplyID}
-                      loginUserId={loginUserId}
-                      otherUserPopoverOptions={otherUserPopoverOptions}
-                      setIsEdit={setIsEdit}
-                      isEdit={isEdit}
-                      onLikeClick={onLikeClick}
-                      loadNewerComment={loadNewerComment}
-                      previousCommentsAvailable={previousCommentsAvailable}
-                    />
-                  </InfiniteScroll>
-                  {loadingPosts && renderLoadingIndicator()}
-                  {noMoreData && renderNoMoreDataMessage()}
-                </>
-              )
-            }
-          </Card>
+                  />
+                  {post.hashTag?.map((hashtag: string) => (
+                    <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                      #
+                      {hashtag}
+                    </span>
+                  ))}
+                </div>
+                {post?.images && (
+                  <CustomSwiper
+                    images={
+                      post.images.map((imageData: any) => ({
+                        videoKey: imageData.videoKey,
+                        imageUrl: imageData.image_path,
+                        linkUrl: detailPage ? undefined : `/${post.userName}/posts/${post.id}?imageId=${imageData._id}`,
+                        postId: post.id,
+                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                      }))
+                    }
+                    /* eslint no-underscore-dangle: 0 */
+                    initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                  />
+                )}
+                <Row className="pt-3 px-md-3">
+                  <Col>
+                    <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
+                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                      <span className="fs-3">{post.likeCount}</span>
+                    </LinearIcon>
+                  </Col>
+                  <Col className="text-center" role="button">
+                    <Link to={`/${post.userName}/posts/${post.id}`} className="text-decoration-none">
+                      <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
+                      <span className="fs-3">{post.commentCount}</span>
+                    </Link>
+                  </Col>
+                  <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
+                    <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
+                    <span className="fs-3">{post.sharedList}</span>
+                  </Col>
+                  <svg width="0" height="0">
+                    <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
+                      <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
+                    </linearGradient>
+                  </svg>
+                </Row>
+              </Card.Body>
+              <PostFooter
+                likeIcon={post.likeIcon}
+                postId={post.id}
+                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
+              />
+              {
+                isCommentSection
+                && (
+                  <>
+                    <StyledBorder className="d-md-block d-none mb-4" />
+                    <InfiniteScroll
+                      pageStart={0}
+                      initialLoad={false}
+                      loadMore={() => {
+                        if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                      }}
+                      hasMore={!noMoreData}
+                    >
+                      <PostCommentSection
+                        commentSectionData={commentsData}
+                        commentImage={post.profileImage}
+                        popoverOption={popoverOptions}
+                        setCommentValue={setCommentValue}
+                        removeComment={removeComment}
+                        setCommentID={setCommentID}
+                        setCommentReplyID={setCommentReplyID}
+                        commentID={commentID}
+                        commentReplyID={commentReplyID}
+                        loginUserId={loginUserId}
+                        otherUserPopoverOptions={otherUserPopoverOptions}
+                        setIsEdit={setIsEdit}
+                        isEdit={isEdit}
+                        onLikeClick={onLikeClick}
+                        loadNewerComment={loadNewerComment}
+                        previousCommentsAvailable={previousCommentsAvailable}
+                      />
+                    </InfiniteScroll>
+                    {loadingPosts && renderLoadingIndicator()}
+                    {noMoreData && renderNoMoreDataMessage()}
+                  </>
+                )
+              }
+            </Card>
+          </div>
+          { (i + 1) % 3 === 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id={`Event-detail_web-0-${(i + 1) / 3}`} /> }
         </div>
       ))}
+      {postData.length < 3 && postData.length !== 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web-0-0" /> }
       {
         openLikeShareModal
         && (

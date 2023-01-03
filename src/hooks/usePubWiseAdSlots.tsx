@@ -23,16 +23,20 @@ const usePubWiseAdSlots = () => {
     window.googletag.cmd.push(() => {
       //   SLOT 1: Event-detail_web
       // ===========================
-      window.gptadslots['Event-detail_web'] = window.googletag
-        .defineSlot(
-          '/22756418014/Event-detail_web',
-          [
-            [320, 50],
-            [300, 250],
-          ],
-          'Event-detail_web',
-        )
-        .addService(window.googletag.pubads());
+      for (let series = 0; series < 20; series += 1) {
+        for (let i = 0; i < 100; i += 1) {
+          const id = `Event-detail_web-${series}-${i}`;
+          window.gptadslots[id] = window.googletag
+            .defineSlot(
+              '/22756418014/Event-detail_web',
+              [
+                [300, 250],
+              ],
+              id,
+            )
+            .addService(window.googletag.pubads());
+        }
+      }
 
       // SLOT 2: Timeline_web
       // ===========================
@@ -40,7 +44,6 @@ const usePubWiseAdSlots = () => {
         .defineSlot(
           '/22756418014/Timeline_web',
           [
-            [320, 50],
             [300, 250],
           ],
           'Timeline_web',

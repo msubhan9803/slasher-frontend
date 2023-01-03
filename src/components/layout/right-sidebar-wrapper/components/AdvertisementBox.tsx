@@ -1,17 +1,13 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const Advertisement = styled.div`
-  height: 250px;
-  width: 300px;
-  background-color: #272727;
-`;
+import { useAppSelector } from '../../../../redux/hooks';
+import PubWiseAd from '../../../ui/PubWiseAd';
 
 function AdvertisementBox() {
+  const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
   return (
     <div>
       <h2 className="mb-3">Advertisement</h2>
-      <Advertisement className="mx-auto" />
+      {isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web-1-0" />}
     </div>
   );
 }

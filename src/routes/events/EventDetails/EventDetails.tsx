@@ -8,6 +8,7 @@ import { DateTime } from 'luxon';
 import getEventDetails from '../../../api/events';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -147,6 +148,7 @@ function EventDetails() {
           </p>
         </div>
       </div>
+      <PubWiseAd className="text-center my-3" id="Event-detail_web-8-0" />
     </AuthenticatedPageWrapper>
   );
 }

@@ -8,6 +8,7 @@ import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/
 import { rssFeedInitialData } from '../../api/rss-feed-providers';
 import PubWiseAd from '../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
+import checkAdsNewsIndex from './checkAdsNewsIndex';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -41,45 +42,7 @@ function NewsIndex() {
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
         {newsAndReviews.map((news: any, i, arr) => {
-          let show = false;
-          let adIndex = 0;
-
-          const is4ColumnsView = (bp === 'md' || bp === 'xl' || bp === 'xxl');
-          const is3ColumnsView = (bp === 'sm' || bp === 'lg');
-          const is2ColumnsView = (bp === 'xs');
-
-          if (is4ColumnsView || is3ColumnsView || is2ColumnsView) {
-            if (is4ColumnsView) {
-              if (((i + 1) % 12 === 0)) {
-                show = true;
-                adIndex = (i + 1) / 12;
-              }
-              if (arr.length < 12 && arr.length !== 0 && i + 1 === arr.length) {
-                show = true;
-                adIndex = 0;
-              }
-            }
-            if (is3ColumnsView) {
-              if (((i + 1) % 9 === 0)) {
-                show = true;
-                adIndex = (i + 1) / 9;
-              }
-              if (arr.length < 9 && arr.length !== 0 && i + 1 === arr.length) {
-                show = true;
-                adIndex = 0;
-              }
-            }
-            if (is2ColumnsView) {
-              if (((i + 1) % 6 === 0)) {
-                show = true;
-                adIndex = (i + 1) / 6;
-              }
-              if (arr.length < 6 && arr.length !== 0 && i + 1 === arr.length) {
-                show = true;
-                adIndex = 0;
-              }
-            }
-          }
+          const [show, adIndex] = checkAdsNewsIndex(bp, i, arr);
 
           return (
           /* eslint no-underscore-dangle: 0 */

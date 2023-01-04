@@ -10,6 +10,9 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
+import checkAdsEventByDate from './checkAdsEventByDate';
+import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -122,6 +125,7 @@ function EventsByDate() {
   const endDate = `${selectedDateString}T23:59:59Z`;
   const eventContainerElementRef = useRef<any>(null);
   const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
+  const bp = useBootstrapBreakpointName();
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -250,13 +254,19 @@ function EventsByDate() {
         >
           <Row ref={eventContainerElementRef}>
             {eventsList && eventsList.length > 0
-              && (eventsList.map((eventDetail) => (
-                <Col md={6} key={eventDetail.id}>
-                  <EventsPosterCard
-                    listDetail={eventDetail}
-                  />
-                </Col>
-              )))}
+              && (eventsList.map((eventDetail, i, arr) => {
+                // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
+                // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
+                const [show, adIndex] = checkAdsEventByDate(bp, i, arr);
+                return (
+                  <React.Fragment key={eventDetail.id}>
+                    <Col md={6}>
+                      <EventsPosterCard listDetail={eventDetail} />
+                    </Col>
+                    {show && <PubWiseAd className="text-center my-3" id={`Event-detail_web-7-${adIndex}`} />}
+                  </React.Fragment>
+                );
+              }))}
           </Row>
         </InfiniteScroll>
         {noMoreData && renderNoMoreDataMessage()}

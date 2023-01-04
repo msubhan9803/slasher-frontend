@@ -26,15 +26,12 @@ function NewsIndex() {
     });
   }, []);
 
-  const testLongNewsAndReviews = [...newsAndReviews,
-    ...newsAndReviews,
-    ...newsAndReviews,
-    ...newsAndReviews,
-  ].slice(0);
-  // 0 -> all items
-  // 28 -> 0 item
-  // 27 -> 1 item
-  // 26 -> 2 item
+  // (TEMP) <DEBUGGING PURPOSE ONLY>
+  // const testLongNewsAndReviews = [...newsAndReviews,
+  //   ...newsAndReviews,
+  //   ...newsAndReviews,
+  //   ...newsAndReviews,
+  // ].slice(0, X);
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -43,19 +40,45 @@ function NewsIndex() {
         <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
-        {testLongNewsAndReviews.map((news: any, i) => {
+        {newsAndReviews.map((news: any, i, arr) => {
           let show = false;
           let adIndex = 0;
 
-          const is4ColumnsView = (bp === 'md' || bp === 'xl' || bp === 'xxl') && ((i + 1) % 12 === 0);
-          const is3ColumnsView = (bp === 'sm' || bp === 'lg') && ((i + 1) % 9 === 0);
-          const is2ColumnsView = (bp === 'xs') && ((i + 1) % 6 === 0);
+          const is4ColumnsView = (bp === 'md' || bp === 'xl' || bp === 'xxl');
+          const is3ColumnsView = (bp === 'sm' || bp === 'lg');
+          const is2ColumnsView = (bp === 'xs');
 
           if (is4ColumnsView || is3ColumnsView || is2ColumnsView) {
-            show = true;
-            if (is4ColumnsView) adIndex = (i + 1) / 12;
-            if (is3ColumnsView) adIndex = (i + 1) / 9;
-            if (is2ColumnsView) adIndex = (i + 1) / 6;
+            if (is4ColumnsView) {
+              if (((i + 1) % 12 === 0)) {
+                show = true;
+                adIndex = (i + 1) / 12;
+              }
+              if (arr.length < 12 && arr.length !== 0 && i + 1 === arr.length) {
+                show = true;
+                adIndex = 0;
+              }
+            }
+            if (is3ColumnsView) {
+              if (((i + 1) % 9 === 0)) {
+                show = true;
+                adIndex = (i + 1) / 9;
+              }
+              if (arr.length < 9 && arr.length !== 0 && i + 1 === arr.length) {
+                show = true;
+                adIndex = 0;
+              }
+            }
+            if (is2ColumnsView) {
+              if (((i + 1) % 6 === 0)) {
+                show = true;
+                adIndex = (i + 1) / 6;
+              }
+              if (arr.length < 6 && arr.length !== 0 && i + 1 === arr.length) {
+                show = true;
+                adIndex = 0;
+              }
+            }
           }
 
           return (
@@ -76,7 +99,6 @@ function NewsIndex() {
             </React.Fragment>
           );
         })}
-        {newsAndReviews.length < 3 && newsAndReviews.length !== 0 && <PubWiseAd className="text-center my-3" id="Event-detail_web-2-0" /> }
       </Row>
     </AuthenticatedPageWrapper>
   );

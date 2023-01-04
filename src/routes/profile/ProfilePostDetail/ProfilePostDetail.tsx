@@ -433,6 +433,7 @@ function ProfilePostDetail({ user }: Props) {
         onLikeClick={onLikeClick}
         loadNewerComment={loadNewerComment}
         previousCommentsAvailable={previousCommentsAvailable}
+        isSinglePagePost
       />
       {dropDownValue !== 'Edit'
         && (

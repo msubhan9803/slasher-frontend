@@ -35,8 +35,7 @@ interface Props {
     name: string,
     replyId: string,
     scrollId: string,
-    e: any,
-    index?: number
+    index?: number,
   ) => void;
   likeCount?: number;
   active?: boolean;
@@ -101,11 +100,11 @@ function CommentSection({
     }
   }, []);
 
-  const handleReply = (e: any) => {
+  const handleReply = () => {
     if (setIsReply) setIsReply(true);
     const scrollId = isReply ? `reply-${id}` : `comment-${id}`;
     if (handleSeeCompleteList) {
-      handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, e, replyCommentIndex);
+      handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, replyCommentIndex);
     }
   };
 

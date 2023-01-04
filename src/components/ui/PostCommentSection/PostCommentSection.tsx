@@ -114,6 +114,7 @@ function PostCommentSection({
     replyName: string,
     selectedReply?: string,
     scrollReplyId?: string,
+    replyCommentIndex?: number,
   ) => {
     setSelectedReplyCommentId(commentReplyId);
     setReplyUserName(replyName);
@@ -128,27 +129,43 @@ function PostCommentSection({
         Inline: 'center',
       });
     }
+
     const loadCommentData: any = commentData;
-    let index: number = 0;
+    let index: number = replyIndex;
     loadCommentData.forEach((comment: any) => {
       if (comment.id === commentReplyId) {
-        index = comment?.commentReplySection?.findIndex(
-          (reply: any) => reply.id === selectedReplyId,
-        );
-        const removeLoadMoreId = checkLoadMoreId.filter(
-          (loadMore: string) => loadMore !== commentReplyId,
-        );
-        if (comment?.commentReplySection?.length as number - 1 !== index) {
-          setCheckLoadMoreId(removeLoadMoreId);
-        }
+        index = replyCommentIndex && replyCommentIndex > 1 ? replyCommentIndex : replyIndex - 1;
+        comment?.commentReplySection?.map((reply: any) => {
+          if (reply.id === selectedReply) {
+            checkLoadMoreId.filter((remove) => {
+              if (remove !== reply.feedCommentId) {
+                if (comment?.commentReplySection.length as number - 1 === index) {
+                  setCheckLoadMoreId([]);
+                }
+              }
+              return null;
+            });
+            if (comment?.commentReplySection?.length as number - 1 !== index) {
+              const removeLoadMoreId = checkLoadMoreId.filter(
+                (loadMore: string) => loadMore !== commentReplyId,
+              );
+              setCheckLoadMoreId(removeLoadMoreId);
+            }
+          }
+          return null;
+        });
       }
     });
-    setReplyIndex(index === -1 || index === 0 ? 2 : index + 1);
+    setReplyIndex(replyCommentIndex === -1
+      || replyCommentIndex === 0
+      || replyCommentIndex === 1
+      ? 2
+      : index + 1);
   };
 
   useEffect(() => {
     handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
-  }, [selectedReplyCommentId, replyUserName, scrollId, tabsRef, selectedReplyId, updateState]);
+  }, [selectedReplyCommentId, replyUserName, scrollId, tabsRef, selectedReplyId, isReply]);
 
   const feedCommentData = () => {
     const comments = commentSectionData.map((comment: FeedComments) => {
@@ -167,11 +184,10 @@ function PostCommentSection({
           likeCount: replies.likeCount,
           commentCount: replies.commentCount,
           newComment: replies?.new,
-          // isHide: replies?.new &&  ? false
         };
         return feeedCommentReplies;
       });
-      setReplyIndex(commentReplies.length);
+      // setReplyIndex(commentReplies.length);
       const feedComment: any = {
         /* eslint no-underscore-dangle: 0 */
         id: comment._id,
@@ -227,9 +243,11 @@ function PostCommentSection({
       });
       setReplyMessage('');
       setReplyImageArray([]);
+      const index = replyIndex > 2 ? replyIndex : 2;
+      setReplyIndex(index);
     }
     setIsReply(false);
-    setSelectedReplyCommentId('');
+    // setSelectedReplyCommentId('');
     setSelectedReplyId('');
     setReplyUserName('');
   };
@@ -340,7 +358,16 @@ function PostCommentSection({
       .catch((error) => console.error(error));
   };
 
-  console.log(isReply, 'isReply');
+  const handleLoadCount = (replyData: any) => {
+    let index = 2;
+    const replyDataLength = replyData.filter((oldData: any) => oldData.newComment !== true).length;
+    if (replyData[0].feedCommentId === selectedReplyCommentId) {
+      if (replyIndex > 2) {
+        index = replyIndex;
+      }
+    }
+    return replyDataLength - index;
+  };
 
   return (
     <>
@@ -517,7 +544,7 @@ function PostCommentSection({
                               }}
                             >
                               {`Load 
-                              ${data.commentReplySection.length - (data.commentReplySection[0]?.feedCommentId === selectedReplyCommentId ? replyIndex : 2)}
+                              ${handleLoadCount(data.commentReplySection)}
                               more
                               ${(data.commentReplySection.length - 2) === 1 ? 'comment' : 'comments'}`}
                             </Button>
@@ -564,9 +591,7 @@ function PostCommentSection({
                         isReply
                         && (selectedReplyCommentId === data.id
                           || selectedReplyCommentId === data.commentReplySection[0]?.feedCommentId
-                          || commentSectionData[0].replies.find(
-                            (checkId: any) => checkId._id === selectedReplyCommentId,
-                          ))
+                        )
                         && (
                           <Form id={scrollId} ref={tabsRef}>
                             <Row className="ps-3 pt-2 order-last order-sm-0">

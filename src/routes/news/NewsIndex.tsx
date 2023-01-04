@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { rssFeedInitialData } from '../../api/rss-feed-providers';
+import PubWiseAd from '../../components/ui/PubWiseAd';
+import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -16,12 +18,23 @@ const TrucatedDescription = styled.small`
 `;
 function NewsIndex() {
   const [newsAndReviews, setNewsAndReviews] = useState([]);
+  const bp = useBootstrapBreakpointName();
 
   useEffect(() => {
     rssFeedInitialData().then((res) => {
       setNewsAndReviews(res.data);
     });
   }, []);
+
+  const testLongNewsAndReviews = [...newsAndReviews,
+    ...newsAndReviews,
+    ...newsAndReviews,
+    ...newsAndReviews,
+  ].slice(0);
+  // 0 -> all items
+  // 28 -> 0 item
+  // 27 -> 1 item
+  // 26 -> 2 item
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="profile-self">
@@ -30,20 +43,40 @@ function NewsIndex() {
         <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
-        {newsAndReviews.map((news: any) => (
+        {testLongNewsAndReviews.map((news: any, i) => {
+          let show = false;
+          let adIndex = 0;
+
+          const is4ColumnsView = (bp === 'md' || bp === 'xl' || bp === 'xxl') && ((i + 1) % 12 === 0);
+          const is3ColumnsView = (bp === 'sm' || bp === 'lg') && ((i + 1) % 9 === 0);
+          const is2ColumnsView = (bp === 'xs') && ((i + 1) % 6 === 0);
+
+          if (is4ColumnsView || is3ColumnsView || is2ColumnsView) {
+            show = true;
+            if (is4ColumnsView) adIndex = (i + 1) / 12;
+            if (is3ColumnsView) adIndex = (i + 1) / 9;
+            if (is2ColumnsView) adIndex = (i + 1) / 6;
+          }
+
+          return (
           /* eslint no-underscore-dangle: 0 */
-          <Col key={news._id} xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
-            <Link to={`/news/partner/${news._id}`} className="text-decoration-none">
-              <Card className="bg-transparent border-0">
-                <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
-                <Card.Body className="px-0">
-                  <p className="fs-3 mb-1 fw-bold">{news.title}</p>
-                  <TrucatedDescription className="text-light fs-4">{news.description}</TrucatedDescription>
-                </Card.Body>
-              </Card>
-            </Link>
-          </Col>
-        ))}
+            <React.Fragment key={news._id}>
+              <Col xs={6} sm={4} md={3} lg={4} xl={3} className="pt-2">
+                <Link to={`/news/partner/${news._id}`} className="text-decoration-none">
+                  <Card className="bg-transparent border-0">
+                    <Card.Img src={news.logo} className="rounded-4" style={{ aspectRatio: '1' }} />
+                    <Card.Body className="px-0">
+                      <p className="fs-3 mb-1 fw-bold">{news.title}</p>
+                      <TrucatedDescription className="text-light fs-4">{news.description}</TrucatedDescription>
+                    </Card.Body>
+                  </Card>
+                </Link>
+              </Col>
+              {show && <PubWiseAd className="text-center my-3" id={`Event-detail_web-2-${adIndex}`} />}
+            </React.Fragment>
+          );
+        })}
+        {newsAndReviews.length < 3 && newsAndReviews.length !== 0 && <PubWiseAd className="text-center my-3" id="Event-detail_web-2-0" /> }
       </Row>
     </AuthenticatedPageWrapper>
   );

@@ -359,6 +359,7 @@ function NewsPartnerPost() {
             escapeHtml={false}
             loadNewerComment={loadNewerComment}
             previousCommentsAvailable={previousCommentsAvailable}
+            isSinglePagePost
           />
         </Col>
       </Row>

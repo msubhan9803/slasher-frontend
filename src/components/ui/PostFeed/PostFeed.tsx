@@ -21,7 +21,6 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import PubWiseAd from '../PubWiseAd';
-import { useAppSelector } from '../../../redux/hooks';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
 import {
   decryptMessage,
@@ -61,6 +60,7 @@ interface Props {
   escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
+  isSinglePagePost?: boolean;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -87,7 +87,7 @@ function PostFeed({
   setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
   setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
   loadingPosts, onLikeClick, newsPostPopoverOptions,
-  escapeHtml, loadNewerComment, previousCommentsAvailable,
+  escapeHtml, loadNewerComment, previousCommentsAvailable, isSinglePagePost,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -95,7 +95,6 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-  const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
 
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -215,6 +214,7 @@ function PostFeed({
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                   />
                 )}
+                {isSinglePagePost && <PubWiseAd className="text-center mt-3" id="Event-detail_web-4-0" />}
                 <Row className="pt-3 px-md-3">
                   <Col>
                     <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
@@ -290,11 +290,11 @@ function PostFeed({
               }
             </Card>
           </div>
-          { (i + 1) % 3 === 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id={`Event-detail_web-0-${(i + 1) / 3}`} /> }
+          { (i + 1) % 3 === 0 && <PubWiseAd className="text-center my-3" id={`Event-detail_web-0-${(i + 1) / 3}`} /> }
         </div>
 
       ))}
-      {postData.length < 3 && postData.length !== 0 && isSlotsDefined && <PubWiseAd className="text-center my-3" id="Event-detail_web-0-0" /> }
+      { !isSinglePagePost && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id="Event-detail_web-0-0" /> }
       {
         openLikeShareModal
         && (
@@ -329,5 +329,6 @@ PostFeed.defaultProps = {
   escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
+  isSinglePagePost: false,
 };
 export default PostFeed;

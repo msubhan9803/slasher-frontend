@@ -19,6 +19,7 @@ import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import PubWiseAd from '../PubWiseAd';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -87,6 +88,7 @@ function PostCommentSection({
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
+
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -290,6 +292,7 @@ function PostCommentSection({
   return (
     <>
       <Form>
+        <PubWiseAd className="text-center mb-3" id="Event-detail_web-3-0" />
         <Row className="ps-3 pt-2 order-last order-sm-0">
           <Col xs="auto" className="pe-0">
             <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useAppSelector } from '../../redux/hooks';
 
 declare global {
   interface Window {
@@ -13,7 +14,7 @@ interface PubWiseAdTypes {
   className?: string;
 }
 
-function PubWiseAd({ id, style, className }: PubWiseAdTypes) {
+function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   useEffect(() => {
     if (!window.gptadslots[id]) {
       // eslint-disable-next-line no-console
@@ -39,7 +40,20 @@ function PubWiseAd({ id, style, className }: PubWiseAdTypes) {
   return <div style={style} className={className} id={id} />;
 }
 
+function PubWiseAd(props: PubWiseAdTypes) {
+  const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
+
+  if (!isSlotsDefined) return null;
+
+  return <PubWiseAdUnit {...props} />;
+}
+
 PubWiseAd.defaultProps = {
+  style: {},
+  className: '',
+};
+
+PubWiseAdUnit.defaultProps = {
   style: {},
   className: '',
 };

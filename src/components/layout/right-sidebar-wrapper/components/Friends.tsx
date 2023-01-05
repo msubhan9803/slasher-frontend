@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { getUser, getUsersFriends } from '../../../../api/users';
+import { User } from '../../../../types';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
@@ -15,11 +16,11 @@ interface FriendProps {
 
 function Friends() {
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
-  const [user, setUserId] = useState<any>([]);
-  const [loader, setLoader] = useState<any>(false);
+  const [user, setUser] = useState<User>();
+  const [loader, setLoader] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
 
-  const getUserFriendsss = (id: string) => {
+  const getUserFriendList = (id: string) => {
     getUsersFriends(id)
       .then((res) => { setFriendsList(res.data.friends); setLoader(false); });
   };
@@ -28,13 +29,13 @@ function Friends() {
     if (userNameOrId) {
       setLoader(true);
       getUser(userNameOrId)
-        .then((res) => { getUserFriendsss(res.data.id); setUserId(res.data); });
+        .then((res) => { getUserFriendList(res.data.id); setUser(res.data); });
     }
   }, [userNameOrId]);
 
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${user.userName}/friends`} />
+      <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${user && user.userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {

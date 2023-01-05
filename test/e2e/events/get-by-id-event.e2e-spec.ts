@@ -16,6 +16,7 @@ import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.
 import { Event } from '../../../src/schemas/event/event.schema';
 import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Events / :id (e2e)', () => {
   let app: INestApplication;
@@ -71,10 +72,22 @@ describe('Events / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body._id).toEqual(activeEvent._id.toString());
-        expect(response.body.name).toEqual(activeEvent.name);
-        expect(response.body.event_type.event_name).toEqual(activeEventCategory.event_name);
-        expect(response.body.event_type._id).toEqual(activeEventCategory._id.toString());
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [],
+          startDate: response.body.startDate,
+          endDate: response.body.endDate,
+          event_type: {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            event_name: 'Event category 1',
+          },
+          city: 'Los Angeles',
+          state: 'California',
+          address: null,
+          country: 'USA',
+          url: 'https://example.com',
+          event_info: 'Event info organised by 1',
+        });
       });
 
       it('event not found if parameter id value does not exists', async () => {

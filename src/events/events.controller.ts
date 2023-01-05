@@ -118,7 +118,14 @@ export class EventsController {
     const event = await this.eventService.create(createEventData);
 
     asyncDeleteMulterFiles(files);
-    return event;
+    const pickConversationFields = [
+      '_id', 'name', 'userId',
+      'images', 'startDate', 'endDate',
+      'event_type', 'city',
+      'state', 'address', 'country',
+      'url', 'event_info',
+    ];
+    return pick(event, pickConversationFields);
   }
 
   @TransformImageUrls('$.images[*]')
@@ -129,8 +136,13 @@ export class EventsController {
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
-
-    return eventData;
+    const pickConversationFields = [
+      '_id', 'images', 'startDate',
+      'endDate', 'event_type', 'city',
+      'state', 'address', 'country',
+      'url', 'event_info',
+    ];
+    return pick(eventData, pickConversationFields);
   }
 
   @Patch(':id')

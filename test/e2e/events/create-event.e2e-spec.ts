@@ -14,6 +14,7 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { createTempFiles } from '../../helpers/tempfile-helpers';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Events create / (e2e)', () => {
   let app: INestApplication;
@@ -98,10 +99,21 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[3])
             .expect(HttpStatus.CREATED);
 
-          expect(response.body.name).toEqual(postBody.name);
-          expect(response.body.userId).toEqual(postBody.userId);
-          expect(response.body.event_type).toEqual(postBody.event_type);
-          expect(response.body.country).toEqual(postBody.country);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            name: 'Event name test',
+            userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: response.body.images,
+            startDate: response.body.startDate,
+            endDate: response.body.endDate,
+            event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            city: 'San Francisco',
+            state: 'CA',
+            address: '66 Ceres S',
+            country: 'United States',
+            url: 'www.example.com',
+            event_info: 'test event start',
+          });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }]);
       });
     });

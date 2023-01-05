@@ -151,7 +151,7 @@ function EventDetails() {
           {
             __html: newLineToBr(
               linkifyHtml(
-                decryptMessage(escapeHtmlSpecialCharacters(eventDetails?.event_info)),
+                decryptMessage(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
               ),
             ),
           }

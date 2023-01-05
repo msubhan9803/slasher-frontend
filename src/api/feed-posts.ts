@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { apiUrl } from './constants';
+import { apiUrl } from '../constants';
 
 export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   const token = Cookies.get('sessionToken');

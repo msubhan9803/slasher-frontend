@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { apiUrl } from '../../src/api/constants';
+import { apiUrl } from '../../src/constants';
 
 function mockSignInResponse(page: Page) {
   page.route(`${apiUrl}/users/sign-in`, (route) => {

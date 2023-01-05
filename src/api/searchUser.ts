@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { apiUrl } from './constants';
+import { apiUrl } from '../constants';
 
 // eslint-disable-next-line import/prefer-default-export
 export async function getSearchUser(page: number, query: string) {

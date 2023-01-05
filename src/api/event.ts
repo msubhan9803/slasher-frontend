@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { toUtcStartOfDay, toUtcEndOfDay } from '../utils/date-utils';
-import { apiUrl } from './constants';
+import { apiUrl } from '../constants';
 
 export async function getEventCategoriesOption() {
   const token = Cookies.get('sessionToken');

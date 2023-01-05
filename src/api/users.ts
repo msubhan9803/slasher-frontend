@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { apiUrl } from './constants';
+import { apiUrl } from '../constants';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(

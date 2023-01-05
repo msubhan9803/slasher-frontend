@@ -17,6 +17,7 @@ import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
 import slasherLogo from '../../images/slasher-logo-medium.png';
 import signInImageMobile from '../../images/sign-in-background-mobile.jpg';
+import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 interface UserCredentials {
   emailOrUsername: string;
@@ -36,7 +37,7 @@ const LoginFormWrapper = styled.div`
     padding: 3rem;
   }
 
-  @media(min-width: 992px) {
+  @media(min-width: ${LG_MEDIA_BREAKPOINT}) {
     min-width: 450px;
     width: 95%;
     max-width: 650px;

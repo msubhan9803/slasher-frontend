@@ -69,7 +69,7 @@ function DatingSetupIdentity() {
         <Col />
       </Row>
       <Row className="mt-3 mb-4">
-        <Col sm={6}>
+        <Col sm={6} md={8}>
           <Row>
             <h1>I am a</h1>
             <Row>
@@ -100,7 +100,7 @@ function DatingSetupIdentity() {
         </Col>
       </Row>
       <Row className="mt-3 mb-4">
-        <Col md={6}>
+        <Col md={8}>
           <Row>
             <h1> I am looking for</h1>
             <Row>
@@ -168,7 +168,7 @@ function DatingSetupIdentity() {
           <RoundButton
             variant="primary"
             type="submit"
-            className="w-100 px-5"
+            className="w-100"
           >
             Next Step
           </RoundButton>

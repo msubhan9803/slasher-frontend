@@ -10,8 +10,8 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { EventCategoriesService } from '../../../src/event-categories/providers/event-categories.service';
 import { eventCategoryFactory } from '../../factories/event-category.factory';
-import { EventCategoryDocument } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Event categories index (e2e)', () => {
   let app: INestApplication;
@@ -51,36 +51,24 @@ describe('Event categories index (e2e)', () => {
   });
 
   describe('GET /event-categories', () => {
-    let eventCategoryList: EventCategoryDocument[];
-    beforeEach(async () => {
-      eventCategoryList = [
-        await eventCategoriesService.create(
-          eventCategoryFactory.build(),
-        ),
-        await eventCategoriesService.create(
-          eventCategoryFactory.build(),
-        ),
-      ];
-    });
-
     it('returns the expected response', async () => {
-      const expectedResponse = eventCategoryList
-        .map((eventCategory) => ({
-          _id: eventCategory._id.toString(),
-          event_name: eventCategory.event_name,
-          status: eventCategory.status,
-          is_deleted: eventCategory.is_deleted,
-          createdAt: eventCategory.createdAt.toISOString(),
-          updatedAt: eventCategory.updatedAt.toISOString(),
-        }));
+      await eventCategoriesService.create(eventCategoryFactory.build());
+      await eventCategoriesService.create(eventCategoryFactory.build());
       const response = await request(app.getHttpServer())
         .get('/event-categories')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.OK)
-        .expect(expectedResponse);
-
-      expect(response.body.map((eventCategory) => eventCategory.event_name))
-        .toEqual(expectedResponse.map((expectedEventCategory) => expectedEventCategory.event_name));
+        .expect(HttpStatus.OK);
+      expect(response.body)
+        .toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            event_name: 'Event category 1',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            event_name: 'Event category 2',
+          },
+        ]);
     });
   });
 });

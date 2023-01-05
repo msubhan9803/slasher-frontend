@@ -150,9 +150,7 @@ function EventDetails() {
             dangerouslySetInnerHTML={
           {
             __html: newLineToBr(
-              linkifyHtml(
-                decryptMessage(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
-              ),
+              linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
             ),
           }
         }

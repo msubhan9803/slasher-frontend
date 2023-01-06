@@ -74,7 +74,10 @@ describe('Events / :id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          images: [],
+          images: [
+            'http://localhost:4444/placeholders/default_user_icon.png',
+            'http://localhost:4444/placeholders/default_user_icon.png',
+          ],
           startDate: response.body.startDate,
           endDate: response.body.endDate,
           event_type: {

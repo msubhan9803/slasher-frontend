@@ -17,6 +17,7 @@ import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.
 import { Event } from '../../../src/schemas/event/event.schema';
 import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Events all / (e2e)', () => {
   let app: INestApplication;
@@ -91,8 +92,20 @@ describe('Events all / (e2e)', () => {
           .get(`/events?startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        for (let i = 1; i < response.body.length; i += 1) {
-          expect(response.body[i - 1].sortStartDate < response.body[i].sortStartDate).toBe(true);
+        for (const body of response.body) {
+          expect(body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: [],
+            startDate: body.startDate,
+            endDate: body.endDate,
+            event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            city: 'Los Angeles',
+            state: 'California',
+            address: null,
+            country: 'USA',
+            sortStartDate: body.sortStartDate,
+            event_info: body.event_info,
+          });
         }
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(5);

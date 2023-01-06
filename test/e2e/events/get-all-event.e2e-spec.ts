@@ -95,7 +95,10 @@ describe('Events all / (e2e)', () => {
         for (const body of response.body) {
           expect(body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            images: [],
+            images: [
+              'http://localhost:4444/placeholders/default_user_icon.png',
+              'http://localhost:4444/placeholders/default_user_icon.png',
+            ],
             startDate: body.startDate,
             endDate: body.endDate,
             event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),

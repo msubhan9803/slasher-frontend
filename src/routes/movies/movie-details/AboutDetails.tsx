@@ -103,7 +103,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       <Row className="justify-content-center mt-2 mt-xl-0">
         <Col xs={10} sm={8} md={6} lg={9} xl={12}>
           <h1 className="fw-semibold m-0 text-center text-xl-start">
-            {aboutMovieDetail && aboutMovieDetail?.mainData?.original_title}
+            {aboutMovieDetail && aboutMovieDetail?.mainData?.title}
           </h1>
         </Col>
       </Row>

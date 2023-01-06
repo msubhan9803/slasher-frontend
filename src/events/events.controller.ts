@@ -132,7 +132,6 @@ export class EventsController {
   @Get(':id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
     const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
-
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
@@ -170,8 +169,12 @@ export class EventsController {
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
-
-    return eventData;
+    return eventData.map(
+      (event) => pick(
+        event,
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'sortStartDate', 'event_info'],
+      ),
+    );
   }
 
   @Get('by-date-range/counts')
@@ -188,13 +191,11 @@ export class EventsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     const eventCounts = await this.eventService.findCountsByDate(
       query.startDate,
       query.endDate,
       true,
     );
-
     return eventCounts;
   }
 }

@@ -38,8 +38,13 @@ function EventsPosterCard({ listDetail }: Props) {
               {listDetail.date}
             </p>
           </div>
-          <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
-          <span className="fs-3">{listDetail.location}</span>
+          {Boolean(listDetail.location)
+          && (
+          <div>
+            <FontAwesomeIcon icon={solid('location-dot')} className="text-primary me-2" size="sm" />
+            <span className="fs-3">{listDetail.location}</span>
+          </div>
+          )}
           <h2 className="my-3">{listDetail.eventName}</h2>
         </Card.Body>
       </EventsCardStyle>

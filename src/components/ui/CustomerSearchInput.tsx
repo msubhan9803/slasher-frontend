@@ -11,9 +11,10 @@ interface SearchProps {
 }
 const StyledInputGroup = styled(InputGroup)`
   .form-control {
-    border-left: 1px solid var(--bs-input-border-color);
-    border-bottom-right-radius: 1.875rem;
-    border-top-right-radius: 1.875rem;
+    border-right: 1px solid var(--bs-input-border-color);
+    border-bottom-left-radius: 1.875rem;
+    border-top-left-radius: 1.875rem;
+    padding-left: 1rem;
   }
   .input-group-text {
     background-color: rgb(31, 31, 31);
@@ -29,9 +30,6 @@ const StyledInputGroup = styled(InputGroup)`
 function CustomSearchInput({ setSearch, search, label }: SearchProps) {
   return (
     <StyledInputGroup>
-      <InputGroup.Text id="search" className="pe-0 border-end-0">
-        <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-white" size="lg" />
-      </InputGroup.Text>
       <FormControl
         className="fs-5"
         placeholder={label}
@@ -43,6 +41,9 @@ function CustomSearchInput({ setSearch, search, label }: SearchProps) {
           setSearch(e.target.value);
         }}
       />
+      <InputGroup.Text id="search" className="ps-0 border-start-0">
+        <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-primary" size="lg" />
+      </InputGroup.Text>
     </StyledInputGroup>
   );
 }

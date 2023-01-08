@@ -9,7 +9,7 @@ import linkifyHtml from 'linkify-html';
 import getEventDetails from '../../../api/events';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
-import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string

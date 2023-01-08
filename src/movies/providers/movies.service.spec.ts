@@ -459,14 +459,12 @@ describe('MoviesService', () => {
         const limit = 10;
 
         // We test movie records before making sync
-        // =========================================
         const beforeResults = await moviesService.findAll(limit, false, 'name');
         expect(beforeResults).toHaveLength(2);
         expect(beforeResults[1].name).toBe('Terrifier 5');
         expect(beforeResults[1].deleted).toBe(0);
 
         // Now we test for updating the changed movie record in MovieDb API
-        // ================================================================
         jest.spyOn(httpService, 'get').mockImplementation(() => of({
           data: {
             ...mockMovieDbCallResponse,
@@ -490,7 +488,6 @@ describe('MoviesService', () => {
         const limit = 10;
 
         // We test movie records before making sync
-        // =========================================
         const beforeResults = await moviesService.findAll(limit, false, 'name');
         expect(beforeResults).toHaveLength(2);
         expect(beforeResults[1].name).toBe('Terrifier 5');

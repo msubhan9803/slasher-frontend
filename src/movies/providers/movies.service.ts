@@ -312,7 +312,7 @@ export class MoviesService {
         const movieData = await this.moviesModel.findOne({ movieDBId: movie.id });
         if (movieData) {
           for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(movie))) {
-            movie[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
+            movieData[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
           }
           promisesArray.push(movieData.save());
         }

@@ -422,6 +422,23 @@ describe('MoviesService', () => {
   });
 
   describe('#syncWithTheMovieDb', () => {
+    // it.only('simple test for syncWithTheMovieDb', async () => {
+    //   console.log('Start cron: syncWithTheMovieDb');
+
+    //   const startYear = 1895;
+    //   // Ask for 10 years ahead so we also get movies that have not come out yet
+    //   // (even though this may mean that they have limited data).
+    //   const endYear = new Date().getFullYear() + 10;
+    //   const { success, error } = await moviesService.syncWithTheMovieDb(startYear, endYear);
+
+    //   if (success) {
+    //     console.log('End cron: syncWithTheMovieDb (success)');
+    //   } else {
+    //     console.log(`End cron: syncWithTheMovieDb (failure). Error: ${error}`);
+    //   }
+    //   expect(1).toBe(1);
+    // }, 60_000);
+
     it('Check for insert the movie record in database', async () => {
       const limit = 10;
       jest.spyOn(httpService, 'get').mockImplementation(() => of({
@@ -440,45 +457,78 @@ describe('MoviesService', () => {
       expect(firstResults[1].name).toBe('Terrifier 5');
     });
 
-    it('Check for update the movie record in database', async () => {
-      const limit = 10;
-      jest.spyOn(httpService, 'get').mockImplementation(() => of({
-        data: {
-          ...mockMovieDbCallResponse,
-          results: mockMovieDbCallResponse.results.map((item) => (
-            { ...item, original_title: 'Terrifier 2', title: 'Terrifier 2' })),
-        },
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
+    describe('Test update and delete ways', () => {
       const startYear = new Date().getFullYear();
       const endYear = new Date().getFullYear();
-      await moviesService.syncWithTheMovieDb(startYear, endYear);
-      const firstResults = await moviesService.findAll(limit, false, 'name');
 
-      expect(firstResults[1].name).toBe('Terrifier 2');
-      expect(firstResults[1].deleted).toBe(0);
-    });
+      beforeEach(async () => {
+        jest.spyOn(httpService, 'get').mockImplementation(() => of({
+          data: mockMovieDbCallResponse,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        await moviesService.syncWithTheMovieDb(startYear, endYear);
+      });
 
-    it('Check if any movie has been deleted from movies db in our collection', async () => {
-      const limit = 10;
-      jest.spyOn(httpService, 'get').mockImplementation(() => of({
-        data: {
-          ...mockMovieDbCallResponse,
-          results: [],
-        },
-        status: 200,
-        statusText: '',
-        headers: {},
-        config: {},
-      }));
-      const startYear = new Date().getFullYear();
-      const endYear = new Date().getFullYear();
-      await moviesService.syncWithTheMovieDb(startYear, endYear);
-      const firstResults = await moviesService.findAll(limit, false, 'name');
-      expect(firstResults[0].deleted).toBe(1);
+      it('Check for update the movie record in database', async () => {
+        const limit = 10;
+
+        // We test movie records before making sync
+        // =========================================
+        const beforeResults = await moviesService.findAll(limit, false, 'name');
+        expect(beforeResults).toHaveLength(2);
+        expect(beforeResults[1].name).toBe('Terrifier 5');
+        expect(beforeResults[1].deleted).toBe(0);
+
+        // Now we test for updating the changed movie record in MovieDb API
+        // ================================================================
+        jest.spyOn(httpService, 'get').mockImplementation(() => of({
+          data: {
+            ...mockMovieDbCallResponse,
+            results: mockMovieDbCallResponse.results.map((item) => (
+              { ...item, original_title: 'Terrifier 2', title: 'Terrifier 2' })),
+          },
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        await moviesService.syncWithTheMovieDb(startYear, endYear);
+        const firstResults = await moviesService.findAll(limit, false, 'name');
+        expect(firstResults).toHaveLength(2);
+
+        expect(firstResults[1].name).toBe('Terrifier 2');
+        expect(firstResults[1].deleted).toBe(0);
+      });
+
+      it('Check if any movie has been deleted from movies db in our collection', async () => {
+        const limit = 10;
+
+        // We test movie records before making sync
+        // =========================================
+        const beforeResults = await moviesService.findAll(limit, false, 'name');
+        expect(beforeResults).toHaveLength(2);
+        expect(beforeResults[1].name).toBe('Terrifier 5');
+        expect(beforeResults[1].deleted).toBe(0);
+
+        jest.spyOn(httpService, 'get').mockImplementation(() => of({
+          data: {
+            ...mockMovieDbCallResponse,
+            results: [],
+          },
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        await moviesService.syncWithTheMovieDb(startYear, endYear);
+        const firstResults = await moviesService.findAll(limit, false, 'name');
+        expect(firstResults).toHaveLength(2);
+        expect(firstResults[1].name).toBe('Terrifier 5');
+        expect(firstResults[1].deleted).toBe(1);
+      });
     });
   });
 

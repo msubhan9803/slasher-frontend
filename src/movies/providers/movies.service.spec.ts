@@ -422,23 +422,6 @@ describe('MoviesService', () => {
   });
 
   describe('#syncWithTheMovieDb', () => {
-    // it.only('simple test for syncWithTheMovieDb', async () => {
-    //   console.log('Start cron: syncWithTheMovieDb');
-
-    //   const startYear = 1895;
-    //   // Ask for 10 years ahead so we also get movies that have not come out yet
-    //   // (even though this may mean that they have limited data).
-    //   const endYear = new Date().getFullYear() + 10;
-    //   const { success, error } = await moviesService.syncWithTheMovieDb(startYear, endYear);
-
-    //   if (success) {
-    //     console.log('End cron: syncWithTheMovieDb (success)');
-    //   } else {
-    //     console.log(`End cron: syncWithTheMovieDb (failure). Error: ${error}`);
-    //   }
-    //   expect(1).toBe(1);
-    // }, 60_000);
-
     it('Check for insert the movie record in database', async () => {
       const limit = 10;
       jest.spyOn(httpService, 'get').mockImplementation(() => of({

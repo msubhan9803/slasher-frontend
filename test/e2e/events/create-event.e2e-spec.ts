@@ -1,6 +1,5 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
-import * as path from 'path';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
@@ -99,16 +98,15 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[2])
             .attach('files', tempPath[3])
             .expect(HttpStatus.CREATED);
+          const expectedImageValues = tempPath.map(() => expect.stringMatching(/\/event\/event_.+\.png|jpe?g/));
 
-          const updatedImagePath = tempPath.map((eventPath) => `//event/event_${path.basename(eventPath)}`);
-          const expectedImageValues = updatedImagePath.map(() => expect.stringMatching(/\/event\/event_.+\.png|jpe?g/));
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: 'Event name test',
             userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             images: expectedImageValues,
-            startDate: response.body.startDate,
-            endDate: response.body.endDate,
+            startDate: `${postBody.startDate}T00:00:00.000Z`,
+            endDate: `${postBody.endDate}T00:00:00.000Z`,
             event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             city: 'San Francisco',
             state: 'CA',

@@ -151,7 +151,7 @@ export class EventsController {
   ) {
     const eventData = await this.eventService.update(params.id, updateEventDto);
     return {
-      id: eventData.id,
+      _id: eventData.id,
       ...pick(eventData, Object.keys(updateEventDto)),
     };
   }
@@ -172,7 +172,7 @@ export class EventsController {
     return eventData.map(
       (event) => pick(
         event,
-        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'sortStartDate', 'event_info'],
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'event_info'],
       ),
     );
   }

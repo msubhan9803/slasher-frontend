@@ -317,15 +317,32 @@ export class MoviesService {
           promisesArray.push(movieData.save());
         }
       } else {
-        insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
+          insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
       }
+    }
+
+    if (insertedMovieList.length) {
+      const movieDbIdsFilter = insertedMovieList.map(({ movieDBId }) => ({ movieDBId }));
+      // Check if already existing `movieDBId` because `releaseDate` field should not not be considered to
+      // check for absolute uniqueness against movies of `releaseDate` cycle as it might not even
+      // have `releaseDate` field or have their year changed from movieDb API as well.
+      const alreadyInOurDb = await this.moviesModel.find({ $or: movieDbIdsFilter }).select('movieDBId');
+      for (const m of alreadyInOurDb) {
+        const movie = movies.find((mov) => mov.id === m.movieDBId);
+        const movieData = await this.moviesModel.findOne({ movieDBId: movie.id });
+        for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(movie))) {
+          movieData[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
+        }
+        promisesArray.push(movieData.save());
+      }
+
+      // Insert all the new movies to collection
+      const actuallyUnique = insertedMovieList.filter((m) => !alreadyInOurDb.some((mov) => mov.movieDBId === m.movieDBId));
+      if (actuallyUnique.length) await this.moviesModel.insertMany(actuallyUnique);
     }
 
     // Update all existing records
     await Promise.all(promisesArray);
-
-    // Insert all the new movies to collection
-    if (insertedMovieList.length) { await this.moviesModel.insertMany(insertedMovieList); }
   }
 
   async getMoviesDataMaxYearLimit(endYear: number): Promise<number> {

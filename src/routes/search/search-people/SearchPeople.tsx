@@ -17,15 +17,13 @@ interface SearchPeopleProps {
 }
 function SearchPeople() {
   const [search, setSearch] = useState<string>('');
-  const [filteredSearch, setFilteredSearch] = useState<string>('');
   const [searchPeople, setSearchPeople] = useState<SearchPeopleProps[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [loadUser, setLoadUser] = useState<boolean>(false);
+  const [moreCharacters, setMoreCharacters] = useState<boolean>(false);
 
   const searchData = async (criteria: string) => {
-    setLoadUser(true);
-    setNoMoreData(false);
     if (criteria && criteria.length >= 3) {
       await getSearchUser(criteria ? 0 : page, criteria).then((res) => {
         if (res.data && res.data.length > 0) {
@@ -44,6 +42,7 @@ function SearchPeople() {
         }
       });
     } else {
+      setMoreCharacters(true);
       setLoadUser(false);
       setSearchPeople([]);
     }
@@ -51,7 +50,7 @@ function SearchPeople() {
 
   const fetchMoreUsers = () => {
     if (page > 0) {
-      getSearchUser(page, filteredSearch)
+      getSearchUser(page, search)
         .then((res) => {
           setSearchPeople((prev: any) => [
             ...prev,
@@ -60,6 +59,7 @@ function SearchPeople() {
           setPage(page + 1);
           if (res.data.length === 0) {
             setNoMoreData(true);
+            setLoadUser(false);
           }
         });
     }
@@ -70,14 +70,22 @@ function SearchPeople() {
   }, 2000);
 
   const handleSearch = (value: string) => {
-    setSearch(value);
+    setLoadUser(true);
+    setMoreCharacters(false);
+    setNoMoreData(false);
     setSearchPeople([]);
     let searchUser = value;
     if (searchUser.charAt(0) === '@') {
       searchUser = searchUser.slice(1);
     }
-    setFilteredSearch(searchUser);
-    debouncedSearch(searchUser);
+    if (searchUser && searchUser.length >= 3) {
+      setSearch(searchUser);
+      debouncedSearch(searchUser);
+    } else {
+      setLoadUser(false);
+      setMoreCharacters(true);
+      setNoMoreData(false);
+    }
     setPage(0);
   };
 
@@ -108,7 +116,7 @@ function SearchPeople() {
       >
         <Row className="mt-4">
           {loadUser && <LoadingIndicator />}
-          {searchPeople && searchPeople.length === 0 && search && search.length < 3
+          {moreCharacters
             && <h1 className="h3">Enter a search term into the search box above to find users by username (must enter at least 3 characters).</h1>}
           {searchPeople && searchPeople.length > 0 && searchPeople.map((peopleDetail) => (
             /* eslint no-underscore-dangle: 0 */

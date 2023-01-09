@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormControl, InputGroup } from 'react-bootstrap';
 import styled from 'styled-components';
 
 interface SearchProps {
-  setSearch: (value: string) => void
+  setSearch: (value: string) => void;
   search: string;
   label: string;
 }
@@ -27,7 +27,13 @@ const StyledInputGroup = styled(InputGroup)`
   }
 `;
 
-function CustomSearchInput({ setSearch, search, label }: SearchProps) {
+function CustomSearchInput({ label, setSearch, search }: SearchProps) {
+  const [searchValue, setSearchValue] = useState<string>(search);
+  const handleSearch = (e: any) => {
+    if (e.keyCode === 13 || e.type === 'click') {
+      setSearch(searchValue);
+    }
+  };
   return (
     <StyledInputGroup>
       <FormControl
@@ -36,13 +42,20 @@ function CustomSearchInput({ setSearch, search, label }: SearchProps) {
         addon-label="search"
         aria-describedby="search"
         type="text"
-        value={search}
+        value={searchValue}
         onChange={(e: any) => {
-          setSearch(e.target.value);
+          setSearchValue(e.target.value);
         }}
+        onKeyUp={handleSearch}
       />
       <InputGroup.Text id="search" className="ps-0 border-start-0">
-        <FontAwesomeIcon icon={solid('magnifying-glass')} className="text-primary" size="lg" />
+        <FontAwesomeIcon
+          role="button"
+          icon={solid('magnifying-glass')}
+          className="text-primary"
+          size="lg"
+          onClick={handleSearch}
+        />
       </InputGroup.Text>
     </StyledInputGroup>
   );

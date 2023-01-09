@@ -13,6 +13,7 @@ import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { useAppSelector } from '../../../redux/hooks';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 interface FriendProps {
   _id?: string;
@@ -40,6 +41,7 @@ function ProfileFriends({ user }: Props) {
   const friendContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
+  const [loadUser, setLoadUser] = useState<boolean>(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -56,8 +58,11 @@ function ProfileFriends({ user }: Props) {
   };
 
   useEffect(() => {
+    setLoadUser(true);
+    setNoMoreData(false);
     userProfileFriends(user.id, search ? 0 : page, search)
       .then((res) => {
+        setLoadUser(false);
         setFriendsList(res.data.friends);
         setFriendCount(res.data.allFriendCount);
         if (search) {
@@ -76,6 +81,7 @@ function ProfileFriends({ user }: Props) {
     if (page > 0) {
       userProfileFriends(user.id, page, search)
         .then((res) => {
+          setLoadUser(false);
           setFriendsList((prev: any) => [
             ...prev,
             ...res.data.friends,
@@ -104,15 +110,32 @@ function ProfileFriends({ user }: Props) {
     }
   }, [yPositionOfLastFriendElement]);
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        friendsList.length === 0
-          ? 'No friends at the moment. Try sending or accepting some friend requests!'
-          : 'No more friends'
-      }
-    </p>
-  );
+  const renderNoMoreDataMessage = () => {
+    const message = friendsList.length === 0 && search
+      ? 'No results found'
+      : 'No friends at the moment. Try sending or accepting some friend requests!';
+    return (
+      <p className="text-center">
+        {
+          friendsList.length === 0
+            ? message
+            : 'No more friends'
+        }
+      </p>
+    );
+  };
+
+  const handleSearch = (value: string) => {
+    let searchUser = value;
+    if (searchUser.charAt(0) === '@') {
+      searchUser = searchUser.slice(1);
+    }
+    if (value.length > 0) {
+      setFriendsList([]);
+    }
+    setSearch(searchUser);
+    setPage(0);
+  };
 
   return (
     <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
@@ -120,7 +143,7 @@ function ProfileFriends({ user }: Props) {
       <div className="mt-3">
         <div className="d-sm-flex d-block justify-content-between">
           <div>
-            <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
+            <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
           </div>
           <div className="d-flex align-self-center mt-3 mt-md-0">
             {
@@ -146,6 +169,7 @@ function ProfileFriends({ user }: Props) {
             hasMore={!noMoreData}
           >
             <Row className="mt-4" ref={friendContainerElementRef}>
+              {loadUser && <LoadingIndicator />}
               {friendsList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>

@@ -1,8 +1,8 @@
 /* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { of } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { MoviesService } from './movies.service';
 import { moviesFactory } from '../../../test/factories/movies.factory';
-import { MovieDocument } from '../../schemas/movie/movie.schema';
+import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 import { mockMovieDbCallResponse, mockMaxLimitApiMockResponse } from './movies.service.mock';
 import movieDbId2907ApiCreditsResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-credits-response';
 import movieDbId2907ApiVideosResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-videos-response';
@@ -32,6 +32,7 @@ describe('MoviesService', () => {
   let configService: ConfigService;
   let movie: MovieDocument;
   let httpService: HttpService;
+  let movieModel: Model<MovieDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,6 +45,7 @@ describe('MoviesService', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     httpService = moduleRef.get<HttpService>(HttpService);
+    movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -482,6 +484,34 @@ describe('MoviesService', () => {
 
         expect(firstResults[1].name).toBe('Terrifier 2');
         expect(firstResults[1].deleted).toBe(0);
+      });
+
+      it('Check that there should be no duplicate movie record in database after sync', async () => {
+        const limit = 10;
+
+        // We test movie records before making sync
+        const beforeResults = await moviesService.findAll(limit, false, 'name');
+        expect(beforeResults).toHaveLength(2);
+        expect(beforeResults[1].name).toBe('Terrifier 5');
+
+        // Consider a case where MovieDb API returns movie record with `releaseDate` changed to 5 years in past
+        jest.spyOn(httpService, 'get').mockImplementation(() => of({
+          data: {
+            ...mockMovieDbCallResponse,
+            results: mockMovieDbCallResponse.results.map((item) => (
+              { ...item, releaseDate: new Date().getFullYear() - 10 })),
+          },
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+        await moviesService.syncWithTheMovieDb(startYear, endYear);
+
+        expect(await movieModel.find({ name: 'Terrifier 5' })).toHaveLength(1);
+
+        const allMovies = await moviesService.findAll(limit, false, 'name');
+        expect(allMovies).toHaveLength(2);
       });
 
       it('Check if any movie has been deleted from movies db in our collection', async () => {

@@ -72,7 +72,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
           ],
         };
         const friends = await friendsModel.find(query);
-        for (let i = 1; i < friends.length; i += 1) {
+        for (let i = 0; i < friends.length; i += 1) {
           expect(friends[i].reaction).toEqual(FriendRequestReaction.DeclinedOrCancelled);
         }
       });

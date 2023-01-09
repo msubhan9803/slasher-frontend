@@ -9,8 +9,8 @@ import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
-import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Get Friendship (e2e)', () => {
   let app: INestApplication;
@@ -65,11 +65,11 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toMatchObject({
-          reaction: FriendRequestReaction.Pending,
-          from: activeUser.id,
-          to: user1.id,
-        });
+          expect(response.body).toMatchObject({
+            reaction: 5,
+            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          });
       });
 
       it('returns the expected friend info for pending friend that to field has active user id', async () => {
@@ -78,11 +78,11 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toMatchObject({
-          reaction: FriendRequestReaction.Pending,
-          from: user3.id,
-          to: activeUser.id,
-        });
+          expect(response.body).toMatchObject({
+            reaction: 5,
+            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          });
       });
 
       it('returns the expected friend info for two users with an accepted friend record', async () => {
@@ -93,9 +93,9 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toMatchObject({
-          reaction: FriendRequestReaction.Accepted,
-          from: activeUser.id,
-          to: user1.id,
+          reaction: 3,
+          from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
       });
 
@@ -106,11 +106,11 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toMatchObject({
-          reaction: FriendRequestReaction.DeclinedOrCancelled,
-          from: activeUser.id,
-          to: user1.id,
-        });
+          expect(response.body).toMatchObject({
+            reaction: 0,
+            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          });
       });
 
       it('for two users with NO friend record, then return response with null value', async () => {

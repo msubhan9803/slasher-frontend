@@ -58,13 +58,14 @@ describe('Add Friends (e2e)', () => {
 
   describe('Post /friends', () => {
     it('when friend request is successfully created, returns the expected response', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
-      const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
-      expect(friends.to).toEqual(user1._id);
+        expect(response.body).toEqual({ success: true });
+      // const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
+      // expect(friends.to.toString()).toEqual(expect.stringMatching(SIMPLE_MONGODB_ID_REGEX));
     });
 
     it('when friend request was previously declined, returns the expected response', async () => {

@@ -121,6 +121,7 @@ export class FeedCommentsController {
 
     asyncDeleteMulterFiles(files);
     return {
+      _id: comment._id,
       feedPostId: comment.feedPostId,
       message: comment.message,
       userId: comment.userId,

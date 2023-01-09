@@ -82,16 +82,4 @@ export class NotificationsService {
       };
     }
   }
-
-  async insertMany(notifications: Array<Partial<Notification>>) {
-    return this.notificationModel.insertMany(notifications);
-  }
-
-  async count() {
-    return this.notificationModel.count();
-  }
-
-  async _find(...args) {
-    return this.notificationModel.find(...args);
-  }
 }

@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { NotificationsService } from './notifications.service';
@@ -17,6 +17,7 @@ import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 import { notificationFactory } from '../../../test/factories/notification.factory';
+import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('NotificationsService', () => {
   let activeUser: UserDocument;
   let user1: UserDocument;
   let feedPostData: FeedPostDocument;
+  let notificationModel: Model<NotificationDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,6 +38,7 @@ describe('NotificationsService', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -196,9 +199,6 @@ describe('NotificationsService', () => {
 
   describe('#cleanupNotifications', () => {
     it('keep notifications for last 30 days only', async () => {
-      const USERS = 10;
-      const AMOUNT = 1;
-
       const today = new Date();
       const yesterday = DateTime.now().minus({ days: 1 }).toJSDate();
       const monthAgo1 = DateTime.now().minus({ days: 35 }).toJSDate();
@@ -206,47 +206,24 @@ describe('NotificationsService', () => {
       const DAYS = [monthAgo1, today, monthAgo2, yesterday];
       const DAYS_NOTIFICATIONS_KEPT = [today, yesterday];
 
-      async function createNotifications() {
-        function getManyNotifications(user, sender, number, inputDate: Date) {
-          const n = [];
-          for (let i = 0; i < number; i += 1) {
-            n.push({
-              userId: user.id,
-              feedPostId: feedPostData.id,
-              senderId: sender.id,
-              notifyType: NotificationType.UserMentionedYouInPost,
-              notificationMsg: 'had mentioned you in a post',
-              createdAt: inputDate,
-            });
-          }
-          return n;
-        }
-
-        const sender = await usersService.create(userFactory.build());
-
-        const bulkUsers = [];
-        for (let j = 0; j < USERS; j += 1) {
-          const user = await usersService.create(userFactory.build());
-          const bulkNotifications = DAYS.map((day) => getManyNotifications(user, sender, AMOUNT, day)).flatMap(
-            (a) => a,
-          );
-          bulkUsers.push(...bulkNotifications);
-        }
-        await notificationsService.insertMany(bulkUsers);
+      for (const day of DAYS) {
+        await notificationsService.create(notificationFactory.build({
+          userId: activeUser.id,
+          senderId: user1.id,
+          createdAt: day,
+        }));
       }
-
-      await createNotifications();
 
       const MONTH_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
 
       // Provide a date argument to specify the last date before which all the notifications would be deleted
       await notificationsService.cleanupNotifications(MONTH_AGO);
 
-      const notificationStale = await notificationsService._find({ createdAt: { $lt: MONTH_AGO } });
+      const notificationStale = await notificationModel.find({ createdAt: { $lt: MONTH_AGO } });
       expect(notificationStale).toHaveLength(0);
 
-      const notificationsCount = await notificationsService.count();
-      expect(notificationsCount).toBe(USERS * AMOUNT * DAYS_NOTIFICATIONS_KEPT.length);
+      const notificationsCount = await notificationModel.count();
+      expect(notificationsCount).toBe(DAYS_NOTIFICATIONS_KEPT.length);
     });
   });
 });

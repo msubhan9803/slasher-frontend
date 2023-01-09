@@ -198,13 +198,16 @@ describe('NotificationsService', () => {
   });
 
   describe('#cleanupNotifications', () => {
-    it('keep notifications for last 30 days only', async () => {
+    let DAYS;
+    let DAYS_NOTIFICATIONS_KEPT;
+
+    beforeEach(async () => {
       const today = new Date();
       const yesterday = DateTime.now().minus({ days: 1 }).toJSDate();
       const monthAgo1 = DateTime.now().minus({ days: 35 }).toJSDate();
       const monthAgo2 = DateTime.now().minus({ days: 50 }).toJSDate();
-      const DAYS = [monthAgo1, today, monthAgo2, yesterday];
-      const DAYS_NOTIFICATIONS_KEPT = [today, yesterday];
+      DAYS = [monthAgo1, today, monthAgo2, yesterday];
+      DAYS_NOTIFICATIONS_KEPT = [today, yesterday];
 
       for (const day of DAYS) {
         await notificationsService.create(notificationFactory.build({
@@ -213,14 +216,19 @@ describe('NotificationsService', () => {
           createdAt: day,
         }));
       }
+    });
+
+    it('keep notifications for last 30 days only', async () => {
+      const beforeNotificationsCount = await notificationModel.count();
+      expect(beforeNotificationsCount).toBe(DAYS.length);
 
       const MONTH_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
 
       // Provide a date argument to specify the last date before which all the notifications would be deleted
       await notificationsService.cleanupNotifications(MONTH_AGO);
 
-      const notificationStale = await notificationModel.find({ createdAt: { $lt: MONTH_AGO } });
-      expect(notificationStale).toHaveLength(0);
+      const staleNotificationCount = await notificationModel.count({ createdAt: { $lt: MONTH_AGO } });
+      expect(staleNotificationCount).toBe(0);
 
       const notificationsCount = await notificationModel.count();
       expect(notificationsCount).toBe(DAYS_NOTIFICATIONS_KEPT.length);

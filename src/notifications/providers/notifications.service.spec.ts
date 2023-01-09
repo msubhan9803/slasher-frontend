@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { NotificationsService } from './notifications.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -16,7 +17,6 @@ import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 import { notificationFactory } from '../../../test/factories/notification.factory';
-import { addDays } from '../../utils/date-utils';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -200,9 +200,9 @@ describe('NotificationsService', () => {
       const AMOUNT = 1;
 
       const today = new Date();
-      const yesterday = addDays(today, -1);
-      const monthAgo1 = addDays(today, -35);
-      const monthAgo2 = addDays(today, -50);
+      const yesterday = DateTime.now().minus({ days: 1 }).toJSDate();
+      const monthAgo1 = DateTime.now().minus({ days: 35 }).toJSDate();
+      const monthAgo2 = DateTime.now().minus({ days: 50 }).toJSDate();
       const DAYS = [monthAgo1, today, monthAgo2, yesterday];
       const DAYS_NOTIFICATIONS_KEPT = [today, yesterday];
 
@@ -237,7 +237,7 @@ describe('NotificationsService', () => {
 
       await createNotifications();
 
-      const MONTH_AGO = addDays(new Date(), -30);
+      const MONTH_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
 
       // Provide a date argument to specify the last date before which all the notifications would be deleted
       await notificationsService.cleanupNotifications(MONTH_AGO);

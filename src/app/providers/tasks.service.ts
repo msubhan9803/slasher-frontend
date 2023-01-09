@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { DateTime } from 'luxon';
 import { NotificationsService } from '../../notifications/providers/notifications.service';
 import { MoviesService } from '../../movies/providers/movies.service';
-import { addDays } from '../../utils/date-utils';
 
 @Injectable()
 export class TasksService {
@@ -44,7 +44,7 @@ export class TasksService {
     if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
     this.logger.debug('Start cron: cleanupNotifications');
 
-    const MONTH_AGO = addDays(new Date(), -30);
+    const MONTH_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
 
     // Provide a date argument to specify the last date before which all the notifications would be deleted
     const { success, error } = await this.notificationsService.cleanupNotifications(MONTH_AGO);

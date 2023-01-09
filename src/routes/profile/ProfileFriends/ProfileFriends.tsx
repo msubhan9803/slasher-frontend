@@ -60,16 +60,13 @@ function ProfileFriends({ user }: Props) {
   useEffect(() => {
     setLoadUser(true);
     setNoMoreData(false);
+    if (page === 0) setFriendsList([]);
     userProfileFriends(user.id, search ? 0 : page, search)
       .then((res) => {
         setLoadUser(false);
         setFriendsList(res.data.friends);
         setFriendCount(res.data.allFriendCount);
-        if (search) {
-          setPage(0);
-        } else {
-          setPage(page + 1);
-        }
+        setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
@@ -105,6 +102,7 @@ function ProfileFriends({ user }: Props) {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
       if (bottomLine) {
+        if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
         fetchMoreFriendList();
       }
     }

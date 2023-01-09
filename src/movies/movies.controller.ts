@@ -3,6 +3,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { FindAllMoviesDto } from './dto/find-all-movies.dto';
@@ -25,7 +26,7 @@ export class MoviesController {
     if (!firstBySortNameMovieDetails) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    return firstBySortNameMovieDetails;
+    return pick(firstBySortNameMovieDetails, ['_id', 'name', 'logo', 'releaseDate', 'rating']);
   }
 
   @Get('firstByReleaseYear')
@@ -34,7 +35,7 @@ export class MoviesController {
     if (!releaseYearMovieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    return releaseYearMovieData;
+    return pick(releaseYearMovieData, ['_id', 'name', 'logo', 'releaseDate', 'rating']);
   }
 
   @Get(':id')
@@ -46,7 +47,7 @@ export class MoviesController {
     if (movieData.logo === null) {
       movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-    return movieData;
+    return pick(movieData, ['movieDBId']);
   }
 
   @Get()

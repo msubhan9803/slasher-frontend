@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import useLoadScriptsInOrder from './useLoadScriptsInOrder';
 import { setPubWiseSlots } from '../redux/slices/pubWiseSlice';
 import { useAppDispatch } from '../redux/hooks';
+import { GLOBAL_RIGHT_NAV, GLOBAL_RIGHT_NAV_DIV_ID } from '../utils/PubWiseAdUnits';
 
 const usePubWiseAdSlots = () => {
   const dispatch = useAppDispatch();
@@ -21,6 +22,8 @@ const usePubWiseAdSlots = () => {
     window.googletag ||= { cmd: [] };
 
     window.googletag.cmd.push(() => {
+      //
+      // FOR PLACE HOLDER ADS
       //   SLOT 1: Event-detail_web
       // ===========================
       for (let series = 0; series < 20; series += 1) {
@@ -38,15 +41,15 @@ const usePubWiseAdSlots = () => {
         }
       }
 
-      // SLOT 2: Timeline_web
-      // ===========================
-      window.gptadslots.Timeline_web = window.googletag
+      // PRODUCTION AD-units
+      // 1. Global Right Nav
+      window.gptadslots[GLOBAL_RIGHT_NAV_DIV_ID] = window.googletag
         .defineSlot(
-          '/22756418014/Timeline_web',
+          GLOBAL_RIGHT_NAV,
           [
             [300, 250],
           ],
-          'Timeline_web',
+          GLOBAL_RIGHT_NAV_DIV_ID,
         )
         .addService(window.googletag.pubads());
 

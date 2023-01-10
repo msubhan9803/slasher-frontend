@@ -198,4 +198,24 @@ export class ChatService {
       .populate('participants', 'id userName firstName profilePic');
     return matchList;
   }
+
+  async removeChatMessagesFromDb(fromUserId: string, toUserId: string): Promise<any> {
+    await this.matchListModel.remove({
+      participants: [fromUserId, toUserId],
+    });
+
+    await this.messageModel
+    .remove({
+      $or: [
+        {
+          fromId: fromUserId,
+          senderId: toUserId,
+        },
+        {
+          fromId: toUserId,
+          senderId: fromUserId,
+        },
+      ],
+    });
+  }
 }

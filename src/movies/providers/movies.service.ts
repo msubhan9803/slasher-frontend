@@ -386,7 +386,6 @@ export class MoviesService {
 
       return false;
     });
-
     return {
       cast,
       video: videoData.data.results,

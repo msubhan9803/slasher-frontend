@@ -68,6 +68,20 @@ export default {
       name: 'John Franklin',
     },
   ],
+  video: [
+    {
+      key: 'PzzzdDW6HDo',
+    },
+    {
+      key: 'vypvqaXTtx4',
+    },
+    {
+      key: 'pHt58hJKfkg',
+    },
+    {
+      key: '4t2tdKD9tPs',
+    },
+  ],
   mainData: {
     original_title: 'The Addams Family',
     overview: "When a man claiming to be long-lost Uncle Fester reappears after 25 years lost, the family plans a celebration to wake the dead. But the kids barely have time to warm up the electric chair before Morticia begins to suspect Fester is fraud when he can't recall any of the details of Fester's life.",

@@ -18,7 +18,7 @@ export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,
     private configService: ConfigService,
-    ) { }
+  ) { }
 
   @Get('firstBySortName')
   async findFirstBySortName(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: SortNameQueryDto) {
@@ -85,13 +85,19 @@ export class MoviesController {
     }
     const expectedCastValues = [];
     movieDbData.cast.map((data) => expectedCastValues.push({
-        profile_path: data.profile_path,
-        character: data.character,
-        name: data.name,
+      profile_path: data.profile_path,
+      character: data.character,
+      name: data.name,
+    }));
+
+    const expectedVideosValues = [];
+    (movieDbData.video as any).map((data) => expectedVideosValues.push({
+        key: data.key,
       }));
 
     return {
       cast: expectedCastValues,
+      video: expectedVideosValues,
       mainData: {
         overview: movieDbData.mainData.overview,
         poster_path: movieDbData.mainData.poster_path,

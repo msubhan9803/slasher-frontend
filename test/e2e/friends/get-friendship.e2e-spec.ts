@@ -11,6 +11,7 @@ import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 
 describe('Get Friendship (e2e)', () => {
   let app: INestApplication;
@@ -66,7 +67,7 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toMatchObject({
-            reaction: 5,
+            reaction: FriendRequestReaction.Pending,
             from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           });
@@ -79,7 +80,7 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toMatchObject({
-            reaction: 5,
+            reaction: FriendRequestReaction.Pending,
             from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           });
@@ -93,7 +94,7 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toMatchObject({
-          reaction: 3,
+          reaction: FriendRequestReaction.Accepted,
           from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
@@ -107,7 +108,7 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toMatchObject({
-            reaction: 0,
+            reaction: FriendRequestReaction.DeclinedOrCancelled,
             from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           });

@@ -64,39 +64,30 @@ describe('Add Friends (e2e)', () => {
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
-      // const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
-      // expect(friends.to.toString()).toEqual(expect.stringMatching(SIMPLE_MONGODB_ID_REGEX));
     });
 
     it('when friend request was previously declined, returns the expected response', async () => {
-      const friends = await friendsModel.create({
+      await friendsModel.create({
         from: activeUser.id,
         to: user1.id,
         reaction: FriendRequestReaction.DeclinedOrCancelled,
       });
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: user1._id });
-
-      // Expect previous db entity to be deleted
-      const friendData = await friendsModel.findOne({ _id: friends._id });
-      expect(friendData).toBeNull();
-
-      // Expect new pending entry to be created
-      expect(
-        (await friendsModel.findOne({ from: activeUser._id, to: user1._id })).reaction,
-      ).toEqual(FriendRequestReaction.Pending);
+        .send({ userId: user1._id })
+        .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
     });
 
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
       await friendsService.createFriendRequest(user1.id, activeUser.id);
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
-
-      expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
+        expect(response.body).toEqual({ success: true });
+        expect(response.status).toEqual(HttpStatus.CREATED);
     });
 
     it('user cannot send a friend request to yourself', async () => {

@@ -79,6 +79,7 @@ export class FriendsController {
   ) {
     const user = getUserFromRequest(request);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, cancelFriendshipOrDeclineRequestDto.userId);
+    return { success: true };
   }
 
   @Post('requests/accept')

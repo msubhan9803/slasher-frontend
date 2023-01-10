@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { writeFileSync } from 'fs';
 import { AppModule } from '../../../src/app.module';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../src/local-storage/providers/local-storage.service';
@@ -35,19 +36,25 @@ describe('Local-Storage / Get File (e2e)', () => {
 
   describe('GET /local-storage/:location', () => {
     it('does not require authentication, and responds with file if give file path exists', async () => {
-      const fileExtension = 'jpg';
+      const fileContent = 'This is a test file.';
+      const fileExtension = 'txt';
       const storedFileName = `${uuidv4()}.${fileExtension}`;
       const location = `/profile_test/profile_test_${storedFileName}`;
 
       await createTempFile(async (tempPath) => {
+        // Write some text content to the file so we can read it later in the response
+        writeFileSync(tempPath, fileContent);
+
         const file: Express.Multer.File = { path: tempPath } as Express.Multer.File;
         localStorageService.write(location, file);
-      }, { extension: 'png' });
+      }, { extension: fileExtension });
 
       await request(app.getHttpServer())
         .get(`/local-storage${location}`)
+        .accept('*/*')
         .send()
-        .expect(HttpStatus.OK);
+        .expect(HttpStatus.OK)
+        .expect(fileContent);
     });
 
     it('responds expected response when file path is not present at requested path', async () => {

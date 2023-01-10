@@ -121,6 +121,7 @@ export class FeedCommentsController {
 
     asyncDeleteMulterFiles(files);
     return {
+      _id: comment._id,
       feedPostId: comment.feedPostId,
       message: comment.message,
       userId: comment.userId,
@@ -259,6 +260,7 @@ export class FeedCommentsController {
 
     asyncDeleteMulterFiles(files);
     return {
+      _id: reply._id,
       feedCommentId: reply.feedCommentId,
       feedPostId: reply.feedPostId,
       message: reply.message,

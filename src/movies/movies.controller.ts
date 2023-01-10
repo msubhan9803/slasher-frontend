@@ -72,8 +72,9 @@ export class MoviesController {
         movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
       }
     });
-
-    return movies;
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
   }
 
   @Get('movieDbData/:movieDBId')
@@ -82,6 +83,24 @@ export class MoviesController {
     if (!movieDbData) {
       throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
     }
-    return movieDbData;
+    const expectedCastValues = [];
+    movieDbData.cast.map((data) => expectedCastValues.push({
+        profile_path: data.profile_path,
+        character: data.character,
+        name: data.name,
+      }));
+
+    return {
+      cast: expectedCastValues,
+      mainData: {
+        overview: movieDbData.mainData.overview,
+        poster_path: movieDbData.mainData.poster_path,
+        release_dates: (movieDbData.mainData as any).release_dates,
+        runtime: movieDbData.mainData.runtime,
+        title: movieDbData.mainData.title,
+        original_title: movieDbData.mainData.original_title,
+        production_countries: movieDbData.mainData.production_countries,
+      },
+    };
   }
 }

@@ -51,7 +51,6 @@ describe('Local-Storage / Get File (e2e)', () => {
 
       await request(app.getHttpServer())
         .get(`/local-storage${location}`)
-        .accept('*/*')
         .send()
         .expect(HttpStatus.OK)
         .expect(fileContent);

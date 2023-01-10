@@ -89,6 +89,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'a',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -97,6 +98,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'b',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -105,6 +107,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'c',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -113,6 +116,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'd',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -121,6 +125,7 @@ describe('All Movies (e2e)', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'e',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -133,36 +138,41 @@ describe('All Movies (e2e)', () => {
         expect(response.body[i - 1].name < response.body[i].name).toBe(true);
       }
       expect(response.body).toHaveLength(5);
-      expect(response.body).toMatchObject([
+      expect(response.body).toEqual([
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 0,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
     });
@@ -269,6 +279,7 @@ describe('All Movies (e2e)', () => {
             status: MovieActiveStatus.Active,
             rating: 1,
             name: 'a',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -278,6 +289,7 @@ describe('All Movies (e2e)', () => {
             status: MovieActiveStatus.Active,
             rating: 2,
             name: 'b',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -287,6 +299,7 @@ describe('All Movies (e2e)', () => {
             status: MovieActiveStatus.Active,
             rating: 3,
             name: 'c',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -296,6 +309,7 @@ describe('All Movies (e2e)', () => {
             status: MovieActiveStatus.Active,
             rating: 4,
             name: 'd',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -305,6 +319,7 @@ describe('All Movies (e2e)', () => {
             status: MovieActiveStatus.Active,
             rating: 5,
             name: 'e',
+            releaseDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -317,36 +332,41 @@ describe('All Movies (e2e)', () => {
         expect(response.body[i].rating < response.body[i - 1].rating).toBe(true);
       }
       expect(response.body).toHaveLength(5);
-      expect(response.body).toMatchObject([
+      expect(response.body).toEqual([
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'e',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 5,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'd',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 4,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'c',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 3,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'b',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 2,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           name: 'a',
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
           rating: 1,
+          releaseDate: '2022-10-17T00:00:00.000Z',
         },
       ]);
     });

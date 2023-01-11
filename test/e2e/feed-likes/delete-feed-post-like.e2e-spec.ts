@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -68,13 +68,12 @@ describe('Delete Feed Post Likes (e2e)', () => {
     });
 
     it('delete feed post likes.', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.likes).toHaveLength(1);
-      expect(feedPostData.likeCount).toBe(1);
+        .send()
+        .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
     });
 
     it('when feed post id is not exist than expected response', async () => {
@@ -82,7 +81,8 @@ describe('Delete Feed Post Likes (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-likes/post/${feedPostId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
     });
 

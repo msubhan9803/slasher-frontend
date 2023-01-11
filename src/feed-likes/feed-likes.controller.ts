@@ -39,6 +39,7 @@ export class FeedLikesController {
       notifyType: NotificationType.UserLikedYourPost,
       notificationMsg: 'liked your post',
     });
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -49,6 +50,7 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    return { success: true };
   }
 
   @Post('comment/:feedCommentId')
@@ -68,6 +70,7 @@ export class FeedLikesController {
       notifyType: NotificationType.UserLikedYourComment,
       notificationMsg: 'liked your comment',
     });
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -78,6 +81,7 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    return { success: true };
   }
 
   @Post('reply/:feedReplyId')
@@ -98,6 +102,7 @@ export class FeedLikesController {
       notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
       notificationMsg: 'liked your reply',
     });
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')
@@ -108,5 +113,6 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    return { success: true };
   }
 }

@@ -31,3 +31,12 @@ export async function createOrFindConversation(userId: string) {
 
   return axios.post(`${apiUrl}/chat/conversations/create-or-find-direct-message-conversation`, { userId }, { headers });
 }
+
+export async function markAllReadForSingleConversation(matchListId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.patch(`${apiUrl}/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, { headers });
+}

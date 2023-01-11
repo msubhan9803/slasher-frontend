@@ -7,6 +7,7 @@ import {
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import UserCircleImage from '../UserCircleImage';
+import { markAllReadForSingleConversation } from '../../../api/messages';
 
 interface Props {
   userName: string;
@@ -97,6 +98,11 @@ function UserMessageListItem({
 }: Props) {
   const sharedYPadding = 'py-3 py-lg-4';
 
+  const handleMarkConversationRead = () => {
+    if (!matchListId) return;
+    markAllReadForSingleConversation(matchListId);
+  };
+
   return (
     <StyledItem className="bg-dark bg-mobile-transparent">
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
@@ -129,7 +135,7 @@ function UserMessageListItem({
               <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">
-              <Dropdown.Item eventKey="markAsRead" className="text-light">
+              <Dropdown.Item eventKey="markAsRead" className="text-light" onClick={handleMarkConversationRead}>
                 Mark as read
               </Dropdown.Item>
               <Dropdown.Item eventKey="delete" className="text-light">Delete</Dropdown.Item>

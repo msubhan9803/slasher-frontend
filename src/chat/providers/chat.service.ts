@@ -198,4 +198,28 @@ export class ChatService {
       .populate('participants', 'id userName firstName profilePic');
     return matchList;
   }
+
+  /** Call this service function to mark all messages received from all participants for a given chat for a user.
+   * @param loggedInUserId This refers to loggedIn user
+   * @param matchListId Match id for a chat
+   */
+  async markAllReceivedMessagesReadForChat(loggedInUserId: string, matchListId: string) {
+    const matchListDoc = await this.matchListModel.findById(matchListId);
+    if (!matchListDoc) throw new Error('matchList document not found for given `matchListId`');
+
+    const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
+    if (!participants.find((p) => p === loggedInUserId)) {
+      throw new Error('You are not a part of this chat. Invalid `matchListId`.');
+    }
+    const fromUsers = participants.filter((id) => id !== loggedInUserId);
+
+    await this.messageModel
+    .updateMany({
+      $or: fromUsers.map((fromUserId) => ({
+        fromId: fromUserId,
+        senderId: loggedInUserId, // due to bad old-API field naming, this is the "to" field
+      })),
+    }, { isRead: NotificationReadStatus.Read })
+    .exec();
+  }
 }

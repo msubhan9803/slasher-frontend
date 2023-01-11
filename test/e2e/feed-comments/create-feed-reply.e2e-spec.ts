@@ -14,6 +14,7 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -98,7 +99,32 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .expect(HttpStatus.CREATED);
-        expect(response.body.message).toBe('hello test user');
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
     });
 
@@ -129,7 +155,14 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .field('userId', activeUser._id.toString())
         .field('feedCommentId', feedComments._id.toString())
         .expect(HttpStatus.CREATED);
-      expect(response.body.message).toBe(message);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'This is a test message',
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [],
+        });
     });
 
     it('allows the creation of a reply with only files, but no message', async () => {

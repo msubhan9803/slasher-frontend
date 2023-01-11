@@ -254,7 +254,7 @@ describe('ChatService', () => {
     });
   });
 
-  describe('#markAllMessagesReadOfChatForUser', () => {
+  describe('#markAllReceivedMessagesReadForChat', () => {
     let m1;
     let m2;
     let m3;

@@ -4,6 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -16,6 +17,7 @@ import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.facto
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service';
 import { rssFeedFactory } from '../../factories/rss-feed.factory';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -73,6 +75,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
             userId: activeUser._id,
             rssfeedProviderId: rssFeedProviderData._id,
             rssFeedId: rssFeed._id,
+            createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -80,9 +83,38 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect((response.body.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
-      expect(response.body._id).toEqual(feedPost._id.toString());
-      expect(response.body.rssfeedProviderId._id).toEqual(rssFeedProviderData._id.toString());
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        createdAt: '2022-10-17T00:00:00.000Z',
+        rssfeedProviderId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          logo: null,
+          title: 'RssFeedProvider 1',
+        },
+        rssFeedId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
+        },
+        images: [
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userName: 'Username1',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        },
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likes: [],
+      });
     });
   });
 });

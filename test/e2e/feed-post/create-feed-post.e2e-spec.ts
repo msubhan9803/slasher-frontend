@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { createTempFiles } from '../../helpers/tempfile-helpers';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -61,7 +62,29 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
           .expect(HttpStatus.CREATED);
-        expect(response.body.message).toBe('hello test user');
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'hello test user',
+            userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
     });
 
@@ -91,7 +114,12 @@ describe('Feed-Post / Post File (e2e)', () => {
         .field('message', message)
         .field('userId', activeUser._id.toString())
         .expect(HttpStatus.CREATED);
-      expect(response.body.message).toBe(message);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'This is a test message',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [],
+      });
     });
 
     it('allows the creation of a post with only files, but no message', async () => {

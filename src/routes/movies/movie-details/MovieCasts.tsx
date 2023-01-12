@@ -54,7 +54,7 @@ function MovieCasts({ castList }: CastListProps) {
         <StyledSlideButton className="prev bg-transparent border-0 shadow-none text-white" onClick={slideCastsLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </StyledSlideButton>
-        <StyledCast id="slideCasts" className="flex-nowrap">
+        <StyledCast id="slideCasts" className="flex-nowrap w-100">
           {castList && castList.map((cast: MovieCast) => (
             <Col key={cast.name} xs={6} sm={3} md={2} lg={3} xl={2}>
               <Card className="bg-transparent border-0">

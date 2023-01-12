@@ -67,12 +67,13 @@ describe('Delete Follow (e2e)', () => {
   describe('DELETE /rss-feed-providers/:id/follows/:userId', () => {
     describe('Successful delete rss feed providers follows data', () => {
       it('successfully delete the rss feed providers follows.', async () => {
-        await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProvideFollows._id);
         expect(rssFeedProviderFollowDetails).toBeNull();
+        expect(response.body).toEqual({ success: true });
       });
 
       it('when rss feed provider id is not exists than expected response', async () => {
@@ -82,7 +83,7 @@ describe('Delete Follow (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('News partner not found');
+        expect(response.body).toEqual({ message: 'News partner not found', statusCode: 404 });
       });
 
       it('when active userid is not exists than expected response', async () => {
@@ -92,7 +93,7 @@ describe('Delete Follow (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toContain('Not authorized');
+        expect(response.body).toEqual({ message: 'Not authorized', statusCode: 401 });
       });
     });
 
@@ -103,9 +104,13 @@ describe('Delete Follow (e2e)', () => {
           .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'id must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'id must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('userId must be a mongodb id', async () => {
@@ -114,9 +119,13 @@ describe('Delete Follow (e2e)', () => {
           .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'userId must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'userId must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

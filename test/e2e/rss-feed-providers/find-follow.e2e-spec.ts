@@ -14,6 +14,7 @@ import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedPro
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Find Follow (e2e)', () => {
   let app: INestApplication;
@@ -70,9 +71,14 @@ describe('Find Follow (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toMatchObject({
-          userId: activeUser._id,
-          rssfeedProviderId: rssFeedProviderData._id,
+        // TODO_TEMP_SAHIL_NEED_CONFIRMATION: Removed `createAt` and `updatedAt` fields
+        expect(response.body).toEqual({
+          userId: activeUser._id.toString(),
+          rssfeedProviderId: rssFeedProviderData._id.toString(),
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          deleted: 0,
+          notification: 0,
+          status: 1,
         });
       });
 
@@ -83,7 +89,10 @@ describe('Find Follow (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('News partner not found');
+        expect(response.body).toEqual({
+          message: 'News partner not found',
+          statusCode: 404,
+        });
       });
 
       it('when active userid is not exists than expected response', async () => {
@@ -93,7 +102,10 @@ describe('Find Follow (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toContain('Not authorized');
+        expect(response.body).toEqual({
+          message: 'Not authorized',
+          statusCode: 401,
+        });
       });
     });
 
@@ -104,9 +116,7 @@ describe('Find Follow (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'id must be a mongodb id',
-        );
+        expect(response.body.message).toEqual(['id must be a mongodb id']);
       });
 
       it('userId must be a mongodb id', async () => {
@@ -115,9 +125,7 @@ describe('Find Follow (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'userId must be a mongodb id',
-        );
+        expect(response.body.message).toEqual(['userId must be a mongodb id']);
       });
     });
   });

@@ -22,7 +22,7 @@ interface CardListProps {
 function PosterCardList({ dataList }: PosterCardProps) {
   return (
     <Row className="mt-0">
-      {dataList && dataList.length > 0 ? dataList.map((listDetail: CardListProps) => (
+      {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps) => (
         /* eslint no-underscore-dangle: 0 */
         <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
           <Link to={`/movies/${listDetail._id}/details`}>
@@ -35,9 +35,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
             />
           </Link>
         </Col>
-      )) : (
-        <h1 className="h2 text-center mb-0">No data found</h1>
-      )}
+      ))}
     </Row>
   );
 }

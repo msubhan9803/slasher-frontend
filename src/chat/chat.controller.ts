@@ -1,5 +1,5 @@
 import {
-  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body,
+  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch,
 } from '@nestjs/common';
 import { Request } from 'express';
 import mongoose from 'mongoose';
@@ -10,6 +10,7 @@ import { GetConversationsQueryDto } from './dto/get-conversations-query.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { GetConversationQueryDto } from './dto/get-conversation-query.dto';
 import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversation-query.dto';
+import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -57,5 +58,21 @@ export class ChatController {
       user._id,
       new mongoose.Types.ObjectId(createEventDto.userId),
     ]);
+  }
+
+  @Patch('conversations/mark-all-received-messages-read-for-chat/:matchListId')
+  async markAllAsReadFromUser(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: MarkConversationReadDto,
+    ) {
+    const user = getUserFromRequest(request);
+    const matchList = await this.chatService.findMatchList(param.matchListId);
+    const matchUserIds = matchList.participants.filter((userId) => userId.id === user.id);
+    if (!matchUserIds.length) {
+      throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
+    }
+
+    await this.chatService.markAllReceivedMessagesReadForChat(user.id, param.matchListId);
+    return { success: true };
   }
 }

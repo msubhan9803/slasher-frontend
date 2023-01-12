@@ -14,6 +14,7 @@ import { BlocksModule } from '../blocks/blocks.module';
 import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers.module';
 import { MailModule } from '../providers/mail.module';
+import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-username.module';
 
 // Since the UsersModule is likely to be used in many places, we'll make it global
 @Global()
@@ -29,6 +30,7 @@ import { MailModule } from '../providers/mail.module';
     RssFeedProviderFollowsModule,
     RssFeedProvidersModule,
     MailModule,
+    DisallowedUsernameModule,
   ],
   controllers: [UsersController],
   providers: [UsersService, LocalStorageService, S3StorageService],

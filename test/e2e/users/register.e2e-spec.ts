@@ -11,6 +11,7 @@ import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { MailService } from '../../../src/providers/mail.service';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { DisallowedUsernameService } from '../../../src/disallowedUsername/providers/disallowed-username.service';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('Users / Register (e2e)', () => {
   let usersService: UsersService;
   let userSettingsService: UserSettingsService;
   let mailService: MailService;
+  let disallowedUsernameService: DisallowedUsernameService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -39,6 +41,7 @@ describe('Users / Register (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     mailService = moduleRef.get<MailService>(MailService);
+    disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -322,6 +325,19 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain(
           'Email address is already associated with an existing user.',
+        );
+      });
+
+      it('returns an error when disallowed username already exists', async () => {
+        await disallowedUsernameService.create({
+          username: 'TestUser',
+        });
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is not available',
         );
       });
     });

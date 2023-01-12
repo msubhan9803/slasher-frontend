@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -11,6 +12,7 @@ import { NotificationsService } from '../../../src/notifications/providers/notif
 import { notificationFactory } from '../../factories/notification.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { NotificationDeletionStatus } from '../../../src/schemas/notification/notification.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('All Notifications (e2e)', () => {
   let app: INestApplication;
@@ -20,6 +22,7 @@ describe('All Notifications (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser;
   let configService: ConfigService;
+  let notificationDates: Array<{ createdAt: Date, lastUpdateAt: Date }>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -42,6 +45,29 @@ describe('All Notifications (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    notificationDates = [
+      {
+        createdAt: DateTime.fromISO('2022-01-10T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-11T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-08T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-09T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-06T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-07T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-04T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-05T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-02T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-03T00:00:00Z').toJSDate(),
+      },
+    ];
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -51,6 +77,7 @@ describe('All Notifications (e2e)', () => {
         notificationFactory.build({
           is_deleted: NotificationDeletionStatus.NotDeleted,
           userId: activeUser._id.toString(),
+          ...notificationDates[index],
         }),
       );
     }
@@ -59,7 +86,7 @@ describe('All Notifications (e2e)', () => {
   describe('GET /notifications', () => {
     describe('Get All Notifications', () => {
       it('finds all the expected notifications details', async () => {
-        const limit = 10;
+        const limit = 5;
         const response = await request(app.getHttpServer())
           .get(`/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -69,6 +96,154 @@ describe('All Notifications (e2e)', () => {
         }
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(5);
+
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: notificationDates[0].createdAt.toISOString(),
+            lastUpdateAt: notificationDates[0].lastUpdateAt.toISOString(),
+            allUsers: [],
+            data: null,
+            feedCommentId: null,
+            feedPostId: null,
+            feedReplyId: null,
+            images: [],
+            isProcessed: true,
+            isRead: 0,
+            is_deleted: 0,
+            messageCommentID: null,
+            messageMainPostID: null,
+            movieDBId: null,
+            movieId: null,
+            movieMainCommentID: null,
+            movieReplyID: null,
+            notificationFor: 'Push',
+            notificationMsg: 'Message 1',
+            notifyType: 1,
+            rssFeedCommentId: null,
+            rssFeedId: null,
+            rssFeedProviderId: null,
+            senderId: null,
+            status: 0,
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: notificationDates[1].createdAt.toISOString(),
+            lastUpdateAt: notificationDates[1].lastUpdateAt.toISOString(),
+            allUsers: [],
+            data: null,
+            feedCommentId: null,
+            feedPostId: null,
+            feedReplyId: null,
+            images: [],
+            isProcessed: true,
+            isRead: 0,
+            is_deleted: 0,
+            messageCommentID: null,
+            messageMainPostID: null,
+            movieDBId: null,
+            movieId: null,
+            movieMainCommentID: null,
+            movieReplyID: null,
+            notificationFor: 'Push',
+            notificationMsg: 'Message 2',
+            notifyType: 1,
+            rssFeedCommentId: null,
+            rssFeedId: null,
+            rssFeedProviderId: null,
+            senderId: null,
+            status: 0,
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: notificationDates[2].createdAt.toISOString(),
+            lastUpdateAt: notificationDates[2].lastUpdateAt.toISOString(),
+            allUsers: [],
+            data: null,
+            feedCommentId: null,
+            feedPostId: null,
+            feedReplyId: null,
+            images: [],
+            isProcessed: true,
+            isRead: 0,
+            is_deleted: 0,
+            messageCommentID: null,
+            messageMainPostID: null,
+            movieDBId: null,
+            movieId: null,
+            movieMainCommentID: null,
+            movieReplyID: null,
+            notificationFor: 'Push',
+            notificationMsg: 'Message 3',
+            notifyType: 1,
+            rssFeedCommentId: null,
+            rssFeedId: null,
+            rssFeedProviderId: null,
+            senderId: null,
+            status: 0,
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: notificationDates[3].createdAt.toISOString(),
+            lastUpdateAt: notificationDates[3].lastUpdateAt.toISOString(),
+            allUsers: [],
+            data: null,
+            feedCommentId: null,
+            feedPostId: null,
+            feedReplyId: null,
+            images: [],
+            isProcessed: true,
+            isRead: 0,
+            is_deleted: 0,
+            messageCommentID: null,
+            messageMainPostID: null,
+            movieDBId: null,
+            movieId: null,
+            movieMainCommentID: null,
+            movieReplyID: null,
+            notificationFor: 'Push',
+            notificationMsg: 'Message 4',
+            notifyType: 1,
+            rssFeedCommentId: null,
+            rssFeedId: null,
+            rssFeedProviderId: null,
+            senderId: null,
+            status: 0,
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: notificationDates[4].createdAt.toISOString(),
+            lastUpdateAt: notificationDates[4].lastUpdateAt.toISOString(),
+            allUsers: [],
+            data: null,
+            feedCommentId: null,
+            feedPostId: null,
+            feedReplyId: null,
+            images: [],
+            isProcessed: true,
+            isRead: 0,
+            is_deleted: 0,
+            messageCommentID: null,
+            messageMainPostID: null,
+            movieDBId: null,
+            movieId: null,
+            movieMainCommentID: null,
+            movieReplyID: null,
+            notificationFor: 'Push',
+            notificationMsg: 'Message 5',
+            notifyType: 1,
+            rssFeedCommentId: null,
+            rssFeedId: null,
+            rssFeedProviderId: null,
+            senderId: null,
+            status: 0,
+            userId: activeUser._id.toString(),
+          },
+        ]);
       });
 
       describe('when `before` argument is supplied', () => {
@@ -105,7 +280,15 @@ describe('All Notifications (e2e)', () => {
           .get('/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit should not be empty');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+            'limit must be a number conforming to the specified constraints',
+            'limit should not be empty',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('limit should be a number', async () => {
@@ -114,7 +297,14 @@ describe('All Notifications (e2e)', () => {
           .get(`/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+            'limit must be a number conforming to the specified constraints',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('limit should not be grater than 20', async () => {
@@ -123,7 +313,13 @@ describe('All Notifications (e2e)', () => {
           .get(`/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('`before` must be a mongodb id', async () => {
@@ -133,9 +329,13 @@ describe('All Notifications (e2e)', () => {
           .get(`/notifications?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'before must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'before must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

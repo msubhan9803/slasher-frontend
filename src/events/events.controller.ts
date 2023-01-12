@@ -21,6 +21,7 @@ import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { UserType } from '../schemas/user/user.enums';
 
 @Controller('events')
 export class EventsController {
@@ -135,9 +136,15 @@ export class EventsController {
 
   @Patch(':id')
   async update(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
     @Body() updateEventDto: CreateOrUpdateEventDto,
   ) {
+    const user = getUserFromRequest(request);
+    if (user.userType !== UserType.Admin) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
     const eventData = await this.eventService.update(params.id, updateEventDto);
     return {
       id: eventData.id,

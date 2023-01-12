@@ -15,6 +15,7 @@ import { eventsFactory } from '../../factories/events.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { Event } from '../../../src/schemas/event/event.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { UserType } from '../../../src/schemas/user/user.enums';
 
 describe('Events update / :id (e2e)', () => {
   let app: INestApplication;
@@ -23,10 +24,12 @@ describe('Events update / :id (e2e)', () => {
   let eventCategoriesService: EventCategoriesService;
   let usersService: UsersService;
   let activeUserAuthToken: string;
+  let nonAdminUserAuthToken: string;
   let activeUser: User;
   let activeEvent: Event;
   let activeEventCategory: EventCategory;
   let configService: ConfigService;
+  let nonAdminUser: User;
 
   const sampleEventUpdateObject = {
     name: 'Event 11',
@@ -57,7 +60,14 @@ describe('Events update / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
-    activeUser = await usersService.create(userFactory.build());
+    nonAdminUser = await usersService.create(userFactory.build());
+    nonAdminUserAuthToken = nonAdminUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+
+    activeUser = await usersService.create(userFactory.build({
+      userType: UserType.Admin,
+    }));
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
       userId: activeUser._id,
@@ -68,7 +78,22 @@ describe('Events update / :id (e2e)', () => {
     );
   });
 
+  // non admin user should not be allowed to update event
   describe('PATCH /events/:id', () => {
+    describe('Non-admin users are not allowed to update event', () => {
+      it('should fail to update the and returns the expected response', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/events/${activeEvent._id}`)
+          .auth(nonAdminUserAuthToken, { type: 'bearer' })
+          .send(sampleEventUpdateObject);
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({
+          message: 'Unauthorized',
+          statusCode: 401,
+        });
+      });
+    });
+
     describe('Successful update', () => {
       it('update the event data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())

@@ -192,10 +192,10 @@ export class ChatService {
     return conversations;
   }
 
-  async findMatchList(id: string): Promise<any> {
+  async findMatchList(id: string) {
     const matchList = await this.matchListModel
       .findById(id)
-      .populate('participants', 'id userName firstName profilePic');
+      .populate('participants', '_id userName firstName profilePic');
     return matchList;
   }
 
@@ -213,11 +213,11 @@ export class ChatService {
     }
 
     await this.messageModel
-    .updateMany({
-      matchId: matchListDoc._id,
-      isRead: NotificationReadStatus.Unread,
-      senderId: receiverUserId, // due to bad old-API field naming, this is the "to" field
-    }, { isRead: NotificationReadStatus.Read })
-    .exec();
+      .updateMany({
+        matchId: matchListDoc._id,
+        isRead: NotificationReadStatus.Unread,
+        senderId: receiverUserId, // due to bad old-API field naming, this is the "to" field
+      }, { isRead: NotificationReadStatus.Read })
+      .exec();
   }
 }

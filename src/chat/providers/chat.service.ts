@@ -96,9 +96,12 @@ export class ChatService {
     before?: string,
   ): Promise<Message[]> {
     const where: any = [
-      { matchId: new mongoose.Types.ObjectId(matchListId) },
-      { partcipants: new mongoose.Types.ObjectId(requiredParticipantId) },
-      { deleted: false },
+      {
+        matchId: new mongoose.Types.ObjectId(matchListId),
+        partcipants: new mongoose.Types.ObjectId(requiredParticipantId),
+        deleted: false,
+        deletefor: { $ne: new mongoose.Types.ObjectId(requiredParticipantId) },
+      },
     ];
     let beforeCreatedAt;
 
@@ -126,7 +129,9 @@ export class ChatService {
           isRead: NotificationReadStatus.Unread,
           is_deleted: NotificationDeletionStatus.NotDeleted,
           relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        }],
+          deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
+        },
+      ],
       })
       .count()
       .exec();
@@ -167,7 +172,10 @@ export class ChatService {
     const conversations = [];
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
-        .findOne({ matchId: matchList._id })
+        .findOne({
+          matchId: matchList._id,
+          deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
+         })
         .sort({ createdAt: -1 })
         .exec();
       const unreadCount = await this.messageModel

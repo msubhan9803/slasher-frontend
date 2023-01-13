@@ -35,6 +35,10 @@ export class Message extends MessageUnusedFields {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   senderId: User;
 
+  // :,
+  @Prop({ type: Array, default: [], required: false })
+  deletefor: mongoose.Schema.Types.ObjectId[];
+
   @Prop({ default: MessageType.Text })
   messageType: MessageType.Text;
 

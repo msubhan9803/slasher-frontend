@@ -127,16 +127,19 @@ describe('ChatService', () => {
   });
 
   describe('#getConversations', () => {
+    let messageLatest1;
+    let m2;
+    let m3;
     beforeEach(async () => {
       // User 1 sends a message and receives a message. Received message is unread.
       const message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
       message1.isRead = true;
       await message1.save();
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
+      messageLatest1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
 
       // User 1 sends two messages. Both sent messages are unread.
-      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
-      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
+      m3 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
     });
 
     it('successfully returns a list of convesations for a user', async () => {
@@ -153,6 +156,23 @@ describe('ChatService', () => {
       expect(conversations[1].latestMessage).toBe('This is a reply');
       // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
       expect(conversations[1].unreadCount).toBe(1);
+    });
+
+    it('should filter deleted message for single user when returning list of convesations for a user', async () => {
+      await messageModel.updateOne({ _id: messageLatest1._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: m2._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: m3._id }, { $set: { deletefor: [user1._id] } });
+
+      const conversations = await chatService.getConversations(user1._id, 5);
+
+      // Note: The second conversation should not be returned since all messages for second conversation
+      // are set in `deletefor` this user
+      expect(conversations).toHaveLength(1);
+
+      // Expect newest conversation in array position 0 having latest message which is `non-deleted` message for user
+      expect(conversations[0].latestMessage).toBe('Hi, there!');
+      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
+      expect(conversations[0].unreadCount).toBe(1);
     });
 
     it('applies the given limit', async () => {
@@ -225,6 +245,14 @@ describe('ChatService', () => {
 
       expect(messages).toHaveLength(1);
     });
+
+    it('should not return message deleted for a single user (using `deletefor` field)', async () => {
+      const limit = 5;
+      await messageModel.updateOne({ _id: message1._id }, { $set: { deletefor: [user0._id] } });
+      const messages = await chatService.getMessages(matchList._id, user0._id, limit);
+
+      expect(messages).toHaveLength(1);
+    });
   });
 
   describe('#findMatchList', () => {
@@ -240,17 +268,24 @@ describe('ChatService', () => {
   });
 
   describe('#getUnreadDirectPrivateMessageCount', () => {
+    let msgLatest;
+
     beforeEach(async () => {
       const firstMessage = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 1');
       firstMessage.isRead = true;
       firstMessage.save();
       await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Reply 1');
       await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 2');
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
+      msgLatest = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
     });
 
     it('returns the expected count', async () => {
       expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(2);
+    });
+
+    it('returns the expected count filtered with `deletefor` field (messages deleted for user)', async () => {
+      await messageModel.updateOne({ _id: msgLatest._id }, { $set: { deletefor: [user1._id] } });
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(1);
     });
   });
 

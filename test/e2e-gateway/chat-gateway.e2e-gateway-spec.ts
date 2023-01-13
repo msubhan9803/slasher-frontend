@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
@@ -13,6 +13,7 @@ import { UserDocument } from '../../src/schemas/user/user.schema';
 import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
+import { Message, MessageDocument } from '../../src/schemas/message/message.schema';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('Chat Gateway (e2e)', () => {
   let user2: UserDocument;
   let activeUserAuthToken: string;
   let matchListModel: Model<MatchListDocument>;
+  let messageModel: Model<MessageDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,6 +38,7 @@ describe('Chat Gateway (e2e)', () => {
     chatService = moduleRef.get<ChatService>(ChatService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
 
     app = moduleRef.createNestApplication();
@@ -131,15 +134,22 @@ describe('Chat Gateway (e2e)', () => {
 
   describe('#getMessages', () => {
     let message1;
+    let message2;
+    let message3;
     let matchList;
 
     beforeEach(async () => {
+      // user1 messages
       await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
       message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
-      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
       matchList = await matchListModel.findOne({
         participants: activeUser._id,
       });
+
+      // user2 messages
+      message2 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test2!');
+      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test3!');
     });
 
     describe('successful responses', () => {
@@ -175,6 +185,7 @@ describe('Chat Gateway (e2e)', () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
+        // Below `matchList`  belongs to chat with `user1`
         const payload = {
           matchListId: matchList._id, before: message1._id.toString(),
         };
@@ -185,6 +196,34 @@ describe('Chat Gateway (e2e)', () => {
           });
         });
         client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('should not return the deleted message for current user via `deletedfor` field', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        // Set 2 messages of `user2` be deleted for `activeUser`
+        await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [activeUser._id] } });
+        await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [activeUser._id] } });
+
+        // message2 belongs to chat with `user2`
+        const payload = {
+          matchListId: new mongoose.Types.ObjectId(message2.matchId),
+        };
+
+        const response = await new Promise<any>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            resolve(data);
+          });
+        });
+        client.close();
+
+        // Since 2 out of 3 messgaes of `user2` are marked deleted via `deletefor` field, we expect only 1 message
+        expect(response).toHaveLength(1);
+        expect(response[0].message).toBe('Hi, Test3!');
+
         // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
         await waitForSocketUserCleanup(client, usersService);
       });

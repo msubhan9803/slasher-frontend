@@ -56,7 +56,7 @@ function Chat({
       <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus userData={userData} />
-          <ChatOptions />
+          <ChatOptions userData={userData} />
         </Card.Header>
         <Card.Body className="position-relative overflow-auto p-0">
           <div className="conversation-container">

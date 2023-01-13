@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -14,6 +15,8 @@ import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { reportData } from '../../../api/report';
+import { createBlockUser } from '../../../api/blocks';
 
 interface FriendProps {
   _id?: string;
@@ -42,6 +45,7 @@ function ProfileFriends({ user }: Props) {
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [loadUser, setLoadUser] = useState<boolean>(false);
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -52,9 +56,11 @@ function ProfileFriends({ user }: Props) {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
+      setPopoverClick(popoverClickProps);
     } else if (value === 'View profile') {
       navigate(`/${popoverClickProps.userName}`);
     }
+    setPopoverClick(popoverClickProps);
   };
 
   useEffect(() => {
@@ -134,7 +140,34 @@ function ProfileFriends({ user }: Props) {
     setSearch(searchUser);
     setPage(0);
   };
-
+  const reportProfileFriend = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'profile',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const onBlockYesClick = () => {
+    createBlockUser(popoverClick?.id!)
+      .then((res) => {
+        setShow(false);
+        if (res.status === 201) {
+          const updateFriendsList = friendsList.filter((friend: any) => {
+            console.log('friend._id', friend._id !== popoverClick?.id);
+            return friend._id !== popoverClick?.id;
+          });
+          setFriendsList(updateFriendsList);
+          setFriendCount(friendCount ? friendCount - 1 : 0);
+        }
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="friends" user={user} />
@@ -188,7 +221,13 @@ function ProfileFriends({ user }: Props) {
           )}
         </div>
       </div>
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportProfileFriend}
+        onBlockYesClick={onBlockYesClick}
+      />
     </AuthenticatedPageWrapper>
   );
 }

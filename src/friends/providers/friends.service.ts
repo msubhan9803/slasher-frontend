@@ -171,6 +171,7 @@ export class FriendsService {
   }
 
   async getSuggestedFriends(user: UserDocument, limit: number) {
+    // TODO: Time each of the operations below to see why this method is slow to return results
     const friendIds = await this.getFriendIds(user._id, true);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
     const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);

@@ -68,16 +68,12 @@ export class ChatController {
   ) {
     const user = getUserFromRequest(request);
     const matchList = await this.chatService.findMatchList(param.matchListId);
-<<<<<<< HEAD
     if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
 
-    const matchUserIds = matchList.participants.filter((userId) => userId.id === user.id);
-=======
     const matchUserIds = (matchList.participants as unknown as User[]).filter(
       (participantUser) => participantUser._id.toString() === user.id,
     );
 
->>>>>>> e564f42b0022695d37da61d6da9f2bad3585bcda
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }

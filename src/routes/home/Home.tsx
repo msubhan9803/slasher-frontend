@@ -200,11 +200,42 @@ function Home() {
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) callLatestFeedPost();
+        if (res.status === 200) {
+          const unLikePostData = posts.map(
+            (unLikePost: Post) => {
+              if (unLikePost._id === feedPostId) {
+                const removeUserLike = unLikePost.likes?.filter(
+                  (removeId: string) => removeId !== loginUserId,
+                );
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likes: removeUserLike,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPosts(unLikePostData);
+        }
       });
     } else {
       likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) callLatestFeedPost();
+        if (res.status === 201) {
+          const likePostData = posts.map((likePost: Post) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likes: [...likePost.likes!, loginUserId!],
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPosts(likePostData);
+        }
       });
     }
   };

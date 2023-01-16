@@ -22,7 +22,6 @@ import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { relativeToFullImagePath } from '../utils/image-utils';
-
 @Controller('events')
 export class EventsController {
   constructor(

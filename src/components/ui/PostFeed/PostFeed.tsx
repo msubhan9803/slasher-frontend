@@ -245,6 +245,8 @@ function PostFeed({
             <PostFooter
               likeIcon={post.likeIcon}
               postId={post.id}
+              userName={post.userName}
+              rssfeedProviderId={post.rssfeedProviderId}
               onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
             />
             {

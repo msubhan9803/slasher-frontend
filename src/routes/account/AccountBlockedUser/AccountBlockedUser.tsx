@@ -8,6 +8,7 @@ import AccountHeader from '../AccountHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { blockedUsers, removeBlockedUsers } from '../../../api/blocks';
+import { LG_MEDIA_BREAKPOINT } from '../../../constants';
 
 interface BlockUsers {
   /* eslint no-underscore-dangle: 0 */
@@ -18,7 +19,7 @@ interface BlockUsers {
 }
 
 const Container = styled.div`
-  @media (min-width: 992px) {
+  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
     background: #1f1f1f;
   }
 `;

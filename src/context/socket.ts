@@ -1,7 +1,7 @@
 import Cookies from 'js-cookie';
 import React from 'react';
 import { io, Socket } from 'socket.io-client';
-import { apiUrl } from '../api/constants';
+import { apiUrl } from '../constants';
 
 const token = Cookies.get('sessionToken');
 

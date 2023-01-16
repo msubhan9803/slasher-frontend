@@ -6,6 +6,7 @@ import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
 import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
+import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 const StyledChatContainer = styled.div`
   height: calc(100vh - 170px);
@@ -35,7 +36,7 @@ const StyledChatContainer = styled.div`
       *::-webkit-scrollbar-track { /* Background */
           background: rgba(255, 255, 255, .1);
       }
-      @media (max-width: 992px) {
+      @media (max-width: ${LG_MEDIA_BREAKPOINT}) {
         height: calc(100vh - 165px);
         .conversation-container {
           height: calc(100vh - 235px);

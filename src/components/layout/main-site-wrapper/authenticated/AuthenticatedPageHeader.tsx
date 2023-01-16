@@ -10,6 +10,7 @@ import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import CustomPopover from '../../../ui/CustomPopover';
 import { useAppSelector } from '../../../../redux/hooks';
+import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
@@ -34,7 +35,7 @@ const MobileNavbar = styled(Navbar)`
 `;
 const StyledNav = styled(Nav)`
   font-size: .875em;
-  @media (min-width: 992px) {
+  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
     // We need to use an exact offset here because we're matching the width of the word "Profile"
     transform: translateX(2.3rem);
     overflow: hidden;

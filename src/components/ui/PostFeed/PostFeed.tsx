@@ -140,7 +140,14 @@ function PostFeed({
     let { content } = post;
     let showReadMoreLink = false;
     if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
-      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      if (reducedContentLength === -1) {
+        // This means that no spaces were found anywhere in the post content.  Since posts can't be
+        // empty, that means that someone either put in a really long link or a lot of text with
+        // no spaces.  In either case, we'll fall back to just cutting the post content to
+        // READ_MORE_TEXT_LIMIT.
+        reducedContentLength = READ_MORE_TEXT_LIMIT;
+      }
       content = post.content.substring(0, reducedContentLength);
       showReadMoreLink = true;
     }

@@ -60,14 +60,6 @@ function AccountBlockedUser() {
     }
   };
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {blockUsersList.length === 0
-        ? 'No blocked users at the moment.'
-        : 'No more block user'}
-    </p>
-  );
-
   const removeBlockUser = (userId: string) => {
     removeBlockedUsers(userId).then(() => {
       window.scrollTo(0, 0);
@@ -122,12 +114,14 @@ function AccountBlockedUser() {
                 </Col>
               ))
             }
-            {
-              blockUsersList.length === 0 && <p className="mb-0">You have not blocked any users.</p>
-            }
           </Row>
         </InfiniteScroll>
-        {noMoreData && renderNoMoreDataMessage()}
+        { noMoreData && (
+          <p className="text-center my-2">
+            {blockUsersList.length === 0 && 'You have not blocked any users.'}
+          </p>
+        ) }
+
         {errorMessage && errorMessage.length > 0 && (
           <div className="mt-3 text-start">
             <ErrorMessageList errorMessages={errorMessage} className="m-0" />

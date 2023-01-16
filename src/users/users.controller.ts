@@ -182,8 +182,10 @@ export class UsersController {
     query: CheckUserNameQueryDto,
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
+    const exists = await this.usersService.userNameExists(query.userName);
     return {
-      exists: await this.usersService.userNameExists(query.userName),
+      exists,
+      error: exists && 'Username is already associated with an existing user.',
     };
   }
 
@@ -193,9 +195,19 @@ export class UsersController {
     query: CheckEmailQueryDto,
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
+    const exists = await this.usersService.emailExists(query.email);
     return {
-      exists: await this.usersService.emailExists(query.email),
+      exists,
+      error: exists && 'Email address is already associated with an existing user.',
     };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Get('check-register')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async checkRegister(@Query() query: UserRegisterDto, @Ip() ip) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
+    return { success: true };
   }
 
   @Post('register')

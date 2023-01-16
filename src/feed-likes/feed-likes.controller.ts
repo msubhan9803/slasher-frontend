@@ -32,13 +32,15 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: post._id } as unknown as FeedPost,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourPost,
-      notificationMsg: 'liked your post',
-    });
+    if (!post.rssfeedProviderId) {
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: { _id: post._id } as unknown as FeedPost,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+    }
     return { success: true };
   }
 

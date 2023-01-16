@@ -39,12 +39,12 @@ function ProfileFriends({ user }: Props) {
   const [friendCount, setFriendCount] = useState<number>();
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
-  const [loadUser, setLoadUser] = useState<boolean>(false);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
   const friendsTabs = [
@@ -64,27 +64,35 @@ function ProfileFriends({ user }: Props) {
   };
 
   useEffect(() => {
-    setLoadUser(true);
     setNoMoreData(false);
     if (page === 0) setFriendsList([]);
+    setLoadingFriends(true);
     userProfileFriends(user.id, search ? 0 : page, search)
       .then((res) => {
-        setLoadUser(false);
         setFriendsList(res.data.friends);
         setFriendCount(res.data.allFriendCount);
         setPage(page + 1);
+        setLoadingFriends(false);
+        if (search) {
+          setPage(0);
+        } else {
+          setPage(page + 1);
+        }
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
       })
-      .catch((error) => setErrorMessage(error.response.data.message));
+      .catch((error) => {
+        setErrorMessage(error.response.data.message); setLoadingFriends(false);
+      });
   }, [search, user]);
 
   const fetchMoreFriendList = () => {
     if (page > 0) {
+      setLoadingFriends(true);
       userProfileFriends(user.id, page, search)
         .then((res) => {
-          setLoadUser(false);
+          setLoadingFriends(false);
           setFriendsList((prev: any) => [
             ...prev,
             ...res.data.friends,
@@ -200,7 +208,6 @@ function ProfileFriends({ user }: Props) {
             hasMore={!noMoreData}
           >
             <Row className="mt-4" ref={friendContainerElementRef}>
-              {loadUser && <LoadingIndicator />}
               {friendsList.map((friend: FriendProps) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col md={4} lg={6} xl={4} key={friend._id}>
@@ -213,6 +220,7 @@ function ProfileFriends({ user }: Props) {
               ))}
             </Row>
           </InfiniteScroll>
+          {loadingFriends && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

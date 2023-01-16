@@ -44,7 +44,7 @@ function ProfilePhotos({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
   const loginUserId = useAppSelector((state) => state.user.user.id);
-  const viewerOptions = ['Unfriend', 'Block user', 'Report'];
+  const viewerOptions = ['Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
   const popoverOption = loginUserId === user?.id ? selfOptions : viewerOptions;
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();

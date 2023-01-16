@@ -6,7 +6,9 @@ import {
   Card, Col, Dropdown, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
+import { HashLink } from 'react-router-hash-link';
 import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
+import { scrollWithOffset } from '../../../utils/scrollFunctions';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -14,6 +16,8 @@ interface LinearIconProps {
 interface PostFooterProps {
   likeIcon: boolean;
   postId: string;
+  userName: string;
+  rssfeedProviderId: string;
   onLikeClick: (id: string) => void
 }
 const CardFooter = styled(Card.Footer)`
@@ -24,7 +28,9 @@ const LinearIcon = styled.span<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-function PostFooter({ likeIcon, postId, onLikeClick }: PostFooterProps) {
+function PostFooter({
+  likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
+}: PostFooterProps) {
   return (
     <CardFooter className="p-0">
       <Row className="justify-content-evenly py-3 px-md-3">
@@ -45,10 +51,16 @@ function PostFooter({ likeIcon, postId, onLikeClick }: PostFooterProps) {
           </Button>
         </Col>
         <Col className="text-center">
-          <Button className="p-0" variant="link">
+          <HashLink
+            to={rssfeedProviderId
+              ? `/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+              : `/${userName}/posts/${postId}#comments`}
+            className="text-decoration-none"
+            scroll={scrollWithOffset}
+          >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
             <span className="fs-3">Comment</span>
-          </Button>
+          </HashLink>
         </Col>
         <Col className="text-end">
           <CustomDropDown>

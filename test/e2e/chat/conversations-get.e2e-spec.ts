@@ -154,8 +154,8 @@ describe('Conversations all / (e2e)', () => {
     });
 
     it('Mark all received messages as `Read` for a given chat (matchListId)', async () => {
-        m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
-        const matchId = m1.matchId._id;
+      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
+      const matchId = m1.matchId._id;
       const response = await request(app.getHttpServer())
         .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -174,7 +174,7 @@ describe('Conversations all / (e2e)', () => {
       expect(m4.isRead).toBe(false);
     });
 
-    describe('validatin', () => {
+    describe('validation', () => {
       it('when param `matchListId` is not a valid mongo id', async () => {
         m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
         const matchId = 'BAD_MONGO_OBJECT_ID';

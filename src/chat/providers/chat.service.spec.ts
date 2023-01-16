@@ -253,4 +253,32 @@ describe('ChatService', () => {
       expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(2);
     });
   });
+
+  describe('#markAllReceivedMessagesReadForChat', () => {
+    let m1;
+    let m2;
+    let m3;
+    let m4;
+
+    beforeEach(async () => {
+      m1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 1');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 2');
+      m3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Send 3');
+      m4 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Reply 1');
+    });
+
+    it('all messages should be marked as read which are sent from a user to target user', async () => {
+      const matchId = m1.matchId._id;
+      await chatService.markAllReceivedMessagesReadForChat(user0._id.toString(), matchId);
+      m1 = await messageModel.findById(m1._id);
+      m2 = await messageModel.findById(m2._id);
+      m3 = await messageModel.findById(m3._id);
+      m4 = await messageModel.findById(m4._id);
+
+      expect(m1.isRead).toBe(true);
+      expect(m2.isRead).toBe(true);
+      expect(m3.isRead).toBe(false);
+      expect(m4.isRead).toBe(false);
+    });
+  });
 });

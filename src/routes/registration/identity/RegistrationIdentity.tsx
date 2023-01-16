@@ -32,13 +32,15 @@ function RegistrationIdentity({ activeStep }: Props) {
     let errorList: string[] = [];
 
     try {
-      await checkUserName(identityInfo.userName);
+      const res = await checkUserName(identityInfo.userName);
+      if (res.data.exists) errorList = errorList.concat(res.data.error);
     } catch (requestError: any) {
       errorList = errorList.concat(requestError.response.data.message);
     }
 
     try {
-      await checkUserEmail(identityInfo.email);
+      const res = await checkUserEmail(identityInfo.email);
+      if (res.data.exists) errorList = errorList.concat(res.data.error);
     } catch (requestError: any) {
       errorList = errorList.concat(requestError.response.data.message);
     }

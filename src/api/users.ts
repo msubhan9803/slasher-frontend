@@ -43,6 +43,33 @@ export async function register(
   );
 }
 
+export async function checkRegister(
+  firstName: string,
+  userName: string,
+  email: string,
+  password: string,
+  passwordConfirmation: string,
+  securityQuestion: string,
+  securityAnswer: string,
+  dob: string,
+) {
+  return axios.get(
+    `${apiUrl}/users/check-register`,
+    {
+      params: {
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dob,
+      },
+    },
+  );
+}
+
 export async function forgotPassword(email: string) {
   return axios.post(`${apiUrl}/users/forgot-password`, { email });
 }

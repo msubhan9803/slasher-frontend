@@ -179,7 +179,7 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 19'
+            event_info: 'Event info organised by 19',
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -191,8 +191,8 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 20'
-          }
+            event_info: 'Event info organised by 20',
+          },
         ]);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(2);

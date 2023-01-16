@@ -114,7 +114,7 @@ describe('Events / :id (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           images: [
-            "http://localhost:4444/placeholders/no_image_available.png"
+            'http://localhost:4444/placeholders/no_image_available.png',
           ],
           startDate: '2022-10-17T00:00:00.000Z',
           endDate: '2022-10-19T00:00:00.000Z',

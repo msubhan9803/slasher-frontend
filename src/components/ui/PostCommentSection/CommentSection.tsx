@@ -59,7 +59,8 @@ const LikesButton = styled.div`
   }
 `;
 const CommentBox = styled.div`
-background-color: #171717;
+  background-color: #171717;
+  word-break: break-word;
 `;
 const Likes = styled.div`
   right:.063rem;

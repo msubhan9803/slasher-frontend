@@ -104,7 +104,6 @@ describe('Events all / (e2e)', () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
           .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
-          // .get(`/events?startDate=${activeEvent.startDate}&endDate=${activeEvent.endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let i = 1; i < response.body.length; i += 1) {
@@ -141,6 +140,62 @@ describe('Events all / (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toHaveLength(0);
+      });
+
+      it('when images is empty than expected response', async () => {
+        const activeEventDetails = [
+          { start: DateTime.fromISO('2022-10-24T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-25T23:59:59Z').toJSDate() },
+          { start: DateTime.fromISO('2022-10-25T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-26T23:59:59Z').toJSDate() },
+        ];
+        const startDate = DateTime.fromISO('2022-10-24', { setZone: true }).toJSDate();
+        const endDate = DateTime.fromISO('2022-10-26', { setZone: true }).toJSDate();
+        for (const eventDateRange of activeEventDetails) {
+          await eventService.create(
+            eventsFactory.build(
+              {
+                userId: activeUser._id,
+                event_type: activeEventCategory,
+                startDate: eventDateRange.start,
+                endDate: eventDateRange.end,
+                status: EventActiveStatus.Active,
+                images: [],
+              },
+            ),
+          );
+        }
+        const limit = 10;
+        const response = await request(app.getHttpServer())
+          .get(`/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: ['http://localhost:4444/placeholders/no_image_available.png'],
+            startDate: '2022-10-24T00:00:00.000Z',
+            endDate: '2022-10-25T23:59:59.000Z',
+            event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            city: 'Los Angeles',
+            state: 'California',
+            address: null,
+            country: 'USA',
+            event_info: 'Event info organised by 19',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: ['http://localhost:4444/placeholders/no_image_available.png'],
+            startDate: '2022-10-25T00:00:00.000Z',
+            endDate: '2022-10-26T23:59:59.000Z',
+            event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            city: 'Los Angeles',
+            state: 'California',
+            address: null,
+            country: 'USA',
+            event_info: 'Event info organised by 20',
+          },
+        ]);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toHaveLength(2);
       });
 
       describe('when `after` argument is supplied', () => {

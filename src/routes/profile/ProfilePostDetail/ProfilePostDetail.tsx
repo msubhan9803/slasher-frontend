@@ -22,6 +22,7 @@ import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import { useAppSelector } from '../../../redux/hooks';
+import { createBlockUser } from '../../../api/blocks';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -404,6 +405,14 @@ function ProfilePostDetail({ user }: Props) {
     feedComments(true);
   };
 
+  const onBlockYesClick = () => {
+    createBlockUser(popoverClick?.id!)
+      .then(() => {
+        setShow(false);
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
@@ -443,6 +452,7 @@ function ProfilePostDetail({ user }: Props) {
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
             handleReport={reportProfilePost}
+            onBlockYesClick={onBlockYesClick}
           />
         )}
       {dropDownValue === 'Edit'

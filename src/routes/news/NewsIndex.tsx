@@ -9,6 +9,7 @@ import { rssFeedInitialData } from '../../api/rss-feed-providers';
 import PubWiseAd from '../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import checkAdsNewsIndex from './checkAdsNewsIndex';
+import { NEWS_DIV_ID } from '../../utils/PubWiseAdUnits';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;
@@ -42,7 +43,7 @@ function NewsIndex() {
       </div>
       <Row className="bg-dark bg-mobile-transparent rounded-3 pt-4 pb-3 px-lg-3 px-0 m-0 mb-5">
         {newsAndReviews.map((news: any, i, arr) => {
-          const [show, adIndex] = checkAdsNewsIndex(bp, i, arr);
+          const show = checkAdsNewsIndex(bp, i, arr);
 
           return (
           /* eslint no-underscore-dangle: 0 */
@@ -58,7 +59,7 @@ function NewsIndex() {
                   </Card>
                 </Link>
               </Col>
-              {show && <PubWiseAd className="text-center my-3" id={`Event-detail_web-2-${adIndex}`} />}
+              {show && <PubWiseAd className="text-center my-3" id={NEWS_DIV_ID} autoSequencer />}
             </React.Fragment>
           );
         })}

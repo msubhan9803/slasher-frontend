@@ -10,6 +10,7 @@ import MapComponent from '../../../components/ui/MapComponent';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
+import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/PubWiseAdUnits';
 
 const eventsList = [
   {
@@ -145,7 +146,7 @@ function EventsByLocation() {
         </p>
         <Row className="justify-content-md-center">
           {eventsList.map((eventDetail, i, arr) => {
-            const [show, adIndex] = checkAdsEventByLocation(bp, i, arr);
+            const show = checkAdsEventByLocation(bp, i, arr);
             return (
               <React.Fragment key={eventDetail.id}>
                 <Col md={6}>
@@ -153,7 +154,7 @@ function EventsByLocation() {
                     listDetail={eventDetail}
                   />
                 </Col>
-                {show && <PubWiseAd className="text-center my-3" id={`Event-detail_web-5-${adIndex}`} />}
+                {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
               </React.Fragment>
             );
           })}

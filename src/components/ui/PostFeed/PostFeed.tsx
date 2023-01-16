@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
@@ -29,6 +29,7 @@ import {
   newLineToBr,
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/PubWiseAdUnits';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -95,6 +96,7 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
+  const location = useLocation();
 
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -184,6 +186,19 @@ function PostFeed({
     );
   };
 
+  let pubWiseAdDivId: string = '';
+  if (location.pathname === '/home' || location.pathname.endsWith('/posts')) {
+    pubWiseAdDivId = HOME_WEB_DIV_ID;
+  }
+  if (location.pathname.includes('/news/partner/')) {
+    pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
+  }
+
+  let singlePagePostPubWiseAdDivId: string;
+  if (location.pathname.includes('/news/partner/')) {
+    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
+  }
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -221,7 +236,7 @@ function PostFeed({
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                   />
                 )}
-                {isSinglePagePost && <PubWiseAd className="text-center mt-3" id="Event-detail_web-4-0" />}
+                {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} />}
                 <Row className="pt-3 px-md-3">
                   <Col>
                     <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
@@ -299,11 +314,11 @@ function PostFeed({
               }
             </Card>
           </div>
-          { (i + 1) % 3 === 0 && <PubWiseAd className="text-center my-3" id={`Event-detail_web-0-${(i + 1) / 3}`} /> }
+          { (i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
         </div>
 
       ))}
-      { !isSinglePagePost && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id="Event-detail_web-0-0" /> }
+      { !isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
       {
         openLikeShareModal
         && (

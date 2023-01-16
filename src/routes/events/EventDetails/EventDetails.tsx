@@ -11,6 +11,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import RoundButton from '../../../components/ui/RoundButton';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import { EVENT_DETAIL_DIV_ID } from '../../../utils/PubWiseAdUnits';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -158,7 +159,7 @@ function EventDetails() {
           />
         </div>
       </div>
-      <PubWiseAd className="text-center my-3" id="Event-detail_web-8-0" />
+      <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
     </AuthenticatedPageWrapper>
   );
 }

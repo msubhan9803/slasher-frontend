@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useAppSelector } from '../../redux/hooks';
 
 declare global {
@@ -6,12 +6,15 @@ declare global {
     pubwise: any;
     googletag: any;
     gptadslots: any;
+    slasherAds: any
   }
 }
 interface PubWiseAdTypes {
   id: string;
   style?: Object;
   className?: string;
+  // eslint-disable-next-line
+  autoSequencer?: boolean
 }
 
 function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
@@ -40,12 +43,47 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   return <div style={style} className={className} id={id} />;
 }
 
-function PubWiseAd(props: PubWiseAdTypes) {
+function PubWiseAd({
+  id, style, className, autoSequencer,
+}: PubWiseAdTypes) {
   const { isSlotsDefined } = useAppSelector((state) => state.pubWise);
+  const [sequencedId, setSequencedId] = useState('');
+  const isFirstLoadRef = useRef(true);
+
+  useEffect(() => {
+    if (autoSequencer) {
+      if (isFirstLoadRef.current) {
+        isFirstLoadRef.current = false;
+
+        if (!window.slasherAds) {
+          window.slasherAds = {};
+        }
+        if (!window.slasherAds[id]) {
+          window.slasherAds[id] = 0;
+        }
+
+        const requiredSequenceId = [id, window.slasherAds[id] + 1].join('-');
+        setSequencedId(requiredSequenceId);
+        window.slasherAds[id] += 1;
+      }
+    }
+  }, []);
+
+  const props = {
+    style, className, autoSequencer, id: autoSequencer ? sequencedId : id,
+  };
 
   if (!isSlotsDefined) return null;
+  if (!autoSequencer) {
+    return (
+      <PubWiseAdUnit {...props} />
+    );
+  }
 
-  return <PubWiseAdUnit {...props} />;
+  if (!sequencedId) return null;
+  return (
+    <PubWiseAdUnit {...props} />
+  );
 }
 
 PubWiseAd.defaultProps = {

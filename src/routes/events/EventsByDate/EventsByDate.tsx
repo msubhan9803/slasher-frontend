@@ -13,6 +13,7 @@ import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
+import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/PubWiseAdUnits';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -257,13 +258,13 @@ function EventsByDate() {
               && (eventsList.map((eventDetail, i, arr) => {
                 // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
                 // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
-                const [show, adIndex] = checkAdsEventByDate(bp, i, arr);
+                const show = checkAdsEventByDate(bp, i, arr);
                 return (
                   <React.Fragment key={eventDetail.id}>
                     <Col md={6}>
                       <EventsPosterCard listDetail={eventDetail} />
                     </Col>
-                    {show && <PubWiseAd className="text-center my-3" id={`Event-detail_web-7-${adIndex}`} />}
+                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
                   </React.Fragment>
                 );
               }))}

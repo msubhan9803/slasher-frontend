@@ -21,7 +21,12 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import { decryptMessage, escapeScriptTags, replaceHtmlToText } from '../../../utils/text-utils';
+import {
+  decryptMessage,
+  cleanExternalHtmlContent,
+  escapeHtmlSpecialCharacters,
+  newLineToBr,
+} from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
@@ -62,9 +67,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const Content = styled.span`
-  white-space: pre-line;
 `;
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
@@ -140,18 +142,25 @@ function PostFeed({
     let { content } = post;
     let showReadMoreLink = false;
     if (!detailPage && content.length >= READ_MORE_TEXT_LIMIT) {
-      const reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      let reducedContentLength = post.content.substring(0, READ_MORE_TEXT_LIMIT).lastIndexOf(' ');
+      if (reducedContentLength === -1) {
+        // This means that no spaces were found anywhere in the post content.  Since posts can't be
+        // empty, that means that someone either put in a really long link or a lot of text with
+        // no spaces.  In either case, we'll fall back to just cutting the post content to
+        // READ_MORE_TEXT_LIMIT.
+        reducedContentLength = READ_MORE_TEXT_LIMIT;
+      }
       content = post.content.substring(0, reducedContentLength);
       showReadMoreLink = true;
     }
-
     return (
       <div>
-        <Content dangerouslySetInnerHTML={
+        {/* eslint-disable-next-line react/no-danger */}
+        <div dangerouslySetInnerHTML={
           {
             __html: escapeHtml
-              ? linkifyHtml(decryptMessage(replaceHtmlToText(content)))
-              : escapeScriptTags(content),
+              ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+              : cleanExternalHtmlContent(content),
           }
         }
         />
@@ -245,6 +254,8 @@ function PostFeed({
             <PostFooter
               likeIcon={post.likeIcon}
               postId={post.id}
+              userName={post.userName}
+              rssfeedProviderId={post.rssfeedProviderId}
               onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
             />
             {

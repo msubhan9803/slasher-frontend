@@ -5,13 +5,14 @@ import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ProfileHeader from '../ProfileHeader';
-import CustomPopover from '../../../components/ui/CustomPopover';
+import CustomPopover, { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import ReportModal from '../../../components/ui/ReportModal';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../../redux/hooks';
+import { reportData } from '../../../api/report';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -43,13 +44,15 @@ function ProfilePhotos({ user }: Props) {
   const [dropDownValue, setDropDownValue] = useState('');
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
   const loginUserId = useAppSelector((state) => state.user.user.id);
-  const viewerOptions = ['Unfriend', 'Block user', 'Report'];
+  const viewerOptions = ['Report'];
   const selfOptions = ['Edit post', 'Delete Image'];
   const popoverOption = loginUserId === user?.id ? selfOptions : viewerOptions;
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
-  const handlePopoverOption = (value: string) => {
+  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
     setDropDownValue(value);
+    setPopoverClick(popoverClickProps);
   };
 
   useEffect(() => {
@@ -57,7 +60,7 @@ function ProfilePhotos({ user }: Props) {
       setLoadingPhotos(true);
       userPhotos(
         user.id,
-        userPhotosList.length > 1 ? userPhotosList[userPhotosList.length - 1].id : undefined,
+        userPhotosList.length > 0 ? userPhotosList[userPhotosList.length - 1].id : undefined,
       )
         .then((res) => {
           const newPhotoList = res.data.map((data: any) => (
@@ -93,7 +96,18 @@ function ProfilePhotos({ user }: Props) {
       }
     </p>
   );
-
+  const reportProfilePhoto = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'post',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="photos" user={user} />
@@ -121,6 +135,7 @@ function ProfilePhotos({ user }: Props) {
                       <CustomPopover
                         popoverOptions={popoverOption}
                         onPopoverClick={handlePopoverOption}
+                        id={data.id}
                       />
                     </StyledPopover>
                   </ProfilePhoto>
@@ -132,7 +147,12 @@ function ProfilePhotos({ user }: Props) {
         {loadingPhotos && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
       </div>
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportProfilePhoto}
+      />
     </AuthenticatedPageWrapper>
   );
 }

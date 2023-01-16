@@ -5,7 +5,6 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
-import { posts } from '../../search/SearchResult';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
@@ -28,6 +27,7 @@ function AllMovies() {
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       /* eslint no-underscore-dangle: 0 */
+      setNoMoreData(false);
       setLoadingPosts(true);
       getMovies(
         search,
@@ -63,7 +63,7 @@ function AllMovies() {
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
-        posts.length === 0
+        filteredMovies.length === 0
           ? 'No Movies available'
           : 'No more Movies'
       }

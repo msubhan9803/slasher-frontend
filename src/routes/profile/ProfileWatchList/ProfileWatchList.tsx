@@ -5,7 +5,7 @@ import FilterOptions from '../../../components/filter-sort/FilterOptions';
 import SortData from '../../../components/filter-sort/SortData';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
-import CustomSearchInput from '../../../components/ui/CustomerSearchInput';
+import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import MoviePost from '../../../images/movie-poster.jpg';
 import { User } from '../../../types';

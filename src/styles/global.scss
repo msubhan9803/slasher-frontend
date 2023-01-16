@@ -51,7 +51,7 @@ body {
   flex-direction: column;
 
   &.full {
-    @media (min-width: 992px) {
+    @media (min-width: 980px) {
       padding-top: 125px; // To account for fixed top navbar on desktop views
     }
   }

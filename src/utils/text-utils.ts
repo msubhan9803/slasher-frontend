@@ -5,7 +5,7 @@ export function findFirstYouTubeLinkVideoId(content: string) {
   return content.match(YOUTUBE_LINK_REGEX)?.[6];
 }
 
-export function replaceHtmlToText(content: string) {
+export function escapeHtmlSpecialCharacters(content: string) {
   return content.replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -13,8 +13,58 @@ export function replaceHtmlToText(content: string) {
     .replaceAll("'", '&#039;');
 }
 
-export function escapeScriptTags(content: string) {
-  return content.replaceAll(/(<)([^>]*script[^>]*)(>)/gi, '&lt;$2&gt;');
+export function newLineToBr(content: string) {
+  return content.replaceAll('\n', '<br />');
+}
+
+/**
+ * For the given html, removes all script tags and also removes all
+ * html attribures other than <img> "src" and <a> "href".
+ * @param content
+ * @returns
+ */
+export function cleanExternalHtmlContent(content: string) {
+  const containerElement = document.createElement('div');
+  containerElement.innerHTML = content;
+
+  // Remove all script tags
+  // eslint-disable-next-line no-restricted-syntax
+  for (const el of Array.from(containerElement.querySelectorAll('script'))) {
+    el.remove();
+  }
+
+  // Remove all attributes, with certain exceptions
+  // eslint-disable-next-line no-restricted-syntax
+  for (const el of Array.from(containerElement.querySelectorAll('*'))) {
+    // For each element, iterate over and remove all attributes
+    // Remove them in reverse order so that their indexes aren't affected as we delete
+    let attributeNamesToDelete = Array.from(el.attributes).map((attr: any) => attr.name);
+
+    const lowerCaseTagName = el.tagName.toLocaleLowerCase();
+
+    // If this is an <img> element, keep the src attribute
+    // If this is an <a> element, keep the href attribute
+    attributeNamesToDelete = attributeNamesToDelete.filter((attributeName: any) => {
+      const lowerCaseAttributeName = attributeName.toLocaleLowerCase();
+      if (lowerCaseTagName.toLocaleLowerCase() === 'a' && lowerCaseAttributeName === 'href') { return false; }
+      if (lowerCaseTagName === 'img' && lowerCaseAttributeName === 'src') { return false; }
+      return true;
+    });
+
+    // Delete all attributes other than 'href', so we can still support links
+    // eslint-disable-next-line no-restricted-syntax
+    attributeNamesToDelete.forEach((attributeName: string) => {
+      el.removeAttribute(attributeName);
+    });
+
+    // Add classes to img tags to style them
+    if (lowerCaseTagName === 'img') {
+      // el.setAttribute('class', 'w-100');
+      el.setAttribute('style', 'max-height: 400px; max-width: 100%; object-fit: contain; display: block; margin: 1rem auto;');
+    }
+  }
+
+  return containerElement.innerHTML;
 }
 
 export function decryptMessage(content: any) {

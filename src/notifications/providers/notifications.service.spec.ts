@@ -192,4 +192,34 @@ describe('NotificationsService', () => {
       expect(getAllReadNotificationsCount).toBe(5);
     });
   });
+
+  describe('#notificationExists', () => {
+    it('when notification exists in the db than expected response', async () => {
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          feedPostId: feedPostData.id,
+          senderId: user1.id,
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          createdAt: new Date(),
+        }),
+      );
+      const notificationData = await notificationsService.notificationExists(
+        activeUser.id,
+        user1.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(notificationData.userId.toString()).toBe(activeUser.id);
+    });
+
+    it('when notification does not exists in the db than expected response', async () => {
+      const notificationData = await notificationsService.notificationExists(
+        user1.id,
+        activeUser.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(notificationData).toBeNull();
+    });
+  });
 });

@@ -1,6 +1,7 @@
 import mongoose, { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { NotificationsGateway } from './notifications.gateway';
@@ -97,5 +98,14 @@ export class NotificationsService {
       .count()
       .exec();
     return friendsCount;
+  }
+
+  async notificationExists(userId: string, senderId: string, notifyType: number): Promise<NotificationDocument> {
+    return this.notificationModel.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      senderId,
+      notifyType,
+      createdAt: { $lte: DateTime.now().toJSDate(), $gte: DateTime.now().minus({ days: 7 }).toJSDate() },
+    });
   }
 }

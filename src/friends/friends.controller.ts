@@ -38,14 +38,20 @@ export class FriendsController {
     }
     await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
 
-    // Create notification for post creator, informing them that a comment was added to their post
-    await this.notificationsService.create({
-      userId: createFriendRequestDto.userId as any,
-      senderId: user._id,
-      notifyType: NotificationType.UserSentYouAFriendRequest,
-      notificationMsg: 'sent you a friend request',
-    });
-
+    const checkNotificationExistence = await this.notificationsService.notificationExists(
+      createFriendRequestDto.userId,
+      user._id,
+      NotificationType.UserSentYouAFriendRequest,
+    );
+    if (!checkNotificationExistence) {
+      // Create notification for post creator, informing them that a comment was added to their post
+      await this.notificationsService.create({
+        userId: createFriendRequestDto.userId as any,
+        senderId: user._id,
+        notifyType: NotificationType.UserSentYouAFriendRequest,
+        notificationMsg: 'sent you a friend request',
+      });
+    }
     return { success: true };
   }
 

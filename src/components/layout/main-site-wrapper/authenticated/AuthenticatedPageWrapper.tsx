@@ -25,6 +25,7 @@ import { incrementUnreadNotificationCount, setUserInitialData } from '../../../.
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
+import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 
 interface Props {
   children: React.ReactNode;
@@ -47,7 +48,7 @@ const MainContentCol = styled.main`
   padding-bottom: 5.25em;
 
   // For desktop sizes, reduce bottom padding
-  @media (min-width: 992px) {
+  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
     padding-bottom: 1em;
   }
 `;
@@ -87,7 +88,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   }, []);
 
   const [show, setShow] = useState(false);
-  const isDesktopResponsiveSize = useMediaQuery({ query: '(min-width: 992px)' });
+  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);

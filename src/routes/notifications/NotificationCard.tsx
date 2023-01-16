@@ -6,6 +6,7 @@ import { Image } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Notification, NotificationReadStatus, NotificationType } from '../../types';
+import { markRead } from '../../api/notification';
 
 interface Props {
   notification: Notification;
@@ -63,7 +64,11 @@ function NotificationCard({ notification, lastCard }: Props) {
   return (
     /* eslint no-underscore-dangle: 0 */
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
-      <Link to={urlForNotification(notification)} className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0">
+      <Link
+        onClick={() => markRead(notification._id)}
+        to={urlForNotification(notification)}
+        className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0"
+      >
         {notification.senderId && (
           <UserCircleImageContainer className="text-white d-flex justify-content-center align-items-center rounded-circle me-3">
             <Image src={notification.rssFeedProviderId?.logo || notification.senderId?.profilePic} alt="" className="rounded-circle" />

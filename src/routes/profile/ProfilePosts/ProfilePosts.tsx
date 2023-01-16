@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
+import Cookies from 'js-cookie';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
@@ -46,6 +47,7 @@ function ProfilePosts() {
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
+  const loginUserId = Cookies.get('userId');
 
   // TODO: Make this a shared function becuase it also exists in other places
   const formatImageVideoList = (postImageList: any, postMessage: string) => {
@@ -75,7 +77,7 @@ function ProfilePosts() {
       setLoadingPosts(true);
       getProfilePosts(
         user.id,
-        posts.length > 1 ? posts[posts.length - 1]._id : undefined,
+        posts.length > 0 ? posts[posts.length - 1]._id : undefined,
       ).then((res) => {
         const newPosts = res.data.map((data: any) => (
           {
@@ -89,7 +91,7 @@ function ProfilePosts() {
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
             likes: data.likes,
-            likeIcon: data.likes.includes(loginUserData.id),
+            likeIcon: data.likes.includes(loginUserId),
             likeCount: data.likeCount,
             commentCount: data.commentCount,
           }
@@ -139,7 +141,7 @@ function ProfilePosts() {
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
           likes: data.likes,
-          likeIcon: data.likes.includes(loginUserData.id),
+          likeIcon: data.likes.includes(loginUserId),
           likeCount: data.likeCount,
           commentCount: data.commentCount,
         }));
@@ -162,17 +164,49 @@ function ProfilePosts() {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserData.id));
+      && post.likes?.includes(loginUserId!));
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) callLatestFeedPost();
+        if (res.status === 200) {
+          const unLikePostData = posts.map(
+            (unLikePost: Post) => {
+              if (unLikePost._id === feedPostId) {
+                const removeUserLike = unLikePost.likes?.filter(
+                  (removeId: string) => removeId !== loginUserId,
+                );
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likes: removeUserLike,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPosts(unLikePostData);
+        }
       });
     } else {
       likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) callLatestFeedPost();
+        if (res.status === 201) {
+          const likePostData = posts.map((likePost: Post) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likes: [...likePost.likes!, loginUserId!],
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPosts(likePostData);
+        }
       });
     }
   };

@@ -26,7 +26,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
   return (
     <Row className="mt-0">
-      {dataList && dataList.length > 0 ? dataList.map((listDetail: CardListProps, i, arr) => {
+      {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
         const [show, adIndex] = checkAdsPosterCardList(bp, i, arr);
         return (
           /* eslint no-underscore-dangle: 0 */
@@ -45,9 +45,7 @@ function PosterCardList({ dataList }: PosterCardProps) {
             {show && <PubWiseAd className="text-center mb-3" id={`Event-detail_web-9-${adIndex}`} />}
           </React.Fragment>
         );
-      }) : (
-        <h1 className="h2 text-center mb-0">No data found</h1>
-      )}
+      })}
     </Row>
   );
 }

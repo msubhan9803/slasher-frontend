@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { apiUrl } from './constants';
+import { apiUrl } from '../constants';
 
 export async function getNotifications(lastRetrievedId?: string) {
   const token = Cookies.get('sessionToken');
@@ -20,4 +20,12 @@ export async function markAllRead() {
     Authorization: `Bearer ${token}`,
   };
   return axios.patch(`${apiUrl}/notifications/mark-all-as-read`, {}, { headers });
+}
+
+export async function markRead(notificationId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/notifications/${notificationId}/mark-as-read`, {}, { headers });
 }

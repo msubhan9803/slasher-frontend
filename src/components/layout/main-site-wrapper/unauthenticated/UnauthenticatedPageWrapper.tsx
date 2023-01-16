@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
+import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -22,7 +23,7 @@ const StyledMain = styled.main<StyledMainProps>`
 
   ${(props: StyledMainProps) => props.hideTopLogo && `
     background-color: #000;
-    @media (min-width: 992px) {
+    @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
       background-image: url(${signInImage});
       background-size: cover;
     }

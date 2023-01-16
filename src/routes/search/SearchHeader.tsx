@@ -1,5 +1,5 @@
 import React from 'react';
-import CustomSearchInput from '../../components/ui/CustomerSearchInput';
+import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 interface Search {

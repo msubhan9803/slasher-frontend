@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useRef, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -13,6 +14,9 @@ import ProfileHeader from '../ProfileHeader';
 import FriendsProfileCard from './FriendsProfileCard';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { useAppSelector } from '../../../redux/hooks';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { reportData } from '../../../api/report';
+import { createBlockUser } from '../../../api/blocks';
 
 interface FriendProps {
   _id?: string;
@@ -35,11 +39,13 @@ function ProfileFriends({ user }: Props) {
   const [friendCount, setFriendCount] = useState<number>();
   const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
   const [dropDownValue, setDropDownValue] = useState('');
+  const [loadingFriends, setLoadingFriends] = useState<boolean>(false);
   const popoverOption = ['View profile', 'Message', 'Unfriend', 'Report', 'Block user'];
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
+  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -50,16 +56,23 @@ function ProfileFriends({ user }: Props) {
     if (value === 'Report' || value === 'Block user') {
       setShow(true);
       setDropDownValue(value);
+      setPopoverClick(popoverClickProps);
     } else if (value === 'View profile') {
       navigate(`/${popoverClickProps.userName}`);
     }
+    setPopoverClick(popoverClickProps);
   };
 
   useEffect(() => {
+    setNoMoreData(false);
+    if (page === 0) setFriendsList([]);
+    setLoadingFriends(true);
     userProfileFriends(user.id, search ? 0 : page, search)
       .then((res) => {
         setFriendsList(res.data.friends);
         setFriendCount(res.data.allFriendCount);
+        setPage(page + 1);
+        setLoadingFriends(false);
         if (search) {
           setPage(0);
         } else {
@@ -69,13 +82,17 @@ function ProfileFriends({ user }: Props) {
           setNoMoreData(true);
         }
       })
-      .catch((error) => setErrorMessage(error.response.data.message));
+      .catch((error) => {
+        setErrorMessage(error.response.data.message); setLoadingFriends(false);
+      });
   }, [search, user]);
 
   const fetchMoreFriendList = () => {
     if (page > 0) {
+      setLoadingFriends(true);
       userProfileFriends(user.id, page, search)
         .then((res) => {
+          setLoadingFriends(false);
           setFriendsList((prev: any) => [
             ...prev,
             ...res.data.friends,
@@ -99,28 +116,73 @@ function ProfileFriends({ user }: Props) {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
       if (bottomLine) {
+        if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
         fetchMoreFriendList();
       }
     }
   }, [yPositionOfLastFriendElement]);
 
-  const renderNoMoreDataMessage = () => (
-    <p className="text-center">
-      {
-        friendsList.length === 0
-          ? 'No friends at the moment. Try sending or accepting some friend requests!'
-          : 'No more friends'
-      }
-    </p>
-  );
+  const renderNoMoreDataMessage = () => {
+    const message = friendsList.length === 0 && search
+      ? 'No results found'
+      : 'No friends at the moment. Try sending or accepting some friend requests!';
+    return (
+      <p className="text-center">
+        {
+          friendsList.length === 0
+            ? message
+            : 'No more friends'
+        }
+      </p>
+    );
+  };
 
+  const handleSearch = (value: string) => {
+    let searchUser = value;
+    if (searchUser.charAt(0) === '@') {
+      searchUser = searchUser.slice(1);
+    }
+    if (value.length > 0) {
+      setFriendsList([]);
+    }
+    setSearch(searchUser);
+    setPage(0);
+  };
+  const reportProfileFriend = (reason: string) => {
+    const reportPayload = {
+      targetId: popoverClick?.id,
+      reason,
+      reportType: 'profile',
+    };
+    reportData(reportPayload).then(() => {
+      setShow(false);
+    })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
+  const onBlockYesClick = () => {
+    createBlockUser(popoverClick?.id!)
+      .then((res) => {
+        setShow(false);
+        if (res.status === 201) {
+          const updateFriendsList = friendsList.filter((friend: any) => {
+            console.log('friend._id', friend._id !== popoverClick?.id);
+            return friend._id !== popoverClick?.id;
+          });
+          setFriendsList(updateFriendsList);
+          setFriendCount(friendCount ? friendCount - 1 : 0);
+        }
+      })
+      /* eslint-disable no-console */
+      .catch((error) => console.error(error));
+  };
   return (
     <AuthenticatedPageWrapper rightSidebarType={loginUserData.id === user?.id ? 'profile-self' : 'profile-other-user'}>
       <ProfileHeader tabKey="friends" user={user} />
       <div className="mt-3">
         <div className="d-sm-flex d-block justify-content-between">
           <div>
-            <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
+            <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
           </div>
           <div className="d-flex align-self-center mt-3 mt-md-0">
             {
@@ -158,6 +220,7 @@ function ProfileFriends({ user }: Props) {
               ))}
             </Row>
           </InfiniteScroll>
+          {loadingFriends && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">
@@ -166,7 +229,13 @@ function ProfileFriends({ user }: Props) {
           )}
         </div>
       </div>
-      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportProfileFriend}
+        onBlockYesClick={onBlockYesClick}
+      />
     </AuthenticatedPageWrapper>
   );
 }

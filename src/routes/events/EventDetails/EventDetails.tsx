@@ -5,10 +5,12 @@ import { Col, Image, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
+import linkifyHtml from 'linkify-html';
 import getEventDetails from '../../../api/events';
 import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
+import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -143,9 +145,17 @@ function EventDetails() {
         </div>
         <StyledBorder className="mt-3 mb-4" />
         <div>
-          <p className="fs-4">
-            {eventDetails?.event_info}
-          </p>
+          <p
+            className="fs-4"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={
+          {
+            __html: newLineToBr(
+              linkifyHtml(escapeHtmlSpecialCharacters(eventDetails?.event_info || '')),
+            ),
+          }
+        }
+          />
         </div>
       </div>
       <PubWiseAd className="text-center my-3" id="Event-detail_web-8-0" />

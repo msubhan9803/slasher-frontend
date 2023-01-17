@@ -200,35 +200,42 @@ export class UsersController {
 
   @Get('validate-registration-fields')
   async validateRegistrationFields(@Query() inputQuery) {
-  await sleep(500); // throttle so this endpoint is less likely to be abused
+    await sleep(500); // throttle so this endpoint is less likely to be abused
 
-  const query: RegisterUser = pickDefinedKeys(inputQuery, [
-    'firstName', 'userName', 'email', 'password',
-    'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
-  ]);
+    if (Object.keys(inputQuery).length === 0) {
+      throw new HttpException(
+        'You must provide atleast one field for validation.',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
 
-  const requestedFields = Object.keys(query);
+    const query: RegisterUser = pickDefinedKeys(inputQuery, [
+      'firstName', 'userName', 'email', 'password',
+      'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
+    ]);
 
-  const userRegisterDto = new UserRegisterDto();
-  Object.assign(userRegisterDto, query);
+    const requestedFields = Object.keys(query);
 
-  const errors: any = await validate(userRegisterDto);
-  const requestedErrors = errors.filter((e) => requestedFields.includes(e.property));
+    const userRegisterDto = new UserRegisterDto();
+    Object.assign(userRegisterDto, query);
 
-  const invalidFields = requestedErrors.map((e: any) => e.property);
-  const requestedErrorsList = requestedErrors.map((e) => Object.values(e.constraints)).flat();
+    const errors: any = await validate(userRegisterDto);
+    const requestedErrors = errors.filter((e) => requestedFields.includes(e.property));
 
-  if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
-    const exists = await this.usersService.userNameExists(query.userName);
-    if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+    const invalidFields = requestedErrors.map((e: any) => e.property);
+    const requestedErrorsList = requestedErrors.map((e) => Object.values(e.constraints)).flat();
+
+    if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
+      const exists = await this.usersService.userNameExists(query.userName);
+      if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+    }
+    if (requestedFields.includes('email') && !invalidFields.includes('email')) {
+      const exists = await this.usersService.emailExists(query.email);
+      if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
+    }
+
+    return requestedErrorsList;
   }
-  if (requestedFields.includes('email') && !invalidFields.includes('email')) {
-    const exists = await this.usersService.emailExists(query.email);
-    if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
-  }
-
-  return requestedErrorsList;
-}
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {

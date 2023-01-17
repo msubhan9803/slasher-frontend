@@ -5,13 +5,11 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
-import { MailService } from '../../../src/providers/mail.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
-  let mailService: MailService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -29,8 +27,6 @@ describe('Users / Register (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
-
-    mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -53,7 +49,6 @@ describe('Users / Register (e2e)', () => {
 
     describe('Successful validation', () => {
       it('can successfully validation with given user data', async () => {
-        jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
         const response = await request(app.getHttpServer())
           .get('/users/validate-registration-fields')
           .query(postBody);

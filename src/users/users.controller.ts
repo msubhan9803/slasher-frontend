@@ -27,7 +27,7 @@ import { validate } from 'class-validator';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
-import { pick, pickOnlyDefinedKeys } from '../utils/object-utils';
+import { pick, pickDefinedKeys } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
@@ -202,7 +202,7 @@ export class UsersController {
   async validateRegistrationFields(@Query() inputQuery) {
   await sleep(500); // throttle so this endpoint is less likely to be abused
 
-  const query: RegisterUser = pickOnlyDefinedKeys(inputQuery, [
+  const query: RegisterUser = pickDefinedKeys(inputQuery, [
     'firstName', 'userName', 'email', 'password',
     'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
   ]);

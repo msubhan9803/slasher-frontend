@@ -201,7 +201,7 @@ export class MoviesService {
     }
     if (after && sortBy === 'releaseDate') {
       const afterMovie = await this.moviesModel.findById(after);
-      movieFindAllQuery.sortReleaseDate = { $gt: afterMovie.sortReleaseDate };
+      movieFindAllQuery.sortReleaseDate = { $lt: afterMovie.sortReleaseDate };
     }
     if (after && sortBy === 'rating') {
       const afterMovie = await this.moviesModel.findById(after);
@@ -214,7 +214,7 @@ export class MoviesService {
     if (sortBy === 'name') {
       sortMoviesByNameAndReleaseDate = { sort_name: 1 };
     } else if (sortBy === 'releaseDate') {
-      sortMoviesByNameAndReleaseDate = { sortReleaseDate: 1 };
+      sortMoviesByNameAndReleaseDate = { sortReleaseDate: -1 };
     } else {
       sortMoviesByNameAndReleaseDate = { sortRating: -1 };
     }

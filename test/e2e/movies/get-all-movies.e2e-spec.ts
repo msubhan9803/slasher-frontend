@@ -182,7 +182,7 @@ describe('All Movies (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
-        expect(response.body[i - 1].sortReleaseDate < response.body[i].sortReleaseDate).toBe(true);
+        expect(response.body[i].sortReleaseDate < response.body[i - 1].sortReleaseDate).toBe(true);
       }
       expect(response.body).toHaveLength(5);
     });

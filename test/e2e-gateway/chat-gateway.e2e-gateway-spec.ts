@@ -129,7 +129,7 @@ describe('Chat Gateway (e2e)', () => {
     });
   });
 
-  describe('#recentMessages', () => {
+  describe('#getMessages', () => {
     let message1;
     let matchList;
 
@@ -142,97 +142,111 @@ describe('Chat Gateway (e2e)', () => {
       });
     });
 
-    it('should get recentMessages', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+    describe('successful responses', () => {
+      it('should return messages for a valid request, and should mark returned messages TO the user as read', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      const payload = {
-        matchListId: matchList._id,
-      };
-      await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
-          expect(data).toHaveLength(2);
-          resolve();
+        const payload = {
+          matchListId: matchList._id,
+        };
+
+        const response = await new Promise<any>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            resolve(data);
+          });
         });
+        client.close();
+
+        expect(response).toHaveLength(2);
+
+        // All messages NOT from the activeUser should be marked as read when they are returned
+        // by the socket response.
+        // Note: message.senderId actually means "message.toId" (bad naming in old API app)
+        const messagesToActiveUser = response.filter((message) => message.senderId === activeUser.id);
+        expect(messagesToActiveUser).toHaveLength(1);
+        expect(messagesToActiveUser[0].isRead).toBe(true);
+
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
       });
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
+
+      it('should return the expected messages when optional `before` messageId is given', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          matchListId: matchList._id, before: message1._id.toString(),
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            expect(data).toHaveLength(1);
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
     });
 
-    it('should get recentMessages with optional: `before` messageId', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+    describe('error responses', () => {
+      it('should NOT return messages when matchListId is null', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      const payload = {
-        matchListId: matchList._id, before: message1._id.toString(),
-      };
-      await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
-          expect(data).toHaveLength(1);
-          resolve();
+        const payload = {
+          matchListId: null, before: message1._id.toString(),
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            expect(data.success).toBe(false);
+            resolve();
+          });
         });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
       });
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
-    });
 
-    it('should NOT get recentMessages', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+      it('should return a permission denied error message when the matchList cannot be found', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      const payload = {
-        matchListId: null, before: message1._id.toString(),
-      };
-      await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
-          expect(data.success).toBe(false);
-          resolve();
+        const payload = {
+          matchListId: '639041536cf487d9419d3425',
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            expect(data.error).toBe('Permission denied');
+            resolve();
+          });
         });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
       });
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
-    });
 
-    it('matchListId is not match than expected response', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+      it('should return a permission denied error message when a matchListId is given that the user is not a participant in', async () => {
+        const user0AuthToken = user0.generateNewJwtToken(
+          configService.get<string>('JWT_SECRET_KEY'),
+        );
+        const client = io(baseAddress, { auth: { token: user0AuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      const payload = {
-        matchListId: '639041536cf487d9419d3425',
-      };
-      await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
-          expect(data.error).toBe('Permission denied');
-          resolve();
+        const payload = {
+          matchListId: matchList._id,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            expect(data.error).toBe('Permission denied');
+            resolve();
+          });
         });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
       });
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
-    });
-
-    it('when active user is not exists in participants than expected response', async () => {
-      const activeUserAuthToken1 = user0.generateNewJwtToken(
-        configService.get<string>('JWT_SECRET_KEY'),
-      );
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken1 }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
-
-      const payload = {
-        matchListId: matchList._id,
-      };
-      await new Promise<void>((resolve) => {
-        client.emit('recentMessages', payload, (data) => {
-          expect(data.error).toBe('Permission denied');
-          resolve();
-        });
-      });
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
     });
   });
 });

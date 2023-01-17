@@ -134,7 +134,7 @@ describe('MoviesService', () => {
     beforeEach(async () => {
       for (let i = 0; i < 3; i += 1) {
         await moviesService.create(
-          moviesFactory.build(),
+          moviesFactory.build({ releaseDate: DateTime.fromJSDate(movie.releaseDate).plus({ days: i + 1 }).toJSDate() }),
         );
       }
     });

@@ -24,6 +24,15 @@ export class Notification extends NotificationUnusedFields {
   @Prop({ required: true, default: null, trim: true })
   notificationMsg: string;
 
+  // This is a new field in the new API app.  It does not exist in the old API app.
+  // This field indicates whether or not a notification has been "processed".  "Processing" of a
+  // notification involves:
+  // 1. Looking at the notification and determining whether it should be emitted via socket
+  //    (or deleted, if the recipient does not subscribe to the particular notification type ).
+  // 2. (Later) Sending the notification as a push notification.
+  @Prop({ default: false })
+  isProcessed: boolean;
+
   @Prop({
     enum: [
       NotificationDeletionStatus.NotDeleted,

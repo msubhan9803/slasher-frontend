@@ -173,5 +173,17 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
     });
+
+    it('returns the expected error response if the post cannot be found', async () => {
+      const nonExistentPostId = '239ae2550dae24b30c70f6c7';
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'Hello')
+        .field('feedPostId', nonExistentPostId)
+        .expect(HttpStatus.NOT_FOUND);
+      expect(response.body.message).toContain('Post not found');
+    });
   });
 });

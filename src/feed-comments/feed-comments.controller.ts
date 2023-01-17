@@ -22,12 +22,20 @@ import { FeedReplyIdDto } from './dto/feed-reply-id.dto';
 import { getUserFromRequest } from '../utils/request-utils';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { NotificationType } from '../schemas/notification/notification.enums';
+import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
+import { NotificationsService } from '../notifications/providers/notifications.service';
+import { FeedPost } from '../schemas/feedPost/feedPost.schema';
+import { FeedComment } from '../schemas/feedComment/feedComment.schema';
+import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
   constructor(
+    private readonly feedPostsService: FeedPostsService,
     private readonly feedCommentsService: FeedCommentsService,
     private readonly localStorageService: LocalStorageService,
+    private readonly notificationsService: NotificationsService,
     private readonly storageLocationService: StorageLocationService,
     private readonly config: ConfigService,
     private readonly s3StorageService: S3StorageService,
@@ -58,6 +66,11 @@ export class FeedCommentsController {
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId, true);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
     if (files.length > 4) {
       throw new HttpException(
         'Only allow a maximum of 4 images',
@@ -75,19 +88,44 @@ export class FeedCommentsController {
       }
       images.push({ image_path: storageLocation });
     }
-    const createFeedComment = await this.feedCommentsService.createFeedComment(
+
+    const comment = await this.feedCommentsService.createFeedComment(
       createFeedCommentsDto.feedPostId,
       user.id,
       createFeedCommentsDto.message,
       images,
     );
 
+    // Create notification for post creator, informing them that a comment was added to their post
+    await this.notificationsService.create({
+      userId: post.userId as any,
+      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+      feedCommentId: { _id: comment._id } as unknown as FeedComment,
+      senderId: user._id,
+      notifyType: NotificationType.UserCommentedOnYourPost,
+      notificationMsg: 'commented on your post',
+    });
+
+    // Create notifications if any users were mentioned
+    const mentionedUserIds = extractUserMentionIdsFromMessage(comment?.message);
+    for (const mentionedUserId of mentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment',
+      });
+    }
+
     asyncDeleteMulterFiles(files);
     return {
-      feedPostId: createFeedComment.feedPostId,
-      message: createFeedComment.message,
-      userId: createFeedComment.userId,
-      images: createFeedComment.images,
+      _id: comment._id,
+      feedPostId: comment.feedPostId,
+      message: comment.message,
+      userId: comment.userId,
+      images: comment.images,
     };
   }
 
@@ -98,16 +136,33 @@ export class FeedCommentsController {
     @Body() updateFeedCommentsDto: UpdateFeedCommentsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedComment = await this.feedCommentsService.findFeedComment(params.feedCommentId);
-    if (!feedComment) {
+    const comment = await this.feedCommentsService.findFeedComment(params.feedCommentId);
+    if (!comment) {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedComment.userId.toString() !== user.id) {
+    if (comment.userId.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
-    const feedCommentData = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto.message);
-    return feedCommentData;
+
+    const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(comment.message);
+    const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto.message);
+    const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
+
+    // Create notifications if any NEW users were mentioned after the edit
+    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
+    for (const mentionedUserId of newMentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: { _id: updatedComment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: updatedComment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment',
+      });
+    }
+
+    return updatedComment;
   }
 
   @Delete(':feedCommentId')
@@ -170,20 +225,47 @@ export class FeedCommentsController {
       }
       images.push({ image_path: storageLocation });
     }
-    const createFeedComment = await this.feedCommentsService.createFeedReply(
+    const reply = await this.feedCommentsService.createFeedReply(
       createFeedReplyDto.feedCommentId,
       user.id,
       createFeedReplyDto.message,
       images,
     );
 
+    // Create notification for post creator, informing them that a reply was added to their post
+    const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    await this.notificationsService.create({
+      userId: post.userId as any,
+      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
+      feedReplyId: reply._id,
+      senderId: user._id,
+      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+      notificationMsg: 'replied on your post',
+    });
+
+    // Create notifications if any users were mentioned
+    const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
+    for (const mentionedUserId of mentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reply._id } as unknown as FeedComment,
+        feedReplyId: reply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment reply',
+      });
+    }
+
     asyncDeleteMulterFiles(files);
     return {
-      feedCommentId: createFeedComment.feedCommentId,
-      feedPostId: createFeedComment.feedPostId,
-      message: createFeedComment.message,
-      userId: createFeedComment.userId,
-      images: createFeedComment.images,
+      _id: reply._id,
+      feedCommentId: reply.feedCommentId,
+      feedPostId: reply.feedPostId,
+      message: reply.message,
+      userId: reply.userId,
+      images: reply.images,
     };
   }
 
@@ -194,16 +276,34 @@ export class FeedCommentsController {
     @Body() updateFeedReplyDto: UpdateFeedReplyDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedReply = await this.feedCommentsService.findFeedReply(params.feedReplyId);
-    if (!feedReply) {
+    const reply = await this.feedCommentsService.findFeedReply(params.feedReplyId);
+    if (!reply) {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedReply.userId.toString() !== user.id) {
+    if (reply.userId.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
-    const feedReplyData = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto.message);
-    return feedReplyData;
+
+    const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(reply.message);
+    const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto.message);
+    const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);
+
+    // Create notifications if any NEW users were mentioned after the edit
+    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
+    for (const mentionedUserId of newMentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: { _id: updatedReply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: updatedReply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: updatedReply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment reply',
+      });
+    }
+
+    return updatedReply;
   }
 
   @Delete('replies/:feedReplyId')

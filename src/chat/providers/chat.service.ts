@@ -11,6 +11,7 @@ import {
   MatchListDocument,
 } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
+import { NotificationReadStatus, NotificationDeletionStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
 
 export interface Conversation extends MatchList {
@@ -76,7 +77,7 @@ export class ChatService {
       matchId: matchList,
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       fromId: new mongoose.Types.ObjectId(fromUser),
-      senderId: new mongoose.Types.ObjectId(toUser),
+      senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
       message: image ? 'Image' : message,
       image,
     });
@@ -115,6 +116,21 @@ export class ChatService {
       .exec();
 
     return messages;
+  }
+
+  async getUnreadDirectPrivateMessageCount(userId: string): Promise<number> {
+    const messageCount = await this.messageModel
+      .find({
+        $and: [{
+          senderId: new mongoose.Types.ObjectId(userId), // due to bad old-API field naming, this is the "to" field
+          isRead: NotificationReadStatus.Unread,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+          relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        }],
+      })
+      .count()
+      .exec();
+    return messageCount;
   }
 
   async getConversations(
@@ -176,10 +192,32 @@ export class ChatService {
     return conversations;
   }
 
-  async findMatchList(id: string): Promise<any> {
+  async findMatchList(id: string) {
     const matchList = await this.matchListModel
       .findById(id)
-      .populate('participants', 'id userName firstName profilePic');
+      .populate('participants', '_id userName firstName profilePic');
     return matchList;
+  }
+
+  /** Call this service function to mark all messages received from all participants for a given chat for a user.
+   * @param receiverUserId This refers to receiver user
+   * @param matchListId Match id for a chat
+   */
+  async markAllReceivedMessagesReadForChat(receiverUserId: string, matchListId: string) {
+    const matchListDoc = await this.matchListModel.findById(matchListId);
+    if (!matchListDoc) throw new Error('matchList document not found for given `matchListId`');
+
+    const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
+    if (!participants.find((p) => p === receiverUserId)) {
+      throw new Error('You are not a part of this chat. Invalid `matchListId`.');
+    }
+
+    await this.messageModel
+      .updateMany({
+        matchId: matchListDoc._id,
+        isRead: NotificationReadStatus.Unread,
+        senderId: receiverUserId, // due to bad old-API field naming, this is the "to" field
+      }, { isRead: NotificationReadStatus.Read })
+      .exec();
   }
 }

@@ -6,6 +6,7 @@ const randomName = Math.random().toString(36).substring(2, 5);
 
 export const moviesFactory = Factory.define<Partial<Movie>>(
   ({ sequence }) => new Movie({
+    movieDBId: 123456,
     name: `Movie?! ${randomName}${sequence}`,
     trailerUrls: ['http://act.example.com/bell/achiever', 'https://www.example.net/'],
     countryOfOrigin: `country of origin ${sequence}`,

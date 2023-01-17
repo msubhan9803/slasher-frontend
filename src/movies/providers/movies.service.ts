@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
+import { DateTime } from 'luxon';
 import { Movie, MovieDocument } from '../../schemas/movie/movie.schema';
 
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
@@ -163,7 +164,12 @@ export class MoviesService {
   }
 
   async findFirstByReleaseYear(releaseYear: number, activeOnly: boolean): Promise<MovieDocument> {
-    const releaseYearQuery: any = { releaseDate: { $gte: new Date(releaseYear, 1, 1), $lte: new Date(releaseYear, 12, 31) } };
+    const releaseYearQuery: any = {
+      releaseDate: {
+        $gte: DateTime.fromISO(`${releaseYear}`, { zone: 'utc' }).startOf('year').toJSDate(),
+        $lte: DateTime.fromISO(`${releaseYear}`, { zone: 'utc' }).endOf('year').toJSDate(),
+      },
+    };
     if (activeOnly) {
       releaseYearQuery.is_deleted = MovieDeletionStatus.NotDeleted;
       releaseYearQuery.status = MovieActiveStatus.Active;

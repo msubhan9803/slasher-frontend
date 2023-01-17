@@ -238,11 +238,42 @@ function NewsPartnerPost() {
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) getFeedPostDetail(postId!);
+        if (res.status === 200) {
+          const unLikePostData = postData.map(
+            (unLikePost: NewsPartnerPostProps) => {
+              if (unLikePost._id === feedPostId) {
+                const removeUserLike = unLikePost.likes?.filter(
+                  (removeId: string) => removeId !== loginUserId,
+                );
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likes: removeUserLike,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPostData(unLikePostData);
+        }
       });
     } else {
       likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) getFeedPostDetail(postId!);
+        if (res.status === 201) {
+          const likePostData = postData.map((likePost: NewsPartnerPostProps) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likes: [...likePost.likes!, loginUserId!],
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPostData(likePostData);
+        }
       });
     }
   };

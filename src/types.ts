@@ -144,6 +144,7 @@ export interface FeedComments {
   _id: string;
   likeCount: number;
   commentCount: number;
+  isReplyIndex?: number;
 }
 
 interface FeedCommentUserId {

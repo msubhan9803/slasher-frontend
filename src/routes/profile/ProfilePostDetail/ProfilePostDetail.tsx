@@ -278,7 +278,7 @@ function ProfilePostDetail({ user }: Props) {
           const newReplyArray: any = commentData;
           replyValueData = {
             feedPostId: postId,
-            feedCommentId: commentID,
+            feedCommentId: res.data.feedCommentId,
             images: reply.imageArray,
             message: reply.replyMessage,
             userId: userData.user,
@@ -435,16 +435,17 @@ function ProfilePostDetail({ user }: Props) {
             const updatedCommentData: any = [];
             commentData.map((commentLike: any) => {
               if (commentLike._id === checkReplyId[0].feedCommentId) {
+                console.log('testing unLike');
                 commentLike.replies.map((reply: any) => {
                   if (reply._id === checkReplyId[0]._id) {
-                    const updateLike = {
+                    const updateUnLike = {
                       ...reply,
                       likeCount: reply.likeCount - 1,
                       likedByUser: false,
                     };
-                    return updateLike;
+                    return updateUnLike;
                   }
-                  return reply;
+                  return null;
                 });
                 updatedCommentData.push(commentLike);
               } else {
@@ -453,6 +454,7 @@ function ProfilePostDetail({ user }: Props) {
               return null;
             });
             setCommentData(updatedCommentData);
+            setUpdateState(true);
           }
         });
       } else {
@@ -465,8 +467,8 @@ function ProfilePostDetail({ user }: Props) {
                   if (reply._id === checkReplyId[0]._id) {
                     const updateLike = {
                       ...reply,
-                      likeCount: reply.likeCount - 1,
-                      likedByUser: false,
+                      likeCount: reply.likeCount + 1,
+                      likedByUser: true,
                     };
                     return updateLike;
                   }
@@ -479,6 +481,7 @@ function ProfilePostDetail({ user }: Props) {
               return null;
             });
             setCommentData(updatedCommentData);
+            setUpdateState(true);
           }
         });
       }

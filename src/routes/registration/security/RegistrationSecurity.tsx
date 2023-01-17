@@ -15,7 +15,7 @@ import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { checkRegister } from '../../../api/users';
+import { validateRegistrationFields } from '../../../api/users';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -45,18 +45,20 @@ function RegistrationSecurity({ activeStep }: Props) {
       securityAnswer, day, month, year,
     } = securityInfo;
     const dobIsoString = `${year}-${month}-${day}`;
-    checkRegister(
-      firstName,
-      userName,
-      email,
-      password,
-      passwordConfirmation,
-      securityQuestion,
-      securityAnswer,
-      dobIsoString,
-    ).then(() => {
-      setErrorMessages([]);
-      navigate('/registration/terms');
+    validateRegistrationFields(
+      {
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dob: dobIsoString,
+      },
+    ).then((res) => {
+      if (res.data.length > 0) setErrorMessages(res.data);
+      else navigate('/registration/terms');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });

@@ -233,3 +233,15 @@ export enum ProfileVisibility {
   Public = 0,
   Private = 1,
 }
+
+export type RegisterUser = Partial<
+{
+  firstName: string,
+  userName: string,
+  email: string,
+  password: string,
+  passwordConfirmation: string,
+  securityQuestion: string,
+  securityAnswer: string,
+  dob: string,
+}>;

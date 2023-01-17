@@ -165,10 +165,9 @@ function ProfileFriends({ user }: Props) {
       .then((res) => {
         setShow(false);
         if (res.status === 201) {
-          const updateFriendsList = friendsList.filter((friend: any) => {
-            console.log('friend._id', friend._id !== popoverClick?.id);
-            return friend._id !== popoverClick?.id;
-          });
+          const updateFriendsList = friendsList.filter(
+            (friend: any) => friend._id !== popoverClick?.id,
+          );
           setFriendsList(updateFriendsList);
           setFriendCount(friendCount ? friendCount - 1 : 0);
         }

@@ -390,12 +390,10 @@ function NewsPartnerPost() {
               if (commentLike._id === checkReplyId[0].feedCommentId) {
                 commentLike.replies.map((reply: any) => {
                   if (reply._id === checkReplyId[0]._id) {
-                    const updateLike = {
-                      ...reply,
-                      likeCount: reply.likeCount - 1,
-                      likedByUser: false,
-                    };
-                    return updateLike;
+                    /* eslint-disable no-param-reassign */
+                    reply.likeCount -= 1;
+                    reply.likedByUser = false;
+                    return reply;
                   }
                   return reply;
                 });
@@ -416,12 +414,10 @@ function NewsPartnerPost() {
               if (commentLike._id === checkReplyId[0].feedCommentId) {
                 commentLike.replies.map((reply: any) => {
                   if (reply._id === checkReplyId[0]._id) {
-                    const updateLike = {
-                      ...reply,
-                      likeCount: reply.likeCount - 1,
-                      likedByUser: false,
-                    };
-                    return updateLike;
+                    /* eslint-disable no-param-reassign */
+                    reply.likeCount += 1;
+                    reply.likedByUser = true;
+                    return reply;
                   }
                   return reply;
                 });

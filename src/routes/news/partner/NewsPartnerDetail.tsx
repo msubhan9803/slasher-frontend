@@ -34,37 +34,37 @@ function NewsPartnerDetail() {
 
   return (
     <AuthenticatedPageWrapper rightSidebarType="news">
-      <Row>
-        <Col>
-          <Row className="bg-dark rounded-3 mx-0">
-            <Col md="auto" className="d-flex justify-content-center p-4 pb-md-4 pb-0">
+      <div className="bg-dark rounded-3 p-4 mb-3">
+        <Row>
+          <Col md="auto">
+            <div className="d-flex justify-content-center">
               <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} className="rounded-4" />
-            </Col>
-            <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
-              <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">{rssFeedProviderDetail?.title}</h2>
-              <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
-                {rssFeedProviderDetail?.description}
-              </p>
-            </Col>
-            <Col className="d-md-none">
-              <div className="mt-3 mb-4">
-                <CustomButton
-                  variant={following ? 'black' : 'primary'}
-                  onClick={() => setFollowing(!following)}
-                  className="w-100 rounded-pill shadow-none"
-                >
-                  {following ? 'Unfollow' : 'Follow'}
-                </CustomButton>
-              </div>
-              <div className="my-4 lh-lg d-flex justify-content-center">
-                <span>Push notifications</span>
-                <Switch id="pushNotificationSwitches" className="ms-3" />
-              </div>
-            </Col>
-          </Row>
-          <NewsPostData partnerId={partnerId!} />
-        </Col>
-      </Row>
+            </div>
+          </Col>
+          <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">
+            <h2 className="text-center text-md-start mt-3 mt-lg-0 mt-xl-3">{rssFeedProviderDetail?.title}</h2>
+            <p className="text-center text-md-start m-2 m-md-0 fs-4 text-light">
+              {rssFeedProviderDetail?.description}
+            </p>
+          </Col>
+          <Col className="d-md-none">
+            <div className="mt-3 mb-4">
+              <CustomButton
+                variant={following ? 'black' : 'primary'}
+                onClick={() => setFollowing(!following)}
+                className="w-100 rounded-pill shadow-none"
+              >
+                {following ? 'Unfollow' : 'Follow'}
+              </CustomButton>
+            </div>
+            <div className="my-4 lh-lg d-flex justify-content-center">
+              <span>Push notifications</span>
+              <Switch id="pushNotificationSwitches" className="ms-3" />
+            </div>
+          </Col>
+        </Row>
+      </div>
+      <NewsPostData partnerId={partnerId!} />
     </AuthenticatedPageWrapper>
   );
 }

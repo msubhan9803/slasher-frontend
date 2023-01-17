@@ -68,9 +68,6 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
-`;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {

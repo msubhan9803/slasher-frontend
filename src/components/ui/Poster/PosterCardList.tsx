@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { DateTime } from 'luxon';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PosterCard from './PosterCard';
 import checkAdsPosterCardList from './checkAdsPosterCardList';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';

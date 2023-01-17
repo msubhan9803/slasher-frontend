@@ -27,7 +27,7 @@ import { validate } from 'class-validator';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
-import { pick } from '../utils/object-utils';
+import { pick, pickOnlyDefinedKeys } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
@@ -62,6 +62,7 @@ import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/prov
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { RegisterUser } from '../types';
 
 @Controller('users')
 export class UsersController {
@@ -198,8 +199,13 @@ export class UsersController {
   }
 
   @Get('validate-registration-fields')
-  async validateRegistrationFields(@Query() query) {
+  async validateRegistrationFields(@Query() inputQuery) {
   await sleep(500); // throttle so this endpoint is less likely to be abused
+
+  const query: RegisterUser = pickOnlyDefinedKeys(inputQuery, [
+    'firstName', 'userName', 'email', 'password',
+    'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
+  ]);
 
   const queryFields = Object.keys(query);
 

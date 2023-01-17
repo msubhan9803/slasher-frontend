@@ -10,3 +10,11 @@ export const pick = (obj: object, properties: string[]) => {
   properties.forEach((property) => { newObj[property] = obj[property]; });
   return newObj;
 };
+
+export const pickOnlyDefinedKeys = (obj: object, properties: string[]) => {
+  const newObj = {};
+  properties.forEach((property) => {
+    if (typeof obj[property] !== 'undefined') newObj[property] = obj[property];
+   });
+  return newObj;
+};

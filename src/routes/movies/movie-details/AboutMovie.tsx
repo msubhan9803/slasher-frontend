@@ -20,6 +20,8 @@ import MovieTrailers from './MovieTrailers';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
 import { AdditionalMovieData } from '../../../types';
+import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 
 interface MovieIconProps {
   label: string;
@@ -172,6 +174,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
+              <PubWiseAd className="text-center my-3" id={MOVIE_INDIE_DIV} autoSequencer />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
                 aboutMovieData?.video?.length > 0

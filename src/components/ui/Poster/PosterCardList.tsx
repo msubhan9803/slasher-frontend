@@ -6,14 +6,10 @@ import PosterCard from './PosterCard';
 import checkAdsPosterCardList from './checkAdsPosterCardList';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../PubWiseAd';
-import {
-  ALL_MOVIES_DIV_ID, MOVIE_BUY_LIST_DIV_ID, MOVIE_FAVOURITE_DIV,
-  MOVIE_INDIE_DIV,
-  MOVIE_WATCHED_LIST_DIV_ID, MOVIE_WATCHLIST_DIV_ID,
-} from '../../../utils/PubWiseAdUnits';
 
 interface PosterCardProps {
   dataList: CardListProps[] | [];
+  pubWiseAdUnitDivId?: string;
 }
 interface CardListProps {
   id: number;
@@ -27,29 +23,8 @@ interface CardListProps {
   releaseDate?: string;
 }
 
-function PosterCardList({ dataList }: PosterCardProps) {
+function PosterCardList({ dataList, pubWiseAdUnitDivId }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
-  const { pathname } = useLocation();
-
-  let PubWiseAdUnitDivId = '';
-  if (pathname === '/movies/all') {
-    PubWiseAdUnitDivId = ALL_MOVIES_DIV_ID;
-  }
-  if (pathname === '/movies/favorites') {
-    PubWiseAdUnitDivId = MOVIE_FAVOURITE_DIV;
-  }
-  if (pathname === '/movies/watch-list') {
-    PubWiseAdUnitDivId = MOVIE_WATCHLIST_DIV_ID;
-  }
-  if (pathname === '/movies/watched-list') {
-    PubWiseAdUnitDivId = MOVIE_WATCHED_LIST_DIV_ID;
-  }
-  if (pathname === '/movies/buy-list') {
-    PubWiseAdUnitDivId = MOVIE_BUY_LIST_DIV_ID;
-  }
-  if (pathname === '/movies/slasher-indie') {
-    PubWiseAdUnitDivId = MOVIE_INDIE_DIV;
-  }
 
   return (
     <Row className="mt-0">
@@ -69,12 +44,16 @@ function PosterCardList({ dataList }: PosterCardProps) {
                 />
               </Link>
             </Col>
-            {PubWiseAdUnitDivId && show && <PubWiseAd className="text-center mb-3" id={PubWiseAdUnitDivId} autoSequencer />}
+            {pubWiseAdUnitDivId && show && <PubWiseAd className="text-center mb-3" id={pubWiseAdUnitDivId} autoSequencer />}
           </React.Fragment>
         );
       })}
     </Row>
   );
 }
+
+PosterCardList.defaultProps = {
+  pubWiseAdUnitDivId: '',
+};
 
 export default PosterCardList;

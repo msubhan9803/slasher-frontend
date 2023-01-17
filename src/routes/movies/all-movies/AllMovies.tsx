@@ -7,6 +7,7 @@ import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -97,7 +98,7 @@ function AllMovies() {
             hasMore={!noMoreData}
             element="span"
           >
-            <PosterCardList dataList={filteredMovies} />
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
           </InfiniteScroll>
           {loadingPosts && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}

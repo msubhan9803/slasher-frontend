@@ -20,7 +20,7 @@ import { PopoverClickProps } from '../CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import PubWiseAd from '../PubWiseAd';
-import { NEWS_PARTNER_DETAILS_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { NEWS_PARTNER_DETAILS_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {

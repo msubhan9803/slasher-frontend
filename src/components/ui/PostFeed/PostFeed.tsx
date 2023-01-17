@@ -29,7 +29,7 @@ import {
   newLineToBr,
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -198,6 +198,9 @@ function PostFeed({
   if (location.pathname.includes('/news/partner/')) {
     singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
   }
+  if (location.pathname.includes('/posts/')) {
+    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
+  }
 
   return (
     <StyledPostFeed>
@@ -236,7 +239,9 @@ function PostFeed({
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                   />
                 )}
-                {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} />}
+                { /* Below ad is to be shown in the end of post content when the post is a
+                single pgae post */ }
+                {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} autoSequencer />}
                 <Row className="pt-3 px-md-3">
                   <Col>
                     <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
@@ -279,7 +284,6 @@ function PostFeed({
                 isCommentSection
                 && (
                   <>
-                    <StyledBorder className="d-md-block d-none mb-4" />
                     <InfiniteScroll
                       pageStart={0}
                       initialLoad

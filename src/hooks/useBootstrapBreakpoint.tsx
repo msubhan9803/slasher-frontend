@@ -1,12 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import {
+  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, SM_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT,
+  XS_MEDIA_BREAKPOINT, XXL_MEDIA_BREAKPOINT,
+} from '../constants';
 
 const sizes = [
-  [0, 'xs'],
-  [576, 'sm'],
-  [768, 'md'],
-  [992, 'lg'],
-  [1200, 'xl'],
-  [1440, 'xxl'],
+  [XS_MEDIA_BREAKPOINT.split('px')[0], 'xs'],
+  [SM_MEDIA_BREAKPOINT.split('px')[0], 'sm'],
+  [MD_MEDIA_BREAKPOINT.split('px')[0], 'md'],
+  [LG_MEDIA_BREAKPOINT.split('px')[0], 'lg'],
+  [XL_MEDIA_BREAKPOINT.split('px')[0], 'xl'],
+  [XXL_MEDIA_BREAKPOINT.split('px')[0], 'xxl'],
 ];
 
 const getBrkPoints = (currentWidth: number) => {

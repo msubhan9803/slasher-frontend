@@ -9,7 +9,7 @@ import { rssFeedInitialData } from '../../api/rss-feed-providers';
 import PubWiseAd from '../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../hooks/useBootstrapBreakpoint';
 import checkAdsNewsIndex from './checkAdsNewsIndex';
-import { NEWS_DIV_ID } from '../../utils/PubWiseAdUnits';
+import { NEWS_DIV_ID } from '../../utils/pubwise-ad-units';
 
 const TrucatedDescription = styled.small`
   display: -webkit-box;

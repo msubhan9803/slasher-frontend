@@ -4,6 +4,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { buyMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
+import { MOVIE_BUY_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 function BuyMovieList() {
   const [showKeys, setShowKeys] = useState(false);
@@ -35,7 +36,7 @@ function BuyMovieList() {
       />
       <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
         <div className="m-md-2">
-          <PosterCardList dataList={filteredMovies} />
+          <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={MOVIE_BUY_LIST_DIV_ID} />
         </div>
       </div>
     </AuthenticatedPageWrapper>

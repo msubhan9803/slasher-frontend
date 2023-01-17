@@ -10,7 +10,7 @@ import MapComponent from '../../../components/ui/MapComponent';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
-import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const eventsList = [
   {

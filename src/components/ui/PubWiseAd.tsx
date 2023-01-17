@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 import { useAppSelector } from '../../redux/hooks';
+import { enableADs } from '../../constants';
 
 declare global {
   interface Window {
@@ -21,14 +23,10 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   useEffect(() => {
     if (!window.gptadslots[id]) {
       // eslint-disable-next-line no-console
-      console.error(
-        '\n\n------Slasher LOG------\n\n: Please define an ad-slot in `usePubWiseAdSlots` hook to use this ad:, ',
-        id,
-        '\n\n\n\n\n',
-      );
+      console.error(`Ad slot not defined: ${id}`); // Please define an ad-slot in `usePubWiseAdSlots` hook to use this ad
     }
 
-    if (typeof window.pubwise !== 'undefined' && window.pubwise.enabled === true) {
+    if (window?.pubwise?.enabled === true) {
       window.pubwise.que.push(() => {
         window.pubwise.renderAd(id);
       });
@@ -43,6 +41,15 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
   return <div style={style} className={className} id={id} />;
 }
 
+const PlaceHolderAd = styled.div`
+  height: 250px;
+  width: 300px;
+  background-color: #272727;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 function PubWiseAd({
   id, style, className, autoSequencer,
 }: PubWiseAdTypes) {
@@ -51,10 +58,13 @@ function PubWiseAd({
   const isFirstLoadRef = useRef(true);
 
   useEffect(() => {
-    if (autoSequencer) {
-      if (isFirstLoadRef.current) {
-        isFirstLoadRef.current = false;
-
+    if (isFirstLoadRef.current) {
+      isFirstLoadRef.current = false;
+      // Disable loading ad and show a placeholder ad instead for development server
+      if (!enableADs) {
+        return;
+      }
+      if (autoSequencer) {
         if (!window.slasherAds) {
           window.slasherAds = {};
         }
@@ -73,7 +83,9 @@ function PubWiseAd({
     style, className, autoSequencer, id: autoSequencer ? sequencedId : id,
   };
 
+  if (!enableADs) return <PlaceHolderAd className={`${enableADs} mx-auto my-4`} style={style}>Slasher Ad</PlaceHolderAd>;
   if (!isSlotsDefined) return null;
+
   if (!autoSequencer) {
     return (
       <PubWiseAdUnit {...props} />

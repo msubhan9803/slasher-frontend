@@ -7,7 +7,7 @@
  * it.
  * @param allItems This is the total of items in the list of items we're rendering.
 */
-export default function checkAdsEventByDate(
+export default function checkAdsFavorites(
   breakpointName: string,
   index: number,
   allItems: Array<any>,

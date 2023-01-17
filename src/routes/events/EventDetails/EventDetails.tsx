@@ -11,7 +11,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import RoundButton from '../../../components/ui/RoundButton';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
-import { EVENT_DETAIL_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 interface LinearIconProps {
   uniqueId?: string

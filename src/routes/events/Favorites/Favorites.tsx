@@ -5,9 +5,9 @@ import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
-import checkAdsFavourites from './checkAdsFavourites';
+import checkAdsFavorites from './checkAdsFavorites';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
-import { EVENTS_FAVOURITES_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { EVENTS_FAVOURITES_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const eventsList = [
   {
@@ -59,7 +59,7 @@ function Favorites() {
       <div className="mt-3 bg-dark bg-mobile-transparent p-lg-4 rounded">
         <Row className="justify-content-md-center">
           {eventsList.map((eventDetail, i, arr) => {
-            const show = checkAdsFavourites(bp, i, arr);
+            const show = checkAdsFavorites(bp, i, arr);
             return (
               <React.Fragment key={eventDetail.id}>
                 <Col md={6}>

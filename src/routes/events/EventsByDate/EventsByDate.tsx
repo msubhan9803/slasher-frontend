@@ -13,7 +13,7 @@ import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
 import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
-import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/PubWiseAdUnits';
+import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {

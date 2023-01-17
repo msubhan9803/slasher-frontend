@@ -44,10 +44,10 @@ export class TasksService {
     if (!force && !this.configService.get<boolean>('CRON_ENABLED')) { return; }
     this.logger.debug('Start cron: cleanupNotifications');
 
-    const MONTH_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
+    const THIRTY_DAYS_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
 
     // Provide a date argument to specify the last date before which all the notifications would be deleted
-    const { success, error } = await this.notificationsService.cleanupNotifications(MONTH_AGO);
+    const { success, error } = await this.notificationsService.cleanupNotifications(THIRTY_DAYS_AGO);
 
     if (success) {
       this.logger.debug('End cron: cleanupNotifications (success)');

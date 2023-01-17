@@ -14,6 +14,7 @@ import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
+import { setForceReload } from '../../../../redux/slices/suggestedFriendsSlice';
 
 interface FriendProps {
   _id?: string;
@@ -85,7 +86,10 @@ function ProfileFriendRequest({ user }: Props) {
     acceptFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(setForceReload({ forceReload: true }));
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -95,7 +99,10 @@ function ProfileFriendRequest({ user }: Props) {
     rejectFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(setForceReload({ forceReload: true }));
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });

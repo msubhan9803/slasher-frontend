@@ -1,6 +1,8 @@
+/* eslint-disable */
 import { configureStore } from '@reduxjs/toolkit';
 import sidebarContextReducer from './slices/sidebarContextSlice';
 import registrationReducer from './slices/registrationSlice';
+import suggestedFriendsSlice from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
 
 export const store = configureStore({
@@ -8,6 +10,7 @@ export const store = configureStore({
     registration: registrationReducer,
     user: userReducer,
     sidebarContext: sidebarContextReducer,
+    suggestedFriendList: suggestedFriendsSlice,
   },
 });
 

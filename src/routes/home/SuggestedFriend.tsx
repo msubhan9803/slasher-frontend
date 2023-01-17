@@ -1,14 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Button, Row } from 'react-bootstrap';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import RoundButton from '../../components/ui/RoundButton';
 import { getSuggestFriends } from '../../api/users';
 import { addFriend, rejectFriendsRequest, removeSuggestedFriend } from '../../api/friends';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import UserCircleImage from '../../components/ui/UserCircleImage';
+import { setSuggestedFriendsList } from '../../redux/slices/suggestedFriendsSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 
 const StyleFriend = styled(Row)`
   overflow-x: auto;
@@ -39,27 +42,46 @@ const slideFriendLeft = () => {
   }
 };
 function SuggestedFriend() {
-  const [friendListData, setFriendListData] = useState<any>();
-
+  const dispatch: any = useAppDispatch();
+  const {
+    forceReload, lastRetrievalTime, suggestedFriends,
+  } = useAppSelector((state) => state.suggestedFriendList);
   const getSuggestedFriends = () => {
     getSuggestFriends()
-      .then((res) => setFriendListData(res.data));
+      .then((res) => {
+        const friendPayload = {
+          forceReload: false,
+          lastRetrievalTime: DateTime.now().toISO(),
+          suggestedFriends: res.data,
+        };
+        dispatch(setSuggestedFriendsList(friendPayload));
+      });
   };
 
   useEffect(() => {
-    getSuggestedFriends();
-  }, []);
+    if (
+      forceReload
+      || !lastRetrievalTime
+      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
+    ) {
+      getSuggestedFriends();
+    }
+  }, [forceReload, lastRetrievalTime]);
 
   const addFriendClick = (userId: string) => {
     addFriend(userId).then(() => {
-      const data = friendListData?.map((friend: any) => {
+      const data = suggestedFriends.map((friend: any) => {
         if (friend._id === userId) {
-          // eslint-disable-next-line no-param-reassign
-          friend.addFriend = true;
+          return { ...friend, addFriend: true };
         }
         return friend;
       });
-      setFriendListData(data);
+      const friendPayload = {
+        forceReload: true,
+        lastRetrievalTime: undefined,
+        suggestedFriends: data,
+      };
+      dispatch(setSuggestedFriendsList(friendPayload));
     });
   };
 
@@ -78,7 +100,7 @@ function SuggestedFriend() {
 
   return (
     <div className="p-md-4 pt-md-1 rounded-2">
-      {!friendListData ? <LoadingIndicator /> : (
+      {!suggestedFriends ? <LoadingIndicator /> : (
         <div className="d-flex align-items-center">
           <Button className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
             <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
@@ -87,7 +109,7 @@ function SuggestedFriend() {
             id="slideFriend"
             className="d-flex flex-nowrap w-100 mx-3 g-0"
           >
-            {friendListData?.map((user: any) => (
+            {suggestedFriends.map((user: any) => (
               /* eslint no-underscore-dangle: 0 */
               <Card key={user._id}>
                 <div className="bg-dark rounded p-2">

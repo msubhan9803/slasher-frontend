@@ -2,6 +2,7 @@ import React from 'react';
 import { acceptFriendsRequest, rejectFriendsRequest } from '../../../../api/friends';
 import { userInitialData } from '../../../../api/users';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
+import { setForceReload } from '../../../../redux/slices/suggestedFriendsSlice';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import FriendRequestItem from './FriendRequestItem';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
@@ -21,12 +22,14 @@ function FriendRequests() {
     acceptFriendsRequest(userId)
       .then(() => userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
+        dispatch(setForceReload({ forceReload: true }));
       }));
   };
   const handleRejectRequest = (userId: string) => {
     rejectFriendsRequest(userId)
       .then(() => userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
+        dispatch(setForceReload({ forceReload: true }));
       }));
   };
   return (

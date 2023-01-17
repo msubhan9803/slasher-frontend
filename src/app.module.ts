@@ -92,7 +92,7 @@ export class AppModule {
         '/local-storage/(.*)', // the /local-storage endpoint is only used in development environments
         '/users/activate-account',
         '/users/check-user-name',
-        '/users/check-register',
+        '/users/validate-registration-fields',
         '/users/forgot-password',
         '/users/register',
         '/users/reset-password',

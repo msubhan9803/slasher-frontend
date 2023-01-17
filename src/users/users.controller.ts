@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
+import { validate } from 'class-validator';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
@@ -183,10 +184,7 @@ export class UsersController {
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
     const exists = await this.usersService.userNameExists(query.userName);
-    return {
-      exists,
-      error: exists && 'Username is already associated with an existing user.',
-    };
+    return { exists };
   }
 
   @Get('check-email')
@@ -196,19 +194,35 @@ export class UsersController {
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
     const exists = await this.usersService.emailExists(query.email);
-    return {
-      exists,
-      error: exists && 'Email address is already associated with an existing user.',
-    };
+    return { exists };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  @Get('check-register')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async checkRegister(@Query() query: UserRegisterDto, @Ip() ip) {
-    await sleep(500); // throttle so this endpoint is less likely to be abused
-    return { success: true };
+  @Get('validate-registration-fields')
+  async validateRegistrationFields(@Query() query) {
+  await sleep(500); // throttle so this endpoint is less likely to be abused
+
+  const queryFields = Object.keys(query);
+
+  const userRegisterDto = new UserRegisterDto();
+  Object.assign(userRegisterDto, query);
+
+  let errors: any = await validate(userRegisterDto);
+  errors = errors.filter((e) => queryFields.includes(e.property));
+
+  const invalidFields = errors.map((e: any) => e.property);
+  errors = errors.map((e) => Object.values(e.constraints)).flat();
+
+  if (queryFields.includes('userName') && !invalidFields.includes('userName')) {
+    const exists = await this.usersService.userNameExists(query.userName);
+    if (exists) errors.unshift('Username is already associated with an existing user.');
   }
+  if (queryFields.includes('email') && !invalidFields.includes('email')) {
+    const exists = await this.usersService.emailExists(query.email);
+    if (exists) errors.unshift('Email address is already associated with an existing user.');
+  }
+
+  return errors;
+}
 
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {

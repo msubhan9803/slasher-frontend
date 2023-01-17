@@ -207,27 +207,27 @@ export class UsersController {
     'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
   ]);
 
-  const queryFields = Object.keys(query);
+  const requestedFields = Object.keys(query);
 
   const userRegisterDto = new UserRegisterDto();
   Object.assign(userRegisterDto, query);
 
-  let errors: any = await validate(userRegisterDto);
-  errors = errors.filter((e) => queryFields.includes(e.property));
+  const errors: any = await validate(userRegisterDto);
+  const requestedErrors = errors.filter((e) => requestedFields.includes(e.property));
 
-  const invalidFields = errors.map((e: any) => e.property);
-  errors = errors.map((e) => Object.values(e.constraints)).flat();
+  const invalidFields = requestedErrors.map((e: any) => e.property);
+  const requestedErrorsList = requestedErrors.map((e) => Object.values(e.constraints)).flat();
 
-  if (queryFields.includes('userName') && !invalidFields.includes('userName')) {
+  if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
     const exists = await this.usersService.userNameExists(query.userName);
-    if (exists) errors.unshift('Username is already associated with an existing user.');
+    if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
   }
-  if (queryFields.includes('email') && !invalidFields.includes('email')) {
+  if (requestedFields.includes('email') && !invalidFields.includes('email')) {
     const exists = await this.usersService.emailExists(query.email);
-    if (exists) errors.unshift('Email address is already associated with an existing user.');
+    if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
   }
 
-  return errors;
+  return requestedErrorsList;
 }
 
   @Post('register')

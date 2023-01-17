@@ -14,7 +14,7 @@ import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapp
 import EditPostModal from '../../../components/ui/EditPostModal';
 import ReportModal from '../../../components/ui/ReportModal';
 import {
-  CommentValue, Post, ReplyValue, User,
+  CommentValue, FeedComments, Post, User, ReplyValue,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
@@ -40,7 +40,7 @@ function ProfilePostDetail({ user }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const [commentData, setCommentData] = useState<any[]>([]);
+  const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -53,6 +53,7 @@ function ProfilePostDetail({ user }: Props) {
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
+  const loginUserId = useAppSelector((state) => state.user.user.id);
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
@@ -141,7 +142,7 @@ function ProfilePostDetail({ user }: Props) {
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
               likes: res.data.likes,
-              likeIcon: res.data.likes.includes(userData.user.id),
+              likeIcon: res.data.likes.includes(loginUserId!),
               likeCount: res.data.likeCount,
               commentCount: res.data.commentCount,
             },
@@ -345,7 +346,7 @@ function ProfilePostDetail({ user }: Props) {
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
             likes: res.data.likes,
-            likeIcon: res.data.likes.includes(userData.user.id),
+            likeIcon: res.data.likes.includes(loginUserId!),
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           },
@@ -380,7 +381,7 @@ function ProfilePostDetail({ user }: Props) {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likes?.includes(userData.user.id!));
+      && post.likes?.includes(loginUserId!));
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -389,7 +390,7 @@ function ProfilePostDetail({ user }: Props) {
             (unLikePost: Post) => {
               if (unLikePost._id === feedPostId) {
                 const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
+                  (removeId: string) => removeId !== loginUserId!,
                 );
                 return {
                   ...unLikePost,
@@ -574,7 +575,7 @@ function ProfilePostDetail({ user }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <AuthenticatedPageWrapper rightSidebarType={userData.user.id === user?.id ? 'profile-self' : 'profile-other-user'}>
+    <AuthenticatedPageWrapper rightSidebarType={loginUserId! === user?.id ? 'profile-self' : 'profile-other-user'}>
       {errorMessage && errorMessage.length > 0 && (
         <div className="mt-3 text-start">
           {errorMessage}

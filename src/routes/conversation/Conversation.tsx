@@ -49,14 +49,19 @@ function Conversation() {
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
       id: payload.user._id,
-      message: payload.message,
+      message: payload.message.message,
       time: DateTime.now().toISO().toString(),
       participant: 'other',
     };
-    setMessageList((prev: any) => [
-      ...prev,
-      chatreceivedObj,
-    ]);
+    // eslint-disable-next-line no-underscore-dangle
+    if (payload.message.matchId._id === conversationId) {
+      // eslint-disable-next-line no-underscore-dangle
+      socket?.emit('messageRead', { messageId: payload.message._id });
+      setMessageList((prev: any) => [
+        ...prev,
+        chatreceivedObj,
+      ]);
+    }
   };
 
   useEffect(() => {

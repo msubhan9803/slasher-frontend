@@ -31,16 +31,15 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 // import Podcasts from './routes/podcasts/Podcasts';
 
 const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
+const DEFAULT_INDEX_REDIRECT = '/home';
 
 function App() {
-  const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
-
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
   return (
     <Routes>
       {/* Top level redirect */}
-      <Route path="/" element={<Navigate to={topLevelRedirectPath} replace />} />
+      <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
 
       {/* Unauthenticated routes */}
       <Route path="/sign-in" element={<SignIn />} />

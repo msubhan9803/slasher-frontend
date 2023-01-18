@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container, Offcanvas,
 } from 'react-bootstrap';
@@ -24,8 +24,8 @@ import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
-import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import useGlobalSocket from '../../../../hooks/useGlobalSocket';
 
 interface Props {
   children: React.ReactNode;
@@ -66,7 +66,7 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
-  const socket = useContext(SocketContext);
+  const { socket } = useGlobalSocket();
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');

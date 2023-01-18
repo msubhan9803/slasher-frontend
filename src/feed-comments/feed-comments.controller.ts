@@ -97,15 +97,16 @@ export class FeedCommentsController {
     );
 
     // Create notification for post creator, informing them that a comment was added to their post
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserCommentedOnYourPost,
-      notificationMsg: 'commented on your post',
-    });
-
+    if (!post.rssfeedProviderId) {
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserCommentedOnYourPost,
+        notificationMsg: 'commented on your post',
+      });
+    }
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(comment?.message);
     for (const mentionedUserId of mentionedUserIds) {
@@ -234,6 +235,7 @@ export class FeedCommentsController {
 
     // Create notification for post creator, informing them that a reply was added to their post
     const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    if (!post.rssfeedProviderId) {
     await this.notificationsService.create({
       userId: post.userId as any,
       feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
@@ -243,7 +245,7 @@ export class FeedCommentsController {
       notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
       notificationMsg: 'replied on your post',
     });
-
+  }
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
     for (const mentionedUserId of mentionedUserIds) {

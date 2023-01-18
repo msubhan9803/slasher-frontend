@@ -76,6 +76,13 @@ You can also run the linter (and this step doesn't require docker):
 npm run lint
 ```
 
+In the rare case you want to run the app locally over https with a self-signed certificate (usually only necessary when performing ad testing), you can run this:
+
+```bash
+npm run start:dev-https
+```
+
+Note: When using this with the slasher-web-frontend app, you'll probably need to visit https://localhost:4000 in your browser first and accept the self-signed certificate.
 
 ## Scripts
 

@@ -117,16 +117,6 @@ function PostCommentSection({
     replyCommentIndex?: number,
   ) => {
     setScrollId(scrollReplyId!);
-
-    const tabs = tabsRef.current;
-    if (tabs) {
-      tabs.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        Inline: 'center',
-      });
-    }
-
     if (replyCommentIndex! >= 0) {
       setSelectedReplyId(selectedReply || null);
       setSelectedReplyCommentId(commentReplyId);
@@ -135,12 +125,11 @@ function PostCommentSection({
       const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
         /* eslint-disable no-param-reassign */
-        if (comment.id === commentReplyId && replyCommentIndex) {
-          comment.isReplyIndex = replyCommentIndex + 1;
+        if (comment.id === commentReplyId) {
+          setReplyIndex(replyCommentIndex!);
+          comment.isReplyIndex = scrollReplyId?.includes('comment') ? 0 : replyCommentIndex! + 1;
           updatedCommentData.push(comment);
         } else {
-          /* eslint-disable no-param-reassign */
-          comment.isReplyIndex = comment.id === commentReplyId ? replyCommentIndex! + 1 : 2;
           updatedCommentData.push(comment);
         }
         return null;
@@ -151,7 +140,25 @@ function PostCommentSection({
 
   useEffect(() => {
     handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
-  }, [selectedReplyCommentId, replyUserName, scrollId, tabsRef, selectedReplyId, isReply]);
+  }, [selectedReplyCommentId, replyUserName, scrollId, selectedReplyId, isReply]);
+
+  useEffect(() => {
+    if (isReply) {
+      commentData.map((comment: any) => {
+        if (comment.id === selectedReplyCommentId) {
+          const tabs = tabsRef.current;
+          if (tabs && comment.commentReplySection.length - 1 === replyIndex) {
+            tabs.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              Inline: 'center',
+            });
+          }
+        }
+        return null;
+      });
+    }
+  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId]);
 
   const feedCommentData = () => {
     const comments = commentSectionData.map((comment: FeedComments) => {
@@ -191,7 +198,7 @@ function PostCommentSection({
         )?.isReplyIndex
           ?? commentData.find(
             (replyComment: any) => replyComment.id === comment._id,
-          )?.isReplyIndex! >= 1
+          )?.isReplyIndex! >= 0
           ? commentData.find(
             (replyComment: any) => replyComment.id === comment._id,
           )?.isReplyIndex
@@ -239,8 +246,6 @@ function PostCommentSection({
       });
       setReplyMessage('');
       setReplyImageArray([]);
-      const index = replyIndex > 2 ? replyIndex : 2;
-      setReplyIndex(index);
       setUpdatedReply(true);
     }
     setIsReply(false);

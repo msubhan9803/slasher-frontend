@@ -147,13 +147,13 @@ function SignIn() {
                   the button in the email we sent when you created your account.
 
                   <em>
-                    Your account will not be activated until you click the button in that email.
+                    Your account will not be activated until you click the link in that email.
                   </em>
                 </p>
                 <p className="text-center mb-0 text-light">
                   Please check your spam folder for the email.
                   If you have not received it, please&nbsp;
-                  <Link to="/sign-in" className="text-primary">click here.</Link>
+                  <Link to="/verification-email-not-received" className="text-primary">click here.</Link>
                 </p>
               </Form>
             </div>

@@ -47,24 +47,6 @@ function ForgotPassword() {
             we’ll send you a link to reset your password. Be sure to check your spam
             folder if you don’t see the email within 15 minutes.
           </p>
-          <p>
-            <span className="text-primary">
-              NOTE:
-            </span>
-            &nbsp;
-            If you just created an account and you are not able to login, be sure you activated
-            your account by clicking the button in the email we sent when you created your
-            account. Your account will not be activated until you click the button in that email.
-          </p>
-          <p>
-            Please check your spam folder for the email. If you have not received it,
-            please
-            &nbsp;
-            <Link to="/" className="text-decoration-none text-primary">
-              click here
-            </Link>
-            .
-          </p>
           <Form className="row d-flex flex-column align-items-center mt-4">
             <Col sm={7} md={5} lg={8}>
               <CustomInputGroup
@@ -107,6 +89,24 @@ function ForgotPassword() {
             &nbsp;and let us know.
             <br />
             Be sure to include your username in the email too.
+          </p>
+
+          <p>
+            <span className="text-primary">
+              NOTE:
+            </span>
+            &nbsp;
+            If you just created an account and you are not able to login, be sure you activated
+            your account by clicking the button in the email we sent when you created your
+            account. Your account will not be activated until you click the button in that email.
+          </p>
+          <p>
+            If you never received an account verification email,
+            &nbsp;
+            <Link to="/verification-email-not-received" className="text-decoration-none text-primary">
+              click here
+            </Link>
+            .
           </p>
         </div>
       </Row>

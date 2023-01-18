@@ -281,4 +281,32 @@ describe('ChatService', () => {
       expect(m4.isRead).toBe(false);
     });
   });
+
+  describe('#findByMessageId', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+    });
+
+    it('when message is exists than expected response', async () => {
+      const messageData = await chatService.findByMessageId(message.id);
+      expect(messageData.id).toEqual(message.id);
+    });
+
+    it('when message is does not exists than expected response', async () => {
+      const messageData = await chatService.findByMessageId('5c9cb7138a874f1dcd0d8dcc');
+      expect(messageData).toBeNull();
+    });
+  });
+
+  describe('#markMessageAsRead', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+    });
+    it('finds the expected message and update the details', async () => {
+      const updatedMesage = await chatService.markMessageAsRead(message._id);
+      expect(updatedMesage.isRead).toBe(true);
+    });
+  });
 });

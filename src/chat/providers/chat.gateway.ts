@@ -13,6 +13,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
 import { User } from '../../schemas/user/user.schema';
+import { pick } from '../../utils/object-utils';
 
 const RECENT_MESSAGES_LIMIT = 10;
 
@@ -41,7 +42,7 @@ export class ChatGateway {
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
-      client.to(socketId).emit('chatMessageReceived', { message: messageObject.message, user });
+      client.to(socketId).emit('chatMessageReceived', { message: pick(messageObject, ['message', 'matchId', 'createdAt']), user });
     });
     return { success: true, message: messageObject };
   }
@@ -73,5 +74,22 @@ export class ChatGateway {
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
 
     return messages;
+  }
+
+  @SubscribeMessage('messageRead')
+  async markMessageAsRead(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
+    const inValidData = typeof data.messageId === 'undefined' || data.messageId === null;
+    if (inValidData) return { success: false };
+
+    const user = await this.usersService.findBySocketId(client.id);
+    const { messageId } = data;
+
+    const message = await this.chatService.findByMessageId(messageId);
+    if (!message) return { error: 'Message not exists' };
+
+    if (message.senderId.toString() === user.id) {
+      await this.chatService.markMessageAsRead(messageId);
+    }
+    return { success: true };
   }
 }

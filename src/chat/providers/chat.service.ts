@@ -220,4 +220,14 @@ export class ChatService {
       }, { isRead: NotificationReadStatus.Read })
       .exec();
   }
+
+  async markMessageAsRead(messageId: string): Promise<MessageDocument> {
+    return this.messageModel
+      .findOneAndUpdate({ _id: messageId }, { $set: { isRead: true } }, { new: true })
+      .exec();
+  }
+
+  async findByMessageId(messageId: string): Promise<MessageDocument> {
+    return this.messageModel.findOne({ _id: messageId }).exec();
+  }
 }

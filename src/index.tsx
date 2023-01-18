@@ -18,7 +18,8 @@ import { socket, SocketContext } from './context/socket';
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
-setTimeout(() => root.render(
+
+root.render(
   <React.StrictMode>
     <SocketContext.Provider value={socket}>
       <Provider store={store}>
@@ -28,7 +29,7 @@ setTimeout(() => root.render(
       </Provider>
     </SocketContext.Provider>
   </React.StrictMode>,
-), 1000);
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

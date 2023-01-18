@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useRef, useState,
+  useEffect, useRef, useState,
 } from 'react';
 import Cookies from 'js-cookie';
 import {
@@ -10,9 +10,9 @@ import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getConversation, createOrFindConversation } from '../../api/messages';
-import { SocketContext } from '../../context/socket';
 import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
+import useGlobalSocket from '../../hooks/useGlobalSocket';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -20,7 +20,7 @@ function Conversation() {
   const lastConversationIdRef = useRef('');
   const [chatUser, setChatUser] = useState<any>();
   const [messageList, setMessageList] = useState<any>([]);
-  const socket = useContext(SocketContext);
+  const { socket, socketConnected } = useGlobalSocket();
   const [message, setMessage] = useState('');
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
@@ -160,7 +160,7 @@ function Conversation() {
     }
   }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
 
-  if (isLoading) return null;
+  if (isLoading || !socketConnected) return null;
 
   if (showPageDoesNotExist) {
     return (

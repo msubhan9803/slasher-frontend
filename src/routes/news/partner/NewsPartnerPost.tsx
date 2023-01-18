@@ -260,7 +260,7 @@ function NewsPartnerPost() {
           const newReplyArray: any = commentData;
           replyValueData = {
             feedPostId: postId,
-            feedCommentId: commentID,
+            feedCommentId: res.data.feedCommentId,
             images: reply.imageArray,
             message: reply.replyMessage,
             userId: userData.user,

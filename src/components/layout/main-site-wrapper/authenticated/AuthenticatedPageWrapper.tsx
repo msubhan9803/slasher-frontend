@@ -21,7 +21,7 @@ import NotificationsRIghtSideNav from '../../../../routes/notifications/Notifica
 import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
 import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 import { userInitialData } from '../../../../api/users';
-import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
+import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
@@ -114,12 +114,17 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
   const onNotificationReceivedHandler = () => {
     dispatch(incrementUnreadNotificationCount());
   };
+  const onUnreadMessageCountUpdate = (count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  };
 
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
+      socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
+        socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       };
     }
     return () => { };

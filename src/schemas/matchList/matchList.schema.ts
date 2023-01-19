@@ -31,7 +31,7 @@ export class MatchList extends MatchListUnusedFields {
   @Prop({ default: [], ref: User.name, required: true })
   participants: mongoose.Schema.Types.ObjectId[];
 
-  @Prop({ required: true, default: MatchListStatus.Pending })
+  @Prop({ required: true, default: MatchListStatus.Accepted })
   status: MatchListStatus;
 
   @Prop({ default: false })

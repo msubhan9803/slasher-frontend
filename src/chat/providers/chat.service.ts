@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
+import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import {
   MatchListRoomCategory,
   MatchListRoomType,
@@ -24,6 +25,7 @@ export class ChatService {
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
+    @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     private usersService: UsersService,
   ) { }
 
@@ -43,7 +45,13 @@ export class ChatService {
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
     };
-    return this.matchListModel.create(insertData);
+    const matchList = await this.matchListModel.create(insertData);
+
+    // For compatibility with the old API, whenever a matchList is created, we also need to create a
+    // corresponding Chat record with the same fields
+    await this.chatModel.create({ ...insertData, matchId: matchList._id });
+
+    return matchList;
   }
 
   async createOrFindPrivateDirectMessageConversationByParticipants(participants: mongoose.Types.ObjectId[]) {

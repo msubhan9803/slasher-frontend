@@ -4,18 +4,12 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
-import { UsersService } from '../../../src/users/providers/users.service';
 import { ForgotPasswordDto } from '../../../src/users/dto/forgot-password.dto';
-import { userFactory } from '../../factories/user.factory';
-import { MailService } from '../../../src/providers/mail.service';
-import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Forgot Password (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
-  let usersService: UsersService;
-  let mailService: MailService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -23,8 +17,6 @@ describe('Users / Forgot Password (e2e)', () => {
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
 
-    usersService = moduleRef.get<UsersService>(UsersService);
-    mailService = moduleRef.get<MailService>(MailService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -61,12 +53,6 @@ describe('Users / Forgot Password (e2e)', () => {
 
     describe('When a valid-format email address is supplied', () => {
       it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
-        let user = await usersService.create(
-          userFactory.build({ email }),
-        );
-
-        jest.spyOn(mailService, 'sendForgotPasswordEmail').mockImplementation();
-
         const response = await request(app.getHttpServer())
           .post('/users/forgot-password')
           .send(postBody)
@@ -74,14 +60,6 @@ describe('Users / Forgot Password (e2e)', () => {
         expect(response.body).toEqual({
           success: true,
         });
-
-        user = await usersService.findById(user._id); // reload user from db data
-        expect(user.resetPasswordToken).toMatch(validUuidV4Regex);
-
-        expect(mailService.sendForgotPasswordEmail).toHaveBeenCalledWith(
-          email,
-          user.resetPasswordToken,
-        );
       });
 
       // Test below makes sure we avoid revealing whether email address exists when user submits

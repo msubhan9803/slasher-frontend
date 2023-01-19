@@ -12,6 +12,7 @@ import { userFactory } from '../../factories/user.factory';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -76,10 +77,13 @@ describe('Users sign-in (e2e)', () => {
             .post('/users/sign-in')
             .send(postBody);
           expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
-          expect(response.body.email).toEqual(activeUser.email);
-          expect(response.body.token).toMatch(simpleJwtRegex);
-          expect(response.body.id).toMatch(activeUser.id);
-          expect(response.body.userName).toMatch(activeUser.userName);
+          expect(response.body).toEqual({
+            id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username1',
+            email: 'User1@Example.com',
+            firstName: 'First name 1',
+            token: expect.stringMatching(simpleJwtRegex),
+          });
         }
       });
 

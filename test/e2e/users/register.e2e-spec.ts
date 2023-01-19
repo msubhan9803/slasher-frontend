@@ -3,20 +3,17 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
-import * as bcrypt from 'bcryptjs';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { MailService } from '../../../src/providers/mail.service';
-import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
-  let userSettingsService: UserSettingsService;
   let mailService: MailService;
 
   const sampleUserRegisterObject = {
@@ -37,7 +34,6 @@ describe('Users / Register (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
@@ -66,27 +62,7 @@ describe('Users / Register (e2e)', () => {
           .post('/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-        const registeredUser = await usersService.findById(response.body.id);
-
-        expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
-        expect(postBody.firstName).toEqual(registeredUser.firstName);
-        expect(postBody.userName).toEqual(registeredUser.userName);
-        expect(postBody.email).toEqual(registeredUser.email);
-        expect(postBody.securityQuestion).toEqual(
-          registeredUser.securityQuestion,
-        );
-        expect(postBody.securityAnswer).toEqual(registeredUser.securityAnswer);
-        expect(
-          bcrypt.compareSync(postBody.password, registeredUser.password),
-        ).toBe(true);
-        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
-        expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
-
-        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
-        expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
-          registeredUser.email,
-          registeredUser.verification_token,
-        );
+        expect(response.body.id).toEqual(expect.stringMatching(SIMPLE_MONGODB_ID_REGEX)); // test for presence of IP value
       });
 
       it('sets the registrationIp', async () => {

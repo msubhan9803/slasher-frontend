@@ -147,7 +147,9 @@ function PostCommentSection({
       commentData.map((comment: any) => {
         if (comment.id === selectedReplyCommentId) {
           const tabs = tabsRef.current;
-          if (tabs && comment.commentReplySection.length - 1 === replyIndex) {
+          if (tabs
+            && comment.commentReplySection.length - 1 === replyIndex
+            && !scrollId.includes('comment')) {
             tabs.scrollIntoView({
               behavior: 'smooth',
               block: 'center',
@@ -176,7 +178,7 @@ function PostCommentSection({
           likeIcon: replies.likedByUser,
           likeCount: replies.likeCount,
           commentCount: replies.commentCount,
-          newComment: replies?.new,
+          newComment: replies?.new || (replies._id === commentReplyID),
         };
         return feeedCommentReplies;
       });
@@ -542,7 +544,7 @@ function PostCommentSection({
                           ))}
 
                       {data.commentReplySection
-                        && data.commentReplySection.length > 1
+                        && data.commentReplySection.length >= 1
                         && data.commentReplySection.length - data.isReplyIndex > 0
                         && data.commentReplySection.length - data.isReplyIndex - (
                           data.commentReplySection.filter(

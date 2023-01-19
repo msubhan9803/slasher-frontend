@@ -92,4 +92,5 @@ export class ChatGateway {
       return { success: true };
     }
     return { success: false, error: 'Some error message' };
+  }
 }

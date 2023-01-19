@@ -8,18 +8,23 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
-import { User } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
 
 const RECENT_MESSAGES_LIMIT = 10;
 
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
-  constructor(private readonly usersService: UsersService, private readonly chatService: ChatService) { }
+  constructor(
+    @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,
+    private readonly usersService: UsersService,
+private readonly chatService: ChatService,
+    ) { }
 
   @WebSocketServer()
   server: Server;
@@ -44,6 +49,11 @@ export class ChatGateway {
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', { message: pick(messageObject, ['_id', 'message', 'matchId', 'createdAt']), user });
     });
+    await this.messageCountUpdateQueue.add(
+      'send-update-if-message-unread',
+      { messageId: messageObject.id },
+      { delay: 5_000 }, // 15 second delay
+    );
     return { success: true, message: messageObject };
   }
 
@@ -69,6 +79,7 @@ export class ChatGateway {
     // since the user is requesting the LATEST messages in the chat and will then be caught up.
     if (!before) {
       await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
+      await this.emitMessageCountUpdateEvent(user.id);
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
@@ -92,4 +103,15 @@ export class ChatGateway {
       return { success: true };
     }
     return { success: false, error: 'Some error message' };
+  }
+
+  async emitMessageCountUpdateEvent(userId: string) {
+    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
+
+    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(userId);
+
+    targetUserSocketIds.forEach((socketId) => {
+      this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+    });
+  }
 }

@@ -30,6 +30,7 @@ import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
+import { QueuedJobsModule } from './global/queued-jobs.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { ReportsModule } from './reports/reports.module';
     SearchModule,
     FeedLikesModule,
     ReportsModule,
+    QueuedJobsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -89,7 +89,7 @@ export class ChatGateway {
 
     if (message.senderId.toString() === user.id) {
       await this.chatService.markMessageAsRead(messageId);
+      return { success: true };
     }
-    return { success: true };
-  }
+    return { success: false, error: 'Some error message' };
 }

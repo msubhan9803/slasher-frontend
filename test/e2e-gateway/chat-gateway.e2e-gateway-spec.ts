@@ -315,6 +315,26 @@ describe('Chat Gateway (e2e)', () => {
         // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
         await waitForSocketUserCleanup(client, usersService);
       });
+
+      it('when senderid or active userid does not same than expected response', async () => {
+        const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: message1.id,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.success).toBe(false);
+            expect(data.error).toBe('Some error message');
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
     });
   });
 });

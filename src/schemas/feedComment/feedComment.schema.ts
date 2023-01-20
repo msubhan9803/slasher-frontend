@@ -61,5 +61,19 @@ export class FeedComment extends FeedCommentUnusedFields {
 }
 
 export const FeedCommentSchema = SchemaFactory.createForClass(FeedComment);
-
+FeedCommentSchema.index(
+  {
+    feedPostId: 1, status: 1, is_deleted: 1, createdAt: 1,
+  },
+);
+FeedCommentSchema.index(
+  {
+    feedPostId: 1, status: 1, is_deleted: 1,
+  },
+);
+FeedCommentSchema.index(
+  {
+    status: 1, is_deleted: 1,
+  },
+);
 export type FeedCommentDocument = FeedComment & Document;

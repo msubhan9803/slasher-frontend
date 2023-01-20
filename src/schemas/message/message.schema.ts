@@ -60,5 +60,9 @@ export class Message extends MessageUnusedFields {
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
-
+MessageSchema.index(
+  {
+    matchId: 1, deleted: 1,
+  },
+);
 export type MessageDocument = Message & Document;

@@ -19,7 +19,7 @@ export class Event extends EventUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ required: true })
+  @Prop({ required: true, index: true, text: true })
   name: string;
 
   @Prop({ default: null, ref: User.name })
@@ -96,5 +96,14 @@ export class Event extends EventUnusedFields {
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
-
+EventSchema.index(
+  {
+    deleted: 1, status: 1, _id: 1,
+  },
+);
+EventSchema.index(
+  {
+    deleted: 1, status: 1, startDate: 1, endDate: 1, sortStartDate: 1,
+  },
+);
 export type EventDocument = Event & Document;

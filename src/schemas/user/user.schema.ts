@@ -48,7 +48,9 @@ export class User extends UserUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ required: true, trim: true })
+  @Prop({
+ required: true, trim: true, index: true, text: true,
+})
   userName: string;
 
   @Prop({ required: true, trim: true })
@@ -195,7 +197,7 @@ export class User extends UserUnusedFields {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
+// UserSchema.indexes({ profilePic: 'text' });
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.
 

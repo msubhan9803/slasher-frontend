@@ -60,5 +60,15 @@ BlockAndUnblockSchema.index(
     to: 1, from: 1, reaction: 1, relationId: 1, requestFrom: 1, reasonOfReport: 1, created: 1,
   },
 );
+BlockAndUnblockSchema.index(
+  {
+    to: 1, from: 1,
+  },
+);
+BlockAndUnblockSchema.index(
+  {
+    from: 1, reaction: 1,
+  },
+);
 
 export type BlockAndUnblockDocument = BlockAndUnblock & Document;

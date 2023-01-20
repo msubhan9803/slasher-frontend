@@ -109,5 +109,24 @@ export class Movie extends MovieUnusedFields {
 }
 
 export const MovieSchema = SchemaFactory.createForClass(Movie);
-
+MovieSchema.index(
+  {
+    _id: 1, deleted: 1, status: 1,
+  },
+);
+MovieSchema.index(
+  {
+    sort_name: 1, deleted: 1, status: 1,
+  },
+);
+MovieSchema.index(
+  {
+    releaseDate: 1, deleted: 1, status: 1,
+  },
+);
+MovieSchema.index(
+  {
+    releaseDate: 1, type: 1, status: 1, deleted: 1, sort_name: 1, sortReleaseDate: 1, sortRating: 1, name: 1,
+  },
+);
 export type MovieDocument = Movie & Document;

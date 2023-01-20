@@ -244,7 +244,7 @@ function ProfileEdit({ user }: Props) {
                   id="report-public"
                   checked={publicStatus}
                   className="mb-2"
-                  label={radioButtonLabelDescription('Anyone on Slasher', 'This will allow your profile to be visible to any Slasher user.')}
+                  label={radioButtonLabelDescription('Public', 'All elements of your profile will be publicly visible (posts, photos, etc.).')}
                   onChange={publicChangeHandler}
                 />
                 <Form.Check
@@ -253,7 +253,7 @@ function ProfileEdit({ user }: Props) {
                   id="report-private"
                   checked={privateStatus}
                   className="mb-2"
-                  label={radioButtonLabelDescription('Private', 'This reduces how much of your profile is visible to Slasher members who are not your friend.')}
+                  label={radioButtonLabelDescription('Private', 'People you are not friends with will only see your profile image, username, and about me info.')}
                   onChange={privateChangeHandler}
                 />
               </Form.Group>

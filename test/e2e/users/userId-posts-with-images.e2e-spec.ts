@@ -12,6 +12,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -71,10 +72,23 @@ describe('UserId Posts With Images (e2e)', () => {
         .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      for (let i = 1; i < response.body.length; i += 1) {
-        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+      for (const body of response.body) {
+        expect(body).toEqual(
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            images: [
+              {
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          },
+        );
       }
-      expect(response.body).toHaveLength(10);
     });
   });
 

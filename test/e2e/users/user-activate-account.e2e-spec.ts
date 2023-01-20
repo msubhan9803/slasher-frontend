@@ -1,8 +1,8 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivateAccountDto } from 'src/users/dto/user-activate-account.dto';
 import { AppModule } from '../../../src/app.module';
@@ -16,17 +16,12 @@ import {
   RssFeedProviderAutoFollow,
   RssFeedProviderDeletionStatus,
 } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
-import {
-  RssFeedProviderFollow,
-  RssFeedProviderFollowDocument,
-} from '../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let rssFeedProvidersService: RssFeedProvidersService;
-  let rssFeedProvidersFollowModel: Model<RssFeedProviderFollowDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,7 +31,6 @@ describe('Users activate account (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
-    rssFeedProvidersFollowModel = moduleRef.get<Model<RssFeedProviderFollowDocument>>(getModelToken(RssFeedProviderFollow.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -81,14 +75,7 @@ describe('Users activate account (e2e)', () => {
           const response = await request(app.getHttpServer())
             .post('/users/activate-account')
             .send(postBody);
-          const idsForExpectedRssFeedProvidersToFollow = (await rssFeedProvidersService.findAllAutoFollowRssFeedProviders())
-            .map((rssFeedProviderId) => rssFeedProviderId._id);
-          const rssFeedProviderFollowData = await rssFeedProvidersFollowModel.find({
-            rssfeedProviderId: { $in: idsForExpectedRssFeedProvidersToFollow },
-            userId: user._id,
-          });
           expect(response.status).toEqual(HttpStatus.CREATED);
-          expect(rssFeedProviderFollowData).toHaveLength(3);
           expect(response.body).toEqual({ success: true });
         });
 

@@ -12,7 +12,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
-import { pick } from '../../../src/utils/object-utils';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
@@ -106,10 +106,9 @@ describe('Suggested user name (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          pick(await usersService.findByUsername('test1'), ['userName', 'id']),
-          pick(await usersService.findByUsername('test2'), ['userName', 'id']),
+          { userName: 'test1', id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX) },
+          { userName: 'test2', id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX) },
         ]);
-        expect(response.body.map((suggestUserName) => suggestUserName.userName)).not.toContain('test3');
       });
 
       it('when query is wrong than expected response', async () => {

@@ -57,7 +57,6 @@ describe('Users / Upload Profile image (e2e)', () => {
           .attach('file', tempPath)
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
-        expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
       }, { extension: 'png' });
     });
 

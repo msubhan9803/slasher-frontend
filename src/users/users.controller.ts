@@ -393,7 +393,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
+    const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) pickFields.push('email');
@@ -445,7 +445,7 @@ export class UsersController {
 
     const userData = await this.usersService.update(id, updateUserDto);
     return {
-      id: user.id,
+      _id: user.id,
       ...pick(userData, Object.keys(updateUserDto)),
     };
   }
@@ -491,7 +491,9 @@ export class UsersController {
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
-    return feedPosts;
+    return feedPosts.map(
+      (post) => pick(post, ['_id', 'messages', 'images', 'userId', 'createdAt', 'likes', 'likeCount', 'commentCount']),
+    );
   }
 
   @TransformImageUrls('$.friends[*].profilePic')
@@ -549,7 +551,9 @@ export class UsersController {
       query.limit,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
-    return feedPosts;
+    return feedPosts.map(
+      (post) => pick(post, ['_id', 'images']),
+    );
   }
 
   @Delete('delete-account')

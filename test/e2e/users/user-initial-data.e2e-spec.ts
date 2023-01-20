@@ -16,6 +16,7 @@ import { pick } from '../../../src/utils/object-utils';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { notificationFactory } from '../../factories/notification.factory';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../src/schemas/notification/notification.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -128,22 +129,22 @@ describe('Users suggested friends (e2e)', () => {
           friendRequestCount: 4,
           recentFriendRequests: [
             {
-              _id: user2._id.toString(),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               userName: 'Friend2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user2.firstName,
+              firstName: 'First name 3',
             },
             {
-              _id: user1._id.toString(),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               userName: 'Friend1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user1.firstName,
+              firstName: 'First name 2',
             },
             {
-              _id: user3._id.toString(),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               userName: 'Friend3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user3.firstName,
+              firstName: 'First name 4',
             },
           ],
         });

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
 import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
@@ -23,6 +23,7 @@ export interface Conversation extends MatchList {
 @Injectable()
 export class ChatService {
   constructor(
+    @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
@@ -83,6 +84,8 @@ export class ChatService {
 
     const currentTime = Date.now();
 
+    const messageSession = await this.connection.startSession();
+    messageSession.startTransaction();
     const [messageObject] = (await this.messageModel.create(
       [{
         matchId: matchList._id,
@@ -102,12 +105,12 @@ export class ChatService {
       { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
       { timestamps: false },
     );
-
     await this.chatModel.updateOne(
       { matchId: matchList._id },
       { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
       { timestamps: false },
     );
+    messageSession.endSession();
 
     return messageObject;
   }

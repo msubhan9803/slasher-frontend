@@ -83,11 +83,19 @@ describe('ChatService', () => {
       expect(messageData.message).toBe('Image');
     });
 
-    it('associated matchList has `updatedAt` same as `created` and `createdAt` of the message', async () => {
+    it('message.created should match with `message.createdAt`, `matchList.updatedAt` and `chat.updatedAt`', async () => {
       const messageData = await messageModel.findById(message._id);
       const matchList = await matchListModel.findById(messageData.matchId);
-      expect(message.createdAt.getTime()).toBe(matchList.updatedAt.getTime());
-      expect(Number(message.created)).toBe(matchList.updatedAt.getTime());
+      const chat = await chatModel.findOne({ matchId: messageData.matchId });
+
+      const messageCreated = Number(message.created);
+      [
+        message.createdAt.getTime(),
+        matchList.updatedAt.getTime(),
+        chat.updatedAt.getTime(),
+      ].forEach((time) => {
+          expect(time).toBe(messageCreated);
+        });
     });
   });
 

@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
@@ -9,10 +9,12 @@ import { RedisIoAdapter } from '../../src/adapters/redis-io.adapter';
 import { AppModule } from '../../src/app.module';
 import { ChatService } from '../../src/chat/providers/chat.service';
 import { MatchListDocument, MatchList } from '../../src/schemas/matchList/matchList.schema';
+import { ChatDocument, Chat } from '../../src/schemas/chat/chat.schema';
 import { UserDocument } from '../../src/schemas/user/user.schema';
 import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +29,7 @@ describe('Chat Gateway (e2e)', () => {
   let user2: UserDocument;
   let activeUserAuthToken: string;
   let matchListModel: Model<MatchListDocument>;
+  let chatModel: Model<ChatDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,6 +40,7 @@ describe('Chat Gateway (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
 
@@ -100,17 +104,52 @@ describe('Chat Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(client);
 
       const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
-      await new Promise<void>((resolve) => {
-        client.emit('chatMessage', payload, (data) => {
-          expect(data.success).toBe(true);
-          expect(data.message.message).toBe(payload.message);
-          // `message.created` (epoch) should match `message.createdAt` (date)
-          expect(Number(data.message.created)).toBe(new Date(data.message.createdAt).getTime());
-          // `message.created` (epoch) should match `message.matchId.updatedAt` (date)
-          expect(Number(data.message.created)).toBe(new Date(data.message.matchId.updatedAt).getTime());
-          resolve();
+
+      const data = await new Promise<any>((resolve) => {
+        client.emit('chatMessage', payload, (receivedData: any) => {
+          resolve(receivedData);
         });
       });
+
+      const matchList = await matchListModel.findById(data.message.matchId);
+      const chat = await chatModel.findOne({ matchId: data.message.matchId });
+
+      expect(data.success).toBe(true);
+      expect(data.message.message).toBe(payload.message);
+
+      const messageCreated = Number(data.message.created);
+      [
+        new Date(data.message.createdAt).getTime(),
+        new Date(matchList.updatedAt).getTime(),
+        new Date(chat.updatedAt).getTime(),
+      ].forEach((time) => {
+        expect(time).toBe(messageCreated);
+      });
+
+      expect(data).toEqual(
+        {
+          success: true,
+          message: {
+            message: 'Hi, test message via socket.',
+            isRead: false,
+            status: 1,
+            deleted: false,
+            created: expect.any(String),
+            deletefor: [],
+            createdAt: expect.any(String),
+            matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            fromId: activeUser._id.toString(),
+            senderId: user1._id.toString(),
+            messageType: 0,
+            image: null,
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            urls: [],
+            __v: 0,
+          },
+        },
+      );
+
       client.close();
       // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
       await waitForSocketUserCleanup(client, usersService);

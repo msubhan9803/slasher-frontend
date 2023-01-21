@@ -83,28 +83,33 @@ export class ChatService {
 
     const currentTime = Date.now();
 
-    // Overwrite `updatedAt` of matchList
-    const matchListUpdated = await this.matchListModel.findOneAndUpdate(
+    const [messageObject] = (await this.messageModel.create(
+      [{
+        matchId: matchList._id,
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        fromId: new mongoose.Types.ObjectId(fromUser),
+        senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
+        message: image ? 'Image' : message,
+        image,
+        created: currentTime.toString(),
+        createdAt: currentTime, // overwrite `createdAt`
+      }],
+      { timestamps: false },
+    ) as unknown as MessageDocument[]);
+
+    await this.matchListModel.updateOne(
       { _id: matchList._id },
-      { $set: { updatedAt: currentTime } },
-      { new: true, timestamps: false },
+      { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
+      { timestamps: false },
     );
 
-    const messageObject = await this.messageModel.create({
-      matchId: matchListUpdated,
-      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-      fromId: new mongoose.Types.ObjectId(fromUser),
-      senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
-      message: image ? 'Image' : message,
-      image,
-      created: currentTime.toString(),
-    });
+    await this.chatModel.updateOne(
+      { matchId: matchList._id },
+      { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
+      { timestamps: false },
+    );
 
-    // Overwrite `createdAt` of message
-    messageObject.createdAt = currentTime as any;
-    await messageObject.save({ timestamps: true });
-
-    return messageObject as unknown as MessageDocument;
+    return messageObject;
   }
 
   async getMessages(

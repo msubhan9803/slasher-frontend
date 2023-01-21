@@ -52,12 +52,12 @@ export class ChatController {
   @Post('conversations/create-or-find-direct-message-conversation')
   async createOrFindDirectMessageConversation(
     @Req() request: Request,
-    @Body() createEventDto: CreateOrFindConversationQueryDto,
+    @Body() createOrFindConversationQueryDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
     return this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
-      new mongoose.Types.ObjectId(createEventDto.userId),
+      new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
   }
 

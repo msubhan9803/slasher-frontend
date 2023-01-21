@@ -229,9 +229,20 @@ export class MoviesService {
       // Fetch the max year data limit
       const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
 
+      // Fetch `movieDBId` to check for already existing movies later
+      const databaseMovieKeys = [];
+      for await (
+        const doc of this.moviesModel
+        .find()
+        .select('movieDBId')
+        .cursor()
+        ) {
+        databaseMovieKeys.push(doc.movieDBId);
+      }
+
       // Fetch the data year wise
       for (let year = startYear; year <= maxYearLimit; year += 1) {
-        await this.fetchMovieData(`${year}-01-01`, `${year}-12-31`);
+        await this.fetchMovieData(`${year}-01-01`, `${year}-12-31`, databaseMovieKeys);
       }
 
       return {
@@ -246,13 +257,11 @@ export class MoviesService {
     }
   }
 
-  async fetchMovieData(startDate: string, endDate: string) {
+  async fetchMovieData(startDate: string, endDate: string, databaseMovieKeys) {
     const options: Omit<MovieDbDto, 'results' | 'total_results'> = { page: 1, total_pages: 1 };
     options.page = 1;
     let moviesFromMovieDB = [];
 
-    // Fetch the movies from collection based on yearly data
-    const databaseMovies = await this.moviesModel.find(({ releaseDate: { $lte: new Date(endDate), $gte: new Date(startDate) } })).exec();
     do {
       const movieData: MovieDbDto | null = await this.fetchMovieDataAPI(startDate, endDate, options.page);
       if (movieData) {
@@ -260,11 +269,9 @@ export class MoviesService {
         options.page = movieData.page + 1;
 
         moviesFromMovieDB = [...moviesFromMovieDB, ...movieData.results];
-        await this.processDatabaseOperation(movieData.results, databaseMovies);
+        await this.processDatabaseOperation(movieData.results, databaseMovieKeys);
       }
     } while (options.page <= options.total_pages);
-
-    const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
 
     // Mark the deleted record on field deleted
     const deletedRecordKeys = [];
@@ -297,7 +304,7 @@ export class MoviesService {
 
   async processDatabaseOperation(
     movies: DiscoverMovieDto[],
-    databaseMovies,
+    databaseMovieKeys,
   ): Promise<void> {
     if (!movies && movies.length) {
       return;
@@ -305,19 +312,18 @@ export class MoviesService {
 
     const insertedMovieList = [];
 
-    const databaseMovieKeys = databaseMovies.map(({ movieDBId }) => movieDBId);
     const promisesArray = [];
     for (const movie of movies) {
       if (databaseMovieKeys.includes(movie.id)) {
         const movieData = await this.moviesModel.findOne({ movieDBId: movie.id });
         if (movieData) {
           for (const movieKey of Object.keys(DiscoverMovieMapper.toDomain(movie))) {
-            movie[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
+            movieData[movieKey] = DiscoverMovieMapper.toDomain(movie)[movieKey];
           }
           promisesArray.push(movieData.save());
         }
       } else {
-        insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
+          insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
       }
     }
 

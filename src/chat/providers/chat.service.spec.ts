@@ -10,6 +10,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('ChatService', () => {
   let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
+  let chatModel: Model<ChatDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -34,6 +36,7 @@ describe('ChatService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -90,17 +93,28 @@ describe('ChatService', () => {
 
   describe('#createPrivateDirectMessageConversation', () => {
     let users;
+    let matchList;
     beforeEach(async () => {
       users = await Promise.all([
         userFactory.build(),
         userFactory.build(),
       ].map((userData) => usersService.create(userData)));
+
+      matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
     });
 
     it('successfully creates the expected MatchList', async () => {
-      const matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
       expect(matchList).toBeTruthy();
       expect(matchList.participants).toEqual([users[0]._id, users[1]._id]);
+    });
+
+    it('creates a corresponding Chat record (for old API compatibility)', async () => {
+      const chat = await chatModel.findOne({ matchId: matchList._id });
+      expect(chat).toBeTruthy();
+      expect(chat.participants).toEqual(matchList.participants);
+      expect(chat.relationId).toEqual(matchList.relationId);
+      expect(chat.roomType).toEqual(matchList.roomType);
+      expect(chat.roomCategory).toEqual(matchList.roomCategory);
     });
   });
 

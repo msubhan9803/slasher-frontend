@@ -104,6 +104,10 @@ describe('Chat Gateway (e2e)', () => {
         client.emit('chatMessage', payload, (data) => {
           expect(data.success).toBe(true);
           expect(data.message.message).toBe(payload.message);
+          // `message.created` (epoch) should match `message.createdAt` (date)
+          expect(Number(data.message.created)).toBe(new Date(data.message.createdAt).getTime());
+          // `message.created` (epoch) should match `message.matchId.updatedAt` (date)
+          expect(Number(data.message.created)).toBe(new Date(data.message.matchId.updatedAt).getTime());
           resolve();
         });
       });

@@ -73,20 +73,30 @@ export class ChatService {
     // - The fromUser and toUser are definitely participants in the returned conversation.
     const matchList = await this.createOrFindPrivateDirectMessageConversationByParticipants(participants);
 
+    const currentTime = Date.now();
+
+    // Overwrite `updatedAt` of matchList
+    const matchListUpdated = await this.matchListModel.findOneAndUpdate(
+      { _id: matchList._id },
+      { $set: { updatedAt: currentTime } },
+      { new: true, timestamps: false },
+    );
+
     const messageObject = await this.messageModel.create({
-      matchId: matchList,
+      matchId: matchListUpdated,
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       fromId: new mongoose.Types.ObjectId(fromUser),
       senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
       message: image ? 'Image' : message,
       image,
+      created: currentTime.toString(),
     });
-    await this.matchListModel.updateOne(
-      { _id: matchList._id },
-      { $set: { updatedAt: Date.now() } },
-    );
 
-    return messageObject;
+    // Overwrite `createdAt` of message
+    messageObject.createdAt = currentTime as any;
+    await messageObject.save({ timestamps: true });
+
+    return messageObject as unknown as MessageDocument;
   }
 
   async getMessages(
@@ -185,7 +195,7 @@ export class ChatService {
           participants: matchList.participants,
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
-          updatedAt: latestMessage.updatedAt,
+          updatedAt: matchList.updatedAt,
         });
       }
     }

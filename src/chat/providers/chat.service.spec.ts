@@ -79,6 +79,13 @@ describe('ChatService', () => {
 
       expect(messageData.message).toBe('Image');
     });
+
+    it('associated matchList has `updatedAt` same as `created` and `createdAt` of the message', async () => {
+      const messageData = await messageModel.findById(message._id);
+      const matchList = await matchListModel.findById(messageData.matchId);
+      expect(message.createdAt.getTime()).toBe(matchList.updatedAt.getTime());
+      expect(Number(message.created)).toBe(matchList.updatedAt.getTime());
+    });
   });
 
   describe('#createPrivateDirectMessageConversation', () => {

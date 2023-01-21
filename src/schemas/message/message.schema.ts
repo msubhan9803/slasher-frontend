@@ -44,6 +44,9 @@ export class Message extends MessageUnusedFields {
   @Prop({ default: null })
   image: string;
 
+  @Prop()
+  created: string;
+
   /***********
    * Methods *
    ***********/

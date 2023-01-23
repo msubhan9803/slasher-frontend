@@ -234,4 +234,33 @@ describe('NotificationsService', () => {
       expect(notificationsCount).toBe(DAYS_NOTIFICATIONS_KEPT.length);
     });
   });
+
+  describe('#processNotification', () => {
+    it('when is process false than expected notification response', async () => {
+      const notification = await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+          senderId: user1.id,
+        }),
+      );
+      await notificationsService.processNotification(notification.id);
+      const notificationDetails = await notificationsService.findById(notification.id);
+      expect(notificationDetails.isProcessed).toBe(true);
+    });
+
+    it('when is process true than expected notification response', async () => {
+      const notification = await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+          senderId: user1.id,
+          isProcessed: true,
+        }),
+      );
+      await notificationsService.processNotification(notification.id);
+      const notificationDetails = await notificationsService.findById(notification.id);
+      expect(notificationDetails.isProcessed).toBe(true);
+    });
+  });
 });

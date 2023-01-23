@@ -197,6 +197,31 @@ export class User extends UserUnusedFields {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+UserSchema.index(
+  {
+    _id: 1, userName: 1, deleted: 1, status: 1,
+  },
+);
+UserSchema.index(
+  {
+    userName: 1,
+  },
+);
+UserSchema.index(
+  {
+    email: 1,
+  },
+);
+UserSchema.index(
+  {
+    email: 1, resetPasswordToken: 1,
+  },
+);
+UserSchema.index(
+  {
+    email: 1, verification_token: 1,
+  },
+);
 // UserSchema.indexes({ profilePic: 'text' });
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.

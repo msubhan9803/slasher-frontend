@@ -64,5 +64,19 @@ export class Notification extends NotificationUnusedFields {
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
-
+NotificationSchema.index(
+  {
+    userId: 1, is_deleted: 1,
+  },
+);
+NotificationSchema.index(
+  {
+    userId: 1, is_deleted: 1, isRead: 1,
+  },
+);
+NotificationSchema.index(
+  {
+    createdAt: 1,
+  },
+);
 export type NotificationDocument = Notification & Document;

@@ -56,5 +56,19 @@ export class RssFeedProviderFollow extends RssFeedProviderFollowUnusedFields {
 }
 
 export const RssFeedProviderFollowSchema = SchemaFactory.createForClass(RssFeedProviderFollow);
-
+RssFeedProviderFollowSchema.index(
+  {
+    _id: 1,
+  },
+);
+RssFeedProviderFollowSchema.index(
+  {
+    userId: 1,
+  },
+);
+RssFeedProviderFollowSchema.index(
+  {
+    userId: 1, rssfeedProviderId: 1,
+  },
+);
 export type RssFeedProviderFollowDocument = RssFeedProviderFollow & Document;

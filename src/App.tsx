@@ -9,6 +9,7 @@ import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
 import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
 import Conversation from './routes/conversation/Conversation';
 import Messages from './routes/messages/Messages';
@@ -33,6 +34,37 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 const DEFAULT_INDEX_REDIRECT = '/home';
 
+const mainWrapperRoutes = {
+  '/home': Home,
+  '/:userName/*': Profile,
+  '/search/*': Search,
+  '/dating/*': Dating,
+  '/messages': Messages,
+  '/messages/conversation/:conversationId': Conversation,
+  '/messages/conversation/user/:userId': Conversation,
+  '/news/*': News,
+  '/events/*': Events,
+  '/posts/*': Posts,
+  '/right-nav-viewer': TempRightNavViewer,
+  '/movies/*': Movies,
+  '/notifications': Notifications,
+  '/account/*': Account,
+  // '/podcasts/*': Podcasts,
+  // '/books/*': Books,
+  // '/shopping/*': Shopping,
+  // '/places/*': Places,
+};
+
+const minimalWrapperRoutes = {
+  '/sign-in': SignIn,
+  '/forgot-password': ForgotPassword,
+  '/reset-password': ResetPassword,
+  '/verification-email-not-received': VerificationEmailNotReceived,
+  '/registration/*': Registration,
+  '/onboarding/*': Onboarding,
+  '/account-activated': AccountActivated,
+};
+
 function App() {
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
@@ -41,35 +73,38 @@ function App() {
       {/* Top level redirect */}
       <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
 
-      {/* Unauthenticated routes */}
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
-      <Route path="/registration/*" element={<Registration />} />
-      <Route path="/onboarding/*" element={<Onboarding />} />
-      <Route path="/account-activated" element={<AccountActivated />} />
+      {
+        Object.entries(mainWrapperRoutes).map(
+          ([routePath, ComponentForRoute]) => (
+            <Route
+              key={routePath}
+              path={routePath}
+              element={(
+                <AuthenticatedPageWrapper>
+                  <ComponentForRoute />
+                </AuthenticatedPageWrapper>
+              )}
+            />
+          ),
+        )
+      }
 
-      {/* Authenticated routes */}
-      <Route path="/home" element={<Home />} />
-      <Route path="/search/*" element={<Search />} />
-      <Route path="/dating/*" element={<Dating />} />
-      <Route path="/messages" element={<Messages />} />
-      <Route path="/messages/conversation/:conversationId" element={<Conversation />} />
-      <Route path="/messages/conversation/user/:userId" element={<Conversation />} />
-      <Route path="/news/*" element={<News />} />
-      <Route path="/events/*" element={<Events />} />
-      <Route path="/posts/*" element={<Posts />} />
-      <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
-      <Route path="/movies/*" element={<Movies />} />
-      <Route path="/:userName/*" element={<Profile />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/account/*" element={<Account />} />
-      {/* <Route path="/podcasts/*" element={<Podcasts />} />
-      <Route path="/books/*" element={<Books />} />
-      <Route path="/shopping/*" element={<Shopping />} />
-      <Route path="/places/*" element={<Places />} /> */}
-      {/* Fallback */}
+      {
+        Object.entries(minimalWrapperRoutes).map(
+          ([routePath, ComponentForRoute]) => (
+            <Route
+              key={routePath}
+              path={routePath}
+              element={(
+                <UnauthenticatedPageWrapper>
+                  <ComponentForRoute />
+                </UnauthenticatedPageWrapper>
+              )}
+            />
+          ),
+        )
+      }
+
       <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
     </Routes>
   );

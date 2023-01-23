@@ -55,14 +55,17 @@ const mainWrapperRoutes = {
   // '/places/*': Places,
 };
 
-const minimalWrapperRoutes = {
-  '/sign-in': SignIn,
+const simpleWrapperRoutes = {
   '/forgot-password': ForgotPassword,
   '/reset-password': ResetPassword,
   '/verification-email-not-received': VerificationEmailNotReceived,
   '/registration/*': Registration,
   '/onboarding/*': Onboarding,
   '/account-activated': AccountActivated,
+};
+
+const noHeaderWrapperRoutes = {
+  '/sign-in': SignIn,
 };
 
 function App() {
@@ -90,13 +93,29 @@ function App() {
       }
 
       {
-        Object.entries(minimalWrapperRoutes).map(
+        Object.entries(simpleWrapperRoutes).map(
           ([routePath, ComponentForRoute]) => (
             <Route
               key={routePath}
               path={routePath}
               element={(
                 <UnauthenticatedPageWrapper>
+                  <ComponentForRoute />
+                </UnauthenticatedPageWrapper>
+              )}
+            />
+          ),
+        )
+      }
+
+      {
+        Object.entries(noHeaderWrapperRoutes).map(
+          ([routePath, ComponentForRoute]) => (
+            <Route
+              key={routePath}
+              path={routePath}
+              element={(
+                <UnauthenticatedPageWrapper hideTopLogo>
                   <ComponentForRoute />
                 </UnauthenticatedPageWrapper>
               )}

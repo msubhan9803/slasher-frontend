@@ -102,7 +102,12 @@ export class ChatService {
 
     await this.matchListModel.updateOne(
       { _id: matchList._id },
-      { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
+      {
+        $set: {
+          updatedAt: currentTime, // overwrite `updatedAt`
+          lastMessageSentAt: currentTime,
+        },
+      },
       { timestamps: false },
     );
     await this.chatModel.updateOne(
@@ -180,11 +185,11 @@ export class ChatService {
             roomCategory: MatchListRoomCategory.DirectMessage,
             relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
           },
-          before ? { updatedAt: beforeUpdatedAt } : {},
+          before ? { lastMessageSentAt: beforeUpdatedAt } : {},
         ],
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ updatedAt: -1 })
+      .sort({ lastMessageSentAt: -1 })
       .limit(limit)
       .lean()
       .exec();
@@ -193,11 +198,11 @@ export class ChatService {
     const conversations = [];
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
-        .findOne({ matchId: matchList._id })
+        .findOne({ matchId: matchList._id }) // TODO: Exclude {deleted: true} messages
         .sort({ createdAt: -1 })
         .exec();
       const unreadCount = await this.messageModel
-        .countDocuments({
+        .countDocuments({ // TODO: Exclude {deleted: true} messages
           isRead: false,
           fromId: { $ne: new mongoose.Types.ObjectId(userId) },
           matchId: matchList._id,

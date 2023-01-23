@@ -1,9 +1,11 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import EventPoster from '../../../images/events-poster.png';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import EventRightSidebar from '../EventRightSidebar';
 
 const eventsList = [
   {
@@ -21,20 +23,25 @@ const eventsList = [
 ];
 function Favorites() {
   return (
-    <AuthenticatedPageWrapper rightSidebarType="event">
-      <EventHeader tabKey="favorites" />
-      <div className="mt-3 bg-dark bg-mobile-transparent p-lg-4 rounded">
-        <Row className="justify-content-md-center">
-          {eventsList.map((eventDetail) => (
-            <Col md={6} key={eventDetail.id}>
-              <EventsPosterCard
-                listDetail={eventDetail}
-              />
-            </Col>
-          ))}
-        </Row>
-      </div>
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <EventHeader tabKey="favorites" />
+        <div className="mt-3 bg-dark bg-mobile-transparent p-lg-4 rounded">
+          <Row className="justify-content-md-center">
+            {eventsList.map((eventDetail) => (
+              <Col md={6} key={eventDetail.id}>
+                <EventsPosterCard
+                  listDetail={eventDetail}
+                />
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <EventRightSidebar />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

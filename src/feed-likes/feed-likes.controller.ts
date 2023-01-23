@@ -31,14 +31,15 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
-
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: post._id } as unknown as FeedPost,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourPost,
-      notificationMsg: 'liked your post',
-    });
+    if (user.id !== (post.userId as any)._id.toString()) {
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: { _id: post._id } as unknown as FeedPost,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+    }
   }
 
   @Delete('post/:feedPostId')
@@ -59,15 +60,16 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
-
-    await this.notificationsService.create({
-      userId: comment.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourComment,
-      notificationMsg: 'liked your comment',
-    });
+    if (comment.userId.toString() !== user.id) {
+      await this.notificationsService.create({
+        userId: comment.userId as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourComment,
+        notificationMsg: 'liked your comment',
+      });
+    }
   }
 
   @Delete('comment/:feedCommentId')
@@ -88,16 +90,17 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
-
-    await this.notificationsService.create({
-      userId: reply.userId as any,
-      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-      feedReplyId: reply._id,
-      senderId: user._id,
-      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-      notificationMsg: 'liked your reply',
-    });
+    if (user.id !== reply.userId.toString()) {
+      await this.notificationsService.create({
+        userId: reply.userId as any,
+        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: reply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'liked your reply',
+      });
+    }
   }
 
   @Delete('reply/:feedReplyId')

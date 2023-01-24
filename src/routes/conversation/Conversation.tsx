@@ -10,7 +10,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
 import { getConversation, createOrFindConversation } from '../../api/messages';
-import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -167,9 +166,7 @@ function Conversation() {
 
   if (showPageDoesNotExist) {
     return (
-      <UnauthenticatedPageWrapper>
-        <NotFound />
-      </UnauthenticatedPageWrapper>
+      <NotFound />
     );
   }
 

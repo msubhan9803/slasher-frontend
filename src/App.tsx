@@ -34,38 +34,42 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 const DEFAULT_INDEX_REDIRECT = '/home';
 
-const mainWrapperRoutes = {
-  '/home': Home,
-  '/:userName/*': Profile,
-  '/search/*': Search,
-  '/dating/*': Dating,
-  '/messages': Messages,
-  '/messages/conversation/:conversationId': Conversation,
-  '/messages/conversation/user/:userId': Conversation,
-  '/news/*': News,
-  '/events/*': Events,
-  '/posts/*': Posts,
-  '/right-nav-viewer': TempRightNavViewer,
-  '/movies/*': Movies,
-  '/notifications': Notifications,
-  '/account/*': Account,
-  // '/podcasts/*': Podcasts,
-  // '/books/*': Books,
-  // '/shopping/*': Shopping,
-  // '/places/*': Places,
-};
+interface TopLevelRoute {
+  component: any;
+  wrapper: any;
+  wrapperProps?: {
+    hideTopLogo?: boolean;
+    hideFooter?: boolean;
+    valign?: 'start' | 'center' | 'end';
+  };
+}
 
-const simpleWrapperRoutes = {
-  '/forgot-password': ForgotPassword,
-  '/reset-password': ResetPassword,
-  '/verification-email-not-received': VerificationEmailNotReceived,
-  '/registration/*': Registration,
-  '/onboarding/*': Onboarding,
-  '/account-activated': AccountActivated,
-};
-
-const noHeaderWrapperRoutes = {
-  '/sign-in': SignIn,
+const routes: Record<string, TopLevelRoute> = {
+  '/home': { wrapper: AuthenticatedPageWrapper, component: Home },
+  '/:userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  '/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
+  '/dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
+  '/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
+  '/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  '/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  '/news/*': { wrapper: AuthenticatedPageWrapper, component: News },
+  '/events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
+  '/posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
+  '/right-nav-viewer': { wrapper: AuthenticatedPageWrapper, component: TempRightNavViewer },
+  '/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
+  '/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
+  '/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  // '/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  // '/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  // '/shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
+  // '/places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  '/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
+  '/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  '/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  '/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
+  '/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  '/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
+  '/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };
 
 function App() {
@@ -77,47 +81,15 @@ function App() {
       <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
 
       {
-        Object.entries(mainWrapperRoutes).map(
-          ([routePath, ComponentForRoute]) => (
+        Object.entries(routes).map(
+          ([routePath, opts]) => (
             <Route
               key={routePath}
               path={routePath}
               element={(
-                <AuthenticatedPageWrapper>
-                  <ComponentForRoute />
-                </AuthenticatedPageWrapper>
-              )}
-            />
-          ),
-        )
-      }
-
-      {
-        Object.entries(simpleWrapperRoutes).map(
-          ([routePath, ComponentForRoute]) => (
-            <Route
-              key={routePath}
-              path={routePath}
-              element={(
-                <UnauthenticatedPageWrapper>
-                  <ComponentForRoute />
-                </UnauthenticatedPageWrapper>
-              )}
-            />
-          ),
-        )
-      }
-
-      {
-        Object.entries(noHeaderWrapperRoutes).map(
-          ([routePath, ComponentForRoute]) => (
-            <Route
-              key={routePath}
-              path={routePath}
-              element={(
-                <UnauthenticatedPageWrapper hideTopLogo>
-                  <ComponentForRoute />
-                </UnauthenticatedPageWrapper>
+                <opts.wrapper {...(opts.wrapperProps)}>
+                  <opts.component />
+                </opts.wrapper>
               )}
             />
           ),

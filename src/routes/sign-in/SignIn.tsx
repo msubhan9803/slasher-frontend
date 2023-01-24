@@ -8,7 +8,6 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import signInImage from '../../images/sign-in.png';
 import styled from 'styled-components';
-import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import RoundButton from '../../components/ui/RoundButton';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
@@ -85,82 +84,80 @@ function SignIn() {
   };
 
   return (
-    <UnauthenticatedPageWrapper hideTopLogo>
-      <Row>
-        <Col sm={12} lg={6}>
-          <div className="h-100 w-100 d-flex align-items-center">
-            <div className="d-flex w-100 h-100 justify-content-center align-items-center">
-              <StyledMobileSlasherLogo src={signInImageMobile} className="w-100 d-lg-none" />
-              <StyledDesktopSlasherLogo src={slasherLogo} className="p-4 d-none d-lg-block" />
-            </div>
+    <Row>
+      <Col sm={12} lg={6}>
+        <div className="h-100 w-100 d-flex align-items-center">
+          <div className="d-flex w-100 h-100 justify-content-center align-items-center">
+            <StyledMobileSlasherLogo src={signInImageMobile} className="w-100 d-lg-none" />
+            <StyledDesktopSlasherLogo src={slasherLogo} className="p-4 d-none d-lg-block" />
           </div>
-        </Col>
-        <Col sm={12} lg={6}>
-          <LoginFormWrapper className="bg-secondary bg-mobile-transparent mx-auto">
-            <div className="form-inner-content justify-content-center">
-              <h1 className="h2 text-center mb-4">Sign In</h1>
-              <Form>
-                <CustomInputGroup
-                  size="lg"
-                  addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />}
-                  label="Username or email"
-                  inputType="email"
-                  name="emailOrUsername"
-                  autoComplete="username"
-                  value={credentials.emailOrUsername}
-                  onChangeValue={handleSignIn}
-                />
-                <CustomInputGroup
-                  size="lg"
-                  addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
-                  label="Password"
-                  inputType={showPassword ? 'text' : 'password'}
-                  password
-                  showPassword={showPassword}
-                  name="password"
-                  autoComplete="current-password"
-                  passwordVisiblility={passwordVisiblility}
-                  value={credentials.password}
-                  onChangeValue={handleSignIn}
-                />
+        </div>
+      </Col>
+      <Col sm={12} lg={6}>
+        <LoginFormWrapper className="bg-secondary bg-mobile-transparent mx-auto">
+          <div className="form-inner-content justify-content-center">
+            <h1 className="h2 text-center mb-4">Sign In</h1>
+            <Form>
+              <CustomInputGroup
+                size="lg"
+                addonContent={<FontAwesomeIcon icon={solid('user')} size="lg" />}
+                label="Username or email"
+                inputType="email"
+                name="emailOrUsername"
+                autoComplete="username"
+                value={credentials.emailOrUsername}
+                onChangeValue={handleSignIn}
+              />
+              <CustomInputGroup
+                size="lg"
+                addonContent={<FontAwesomeIcon icon={solid('lock')} size="lg" />}
+                label="Password"
+                inputType={showPassword ? 'text' : 'password'}
+                password
+                showPassword={showPassword}
+                name="password"
+                autoComplete="current-password"
+                passwordVisiblility={passwordVisiblility}
+                value={credentials.password}
+                onChangeValue={handleSignIn}
+              />
 
-                <p className="text-center fs-5 text-light">
-                  Forgot your password?&nbsp;
-                  <Link to="/forgot-password" className="text-primary">
-                    Click here
-                  </Link>
-                </p>
-                {errorMessage && errorMessage.length > 0 && (
-                  <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-                )}
-                <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
-                  Sign in
-                </RoundButton>
-                <p className="text-center">OR</p>
-                <RoundButtonLink to="/registration" className="w-100" variant="primary">
-                  Create an account
-                </RoundButtonLink>
+              <p className="text-center fs-5 text-light">
+                Forgot your password?&nbsp;
+                <Link to="/forgot-password" className="text-primary">
+                  Click here
+                </Link>
+              </p>
+              {errorMessage && errorMessage.length > 0 && (
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+              )}
+              <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
+                Sign in
+              </RoundButton>
+              <p className="text-center">OR</p>
+              <RoundButtonLink to="/registration" className="w-100" variant="primary">
+                Create an account
+              </RoundButtonLink>
 
-                <p className="mt-3 text-center text-light">
-                  NOTE: If you just created an account and you are not able to login,
-                  be sure you activated your account by clicking
-                  the button in the email we sent when you created your account.
+              <p className="mt-3 text-center text-light">
+                NOTE: If you just created an account and you are not able to login,
+                be sure you activated your account by clicking
+                the button in the email we sent when you created your account.
 
-                  <em>
-                    Your account will not be activated until you click the link in that email.
-                  </em>
-                </p>
-                <p className="text-center mb-0 text-light">
-                  Please check your spam folder for the email.
-                  If you have not received it, please&nbsp;
-                  <Link to="/verification-email-not-received" className="text-primary">click here.</Link>
-                </p>
-              </Form>
-            </div>
-          </LoginFormWrapper>
-        </Col>
-      </Row>
-    </UnauthenticatedPageWrapper>
+                <em>
+                  Your account will not be activated until you click the link in that email.
+                </em>
+              </p>
+              <p className="text-center mb-0 text-light">
+                Please check your spam folder for the email.
+                If you have not received it, please&nbsp;
+                <Link to="/verification-email-not-received" className="text-primary">click here.</Link>
+              </p>
+            </Form>
+          </div>
+        </LoginFormWrapper>
+      </Col>
+    </Row>
   );
 }
 

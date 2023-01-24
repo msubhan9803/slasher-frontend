@@ -15,7 +15,6 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { ProfileVisibility, User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
-import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../../components/NotFound';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
@@ -91,9 +90,7 @@ function ProfileEdit({ user }: Props) {
 
   if (isUnAuthorizedUser) {
     return (
-      <UnauthenticatedPageWrapper>
-        <NotFound />
-      </UnauthenticatedPageWrapper>
+      <NotFound />
     );
   }
 

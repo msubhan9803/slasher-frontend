@@ -11,7 +11,6 @@ import NotFound from '../../components/NotFound';
 import DatingPreferences from './preferences/DatingPreferences';
 import DatingConversation from './conversation/DatingConversation';
 import Likes from './likes/Likes';
-import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import DatingTutorial from './tutorial/DatingTutorial';
 import DatingMatch from './match/DatingMatch';
 import DatingSubscription from './subscription/DatingSubscription';
@@ -33,7 +32,7 @@ function Dating() {
       <Route path="/deck" element={<DatingMatch />} />
       <Route path="/subscription/purchase" element={<DatingSubscription />} />
       <Route path="/subscription/manage" element={<DatingManageSubscription />} />
-      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

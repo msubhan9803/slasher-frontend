@@ -102,7 +102,7 @@ describe('Events create / (e2e)', () => {
           expect(response.body.userId).toEqual(postBody.userId);
           expect(response.body.event_type).toEqual(postBody.event_type);
           expect(response.body.country).toEqual(postBody.country);
-        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }]);
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }, { extension: 'gif' }]);
       });
     });
 
@@ -661,7 +661,7 @@ describe('Events create / (e2e)', () => {
         }, [{ extension: 'png' }, { extension: 'png' }, { extension: 'png' }, { extension: 'png' }]);
       });
 
-      it('when file is not jpg, jpeg or png then it will give expected response', async () => {
+      it('when one of the files is not jpg, jpeg, png, or gif then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
             .post('/events')

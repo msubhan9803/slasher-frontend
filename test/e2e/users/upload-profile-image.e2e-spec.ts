@@ -70,7 +70,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       expect(response.body.message).toContain('File is required');
     });
 
-    it('responds expected response when file is not jpg, jpeg or png', async () => {
+    it('responds expected response when file is not jpg, jpeg, png, or gif', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
           .post('/users/upload-profile-image')
@@ -78,7 +78,7 @@ describe('Users / Upload Profile image (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
+        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png|gif)$/)');
       }, { extension: 'zpng' });
     });
 

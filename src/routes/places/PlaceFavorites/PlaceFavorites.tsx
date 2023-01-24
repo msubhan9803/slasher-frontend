@@ -9,7 +9,7 @@ import PlaceRightSidebar from '../PlaceRightSidebar';
 function PlaceFavorites() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <PlaceHeader tabKey="favorites" />
         <div className="p-4 pt-0">
           <PlacePosterCardList dataList={favorites} />

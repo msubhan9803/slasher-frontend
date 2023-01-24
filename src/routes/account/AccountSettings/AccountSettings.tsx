@@ -25,7 +25,7 @@ function AccountSettings() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <AccountHeader tabKey="settings" />
         <div className="mt-4">
           <p className="fs-5">Select one of the options above.</p>

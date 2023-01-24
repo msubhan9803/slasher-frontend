@@ -449,7 +449,7 @@ function ProfilePostDetail({ user }: Props) {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         {errorMessage && errorMessage.length > 0 && (
           <div className="mt-3 text-start">
             {errorMessage}
@@ -502,7 +502,6 @@ function ProfilePostDetail({ user }: Props) {
               onUpdatePost={onUpdatePost}
             />
           )}
-        <div style={{ height: '100vh' }} />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">
         {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}

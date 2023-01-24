@@ -40,7 +40,7 @@ function AddYourMovie() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <Row className="d-md-none pt-2">
           <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>
           <Col><h1 className="text-center mb-0 h2">Add your movie</h1></Col>

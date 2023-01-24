@@ -114,7 +114,7 @@ function ProfilePhotos({ user }: Props) {
   return (
 
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ProfileHeader tabKey="photos" user={user} />
         <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
           {errorMessage && errorMessage.length > 0 && (

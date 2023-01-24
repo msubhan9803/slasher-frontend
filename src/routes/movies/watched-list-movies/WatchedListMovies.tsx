@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
+import ScrollWrapper from '../../../components/ui/ScrollWrapper';
 import { watchedMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MovieRightSideNav from '../components/MovieRightSideNav';
@@ -28,7 +29,7 @@ function WatchedListMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <MoviesHeader
           tabKey="watched-list"
           showKeys={showKeys}
@@ -38,7 +39,9 @@ function WatchedListMovies() {
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <div className="m-md-2">
-            <PosterCardList dataList={filteredMovies} />
+            <ScrollWrapper>
+              <PosterCardList dataList={filteredMovies} />
+            </ScrollWrapper>
           </div>
         </div>
       </ContentPageWrapper>

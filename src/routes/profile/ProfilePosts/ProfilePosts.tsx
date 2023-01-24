@@ -239,7 +239,7 @@ function ProfilePosts() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ProfileHeader tabKey="posts" user={user} />
         {loginUserData.userName === userName
           && (

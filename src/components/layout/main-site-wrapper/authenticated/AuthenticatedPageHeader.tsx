@@ -107,7 +107,7 @@ function AuthenticatedPageHeader(
       {/* nav-bar for large & medium screen */}
       <header>
         <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
-          <Container fluid="xxl" className="px-4">
+          <div className="w-100 d-flex px-4">
             <Navbar.Brand as={Link} to="/" className="py-0">
               <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
             </Navbar.Brand>
@@ -126,7 +126,7 @@ function AuthenticatedPageHeader(
                 })
               }
             </StyledNav>
-          </Container>
+          </div>
         </StyledNavbar>
 
         {/* nav-bar for small screen */}

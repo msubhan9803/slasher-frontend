@@ -6,6 +6,7 @@ import { favoritesMovies } from '../components/MovieList';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
+import ScrollWrapper from '../../../components/ui/ScrollWrapper';
 
 function FavoriteMovies() {
   const [showKeys, setShowKeys] = useState(false);
@@ -28,7 +29,7 @@ function FavoriteMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <MoviesHeader
           tabKey="favorites"
           showKeys={showKeys}
@@ -38,7 +39,9 @@ function FavoriteMovies() {
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <div className="m-md-2">
-            <PosterCardList dataList={filteredMovies} />
+            <ScrollWrapper>
+              <PosterCardList dataList={filteredMovies} />
+            </ScrollWrapper>
           </div>
         </div>
       </ContentPageWrapper>

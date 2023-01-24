@@ -34,7 +34,7 @@ function SearchEvents() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <SearchHeader
           tabKey="events"
           setSearch={setSearch}

@@ -110,7 +110,7 @@ function CreatePost() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <Row className="d-md-none bg-dark">
           <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
           <Col><h1 className="h2 text-center">Create Post</h1></Col>

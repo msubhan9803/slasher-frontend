@@ -96,7 +96,7 @@ function EventSuggestion() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <CustomContainer className="rounded p-md-4 pb-0 pb-md-4">
           <Row className="d-md-none bg-dark pt-2">
             <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left-long')} size="2x" /></Col>

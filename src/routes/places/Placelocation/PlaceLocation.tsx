@@ -78,7 +78,7 @@ function PlaceLocation() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <PlaceHeader tabKey="by-location" />
         <div className="mt-4">
           <div className="bg-dark p-4 pb-0 mt-3  rounded-3 mb-3 d-block d-md-none">

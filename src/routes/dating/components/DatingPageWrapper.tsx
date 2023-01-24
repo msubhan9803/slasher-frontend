@@ -20,7 +20,7 @@ const ResponsiveSpacer = styled.div`
 function DatingPageWrapper({ children }: Props) {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ResponsiveSpacer />
         {children}
         <DatingMenuSmallScreen />

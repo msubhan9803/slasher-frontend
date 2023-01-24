@@ -31,7 +31,7 @@ function AccountChangePassword() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <AccountHeader tabKey="change-password" />
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-4  my-3">
           <p className="fs-5 m-0">Enter your current password, then enter a new password below to change your password.</p>

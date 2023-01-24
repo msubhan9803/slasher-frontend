@@ -267,7 +267,7 @@ function Home() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <CustomCreatePost />
         <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />

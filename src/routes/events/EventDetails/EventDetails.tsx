@@ -53,7 +53,7 @@ function EventDetails() {
   }, []);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <Row className="justify-content-center my-4 d-lg-none">
           <Col md={6}>
             <Link to="/events/suggestion">

@@ -18,7 +18,7 @@ const slasherDeals = [
 function SlasherDeals() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ShoppingHeader tabKey="slasher-deals" />
         <div className="order-4 my-4">
           <ShoppingSelect />

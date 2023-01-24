@@ -31,7 +31,7 @@ function EventsByLocation() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <EventHeader tabKey="by-location" />
         <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
           <MapComponent

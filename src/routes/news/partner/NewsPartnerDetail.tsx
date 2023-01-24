@@ -36,7 +36,7 @@ function NewsPartnerDetail() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <div className="bg-dark rounded-3 p-4 mb-3">
           <Row>
             <Col md="auto">

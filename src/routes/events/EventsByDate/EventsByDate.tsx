@@ -225,7 +225,7 @@ function EventsByDate() {
   }, [yPositionOfLastEventElement]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <EventHeader tabKey="by-date" />
         <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
           <EventCalender

@@ -130,7 +130,7 @@ function Messages() {
   }, [yPositionOfLastMessageElement]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <div className="mb-3">
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

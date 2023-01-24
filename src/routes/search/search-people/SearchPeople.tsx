@@ -103,7 +103,7 @@ function SearchPeople() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <SearchHeader
           tabKey="people"
           setSearch={handleSearch}

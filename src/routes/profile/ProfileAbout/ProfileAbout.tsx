@@ -34,7 +34,7 @@ function ProfileAbout({ user }: Props) {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ProfileHeader tabKey="about" user={user} />
         <div className="bg-dark rounded p-4 my-3">
           <div className="d-flex justify-content-between">

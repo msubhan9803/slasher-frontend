@@ -45,7 +45,7 @@ function SearchNews() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <SearchHeader
           tabKey="news"
           setSearch={setSearch}

@@ -32,7 +32,7 @@ function MovieDetails() {
   }, [movieData]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <Container fluid className="mb-5">
           <RoundButton className="d-lg-none w-100 my-3 fs-4">Add your movie</RoundButton>
           {additionalMovieData?.video?.[0]?.key && (

@@ -9,6 +9,7 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
+import ScrollWrapper from '../../../components/ui/ScrollWrapper';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -74,7 +75,7 @@ function AllMovies() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <MoviesHeader
           tabKey="all"
           showKeys={showKeys}
@@ -92,16 +93,18 @@ function AllMovies() {
             </div>
           )}
           <div className="m-md-2">
-            <InfiniteScroll
-              threshold={2000}
-              pageStart={0}
-              initialLoad
-              loadMore={() => { setRequestAdditionalPosts(true); }}
-              hasMore={!noMoreData}
-              element="span"
-            >
-              <PosterCardList dataList={filteredMovies} />
-            </InfiniteScroll>
+            <ScrollWrapper>
+              <InfiniteScroll
+                threshold={2000}
+                pageStart={0}
+                initialLoad
+                loadMore={() => { setRequestAdditionalPosts(true); }}
+                hasMore={!noMoreData}
+                useWindow={false}
+              >
+                <PosterCardList dataList={filteredMovies} />
+              </InfiniteScroll>
+            </ScrollWrapper>
             {loadingPosts && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}
           </div>

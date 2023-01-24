@@ -30,7 +30,7 @@ function AddYourPlace() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <div className="bg-dark px-md-4 py-4 rounded-3 bg-mobile-transparent">
           <h1 className="h2 mb-0 fw-bold">Add your destination and reach horror fans on Slasher more easily!</h1>
           <div className="my-3 text-light">

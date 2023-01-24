@@ -48,7 +48,7 @@ function AccountNotification() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <AccountHeader tabKey="notifications" />
         <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
           <h1 className="mb-5">Push Notifications</h1>

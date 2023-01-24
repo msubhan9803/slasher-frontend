@@ -47,7 +47,7 @@ const allShopping = [
 function AllShopping() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <div className="d-flex flex-column">
           <ShoppingHeader tabKey="all" />
           <Row className="justify-content-center mt-4 d-lg-none">

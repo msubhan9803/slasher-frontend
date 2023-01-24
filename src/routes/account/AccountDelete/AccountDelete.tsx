@@ -27,7 +27,7 @@ function AccountDelete() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <AccountHeader tabKey="delete-account" />
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-4  my-3">
           <Row>

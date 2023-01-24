@@ -28,7 +28,7 @@ function FavoriteBooks() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <BooksHeader
           tabKey="favorites"
           showKeys={showKeys}

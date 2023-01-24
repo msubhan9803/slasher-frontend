@@ -172,7 +172,7 @@ function Conversation() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <InfiniteScroll
           pageStart={0}
           initialLoad

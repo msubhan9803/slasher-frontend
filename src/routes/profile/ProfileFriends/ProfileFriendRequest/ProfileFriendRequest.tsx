@@ -126,7 +126,7 @@ function ProfileFriendRequest({ user }: Props) {
   }, [yPositionOfLastFriendElement]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <ProfileHeader tabKey="friends" user={user} />
         <div className="mt-3">
           <div className="d-sm-flex d-block justify-content-between">

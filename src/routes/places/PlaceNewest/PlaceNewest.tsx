@@ -9,7 +9,7 @@ import PlaceRightSidebar from '../PlaceRightSidebar';
 function PlaceNewest() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <PlaceHeader tabKey="newest" />
         <div className="p-4 pt-0">
           <PlacePosterCardList dataList={newest} />

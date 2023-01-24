@@ -24,7 +24,7 @@ const eventsList = [
 function Favorites() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <EventHeader tabKey="favorites" />
         <div className="mt-3 bg-dark bg-mobile-transparent p-lg-4 rounded">
           <Row className="justify-content-md-center">

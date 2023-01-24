@@ -6,8 +6,13 @@ export const ContentSidbarWrapper = styled.div`
 
 export const ContentPageWrapper = styled.div`
   width: 100%;
+  padding: 0px 1rem;
   @media (min-width: 980px) {
+    overflow-y: auto;
+    height: calc(100vh - 125px);
     width: calc(100% - 295px);
-    padding: 0px 1rem;
-  }   
+  }
+  ::-webkit-scrollbar {
+    width: 0 !important
+  }
 `;

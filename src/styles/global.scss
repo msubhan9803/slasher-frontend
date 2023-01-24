@@ -2,6 +2,9 @@
 @import "~bootstrap/scss/bootstrap";
 
 :root {
+  @media (min-width: 980px) {
+    overflow: hidden;
+  }
   --slasher-comments-bg-color: #{$slasher-comments-bg-color};
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
 }
@@ -166,7 +169,8 @@ input:hover {
   border-radius: 13px !important;
   width: 100%;
 }
-.rc-mentions > textarea,
+
+.rc-mentions>textarea,
 .rc-mentions-measure {
   font-size: inherit;
   font-size-adjust: inherit;
@@ -189,14 +193,16 @@ input:hover {
   tab-size: inherit;
   direction: inherit;
 }
-.rc-mentions > textarea {
+
+.rc-mentions>textarea {
   border: none;
   width: 100%;
-  background:var(--bs-secondary) ;
+  background: var(--bs-secondary);
   color: white;
   padding: 10px;
   font-size: 14px;
 }
+
 .rc-mentions-measure {
   position: absolute;
   left: 0;
@@ -207,9 +213,11 @@ input:hover {
   color: transparent;
   z-index: -1;
 }
+
 .rc-mentions-dropdown {
   position: absolute;
 }
+
 .rc-mentions-dropdown-menu {
   list-style: none;
   margin: 0;
@@ -217,37 +225,46 @@ input:hover {
   overflow-y: auto;
   max-height: 150px;
 }
+
 .rc-mentions-dropdown-menu-item {
   cursor: pointer;
 }
+
 .rc-mentions {
   font-size: 14px;
   border: 1px solid #999;
   border-radius: 3px;
   overflow: hidden;
 }
+
 .rc-mentions-dropdown {
   border: 1px solid #999;
   border-radius: 3px;
   background: rgb(15, 15, 15);
   z-index: 9999;
 }
+
 .rc-mentions-dropdown-menu-item {
   padding: 4px 8px;
 }
+
 .rc-mentions-dropdown-menu-item-active {
   background: var(--bs-primary);
-  color:var(--bs-secondary);
+  color: var(--bs-secondary);
 }
+
 .soft-half {
   padding: 7px !important;
 }
+
 .pointer {
   cursor: pointer;
 }
+
 textarea {
   resize: none;
 }
-:focus-visible{
+
+:focus-visible {
   outline: none !important;
 }

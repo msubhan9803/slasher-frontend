@@ -28,7 +28,7 @@ function BuyListBooks() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <BooksHeader
           tabKey="buy-list"
           showKeys={showKeys}

@@ -40,7 +40,7 @@ function AddYourBook() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper>
+      <ContentPageWrapper className="container">
         <div className="bg-dark px-md-4 py-4 py-md-5 rounded-3 bg-mobile-transparent">
           <div className="d-flex justify-content-between">
             <p className="mb-0 fs-4 text-light">Add your book and reach horror fans looking for books on Slasher!</p>

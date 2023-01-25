@@ -71,7 +71,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
 
   describe('Patch /notifications/:id/mark-as-read', () => {
     describe('mark as read notification', () => {
-      it('successfully mark as read notification response.', async () => {
+      it('successfully marks the notification as read and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/notifications/${notification._id}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -81,7 +81,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
         expect(response.body).toEqual({ success: true });
       });
 
-      it('notification id is not exists than expected response.', async () => {
+      it('returns the expected response when the notification id does not exist.', async () => {
         const notificationId = '5c9c60ca59bf9617c18f6cec';
         const response = await request(app.getHttpServer())
           .patch(`/notifications/${notificationId}/mark-as-read`)
@@ -90,7 +90,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
         expect(response.body).toEqual({ message: 'Notification not found', statusCode: 404 });
       });
 
-      it('when notification userId and login user id is not match than expected response.', async () => {
+      it('returns the expected response when the notification is owned by a different user.', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/notifications/${notification1._id}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })

@@ -11,7 +11,6 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { EventCategoriesService } from '../../../src/event-categories/providers/event-categories.service';
 import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Event categories index (e2e)', () => {
   let app: INestApplication;
@@ -52,8 +51,8 @@ describe('Event categories index (e2e)', () => {
 
   describe('GET /event-categories', () => {
     it('returns the expected response', async () => {
-      await eventCategoriesService.create(eventCategoryFactory.build());
-      await eventCategoriesService.create(eventCategoryFactory.build());
+      const eventCategory1 = await eventCategoriesService.create(eventCategoryFactory.build());
+      const eventCategory2 = await eventCategoriesService.create(eventCategoryFactory.build());
       const response = await request(app.getHttpServer())
         .get('/event-categories')
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -61,11 +60,11 @@ describe('Event categories index (e2e)', () => {
       expect(response.body)
         .toEqual([
           {
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: eventCategory1._id.toString(),
             event_name: 'Event category 1',
           },
           {
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: eventCategory2._id.toString(),
             event_name: 'Event category 2',
           },
         ]);

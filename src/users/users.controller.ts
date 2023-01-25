@@ -61,7 +61,6 @@ import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/prov
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
-import { ImagesCleanup } from '../app/interceptors/image-cleanup.interceptor';
 
 @Controller('users')
 export class UsersController {

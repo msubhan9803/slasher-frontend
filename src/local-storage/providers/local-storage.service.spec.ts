@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { v4 as uuidv4 } from 'uuid';
-import { existsSync, readdirSync } from 'fs';
+import { existsSync } from 'fs';
 import { AppModule } from '../../app.module';
 import { LocalStorageService } from './local-storage.service';
 import { createTempFile } from '../../../test/helpers/tempfile-helpers';

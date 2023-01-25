@@ -61,6 +61,7 @@ import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/prov
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { ImagesCleanup } from '../app/interceptors/image-cleanup.interceptor';
 
 @Controller('users')
 export class UsersController {
@@ -451,7 +452,7 @@ export class UsersController {
   }
 
   @Post('upload-profile-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file'), ImagesCleanup)
   async uploadProfileImage(
     @Req() request: Request,
     @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
@@ -469,7 +470,6 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 

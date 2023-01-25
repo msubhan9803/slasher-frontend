@@ -22,7 +22,10 @@ import { StorageLocationService } from './providers/storage-location.service';
           filename: (req, file, cb) => {
             // Clean filename, but keep original file extension.
             // We'll limit upload extensions in the controllers.
-            cb(null, `${uuidv4()}${path.extname(file.originalname)}`);
+            const fileName = `${uuidv4()}${path.extname(file.originalname)}`;
+            (req as any).filesToBeRemoved = (req as any).filesToBeRemoved || [];
+            (req as any).filesToBeRemoved.push(path.join(config.get<string>('UPLOAD_DIR'), fileName));
+            cb(null, fileName);
           },
         }),
       }),

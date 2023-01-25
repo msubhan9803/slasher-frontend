@@ -3,11 +3,12 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { createTempFile } from '../../helpers/tempfile-helpers';
+import { createPersistentFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../../../src/constants';
 import { clearDatabase } from '../../helpers/mongo-helpers';
@@ -48,17 +49,25 @@ describe('Users / Upload Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
-    it('responds with true if file upload successful', async () => {
-      await createTempFile(async (tempPath) => {
-        const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .attach('file', tempPath)
-          .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
-        expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
-      }, { extension: 'png' });
+    it('there should be no files in `UPLOAD_DIR`', async () => {
+      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('responds with true if file upload successful and ensure temp file is removed', async () => {
+      const persistentFilePath = await createPersistentFile({ extension: 'png' });
+      const response = await request(app.getHttpServer())
+        .post('/users/upload-profile-image')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', persistentFilePath)
+        .expect(HttpStatus.CREATED);
+      expect(response.body).toEqual({ success: true });
+      expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
+
+      // There should be no files in `UPLOAD_DIR`
+      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response when file is not present in request', async () => {
@@ -70,28 +79,36 @@ describe('Users / Upload Profile image (e2e)', () => {
       expect(response.body.message).toContain('File is required');
     });
 
-    it('responds expected response when file is not jpg, jpeg or png', async () => {
-      await createTempFile(async (tempPath) => {
-        const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
-      }, { extension: 'zpng' });
+    it('responds expected response when file is not jpg, jpeg or png and ensure temp file is removed', async () => {
+      const persistentFilePath = await createPersistentFile({ extension: 'zpng' });
+
+      const response = await request(app.getHttpServer())
+        .post('/users/upload-profile-image')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', persistentFilePath)
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+      expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
+
+      // There should be no files in `UPLOAD_DIR`
+      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('responds expected response if file size should not larger than 20MB', async () => {
-      await createTempFile(async (tempPath) => {
-        const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-          .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
-      }, { extension: 'jpg', size: 1024 * 1024 * 21 });
+    it('responds expected response if file size should not larger than 20MB  and ensure temp file is removed', async () => {
+      const persistentFilePath = await createPersistentFile({ extension: 'jpg', size: 1024 * 1024 * 21 });
+
+      const response = await request(app.getHttpServer())
+        .post('/users/upload-profile-image')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .attach('file', persistentFilePath)
+        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+      expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
+
+      // There should be no files in `UPLOAD_DIR`
+      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
   });
 });

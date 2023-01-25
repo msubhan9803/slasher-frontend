@@ -29,7 +29,7 @@ function WatchedListMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="watched-list"
           showKeys={showKeys}

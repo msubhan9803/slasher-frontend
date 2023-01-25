@@ -130,7 +130,7 @@ function Messages() {
   }, [yPositionOfLastMessageElement]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <div className="mb-3">
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">
@@ -142,6 +142,7 @@ function Messages() {
             initialLoad
             loadMore={() => { setRequestAdditionalMessages(true); }}
             hasMore={!noMoreData}
+            useWindow={false}
           >
             {
               messages.length > 0

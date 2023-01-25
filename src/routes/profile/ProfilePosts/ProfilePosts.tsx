@@ -239,7 +239,7 @@ function ProfilePosts() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ProfileHeader tabKey="posts" user={user} />
         {loginUserData.userName === userName
           && (
@@ -257,6 +257,7 @@ function ProfilePosts() {
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
+          useWindow={false}
         >
           {
             posts.length > 0

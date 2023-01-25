@@ -21,7 +21,7 @@ const myListings = [
 function ShoppingMyListings() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ShoppingHeader tabKey="my-listings" />
         <div className="order-4 my-4">
           <ShoppingSelect />

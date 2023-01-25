@@ -29,7 +29,7 @@ function SlasherIndieMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="slasher-indie"
           showKeys={showKeys}

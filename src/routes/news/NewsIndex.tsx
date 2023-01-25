@@ -27,7 +27,7 @@ function NewsIndex() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <div className="px-2 bg-mobile-transparent d-flex align-items-center d-lg-none bg-dark">
           <FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" />
           <h1 className="h2 text-center mb-0 mx-auto">News &#38; Reviews </h1>

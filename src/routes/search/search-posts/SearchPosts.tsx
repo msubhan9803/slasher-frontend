@@ -45,7 +45,7 @@ function SearchPosts() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <SearchHeader
           tabKey="posts"
           setSearch={setSearch}

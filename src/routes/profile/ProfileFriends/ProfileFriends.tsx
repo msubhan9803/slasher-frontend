@@ -181,7 +181,7 @@ function ProfileFriends({ user }: Props) {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ProfileHeader tabKey="friends" user={user} />
         <div className="mt-3">
           <div className="d-sm-flex d-block justify-content-between">
@@ -210,6 +210,7 @@ function ProfileFriends({ user }: Props) {
               initialLoad={false}
               loadMore={fetchMoreFriendList}
               hasMore={!noMoreData}
+              useWindow={false}
             >
               <Row className="mt-4" ref={friendContainerElementRef}>
                 {friendsList.map((friend: FriendProps) => (

@@ -72,7 +72,7 @@ function PodcastDetail() {
   }, [params]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <div className="bg-dark rounded p-4 pb-0">
           <div className="mb-3 text-center d-xl-flex">
             <div className="me-xl-4">

@@ -9,7 +9,7 @@ import AboutBooks from './AboutBooks';
 function BookDetails() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <Container fluid className="mb-5">
           <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Add your book</RoundButton>
           <AboutBooks />

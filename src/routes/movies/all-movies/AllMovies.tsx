@@ -75,7 +75,7 @@ function AllMovies() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="all"
           showKeys={showKeys}

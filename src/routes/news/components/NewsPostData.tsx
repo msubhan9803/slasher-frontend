@@ -166,6 +166,7 @@ function NewsPostData({ partnerId }: Props) {
         initialLoad
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
+        useWindow={false}
       >
         {
           postData.length > 0

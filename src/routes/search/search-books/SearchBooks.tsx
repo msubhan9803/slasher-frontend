@@ -33,7 +33,7 @@ function SearchBooks() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <SearchHeader
           tabKey="books"
           setSearch={setSearch}

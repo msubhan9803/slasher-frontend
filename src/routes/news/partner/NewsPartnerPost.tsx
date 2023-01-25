@@ -361,7 +361,7 @@ function NewsPartnerPost() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <Row className="mb-5 px-2">
           <Col className="p-0">
             {errorMessage && errorMessage.length > 0 && (

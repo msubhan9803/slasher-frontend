@@ -28,7 +28,7 @@ function SlasherIndieBooks() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <BooksHeader
           tabKey="slasher-indie"
           showKeys={showKeys}

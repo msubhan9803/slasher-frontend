@@ -114,7 +114,7 @@ function ProfileEdit({ user }: Props) {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         {locallyStoredUserData.profilePic.includes('default_user_icon')
           && <Alert variant="info">Hey! It looks like you don’t have a profile image yet!   Adding one will make people more likely to friend you!</Alert>}
         <Form>

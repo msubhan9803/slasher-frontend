@@ -172,12 +172,13 @@ function Conversation() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <InfiniteScroll
           pageStart={0}
           initialLoad
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
+          useWindow={false}
           isReverse
         >
           <Chat

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
 import { DateTime } from 'luxon';
+import styled from 'styled-components';
 import { getNotifications, markAllRead } from '../../api/notification';
 import { Notification } from '../../types';
 import NotificationTimestamp from './NotificationTimestamp';
@@ -12,6 +13,11 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import ScrollWrapper from '../../components/ui/ScrollWrapper';
+
+const NotificationScrollWrapper = styled(ScrollWrapper)`
+  height: calc(100vh - 185px);
+`;
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -142,20 +148,22 @@ function Notifications() {
               {errorMessage}
             </div>
           )}
-
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad
-            loadMore={() => { setRequestAdditionalPosts(true); }}
-            hasMore={!noMoreData}
-          >
-            {notificationData && notificationData.length > 0
-              && (
-                <div>
-                  {renderNotificationsWithLabels(notificationData)}
-                </div>
-              )}
-          </InfiniteScroll>
+          <NotificationScrollWrapper>
+            <InfiniteScroll
+              pageStart={0}
+              initialLoad
+              loadMore={() => { setRequestAdditionalPosts(true); }}
+              hasMore={!noMoreData}
+              useWindow={false}
+            >
+              {notificationData && notificationData.length > 0
+                && (
+                  <div>
+                    {renderNotificationsWithLabels(notificationData)}
+                  </div>
+                )}
+            </InfiniteScroll>
+          </NotificationScrollWrapper>
           {loadingPosts && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
         </div>

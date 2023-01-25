@@ -126,7 +126,7 @@ function ProfileFriendRequest({ user }: Props) {
   }, [yPositionOfLastFriendElement]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ProfileHeader tabKey="friends" user={user} />
         <div className="mt-3">
           <div className="d-sm-flex d-block justify-content-between">
@@ -142,6 +142,7 @@ function ProfileFriendRequest({ user }: Props) {
               initialLoad={false}
               loadMore={fetchMoreFriendReqList}
               hasMore={!noMoreData}
+              useWindow={false}
             >
               <Row className="mt-4" ref={friendRequestContainerElementRef}>
                 {friendsReqList.map((friend: FriendProps) => (

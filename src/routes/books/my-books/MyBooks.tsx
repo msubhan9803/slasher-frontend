@@ -28,7 +28,7 @@ function MyBooks() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <BooksHeader
           tabKey="my-books"
           showKeys={showKeys}

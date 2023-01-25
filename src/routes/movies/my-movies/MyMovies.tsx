@@ -29,7 +29,7 @@ function MyMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="my-movies"
           showKeys={showKeys}

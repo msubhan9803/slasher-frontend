@@ -21,7 +21,7 @@ const favorites = [
 function ShoppingFavorites() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ShoppingHeader tabKey="favorites" />
         <div className="order-4 my-4">
           <ShoppingSelect />

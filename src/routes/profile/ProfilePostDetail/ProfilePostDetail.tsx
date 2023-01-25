@@ -449,7 +449,7 @@ function ProfilePostDetail({ user }: Props) {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         {errorMessage && errorMessage.length > 0 && (
           <div className="mt-3 text-start">
             {errorMessage}

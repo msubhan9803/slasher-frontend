@@ -9,7 +9,7 @@ import PlaceRightSidebar from '../PlaceRightSidebar';
 function PlaceCategory() {
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <PlaceHeader tabKey="by-category" />
         <div className="px-0 px-md-4 p-4 pt-0 mt-3 mt-lg-0">
           <PlacePosterCardList dataList={category} />

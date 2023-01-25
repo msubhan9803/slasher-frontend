@@ -29,7 +29,7 @@ function BuyMovieList() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="buy-list"
           showKeys={showKeys}

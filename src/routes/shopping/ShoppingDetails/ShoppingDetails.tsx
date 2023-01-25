@@ -65,7 +65,7 @@ function ShoppingDetails() {
   };
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <RoundButton className="d-lg-none w-100 my-3 fs-3 fw-bold">Become a vendor</RoundButton>
         <div className="bg-dark rounded p-4 pb-0">
           <ImageContainer>

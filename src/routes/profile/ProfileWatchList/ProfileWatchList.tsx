@@ -50,7 +50,7 @@ function ProfileWatchList({ user }: Props) {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <ProfileHeader tabKey="watched-list" user={user} />
         <Row className="mt-3 mb-md-3 align-items-center">
           <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">

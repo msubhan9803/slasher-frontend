@@ -74,7 +74,7 @@ function AccountBlockedUser() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <AccountHeader tabKey="blocked-users" />
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3">
           <InfiniteScroll
@@ -82,6 +82,7 @@ function AccountBlockedUser() {
             initialLoad={false}
             loadMore={fetchMoreBlockUsersList}
             hasMore={!noMoreData}
+            useWindow={false}
           >
             <Row>
               {

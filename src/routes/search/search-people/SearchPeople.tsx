@@ -103,7 +103,7 @@ function SearchPeople() {
 
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <SearchHeader
           tabKey="people"
           setSearch={handleSearch}
@@ -115,6 +115,7 @@ function SearchPeople() {
           initialLoad
           loadMore={fetchMoreUsers}
           hasMore={!noMoreData}
+          useWindow={false}
           element="span"
         >
           <Row className="mt-4">

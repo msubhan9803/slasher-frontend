@@ -29,7 +29,7 @@ function FavoriteMovies() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <MoviesHeader
           tabKey="favorites"
           showKeys={showKeys}

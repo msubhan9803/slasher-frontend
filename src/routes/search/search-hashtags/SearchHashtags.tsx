@@ -37,7 +37,7 @@ function SearchHashtags() {
   }, [search]);
   return (
     <ContentSidbarWrapper>
-      <ContentPageWrapper className="container">
+      <ContentPageWrapper>
         <SearchHeader
           tabKey="hashtags"
           setSearch={setSearch}

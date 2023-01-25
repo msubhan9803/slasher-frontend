@@ -12,7 +12,6 @@ import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
-import { User } from '../../schemas/user/user.schema';
 
 const RECENT_MESSAGES_LIMIT = 10;
 

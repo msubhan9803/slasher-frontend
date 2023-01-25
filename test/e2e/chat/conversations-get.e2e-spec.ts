@@ -79,12 +79,12 @@ describe('Conversations all / (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               participants: [
                 {
-                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  _id: user1._id.toString(),
                   userName: 'Username3',
                   profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
                 },
                 {
-                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                  _id: activeUser._id.toString(),
                   userName: 'Username1',
                   profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
                 },

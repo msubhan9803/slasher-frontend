@@ -10,7 +10,6 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -56,8 +55,8 @@ describe('Conversation / (e2e)', () => {
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /chat/conversation/:matchListId', () => {
-    describe('Successful get match list data', () => {
-      it('get expected match list details', async () => {
+    describe('Successfully gets the match list data', () => {
+      it('gets the expected match list details', async () => {
         const matchListId = message1.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
@@ -68,13 +67,13 @@ describe('Conversation / (e2e)', () => {
             _id: message1.matchId._id.toString(),
             participants: [
               {
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                _id: user1._id.toString(),
                 userName: 'Username3',
                 firstName: 'First name 3',
                 profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               },
               {
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                _id: activeUser._id.toString(),
                 userName: 'Username1',
                 firstName: 'First name 1',
                 profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -84,13 +83,13 @@ describe('Conversation / (e2e)', () => {
         );
       });
 
-      it('when active user is not participants than expected response', async () => {
+      it('when active user is not a participant it returns the expected error response', async () => {
         const matchListId = message2.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('You are not a member of this conversation');
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not a member of this conversation' });
       });
 
       it('returns a 404 when when the conversation is not found', async () => {
@@ -100,7 +99,7 @@ describe('Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toBe('Conversation not found');
+        expect(response.body).toEqual({ statusCode: 404, message: 'Conversation not found' });
       });
     });
 
@@ -112,9 +111,7 @@ describe('Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain(
-          'matchListId must be a mongodb id',
-        );
+        expect(response.body).toEqual({ message: ['matchListId must be a mongodb id'], statusCode: 400, error: 'Bad Request' });
       });
     });
   });

@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
+import { readdirSync } from 'fs';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -50,7 +50,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       );
     });
     it('there should be no files in `UPLOAD_DIR` (other than one .keep file)', async () => {
-      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
     });
 
@@ -64,11 +64,11 @@ describe('Users / Upload Profile image (e2e)', () => {
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
         expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
+      }, { extension: 'png' });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
-      }, { extension: 'png' });
     });
 
     it('responds expected response when file is not present in request', async () => {
@@ -92,7 +92,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       }, { extension: 'zpng' });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
     });
 
@@ -108,7 +108,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = fs.readdirSync(configService.get<string>('UPLOAD_DIR'));
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
     });
   });

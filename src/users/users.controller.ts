@@ -452,7 +452,7 @@ export class UsersController {
   }
 
   @Post('upload-profile-image')
-  @UseInterceptors(FileInterceptor('file'), ImagesCleanup)
+  @UseInterceptors(FileInterceptor('file'))
   async uploadProfileImage(
     @Req() request: Request,
     @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())

@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -13,6 +13,8 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +25,7 @@ describe('UserId Posts With Images (e2e)', () => {
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -33,6 +36,7 @@ describe('UserId Posts With Images (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -90,6 +94,23 @@ describe('UserId Posts With Images (e2e)', () => {
         );
       }
     });
+    it('when user is block than expected response.', async () => {
+      const user1 = await usersService.create(userFactory.build());
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const limit = 3;
+      const response = await request(app.getHttpServer())
+        .get(`/users/${user1._id}/friends?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        message: 'User not found',
+        statusCode: 404,
+      });
+    });
   });
 
   describe('when `before` argument is supplied', () => {
@@ -111,6 +132,24 @@ describe('UserId Posts With Images (e2e)', () => {
     });
 
     describe('Validation', () => {
+      it('check user profile status', async () => {
+        const user = await usersService.create(userFactory.build({
+          profile_status: 1,
+        }));
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user._id,
+          }),
+        );
+        const limit = 10;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${user._id}/posts?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.UNAUTHORIZED);
+        expect(response.body.message).toContain('Profile status not found');
+      });
+
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/users/${activeUser._id}/posts-with-images`)

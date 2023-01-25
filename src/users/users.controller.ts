@@ -37,7 +37,7 @@ import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
-import { ActiveStatus } from '../schemas/user/user.enums';
+import { ActiveStatus, ProfileVisibility } from '../schemas/user/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -476,13 +476,22 @@ export class UsersController {
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
   async allFeedPosts(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: AllFeedPostQueryDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.profile_status !== ProfileVisibility.Public) {
+      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const feedPosts = await this.feedPostsService.findAllByUser(
@@ -499,15 +508,23 @@ export class UsersController {
   @TransformImageUrls('$.friends[*].profilePic')
   @Get(':userId/friends')
   async getFriends(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendsDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
+    if (user.profile_status !== ProfileVisibility.Public) {
+      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
@@ -537,13 +554,22 @@ export class UsersController {
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts-with-images')
   async allFeedPostsWithImages(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: AllFeedPostQueryDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.profile_status !== ProfileVisibility.Public) {
+      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const feedPosts = await this.feedPostsService.findAllPostsWithImagesByUser(

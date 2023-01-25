@@ -32,7 +32,7 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .findOne(feedPostFindQuery)
-      .populate('userId', 'userName _id profilePic')
+      .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content')
       .exec();

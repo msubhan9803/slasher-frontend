@@ -21,11 +21,6 @@ export class NotificationsGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('getNotifications')
-  async sendReceiveMessage(@MessageBody() data: any): Promise<string> {
-    return `getNotifications response.  received: ${data.message}`;
-  }
-
   async emitMessageForNotification(notification: Notification) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(notification.userId.toString());
     targetUserSocketIds.forEach((socketId) => {

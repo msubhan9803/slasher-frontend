@@ -97,7 +97,7 @@ export class AppModule {
         '/users/reset-password',
         '/users/sign-in',
         '/users/validate-password-reset-token',
-        'users/check-email',
+        '/users/check-email',
         '/users/verification-email-not-received',
       )
       .forRoutes('*');

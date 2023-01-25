@@ -45,8 +45,8 @@ export class ChatGateway {
     return { success: true, message: messageObject };
   }
 
-  @SubscribeMessage('recentMessages')
-  async recentMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
+  @SubscribeMessage('getMessages')
+  async getMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
     if (inValidData) return { success: false };
 
@@ -58,10 +58,19 @@ export class ChatGateway {
     const matchList = await this.chatService.findMatchList(matchListId);
     if (!matchList) return { error: 'Permission denied' };
 
-    const matchUserIds = matchList.participants.filter((participantsId) => participantsId._id.toString() === user._id.toString());
-    if (matchUserIds.length === 0) return { error: 'Permission denied' };
+    const matchUserIds = matchList.participants.find(
+      (participant) => (participant as any)._id.toString() === userId,
+    );
+    if (!matchUserIds) return { error: 'Permission denied' };
+
+    // If `before` param is undefined, mark all of this conversation's messages TO this user as read,
+    // since the user is requesting the LATEST messages in the chat and will then be caught up.
+    if (!before) {
+      await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
+    }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
+
     return messages;
   }
 }

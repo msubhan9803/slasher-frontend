@@ -283,12 +283,12 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('dob is under age', async () => {
-        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
+        postBody.dob = DateTime.now().minus({ years: 16, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('You must be at least 18 to register');
+        expect(response.body.message).toContain('You must be at least 17 to register');
       });
     });
 

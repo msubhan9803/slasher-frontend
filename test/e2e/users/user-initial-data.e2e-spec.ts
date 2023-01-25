@@ -58,7 +58,7 @@ describe('Users suggested friends (e2e)', () => {
       let user2: UserDocument;
       let user3: UserDocument;
       let user4: UserDocument;
-      let chat0;
+      let conversations;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build({
@@ -80,7 +80,10 @@ describe('Users suggested friends (e2e)', () => {
         await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
         await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
         await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
-        chat0 = await chatService.getConversations(activeUser._id.toString(), 3);
+
+        await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
+        await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 2.');
+        conversations = await chatService.getConversations(activeUser._id.toString(), 3);
 
         for (let index = 0; index < 5; index += 1) {
           await notificationsService.create(
@@ -101,15 +104,15 @@ describe('Users suggested friends (e2e)', () => {
       });
       it('returns the expected user initial data', async () => {
         const recentMessages = [];
-        for (const chat of chat0) {
+        for (const chat of conversations) {
           chat._id = chat._id.toString();
           chat.updatedAt = chat.updatedAt.toISOString();
           // eslint-disable-next-line @typescript-eslint/no-loop-func
           chat.participants = chat.participants.map((participant) => ({
-              ...participant,
-              _id: participant._id.toString(),
-              profilePic: relativeToFullImagePath(configService, participant.profilePic),
-            }));
+            ...participant,
+            _id: participant._id.toString(),
+            profilePic: relativeToFullImagePath(configService, participant.profilePic),
+          }));
           recentMessages.push(chat);
         }
         const response = await request(app.getHttpServer())
@@ -119,6 +122,7 @@ describe('Users suggested friends (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           user: pick(activeUser, ['id', 'userName', 'profilePic']),
+          unreadMessageCount: 2,
           unreadNotificationCount: 5,
           recentMessages,
           friendRequestCount: 4,

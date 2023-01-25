@@ -14,17 +14,39 @@ import { BlockSuggestedFriendDto } from './dto/block-suggest-friend.dto';
 import { GetFriendshipDto } from './dto/get-frienship.dto';
 import { LimitOffSetDto } from './dto/limit-offset.dto';
 import { FriendsService } from './providers/friends.service';
+import { BlocksService } from '../blocks/providers/blocks.service';
+import { NotificationType } from '../schemas/notification/notification.enums';
+import { NotificationsService } from '../notifications/providers/notifications.service';
 
 @Controller('friends')
 export class FriendsController {
   constructor(
     private readonly friendsService: FriendsService,
+    private readonly blocksService: BlocksService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   @Post()
   async createFriendRequest(@Req() request: Request, @Body() createFriendRequestDto: CreateFriendRequestDto) {
     const user = getUserFromRequest(request);
-    await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
+    if (user.id === createFriendRequestDto.userId) {
+      throw new HttpException('You cannot send a friend request to yourself', HttpStatus.BAD_REQUEST);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, createFriendRequestDto.userId);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
+    const friendRequest = await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
+
+    // Create notification for post creator, informing them that a comment was added to their post
+    await this.notificationsService.create({
+      userId: createFriendRequestDto.userId as any,
+      senderId: user._id,
+      notifyType: NotificationType.UserSentYouAFriendRequest,
+      notificationMsg: 'sent you a friend request',
+    });
+
+    return friendRequest;
   }
 
   @TransformImageUrls('$[*].profilePic')

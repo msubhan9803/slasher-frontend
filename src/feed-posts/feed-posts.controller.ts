@@ -90,17 +90,16 @@ export class FeedPostsController {
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
+    // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(createFeedPost?.message);
     for (const mentionedUserId of mentionedUserIds) {
-      const notificationObj: any = {
-        userId: new mongoose.Types.ObjectId(mentionedUserId),
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
         feedPostId: createFeedPost._id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
-        notificationMsg: 'had mentioned you in a post',
-      };
-      const notification = await this.notificationsService.create(notificationObj);
-      this.notificationsGateway.emitMessageForNotification(notification);
+        notificationMsg: 'mentioned you in a post',
+      });
     }
 
     asyncDeleteMulterFiles(files);
@@ -152,10 +151,25 @@ export class FeedPostsController {
       );
     }
 
-    const feedPostData = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
+    const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
+    const updatedFeedPost = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
+    const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(createOrUpdateFeedPostsDto?.message);
+
+    // Create notifications if any NEW users were mentioned after the edit
+    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
+    for (const mentionedUserId of newMentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: updatedFeedPost._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInPost,
+        notificationMsg: 'mentioned you in a post',
+      });
+    }
+
     return {
-      id: feedPostData.id,
-      message: feedPostData.message,
+      id: updatedFeedPost.id,
+      message: updatedFeedPost.message,
     };
   }
 

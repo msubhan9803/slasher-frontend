@@ -13,8 +13,12 @@ export enum NotificationType {
   Type18 = 18,
   Type19 = 19,
   UserMentionedYouInPost = 99,
-  // for some reason, 101 is used for both "replied on your post" and "liked your reply"
-  UserRepliedOnYourPostOrLikedYourReply = 101,
+
+  // In the old API 101 is used for multiple notification types.
+  // It would be good if we could change this, and separate these into different types,
+  // once the old API is retired.
+  UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost = 101,
+
   Type102 = 102,
   Type103 = 103,
   Type121 = 121,

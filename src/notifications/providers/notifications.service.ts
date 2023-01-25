@@ -3,16 +3,45 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../schemas/notification/notification.enums';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @InjectModel(Notification.name)
     private notificationModel: Model<NotificationDocument>,
+    private notificationsGateway: NotificationsGateway,
   ) { }
 
   async create(notification: Partial<Notification>) {
-    return this.notificationModel.create(notification);
+    const newNotification = await this.notificationModel.create(notification);
+    // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
+    // This can be processed in the background instead of adding a small delay to each notification creation.
+    await this.processNotification(newNotification._id);
+    return newNotification;
+  }
+
+  async processNotification(notificationId: string) {
+    const notification = await this.findById(notificationId);
+
+    // If the notification is already marked as processed, then there's nothing to do here
+    if (notification.isProcessed) { return; }
+
+    // In SD-661, confirmed that all notifications should be emitted over socket.
+    this.notificationsGateway.emitMessageForNotification(notification);
+
+    // UserSettings determine whether push notifications should ALSO be sent.  The new API
+    // app doesn't currently support push notifications because it's only supporting a web app
+    // at this time, so the lines below are just placeholder code for later:
+
+    // const userSettings = await this.userSettingsService.findByUserId((notification.userId as mongoose.Types.ObjectId).toString());
+    // if (userSettings.notificationTypeEnabled(notification.notifyType)) {
+    //   // Emit notification if user has this notification type enabled
+    //   // TODO: Send push notification
+    // }
+
+    // Mark notification as processed
+    await notification.updateOne({ isProcessed: true });
   }
 
   async findAllByUser(userId: string, limit: number, before?: string): Promise<NotificationDocument[]> {
@@ -32,6 +61,8 @@ export class NotificationsService {
         ],
       })
       .populate('senderId', 'userName _id profilePic')
+      .populate('feedPostId', '_id userId')
+      .populate('rssFeedProviderId', '_id logo title')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
@@ -66,5 +97,25 @@ export class NotificationsService {
       .count()
       .exec();
     return friendsCount;
+  }
+
+  /**
+   * Deletes all notifications created before the given beforeDate.
+   * @param beforeDate
+   * @returns An object that contains information about success or failure.
+   */
+  async cleanupNotifications(beforeDate: Date) {
+    try {
+      await this.notificationModel.deleteMany({ createdAt: { $lt: beforeDate } });
+      return {
+        success: true,
+        message: 'Successfully completed the cleanupNotifications cron job',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error,
+      };
+    }
   }
 }

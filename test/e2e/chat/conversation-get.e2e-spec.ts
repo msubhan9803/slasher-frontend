@@ -40,8 +40,8 @@ describe('Conversation / (e2e)', () => {
     await app.close();
   });
 
-  let matchList1;
-  let matchList2;
+  let message1;
+  let message2;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -52,21 +52,20 @@ describe('Conversation / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    matchList1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
-    matchList2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
+    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+    message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /chat/conversation/:matchListId', () => {
     describe('Successful get match list data', () => {
       it('get expected match list details', async () => {
-        const matchListId = matchList1.matchId._id;
+        const matchListId = message1.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body._id).toEqual(matchList1.matchId.id);
         expect(response.body).toEqual(
           {
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: message1.matchId._id.toString(),
             participants: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -86,7 +85,7 @@ describe('Conversation / (e2e)', () => {
       });
 
       it('when active user is not participants than expected response', async () => {
-        const matchListId = matchList2.matchId._id;
+        const matchListId = message2.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

@@ -1,5 +1,5 @@
 import {
-  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body,
+  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch,
 } from '@nestjs/common';
 import { Request } from 'express';
 import mongoose from 'mongoose';
@@ -11,6 +11,8 @@ import { TransformImageUrls } from '../app/decorators/transform-image-urls.decor
 import { GetConversationQueryDto } from './dto/get-conversation-query.dto';
 import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversation-query.dto';
 import { pick } from '../utils/object-utils';
+import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
+import { User } from '../schemas/user/user.schema';
 
 @Controller('chat')
 export class ChatController {
@@ -40,7 +42,7 @@ export class ChatController {
     if (!matchList) {
       throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
     }
-    const matchUserIds = matchList.participants.filter((userId) => userId.id === user.id);
+    const matchUserIds = matchList.participants.filter((userId) => (userId as any)._id.toString() === user.id);
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
@@ -52,15 +54,36 @@ export class ChatController {
   @Post('conversations/create-or-find-direct-message-conversation')
   async createOrFindDirectMessageConversation(
     @Req() request: Request,
-    @Body() createEventDto: CreateOrFindConversationQueryDto,
+    @Body() createOrFindConversationQueryDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
-      new mongoose.Types.ObjectId(createEventDto.userId),
+      new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
     const pickConversationFields = ['_id', 'participants'];
 
     return pick(chat, pickConversationFields);
+  }
+
+  @Patch('conversations/mark-all-received-messages-read-for-chat/:matchListId')
+  async markAllAsReadFromUser(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: MarkConversationReadDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const matchList = await this.chatService.findMatchList(param.matchListId);
+    if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+
+    const matchUserIds = (matchList.participants as unknown as User[]).filter(
+      (participantUser) => participantUser._id.toString() === user.id,
+    );
+
+    if (!matchUserIds.length) {
+      throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
+    }
+
+    await this.chatService.markAllReceivedMessagesReadForChat(user.id, param.matchListId);
+    return { success: true };
   }
 }

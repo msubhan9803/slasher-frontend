@@ -12,6 +12,7 @@ import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -53,7 +54,9 @@ describe('GET /users/:id (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
 
-      otherUser = await usersService.create(userFactory.build());
+      otherUser = await usersService.create(userFactory.build({
+        profile_status: ProfileVisibility.Private,
+      }));
       otherUserAuthToken = otherUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -74,6 +77,7 @@ describe('GET /users/:id (e2e)', () => {
           firstName: activeUser.firstName,
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
           coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Public,
         });
       });
 
@@ -92,6 +96,7 @@ describe('GET /users/:id (e2e)', () => {
           firstName: activeUser.firstName,
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
           coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Public,
         });
       });
 
@@ -105,6 +110,24 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body).toEqual({
           message: 'User not found',
           statusCode: 404,
+        });
+      });
+
+      it('returns the expected response when logged in users requests their own user data with private profile status', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${otherUser.id}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          id: otherUser.id,
+          aboutMe: otherUser.aboutMe,
+          email: otherUser.email,
+          userName: otherUser.userName,
+          firstName: otherUser.firstName,
+          profilePic: relativeToFullImagePath(configService, otherUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Private,
         });
       });
     });
@@ -123,6 +146,7 @@ describe('GET /users/:id (e2e)', () => {
           firstName: activeUser.firstName,
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
           coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Public,
         });
       });
 
@@ -154,6 +178,24 @@ describe('GET /users/:id (e2e)', () => {
           firstName: activeUser.firstName,
           profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
           coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Public,
+        });
+      });
+
+      it('returns the expected user with private profile status', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${otherUser.userName}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          id: otherUser.id,
+          aboutMe: otherUser.aboutMe,
+          userName: otherUser.userName,
+          firstName: otherUser.firstName,
+          profilePic: relativeToFullImagePath(configService, otherUser.profilePic),
+          coverPhoto: relativeToFullImagePath(configService, null),
+          profile_status: ProfileVisibility.Private,
         });
       });
     });

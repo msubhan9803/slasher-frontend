@@ -2,11 +2,24 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
+import * as selfsigned from 'selfsigned';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  let httpsOptions;
+  // Note: Can't read HTTPS env variable from ConfigModule because it hasn't been loaded yet.
+  if (process.env.HTTPS === 'true') {
+    const attrs = [{ name: 'commonName', value: 'localhost' }];
+    const pems = selfsigned.generate(attrs, { days: 365 });
+    httpsOptions = {
+      key: pems.private,
+      cert: pems.cert,
+    };
+  }
+
   const app = await NestFactory.create(AppModule, {
+    httpsOptions,
     // TODO: Consider a variable logging policy later on, based on NODE_ENV
     // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
   });

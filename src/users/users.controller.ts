@@ -343,17 +343,22 @@ export class UsersController {
   )
   @Get('initial-data')
   async initialData(@Req() request: Request) {
+    // TODO: For better performance and to reduce load on the database, we may want to
+    // look into caching some initial-data items later on (and then building appropriate
+    // cache invalidation mechanisms).
     const user: UserDocument = getUserFromRequest(request);
+    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
     const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
     const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
-    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
     const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user._id);
+    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user._id);
     return {
       user: pick(user, ['id', 'userName', 'profilePic']),
-      unreadNotificationCount,
       recentMessages,
-      friendRequestCount,
       recentFriendRequests: receivedFriendRequestsData,
+      friendRequestCount,
+      unreadNotificationCount,
+      unreadMessageCount,
     };
   }
 
@@ -388,7 +393,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe'];
+    const pickFields = ['id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
     if (loggedInUser.id === user.id) pickFields.push('email');

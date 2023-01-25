@@ -10,6 +10,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('ChatService', () => {
   let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
+  let chatModel: Model<ChatDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -34,6 +36,7 @@ describe('ChatService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -79,21 +82,49 @@ describe('ChatService', () => {
 
       expect(messageData.message).toBe('Image');
     });
+
+    it('message.created should match with `message.createdAt`, `matchList.updatedAt`, '
+      + '`matchList.lastMessageSentAt`, and `chat.updatedAt`', async () => {
+        const messageData = await messageModel.findById(message._id);
+        const matchList = await matchListModel.findById(messageData.matchId);
+        const chat = await chatModel.findOne({ matchId: messageData.matchId });
+
+        const messageCreated = Number(message.created);
+        [
+          message.createdAt.getTime(),
+          matchList.updatedAt.getTime(),
+          matchList.lastMessageSentAt.getTime(),
+          chat.updatedAt.getTime(),
+        ].forEach((time) => {
+          expect(time).toBe(messageCreated);
+        });
+      });
   });
 
   describe('#createPrivateDirectMessageConversation', () => {
     let users;
+    let matchList;
     beforeEach(async () => {
       users = await Promise.all([
         userFactory.build(),
         userFactory.build(),
       ].map((userData) => usersService.create(userData)));
+
+      matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
     });
 
     it('successfully creates the expected MatchList', async () => {
-      const matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
       expect(matchList).toBeTruthy();
       expect(matchList.participants).toEqual([users[0]._id, users[1]._id]);
+    });
+
+    it('creates a corresponding Chat record (for old API compatibility)', async () => {
+      const chat = await chatModel.findOne({ matchId: matchList._id });
+      expect(chat).toBeTruthy();
+      expect(chat.participants).toEqual(matchList.participants);
+      expect(chat.relationId).toEqual(matchList.relationId);
+      expect(chat.roomType).toEqual(matchList.roomType);
+      expect(chat.roomCategory).toEqual(matchList.roomCategory);
     });
   });
 
@@ -236,6 +267,49 @@ describe('ChatService', () => {
       const matchListDetails = await chatService.findMatchList(matchList.matchId._id);
       expect(matchListDetails.participants).toHaveLength(2);
       expect(matchListDetails._id).toEqual(matchList.matchId._id);
+    });
+  });
+
+  describe('#getUnreadDirectPrivateMessageCount', () => {
+    beforeEach(async () => {
+      const firstMessage = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 1');
+      firstMessage.isRead = true;
+      firstMessage.save();
+      await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Reply 1');
+      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 2');
+      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
+    });
+
+    it('returns the expected count', async () => {
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(2);
+    });
+  });
+
+  describe('#markAllReceivedMessagesReadForChat', () => {
+    let m1;
+    let m2;
+    let m3;
+    let m4;
+
+    beforeEach(async () => {
+      m1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 1');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 2');
+      m3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Send 3');
+      m4 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Reply 1');
+    });
+
+    it('all messages should be marked as read which are sent from a user to target user', async () => {
+      const matchId = m1.matchId._id;
+      await chatService.markAllReceivedMessagesReadForChat(user0._id.toString(), matchId);
+      m1 = await messageModel.findById(m1._id);
+      m2 = await messageModel.findById(m2._id);
+      m3 = await messageModel.findById(m3._id);
+      m4 = await messageModel.findById(m4._id);
+
+      expect(m1.isRead).toBe(true);
+      expect(m2.isRead).toBe(true);
+      expect(m3.isRead).toBe(false);
+      expect(m4.isRead).toBe(false);
     });
   });
 });

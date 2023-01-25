@@ -1,8 +1,9 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
@@ -13,6 +14,11 @@ import { notificationFactory } from '../../factories/notification.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { NotificationDeletionStatus } from '../../../src/schemas/notification/notification.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import type { NotificationDocument } from '../../../src/schemas/notification/notification.schema';
+import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { feedPostFactory } from '../../factories/feed-post.factory';
+import { RssFeedProvider, RssFeedProviderDocument } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 
 describe('All Notifications (e2e)', () => {
   let app: INestApplication;
@@ -23,6 +29,11 @@ describe('All Notifications (e2e)', () => {
   let activeUser;
   let configService: ConfigService;
   let notificationDates: Array<{ createdAt: Date, lastUpdateAt: Date }>;
+  let allNotifications: NotificationDocument[];
+  let feedPostModel: Model<FeedPostDocument>;
+  let feedPostData: FeedPostDocument;
+  let rssFeedProviderData: RssFeedProviderDocument;
+  let rssFeedProviderModel: Model<RssFeedProviderDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -33,6 +44,8 @@ describe('All Notifications (e2e)', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    feedPostModel = moduleRef.get<Model<FeedPostDocument>>(getModelToken(FeedPost.name));
+    rssFeedProviderModel = moduleRef.get<Model<RssFeedProviderDocument>>(getModelToken(RssFeedProvider.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -72,14 +85,27 @@ describe('All Notifications (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+
+    feedPostData = await feedPostModel.create(feedPostFactory.build({
+      userId: activeUser.id,
+    }));
+    rssFeedProviderData = await rssFeedProviderModel.create(rssFeedProviderFactory.build());
+
+    allNotifications = [];
     for (let index = 0; index < 5; index += 1) {
-      await notificationsService.create(
+      const notification = await notificationsService.create(
         notificationFactory.build({
+          feedCommentId: new mongoose.Types.ObjectId() as any,
+          feedReplyId: new mongoose.Types.ObjectId() as any,
+          feedPostId: feedPostData.id,
+          rssFeedProviderId: rssFeedProviderData._id,
+          senderId: activeUser._id.toString(),
           is_deleted: NotificationDeletionStatus.NotDeleted,
           userId: activeUser._id.toString(),
           ...notificationDates[index],
         }),
       );
+      allNotifications.push(notification);
     }
   });
 
@@ -104,9 +130,12 @@ describe('All Notifications (e2e)', () => {
             lastUpdateAt: notificationDates[0].lastUpdateAt.toISOString(),
             allUsers: [],
             data: null,
-            feedCommentId: null,
-            feedPostId: null,
-            feedReplyId: null,
+            feedCommentId: allNotifications[0].feedCommentId.toString(),
+            feedPostId: {
+              _id: feedPostData.id.toString(),
+              userId: feedPostData.userId.toString(),
+            },
+            feedReplyId: allNotifications[0].feedReplyId.toString(),
             images: [],
             isProcessed: true,
             isRead: 0,
@@ -122,8 +151,16 @@ describe('All Notifications (e2e)', () => {
             notifyType: 1,
             rssFeedCommentId: null,
             rssFeedId: null,
-            rssFeedProviderId: null,
-            senderId: null,
+            rssFeedProviderId: {
+              _id: rssFeedProviderData._id.toString(),
+              logo: rssFeedProviderData.logo,
+              title: rssFeedProviderData.title,
+            },
+            senderId: {
+              _id: activeUser._id.toString(),
+              profilePic: expect.any(String),
+              userName: activeUser.userName,
+            },
             status: 0,
             userId: activeUser._id.toString(),
           },
@@ -133,9 +170,12 @@ describe('All Notifications (e2e)', () => {
             lastUpdateAt: notificationDates[1].lastUpdateAt.toISOString(),
             allUsers: [],
             data: null,
-            feedCommentId: null,
-            feedPostId: null,
-            feedReplyId: null,
+            feedCommentId: allNotifications[1].feedCommentId.toString(),
+            feedPostId: {
+              _id: feedPostData.id.toString(),
+              userId: feedPostData.userId.toString(),
+            },
+            feedReplyId: allNotifications[1].feedReplyId.toString(),
             images: [],
             isProcessed: true,
             isRead: 0,
@@ -151,8 +191,16 @@ describe('All Notifications (e2e)', () => {
             notifyType: 1,
             rssFeedCommentId: null,
             rssFeedId: null,
-            rssFeedProviderId: null,
-            senderId: null,
+            rssFeedProviderId: {
+              _id: rssFeedProviderData._id.toString(),
+              logo: rssFeedProviderData.logo,
+              title: rssFeedProviderData.title,
+            },
+            senderId: {
+              _id: activeUser._id.toString(),
+              profilePic: expect.any(String),
+              userName: activeUser.userName,
+            },
             status: 0,
             userId: activeUser._id.toString(),
           },
@@ -162,9 +210,12 @@ describe('All Notifications (e2e)', () => {
             lastUpdateAt: notificationDates[2].lastUpdateAt.toISOString(),
             allUsers: [],
             data: null,
-            feedCommentId: null,
-            feedPostId: null,
-            feedReplyId: null,
+            feedCommentId: allNotifications[2].feedCommentId.toString(),
+            feedPostId: {
+              _id: feedPostData.id.toString(),
+              userId: feedPostData.userId.toString(),
+            },
+            feedReplyId: allNotifications[2].feedReplyId.toString(),
             images: [],
             isProcessed: true,
             isRead: 0,
@@ -180,8 +231,16 @@ describe('All Notifications (e2e)', () => {
             notifyType: 1,
             rssFeedCommentId: null,
             rssFeedId: null,
-            rssFeedProviderId: null,
-            senderId: null,
+            rssFeedProviderId: {
+              _id: rssFeedProviderData._id.toString(),
+              logo: rssFeedProviderData.logo,
+              title: rssFeedProviderData.title,
+            },
+            senderId: {
+              _id: activeUser._id.toString(),
+              profilePic: expect.any(String),
+              userName: activeUser.userName,
+            },
             status: 0,
             userId: activeUser._id.toString(),
           },
@@ -191,9 +250,12 @@ describe('All Notifications (e2e)', () => {
             lastUpdateAt: notificationDates[3].lastUpdateAt.toISOString(),
             allUsers: [],
             data: null,
-            feedCommentId: null,
-            feedPostId: null,
-            feedReplyId: null,
+            feedCommentId: allNotifications[3].feedCommentId.toString(),
+            feedPostId: {
+              _id: feedPostData.id.toString(),
+              userId: feedPostData.userId.toString(),
+            },
+            feedReplyId: allNotifications[3].feedReplyId.toString(),
             images: [],
             isProcessed: true,
             isRead: 0,
@@ -209,8 +271,16 @@ describe('All Notifications (e2e)', () => {
             notifyType: 1,
             rssFeedCommentId: null,
             rssFeedId: null,
-            rssFeedProviderId: null,
-            senderId: null,
+            rssFeedProviderId: {
+              _id: rssFeedProviderData._id.toString(),
+              logo: rssFeedProviderData.logo,
+              title: rssFeedProviderData.title,
+            },
+            senderId: {
+              _id: activeUser._id.toString(),
+              profilePic: expect.any(String),
+              userName: activeUser.userName,
+            },
             status: 0,
             userId: activeUser._id.toString(),
           },
@@ -220,9 +290,12 @@ describe('All Notifications (e2e)', () => {
             lastUpdateAt: notificationDates[4].lastUpdateAt.toISOString(),
             allUsers: [],
             data: null,
-            feedCommentId: null,
-            feedPostId: null,
-            feedReplyId: null,
+            feedCommentId: allNotifications[4].feedCommentId.toString(),
+            feedPostId: {
+              _id: feedPostData.id.toString(),
+              userId: feedPostData.userId.toString(),
+            },
+            feedReplyId: allNotifications[4].feedReplyId.toString(),
             images: [],
             isProcessed: true,
             isRead: 0,
@@ -238,8 +311,16 @@ describe('All Notifications (e2e)', () => {
             notifyType: 1,
             rssFeedCommentId: null,
             rssFeedId: null,
-            rssFeedProviderId: null,
-            senderId: null,
+            rssFeedProviderId: {
+              _id: rssFeedProviderData._id.toString(),
+              logo: rssFeedProviderData.logo,
+              title: rssFeedProviderData.title,
+            },
+            senderId: {
+              _id: activeUser._id.toString(),
+              profilePic: expect.any(String),
+              userName: activeUser.userName,
+            },
             status: 0,
             userId: activeUser._id.toString(),
           },

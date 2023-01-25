@@ -13,11 +13,14 @@ import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversat
 import { pick } from '../utils/object-utils';
 import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
+import { BlocksService } from '../blocks/providers/blocks.service';
 
 @Controller('chat')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
+    private readonly blocksService: BlocksService,
+
   ) { }
 
   @TransformImageUrls('$[*].participants[*].profilePic')
@@ -57,6 +60,10 @@ export class ChatController {
     @Body() createOrFindConversationQueryDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, createOrFindConversationQueryDto.userId);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),

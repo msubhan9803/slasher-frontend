@@ -6,10 +6,12 @@ import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallback
 import 'react-calendar/dist/Calendar.css';
 import { DateTime } from 'luxon';
 import InfiniteScroll from 'react-infinite-scroller';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import EventRightSidebar from '../EventRightSidebar';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -222,46 +224,51 @@ function EventsByDate() {
     }
   }, [yPositionOfLastEventElement]);
   return (
-    <AuthenticatedPageWrapper rightSidebarType="event">
-      <EventHeader tabKey="by-date" />
-      <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
-        <EventCalender
-          className="w-100 p-4 pb-0 bg-dark border-0 text-white"
-          onClickDay={setSelectedDate}
-          onActiveStartDateChange={onActiveStartDateChange}
-          onDrillDown={onDrillDownChange}
-          value={selectedDate}
-          minDetail="year"
-          prev2Label={null}
-          next2Label={null}
-          tileClassName={({ date }: CalendarTileProperties) => {
-            if (markDateList.find((x: any) => x === DateTime.fromJSDate(date).toFormat('yyyy-MM-dd'))) {
-              return 'highlight';
-            }
-            return null;
-          }}
-        />
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad={false}
-          loadMore={fetchMoreEvent}
-          hasMore={!noMoreData}
-          element="span"
-        >
-          <Row ref={eventContainerElementRef}>
-            {eventsList && eventsList.length > 0
-              && (eventsList.map((eventDetail) => (
-                <Col md={6} key={eventDetail.id}>
-                  <EventsPosterCard
-                    listDetail={eventDetail}
-                  />
-                </Col>
-              )))}
-          </Row>
-        </InfiniteScroll>
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <EventHeader tabKey="by-date" />
+        <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
+          <EventCalender
+            className="w-100 p-4 pb-0 bg-dark border-0 text-white"
+            onClickDay={setSelectedDate}
+            onActiveStartDateChange={onActiveStartDateChange}
+            onDrillDown={onDrillDownChange}
+            value={selectedDate}
+            minDetail="year"
+            prev2Label={null}
+            next2Label={null}
+            tileClassName={({ date }: CalendarTileProperties) => {
+              if (markDateList.find((x: any) => x === DateTime.fromJSDate(date).toFormat('yyyy-MM-dd'))) {
+                return 'highlight';
+              }
+              return null;
+            }}
+          />
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad={false}
+            loadMore={fetchMoreEvent}
+            hasMore={!noMoreData}
+            element="span"
+          >
+            <Row ref={eventContainerElementRef}>
+              {eventsList && eventsList.length > 0
+                && (eventsList.map((eventDetail) => (
+                  <Col md={6} key={eventDetail.id}>
+                    <EventsPosterCard
+                      listDetail={eventDetail}
+                    />
+                  </Col>
+                )))}
+            </Row>
+          </InfiniteScroll>
+          {noMoreData && renderNoMoreDataMessage()}
+        </div>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <EventRightSidebar />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

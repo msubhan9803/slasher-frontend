@@ -1,11 +1,18 @@
 import React from 'react';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarViewer from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 function TempRightNavViewer() {
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-other-user">
-      <h1 className="h3 mb-3">Right side nav viewer</h1>
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <h1 className="h3 mb-3">Right side nav viewer</h1>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarViewer />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

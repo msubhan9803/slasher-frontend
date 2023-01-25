@@ -4,12 +4,14 @@ import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getNotifications, markAllRead } from '../../api/notification';
 import { Notification } from '../../types';
 import NotificationTimestamp from './NotificationTimestamp';
 import NotificationCard from './NotificationCard';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -132,31 +134,36 @@ function Notifications() {
   };
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="notification">
-      <div className="bg-dark bg-mobile-transparent p-lg-4 rounded-3">
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            {errorMessage}
-          </div>
-        )}
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <div className="bg-dark bg-mobile-transparent p-lg-4 rounded-3">
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              {errorMessage}
+            </div>
+          )}
 
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalPosts(true); }}
-          hasMore={!noMoreData}
-        >
-          {notificationData && notificationData.length > 0
-            && (
-              <div>
-                {renderNotificationsWithLabels(notificationData)}
-              </div>
-            )}
-        </InfiniteScroll>
-        {loadingPosts && <LoadingIndicator />}
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
-    </AuthenticatedPageWrapper>
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPosts(true); }}
+            hasMore={!noMoreData}
+          >
+            {notificationData && notificationData.length > 0
+              && (
+                <div>
+                  {renderNotificationsWithLabels(notificationData)}
+                </div>
+              )}
+          </InfiniteScroll>
+          {loadingPosts && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
+        </div>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <NotificationsRIghtSideNav />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 export default Notifications;

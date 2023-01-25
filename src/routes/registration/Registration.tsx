@@ -8,7 +8,6 @@ import RegistrationIdentity from './identity/RegistrationIdentity';
 import RegistrationSecurity from './security/RegistrationSecurity';
 import RegistrationTerms from './terms/RegistrationTerms';
 import RegistrationFinal from './final/RegistrationFinal';
-import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 
 function Registration() {
@@ -20,7 +19,7 @@ function Registration() {
       <Route path="/terms" element={<RegistrationTerms activeStep={2} />} />
       <Route path="/final" element={<RegistrationFinal />} />
 
-      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

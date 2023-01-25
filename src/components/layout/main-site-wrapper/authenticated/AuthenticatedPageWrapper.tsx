@@ -9,17 +9,6 @@ import { useMediaQuery } from 'react-responsive';
 import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
-import RightSidebarViewer from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
-import RightSidebarSelf from '../../right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import DatingSidebar from '../../../../routes/dating/components/DatingMenu/DatingSidebar';
-import NewsRightSideNav from '../../../../routes/news/components/NewsRightSideNav';
-import ShoppingRightSidebar from '../../../../routes/shopping/ShoppingRightSidebar';
-import BooksRigthSideNav from '../../../../routes/books/components/BooksRigthSideNav';
-import MovieRightSideNav from '../../../../routes/movies/components/MovieRightSideNav';
-import PlaceRightSidebar from '../../../../routes/places/PlaceRightSidebar';
-import NotificationsRIghtSideNav from '../../../../routes/notifications/NotificationsRIghtSideNav';
-import EventRightSidebar from '../../../../routes/events/EventRightSidebar';
-import PodcastsSidebar from '../../../../routes/podcasts/components/PodcastsSidebar';
 import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
@@ -29,7 +18,6 @@ import useGlobalSocket from '../../../../hooks/useGlobalSocket';
 
 interface Props {
   children: React.ReactNode;
-  rightSidebarType?: 'profile-self' | 'profile-other-user' | 'dating' | 'movie' | 'book' | 'news' | 'shopping' | 'place' | 'notification' | 'event' | 'podcast';
 }
 
 const StyledOffcanvas = styled(Offcanvas)`
@@ -53,15 +41,11 @@ const MainContentCol = styled.main`
   }
 `;
 
-const RightSidebarWrapper = styled.div`
-  width: 334px;
-`;
-
 // This id links the offcanvas to the top navar toggle for accessibility.
 const offcanvasId = 'offcanvas-sidebar-nav';
 const desktopBreakPoint = 'lg';
 
-function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
+function AuthenticatedPageWrapper({ children }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
@@ -92,20 +76,6 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
-
-  const renderSidebarForType = (type: string) => ({
-    'profile-self': <RightSidebarSelf />,
-    'profile-other-user': <RightSidebarViewer />,
-    dating: <DatingSidebar />,
-    movie: <MovieRightSideNav />,
-    news: <NewsRightSideNav />,
-    shopping: <ShoppingRightSidebar />,
-    book: <BooksRigthSideNav />,
-    place: <PlaceRightSidebar />,
-    notification: <NotificationsRIghtSideNav />,
-    event: <EventRightSidebar />,
-    podcast: <PodcastsSidebar />,
-  }[type]);
 
   useEffect(() => {
     dispatch(setUserInitialData(userData));
@@ -146,16 +116,6 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
           <MainContentCol className="px-lg-3 flex-grow-1 min-width-0">
             {children}
           </MainContentCol>
-          {
-            rightSidebarType
-            && (
-              <div id="desktop-sidebar" className={`d-${desktopBreakPoint}-block d-none`}>
-                <RightSidebarWrapper>
-                  {renderSidebarForType(rightSidebarType)}
-                </RightSidebarWrapper>
-              </div>
-            )
-          }
         </div>
       </Container>
       {show && (
@@ -176,9 +136,5 @@ function AuthenticatedPageWrapper({ children, rightSidebarType }: Props) {
     </div>
   );
 }
-
-AuthenticatedPageWrapper.defaultProps = {
-  rightSidebarType: null,
-};
 
 export default AuthenticatedPageWrapper;

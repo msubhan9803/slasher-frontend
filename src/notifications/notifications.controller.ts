@@ -57,11 +57,8 @@ export class NotificationsController {
       }
       return notificationAsObject;
     }).map((notification) => pick(notification, [
-      '_id', 'allUsers', 'createdAt', 'data', 'feedCommentId', 'feedPostId', 'feedReplyId',
-      'images', 'isProcessed', 'isRead', 'is_deleted', 'lastUpdateAt', 'messageCommentID',
-      'messageMainPostID', 'movieDBId', 'movieId', 'movieMainCommentID', 'movieReplyID',
-      'notificationFor', 'notificationMsg', 'notifyType', 'rssFeedCommentId', 'rssFeedId',
-      'rssFeedProviderId', 'senderId', 'status', 'userId',
+      '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
+      'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
     ]));
   }
 

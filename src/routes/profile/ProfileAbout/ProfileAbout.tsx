@@ -85,7 +85,7 @@ function ProfileAbout({ user }: Props) {
             )}
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

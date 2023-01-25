@@ -190,7 +190,7 @@ function Conversation() {
           />
         </InfiniteScroll>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

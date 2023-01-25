@@ -242,7 +242,7 @@ function ProfileFriends({ user }: Props) {
           onBlockYesClick={onBlockYesClick}
         />
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -7,14 +7,10 @@ const RightSidebarWrapper = styled.div`
   position: sticky;
   top: 125px;
   overflow-x: hidden;
+  padding-right: 0.5rem;
   &:hover {
-    overflow-y: auto;
+    overflow-y: overlay;
   }
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 `;
 
 export default RightSidebarWrapper;

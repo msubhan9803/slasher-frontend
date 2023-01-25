@@ -294,7 +294,7 @@ function ProfilePosts() {
           )}
         {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

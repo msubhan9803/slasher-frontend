@@ -9,7 +9,7 @@ function TempRightNavViewer() {
       <ContentPageWrapper>
         <h1 className="h3 mb-3">Right side nav viewer</h1>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         <RightSidebarViewer />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

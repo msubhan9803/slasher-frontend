@@ -112,7 +112,7 @@ function PlacesDetails() {
         {params.summary === 'photos' && <PlacesPhotos />}
         {params.summary === 'edit' && <PlacesEdit />}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         <PlaceRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -69,7 +69,7 @@ function NewsPartnerDetail() {
         </div>
         <NewsPostData partnerId={partnerId!} />
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
         <NewsRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -103,11 +103,11 @@ describe('Events create / (e2e)', () => {
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: 'Event name test',
-            userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userId: activeUser._id.toString(),
             images: expectedImageValues,
             startDate: `${postBody.startDate}T00:00:00.000Z`,
             endDate: `${postBody.endDate}T00:00:00.000Z`,
-            event_type: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            event_type: activeEventCategory._id.toString(),
             city: 'San Francisco',
             state: 'CA',
             address: '66 Ceres S',

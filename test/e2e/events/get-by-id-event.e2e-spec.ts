@@ -81,7 +81,7 @@ describe('Events / :id (e2e)', () => {
           startDate: response.body.startDate,
           endDate: response.body.endDate,
           event_type: {
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: activeEventCategory._id.toString(),
             event_name: 'Event category 1',
           },
           city: 'Los Angeles',

@@ -275,6 +275,15 @@ export class ChatService {
       { $set: { deleted: true } },
     );
 
+    await this.chatModel.update(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+      },
+      { $set: { deleted: true } },
+    );
     await this.messageModel.update(
       {
         $or: [

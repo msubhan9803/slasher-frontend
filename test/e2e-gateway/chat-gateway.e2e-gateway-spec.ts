@@ -126,6 +126,7 @@ describe('Chat Gateway (e2e)', () => {
         [
           new Date(data.message.createdAt).getTime(),
           new Date(matchList.updatedAt).getTime(),
+          new Date(matchList.lastMessageSentAt).getTime(),
           new Date(chat.updatedAt).getTime(),
         ].forEach((time) => {
           expect(time).toBe(messageCreated);

@@ -14,6 +14,7 @@ import { eventCategoryFactory } from '../../factories/event-category.factory';
 import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.schema';
 import { createTempFiles } from '../../helpers/tempfile-helpers';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Events create / (e2e)', () => {
   let app: INestApplication;
@@ -97,11 +98,23 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[2])
             .attach('files', tempPath[3])
             .expect(HttpStatus.CREATED);
+          const expectedImageValues = tempPath.map(() => expect.stringMatching(/\/event\/event_.+\.png|jpe?g/));
 
-          expect(response.body.name).toEqual(postBody.name);
-          expect(response.body.userId).toEqual(postBody.userId);
-          expect(response.body.event_type).toEqual(postBody.event_type);
-          expect(response.body.country).toEqual(postBody.country);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            name: 'Event name test',
+            userId: activeUser._id.toString(),
+            images: expectedImageValues,
+            startDate: `${postBody.startDate}T00:00:00.000Z`,
+            endDate: `${postBody.endDate}T00:00:00.000Z`,
+            event_type: activeEventCategory._id.toString(),
+            city: 'San Francisco',
+            state: 'CA',
+            address: '66 Ceres S',
+            country: 'United States',
+            url: 'www.example.com',
+            event_info: 'test event start',
+          });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }]);
       });
     });

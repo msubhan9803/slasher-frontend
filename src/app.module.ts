@@ -30,7 +30,7 @@ import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
-import { ImagesCleanup } from './app/interceptors/image-cleanup.interceptor';
+import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 
 @Module({
   imports: [
@@ -81,7 +81,7 @@ import { ImagesCleanup } from './app/interceptors/image-cleanup.interceptor';
     // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
     {
       provide: APP_INTERCEPTOR,
-      useClass: ImagesCleanup,
+      useClass: MulterUploadCleanupInterceptor,
     },
     AppGateway,
     TasksService,

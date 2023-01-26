@@ -105,9 +105,9 @@ describe('Events create / (e2e)', () => {
           expect(response.body.country).toEqual(postBody.country);
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }]);
 
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
+        // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+        const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+        expect(allFilesNames).toEqual(['.keep']);
       });
     });
 

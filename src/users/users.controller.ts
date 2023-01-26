@@ -48,7 +48,7 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
-import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -527,7 +527,6 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 

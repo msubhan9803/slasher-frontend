@@ -43,7 +43,7 @@ export class ReportsController {
           reasonOfReport: createReportDto.reason,
         };
         await this.reportAndUnreportService.create(reportAndUnreportObj);
-        await this.chatService.removeChatMessagesFromDb(user._id, createReportDto.targetId);
+        await this.chatService.deletePrivateDirectMessageConversations(user._id, createReportDto.targetId);
         break;
       }
       case 'post': {

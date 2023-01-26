@@ -12,7 +12,7 @@ import {
   MatchListDocument,
 } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
-import { NotificationReadStatus, NotificationDeletionStatus } from '../../schemas/notification/notification.enums';
+import { NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
 
 export interface Conversation extends MatchList {
@@ -61,6 +61,7 @@ export class ChatService {
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
+      deleted: false,
     });
 
     return matchList || this.createPrivateDirectMessageConversation(participants);
@@ -154,8 +155,8 @@ export class ChatService {
       .find({
         $and: [{
           senderId: new mongoose.Types.ObjectId(userId), // due to bad old-API field naming, this is the "to" field
-          isRead: NotificationReadStatus.Unread,
-          is_deleted: NotificationDeletionStatus.NotDeleted,
+          isRead: false,
+          deleted: false,
           relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
         }],
       })
@@ -178,18 +179,15 @@ export class ChatService {
 
     const matchLists: any = await this.matchListModel
       .find({
-        $and: [
-          {
-            participants: new mongoose.Types.ObjectId(userId),
-            roomType: MatchListRoomType.Match,
-            roomCategory: MatchListRoomCategory.DirectMessage,
-            relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-          },
-          before ? { lastMessageSentAt: beforeUpdatedAt } : {},
-        ],
+        deleted: false,
+        participants: new mongoose.Types.ObjectId(userId),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        ...(before ? { updatedAt: beforeUpdatedAt } : {}),
       })
       .populate('participants', 'userName _id profilePic')
-      .sort({ lastMessageSentAt: -1 })
+      .sort({ updatedAt: -1 })
       .limit(limit)
       .lean()
       .exec();
@@ -223,10 +221,13 @@ export class ChatService {
     return conversations;
   }
 
-  async findMatchList(id: string) {
+  async findMatchList(id: string, activeOnly: boolean): Promise<any> {
     const matchList = await this.matchListModel
-      .findById(id)
-      .populate('participants', '_id userName firstName profilePic');
+      .findOne({
+        _id: new mongoose.Types.ObjectId(id),
+        ...(activeOnly ? { deleted: false } : {}),
+      })
+      .populate('participants', 'id userName firstName profilePic');
     return matchList;
   }
 
@@ -259,23 +260,29 @@ export class ChatService {
    * @param fromUserId
    * @param toUserId
    */
-  async removeChatMessagesFromDb(fromUserId: string, toUserId: string): Promise<any> {
-    await this.matchListModel.remove({
-      participants: [fromUserId, toUserId],
-    });
+  async deletePrivateDirectMessageConversations(fromUserId: string, toUserId: string): Promise<any> {
+    const participants = [
+      new mongoose.Types.ObjectId(fromUserId),
+      new mongoose.Types.ObjectId(toUserId),
+    ];
+    await this.matchListModel.update(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+      },
+      { $set: { deleted: true } },
+    );
 
-    await this.messageModel
-      .remove({
+    await this.messageModel.update(
+      {
         $or: [
-          {
-            fromId: fromUserId,
-            senderId: toUserId,
-          },
-          {
-            fromId: toUserId,
-            senderId: fromUserId,
-          },
+          { fromId: new mongoose.Types.ObjectId(fromUserId), senderId: new mongoose.Types.ObjectId(toUserId) },
+          { fromId: new mongoose.Types.ObjectId(toUserId), senderId: new mongoose.Types.ObjectId(fromUserId) },
         ],
-      });
+      },
+      { $set: { deleted: true } },
+    );
   }
 }

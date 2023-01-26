@@ -37,7 +37,7 @@ export class ChatController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: GetConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    const matchList = await this.chatService.findMatchList(param.matchListId);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
     if (!matchList) {
       throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
     }
@@ -67,7 +67,7 @@ export class ChatController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: MarkConversationReadDto,
   ) {
     const user = getUserFromRequest(request);
-    const matchList = await this.chatService.findMatchList(param.matchListId);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
     if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
 
     const matchUserIds = (matchList.participants as unknown as User[]).filter(

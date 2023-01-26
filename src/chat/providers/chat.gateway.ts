@@ -55,7 +55,7 @@ export class ChatGateway {
 
     const { matchListId, before } = data;
 
-    const matchList = await this.chatService.findMatchList(matchListId);
+    const matchList = await this.chatService.findMatchList(matchListId, true);
     if (!matchList) return { error: 'Permission denied' };
 
     const matchUserIds = matchList.participants.find(

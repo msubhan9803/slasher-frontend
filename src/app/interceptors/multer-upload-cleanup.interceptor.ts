@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { unlink } from 'fs';
+import { unlink, existsSync } from 'fs';
 
 @Injectable()
 export class MulterUploadCleanupInterceptor implements NestInterceptor {
@@ -32,6 +32,9 @@ export class MulterUploadCleanupInterceptor implements NestInterceptor {
 
   asyncDeleteMulterFiles(files: string[]) {
     files.forEach((path) => {
+      const fileDoesNotExist = !existsSync(path);
+      if (fileDoesNotExist) return;
+
       unlink(path, (err) => {
         if (err) {
           this.logger.error(`Encountered an error while deleting Multer temporary upload file at: ${path} -- ${err.message}`);

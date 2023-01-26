@@ -98,76 +98,96 @@ describe('Chat Gateway (e2e)', () => {
   });
 
   describe('#sendPrivateDirectMessage', () => {
-    beforeEach(async () => {
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-      await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-      await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
-    });
+    describe('when target user is a friend', () => {
+      beforeEach(async () => {
+        await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+        await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+      });
+      it('should send chatMessage', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-    it('should send chatMessage', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+        const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
 
-      const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
-
-      const data = await new Promise<any>((resolve) => {
-        client.emit('chatMessage', payload, (receivedData: any) => {
-          resolve(receivedData);
+        const data = await new Promise<any>((resolve) => {
+          client.emit('chatMessage', payload, (receivedData: any) => {
+            resolve(receivedData);
+          });
         });
-      });
 
-      const matchList = await matchListModel.findById(data.message.matchId);
-      const chat = await chatModel.findOne({ matchId: data.message.matchId });
+        const matchList = await matchListModel.findById(data.message.matchId);
+        const chat = await chatModel.findOne({ matchId: data.message.matchId });
 
-      expect(data.success).toBe(true);
-      expect(data.message.message).toBe(payload.message);
+        expect(data.success).toBe(true);
+        expect(data.message.message).toBe(payload.message);
 
-      const messageCreated = Number(data.message.created);
-      [
-        new Date(data.message.createdAt).getTime(),
-        new Date(matchList.updatedAt).getTime(),
-        new Date(chat.updatedAt).getTime(),
-      ].forEach((time) => {
-        expect(time).toBe(messageCreated);
-      });
+        const messageCreated = Number(data.message.created);
+        [
+          new Date(data.message.createdAt).getTime(),
+          new Date(matchList.updatedAt).getTime(),
+          new Date(chat.updatedAt).getTime(),
+        ].forEach((time) => {
+          expect(time).toBe(messageCreated);
+        });
 
-      expect(data).toEqual(
-        {
-          success: true,
-          message: {
-            message: 'Hi, test message via socket.',
-            isRead: false,
-            status: 1,
-            deleted: false,
-            created: expect.any(String),
-            deletefor: [],
-            createdAt: expect.any(String),
-            matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            fromId: activeUser._id.toString(),
-            senderId: user1._id.toString(),
-            messageType: 0,
-            image: null,
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            urls: [],
-            __v: 0,
+        expect(data).toEqual(
+          {
+            success: true,
+            message: {
+              message: 'Hi, test message via socket.',
+              isRead: false,
+              status: 1,
+              deleted: false,
+              created: expect.any(String),
+              deletefor: [],
+              createdAt: expect.any(String),
+              matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              fromId: activeUser._id.toString(),
+              senderId: user1._id.toString(),
+              messageType: 0,
+              image: null,
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              urls: [],
+              __v: 0,
+            },
           },
-        },
-      );
+        );
 
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+      it('should NOT send chatMessage', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = { toUserId: user1._id, message: null };
+        await new Promise<void>((resolve) => {
+          client.emit('chatMessage', payload, (data) => {
+            expect(data.success).toBe(false);
+            expect(data.message).toBeNull();
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
     });
-    it('should NOT send chatMessage', async () => {
+
+    it('should NOT send chatMessage when target user is not a friend', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
-      const payload = { toUserId: user1._id, message: null };
+      const payload = { toUserId: user2._id, message: 'Hi, test message via socket.' };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
-          expect(data.success).toBe(false);
-          expect(data.message).toBeNull();
+          expect(data).toEqual({
+            success: false,
+            errorMessage: 'You are not friends with the given user.',
+          });
           resolve();
         });
       });

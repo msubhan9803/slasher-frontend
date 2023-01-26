@@ -15,6 +15,7 @@ import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
+import { FriendsService } from '../../src/friends/providers/friends.service';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -30,6 +31,7 @@ describe('Chat Gateway (e2e)', () => {
   let activeUserAuthToken: string;
   let matchListModel: Model<MatchListDocument>;
   let chatModel: Model<ChatDocument>;
+  let friendsService: FriendsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -38,6 +40,7 @@ describe('Chat Gateway (e2e)', () => {
     connection = await moduleRef.get<Connection>(getConnectionToken());
     chatService = moduleRef.get<ChatService>(ChatService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
     chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
@@ -97,6 +100,8 @@ describe('Chat Gateway (e2e)', () => {
   describe('#sendPrivateDirectMessage', () => {
     beforeEach(async () => {
       await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+      await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
     });
 
     it('should send chatMessage', async () => {

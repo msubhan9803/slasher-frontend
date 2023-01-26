@@ -14,8 +14,6 @@ import {
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { NotificationReadStatus, NotificationDeletionStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
-import { FriendRequestReaction } from "../../schemas/friend/friend.enums";
-import { Friend, FriendDocument } from "../../schemas/friend/friend.schema";
 
 export interface Conversation extends MatchList {
   latestMessage: Message;
@@ -29,7 +27,6 @@ export class ChatService {
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
     @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
-    @InjectModel(Chat.name) private friendsModel: Model<FriendDocument>,
     private usersService: UsersService,
   ) { }
 
@@ -59,15 +56,6 @@ export class ChatService {
   }
 
   async createOrFindPrivateDirectMessageConversationByParticipants(participants: mongoose.Types.ObjectId[]) {
-    const friend = await this.friendsModel.findOne({
-      $or: [
-        { from: participants[0], to: participants[1] },
-        { from: participants[1], to: participants[0] },
-      ],
-    })
-      .exec();
-    if (friend.reaction !== FriendRequestReaction.Accepted) throw new Error('You are not allowed to send message to a non-friend user.');
-
     const matchList = await this.matchListModel.findOne({
       participants: { $all: participants },
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),

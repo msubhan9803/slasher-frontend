@@ -12,11 +12,14 @@ import { GetConversationQueryDto } from './dto/get-conversation-query.dto';
 import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversation-query.dto';
 import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
+import { FriendRequestReaction } from '../schemas/friend/friend.enums';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('chat')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @TransformImageUrls('$[*].participants[*].profilePic')
@@ -55,6 +58,11 @@ export class ChatController {
     @Body() createOrFindConversationQueryDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
+    const friend = await this.friendsService.findFriendship(user._id, createOrFindConversationQueryDto.userId);
+    if (!friend || friend.reaction !== FriendRequestReaction.Accepted) {
+      throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+    }
+
     return this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),

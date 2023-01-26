@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Routes, Route, Navigate,
+  Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
@@ -32,7 +32,7 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 // import Podcasts from './routes/podcasts/Podcasts';
 
 const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
-const DEFAULT_INDEX_REDIRECT = '/home';
+const DEFAULT_INDEX_REDIRECT = 'home';
 
 interface TopLevelRoute {
   component: any;
@@ -45,59 +45,62 @@ interface TopLevelRoute {
 }
 
 const routes: Record<string, TopLevelRoute> = {
-  '/home': { wrapper: AuthenticatedPageWrapper, component: Home },
-  '/:userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
-  '/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
-  '/dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
-  '/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
-  '/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  '/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  '/news/*': { wrapper: AuthenticatedPageWrapper, component: News },
-  '/events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
-  '/posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
-  '/right-nav-viewer': { wrapper: AuthenticatedPageWrapper, component: TempRightNavViewer },
-  '/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
-  '/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
-  '/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
-  // '/podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
-  // '/books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
-  // '/shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
-  // '/places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
-  '/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
-  '/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
-  '/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
-  '/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
-  '/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
-  '/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
-  '/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
+  home: { wrapper: AuthenticatedPageWrapper, component: Home },
+  ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  'search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
+  'dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
+  messages: { wrapper: AuthenticatedPageWrapper, component: Messages },
+  'messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'news/*': { wrapper: AuthenticatedPageWrapper, component: News },
+  'events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
+  'posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
+  'right-nav-viewer': { wrapper: AuthenticatedPageWrapper, component: TempRightNavViewer },
+  'movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
+  notifications: { wrapper: AuthenticatedPageWrapper, component: Notifications },
+  'account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
+  // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  'forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
+  'reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  'registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
+  'onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  'account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
+  'sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };
 
 function App() {
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route>
+        <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
+        {
+          Object.entries(routes).map(
+            ([routePath, opts]) => (
+              <Route
+                key={routePath}
+                path={routePath}
+                element={(
+                  <opts.wrapper {...(opts.wrapperProps)}>
+                    <opts.component />
+                  </opts.wrapper>
+                )}
+              />
+            ),
+          )
+        }
+        <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
+      </Route>,
+    ),
+  );
+
   return (
-    <Routes>
-      {/* Top level redirect */}
-      <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
-
-      {
-        Object.entries(routes).map(
-          ([routePath, opts]) => (
-            <Route
-              key={routePath}
-              path={routePath}
-              element={(
-                <opts.wrapper {...(opts.wrapperProps)}>
-                  <opts.component />
-                </opts.wrapper>
-              )}
-            />
-          ),
-        )
-      }
-
-      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
-    </Routes>
+    <RouterProvider router={router} />
   );
 }
 export default App;

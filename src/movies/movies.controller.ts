@@ -83,30 +83,6 @@ export class MoviesController {
     if (!movieDbData) {
       throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
     }
-    const expectedCastValues = [];
-    movieDbData.cast.map((data) => expectedCastValues.push({
-      profile_path: data.profile_path,
-      character: data.character,
-      name: data.name,
-    }));
-
-    const expectedVideosValues = [];
-    (movieDbData.video as any).map((data) => expectedVideosValues.push({
-        key: data.key,
-      }));
-
-    return {
-      cast: expectedCastValues,
-      video: expectedVideosValues,
-      mainData: {
-        overview: movieDbData.mainData.overview,
-        poster_path: movieDbData.mainData.poster_path,
-        release_dates: (movieDbData.mainData as any).release_dates,
-        runtime: movieDbData.mainData.runtime,
-        title: movieDbData.mainData.title,
-        original_title: movieDbData.mainData.original_title,
-        production_countries: movieDbData.mainData.production_countries,
-      },
-    };
+    return movieDbData;
   }
 }

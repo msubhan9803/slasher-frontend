@@ -363,8 +363,6 @@ export class MoviesService {
       )),
     ]);
 
-    // TODO: For castAndCrewData, videoData, mainDetails, and configDetails -- remove unneded fields before returning to the client
-
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign
@@ -373,7 +371,6 @@ export class MoviesService {
       // eslint-disable-next-line no-param-reassign
       mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
     const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
 
@@ -386,13 +383,34 @@ export class MoviesService {
         profile.profile_path = relativeToFullImagePath(this.configService, '/placeholders/movie_cast.png');
       }
       return profile;
-
-      return false;
     });
+
+    const expectedCastValues = [];
+    cast.map((data) => expectedCastValues.push({
+      profile_path: data.profile_path,
+      character: data.character,
+      name: data.name,
+    }));
+
+    const expectedVideosValues: any = [];
+    videoData.data.results.map((video) => expectedVideosValues.push({
+      key: video.key,
+    }));
+
+    const expectedMainData: any = {
+      overview: mainData.overview,
+      poster_path: mainData.poster_path,
+      release_dates: mainData.release_dates,
+      runtime: mainData.runtime,
+      title: mainData.title,
+      original_title: mainData.original_title,
+      production_countries: mainData.production_countries,
+    };
+
     return {
-      cast,
-      video: videoData.data.results,
-      mainData,
+      cast: expectedCastValues,
+      video: expectedVideosValues,
+      mainData: expectedMainData,
     };
   }
 }

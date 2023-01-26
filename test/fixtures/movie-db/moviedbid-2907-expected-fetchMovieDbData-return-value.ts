@@ -67,6 +67,151 @@ export default {
       character: 'Cousin It',
       name: 'John Franklin',
     },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/piuGsKKfRHoGCakZCPLbJ0kmi7u.jpg',
+      character: 'Digit Addams',
+      name: 'Tony Azito',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/uPlQzMK3940OmdXUQozFIs4Y9U4.jpg',
+      character: 'Girl Scout',
+      name: 'Mercedes McNab',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/tklEnr9hOWtmVCVqrYDrOcnAcZM.jpg',
+      character: 'Dexter Addams',
+      name: 'Douglas Brian Martin',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/jXyiVQnF4KofwiT0KuLmSoFtaAW.jpg',
+      character: 'Donald Addams',
+      name: 'Steven M. Martin',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/o5zv4kJOcaqXLFLG73QzwEbMktK.jpg',
+      character: 'Flora Amor',
+      name: 'Maureen Sue Levin',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/xHMgaGsmDBYwUhUxEg2aFd7h55X.jpg',
+      character: 'Fauna Amor',
+      name: 'Darlene Levin',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Cousin Ophelia Addams',
+      name: 'Allegra Kent',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Slosh Addams',
+      name: 'Richard Korthaze',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/rwTo1F1VzBA7SQBymXVxLzFUlQh.jpg',
+      character: 'Lumpy Addams',
+      name: 'Ryan Holihan',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/vsvdAmMZgX85AvnVFd4jigOUipZ.jpg',
+      character: 'Employment Agent',
+      name: 'Kate McGregor-Stewart',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Susan Firkins',
+      name: 'Lela Ivey',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/9wSo1hShKBG2xagMVg5yGiS1XFQ.jpg',
+      character: 'Little Tully',
+      name: 'Whit Hertford',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Lois Addams',
+      name: 'Patty Maloney',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/8cZf6HtZwje8XTX6h5IvrxqZUWq.jpg',
+      character: 'Swedish Blonde',
+      name: 'Victoria Hall',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Pre-Teen Gomez',
+      name: 'Jimmy Ross',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Pre-Teen Fester',
+      name: 'Ryan Anderson',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Teenage Gomez',
+      name: 'Daniel Pikus',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Teenage Fester',
+      name: 'Michael Hittesdorf',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Teenage Fauna',
+      name: 'Valerie C. Walker',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/buRM2utMkwvCNqOB5ZKqJsFaVJe.jpg',
+      character: 'Long Arm Addams',
+      name: 'Joe Zimmerman',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Fingers Addams',
+      name: 'Steve Welles',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'One-Armed Bass Player',
+      name: 'Eugene Jackson',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/qfDuulaJNQkzoKDFR90Xug4y714.jpg',
+      character: 'Snake Charmer',
+      name: 'Richard Tanner',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/gYQh7yWHw3RBMGmookenwCYFfbi.jpg',
+      character: 'Conductor',
+      name: 'Marc Shaiman',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Juggler',
+      name: 'Jonathan Wee',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Juggler',
+      name: 'Owen Morse',
+    },
+    {
+      profile_path: 'https://image.tmdb.org/t/p/w185/oBPjvu5Hm95tTbms7t9r3LLHzH6.jpg',
+      character: 'Herself',
+      name: 'Sally Jessy Raphael',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Elf',
+      name: 'Benny Wills',
+    },
+    {
+      profile_path: 'http://localhost:4444/placeholders/movie_cast.png',
+      character: 'Teenage Flora',
+      name: 'Lauren Walker',
+    },
   ],
   video: [
     {

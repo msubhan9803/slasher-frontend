@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';

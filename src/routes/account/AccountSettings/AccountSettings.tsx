@@ -34,7 +34,7 @@ function AccountSettings() {
           </SignOutButton>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

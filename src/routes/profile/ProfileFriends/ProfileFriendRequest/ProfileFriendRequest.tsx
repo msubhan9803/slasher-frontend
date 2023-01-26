@@ -142,7 +142,6 @@ function ProfileFriendRequest({ user }: Props) {
               initialLoad={false}
               loadMore={fetchMoreFriendReqList}
               hasMore={!noMoreData}
-              useWindow={false}
             >
               <Row className="mt-4" ref={friendRequestContainerElementRef}>
                 {friendsReqList.map((friend: FriendProps) => (
@@ -167,7 +166,7 @@ function ProfileFriendRequest({ user }: Props) {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

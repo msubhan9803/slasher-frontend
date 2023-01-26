@@ -268,7 +268,6 @@ function PostFeed({
                       if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
                     }}
                     hasMore={!noMoreData}
-                    useWindow={false}
                   >
                     <PostCommentSection
                       commentSectionData={commentsData}

@@ -36,16 +36,6 @@ const LeftSidebarWrapper = styled.div`
   }
 `;
 
-const MainContentCol = styled.main`
-  // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
-  padding-bottom: 5.25em;
-
-  // For desktop sizes, reduce bottom padding
-  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
-    padding-bottom: 1em;
-  }
-`;
-
 // This id links the offcanvas to the top navar toggle for accessibility.
 const offcanvasId = 'offcanvas-sidebar-nav';
 const desktopBreakPoint = 'lg';
@@ -118,9 +108,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <MainContentCol className="px-lg-3 flex-grow-1 min-width-0 no-scrollbar">
+          <main className="px-lg-3 flex-grow-1 min-width-0">
             {children}
-          </MainContentCol>
+          </main>
         </div>
       </div>
       {show && (

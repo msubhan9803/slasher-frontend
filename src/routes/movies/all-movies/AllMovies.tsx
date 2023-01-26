@@ -9,7 +9,6 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
-import ScrollWrapper from '../../../components/ui/ScrollWrapper';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -93,24 +92,21 @@ function AllMovies() {
             </div>
           )}
           <div className="m-md-2">
-            <ScrollWrapper>
-              <InfiniteScroll
-                threshold={2000}
-                pageStart={0}
-                initialLoad
-                loadMore={() => { setRequestAdditionalPosts(true); }}
-                hasMore={!noMoreData}
-                useWindow={false}
-              >
-                <PosterCardList dataList={filteredMovies} />
-              </InfiniteScroll>
-            </ScrollWrapper>
+            <InfiniteScroll
+              threshold={2000}
+              pageStart={0}
+              initialLoad
+              loadMore={() => { setRequestAdditionalPosts(true); }}
+              hasMore={!noMoreData}
+            >
+              <PosterCardList dataList={filteredMovies} />
+            </InfiniteScroll>
             {loadingPosts && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <MovieRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -82,7 +82,6 @@ function AccountBlockedUser() {
             initialLoad={false}
             loadMore={fetchMoreBlockUsersList}
             hasMore={!noMoreData}
-            useWindow={false}
           >
             <Row>
               {
@@ -133,7 +132,7 @@ function AccountBlockedUser() {
           )}
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -210,7 +210,6 @@ function ProfileFriends({ user }: Props) {
               initialLoad={false}
               loadMore={fetchMoreFriendList}
               hasMore={!noMoreData}
-              useWindow={false}
             >
               <Row className="mt-4" ref={friendContainerElementRef}>
                 {friendsList.map((friend: FriendProps) => (
@@ -242,7 +241,7 @@ function ProfileFriends({ user }: Props) {
           onBlockYesClick={onBlockYesClick}
         />
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

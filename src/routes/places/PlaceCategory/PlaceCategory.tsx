@@ -15,7 +15,7 @@ function PlaceCategory() {
           <PlacePosterCardList dataList={category} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <PlaceRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

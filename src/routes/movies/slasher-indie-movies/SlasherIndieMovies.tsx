@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
-import ScrollWrapper from '../../../components/ui/ScrollWrapper';
 import { slasherIndieMovies } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MovieRightSideNav from '../components/MovieRightSideNav';
@@ -39,13 +38,11 @@ function SlasherIndieMovies() {
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <div className="m-md-2">
-            <ScrollWrapper>
-              <PosterCardList dataList={filteredMovies} />
-            </ScrollWrapper>
+            <PosterCardList dataList={filteredMovies} />
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <MovieRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

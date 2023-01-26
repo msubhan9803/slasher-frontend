@@ -115,7 +115,6 @@ function SearchPeople() {
           initialLoad
           loadMore={fetchMoreUsers}
           hasMore={!noMoreData}
-          useWindow={false}
           element="span"
         >
           <Row className="mt-4">
@@ -140,7 +139,7 @@ function SearchPeople() {
         </InfiniteScroll>
         {search && search.length >= 3 && noMoreData && renderNoMoreDataMessage()}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="pb-3 d-none d-lg-block">
+      <RightSidebarWrapper className="d-none d-lg-block">
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

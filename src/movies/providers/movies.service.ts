@@ -362,6 +362,9 @@ export class MoviesService {
         `https://api.themoviedb.org/3/configuration?api_key=${movieDbApiKey}`,
       )),
     ]);
+
+    // TODO: For castAndCrewData, videoData, mainDetails, and configDetails -- remove unneded fields before returning to the client
+
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign

@@ -13,5 +13,9 @@ export const eventsFactory = Factory.define<Partial<Event>>(
     event_info: `Event info organised by ${sequence}`,
     url: 'https://example.com',
     author: 'test',
+    images: [
+      'http://localhost:4444/placeholders/default_user_icon.png',
+      'http://localhost:4444/placeholders/default_user_icon.png',
+    ],
   }),
 );

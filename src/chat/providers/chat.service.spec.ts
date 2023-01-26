@@ -83,20 +83,22 @@ describe('ChatService', () => {
       expect(messageData.message).toBe('Image');
     });
 
-    it('message.created should match with `message.createdAt`, `matchList.updatedAt` and `chat.updatedAt`', async () => {
-      const messageData = await messageModel.findById(message._id);
-      const matchList = await matchListModel.findById(messageData.matchId);
-      const chat = await chatModel.findOne({ matchId: messageData.matchId });
+    it('message.created should match with `message.createdAt`, `matchList.updatedAt`, '
+      + '`matchList.lastMessageSentAt`, and `chat.updatedAt`', async () => {
+        const messageData = await messageModel.findById(message._id);
+        const matchList = await matchListModel.findById(messageData.matchId);
+        const chat = await chatModel.findOne({ matchId: messageData.matchId });
 
-      const messageCreated = Number(message.created);
-      [
-        message.createdAt.getTime(),
-        matchList.updatedAt.getTime(),
-        chat.updatedAt.getTime(),
-      ].forEach((time) => {
+        const messageCreated = Number(message.created);
+        [
+          message.createdAt.getTime(),
+          matchList.updatedAt.getTime(),
+          matchList.lastMessageSentAt.getTime(),
+          chat.updatedAt.getTime(),
+        ].forEach((time) => {
           expect(time).toBe(messageCreated);
         });
-    });
+      });
   });
 
   describe('#createPrivateDirectMessageConversation', () => {
@@ -308,6 +310,44 @@ describe('ChatService', () => {
       expect(m2.isRead).toBe(true);
       expect(m3.isRead).toBe(false);
       expect(m4.isRead).toBe(false);
+    });
+  });
+
+  describe('#removeChatMessagesFromDb', () => {
+    let message1;
+    let message2;
+    let message3;
+    let matchList;
+
+    beforeEach(async () => {
+      message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Hi, Test!');
+      matchList = await matchListModel.findOne({
+        participants: user1._id,
+      });
+    });
+
+    it('works as expected', async () => {
+      await chatService.removeChatMessagesFromDb(user0._id, user1._id);
+
+      // Check messages
+      const messageData1 = await messageModel.findById(message1._id);
+      expect(messageData1).toBeNull();
+
+      const messageData2 = await messageModel.findById(message2._id);
+      expect(messageData2).toBeNull();
+
+      const messageData3 = await messageModel.findById(message3._id);
+      expect(messageData3.message).toBe('Hi, Test!');
+
+      // Check unread count
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user0.id)).toBe(1);
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(0);
+
+      // matchlist document should be deleted
+      const nontExistsMatchList = await matchListModel.findOne(matchList._id);
+      expect(nontExistsMatchList).toBeNull();
     });
   });
 });

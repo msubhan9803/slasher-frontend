@@ -2,14 +2,16 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
+import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 
 describe('Accept Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +23,7 @@ describe('Accept Friend Request (e2e)', () => {
   let user2: UserDocument;
   let configService: ConfigService;
   let friendsService: FriendsService;
+  let friendsModel: Model<FriendDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -30,6 +33,7 @@ describe('Accept Friend Request (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
+    friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -59,6 +63,8 @@ describe('Accept Friend Request (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1.id })
         .expect(HttpStatus.CREATED);
+        const friends = await friendsModel.findOne({ from: user1._id, to: activeUser._id });
+        expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
         expect(response.body).toEqual({ success: true });
     });
 

@@ -10,7 +10,6 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Get Friends (e2e)', () => {
   let app: INestApplication;
@@ -68,12 +67,12 @@ describe('Get Friends (e2e)', () => {
           .send();
           expect(response.body).toEqual([
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user3._id.toString(),
               userName: 'Username4',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user2._id.toString(),
               userName: 'Username3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },

@@ -10,7 +10,6 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 
 describe('Get Friendship (e2e)', () => {
@@ -66,10 +65,10 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             reaction: FriendRequestReaction.Pending,
-            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            from: activeUser.id,
+            to: user1.id,
           });
       });
 
@@ -81,8 +80,8 @@ describe('Get Friendship (e2e)', () => {
           .send();
           expect(response.body).toMatchObject({
             reaction: FriendRequestReaction.Pending,
-            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            from: user3.id,
+            to: activeUser.id,
           });
       });
 
@@ -95,8 +94,8 @@ describe('Get Friendship (e2e)', () => {
           .send();
         expect(response.body).toMatchObject({
           reaction: FriendRequestReaction.Accepted,
-          from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          from: activeUser.id,
+          to: user1.id,
         });
       });
 
@@ -109,8 +108,8 @@ describe('Get Friendship (e2e)', () => {
           .send();
           expect(response.body).toMatchObject({
             reaction: FriendRequestReaction.DeclinedOrCancelled,
-            from: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            to: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            from: activeUser.id,
+            to: user1.id,
           });
       });
 

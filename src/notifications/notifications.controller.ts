@@ -21,12 +21,6 @@ export class NotificationsController {
     private readonly feedPostsService: FeedPostsService,
   ) { }
 
-  @Post('socket-test')
-  async socketMessageEmitTest() {
-    this.notificationsGateway.server.emit('hello', 'world');
-    return 'test';
-  }
-
   @TransformImageUrls(
     '$[*].senderId.profilePic',
     '$[*].rssFeedProviderId.logo',

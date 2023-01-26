@@ -328,7 +328,7 @@ describe('ChatService', () => {
       });
     });
 
-    it('remove chat messages from db (on block and unfriend events)', async () => {
+    it('works as expected', async () => {
       await chatService.removeChatMessagesFromDb(user0._id, user1._id);
 
       // Check messages

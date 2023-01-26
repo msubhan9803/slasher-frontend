@@ -252,6 +252,13 @@ export class ChatService {
       .exec();
   }
 
+  /**
+   * Deletes private direct message conversations and all messages in the conversation.
+   * Note: This can sometimes delete multiple MatchLists because the old API will sometimes create
+   * more than one conversation over time, if a user unfriends and then re-friends another user.
+   * @param fromUserId
+   * @param toUserId
+   */
   async removeChatMessagesFromDb(fromUserId: string, toUserId: string): Promise<any> {
     await this.matchListModel.remove({
       participants: [fromUserId, toUserId],

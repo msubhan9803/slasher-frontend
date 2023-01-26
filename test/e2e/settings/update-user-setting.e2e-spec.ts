@@ -100,7 +100,6 @@ describe('settings update / :id (e2e)', () => {
             onboarding_completed: true,
             rss_feed_mention_on_post_comment_reply: 1,
             rss_feed_post_like: 1,
-            userId: activeUser._id.toString(),
           },
         );
       });

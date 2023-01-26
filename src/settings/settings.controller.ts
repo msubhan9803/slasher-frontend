@@ -29,7 +29,7 @@ export class SettingsController {
       'message_board_new_post_on_thread', 'message_board_reply_your_post',
       'movie_comment_on_reply', 'movie_comment_reply_like',
       'movie_mention_on_comment_reply', 'onboarding_completed',
-      'rss_feed_mention_on_post_comment_reply', 'rss_feed_post_like', 'userId',
+      'rss_feed_mention_on_post_comment_reply', 'rss_feed_post_like',
     ]);
   }
 
@@ -48,7 +48,7 @@ export class SettingsController {
       'message_board_new_post_on_thread', 'message_board_reply_your_post',
       'movie_comment_on_reply', 'movie_comment_reply_like',
       'movie_mention_on_comment_reply', 'onboarding_completed',
-      'rss_feed_mention_on_post_comment_reply', 'rss_feed_post_like', 'userId',
+      'rss_feed_mention_on_post_comment_reply', 'rss_feed_post_like',
     ]);
   }
 }

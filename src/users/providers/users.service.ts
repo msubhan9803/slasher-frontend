@@ -143,7 +143,7 @@ export class UsersService {
 
   async findBySocketId(socketId: string) {
     const socketUser = await this.socketUserModel.findOne({ socketId }).populate('userId').exec();
-    return socketUser ? socketUser.userId : null;
+    return socketUser ? socketUser.userId as UserDocument : null;
   }
 
   async findSocketIdsForUser(userId: string) {

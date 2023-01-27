@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import { Badge } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
@@ -17,6 +20,7 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
+  const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -59,6 +63,7 @@ function AllMovies() {
         getMovies(search, sortVal, res.data._id)
           .then((result) => {
             setFilteredMovies(result.data);
+            setKeyMoviesReady(true);
           });
       });
   };
@@ -71,6 +76,16 @@ function AllMovies() {
       }
     </p>
   );
+
+  const clearKeyHandler = () => {
+    setKey('');
+    setKeyMoviesReady(false);
+    getMovies(search, sortVal)
+      .then((result: any) => {
+        setFilteredMovies(result.data);
+        setKeyMoviesReady(true);
+      });
+  };
 
   return (
     <ContentSidbarWrapper>
@@ -85,6 +100,18 @@ function AllMovies() {
           selectedKey={(keyValue: string) => setKey(keyValue)}
           applyFilter={applyFilter}
         />
+        {key !== '' && isKeyMoviesReady
+          && (
+          <div className="w-100 d-flex justify-content-center mb-3">
+            <Badge pill bg="secondary" onClick={clearKeyHandler}>
+              Starts with
+              {' '}
+              {key}
+              {' '}
+              <FontAwesomeIcon icon={solid('circle')} size="sm" />
+            </Badge>
+          </div>
+          )}
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           {errorMessage && errorMessage.length > 0 && (
             <div className="mt-3 text-start">

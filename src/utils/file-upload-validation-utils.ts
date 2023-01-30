@@ -1,4 +1,5 @@
-import { ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
+import { ParseFilePipeBuilder, HttpStatus, Logger } from '@nestjs/common';
+import { existsSync, unlink } from 'fs';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 
 // TODO: Change module name to file-upload-utils.ts
@@ -14,4 +15,17 @@ export function createProfileOrCoverImageParseFilePipeBuilder() {
     .build({
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
     });
+}
+
+export function asyncDeleteMulterFiles(files: string[], logger?: Logger) {
+  files.forEach((path) => {
+    const fileDoesNotExist = !existsSync(path);
+    if (fileDoesNotExist) return;
+
+    unlink(path, (err) => {
+      if (err) {
+        logger.error(`Encountered an error while deleting Multer temporary upload file at: ${path} -- ${err.message}`);
+      }
+    });
+  });
 }

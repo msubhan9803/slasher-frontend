@@ -105,6 +105,35 @@ describe('FriendsService', () => {
     });
   });
 
+  describe('#areFriends', () => {
+    let newUser1;
+    let newUser2;
+    beforeEach(async () => {
+      newUser1 = await usersService.create(userFactory.build());
+      newUser2 = await usersService.create(userFactory.build());
+    });
+    it('returns true when two users are accepted friends', async () => {
+      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
+      await friendsService.acceptFriendRequest(newUser1.id, newUser2.id);
+      expect(
+        await friendsService.areFriends(newUser1.id, newUser2.id),
+      ).toBeTruthy();
+    });
+
+    it('returns false when two users are not friends', async () => {
+      expect(
+        await friendsService.areFriends(newUser1.id, newUser2.id),
+      ).toBeFalsy();
+    });
+
+    it('returns false when a friend request has been sent, but has not been accepted', async () => {
+      await friendsService.createFriendRequest(newUser1.id, newUser2.id);
+      expect(
+        await friendsService.areFriends(newUser1.id, newUser2.id),
+      ).toBeFalsy();
+    });
+  });
+
   describe('#createFriendRequest', () => {
     let newUser1;
     let newUser2;

@@ -13,7 +13,6 @@ import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversat
 import { pick } from '../utils/object-utils';
 import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
-import { FriendRequestReaction } from '../schemas/friend/friend.enums';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
 

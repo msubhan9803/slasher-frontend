@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import LoadingIndicator from '../../../ui/LoadingIndicator';
 
 interface Props {
   children: React.ReactNode;
@@ -89,6 +90,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
     return () => { };
   }, []);
+
+  if (!userData.user) {
+    return <LoadingIndicator />;
+  }
 
   return (
     <div className="page-wrapper full">

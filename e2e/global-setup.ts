@@ -6,8 +6,7 @@ async function performSignIn(page: Page, baseURL: string) {
   setupMockResponses(page);
 
   await page.goto(`${baseURL}/sign-in`);
-  await page.waitForNavigation();
-
+  await page.waitForSelector('input[name="emailOrUsername"]');
   await page.locator('input[name="emailOrUsername"]').fill('sample1@example.com');
   await page.locator('input[name="password"]').fill('test@123');
   await page.locator('#sign-in-button >> text=Sign in').click();

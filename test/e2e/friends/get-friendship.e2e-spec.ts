@@ -78,7 +78,7 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             reaction: FriendRequestReaction.Pending,
             from: user3.id,
             to: activeUser.id,
@@ -92,7 +92,7 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toMatchObject({
+        expect(response.body).toEqual({
           reaction: FriendRequestReaction.Accepted,
           from: activeUser.id,
           to: user1.id,
@@ -106,7 +106,7 @@ describe('Get Friendship (e2e)', () => {
           .get(`/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toMatchObject({
+          expect(response.body).toEqual({
             reaction: FriendRequestReaction.DeclinedOrCancelled,
             from: activeUser.id,
             to: user1.id,
@@ -120,7 +120,7 @@ describe('Get Friendship (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
-        expect(response.body).toMatchObject({
+        expect(response.body).toEqual({
           reaction: null,
           from: null,
           to: null,

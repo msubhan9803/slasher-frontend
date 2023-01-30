@@ -14,7 +14,6 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -65,7 +64,7 @@ describe('Add Friends (e2e)', () => {
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
       const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
-      expect(friends.to.toString()).toEqual(expect.stringMatching(SIMPLE_MONGODB_ID_REGEX));
+      expect(friends.to.toString()).toEqual(user1.id);
       expect(response.body).toEqual({ success: true });
     });
 

@@ -97,7 +97,9 @@ describe('Create Feed Reply Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
+      expect(feedReplyData.likes).toContainEqual(activeUser._id);
     });
 
     it('when feed reply id is not exist than expected response', async () => {

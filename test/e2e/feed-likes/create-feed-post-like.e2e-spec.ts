@@ -72,7 +72,10 @@ describe('Create Feed Post Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      expect(feedPostData.likes).toHaveLength(2);
+      expect(feedPostData.likeCount).toBe(2);
     });
 
     it('when feed post id is not exist than expected response', async () => {

@@ -90,6 +90,8 @@ describe('Create Feed Comment Like (e2e)', () => {
         .send()
         .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({ success: true });
+        const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+        expect(feedCommentsData.likes).toContainEqual(activeUser._id);
     });
 
     it('when feed comment id is not exist than expected response', async () => {

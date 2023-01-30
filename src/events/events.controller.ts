@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
-import { CreateOrUpdateEventDto } from './dto/create-or-update-event.dto';
+import { UpdateEventDto } from './dto/update-event-dto';
 import { EventService } from './providers/events.service';
 import { Event } from '../schemas/event/event.schema';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -20,6 +20,7 @@ import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { CreateEventDto } from './dto/create-event-dto';
 
 @Controller('events')
 export class EventsController {
@@ -53,7 +54,7 @@ export class EventsController {
   )
   async createEvent(
     @Req() request: Request,
-    @Body() createEventDto: CreateOrUpdateEventDto,
+    @Body() createEventDto: CreateEventDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const user = getUserFromRequest(request);
@@ -65,40 +66,8 @@ export class EventsController {
       );
     }
 
-    if (!createEventDto.name) {
-      throw new HttpException('name should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
     if (user.id !== createEventDto.userId) {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
-    }
-
-    if (!createEventDto.startDate) {
-      throw new HttpException('startDate should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.endDate) {
-      throw new HttpException('endDate should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.country) {
-      throw new HttpException('country should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.state) {
-      throw new HttpException('state should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.city) {
-      throw new HttpException('city should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.event_info) {
-      throw new HttpException('event_info should not be empty', HttpStatus.BAD_REQUEST);
-    }
-
-    if (!createEventDto.address) {
-      throw new HttpException('address should not be empty', HttpStatus.BAD_REQUEST);
     }
 
     const images = [];
@@ -145,7 +114,7 @@ export class EventsController {
   @Patch(':id')
   async update(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
-    @Body() updateEventDto: CreateOrUpdateEventDto,
+    @Body() updateEventDto: UpdateEventDto,
   ) {
     const eventData = await this.eventService.update(params.id, updateEventDto);
     return {

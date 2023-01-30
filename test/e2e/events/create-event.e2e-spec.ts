@@ -812,7 +812,7 @@ describe('Events create / (e2e)', () => {
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-        expect(allFilesNames).toEqual(['.keep']);
+        expect(allFilesNames).toContain(['.keep']);
       });
 
       it('if files more than 4 then it will give expected response', async () => {

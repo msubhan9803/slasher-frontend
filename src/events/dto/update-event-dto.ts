@@ -6,7 +6,7 @@ import {
 import { Schema } from 'mongoose';
 import { EventCategory } from '../../schemas/eventCategory/eventCategory.schema';
 
-export class CreateOrUpdateEventDto {
+export class UpdateEventDto {
   @IsOptional()
   @MaxLength(150)
   name: string;

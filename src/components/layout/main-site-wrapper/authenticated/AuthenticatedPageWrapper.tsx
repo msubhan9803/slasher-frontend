@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Container, Offcanvas,
-} from 'react-bootstrap';
+import React, { useContext, useEffect, useState } from 'react';
+import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
@@ -13,8 +11,9 @@ import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
+import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
-import useGlobalSocket from '../../../../hooks/useGlobalSocket';
+import LoadingIndicator from '../../../ui/LoadingIndicator';
 
 interface Props {
   children: React.ReactNode;
@@ -29,15 +28,12 @@ const StyledOffcanvas = styled(Offcanvas)`
 
 const LeftSidebarWrapper = styled.div`
   width: 127px;
-`;
-
-const MainContentCol = styled.main`
-  // For mobile sizes, add bottom padding to account for persistent bottom nav buttons
-  padding-bottom: 5.25em;
-
-  // For desktop sizes, reduce bottom padding
-  @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
-    padding-bottom: 1em;
+  height: calc(100vh - 125px);
+  overflow-y: hidden;
+  position: sticky;
+  top: 125px;
+  &:hover {
+    overflow-y: auto;
   }
 `;
 
@@ -50,7 +46,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
-  const { socket } = useGlobalSocket();
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');
@@ -95,6 +91,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, []);
 
+  if (!userData.user) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
@@ -103,7 +103,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         offcanvasSidebarExpandBreakPoint={desktopBreakPoint}
         ariaToggleTargetId={offcanvasId}
       />
-      <Container fluid="xxl" className="py-3 px-lg-4">
+      <div className="w-100 px-lg-4 container-xxl">
         <div className="d-flex">
           {isDesktopResponsiveSize
             && (
@@ -113,11 +113,11 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <MainContentCol className="px-lg-3 flex-grow-1 min-width-0">
+          <main className="px-lg-3 flex-grow-1 min-width-0">
             {children}
-          </MainContentCol>
+          </main>
         </div>
-      </Container>
+      </div>
       {show && (
         <StyledOffcanvas
           id={offcanvasId}

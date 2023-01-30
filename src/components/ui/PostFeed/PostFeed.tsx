@@ -13,7 +13,7 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
-import { CommentValue, Post } from '../../../types';
+import { CommentValue, Post, ReplyValue } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -41,7 +41,6 @@ interface Props {
   commentsData?: any[];
   isCommentSection?: boolean;
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
-  setCommentValue?: (value: CommentValue) => void;
   detailPage?: boolean;
   removeComment?: () => void;
   setCommentID?: (value: string) => void;
@@ -59,6 +58,10 @@ interface Props {
   escapeHtml?: boolean;
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
+  addUpdateReply?: (value: ReplyValue) => void;
+  addUpdateComment?: (addUpdateComment: CommentValue) => void;
+  updateState?: boolean;
+  setUpdateState?: (value: boolean) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -81,11 +84,11 @@ const StyledPostFeed = styled.div`
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
-  setCommentValue, commentsData, removeComment,
-  setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
-  setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, newsPostPopoverOptions,
-  escapeHtml, loadNewerComment, previousCommentsAvailable,
+  commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
+  commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
+  noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
+  addUpdateComment, updateState, setUpdateState,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -93,7 +96,6 @@ function PostFeed({
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
-
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -271,9 +273,7 @@ function PostFeed({
                   >
                     <PostCommentSection
                       commentSectionData={commentsData}
-                      commentImage={post.profileImage}
                       popoverOption={popoverOptions}
-                      setCommentValue={setCommentValue}
                       removeComment={removeComment}
                       setCommentID={setCommentID}
                       setCommentReplyID={setCommentReplyID}
@@ -286,6 +286,10 @@ function PostFeed({
                       onLikeClick={onLikeClick}
                       loadNewerComment={loadNewerComment}
                       previousCommentsAvailable={previousCommentsAvailable}
+                      addUpdateReply={addUpdateReply}
+                      addUpdateComment={addUpdateComment}
+                      updateState={updateState}
+                      setUpdateState={setUpdateState}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -312,7 +316,6 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
-  setCommentValue: undefined,
   commentsData: [],
   removeComment: undefined,
   setCommentID: undefined,
@@ -330,5 +333,9 @@ PostFeed.defaultProps = {
   escapeHtml: true,
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
+  addUpdateReply: undefined,
+  addUpdateComment: undefined,
+  updateState: false,
+  setUpdateState: undefined,
 };
 export default PostFeed;

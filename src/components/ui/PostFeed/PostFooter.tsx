@@ -69,9 +69,18 @@ function PostFooter({
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">
-              <Dropdown.Item eventKey="Share as a post" className="text-light">Share as a post</Dropdown.Item>
-              <Dropdown.Item eventKey="Share in a message" className="text-light">Share in a message</Dropdown.Item>
-              <Dropdown.Item eventKey="More options" className="text-light">More options</Dropdown.Item>
+              <Dropdown.Item eventKey="Share as a post" className="text-light">Unavailable in Beta.</Dropdown.Item>
+              {/*
+                <Dropdown.Item eventKey="Share as a post" className="text-light">
+                Share as a post
+                </Dropdown.Item>
+                <Dropdown.Item eventKey="Share in a message" className="text-light">
+                Share in a message
+                </Dropdown.Item>
+                <Dropdown.Item eventKey="More options" className="text-light">
+                More options
+                </Dropdown.Item>
+              */}
             </Dropdown.Menu>
           </CustomDropDown>
         </Col>

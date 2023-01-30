@@ -144,6 +144,7 @@ export interface FeedComments {
   _id: string;
   likeCount: number;
   commentCount: number;
+  isReplyIndex?: number;
 }
 
 interface FeedCommentUserId {
@@ -218,12 +219,6 @@ interface FeedReplies {
   commentCount: number;
 }
 
-export interface CommentValue {
-  commentMessage: string,
-  replyMessage: string,
-  imageArray?: string[],
-}
-
 export enum RssFeedProviderFollowNotificationsEnabled {
   NotEnabled = 0,
   Enabled = 1,
@@ -232,4 +227,16 @@ export enum RssFeedProviderFollowNotificationsEnabled {
 export enum ProfileVisibility {
   Public = 0,
   Private = 1,
+}
+
+export interface CommentValue {
+  commentMessage: string,
+  imageArray?: string[],
+  commentId?: string,
+}
+export interface ReplyValue {
+  replyMessage: string,
+  commentId?: string,
+  imageArray?: string[],
+  replyId?: string,
 }

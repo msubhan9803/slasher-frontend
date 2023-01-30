@@ -10,7 +10,6 @@ import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { UserSettingModule } from '../settings/user-settings.module';
 import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.schema';
 import { ChatModule } from '../chat/chat.module';
-import { BlocksModule } from '../blocks/blocks.module';
 import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-feed-provider-follows.module';
 import { RssFeedProvidersModule } from '../rss-feed-providers/rss-feed-providers.module';
 import { MailModule } from '../providers/mail.module';
@@ -25,7 +24,6 @@ import { MailModule } from '../providers/mail.module';
     FriendsModule,
     UserSettingModule,
     ChatModule,
-    BlocksModule,
     RssFeedProviderFollowsModule,
     RssFeedProvidersModule,
     MailModule,

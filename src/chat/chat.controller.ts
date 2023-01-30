@@ -10,13 +10,17 @@ import { GetConversationsQueryDto } from './dto/get-conversations-query.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { GetConversationQueryDto } from './dto/get-conversation-query.dto';
 import { CreateOrFindConversationQueryDto } from './dto/create-or-find-conversation-query.dto';
+import { pick } from '../utils/object-utils';
 import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
+import { BlocksService } from '../blocks/providers/blocks.service';
 
 @Controller('chat')
 export class ChatController {
   constructor(
     private readonly chatService: ChatService,
+    private readonly blocksService: BlocksService,
+
   ) { }
 
   @TransformImageUrls('$[*].participants[*].profilePic')
@@ -45,20 +49,28 @@ export class ChatController {
     if (!matchUserIds.length) {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
-    return matchList;
+    const pickConversationFields = ['_id', 'participants'];
+
+    return pick(matchList, pickConversationFields);
   }
 
-  @TransformImageUrls('$.participants[*].profilePic')
   @Post('conversations/create-or-find-direct-message-conversation')
   async createOrFindDirectMessageConversation(
     @Req() request: Request,
     @Body() createOrFindConversationQueryDto: CreateOrFindConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    return this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, createOrFindConversationQueryDto.userId);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
+    const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
+    const pickConversationFields = ['_id', 'participants'];
+
+    return pick(chat, pickConversationFields);
   }
 
   @Patch('conversations/mark-all-received-messages-read-for-chat/:matchListId')

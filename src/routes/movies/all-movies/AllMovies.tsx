@@ -98,7 +98,6 @@ function AllMovies() {
               initialLoad
               loadMore={() => { setRequestAdditionalPosts(true); }}
               hasMore={!noMoreData}
-              element="span"
             >
               <PosterCardList dataList={filteredMovies} />
             </InfiniteScroll>

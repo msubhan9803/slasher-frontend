@@ -502,7 +502,6 @@ function ProfilePostDetail({ user }: Props) {
               onUpdatePost={onUpdatePost}
             />
           )}
-        <div style={{ height: '100vh' }} />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">
         {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}

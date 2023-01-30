@@ -27,6 +27,7 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { FeedComment } from '../schemas/feedComment/feedComment.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { pick } from '../utils/object-utils';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
@@ -159,8 +160,7 @@ export class FeedCommentsController {
         notificationMsg: 'mentioned you in a comment',
       });
     }
-
-    return updatedComment;
+    return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
 
   @Delete(':feedCommentId')
@@ -299,8 +299,7 @@ export class FeedCommentsController {
         notificationMsg: 'mentioned you in a comment reply',
       });
     }
-
-    return updatedReply;
+    return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }
 
   @Delete('replies/:feedReplyId')
@@ -347,11 +346,11 @@ export class FeedCommentsController {
         .map((reply) => {
           // eslint-disable-next-line no-param-reassign
           reply.likeCount = reply.likes.length;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.likes;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.__v;
-          return reply;
+          const {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+          } = reply;
+          return expectedReplyValues;
         });
       comments.replies = filterReply;
       comments.likeCount = comments.likes.length;
@@ -359,7 +358,12 @@ export class FeedCommentsController {
       delete comments.__v;
       commentReplies.push(comments);
     }
-    return commentReplies;
+    return commentReplies.map(
+      (comments) => pick(
+        comments,
+        ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+      ),
+    );
   }
 
   @TransformImageUrls(
@@ -383,16 +387,19 @@ export class FeedCommentsController {
       .map((reply) => {
         // eslint-disable-next-line no-param-reassign
         reply.likeCount = reply.likes.length;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.likes;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.__v;
-        return reply;
+        const {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+        } = reply;
+        return expectedReplyValues;
       });
     commentAndReplies.replies = filterReply;
     commentAndReplies.likeCount = commentAndReplies.likes.length;
     delete commentAndReplies.likes;
     delete commentAndReplies.__v;
-    return commentAndReplies;
+    return pick(
+      commentAndReplies,
+      ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+    );
   }
 }

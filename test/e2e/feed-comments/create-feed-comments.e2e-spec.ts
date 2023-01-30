@@ -14,6 +14,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -76,7 +77,30 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .expect(HttpStatus.CREATED);
-        expect(response.body.message).toBe('hello test user');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -91,7 +115,6 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
@@ -115,7 +138,13 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('message', message)
         .field('feedPostId', feedPost._id.toString())
         .expect(HttpStatus.CREATED);
-      expect(response.body.message).toBe(message);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'This is a test message',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [],
+      });
     });
 
     it('allows the creation of a comments with only files, but no message', async () => {
@@ -127,7 +156,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1]);
+          .attach('images', tempPaths[1])
+          .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('message should not be empty');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 

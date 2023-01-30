@@ -57,7 +57,7 @@ const AboutMovieDetails = styled.div`
     svg {
       width: 1.179rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
@@ -67,7 +67,7 @@ const AboutMovieDetails = styled.div`
     svg {
       width: 1.055rem;
       height: 1.125rem;
-    }    
+    }
     p {
       font-size: 1rem;
     }
@@ -109,7 +109,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       </Row>
       <StyledRateBorder className="pb-xxl-3 align-items-center d-block d-xxl-flex justify-content-center justify-content-xl-between">
         <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-center justify-content-xl-start text-light">
-          <p className="m-0 fs-3">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData.release_date)).toFormat('yyyy')}</p>
+          <p className="m-0 fs-3">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}</p>
           {getCertification() && (
             <p className="fs-3 p-1 mb-0 mx-3 align-items-center border border-primary d-flex justify-content-center text-primary">
               {getCertification()}
@@ -117,7 +117,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           )}
           <span className="fs-3 align-items-center d-flex">
             <p className="my-0">
-              {aboutMovieDetail?.mainData?.production_countries.map((country: Country) => country.iso_3166_1).join('/')}
+              {aboutMovieDetail?.mainData?.production_countries.map((country: Country) => country.name).join(', ')}
             </p>
             <FontAwesomeIcon icon={solid('circle')} size="sm" className="circle mx-2 text-primary" />
             <p className="my-0">

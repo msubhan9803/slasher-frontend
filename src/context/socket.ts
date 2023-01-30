@@ -10,9 +10,13 @@ export const socket = io(apiUrl!, {
   auth: { token },
 });
 
-// socket.once('authSuccess', (payload) => {
-//   // eslint-disable-next-line no-console
-//   console.log('authSuccess payload =', payload);
-// });
+// This is mostly just here to help with troubleshooting if there are ever any connection issues.
+// This will just prove whether or not authentication worked. If authentication fails,
+// the client is automatically disconnected.
+socket.once('authSuccess', (payload) => {
+  if (payload.success) {
+    (socket as any).slasherAuthSuccess = true;
+  }
+});
 
 export const SocketContext = React.createContext<Socket | null>(null);

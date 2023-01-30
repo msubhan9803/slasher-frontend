@@ -4,7 +4,6 @@ import {
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { onboardingAboutMe } from '../../../api/onboarding';
-import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LengthRestrictedTextArea from '../../../components/ui/LengthRestrictedTextArea';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -33,7 +32,7 @@ function OnboardingAboutMe() {
     });
   };
   return (
-    <UnauthenticatedPageWrapper hideFooter valign="start">
+    <>
       <h1 className="h2 mt-5 text-center text-md-start">About Me</h1>
       <p className="fs-3 pb-0 my-0 fw-bold text-center text-md-start">Tell people a little about yourself! </p>
       <p className="pt-0 text-center text-md-start">Here are some ideas: your favorite horror movies, favorite book, music you like, if you make horror-related stuff.</p>
@@ -69,7 +68,7 @@ function OnboardingAboutMe() {
           </Col>
         </Row>
       </Form>
-    </UnauthenticatedPageWrapper>
+    </>
   );
 }
 

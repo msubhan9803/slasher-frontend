@@ -4,10 +4,12 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { getSearchUser } from '../../../api/searchUser';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import SearchHeader from '../SearchHeader';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 
 interface SearchPeopleProps {
   _id: number;
@@ -100,42 +102,47 @@ function SearchPeople() {
   );
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <SearchHeader
-        tabKey="people"
-        setSearch={handleSearch}
-        search={search}
-        label="Enter username"
-      />
-      <InfiniteScroll
-        pageStart={0}
-        initialLoad
-        loadMore={fetchMoreUsers}
-        hasMore={!noMoreData}
-        element="span"
-      >
-        <Row className="mt-4">
-          {loadUser && <LoadingIndicator />}
-          {moreCharacters
-            && <h1 className="h3">Enter a search term into the search box above to find users by username (must enter at least 3 characters).</h1>}
-          {searchPeople && searchPeople.length > 0 && searchPeople.map((peopleDetail) => (
-            /* eslint no-underscore-dangle: 0 */
-            <Col md={6} key={peopleDetail._id}>
-              <Link className="pb-4 d-flex align-items-center text-decoration-none" to={`/${peopleDetail.userName}`}>
-                <UserCircleImage className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light" src={peopleDetail.profilePic} />
-                <div className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
-                  <p className="fw-bold mb-0">
-                    {peopleDetail.userName}
-                  </p>
-                  <small className="text-light mb-0">{peopleDetail.firstName}</small>
-                </div>
-              </Link>
-            </Col>
-          ))}
-        </Row>
-      </InfiniteScroll>
-      {search && search.length >= 3 && noMoreData && renderNoMoreDataMessage()}
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <SearchHeader
+          tabKey="people"
+          setSearch={handleSearch}
+          search={search}
+          label="Enter username"
+        />
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={fetchMoreUsers}
+          hasMore={!noMoreData}
+          element="span"
+        >
+          <Row className="mt-4">
+            {loadUser && <LoadingIndicator />}
+            {moreCharacters
+              && <h1 className="h3">Enter a search term into the search box above to find users by username (must enter at least 3 characters).</h1>}
+            {searchPeople && searchPeople.length > 0 && searchPeople.map((peopleDetail) => (
+              /* eslint no-underscore-dangle: 0 */
+              <Col md={6} key={peopleDetail._id}>
+                <Link className="pb-4 d-flex align-items-center text-decoration-none" to={`/${peopleDetail.userName}`}>
+                  <UserCircleImage className="me-3 ms-md-2 bg-dark align-items-center d-flex fs-1 justify-content-around fw-light" src={peopleDetail.profilePic} />
+                  <div className="ps-0 ps-md-5 ps-lg-3 ps-xl-0">
+                    <p className="fw-bold mb-0">
+                      {peopleDetail.userName}
+                    </p>
+                    <small className="text-light mb-0">{peopleDetail.firstName}</small>
+                  </div>
+                </Link>
+              </Col>
+            ))}
+          </Row>
+        </InfiniteScroll>
+        {search && search.length >= 3 && noMoreData && renderNoMoreDataMessage()}
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

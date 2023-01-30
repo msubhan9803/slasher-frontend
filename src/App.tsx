@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Routes, Route, Navigate,
+  Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';
@@ -9,6 +9,7 @@ import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
 import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
 import Conversation from './routes/conversation/Conversation';
 import Messages from './routes/messages/Messages';
@@ -31,48 +32,75 @@ import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 // import Podcasts from './routes/podcasts/Podcasts';
 
 const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
+const DEFAULT_INDEX_REDIRECT = 'home';
+
+interface TopLevelRoute {
+  component: any;
+  wrapper: any;
+  wrapperProps?: {
+    hideTopLogo?: boolean;
+    hideFooter?: boolean;
+    valign?: 'start' | 'center' | 'end';
+  };
+}
+
+const routes: Record<string, TopLevelRoute> = {
+  home: { wrapper: AuthenticatedPageWrapper, component: Home },
+  ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
+  'search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
+  'dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
+  messages: { wrapper: AuthenticatedPageWrapper, component: Messages },
+  'messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'news/*': { wrapper: AuthenticatedPageWrapper, component: News },
+  'events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
+  'posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
+  'right-nav-viewer': { wrapper: AuthenticatedPageWrapper, component: TempRightNavViewer },
+  'movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
+  notifications: { wrapper: AuthenticatedPageWrapper, component: Notifications },
+  'account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
+  // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  'forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
+  'reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  'registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
+  'onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  'account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
+  'sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
+};
 
 function App() {
-  const topLevelRedirectPath = '/home'; // TODO: Base this on whether or not user is signed in
-
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route>
+        <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
+        {
+          Object.entries(routes).map(
+            ([routePath, opts]) => (
+              <Route
+                key={routePath}
+                path={routePath}
+                element={(
+                  <opts.wrapper {...(opts.wrapperProps)}>
+                    <opts.component />
+                  </opts.wrapper>
+                )}
+              />
+            ),
+          )
+        }
+        <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
+      </Route>,
+    ),
+  );
+
   return (
-    <Routes>
-      {/* Top level redirect */}
-      <Route path="/" element={<Navigate to={topLevelRedirectPath} replace />} />
-
-      {/* Unauthenticated routes */}
-      <Route path="/sign-in" element={<SignIn />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/verification-email-not-received" element={<VerificationEmailNotReceived />} />
-      <Route path="/registration/*" element={<Registration />} />
-      <Route path="/onboarding/*" element={<Onboarding />} />
-      <Route path="/account-activated" element={<AccountActivated />} />
-
-      {/* Authenticated routes */}
-      <Route path="/home" element={<Home />} />
-      <Route path="/search/*" element={<Search />} />
-      <Route path="/dating/*" element={<Dating />} />
-      <Route path="/messages" element={<Messages />} />
-      <Route path="/messages/conversation/:conversationId" element={<Conversation />} />
-      <Route path="/messages/conversation/user/:userId" element={<Conversation />} />
-      <Route path="/news/*" element={<News />} />
-      <Route path="/events/*" element={<Events />} />
-      <Route path="/posts/*" element={<Posts />} />
-      <Route path="/right-nav-viewer" element={<TempRightNavViewer />} />
-      <Route path="/movies/*" element={<Movies />} />
-      <Route path="/:userName/*" element={<Profile />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/account/*" element={<Account />} />
-      {/* <Route path="/podcasts/*" element={<Podcasts />} />
-      <Route path="/books/*" element={<Books />} />
-      <Route path="/shopping/*" element={<Shopping />} />
-      <Route path="/places/*" element={<Places />} /> */}
-      {/* Fallback */}
-      <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
-    </Routes>
+    <RouterProvider router={router} />
   );
 }
 export default App;

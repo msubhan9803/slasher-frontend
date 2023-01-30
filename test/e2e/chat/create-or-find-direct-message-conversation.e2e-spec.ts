@@ -11,6 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
+import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
@@ -24,6 +25,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let matchListModel: Model<MatchListDocument>;
+  let friendsService: FriendsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
@@ -36,6 +38,8 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
+
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     await app.init();
@@ -69,6 +73,8 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
         matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id]);
       });
       it('finds an existing conversation by searching for the participants of that conversation', async () => {
+        await friendsService.createFriendRequest(activeUser._id.toString(), users[0]._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), users[0]._id.toString());
         const response = await request(app.getHttpServer())
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -78,6 +84,9 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
 
       it('creates a conversation if one does not exist with the given participants', async () => {
         const matchListCount = await matchListModel.count();
+        await friendsService.createFriendRequest(activeUser._id.toString(), users[1]._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), users[1]._id.toString());
+
         const response = await request(app.getHttpServer())
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
@@ -108,6 +117,28 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           message: 'Request failed due to user block.',
           statusCode: 400,
         });
+      });
+    });
+
+    describe('should NOT create/find direct message conversation when users are *not* friends', () => {
+      let users;
+
+      beforeEach(async () => {
+        users = await Promise.all([
+          userFactory.build(),
+          userFactory.build(),
+        ].map((userData) => usersService.create(userData)));
+      });
+
+      it('should not create/find a conversation when given user is not a friend', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ userId: users[1]._id });
+        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+        const matchListCount = await matchListModel.count();
+        expect(matchListCount).toBe(0);
       });
     });
 

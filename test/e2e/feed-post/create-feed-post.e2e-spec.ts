@@ -65,7 +65,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             message: 'hello test user',
-            userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userId: activeUser._id.toString(),
             images: [
               {
                 image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -117,7 +117,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'This is a test message',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        userId: activeUser._id.toString(),
         images: [],
       });
     });

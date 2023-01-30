@@ -65,6 +65,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ success: true });
+      expect(activeUser._id.toString()).toEqual((feedPost.userId as any)._id.toString());
     });
 
     it('when userId is not match than expected feed post response', async () => {

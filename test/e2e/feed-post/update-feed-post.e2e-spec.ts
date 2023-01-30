@@ -65,15 +65,18 @@ describe('Update Feed Post (e2e)', () => {
 
   describe('Update Feed Post Details', () => {
     it('successfully update feed post details, and updates the lastUpdateAt time', async () => {
+      const postBeforeUpdate = await feedPostsService.findById(feedPost.id, true);
       const response = await request(app.getHttpServer())
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
+      const feedPostDetails = await feedPostsService.findById(response.body._id, true);
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello all test user upload your feed post',
       });
+      expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
 
     it('when userId is not match than expected feed post response', async () => {

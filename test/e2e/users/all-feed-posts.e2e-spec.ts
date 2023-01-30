@@ -54,7 +54,6 @@ describe('All Feed Post (e2e)', () => {
       await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser._id,
-          // createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
         }),
       );
       await feedPostsService.create(
@@ -62,7 +61,6 @@ describe('All Feed Post (e2e)', () => {
           userId: activeUser._id,
           is_deleted: FeedPostDeletionState.Deleted,
           status: FeedPostStatus.Inactive,
-          // createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
         }),
       );
     }

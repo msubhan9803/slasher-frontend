@@ -11,7 +11,6 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { FeedCommentsService } from './providers/feed-comments.service';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
 import { UpdateFeedReplyDto } from './dto/update-feed-reply.dto';
@@ -119,7 +118,6 @@ export class FeedCommentsController {
       });
     }
 
-    asyncDeleteMulterFiles(files);
     return {
       _id: comment._id,
       feedPostId: comment.feedPostId,
@@ -258,7 +256,6 @@ export class FeedCommentsController {
       });
     }
 
-    asyncDeleteMulterFiles(files);
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,

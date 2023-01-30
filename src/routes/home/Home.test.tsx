@@ -1,19 +1,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { createMemoryHistory } from 'history'; // TODO: remove temporary eslint ignore above
-import { Router } from 'react-router-dom';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import Home from './Home';
 import { store } from '../../redux/store';
 
 test('renders the expected text', () => {
-  const history = createMemoryHistory();
+  const routes = [
+    {
+      path: '/home',
+      element: <Home />,
+    },
+  ];
+  const router = createMemoryRouter(routes, {
+    initialEntries: ['/', '/home'],
+    initialIndex: 1,
+  });
   render(
     <Provider store={store}>
-      <Router location={history.location} navigator={history}>
-        <Home />
-      </Router>
+      <RouterProvider router={router} />
     </Provider>,
   );
   const linkElement = screen.getByText(/Suggested friends/i);

@@ -68,30 +68,31 @@ describe('Delete Notifications (e2e)', () => {
 
   describe('Delete /notifications/:id', () => {
     describe('delete notifications', () => {
-      it('successfully delete notification details.', async () => {
-        await request(app.getHttpServer())
+      it('successfully deletes the notification and returns the expected response.', async () => {
+        const response = await request(app.getHttpServer())
           .delete(`/notifications/${notification._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const notificationsDetails = await notificationsService.findById(notification._id);
         expect(notificationsDetails.is_deleted).toBe(NotificationDeletionStatus.Deleted);
+        expect(response.body).toEqual({ success: true });
       });
 
-      it('notification id is not exists than expected response.', async () => {
+      it('returns the expected response when the notification id does not exist.', async () => {
         const notificationId = '5c9c60ca59bf9617c18f6cec';
         const response = await request(app.getHttpServer())
           .delete(`/notifications/${notificationId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('Notification not found');
+        expect(response.body).toEqual({ message: 'Notification not found', statusCode: 404 });
       });
 
-      it('when notification userId and login user id is not match than expected response.', async () => {
+      it('returns the expected response when the notification is owned by a different user', async () => {
         const response = await request(app.getHttpServer())
           .delete(`/notifications/${notification1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('Permission denied.');
+        expect(response.body).toEqual({ message: 'Permission denied.', statusCode: 401 });
       });
     });
   });

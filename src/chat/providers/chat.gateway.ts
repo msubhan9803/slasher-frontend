@@ -26,7 +26,7 @@ export class ChatGateway {
     private readonly usersService: UsersService,
     private readonly friendsService: FriendsService,
     private readonly chatService: ChatService,
-    ) { }
+  ) { }
 
   @WebSocketServer()
   server: Server;
@@ -46,8 +46,8 @@ export class ChatGateway {
     const user = await this.usersService.findBySocketId(client.id);
     const fromUserId = user._id.toString();
     const { toUserId } = data;
-    const friend = await this.friendsService.findFriendship(user._id, toUserId);
-    if (!friend || friend.reaction !== FriendRequestReaction.Accepted) {
+    const areFriends = await this.friendsService.areFriends(user._id, toUserId);
+    if (!areFriends) {
       return { success: false, errorMessage: 'You are not friends with the given user.' };
     }
 

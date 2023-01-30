@@ -65,18 +65,8 @@ describe('rssFeedProviders / :id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          auto_follow: 0,
-          createdBy: null,
-          deleted: 0,
           description: null,
-          feed_url: null,
-          follower_count: 0,
-          hideUsers: [],
           logo: null,
-          preview_count: 0,
-          reportUsers: [],
-          shareUsers: [],
-          status: 1,
           title: 'RssFeedProvider 1',
         });
       });

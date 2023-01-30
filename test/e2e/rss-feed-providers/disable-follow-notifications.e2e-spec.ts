@@ -15,7 +15,6 @@ import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvide
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { RssFeedProviderFollowNotificationsEnabled } from '../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Disable Follow Notifications (e2e)', () => {
   let app: INestApplication;
@@ -74,14 +73,7 @@ describe('Disable Follow Notifications (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.notification).toEqual(RssFeedProviderFollowNotificationsEnabled.NotEnabled);
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          deleted: 0,
-          notification: 0,
-          rssfeedProviderId: rssFeedProviderData._id.toString(),
-          status: 1,
-          userId: activeUser._id.toString(),
-        });
+        expect(response.body).toEqual({ notification: 0 });
       });
 
       it('when rss feed provider id is not exists than expected response', async () => {

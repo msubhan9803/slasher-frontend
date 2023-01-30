@@ -14,7 +14,6 @@ import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedPro
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Create Follow (e2e)', () => {
   let app: INestApplication;
@@ -72,14 +71,7 @@ describe('Create Follow (e2e)', () => {
           );
         expect(follow.userId.toString()).toBe(activeUser._id.toString());
         expect(follow.rssfeedProviderId.toString()).toBe(rssFeedProviderData._id.toString());
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          deleted: 0,
-          notification: 0,
-          rssfeedProviderId: rssFeedProviderData._id.toString(),
-          status: 1,
-          userId: activeUser._id.toString(),
-        });
+        expect(response.body).toEqual({ notification: 0 });
       });
 
       it('when rss feed provider id is not exists than expected response', async () => {

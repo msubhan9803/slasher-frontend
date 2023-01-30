@@ -108,7 +108,6 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           commentCount: 0,
-          hideUsers: [],
           images: [
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -119,31 +118,19 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
             },
           ],
-          is_deleted: 0,
           createdAt: firstFeedPostsDates.createdAt.toISOString(),
           lastUpdateAt: firstFeedPostsDates.lastUpdateAt.toISOString(),
           likeCount: 0,
           likes: [],
-          mature: 0,
           message: 'Message 1',
           movieId: null,
-          privacyType: 1,
-          reportUsers: [],
           rssFeedId: null,
           rssfeedProviderId: {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             logo: null,
             title: 'RssFeedProvider 1',
           },
-          shareId: null,
-          shareUsers: [],
-          sharedList: 0,
-          skipthat: false,
-          status: 1,
-          type: 1,
           userId: activeUser._id.toString(),
-          vendorTitle: null,
-          vendorUrl: null,
         },
       ]);
     });
@@ -181,15 +168,12 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
         }
         expect(firstResponse.body).toHaveLength(3);
-        // TODO: 1. Removed `updatedAt` field in favor of `lastUpdateAt`
-        // TODO: 2. Kept `createdAt` field because its being used in some test written in this file already.
         expect(firstResponse.body).toEqual([
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             commentCount: 0,
             createdAt: firstFeedPostsDates.createdAt.toISOString(),
             lastUpdateAt: firstFeedPostsDates.lastUpdateAt.toISOString(),
-            hideUsers: [],
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -200,36 +184,23 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
                 image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
               },
             ],
-            is_deleted: 0,
             likeCount: 0,
             likes: [],
-            mature: 0,
             message: 'Message 3',
             movieId: null,
-            privacyType: 1,
-            reportUsers: [],
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            shareId: null,
-            shareUsers: [],
-            sharedList: 0,
-            skipthat: false,
-            status: 1,
-            type: 1,
             userId: activeUser._id.toString(),
-            vendorTitle: null,
-            vendorUrl: null,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             commentCount: 0,
             createdAt: feedPostsDates[0].createdAt.toISOString(),
             lastUpdateAt: feedPostsDates[0].lastUpdateAt.toISOString(),
-            hideUsers: [],
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -240,36 +211,23 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
                 image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
               },
             ],
-            is_deleted: 0,
             likeCount: 0,
             likes: [],
-            mature: 0,
             message: 'Message 4',
             movieId: null,
-            privacyType: 1,
-            reportUsers: [],
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            shareId: null,
-            shareUsers: [],
-            sharedList: 0,
-            skipthat: false,
-            status: 1,
-            type: 1,
             userId: activeUser._id.toString(),
-            vendorTitle: null,
-            vendorUrl: null,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             commentCount: 0,
             createdAt: feedPostsDates[1].createdAt.toISOString(),
             lastUpdateAt: feedPostsDates[1].lastUpdateAt.toISOString(),
-            hideUsers: [],
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -280,29 +238,17 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
                 image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
               },
             ],
-            is_deleted: 0,
             likeCount: 0,
             likes: [],
-            mature: 0,
             message: 'Message 5',
             movieId: null,
-            privacyType: 1,
-            reportUsers: [],
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            shareId: null,
-            shareUsers: [],
-            sharedList: 0,
-            skipthat: false,
-            status: 1,
-            type: 1,
             userId: activeUser._id.toString(),
-            vendorTitle: null,
-            vendorUrl: null,
           },
         ]);
 

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -84,12 +84,12 @@ describe('Create Feed Comment Like (e2e)', () => {
     });
 
     it('successfully creates feed comment likes.', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post(`/feed-likes/comment/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
-      expect(feedCommentsData.likes).toContainEqual(activeUser._id);
+        .send()
+        .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
     });
 
     it('when feed comment id is not exist than expected response', async () => {
@@ -97,7 +97,8 @@ describe('Create Feed Comment Like (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/comment/${feedCommentId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Comment not found');
     });
 

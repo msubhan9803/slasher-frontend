@@ -1,32 +1,29 @@
 import { Prop } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import {
-  MatchListFlag,
-} from './matchList.enums';
+import { MatchListStatus } from '../matchList/matchList.enums';
+import { User } from '../user/user.schema';
 
-export class MatchListUnusedFields {
+export class ChatUnusedFields {
+  @Prop({ default: [], ref: User.name, required: true })
+  deletefor: mongoose.Schema.Types.ObjectId[];
+
   // Note: The default value below is weird, but it doesn't seem to matter and this
   // 'undefinedundefinedundefined' value is the kind of thing we see in the current prod database
   // (though in the prod database, 'undefined' is repeated many more times).
   @Prop({ default: 'undefinedundefinedundefined' })
   roomName: string;
 
-  // NOT USED
-  // Note: In current prod db, this is null 100% of the time, so this field is not used in any
-  // meaningful way.
-  @Prop({ default: null })
-  roomImage: string;
+  @Prop({ default: false })
+  is_chat: boolean;
 
-  // NOT USED
-  @Prop({ default: MatchListFlag.NormalUser })
-  flag: MatchListFlag;
-
-  @Prop({ default: null, ref: 'users' })
-  createdBy: mongoose.Schema.Types.ObjectId;
-
-  // NOT USED
   // Note: Even though this field has a default value of Date.now, it is intentionally of type
   // string.  This is how the old API is configured, so we'll do this to match.
   @Prop({ default: Date.now })
   created: string;
+
+  @Prop({ required: true, default: MatchListStatus.Accepted })
+  status: MatchListStatus;
+
+  @Prop({ default: false })
+  deleted: boolean;
 }

@@ -11,6 +11,9 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { MatchList, MatchListDocument } from '../../../src/schemas/matchList/matchList.schema';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('Create Or Find Direct Message Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +24,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let matchListModel: Model<MatchListDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -32,7 +36,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
-
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -78,11 +82,32 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
-        expect(response.body.participants).toEqual([
-          activeUser._id.toString(), users[1].id,
-        ]);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          participants: [
+            expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          ],
+        });
         const newMatchListCount = await matchListModel.count();
         expect(newMatchListCount - matchListCount).toBe(1);
+      });
+
+      it('when user is block than expected response.', async () => {
+        const user1 = await usersService.create(userFactory.build());
+        await blocksModel.create({
+          from: activeUser._id,
+          to: user1._id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+        const response = await request(app.getHttpServer())
+          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ userId: user1._id });
+        expect(response.body).toEqual({
+          message: 'Request failed due to user block.',
+          statusCode: 400,
+        });
       });
     });
 

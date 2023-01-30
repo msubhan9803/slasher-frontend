@@ -2,7 +2,7 @@ import React, {
   SyntheticEvent, useRef, useState, useEffect,
 } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import { CommentValue } from '../../types';
+import { CommentValue, ReplyValue } from '../../types';
 import { decryptMessage } from '../../utils/text-utils';
 import ModalContainer from './CustomModal';
 import RoundButton from './RoundButton';
@@ -14,14 +14,15 @@ interface Props {
   commentReplyID: string;
   editContent?: string;
   isReply: boolean;
-  setCommentValue: (value: CommentValue) => void;
+  addUpdateComment: (value: CommentValue) => void;
+  addUpdateReply: (value: ReplyValue) => void;
   setCommentID: (value: string) => void;
   setCommentReplyID: (value: string) => void;
 }
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
-  setCommentValue, setCommentID, setCommentReplyID,
+  setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply,
 }: Props) {
   const textRef = useRef<any>();
   const [editMessage, setEditMessage] = useState<any>('');
@@ -44,17 +45,18 @@ function EditCommentModal({
       setCommentReplyID(commentReplyID);
       setCommentID('');
       mentionReplyString = editMessage.replace(getMentionUser, `##LINK_ID##${commentReplyID}${getMentionUser}##LINK_END##`);
-      setCommentValue({
-        commentMessage: '',
+      addUpdateReply({
         replyMessage: mentionReplyString,
+        replyId: commentReplyID,
+        commentId: commentID,
       });
     } else {
       setCommentID(commentID);
       setCommentReplyID('');
       mentionReplyString = editMessage;
-      setCommentValue({
+      addUpdateComment({
         commentMessage: mentionReplyString,
-        replyMessage: '',
+        commentId: commentID,
       });
     }
   };

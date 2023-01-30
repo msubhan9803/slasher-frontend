@@ -22,10 +22,6 @@ import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import { useAppSelector } from '../../../redux/hooks';
 import { createBlockUser } from '../../../api/blocks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -448,66 +444,61 @@ function ProfilePostDetail({ user }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            {errorMessage}
-          </div>
+    <div>
+      {errorMessage && errorMessage.length > 0 && (
+        <div className="mt-3 text-start">
+          {errorMessage}
+        </div>
+      )}
+      <PostFeed
+        detailPage
+        postFeedData={postData}
+        popoverOptions={loginUserPopoverOptions}
+        onPopoverClick={handlePopoverOption}
+        otherUserPopoverOptions={otherUserPopoverOptions}
+        isCommentSection
+        setCommentValue={setCommentValue}
+        commentsData={commentData}
+        removeComment={removeComment}
+        setCommentID={setCommentID}
+        setCommentReplyID={setCommentReplyID}
+        commentID={commentID}
+        commentReplyID={commentReplyID}
+        isEdit={isEdit}
+        setIsEdit={setIsEdit}
+        setRequestAdditionalPosts={setRequestAdditionalPosts}
+        noMoreData={noMoreData}
+        loadingPosts={loadingComments}
+        onLikeClick={onLikeClick}
+        loadNewerComment={loadNewerComment}
+        previousCommentsAvailable={previousCommentsAvailable}
+      />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+            handleReport={reportProfilePost}
+            onBlockYesClick={onBlockYesClick}
+          />
         )}
-        <PostFeed
-          detailPage
-          postFeedData={postData}
-          popoverOptions={loginUserPopoverOptions}
-          onPopoverClick={handlePopoverOption}
-          otherUserPopoverOptions={otherUserPopoverOptions}
-          isCommentSection
-          setCommentValue={setCommentValue}
-          commentsData={commentData}
-          removeComment={removeComment}
-          setCommentID={setCommentID}
-          setCommentReplyID={setCommentReplyID}
-          commentID={commentID}
-          commentReplyID={commentReplyID}
-          isEdit={isEdit}
-          setIsEdit={setIsEdit}
-          setRequestAdditionalPosts={setRequestAdditionalPosts}
-          noMoreData={noMoreData}
-          loadingPosts={loadingComments}
-          onLikeClick={onLikeClick}
-          loadNewerComment={loadNewerComment}
-          previousCommentsAvailable={previousCommentsAvailable}
-        />
-        {dropDownValue !== 'Edit'
-          && (
-            <ReportModal
-              deleteText="Are you sure you want to delete this post?"
-              onConfirmClick={deletePostClick}
-              show={show}
-              setShow={setShow}
-              slectedDropdownValue={dropDownValue}
-              handleReport={reportProfilePost}
-              onBlockYesClick={onBlockYesClick}
-            />
-          )}
-        {dropDownValue === 'Edit'
-          && (
-            <EditPostModal
-              show={show}
-              setShow={setShow}
-              handleSearch={handleSearch}
-              mentionList={mentionList}
-              setPostContent={setPostContent}
-              postContent={postContent}
-              onUpdatePost={onUpdatePost}
-            />
-          )}
-        <div style={{ height: '100vh' }} />
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
+      <div style={{ height: '100vh' }} />
+    </div>
   );
 }
 

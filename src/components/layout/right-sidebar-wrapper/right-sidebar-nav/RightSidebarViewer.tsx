@@ -5,16 +5,19 @@ import Friends from '../components/Friends';
 import Photos from '../components/Photos';
 import Podcasts from '../components/Podcasts';
 import WatchedList from '../components/WatchedList';
+import type { User } from '../../../../types';
 
-function RightSidebarViewer() {
+type RightSidebarViewerType = { user: User };
+
+function RightSidebarViewer({ user } : RightSidebarViewerType) {
   return (
     <>
       <AdvertisementBox />
       <WatchedList />
       <Podcasts />
       <BooksIhaveRead />
-      <Photos />
-      <Friends />
+      <Photos user={user} />
+      <Friends user={user} />
     </>
   );
 }

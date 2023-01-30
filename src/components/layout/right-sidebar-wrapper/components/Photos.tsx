@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { userPhotos } from '../../../../api/users';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
-import { useAppSelector } from '../../../../redux/hooks';
 import { User } from '../../../../types';
 
 const ProfilePhoto = styled.div`
@@ -28,7 +27,6 @@ type PhotosProps = { user: User };
 function Photos({ user }: PhotosProps) {
   const [photos, setPhotos] = useState<PhotoList[]>([]);
 
-  console.log('got real id?', user.id);
   useEffect(() => {
     if (user.id) {
       userPhotos(user.id, '', '6')

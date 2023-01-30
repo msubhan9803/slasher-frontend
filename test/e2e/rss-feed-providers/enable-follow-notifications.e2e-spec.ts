@@ -71,7 +71,6 @@ describe('Enable Follow Notifications (e2e)', () => {
           .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        // TODO_TEMP_SAHIL_NEED_CONFIRMATION: Removed `updatedAt` and `createdAt`
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           deleted: 0,
@@ -117,7 +116,7 @@ describe('Enable Follow Notifications (e2e)', () => {
           ],
           statusCode: 400,
         });
-        });
+      });
 
       it('userId must be a mongodb id', async () => {
         const activeUserId = '634912b22c2f4f5edspjki2m';
@@ -125,13 +124,13 @@ describe('Enable Follow Notifications (e2e)', () => {
           .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toEqual({
-            error: 'Bad Request',
-            message: [
-              'userId must be a mongodb id',
-            ],
-            statusCode: 400,
-          });
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'userId must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

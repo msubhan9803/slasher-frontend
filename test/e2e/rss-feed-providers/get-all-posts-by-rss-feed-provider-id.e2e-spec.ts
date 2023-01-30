@@ -104,9 +104,6 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
       }
-      // TODO_TEMP_SAHIL_NEED_CONFIRMATION:
-      // TODO: 1. Removed `updatedAt` field in favor of `lastUpdateAt`
-      // TODO: 2. Kept `createdAt` field because its being used in some test written in this file already.
       expect(response.body).toEqual([
         {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -184,10 +181,10 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
         }
         expect(firstResponse.body).toHaveLength(3);
-      // TODO: 1. Removed `updatedAt` field in favor of `lastUpdateAt`
-      // TODO: 2. Kept `createdAt` field because its being used in some test written in this file already.
+        // TODO: 1. Removed `updatedAt` field in favor of `lastUpdateAt`
+        // TODO: 2. Kept `createdAt` field because its being used in some test written in this file already.
         expect(firstResponse.body).toEqual([
-         {
+          {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             commentCount: 0,
             createdAt: firstFeedPostsDates.createdAt.toISOString(),
@@ -329,7 +326,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['id must be a mongodb id']);
-        });
+      });
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts`)

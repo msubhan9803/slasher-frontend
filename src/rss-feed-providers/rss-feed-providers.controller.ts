@@ -36,9 +36,7 @@ export class RssFeedProvidersController {
     }
     rssFeedProvider.logo = relativeToFullImagePath(this.config, rssFeedProvider.logo);
     return pick(rssFeedProvider, [
-      '_id', 'auto_follow', 'createdBy', 'deleted', 'description', 'feed_url',
-      'follower_count', 'hideUsers', 'logo', 'preview_count', 'reportUsers', 'shareUsers',
-      'status', 'title',
+      '_id', 'description', 'logo', 'title',
     ]);
   }
 
@@ -59,10 +57,7 @@ export class RssFeedProvidersController {
     }
 
     return rssFeedProviders.map((feed) => pick(feed, [
-      '_id', 'auto_follow', 'createdBy',
-      'deleted', 'description', 'feed_url', 'follower_count',
-      'hideUsers', 'logo', 'preview_count', 'reportUsers',
-      'shareUsers', 'status', 'title',
+      '_id', 'description', 'logo', 'title',
     ]));
   }
 
@@ -86,11 +81,8 @@ export class RssFeedProvidersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map((feedPost) => pick(feedPost, [
-      '_id', 'createdAt', 'commentCount', 'hideUsers', 'images', 'is_deleted',
-      'lastUpdateAt', 'likeCount', 'likes', 'mature', 'message', 'movieId',
-      'privacyType', 'reportUsers', 'rssFeedId', 'rssfeedProviderId', 'shareId',
-      'shareUsers', 'sharedList', 'skipthat', 'status', 'type',
-      'userId', 'vendorTitle', 'vendorUrl',
+      '_id', 'createdAt', 'commentCount', 'images', 'lastUpdateAt', 'likeCount', 'likes', 'message',
+      'movieId', 'rssFeedId', 'rssfeedProviderId', 'userId',
     ]));
   }
 
@@ -114,10 +106,7 @@ export class RssFeedProvidersController {
     if (!rssFeedProviderFollow) {
       throw new HttpException('Follow not found.', HttpStatus.NOT_FOUND);
     }
-    return pick(rssFeedProviderFollow, [
-      'userId', 'rssfeedProviderId', '_id',
-      'deleted', 'notification', 'status',
-    ]);
+    return pick(rssFeedProviderFollow, ['notification']);
   }
 
   @Post(':id/follows/:userId')
@@ -137,14 +126,7 @@ export class RssFeedProvidersController {
     if (!rssFeedProviderFollow) {
       rssFeedProviderFollow = await this.rssFeedProviderFollowsService.create({ userId: user._id, rssfeedProviderId: rssFeedProvider._id });
     }
-    return pick(rssFeedProviderFollow, [
-      '_id',
-      'deleted',
-      'notification',
-      'rssfeedProviderId',
-      'status',
-      'userId',
-    ]);
+    return pick(rssFeedProviderFollow, ['notification']);
   }
 
   @Delete(':id/follows/:userId')
@@ -188,10 +170,7 @@ export class RssFeedProvidersController {
       rssFeedProviderFollow._id.toString(),
       { notification: RssFeedProviderFollowNotificationsEnabled.Enabled },
     );
-    return pick(rssFeedProviderFollow, [
-      '_id', 'deleted', 'notification',
-      'rssfeedProviderId', 'status', 'userId',
-    ]);
+    return pick(rssFeedProviderFollow, ['notification']);
   }
 
   @Patch(':id/follows/:userId/disable-notifications')
@@ -215,8 +194,6 @@ export class RssFeedProvidersController {
       rssFeedProviderFollow._id.toString(),
       { notification: RssFeedProviderFollowNotificationsEnabled.NotEnabled },
     );
-    return pick(rssFeedProviderFollow, [
-      '_id', 'deleted', 'notification', 'rssfeedProviderId',
-      'status', 'userId']);
+    return pick(rssFeedProviderFollow, ['notification']);
   }
 }

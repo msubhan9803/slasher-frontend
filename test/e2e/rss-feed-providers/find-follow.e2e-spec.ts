@@ -71,7 +71,6 @@ describe('Find Follow (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        // TODO_TEMP_SAHIL_NEED_CONFIRMATION: Removed `createAt` and `updatedAt` fields
         expect(response.body).toEqual({
           userId: activeUser._id.toString(),
           rssfeedProviderId: rssFeedProviderData._id.toString(),

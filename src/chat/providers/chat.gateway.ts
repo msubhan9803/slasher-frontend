@@ -63,7 +63,7 @@ export class ChatGateway {
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',
       { messageId: messageObject.id },
-      { delay: 5_000 }, // 15 second delay
+      { delay: 15_000 }, // 15 second delay
     );
     return { success: true, message: messageObject };
   }

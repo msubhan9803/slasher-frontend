@@ -255,7 +255,7 @@ describe('Chat Gateway (e2e)', () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
-        // Below `matchList`  belongs to chat with `user1`
+        // Below `matchList` belongs to chat with `user1`
         const payload = {
           matchListId: matchList._id, before: message1._id.toString(),
         };

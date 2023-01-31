@@ -161,7 +161,7 @@ describe('Users suggested friends (e2e)', () => {
         });
       });
 
-      it('1.`unreadMessageCount` excluding the deleted messags for user, 2. getConversations return non-deleted latest messg', async () => {
+      it('1.`unreadMessageCount` excludes the deleted messags for user, 2. getConversations return non-deleted latest messg', async () => {
         // deleting `unread1` message, belongs to user1
         await messageModel.updateOne({ _id: unreadLatestUser1._id }, { $set: { deletefor: [activeUser._id] } });
 

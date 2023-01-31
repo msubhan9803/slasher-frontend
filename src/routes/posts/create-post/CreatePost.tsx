@@ -97,16 +97,14 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    if (postContentWithMentionReplacements) {
-      createPost(postContentWithMentionReplacements, imageArray)
-        .then(() => {
-          setErrorMessage([]);
-          navigate(`/${Cookies.get('userName')}/posts`);
-        })
-        .catch((error) => {
-          setErrorMessage(error.response.data.message);
-        });
-    }
+    createPost(postContentWithMentionReplacements, imageArray)
+      .then(() => {
+        setErrorMessage([]);
+        navigate(`/${Cookies.get('userName')}/posts`);
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
   };
   return (
     <ContentSidbarWrapper>

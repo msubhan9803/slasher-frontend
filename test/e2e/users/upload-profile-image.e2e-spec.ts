@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
+import { readdirSync } from 'fs';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -48,7 +49,12 @@ describe('Users / Upload Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
-    it('responds with true if file upload successful', async () => {
+    it('there should be no files in `UPLOAD_DIR` (other than one .keep file)', async () => {
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('responds with true if file upload successful and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
           .post('/users/upload-profile-image')
@@ -59,6 +65,10 @@ describe('Users / Upload Profile image (e2e)', () => {
         expect(response.body).toEqual({ success: true });
         expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
       }, { extension: 'png' });
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response when file is not present in request', async () => {
@@ -70,7 +80,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       expect(response.body.message).toContain('File is required');
     });
 
-    it('responds expected response when file is not jpg, jpeg or png', async () => {
+    it('responds with expected response when file is not jpg, jpeg, png, or gif and ensures that temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
           .post('/users/upload-profile-image')
@@ -78,11 +88,15 @@ describe('Users / Upload Profile image (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png)$/)');
+        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png|gif)$/)');
       }, { extension: 'zpng' });
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('responds expected response if file size should not larger than 20MB', async () => {
+    it('responds expected response if file size should not larger than 20MB  and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
           .post('/users/upload-profile-image')
@@ -92,6 +106,10 @@ describe('Users / Upload Profile image (e2e)', () => {
           .expect(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
   });
 });

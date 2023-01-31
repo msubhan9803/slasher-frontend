@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -13,7 +13,7 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
-import { FeedComment, FeedCommentDocument } from '../../../src/schemas/feedComment/feedComment.schema';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Feed-Comments / Comments Update (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +26,6 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
-  let feedCommentsModel: Model<FeedCommentDocument>;
 
   const sampleFeedCommentsObject = {
     message: 'hello all test user upload your feed comments',
@@ -50,7 +49,6 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
-    feedCommentsModel = moduleRef.get<Model<FeedCommentDocument>>(getModelToken(FeedComment.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -93,9 +91,23 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
         .patch(`/feed-comments/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedCommentsObject);
-      const feedCommentsDetails = await feedCommentsModel.findById(response.body._id);
       expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body.message).toContain(feedCommentsDetails.message);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'hello all test user upload your feed comments',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [
+        {
+          image_path: 'https://picsum.photos/id/237/200/300',
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        },
+        {
+          image_path: 'https://picsum.photos/seed/picsum/200/300',
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        },
+      ],
+      });
     });
 
     it('when feed comment id is not exists than expected response', async () => {
@@ -103,7 +115,9 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/${feedComments1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedCommentsObject);
+        .send(sampleFeedCommentsObject)
+        .expect(HttpStatus.NOT_FOUND);
+
       expect(response.body.message).toContain('Not found.');
     });
 

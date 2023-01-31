@@ -7,6 +7,7 @@ import {
   WebSocketServer,
   ConnectedSocket,
 } from '@nestjs/websockets';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
@@ -14,12 +15,20 @@ import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
 import { User } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { FriendsService } from '../../friends/providers/friends.service';
 
 const RECENT_MESSAGES_LIMIT = 10;
 
+type MessageReturnType = Partial<{ success: boolean, message: Message, errorMessage: string }>;
+
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
-  constructor(private readonly usersService: UsersService, private readonly chatService: ChatService) { }
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly friendsService: FriendsService,
+    private readonly chatService: ChatService,
+  ) { }
 
   @WebSocketServer()
   server: Server;
@@ -30,7 +39,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('chatMessage')
-  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<{ success: boolean, message: Message }> {
+  async chatMessage(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<MessageReturnType> {
     const inValidMessage = typeof data.message === 'undefined' || data.message === null || data.message === '';
     const inValidUserId = typeof data.toUserId === 'undefined' || data.toUserId === null;
 
@@ -39,6 +48,11 @@ export class ChatGateway {
     const user = await this.usersService.findBySocketId(client.id);
     const fromUserId = user._id.toString();
     const { toUserId } = data;
+    const areFriends = await this.friendsService.areFriends(user._id, toUserId);
+    if (!areFriends) {
+      return { success: false, errorMessage: 'You are not friends with the given user.' };
+    }
+
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {

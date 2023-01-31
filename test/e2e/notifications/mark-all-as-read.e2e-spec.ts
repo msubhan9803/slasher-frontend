@@ -72,6 +72,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
         }
         expect(response.status).toEqual(HttpStatus.OK);
         expect(getAllReadNotifications).toHaveLength(5);
+        expect(response.body).toEqual({ success: true });
       });
     });
   });

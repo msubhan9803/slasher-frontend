@@ -65,8 +65,7 @@ describe('GET Movie (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body._id).toEqual(movie._id.toString());
-        expect(response.body.logo).toBe('http://localhost:4444/placeholders/movie_poster.png');
+        expect(response.body).toEqual({ movieDBId: movie.movieDBId });
       });
 
       it('returns the expected response when the user is not found', async () => {

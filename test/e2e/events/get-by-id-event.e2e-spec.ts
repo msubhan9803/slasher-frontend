@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
+import { DateTime } from 'luxon';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
@@ -16,6 +17,7 @@ import { EventCategory } from '../../../src/schemas/eventCategory/eventCategory.
 import { Event } from '../../../src/schemas/event/event.schema';
 import { EventActiveStatus } from '../../../src/schemas/event/event.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Events / :id (e2e)', () => {
   let app: INestApplication;
@@ -26,6 +28,7 @@ describe('Events / :id (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let activeEvent: Event;
+  let activeEvent1: Event;
   let activeEventCategory: EventCategory;
   let configService: ConfigService;
 
@@ -57,6 +60,8 @@ describe('Events / :id (e2e)', () => {
       userId: activeUser._id,
       event_type: activeEventCategory,
       status: EventActiveStatus.Active,
+      startDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+      endDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -71,10 +76,59 @@ describe('Events / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body._id).toEqual(activeEvent._id.toString());
-        expect(response.body.name).toEqual(activeEvent.name);
-        expect(response.body.event_type.event_name).toEqual(activeEventCategory.event_name);
-        expect(response.body.event_type._id).toEqual(activeEventCategory._id.toString());
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            'http://localhost:4444/placeholders/default_user_icon.png',
+            'http://localhost:4444/placeholders/default_user_icon.png',
+          ],
+          startDate: '2022-10-17T00:00:00.000Z',
+          endDate: '2022-10-19T00:00:00.000Z',
+          event_type: {
+            _id: activeEventCategory._id.toString(),
+            event_name: 'Event category 1',
+          },
+          city: 'Los Angeles',
+          state: 'California',
+          address: null,
+          country: 'USA',
+          url: 'https://example.com',
+          event_info: 'Event info organised by 1',
+        });
+      });
+
+      it('returns the expected response (with placeholder image) when the event has no images', async () => {
+        activeEvent1 = await eventService.create(eventsFactory.build({
+          userId: activeUser._id,
+          event_type: activeEventCategory,
+          status: EventActiveStatus.Active,
+          images: [],
+          startDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+          endDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
+        }));
+        const response = await request(app.getHttpServer())
+          .get(`/events/${activeEvent1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            'http://localhost:4444/placeholders/no_image_available.png',
+          ],
+          startDate: '2022-10-17T00:00:00.000Z',
+          endDate: '2022-10-19T00:00:00.000Z',
+          event_type: {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            event_name: 'Event category 2',
+          },
+          city: 'Los Angeles',
+          state: 'California',
+          address: null,
+          country: 'USA',
+          url: 'https://example.com',
+          event_info: 'Event info organised by 3',
+        });
       });
 
       it('event not found if parameter id value does not exists', async () => {

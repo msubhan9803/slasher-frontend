@@ -61,6 +61,7 @@ import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/prov
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
 
 @Controller('users')
 export class UsersController {
@@ -79,6 +80,7 @@ export class UsersController {
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly rssFeedProvidersService: RssFeedProvidersService,
     private readonly notificationsService: NotificationsService,
+    private readonly disallowedUsernameService: DisallowedUsernameService,
   ) { }
 
   @Post('sign-in')
@@ -201,6 +203,14 @@ export class UsersController {
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
+
+    if (await this.disallowedUsernameService.findUserName(userRegisterDto.userName)) {
+      throw new HttpException(
+        'Username is not available',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
     if (await this.usersService.userNameExists(userRegisterDto.userName)) {
       throw new HttpException(
         'Username is already associated with an existing user.',

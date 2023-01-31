@@ -20,6 +20,7 @@ import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('events')
 export class EventsController {
@@ -134,6 +135,10 @@ export class EventsController {
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
+    if (eventData.images.length === 0) {
+      // eslint-disable-next-line no-param-reassign
+      eventData.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+    }
     const pickConversationFields = [
       '_id', 'images', 'startDate',
       'endDate', 'event_type', 'city',
@@ -168,6 +173,12 @@ export class EventsController {
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        // eslint-disable-next-line no-param-reassign
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
     return eventData.map(
       (event) => pick(
         event,

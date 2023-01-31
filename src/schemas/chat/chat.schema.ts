@@ -77,3 +77,7 @@ ChatSchema.index(
 );
 
 export type ChatDocument = Chat & Document;
+
+ChatSchema.index({
+  participants: 1, roomType: 1, roomCategory: 1, relationId: 1,
+});

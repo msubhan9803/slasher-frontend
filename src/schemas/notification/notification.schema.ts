@@ -80,3 +80,6 @@ NotificationSchema.index(
   },
 );
 export type NotificationDocument = Notification & Document;
+
+// Make sure that we have an index to support NotificationService#cleanupNotifications
+NotificationSchema.index({ createdAt: 1 });

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ChatGateway } from './providers/chat.gateway';
 import { ChatService } from './providers/chat.service';
 import { ChatController } from './chat.controller';
 import { MatchList, MatchListSchema } from '../schemas/matchList/matchList.schema';
@@ -13,7 +12,7 @@ import { Chat, ChatSchema } from '../schemas/chat/chat.schema';
     MongooseModule.forFeature([{ name: Chat.name, schema: ChatSchema }]),
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
   ],
-  providers: [ChatGateway, ChatService],
+  providers: [ChatService],
   controllers: [ChatController],
   exports: [ChatService],
 })

@@ -113,7 +113,7 @@ describe('Report And Unreport (e2e)', () => {
       jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
       reportAndUnreportObject.targetId = user1.id;
       reportAndUnreportObject.reportType = 'profile';
-      await request(app.getHttpServer())
+      const reponse = await request(app.getHttpServer())
         .post('/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
@@ -124,13 +124,14 @@ describe('Report And Unreport (e2e)', () => {
         activeUser.userName,
         reportAndUnreportObject.reason,
       );
+      expect(reponse.body).toEqual({ success: true });
     });
 
     it('when report type is post than expected reports response', async () => {
       jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
       reportAndUnreportObject.targetId = feedPost.id;
       reportAndUnreportObject.reportType = 'post';
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
@@ -141,13 +142,14 @@ describe('Report And Unreport (e2e)', () => {
         activeUser.userName,
         reportAndUnreportObject.reason,
       );
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when report type is comment than expected reports response', async () => {
       jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
       reportAndUnreportObject.targetId = feedComments.id;
       reportAndUnreportObject.reportType = 'comment';
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
@@ -158,13 +160,14 @@ describe('Report And Unreport (e2e)', () => {
         activeUser.userName,
         reportAndUnreportObject.reason,
       );
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when report type is reply than expected reports response', async () => {
       jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
       reportAndUnreportObject.targetId = feedReply.id;
       reportAndUnreportObject.reportType = 'reply';
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
@@ -175,6 +178,7 @@ describe('Report And Unreport (e2e)', () => {
         activeUser.userName,
         reportAndUnreportObject.reason,
       );
+      expect(response.body).toEqual({ success: true });
     });
 
     describe('Validation', () => {
@@ -185,9 +189,7 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain(
-          'Profile not found',
-        );
+        expect(response.body).toEqual({ statusCode: 404, message: 'Profile not found' });
       });
 
       it('when post is not found than expected response', async () => {
@@ -197,9 +199,7 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain(
-          'Post not found',
-        );
+        expect(response.body).toEqual({ statusCode: 404, message: 'Post not found' });
       });
 
       it('when comment is not found than expected response', async () => {
@@ -209,9 +209,7 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain(
-          'Comment not found',
-        );
+        expect(response.body).toEqual({ statusCode: 404, message: 'Comment not found' });
       });
 
       it('when reply is not found than expected response', async () => {
@@ -221,9 +219,7 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain(
-          'Reply not found',
-        );
+        expect(response.body).toEqual({ statusCode: 404, message: 'Reply not found' });
       });
 
       it('targetId must be a mongodb id', async () => {
@@ -233,9 +229,11 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain(
-          'targetId must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: ['targetId must be a mongodb id'],
+          statusCode: 400,
+        });
       });
 
       it('check reportType must be one of the following values: profile, post, comment, reply', async () => {
@@ -244,9 +242,14 @@ describe('Report And Unreport (e2e)', () => {
           .post('/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
-        expect(response.body.message).toContain(
-          'reportType must be one of the following values: profile, post, comment, reply',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'targetId must be a mongodb id',
+            'reportType must be one of the following values: profile, post, comment, reply',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('reason is not longer than 1000 characters', async () => {
@@ -256,9 +259,15 @@ describe('Report And Unreport (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain(
-          'Report cannot be longer than 1,000 characters',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'targetId must be a mongodb id',
+            'reportType must be one of the following values: profile, post, comment, reply',
+            'Report cannot be longer than 1,000 characters',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

@@ -201,7 +201,7 @@ export class MoviesService {
     }
     if (after && sortBy === 'releaseDate') {
       const afterMovie = await this.moviesModel.findById(after);
-      movieFindAllQuery.sortReleaseDate = { $gt: afterMovie.sortReleaseDate };
+      movieFindAllQuery.sortReleaseDate = { $lt: afterMovie.sortReleaseDate };
     }
     if (after && sortBy === 'rating') {
       const afterMovie = await this.moviesModel.findById(after);
@@ -214,7 +214,7 @@ export class MoviesService {
     if (sortBy === 'name') {
       sortMoviesByNameAndReleaseDate = { sort_name: 1 };
     } else if (sortBy === 'releaseDate') {
-      sortMoviesByNameAndReleaseDate = { sortReleaseDate: 1 };
+      sortMoviesByNameAndReleaseDate = { sortReleaseDate: -1 };
     } else {
       sortMoviesByNameAndReleaseDate = { sortRating: -1 };
     }
@@ -229,6 +229,9 @@ export class MoviesService {
       // Fetch the max year data limit
       const maxYearLimit = await this.getMoviesDataMaxYearLimit(endYear);
 
+      // From MovieDB
+      const moviesFromMovieDB = { ids: [] };
+
       // Fetch `movieDBId` to check for already existing movies later
       const databaseMovieKeys = [];
       for await (
@@ -242,8 +245,18 @@ export class MoviesService {
 
       // Fetch the data year wise
       for (let year = startYear; year <= maxYearLimit; year += 1) {
-        await this.fetchMovieData(`${year}-01-01`, `${year}-12-31`, databaseMovieKeys);
+        await this.fetchMovieData(`${year}-01-01`, `${year}-12-31`, databaseMovieKeys, moviesFromMovieDB);
       }
+
+      // Mark the deleted record on field deleted
+      const deletedRecordKeys = [];
+      for (const movieId of databaseMovieKeys) {
+        const existing = moviesFromMovieDB.ids.find((id) => id === movieId);
+        if (!existing) {
+        deletedRecordKeys.push(movieId);
+        }
+      }
+      await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
 
       return {
         success: true,
@@ -257,10 +270,9 @@ export class MoviesService {
     }
   }
 
-  async fetchMovieData(startDate: string, endDate: string, databaseMovieKeys) {
+  async fetchMovieData(startDate: string, endDate: string, databaseMovieKeys, moviesFromMovieDB) {
     const options: Omit<MovieDbDto, 'results' | 'total_results'> = { page: 1, total_pages: 1 };
     options.page = 1;
-    let moviesFromMovieDB = [];
 
     do {
       const movieData: MovieDbDto | null = await this.fetchMovieDataAPI(startDate, endDate, options.page);
@@ -268,21 +280,15 @@ export class MoviesService {
         options.total_pages = movieData.total_pages;
         options.page = movieData.page + 1;
 
-        moviesFromMovieDB = [...moviesFromMovieDB, ...movieData.results];
-        await this.processDatabaseOperation(movieData.results, databaseMovieKeys);
+        // eslint-disable-next-line no-param-reassign
+        moviesFromMovieDB.ids = [...moviesFromMovieDB.ids, ...movieData.results.map((movie) => movie.id)];
+        try {
+          await this.processDatabaseOperation(movieData.results, databaseMovieKeys);
+        } catch (error) {
+          throw new Error('Failed to fetch movies');
+        }
       }
     } while (options.page <= options.total_pages);
-
-    // Mark the deleted record on field deleted
-    const deletedRecordKeys = [];
-    for (const movieId of databaseMovieKeys) {
-      const existing = moviesFromMovieDB.find(({ id }) => id === movieId);
-      if (!existing) {
-        deletedRecordKeys.push(movieId);
-      }
-    }
-
-    await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
   }
 
   async fetchMovieDataAPI(startDate: string, endDate: string, page: number): Promise<MovieDbDto | null> {
@@ -368,6 +374,7 @@ export class MoviesService {
         `https://api.themoviedb.org/3/configuration?api_key=${movieDbApiKey}`,
       )),
     ]);
+
     const mainData = JSON.parse(JSON.stringify(mainDetails.data));
     if (mainData.poster_path) {
       // eslint-disable-next-line no-param-reassign
@@ -376,7 +383,6 @@ export class MoviesService {
       // eslint-disable-next-line no-param-reassign
       mainData.poster_path = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-
     const secureBaseUrl = `${configDetails.data.images.secure_base_url}w185`;
     const cast = JSON.parse(JSON.stringify(castAndCrewData.data.cast));
 
@@ -389,14 +395,34 @@ export class MoviesService {
         profile.profile_path = relativeToFullImagePath(this.configService, '/placeholders/movie_cast.png');
       }
       return profile;
-
-      return false;
     });
 
+    const expectedCastValues = [];
+    cast.map((data) => expectedCastValues.push({
+      profile_path: data.profile_path,
+      character: data.character,
+      name: data.name,
+    }));
+
+    const expectedVideosValues: any = [];
+    videoData.data.results.map((video) => expectedVideosValues.push({
+      key: video.key,
+    }));
+
+    const expectedMainData: any = {
+      overview: mainData.overview,
+      poster_path: mainData.poster_path,
+      release_dates: mainData.release_dates,
+      runtime: mainData.runtime,
+      title: mainData.title,
+      original_title: mainData.original_title,
+      production_countries: mainData.production_countries,
+    };
+
     return {
-      cast,
-      video: videoData.data.results,
-      mainData,
+      cast: expectedCastValues,
+      video: expectedVideosValues,
+      mainData: expectedMainData,
     };
   }
 }

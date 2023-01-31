@@ -49,8 +49,8 @@ export class User extends UserUnusedFields {
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
   @Prop({
- required: true, trim: true, index: true, text: true,
-})
+    required: true, trim: true,
+  })
   userName: string;
 
   @Prop({ required: true, trim: true })
@@ -204,16 +204,6 @@ UserSchema.index(
 );
 UserSchema.index(
   {
-    userName: 1,
-  },
-);
-UserSchema.index(
-  {
-    email: 1,
-  },
-);
-UserSchema.index(
-  {
     email: 1, resetPasswordToken: 1,
   },
 );
@@ -222,10 +212,25 @@ UserSchema.index(
     email: 1, verification_token: 1,
   },
 );
-// UserSchema.indexes({ profilePic: 'text' });
+// To support case-insensitive userName search
+UserSchema.index(
+  { userName: 1 },
+  {
+    name: 'caseInsensitiveUserName',
+    collation: { locale: 'en', strength: 2 },
+  },
+);
+// To support case-insensitive email search
+UserSchema.index(
+  { email: 1 },
+  {
+    name: 'caseInsensitiveEmail',
+    collation: { locale: 'en', strength: 2 },
+  },
+);
+
 // NOTE: Must define instance or static methods on the UserSchema as well, otherwise they won't
 // be available on the schema documents.
-
 UserSchema.methods.generateNewJwtToken = User.prototype.generateNewJwtToken;
 UserSchema.methods.addOrUpdateDeviceEntry = User.prototype.addOrUpdateDeviceEntry;
 UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;

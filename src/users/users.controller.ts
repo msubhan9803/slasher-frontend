@@ -49,7 +49,7 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
 import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
-import { asyncDeleteMulterFiles, createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -63,6 +63,7 @@ import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-fee
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { RegisterUser } from '../types';
+import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
 
 @Controller('users')
 export class UsersController {
@@ -81,6 +82,7 @@ export class UsersController {
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly rssFeedProvidersService: RssFeedProvidersService,
     private readonly notificationsService: NotificationsService,
+    private readonly disallowedUsernameService: DisallowedUsernameService,
   ) { }
 
   @Post('sign-in')
@@ -240,6 +242,14 @@ export class UsersController {
   @Post('register')
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
+
+    if (await this.disallowedUsernameService.findUserName(userRegisterDto.userName)) {
+      throw new HttpException(
+        'Username is not available',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
     if (await this.usersService.userNameExists(userRegisterDto.userName)) {
       throw new HttpException(
         'Username is already associated with an existing user.',
@@ -508,7 +518,6 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 
@@ -567,7 +576,6 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    asyncDeleteMulterFiles([file]);
     return { success: true };
   }
 

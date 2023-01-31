@@ -1,7 +1,8 @@
 import { INestApplication } from '@nestjs/common';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../app.module';
 import { NotificationsService } from './notifications.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -16,6 +17,7 @@ import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 import { notificationFactory } from '../../../test/factories/notification.factory';
+import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -26,6 +28,7 @@ describe('NotificationsService', () => {
   let activeUser: UserDocument;
   let user1: UserDocument;
   let feedPostData: FeedPostDocument;
+  let notificationModel: Model<NotificationDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,6 +38,7 @@ describe('NotificationsService', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -190,6 +194,93 @@ describe('NotificationsService', () => {
     it('finds all the expected notifications count', async () => {
       const getAllReadNotificationsCount = await notificationsService.getUnreadNotificationCount(activeUser.id);
       expect(getAllReadNotificationsCount).toBe(5);
+    });
+  });
+
+  describe('#similarRecentNotificationExists', () => {
+    it('returns the expected response when a similar notification exists in the db, and was created within the past 7 days', async () => {
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          feedPostId: feedPostData.id,
+          senderId: user1.id,
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          createdAt: new Date(),
+        }),
+      );
+      const exists = await notificationsService.similarRecentNotificationExists(
+        activeUser.id,
+        user1.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeTruthy();
+    });
+
+    it('returns the expected response when a similar notification does not exist in the db', async () => {
+      const exists = await notificationsService.similarRecentNotificationExists(
+        user1.id,
+        activeUser.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeFalsy();
+    });
+
+    it('returns the expected response when a similar notification exist in the db, but is more than 7 days old', async () => {
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          feedPostId: feedPostData.id,
+          senderId: user1.id,
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          createdAt: DateTime.now().minus({ days: 10 }).toJSDate(),
+        }),
+      );
+      const exists = await notificationsService.similarRecentNotificationExists(
+        user1.id,
+        activeUser.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeFalsy();
+    });
+  });
+
+  describe('#cleanupNotifications', () => {
+    let DAYS;
+    let DAYS_NOTIFICATIONS_KEPT;
+
+    beforeEach(async () => {
+      const today = new Date();
+      const yesterday = DateTime.now().minus({ days: 1 }).toJSDate();
+      const thirtyFiveDaysAgo = DateTime.now().minus({ days: 35 }).toJSDate();
+      const fiftyDaysAgo = DateTime.now().minus({ days: 50 }).toJSDate();
+      DAYS = [thirtyFiveDaysAgo, today, fiftyDaysAgo, yesterday];
+      DAYS_NOTIFICATIONS_KEPT = [today, yesterday];
+
+      for (const day of DAYS) {
+        await notificationsService.create(notificationFactory.build({
+          userId: activeUser.id,
+          senderId: user1.id,
+          createdAt: day,
+        }));
+      }
+    });
+
+    it('keep notifications for last 30 days only', async () => {
+      const beforeNotificationsCount = await notificationModel.count();
+      expect(beforeNotificationsCount).toBe(DAYS.length);
+
+      const THIRTY_DAYS_AGO = DateTime.now().minus({ days: 30 }).toJSDate();
+
+      // Provide a date argument to specify the last date before which all the notifications would be deleted
+      await notificationsService.cleanupNotifications(THIRTY_DAYS_AGO);
+
+      const staleNotificationCount = await notificationModel.count({ createdAt: { $lt: THIRTY_DAYS_AGO } });
+      expect(staleNotificationCount).toBe(0);
+
+      const notificationsCount = await notificationModel.count();
+      expect(notificationsCount).toBe(DAYS_NOTIFICATIONS_KEPT.length);
     });
   });
 });

@@ -6,6 +6,7 @@ import { ReportsController } from './reports.controller';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { FeedCommentsModule } from '../feed-comments/feed-comments.module';
 import { MailModule } from '../providers/mail.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { MailModule } from '../providers/mail.module';
     FeedPostsModule,
     FeedCommentsModule,
     MailModule,
+    ChatModule,
   ],
   controllers: [ReportsController],
   providers: [ReportAndUnreportService],

@@ -39,8 +39,8 @@ describe('Conversation / (e2e)', () => {
     await app.close();
   });
 
-  let matchList1;
-  let matchList2;
+  let message1;
+  let message2;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -51,27 +51,45 @@ describe('Conversation / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    matchList1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
-    matchList2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
+    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+    message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /chat/conversation/:matchListId', () => {
-    describe('Successful get match list data', () => {
-      it('get expected match list details', async () => {
-        const matchListId = matchList1.matchId._id;
+    describe('Successfully gets the match list data', () => {
+      it('gets the expected match list details', async () => {
+        const matchListId = message1.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body._id).toEqual(matchList1.matchId.id);
+        expect(response.body).toEqual(
+          {
+            _id: message1.matchId._id.toString(),
+            participants: [
+              {
+                _id: user1._id.toString(),
+                userName: 'Username3',
+                firstName: 'First name 3',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              },
+              {
+                _id: activeUser._id.toString(),
+                userName: 'Username1',
+                firstName: 'First name 1',
+                profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              },
+            ],
+          },
+        );
       });
 
-      it('when active user is not participants than expected response', async () => {
-        const matchListId = matchList2.matchId._id;
+      it('when active user is not a participant it returns the expected error response', async () => {
+        const matchListId = message2.matchId._id;
         const response = await request(app.getHttpServer())
           .get(`/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toBe('You are not a member of this conversation');
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not a member of this conversation' });
       });
 
       it('returns a 404 when when the conversation is not found', async () => {
@@ -81,7 +99,7 @@ describe('Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toBe('Conversation not found');
+        expect(response.body).toEqual({ statusCode: 404, message: 'Conversation not found' });
       });
     });
 
@@ -93,9 +111,7 @@ describe('Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain(
-          'matchListId must be a mongodb id',
-        );
+        expect(response.body).toEqual({ message: ['matchListId must be a mongodb id'], statusCode: 400, error: 'Bad Request' });
       });
     });
   });

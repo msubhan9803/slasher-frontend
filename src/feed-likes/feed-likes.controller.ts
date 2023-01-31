@@ -32,13 +32,18 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: post._id } as unknown as FeedPost,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourPost,
-      notificationMsg: 'liked your post',
-    });
+    // Create notification for post creator, informing them that a like was added to their post.
+    // But don't send a notification to the creator if this is an rss feed post.
+    if (!post.rssfeedProviderId) {
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: { _id: post._id } as unknown as FeedPost,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+    }
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -49,6 +54,7 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    return { success: true };
   }
 
   @Post('comment/:feedCommentId')
@@ -68,6 +74,7 @@ export class FeedLikesController {
       notifyType: NotificationType.UserLikedYourComment,
       notificationMsg: 'liked your comment',
     });
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -78,6 +85,7 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    return { success: true };
   }
 
   @Post('reply/:feedReplyId')
@@ -98,6 +106,7 @@ export class FeedLikesController {
       notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
       notificationMsg: 'liked your reply',
     });
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')
@@ -108,5 +117,6 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    return { success: true };
   }
 }

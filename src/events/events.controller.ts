@@ -16,11 +16,12 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { UserType } from '../schemas/user/user.enums';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('events')
 export class EventsController {
@@ -39,6 +40,7 @@ export class EventsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -117,30 +119,50 @@ export class EventsController {
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
 
-    asyncDeleteMulterFiles(files);
-    return event;
+    const pickConversationFields = [
+      '_id', 'name', 'userId',
+      'images', 'startDate', 'endDate',
+      'event_type', 'city',
+      'state', 'address', 'country',
+      'url', 'event_info',
+    ];
+    return pick(event, pickConversationFields);
   }
 
   @TransformImageUrls('$.images[*]')
   @Get(':id')
   async getById(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto) {
     const eventData = await this.eventService.findById(params.id, true, 'event_type', 'event_name');
-
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
-
-    return eventData;
+    if (eventData.images.length === 0) {
+      // eslint-disable-next-line no-param-reassign
+      eventData.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+    }
+    const pickConversationFields = [
+      '_id', 'images', 'startDate',
+      'endDate', 'event_type', 'city',
+      'state', 'address', 'country',
+      'url', 'event_info',
+    ];
+    return pick(eventData, pickConversationFields);
   }
 
   @Patch(':id')
   async update(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
     @Body() updateEventDto: CreateOrUpdateEventDto,
   ) {
+    const user = getUserFromRequest(request);
+    if (user.userType !== UserType.Admin) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
     const eventData = await this.eventService.update(params.id, updateEventDto);
     return {
-      id: eventData.id,
+      _id: eventData.id,
       ...pick(eventData, Object.keys(updateEventDto)),
     };
   }
@@ -158,8 +180,18 @@ export class EventsController {
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
-
-    return eventData;
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        // eslint-disable-next-line no-param-reassign
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
+    return eventData.map(
+      (event) => pick(
+        event,
+        ['_id', 'images', 'startDate', 'endDate', 'event_type', 'city', 'state', 'address', 'country', 'event_info'],
+      ),
+    );
   }
 
   @Get('by-date-range/counts')
@@ -176,13 +208,11 @@ export class EventsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     const eventCounts = await this.eventService.findCountsByDate(
       query.startDate,
       query.endDate,
       true,
     );
-
     return eventCounts;
   }
 }

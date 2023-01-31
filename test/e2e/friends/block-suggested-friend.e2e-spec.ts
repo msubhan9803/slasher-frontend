@@ -9,8 +9,8 @@ import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { SuggestBlock, SuggestBlockDocument } from '../../../src/schemas/suggestBlock/suggestBlock.schema';
-import { SuggestBlockReaction } from '../../../src/schemas/suggestBlock/suggestBlock.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SuggestBlockReaction } from '../../../src/schemas/suggestBlock/suggestBlock.enums';
 
 describe('Block suggested friend (e2e)', () => {
   let app: INestApplication;
@@ -54,12 +54,12 @@ describe('Block suggested friend (e2e)', () => {
 
   describe('Post /friends/suggested/block', () => {
     it('when successful, returns the expected response', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends/suggested/block')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
-
+      expect(response.body).toEqual({ success: true });
       const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user1._id });
       expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });
@@ -72,12 +72,12 @@ describe('Block suggested friend (e2e)', () => {
       });
       expect(newSuggestBlockData.reaction).toBe(SuggestBlockReaction.Unblock);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends/suggested/block')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user2._id })
         .expect(HttpStatus.CREATED);
-
+      expect(response.body).toEqual({ success: true });
       const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user2._id });
       expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });

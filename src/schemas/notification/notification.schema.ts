@@ -66,3 +66,6 @@ export class Notification extends NotificationUnusedFields {
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
 
 export type NotificationDocument = Notification & Document;
+
+// Make sure that we have an index to support NotificationService#cleanupNotifications
+NotificationSchema.index({ createdAt: 1 });

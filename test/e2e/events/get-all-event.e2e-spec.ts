@@ -142,7 +142,7 @@ describe('Events all / (e2e)', () => {
         expect(response.body).toHaveLength(0);
       });
 
-      it('when images is empty than expected response', async () => {
+      it('returns the expected response (with placeholder image) when the event has no images', async () => {
         const activeEventDetails = [
           { start: DateTime.fromISO('2022-10-24T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-25T23:59:59Z').toJSDate() },
           { start: DateTime.fromISO('2022-10-25T00:00:00Z').toJSDate(), end: DateTime.fromISO('2022-10-26T23:59:59Z').toJSDate() },

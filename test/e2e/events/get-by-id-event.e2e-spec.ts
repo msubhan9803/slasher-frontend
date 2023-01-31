@@ -97,7 +97,7 @@ describe('Events / :id (e2e)', () => {
         });
       });
 
-      it('when images is empty than expected response', async () => {
+      it('returns the expected response (with placeholder image) when the event has no images', async () => {
         activeEvent1 = await eventService.create(eventsFactory.build({
           userId: activeUser._id,
           event_type: activeEventCategory,

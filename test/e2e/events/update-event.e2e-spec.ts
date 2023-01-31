@@ -25,12 +25,12 @@ describe('Events update / :id (e2e)', () => {
   let eventCategoriesService: EventCategoriesService;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let nonAdminUserAuthToken: string;
+  let adminUserAuthToken: string;
   let activeUser: User;
   let activeEvent: Event;
   let activeEventCategory: EventCategory;
   let configService: ConfigService;
-  let nonAdminUser: User;
+  let adminUser: User;
 
   const sampleEventUpdateObject = {
     name: 'Event 11',
@@ -61,14 +61,12 @@ describe('Events update / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
-    nonAdminUser = await usersService.create(userFactory.build());
-    nonAdminUserAuthToken = nonAdminUser.generateNewJwtToken(
+    adminUser = await usersService.create(userFactory.build({ userType: UserType.Admin }));
+    adminUserAuthToken = adminUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
 
-    activeUser = await usersService.create(userFactory.build({
-      userType: UserType.Admin,
-    }));
+    activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
       userId: activeUser._id,
@@ -79,13 +77,12 @@ describe('Events update / :id (e2e)', () => {
     );
   });
 
-  // non admin user should not be allowed to update event
   describe('PATCH /events/:id', () => {
     describe('Non-admin users are not allowed to update event', () => {
       it('should fail to update the and returns the expected response', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(nonAdminUserAuthToken, { type: 'bearer' })
+          .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body).toEqual({
@@ -99,7 +96,7 @@ describe('Events update / :id (e2e)', () => {
       it('update the event data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         const eventDetails = await eventService.findById(response.body._id, false);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -112,7 +109,7 @@ describe('Events update / :id (e2e)', () => {
           const { author, ...restPostBody } = sampleEventUpdateObject;
           const response = await request(app.getHttpServer())
             .patch(`/events/${activeEvent._id}`)
-            .auth(activeUserAuthToken, { type: 'bearer' })
+            .auth(adminUserAuthToken, { type: 'bearer' })
             .send(restPostBody);
           const eventDetails = await eventService.findById(response.body._id, false);
           expect(response.status).toEqual(HttpStatus.OK);
@@ -127,7 +124,7 @@ describe('Events update / :id (e2e)', () => {
         } = sampleEventUpdateObject;
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
@@ -142,7 +139,7 @@ describe('Events update / :id (e2e)', () => {
         sampleEventUpdateObject.name = new Array(155).join('b');
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);
 
@@ -154,7 +151,7 @@ describe('Events update / :id (e2e)', () => {
 
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         expect(response.body.message).toContain(
           'event_info must be shorter than or equal to 1000 characters',
@@ -166,7 +163,7 @@ describe('Events update / :id (e2e)', () => {
 
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);
 
@@ -178,7 +175,7 @@ describe('Events update / :id (e2e)', () => {
 
         const response = await request(app.getHttpServer())
           .patch(`/events/${activeEvent._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
+          .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);
 

@@ -7,7 +7,7 @@ import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 export function createProfileOrCoverImageParseFilePipeBuilder() {
   return new ParseFilePipeBuilder()
     .addFileTypeValidator({
-      fileType: /(jpg|jpeg|png)$/,
+      fileType: /(jpg|jpeg|png|gif)$/,
     })
     .addMaxSizeValidator({
       maxSize: MAXIMUM_IMAGE_UPLOAD_SIZE,

@@ -48,6 +48,7 @@ export class FeedCommentsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -188,6 +189,7 @@ export class FeedCommentsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',

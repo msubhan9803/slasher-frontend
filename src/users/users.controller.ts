@@ -23,10 +23,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
+import { validate } from 'class-validator';
 import { UserSignInDto } from './dto/user-sign-in.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
 import { UsersService } from './providers/users.service';
-import { pick } from '../utils/object-utils';
+import { pick, pickDefinedKeys } from '../utils/object-utils';
 import { sleep } from '../utils/timer-utils';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ValidatePasswordResetTokenDto } from './dto/validate-password-reset-token.dto';
@@ -61,6 +62,7 @@ import { RssFeedProviderFollowsService } from '../rss-feed-provider-follows/prov
 import { RssFeedProvidersService } from '../rss-feed-providers/providers/rss-feed-providers.service';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
+import { RegisterUser } from '../types';
 import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
 
 @Controller('users')
@@ -184,9 +186,8 @@ export class UsersController {
     query: CheckUserNameQueryDto,
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    return {
-      exists: await this.usersService.userNameExists(query.userName),
-    };
+    const exists = await this.usersService.userNameExists(query.userName);
+    return { exists };
   }
 
   @Get('check-email')
@@ -195,9 +196,50 @@ export class UsersController {
     query: CheckEmailQueryDto,
   ) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-    return {
-      exists: await this.usersService.emailExists(query.email),
-    };
+    const exists = await this.usersService.emailExists(query.email);
+    return { exists };
+  }
+
+  @Get('validate-registration-fields')
+  async validateRegistrationFields(@Query() inputQuery) {
+    await sleep(500); // throttle so this endpoint is less likely to be abused
+
+    if (Object.keys(inputQuery).length === 0) {
+      throw new HttpException(
+        'You must provide at least one field for validation.',
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
+
+    const query: RegisterUser = pickDefinedKeys(inputQuery, [
+      'firstName', 'userName', 'email', 'password',
+      'passwordConfirmation', 'securityQuestion', 'securityAnswer', 'dob',
+    ]);
+
+    const requestedFields = Object.keys(query);
+
+    const userRegisterDto = new UserRegisterDto();
+    Object.assign(userRegisterDto, query);
+
+    const errors: any = await validate(userRegisterDto);
+    const requestedErrors = errors.filter((e) => requestedFields.includes(e.property));
+
+    const invalidFields = requestedErrors.map((e: any) => e.property);
+    const requestedErrorsList = requestedErrors.map((e) => Object.values(e.constraints)).flat();
+
+    if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
+      const exists = await this.usersService.userNameExists(query.userName);
+      if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+
+      const disallowedUsername = await this.disallowedUsernameService.findUserName(query.userName);
+      if (disallowedUsername) requestedErrorsList.unshift('Username is not available.');
+    }
+    if (requestedFields.includes('email') && !invalidFields.includes('email')) {
+      const exists = await this.usersService.emailExists(query.email);
+      if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
+    }
+
+    return requestedErrorsList;
   }
 
   @Post('register')

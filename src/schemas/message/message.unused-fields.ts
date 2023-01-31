@@ -24,9 +24,4 @@ export class MessageUnusedFields {
 
   @Prop({ default: false })
   deleted: boolean;
-
-  // Not entirely clear what this is used for, but this may not be necessary in the new API
-  // since we're going to develop a new messaging implementation.
-  @Prop({ tyep: Array, default: [] })
-  deletefor: mongoose.Schema.Types.ObjectId[];
 }

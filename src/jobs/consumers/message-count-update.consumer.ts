@@ -15,8 +15,8 @@ export class MessageCountUpdateConsumer {
         const message = await this.chatService.findByMessageId(job.data.messageId);
         if (!message.isRead) {
             await this.chatGateway.emitMessageCountUpdateEvent(message.senderId.toString());
-            return { success: true };
         }
-        return { success: false, error: 'Some error message' };
+        // as long as this job completes without throwing an error, we will consider it successful
+        return { success: true };
     }
 }

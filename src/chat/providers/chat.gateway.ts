@@ -107,13 +107,13 @@ export class ChatGateway {
     const { messageId } = data;
 
     const message = await this.chatService.findByMessageId(messageId);
-    if (!message) return { error: 'Message not exists' };
+    if (!message) return { error: 'Message not found' };
 
     if (message.senderId.toString() === user.id) {
       await this.chatService.markMessageAsRead(messageId);
       return { success: true };
     }
-    return { success: false, error: 'Some error message' };
+    return { success: false, error: 'Unauthorized' };
   }
 
   async emitMessageCountUpdateEvent(userId: string) {

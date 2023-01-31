@@ -388,7 +388,7 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     describe('error responses', () => {
-      it('should NOT return messages when messageId is null', async () => {
+      it('returns the expected {success: false} response when messageId is null', async () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
@@ -406,7 +406,7 @@ describe('Chat Gateway (e2e)', () => {
         await waitForSocketUserCleanup(client, usersService);
       });
 
-      it('should return a message not exists error message when the messageId cannot be found', async () => {
+      it('should return a message not found error when the messageId cannot be found', async () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
@@ -415,7 +415,7 @@ describe('Chat Gateway (e2e)', () => {
         };
         await new Promise<void>((resolve) => {
           client.emit('messageRead', payload, (data) => {
-            expect(data.error).toBe('Message not exists');
+            expect(data.error).toBe('Message not found');
             resolve();
           });
         });
@@ -424,7 +424,7 @@ describe('Chat Gateway (e2e)', () => {
         await waitForSocketUserCleanup(client, usersService);
       });
 
-      it('when senderid or active userid does not same than expected response', async () => {
+      it('returns the expected error message when user tries to mark message as read but message was not sent TO that user', async () => {
         const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
@@ -435,7 +435,7 @@ describe('Chat Gateway (e2e)', () => {
         await new Promise<void>((resolve) => {
           client.emit('messageRead', payload, (data) => {
             expect(data.success).toBe(false);
-            expect(data.error).toBe('Some error message');
+            expect(data.error).toBe('Unauthorized');
             resolve();
           });
         });

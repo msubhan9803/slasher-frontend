@@ -13,7 +13,6 @@ import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -43,6 +42,7 @@ export class FeedPostsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -102,7 +102,6 @@ export class FeedPostsController {
       });
     }
 
-    asyncDeleteMulterFiles(files);
     return {
       id: createFeedPost.id,
       message: createFeedPost.message,

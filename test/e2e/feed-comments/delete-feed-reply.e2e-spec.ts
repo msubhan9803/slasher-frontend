@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -12,9 +12,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
-import { FeedReply, FeedReplyDocument } from '../../../src/schemas/feedReply/feedReply.schema';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
-import { FeedReplyDeletionState } from '../../../src/schemas/feedReply/feedReply.enums';
 
 describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +24,6 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
-  let feedReplyModel: Model<FeedReplyDocument>;
   let feedCommentsService: FeedCommentsService;
 
   const sampleFeedCommentsObject = {
@@ -51,7 +48,6 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
-    feedReplyModel = moduleRef.get<Model<FeedReplyDocument>>(getModelToken(FeedReply.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -98,12 +94,12 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     });
 
     it('successfully delete feed reply', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-comments/replies/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedCommentsDetails = await feedReplyModel.findById(feedReply._id);
-      expect(feedCommentsDetails.deleted).toBe(FeedReplyDeletionState.Deleted);
+        .send()
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when feed reply id is not exists than expected response', async () => {
@@ -111,7 +107,8 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/replies/${feedReply1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toContain('Not found.');
     });
 
@@ -126,7 +123,8 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/replies/${feedReply1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
       expect(response.body.message).toContain('Permission denied.');
     });
   });

@@ -108,4 +108,24 @@ export class NotificationsService {
       createdAt: { $lte: DateTime.now().toJSDate(), $gte: DateTime.now().minus({ days: 7 }).toJSDate() },
     });
   }
+
+  /**
+   * Deletes all notifications created before the given beforeDate.
+   * @param beforeDate
+   * @returns An object that contains information about success or failure.
+   */
+  async cleanupNotifications(beforeDate: Date) {
+    try {
+      await this.notificationModel.deleteMany({ createdAt: { $lt: beforeDate } });
+      return {
+        success: true,
+        message: 'Successfully completed the cleanupNotifications cron job',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error,
+      };
+    }
+  }
 }

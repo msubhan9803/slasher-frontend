@@ -60,6 +60,8 @@ describe('Block suggested friend (e2e)', () => {
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
+      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user1._id });
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });
 
     it('when the suggested friend is already unblock then it should update add as a block', async () => {
@@ -75,7 +77,9 @@ describe('Block suggested friend (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user2._id })
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user2._id });
+      expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });
 
     describe('Validation', () => {

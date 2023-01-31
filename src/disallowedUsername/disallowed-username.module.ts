@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-// import {  } from '.';
 import { DisallowedUsernameService } from './providers/disallowed-username.service';
 import { DisallowedUsername, DisallowedUsernameSchema } from '../schemas/disallowedUsername/disallowedUsername.schema';
 

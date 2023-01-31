@@ -330,7 +330,7 @@ describe('Users / Register (e2e)', () => {
 
       it('returns an error when disallowed username already exists', async () => {
         await disallowedUsernameService.create({
-          username: 'TestUser',
+          username: 'TeStUsEr',
         });
         const response = await request(app.getHttpServer())
           .post('/users/register')

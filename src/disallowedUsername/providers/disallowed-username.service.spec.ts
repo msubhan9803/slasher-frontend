@@ -56,12 +56,12 @@ describe('DisallowedUsernameService', () => {
       );
     });
     it('finds the expected disallowed username and update the details', async () => {
-      const disallowedUsernameJson = {
+      const disallowedUsernameUpdateData = {
         username: 'testuser1',
       };
-      const updatedDisallowedUsername = await disallowedUsernameService.update(disallowedUsernameData._id, disallowedUsernameJson);
+      const updatedDisallowedUsername = await disallowedUsernameService.update(disallowedUsernameData._id, disallowedUsernameUpdateData);
       const reloadedDisallowedUsername = await disallowedUsernameModel.findById(updatedDisallowedUsername._id);
-      expect(reloadedDisallowedUsername.username).toEqual(reloadedDisallowedUsername.username);
+      expect(reloadedDisallowedUsername.username).toEqual(disallowedUsernameUpdateData.username);
     });
   });
 
@@ -80,7 +80,7 @@ describe('DisallowedUsernameService', () => {
     let disallowedUsername;
     beforeEach(async () => {
       disallowedUsername = await disallowedUsernameService.create({
-        username: 'testuser',
+        username: 'TestUser',
       });
     });
 

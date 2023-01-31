@@ -22,3 +22,11 @@ export class DisallowedUsername {
 export const DisallowedUsernameSchema = SchemaFactory.createForClass(DisallowedUsername);
 
 export type DisallowedUsernameDocument = DisallowedUsername & Document;
+
+DisallowedUsernameSchema.index(
+  { username: 1 },
+  {
+    name: 'caseInsensitiveUsername',
+    collation: { locale: 'en', strength: 2 },
+  },
+);

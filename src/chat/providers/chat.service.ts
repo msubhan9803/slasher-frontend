@@ -261,6 +261,16 @@ export class ChatService {
       .exec();
   }
 
+  async markMessageAsRead(messageId: string): Promise<MessageDocument> {
+    return this.messageModel
+      .findOneAndUpdate({ _id: messageId }, { $set: { isRead: true } }, { new: true })
+      .exec();
+  }
+
+  async findByMessageId(messageId: string): Promise<MessageDocument> {
+    return this.messageModel.findOne({ _id: messageId }).exec();
+  }
+
   /**
    * Deletes private direct message conversations and all messages in the conversation.
    * Note: This can sometimes delete multiple MatchLists because the old API will sometimes create

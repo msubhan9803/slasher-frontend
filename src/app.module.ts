@@ -30,6 +30,7 @@ import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
+import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 
 @Module({
@@ -71,6 +72,7 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
     SearchModule,
     FeedLikesModule,
     ReportsModule,
+    QueuedJobsModule,
   ],
   controllers: [AppController],
   providers: [

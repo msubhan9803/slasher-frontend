@@ -358,4 +358,91 @@ describe('Chat Gateway (e2e)', () => {
       });
     });
   });
+
+  describe('#markMessageAsRead', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, test message.');
+    });
+
+    describe('successful responses', () => {
+      it('should return the expected message, and should mark returned messages TO the user as read', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: message._id,
+        };
+
+        const response = await new Promise<any>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            resolve(data);
+          });
+        });
+        client.close();
+        expect(response).toEqual({ success: true });
+
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+
+    describe('error responses', () => {
+      it('should NOT return messages when messageId is null', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: null,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.success).toBe(false);
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('should return a message not exists error message when the messageId cannot be found', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: '639041536cf487d9419d3425',
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.error).toBe('Message not exists');
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('when senderid or active userid does not same than expected response', async () => {
+        const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: message1.id,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.success).toBe(false);
+            expect(data.error).toBe('Some error message');
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+  });
 });

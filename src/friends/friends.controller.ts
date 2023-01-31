@@ -38,14 +38,23 @@ export class FriendsController {
     }
     await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
 
-    // Create notification for post creator, informing them that a comment was added to their post
-    await this.notificationsService.create({
-      userId: createFriendRequestDto.userId as any,
-      senderId: user._id,
-      notifyType: NotificationType.UserSentYouAFriendRequest,
-      notificationMsg: 'sent you a friend request',
-    });
-
+    const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
+      createFriendRequestDto.userId,
+      user._id,
+      NotificationType.UserSentYouAFriendRequest,
+    );
+    // Do not send another notification about this if a similar notification was recently sent.
+    // This prevents people from being able to spam each other with notifications in response to
+    // rapid friend-unfriend-friend-unfriend actions.
+    if (!recentNotificationExists) {
+      // Create notification for post creator, informing them that a comment was added to their post
+      await this.notificationsService.create({
+        userId: createFriendRequestDto.userId as any,
+        senderId: user._id,
+        notifyType: NotificationType.UserSentYouAFriendRequest,
+        notificationMsg: 'sent you a friend request',
+      });
+    }
     return { success: true };
   }
 

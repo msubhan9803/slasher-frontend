@@ -2,6 +2,7 @@ import { getQueueToken } from '@nestjs/bull';
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+import { Job } from 'bull';
 import { Connection } from 'mongoose';
 import { userFactory } from '../../../test/factories/user.factory';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
@@ -55,7 +56,7 @@ describe('#message-count-update', () => {
     it('adds a job', async () => {
       const message = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
       jest.spyOn(chatGateway, 'emitMessageCountUpdateEvent').mockImplementation(() => Promise.resolve(undefined));
-      await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as any);
+      await messageCountUpdateConsumer.sendUpdateIfMessageUnread({ data: { messageId: message._id.toString() } } as Job);
 
       expect(chatGateway.emitMessageCountUpdateEvent).toHaveBeenCalledWith(message.senderId.toString());
     });

@@ -259,8 +259,8 @@ describe('MoviesService', () => {
       );
       const limit = 5;
       const moviesList = await moviesService.findAll(limit, true, 'releaseDate');
-      for (let i = 1; i < moviesList.length; i += 1) {
-        expect(moviesList[i].sortReleaseDate < moviesList[i - 1].sortReleaseDate).toBe(true);
+      for (let i = 0; i < moviesList.length - 1; i += 1) {
+        expect(moviesList[i].sortReleaseDate > moviesList[i + 1].sortReleaseDate).toBe(true);
       }
       expect(moviesList).toHaveLength(5);
     });

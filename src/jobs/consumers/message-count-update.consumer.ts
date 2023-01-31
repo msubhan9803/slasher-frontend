@@ -11,7 +11,6 @@ export class MessageCountUpdateConsumer {
     ) { }
 
     @Process('send-update-if-message-unread')
-
     async sendUpdateIfMessageUnread(job: Job<any>) {
         const message = await this.chatService.findByMessageId(job.data.messageId);
         if (!message.isRead) {

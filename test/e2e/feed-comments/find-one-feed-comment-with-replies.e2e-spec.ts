@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -15,6 +15,8 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
 import findOneFeedCommentsResponse from '../../fixtures/comments/find-one-feed-comments-response';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +33,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
   let feedLikesService: FeedLikesService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   const commentImages = [
     {
@@ -52,6 +55,8 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -140,6 +145,72 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
         .send()
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Comment not found');
+    });
+
+    it('when user is block than expected response.', async () => {
+      const user4 = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user4._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService
+      .createFeedComment(
+        feedPost1.id,
+        user4._id.toString(),
+        'hello test user',
+        commentImages,
+      );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user4._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .get(`/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block.',
+        statusCode: 400,
+      });
+    });
+
+    describe('should NOT find feed comments when users are *not* friends', () => {
+      let user5;
+      let feedPost1;
+      let feedComment1;
+      beforeEach(async () => {
+        user5 = await usersService.create(userFactory.build({
+          profile_status: 1,
+        }));
+        feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user5._id,
+            },
+          ),
+        );
+        feedComment1 = await feedCommentsService
+          .createFeedComment(
+            feedPost1.id,
+            user5._id.toString(),
+            'hello test user',
+            commentImages,
+          );
+      });
+
+      it('should not find feed comments when given user is not a friend', async () => {
+          const response = await request(app.getHttpServer())
+          .get(`/feed-comments/${feedComment1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+      });
     });
 
     describe('Validation', () => {

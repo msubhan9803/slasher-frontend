@@ -36,7 +36,7 @@ export class FriendsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
     }
-    const friendRequest = await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
+    await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
 
     // Create notification for post creator, informing them that a comment was added to their post
     await this.notificationsService.create({
@@ -46,7 +46,7 @@ export class FriendsController {
       notificationMsg: 'sent you a friend request',
     });
 
-    return friendRequest;
+    return { success: true };
   }
 
   @TransformImageUrls('$[*].profilePic')
@@ -79,6 +79,7 @@ export class FriendsController {
   ) {
     const user = getUserFromRequest(request);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, cancelFriendshipOrDeclineRequestDto.userId);
+    return { success: true };
   }
 
   @Post('requests/accept')
@@ -88,8 +89,8 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
-      return acceptFriendRequestDetails;
+      await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
+      return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);
     }

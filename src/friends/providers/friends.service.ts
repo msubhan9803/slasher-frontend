@@ -29,6 +29,11 @@ export class FriendsService {
       .exec();
   }
 
+  async areFriends(fromUserId: string, toUserId: string): Promise<boolean> {
+    const friendship = await this.findFriendship(fromUserId, toUserId);
+    return friendship && friendship.reaction === FriendRequestReaction.Accepted;
+  }
+
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
     let friend: any = await this.friendsModel
       .findOne({
@@ -175,14 +180,17 @@ export class FriendsService {
     const friendIds = await this.getFriendIds(user._id, true);
     const suggestBlockUserIds = await this.getSuggestBlockedUserIdsBySender(user._id);
     const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
-    const friendUsers = await this.usersModel.find({
-      $and: [
-        { _id: { $nin: friendIds } },
-        { _id: { $nin: suggestBlockUserIds } },
-        { _id: { $nin: blockUserIds } },
-        { _id: { $ne: user._id } },
-      ],
-    }).sort({ createdAt: -1 }).limit(limit)
+
+    const idsToExclude = friendIds.concat(
+      suggestBlockUserIds as unknown as mongoose.Types.ObjectId[],
+    ).concat(
+      blockUserIds as unknown as mongoose.Types.ObjectId[],
+    ).concat(
+      [user._id],
+    );
+
+    const friendUsers = await this.usersModel.find({ _id: { $nin: idsToExclude } })
+      .sort({ createdAt: -1 }).limit(limit)
       .select({ userName: 1, profilePic: 1, _id: 1 })
       .exec();
     return friendUsers;

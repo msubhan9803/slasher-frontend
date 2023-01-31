@@ -16,7 +16,6 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -40,6 +39,7 @@ export class EventsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -118,7 +118,6 @@ export class EventsController {
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
 
-    asyncDeleteMulterFiles(files);
     const pickConversationFields = [
       '_id', 'name', 'userId',
       'images', 'startDate', 'endDate',

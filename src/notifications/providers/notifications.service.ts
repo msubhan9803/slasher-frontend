@@ -100,13 +100,22 @@ export class NotificationsService {
     return friendsCount;
   }
 
-  async notificationExists(userId: string, senderId: string, notifyType: number): Promise<NotificationDocument> {
-    return this.notificationModel.findOne({
+  /**
+   * Returns true if a similar recent notification is found.  Otherwise returns false.
+   * @param userId
+   * @param senderId
+   * @param notifyType
+   * @returns
+   */
+  async similarRecentNotificationExists(userId: string, senderId: string, notifyType: number): Promise<boolean> {
+    const result = await this.notificationModel.exists({
       userId: new mongoose.Types.ObjectId(userId),
       senderId,
       notifyType,
       createdAt: { $lte: DateTime.now().toJSDate(), $gte: DateTime.now().minus({ days: 7 }).toJSDate() },
     });
+
+    return !!result;
   }
 
   /**

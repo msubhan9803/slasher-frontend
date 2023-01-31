@@ -206,7 +206,7 @@ export class UsersController {
 
     if (Object.keys(inputQuery).length === 0) {
       throw new HttpException(
-        'You must provide atleast one field for validation.',
+        'You must provide at least one field for validation.',
         HttpStatus.NOT_ACCEPTABLE,
       );
     }
@@ -230,6 +230,9 @@ export class UsersController {
     if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
       const exists = await this.usersService.userNameExists(query.userName);
       if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+
+      const disallowedUsername = await this.disallowedUsernameService.findUserName(query.userName);
+      if (disallowedUsername) requestedErrorsList.unshift('Username is not available.');
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
       const exists = await this.usersService.emailExists(query.email);

@@ -6,10 +6,12 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { DisallowedUsernameService } from '../../../src/disallowedUsername/providers/disallowed-username.service';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
+  let disallowedUsernameService: DisallowedUsernameService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -27,6 +29,7 @@ describe('Users / Register (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
+    disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -52,17 +55,17 @@ describe('Users / Register (e2e)', () => {
         const response = await request(app.getHttpServer())
           .get('/users/validate-registration-fields')
           .query(postBody);
-          expect(response.body).toHaveLength(0);
+        expect(response.body).toHaveLength(0);
       });
     });
 
     describe('Validation', () => {
-      it('You must provide atleast one field for validation.', async () => {
+      it('You must provide at least one field for validation.', async () => {
         const response = await request(app.getHttpServer())
           .get('/users/validate-registration-fields')
           .query({});
         expect(response.body).toEqual({
-          message: 'You must provide atleast one field for validation.',
+          message: 'You must provide at least one field for validation.',
           statusCode: HttpStatus.NOT_ACCEPTABLE,
         });
       });
@@ -92,10 +95,10 @@ describe('Users / Register (e2e)', () => {
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual([
-            'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
-            + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
-            'userName should not be empty',
-          ]);
+          'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
+          + 'and cannot begin or end with a special character.  Allowed special characters: period (.), hyphen (-), and underscore (_)',
+          'userName should not be empty',
+        ]);
       });
 
       it('userName is minimum 3 characters long', async () => {
@@ -144,7 +147,7 @@ describe('Users / Register (e2e)', () => {
           'email must be an email',
           'email should not be empty',
         ]);
-    });
+      });
 
       it('email is a proper-form email', async () => {
         postBody.email = 'testusergmail.com';
@@ -155,7 +158,7 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual([
           'email must be an email',
         ]);
-    });
+      });
 
       it('password should not be empty', async () => {
         postBody.password = '';
@@ -258,20 +261,20 @@ describe('Users / Register (e2e)', () => {
           .get('/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['You must be at least 18 to register', 'dob should not be empty']);
+        expect(response.body).toEqual(['You must be at least 17 to register', 'dob should not be empty']);
       });
 
       it('dob is under age', async () => {
-        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
+        postBody.dob = DateTime.now().minus({ years: 16, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .get('/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['You must be at least 18 to register']);
+        expect(response.body).toEqual(['You must be at least 17 to register']);
       });
     });
 
-    describe('Existing username or email check', () => {
+    describe('Existing username or email check, or disallowed username', () => {
       it('returns an error when userName already exists', async () => {
         let response = await request(app.getHttpServer())
           .post('/users/register')
@@ -300,6 +303,19 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual([
           'Email address is already associated with an existing user.',
         ]);
+      });
+
+      it('returns an error when userName is on the list of disallowed usernames', async () => {
+        await disallowedUsernameService.create({
+          username: 'TestUser',
+        });
+
+        postBody.email = `different${postBody.email}`;
+        const response = await request(app.getHttpServer())
+          .get('/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual(['Username is not available.']);
       });
     });
   });

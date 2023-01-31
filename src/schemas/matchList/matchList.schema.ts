@@ -58,11 +58,6 @@ export class MatchList extends MatchListUnusedFields {
 }
 
 export const MatchListSchema = SchemaFactory.createForClass(MatchList);
-MatchListSchema.index(
-  {
-    participants: 1, roomType: 1, roomCategory: 1, relationId: 1,
-  },
-);
 export type MatchListDocument = MatchList & Document;
 
 // Index for ChatService#getConversations

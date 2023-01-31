@@ -9,9 +9,9 @@ import { userFactory } from '../../factories/user.factory';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
+import { clearDatabase } from '../../helpers/mongo-helpers';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
-import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Decline Or Cancel Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -61,20 +61,20 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
     describe('Decline or cancel friend request', () => {
       it('when friend request is decline or cancel than expected response', async () => {
         const userId = user1._id;
-        await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .delete(`/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
+          .send()
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
         const query = {
           $or: [
             { from: activeUser._id, to: user1._id },
             { from: user1._id, to: activeUser._id },
           ],
         };
-        const friends = await friendsModel.find(query);
-        for (let i = 1; i < friends.length; i += 1) {
-          expect(friends[i].reaction).toEqual(FriendRequestReaction.DeclinedOrCancelled);
-        }
+        const friends = await friendsModel.findOne(query);
+        expect(friends.reaction).toEqual(FriendRequestReaction.DeclinedOrCancelled);
       });
     });
 

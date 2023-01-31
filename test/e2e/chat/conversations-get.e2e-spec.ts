@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { Message, MessageDocument } from '../../../src/schemas/message/message.schema';
 
 describe('Conversations all / (e2e)', () => {
@@ -72,13 +73,28 @@ describe('Conversations all / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        for (const body of response.body) {
-          expect(body.participants[0]).toEqual({
-            _id: user1._id.toString(),
-            userName: user1.userName,
-            profilePic: user1.profilePic,
-          });
-        }
+        expect(response.body).toEqual(
+          [
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              participants: [
+                {
+                  _id: user1._id.toString(),
+                  userName: 'Username3',
+                  profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                },
+                {
+                  _id: activeUser._id.toString(),
+                  userName: 'Username1',
+                  profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                },
+              ],
+              unreadCount: 1,
+              latestMessage: 'Hi, test message 2.',
+              updatedAt: response.body[0].updatedAt,
+            },
+          ],
+        );
         expect(response.body).toHaveLength(1);
       });
     });
@@ -154,8 +170,8 @@ describe('Conversations all / (e2e)', () => {
     });
 
     it('Mark all received messages as `Read` for a given chat (matchListId)', async () => {
-        m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
-        const matchId = m1.matchId._id;
+      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
+      const matchId = m1.matchId._id;
       const response = await request(app.getHttpServer())
         .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -172,6 +188,47 @@ describe('Conversations all / (e2e)', () => {
       expect(m2.isRead).toBe(true);
       expect(m3.isRead).toBe(false);
       expect(m4.isRead).toBe(false);
+    });
+
+    describe('validation', () => {
+      it('when param `matchListId` is not a valid mongo id', async () => {
+        m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
+        const matchId = 'BAD_MONGO_OBJECT_ID';
+        const response = await request(app.getHttpServer())
+          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'matchListId must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
+      });
+
+      it('when user is not a member of the conversation', async () => {
+        m1 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Send 1');
+        const matchId = m1.matchId._id;
+        const response = await request(app.getHttpServer())
+          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({ message: 'You are not a member of this conversation', statusCode: 401 });
+      });
+
+      it('when matchListId not found', async () => {
+        m1 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Send 1');
+        const nonExistingMatchId = new mongoose.Types.ObjectId();
+        const response = await request(app.getHttpServer())
+          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${nonExistingMatchId}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+        expect(response.body).toEqual({ message: 'Not found', statusCode: 404 });
+      });
     });
   });
 });

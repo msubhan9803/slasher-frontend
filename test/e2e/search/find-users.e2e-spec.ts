@@ -12,6 +12,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/b
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Find Users(e2e)', () => {
   let app: INestApplication;
@@ -79,6 +80,20 @@ describe('Find Users(e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(2);
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Count Dracula',
+            firstName: 'First name 7',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'The Count',
+            firstName: 'First name 6',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
       });
 
       it('when offset is apply than expected response', async () => {
@@ -90,6 +105,14 @@ describe('Find Users(e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(1);
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'The Count',
+            firstName: 'First name 13',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
       });
     });
   });

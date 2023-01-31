@@ -3,6 +3,7 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -10,6 +11,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { userSettingFactory } from '../../factories/user-setting.factory';
 import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('settings update / :id (e2e)', () => {
   let app: INestApplication;
@@ -18,6 +20,7 @@ describe('settings update / :id (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let configService: ConfigService;
 
   const sampleUserSettingUpdateObject = {
     friends_got_a_match: 0,
@@ -35,6 +38,7 @@ describe('settings update / :id (e2e)', () => {
 
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -48,6 +52,10 @@ describe('settings update / :id (e2e)', () => {
     await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
+    activeUserAuthToken = activeUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+
     await userSettingsService.create(userSettingFactory.build({
       userId: activeUser._id,
     }));
@@ -56,7 +64,7 @@ describe('settings update / :id (e2e)', () => {
   describe('PATCH /settings/notifications', () => {
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
-        await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .patch('/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleUserSettingUpdateObject);
@@ -68,6 +76,31 @@ describe('settings update / :id (e2e)', () => {
         expect(reloadedUserSetting.message_board_reply_your_post).toEqual(sampleUserSettingUpdateObject.message_board_reply_your_post);
         expect(reloadedUserSetting.message_board_new_post_on_thread).toEqual(
           sampleUserSettingUpdateObject.message_board_new_post_on_thread,
+        );
+        expect(response.body).toEqual(
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            app_tutorial: 1,
+            dating_got_a_match: 1,
+            dating_message_received: 1,
+            event_reminder: 1,
+            event_suggested: 1,
+            feed_comment_on_post: 1,
+            feed_mention_on_post_comment_reply: 1,
+            feed_post_like: 1,
+            friends_got_a_match: 0,
+            friends_message_received: 1,
+            message_board_like_your_post: 1,
+            message_board_mention_on_comment_reply: 1,
+            message_board_new_post_on_thread: 1,
+            message_board_reply_your_post: 0,
+            movie_comment_on_reply: 1,
+            movie_comment_reply_like: 1,
+            movie_mention_on_comment_reply: 1,
+            onboarding_completed: true,
+            rss_feed_mention_on_post_comment_reply: 1,
+            rss_feed_post_like: 1,
+          },
         );
       });
     });

@@ -12,6 +12,7 @@ import { GetNotificationsDto } from './dto/get-notifications.dto';
 import { ParamNotificationIdDto } from './dto/param-notificationId.dto';
 import { NotificationsGateway } from './providers/notifications.gateway';
 import { NotificationsService } from './providers/notifications.service';
+import { pick } from '../utils/object-utils';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -55,7 +56,10 @@ export class NotificationsController {
         notificationAsObject.feedPostId = { _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id };
       }
       return notificationAsObject;
-    });
+    }).map((notification) => pick(notification, [
+      '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
+      'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
+    ]));
   }
 
   @Delete(':id')

@@ -406,7 +406,7 @@ describe('Chat Gateway (e2e)', () => {
         await waitForSocketUserCleanup(client, usersService);
       });
 
-      it('should return a message not exists error message when the messageId cannot be found', async () => {
+      it('should return a message not found error message when the messageId cannot be found', async () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
@@ -415,7 +415,7 @@ describe('Chat Gateway (e2e)', () => {
         };
         await new Promise<void>((resolve) => {
           client.emit('messageRead', payload, (data) => {
-            expect(data.error).toBe('Message not exists');
+            expect(data.error).toBe('Message not found');
             resolve();
           });
         });
@@ -424,7 +424,7 @@ describe('Chat Gateway (e2e)', () => {
         await waitForSocketUserCleanup(client, usersService);
       });
 
-      it('when senderid or active userid does not same than expected response', async () => {
+      it('should return an "Unauthorized" error when the message was not sent to the user trying to mark it as read', async () => {
         const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
@@ -435,7 +435,7 @@ describe('Chat Gateway (e2e)', () => {
         await new Promise<void>((resolve) => {
           client.emit('messageRead', payload, (data) => {
             expect(data.success).toBe(false);
-            expect(data.error).toBe('Some error message');
+            expect(data.error).toBe('Unauthorized');
             resolve();
           });
         });

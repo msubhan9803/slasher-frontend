@@ -99,12 +99,14 @@ export class ChatGateway {
     const { messageId } = data;
 
     const message = await this.chatService.findByMessageId(messageId);
-    if (!message) return { error: 'Message not exists' };
+    if (!message) return { error: 'Message not found' };
 
+    // Reminder: mesage.senderId is who the message was sent TO
     if (message.senderId.toString() === user.id) {
       await this.chatService.markMessageAsRead(messageId);
       return { success: true };
     }
-    return { success: false, error: 'Some error message' };
+    // If we got here, that means that the message was not sent TO the user making this request
+    return { success: false, error: 'Unauthorized' };
   }
 }

@@ -29,6 +29,11 @@ export class FriendsService {
       .exec();
   }
 
+  async areFriends(fromUserId: string, toUserId: string): Promise<boolean> {
+    const friendship = await this.findFriendship(fromUserId, toUserId);
+    return friendship && friendship.reaction === FriendRequestReaction.Accepted;
+  }
+
   async createFriendRequest(fromUserId: string, toUserId: string): Promise<void> {
     let friend: any = await this.friendsModel
       .findOne({

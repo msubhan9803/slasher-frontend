@@ -137,7 +137,8 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       const response = await request(app.getHttpServer())
         .get(`/feed-comments/${feedCommentsId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Comment not found');
     });
 

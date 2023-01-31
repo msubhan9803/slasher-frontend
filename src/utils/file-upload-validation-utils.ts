@@ -1,5 +1,5 @@
-import { ParseFilePipeBuilder, HttpStatus } from '@nestjs/common';
-import { unlink } from 'fs';
+import { ParseFilePipeBuilder, HttpStatus, Logger } from '@nestjs/common';
+import { existsSync, unlink } from 'fs';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 
 // TODO: Change module name to file-upload-utils.ts
@@ -7,7 +7,7 @@ import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 export function createProfileOrCoverImageParseFilePipeBuilder() {
   return new ParseFilePipeBuilder()
     .addFileTypeValidator({
-      fileType: /(jpg|jpeg|png)$/,
+      fileType: /(jpg|jpeg|png|gif)$/,
     })
     .addMaxSizeValidator({
       maxSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -17,11 +17,15 @@ export function createProfileOrCoverImageParseFilePipeBuilder() {
     });
 }
 
-export async function asyncDeleteMulterFiles(files: Express.Multer.File[]) {
-  files.forEach((f) => {
-    unlink(f.path, (err) => {
-      // eslint-disable-next-line no-console
-      if (err) { console.log(`Error encountered while trying to delete multer upload file at: ${f.path} -- ${err.message}`); }
+export function asyncDeleteMulterFiles(files: string[], logger?: Logger) {
+  files.forEach((path) => {
+    const fileDoesNotExist = !existsSync(path);
+    if (fileDoesNotExist) return;
+
+    unlink(path, (err) => {
+      if (err) {
+        logger.error(`Encountered an error while deleting Multer temporary upload file at: ${path} -- ${err.message}`);
+      }
     });
   });
 }

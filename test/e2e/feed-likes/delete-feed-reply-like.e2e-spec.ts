@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -99,12 +99,12 @@ feedReply;
     });
 
     it('successfully delete feed reply likes.', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
-      expect(feedReplyData.likes).toHaveLength(1);
+        .send()
+        .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
     });
 
     it('when feed reply id is not exist than expected response', async () => {
@@ -112,7 +112,8 @@ feedReply;
       const response = await request(app.getHttpServer())
         .delete(`/feed-likes/reply/${feedReplyId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Reply not found');
     });
 

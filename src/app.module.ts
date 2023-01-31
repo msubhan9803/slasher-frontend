@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
@@ -30,6 +30,7 @@ import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
+import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 
 @Module({
   imports: [
@@ -77,6 +78,11 @@ import { ReportsModule } from './reports/reports.module';
       provide: APP_PIPE,
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
     },
+    // Interceptor to delete temp files created by mutler. It delete files in `request.filesToBeRemoved` after the request is settled.
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MulterUploadCleanupInterceptor,
+    },
     AppGateway,
     TasksService,
   ],
@@ -97,7 +103,7 @@ export class AppModule {
         '/users/reset-password',
         '/users/sign-in',
         '/users/validate-password-reset-token',
-        'users/check-email',
+        '/users/check-email',
         '/users/verification-email-not-received',
       )
       .forRoutes('*');

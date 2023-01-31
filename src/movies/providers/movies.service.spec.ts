@@ -19,7 +19,7 @@ import movieDbId2907ApiMainMovieResponse from '../../../test/fixtures/movie-db/m
 import movieDbId2907ApiConfigurationResponse from '../../../test/fixtures/movie-db/moviedbid-2907-api-configuration-response';
 import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
-import { MovieActiveStatus, MovieType } from '../../schemas/movie/movie.enums';
+import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 
 const mockHttpService = () => ({
@@ -442,11 +442,73 @@ describe('MoviesService', () => {
       expect(firstResults[1].name).toBe('Terrifier 5');
     });
 
-    describe('Test update and delete ways', () => {
+    it('Check for insert the movie record in database for two subsequent years (multiple mocks)', async () => {
+      const nextYear = DateTime.now().plus({ years: 1 });
+
+      const limit = 10;
+      jest.spyOn(httpService, 'get')
+        // Below mock is meant for the consumption of `#getMoviesDataMaxYearLimit`
+        .mockImplementationOnce(() => of({
+          data: { results: { release_date: nextYear } },
+          status: 202,
+          statusText: '',
+          headers: {},
+          config: {},
+        }))
+        // Below mock is meant for the consumption of fetching current year movies
+        .mockImplementationOnce(() => of({
+          data: mockMaxLimitApiMockResponse,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }))
+        // Below mock is meant for the consumption of next year movies
+        .mockImplementationOnce(() => of({
+          data: {
+            ...mockMovieDbCallResponse,
+            results: mockMovieDbCallResponse.results.map((item) => (
+              {
+                ...item,
+                original_title: 'Terrifier 9',
+                title: 'Terrifier 9',
+                id: 551234,
+                release_date: nextYear,
+                total_pages: 2,
+              }
+            )),
+          },
+          status: 202,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+      // jest.spyOn(httpService, 'get').mockImplementation(mockFn);
       const startYear = new Date().getFullYear();
-      const endYear = new Date().getFullYear();
+      const endYear = nextYear.year;
+      expect(await moviesService.findAll(limit, false, 'name')).toHaveLength(1);
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+      expect(firstResults).toHaveLength(3);
+
+      expect(firstResults[0].movieDBId).toBe(123456);
+      expect(firstResults[0].deleted).toBe(MovieDeletionStatus.Deleted);
+
+      expect(firstResults[1].movieDBId).toBe(663712);
+      expect(firstResults[1].deleted).toBe(MovieDeletionStatus.NotDeleted);
+
+      expect(firstResults[2].movieDBId).toBe(551234);
+      expect(firstResults[2].deleted).toBe(MovieDeletionStatus.NotDeleted);
+    });
+
+    describe('Test update and delete ways', () => {
+      let startYear;
+      let endYear;
 
       beforeEach(async () => {
+        startYear = new Date().getFullYear();
+        endYear = new Date().getFullYear();
+
         jest.spyOn(httpService, 'get').mockImplementation(() => of({
           data: mockMovieDbCallResponse,
           status: 200,
@@ -539,6 +601,77 @@ describe('MoviesService', () => {
         expect(firstResults[1].name).toBe('Terrifier 5');
         expect(firstResults[1].deleted).toBe(1);
       });
+    });
+
+    it('Check for update the movie record in database for two subsequent years (multiple mocks)', async () => {
+      const nextYear = DateTime.now().plus({ years: 1 });
+
+      const startYear = new Date().getFullYear();
+      const endYear = nextYear.year;
+
+      const movieData1 = await moviesService.create(
+        moviesFactory.build({
+          movieDBId: 663712,
+          deleted: MovieDeletionStatus.NotDeleted,
+        }),
+      );
+      const movieData2 = await moviesService.create(
+        moviesFactory.build({
+          movieDBId: 551234,
+          deleted: MovieDeletionStatus.NotDeleted,
+        }),
+      );
+
+      const limit = 10;
+      jest.spyOn(httpService, 'get')
+        // Below mock is meant for the consumption of `#getMoviesDataMaxYearLimit`
+        .mockImplementationOnce(() => of({
+          data: { results: { release_date: nextYear } },
+          status: 202,
+          statusText: '',
+          headers: {},
+          config: {},
+        }))
+        // Below mock is meant for the consumption of fetching current year movies
+        .mockImplementationOnce(() => of({
+          data: mockMaxLimitApiMockResponse,
+          status: 200,
+          statusText: '',
+          headers: {},
+          config: {},
+        }))
+        // Below mock is meant for the consumption of next year movies
+        .mockImplementationOnce(() => of({
+          data: {
+            ...mockMovieDbCallResponse,
+            results: mockMovieDbCallResponse.results.map((item) => (
+              {
+                ...item,
+                original_title: 'Terrifier 9',
+                title: 'Terrifier 9',
+                id: 551234,
+                release_date: nextYear,
+                total_pages: 1,
+              }
+            )),
+          },
+          status: 202,
+          statusText: '',
+          headers: {},
+          config: {},
+        }));
+
+      await moviesService.syncWithTheMovieDb(startYear, endYear);
+      const firstResults = await moviesService.findAll(limit, false, 'name');
+      expect(firstResults).toHaveLength(3);
+      expect(firstResults[0].movieDBId).toBe(123456);
+      expect(firstResults[0].deleted).toBe(MovieDeletionStatus.Deleted);
+
+      expect(firstResults[1].movieDBId).toBe(movieData1.movieDBId);
+      expect(firstResults[1].deleted).toBe(MovieDeletionStatus.NotDeleted);
+
+      expect(firstResults[2].movieDBId).toBe(movieData2.movieDBId);
+      expect(firstResults[2].deleted).toBe(MovieDeletionStatus.NotDeleted);
     });
   });
 

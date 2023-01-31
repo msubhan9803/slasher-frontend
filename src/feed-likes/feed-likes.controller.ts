@@ -13,6 +13,10 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { FeedComment } from '../schemas/feedComment/feedComment.schema';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { NotificationType } from '../schemas/notification/notification.enums';
+import { BlocksService } from '../blocks/providers/blocks.service';
+import { User } from '../schemas/user/user.schema';
+import { ProfileVisibility } from '../schemas/user/user.enums';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('feed-likes')
 export class FeedLikesController {
@@ -21,6 +25,9 @@ export class FeedLikesController {
     private readonly feedPostsService: FeedPostsService,
     private readonly feedCommentsService: FeedCommentsService,
     private readonly notificationsService: NotificationsService,
+    private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
+
   ) { }
 
   @Post('post/:feedPostId')
@@ -29,6 +36,16 @@ export class FeedLikesController {
     const post = await this.feedPostsService.findById(params.feedPostId, true);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
+    if ((post.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+      }
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
@@ -63,6 +80,24 @@ export class FeedLikesController {
     const comment = await this.feedCommentsService.findFeedComment(params.feedCommentId.toString());
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findById(comment.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+    }
+    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+      }
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
 

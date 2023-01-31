@@ -8,6 +8,7 @@ import { FeedComment, FeedCommentSchema } from '../schemas/feedComment/feedComme
 import { FeedReplyLike, FeedReplyLikeSchema } from '../schemas/feedReplyLike/feedReplyLike.schema';
 import { FeedReply, FeedReplySchema } from '../schemas/feedReply/feedReply.schema';
 import { FeedLikesController } from './feed-likes.controller';
+import { BlocksModule } from '../blocks/blocks.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FeedLikesController } from './feed-likes.controller';
     MongooseModule.forFeature([{ name: FeedReplyLike.name, schema: FeedReplyLikeSchema }]),
     FeedPostsModule,
     FeedCommentsModule,
+    BlocksModule,
   ],
   providers: [FeedLikesService],
   exports: [FeedLikesService],

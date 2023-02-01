@@ -78,8 +78,8 @@ function ProfileFriendRequest({ user }: Props) {
     <p className="text-center">
       {
         friendsReqList.length === 0
-          ? 'No friends requests at the moment.'
-          : 'No more friends requests'
+          ? 'No friend requests at the moment.'
+          : 'No more friend requests.'
       }
     </p>
   );

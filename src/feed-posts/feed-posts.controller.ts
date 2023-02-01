@@ -221,11 +221,18 @@ export class FeedPostsController {
   ) {
     const user = getUserFromRequest(request);
     const feedPost = await this.feedPostsService.findById(param.id, true);
-    const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
+    if (!feedPost) {
+      throw new HttpException(
+        'Post not found.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+  const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
 
     if (isUserOwnerOfThePost) {
       throw new HttpException(
-        'You can only mark post as hidden which is created by you.',
+        'You cannot hide your own post.',
         HttpStatus.FORBIDDEN,
         );
     }

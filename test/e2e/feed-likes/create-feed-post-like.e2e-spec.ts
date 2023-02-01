@@ -9,7 +9,7 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
@@ -70,7 +70,7 @@ describe('Create Feed Post Like (e2e)', () => {
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
-    it.only('successfully creates feed post likes.', async () => {
+    it('successfully creates feed post likes.', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/post/${feedPost._id}`)
@@ -79,28 +79,6 @@ describe('Create Feed Post Like (e2e)', () => {
         .expect(HttpStatus.CREATED);
 
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      // console.log('e2eTestLog', {
-      //   userId: feedPostData.userId as any,
-      //   feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
-      //   senderId: activeUser._id,
-      //   notifyType: NotificationType.UserLikedYourPost,
-      //   notificationMsg: 'liked your post',
-      // });
-
-      // ******* Desired Output
-      // expect(notificationsService.create).toHaveBeenCalledWith('ok?');
-      // {
-      // "feedPostId": {"_id": "63da2fe64baf57edb6b2b60e"},
-      // "notificationMsg": "liked your post",
-      // "notifyType": 13,
-      // "senderId": "63da2fe64baf57edb6b2b60a",
-      // "userId": {
-      //    "_id": "63da2fe64baf57edb6b2b60c",
-      //    "profilePic": "noUser.jpg",
-      //    "userName": "Username2"
-      //    }
-      // }
-      // *******
 
       const feedPostDataObject = (feedPostData as any).toObject();
       expect(notificationsService.create).toHaveBeenCalledWith({

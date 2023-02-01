@@ -40,17 +40,8 @@ export class FeedLikesController {
       user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
-      // console.log('controllerLog', {
-      //   userId: post.userId as any,
-      //   feedPostId: { _id: post._id } as unknown as FeedPost,
-      //   senderId: user._id,
-      //   notifyType: NotificationType.UserLikedYourPost,
-      //   notificationMsg: 'liked your post',
-      // });
-
       await this.notificationsService.create({
         // userId: post.userId as any, // Ths is BAD as jest generated ambigious errors when we compaer mongo object directly
-        // userId: (post.userId as any).toObject(), // Ths is BAD as above.
         userId: ({
           _id: (post.userId as any)._id.toString(),
           profilePic: (post.userId as any).profilePic,

@@ -16,7 +16,6 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/b
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../src/schemas/notification/notification.enums';
-import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;

@@ -145,7 +145,6 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
           notificationMsg: 'replied on your post',
         });
-
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

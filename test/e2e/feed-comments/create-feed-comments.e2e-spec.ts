@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import mongoose, { Connection } from 'mongoose';
+import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
@@ -111,12 +111,17 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           ],
         });
         const feedPostData = await feedPostsService.findById(feedPost.id, false);
-        
+
+      const feedPostDataObject = (feedPostData as any).toObject();
         expect(notificationsService.create).toHaveBeenCalledWith({
-          userId: feedPostData.userId as any,
-          feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
-          feedCommentId: { _id: new mongoose.Types.ObjectId(response.body._id) } as unknown as FeedComment,
-          senderId: activeUser._id,
+          userId: {
+            _id: feedPostDataObject.userId._id.toString(),
+            profilePic: feedPostDataObject.userId.profilePic,
+            userName: feedPostDataObject.userId.userName,
+          },
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: response.body._id } as unknown as FeedComment,
+          senderId: activeUser._id.toString(),
           notifyType: NotificationType.UserCommentedOnYourPost,
           notificationMsg: 'commented on your post',
         });

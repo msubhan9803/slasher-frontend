@@ -106,10 +106,14 @@ export class FeedCommentsController {
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
-        userId: post.userId as any,
-        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: comment._id } as unknown as FeedComment,
-        senderId: user._id,
+        userId: ({
+          _id: (post.userId as any)._id.toString(),
+          profilePic: (post.userId as any).profilePic,
+          userName: (post.userId as any).userName,
+        } as any),
+        feedPostId: { _id: comment.feedPostId.toString() } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
+        senderId: user._id.toString(),
         notifyType: NotificationType.UserCommentedOnYourPost,
         notificationMsg: 'commented on your post',
       });

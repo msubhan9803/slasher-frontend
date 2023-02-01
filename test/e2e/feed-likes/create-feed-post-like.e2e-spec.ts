@@ -9,10 +9,12 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +27,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedLikesService: FeedLikesService;
+  let notificationsService: NotificationsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,6 +39,7 @@ describe('Create Feed Post Like (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -59,7 +63,7 @@ describe('Create Feed Post Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: user0._id,
           },
         ),
       );
@@ -67,12 +71,31 @@ describe('Create Feed Post Like (e2e)', () => {
     });
 
     it('successfully creates feed post likes.', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+
+      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      console.log("e2eTestLog", {
+        userId: feedPostData.userId as any,
+        feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
+        senderId: activeUser._id,
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+      
+      // expect(notificationsService.create).toHaveBeenCalledWith({
+      //   userId: feedPostData.userId as any,
+      //   feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
+      //   senderId: activeUser._id,
+      //   notifyType: NotificationType.UserLikedYourPost,
+      //   notificationMsg: 'liked your post',
+      // });
+      expect(response.body).toEqual({ success: true });
+
     });
 
     it('when feed post id is not exist than expected response', async () => {

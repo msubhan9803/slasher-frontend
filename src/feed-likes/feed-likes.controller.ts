@@ -40,6 +40,14 @@ export class FeedLikesController {
       user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
+      console.log("controllerLog", {
+        userId: post.userId as any,
+        feedPostId: { _id: post._id } as unknown as FeedPost,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+      
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: post._id } as unknown as FeedPost,

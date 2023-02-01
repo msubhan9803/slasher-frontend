@@ -28,8 +28,6 @@ describe('#message-count-update', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(getQueueToken('message-count-update'))
-      .useValue(mockQueue)
       .compile();
 
       connection = await moduleRef.get<Connection>(getConnectionToken());

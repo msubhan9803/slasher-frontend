@@ -58,13 +58,14 @@ describe('Add Friends (e2e)', () => {
 
   describe('Post /friends', () => {
     it('when friend request is successfully created, returns the expected response', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
       const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
-      expect(friends.to).toEqual(user1._id);
+      expect(friends.to.toString()).toEqual(user1.id);
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when friend request was previously declined, returns the expected response', async () => {
@@ -73,11 +74,12 @@ describe('Add Friends (e2e)', () => {
         to: user1.id,
         reaction: FriendRequestReaction.DeclinedOrCancelled,
       });
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: user1._id });
-
+        .send({ userId: user1._id })
+        .expect(HttpStatus.CREATED);
+      expect(response.body).toEqual({ success: true });
       // Expect previous db entity to be deleted
       const friendData = await friendsModel.findOne({ _id: friends._id });
       expect(friendData).toBeNull();
@@ -90,11 +92,12 @@ describe('Add Friends (e2e)', () => {
 
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
       await friendsService.createFriendRequest(user1.id, activeUser.id);
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
-
+      expect(response.body).toEqual({ success: true });
+      expect(response.status).toEqual(HttpStatus.CREATED);
       expect((await friendsService.findFriendship(user1.id, activeUser.id)).reaction).toEqual(FriendRequestReaction.Accepted);
     });
 

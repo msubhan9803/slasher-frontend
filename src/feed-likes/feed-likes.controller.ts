@@ -31,7 +31,15 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
-    if (user.id !== (post.userId as any)._id.toString()) {
+
+    // Create notification for post creator, informing them that a like was added to their post.
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The liker IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: post._id } as unknown as FeedPost,
@@ -40,6 +48,7 @@ export class FeedLikesController {
         notificationMsg: 'liked your post',
       });
     }
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -50,6 +59,7 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    return { success: true };
   }
 
   @Post('comment/:feedCommentId')
@@ -60,7 +70,13 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
-    if (comment.userId.toString() !== user.id) {
+
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a notification if the liker is the comment creator.
+      user.id === comment.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
       await this.notificationsService.create({
         userId: comment.userId as any,
         feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
@@ -70,6 +86,7 @@ export class FeedLikesController {
         notificationMsg: 'liked your comment',
       });
     }
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -80,6 +97,7 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    return { success: true };
   }
 
   @Post('reply/:feedReplyId')
@@ -90,7 +108,13 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
-    if (user.id !== reply.userId.toString()) {
+
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a notification if the liker is the reply creator.
+      user.id === reply.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
       await this.notificationsService.create({
         userId: reply.userId as any,
         feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
@@ -101,6 +125,8 @@ export class FeedLikesController {
         notificationMsg: 'liked your reply',
       });
     }
+
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')
@@ -111,5 +137,6 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    return { success: true };
   }
 }

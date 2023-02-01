@@ -11,7 +11,6 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { FeedCommentsService } from './providers/feed-comments.service';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
 import { UpdateFeedReplyDto } from './dto/update-feed-reply.dto';
@@ -28,6 +27,7 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { FeedComment } from '../schemas/feedComment/feedComment.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { pick } from '../utils/object-utils';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
@@ -48,6 +48,7 @@ export class FeedCommentsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -96,8 +97,14 @@ export class FeedCommentsController {
       images,
     );
 
-    // Create notification for post creator, informing them that a comment was added to their post
-    if ((post.userId as any)._id.toString() !== comment.userId.toString()) {
+    // Create notification for post creator, informing them that a comment was added to their post.
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The commenter IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
@@ -123,7 +130,6 @@ export class FeedCommentsController {
       }
     }
 
-    asyncDeleteMulterFiles(files);
     return {
       _id: comment._id,
       feedPostId: comment.feedPostId,
@@ -167,8 +173,7 @@ export class FeedCommentsController {
         });
       }
     }
-
-    return updatedComment;
+    return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
 
   @Delete(':feedCommentId')
@@ -196,6 +201,7 @@ export class FeedCommentsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -238,9 +244,15 @@ export class FeedCommentsController {
       images,
     );
 
-    // Create notification for post creator, informing them that a reply was added to their post
+    // Create notification for post creator, informing them that a reply was added to their post.
     const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
-    if ((post.userId as any)._id.toString() !== reply.userId.toString()) {
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The commenter IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
@@ -251,6 +263,7 @@ export class FeedCommentsController {
         notificationMsg: 'replied on your post',
       });
     }
+
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
     for (const mentionedUserId of mentionedUserIds) {
@@ -267,7 +280,6 @@ export class FeedCommentsController {
       }
     }
 
-    asyncDeleteMulterFiles(files);
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,
@@ -313,8 +325,7 @@ export class FeedCommentsController {
         });
       }
     }
-
-    return updatedReply;
+    return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }
 
   @Delete('replies/:feedReplyId')
@@ -361,11 +372,11 @@ export class FeedCommentsController {
         .map((reply) => {
           // eslint-disable-next-line no-param-reassign
           reply.likeCount = reply.likes.length;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.likes;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.__v;
-          return reply;
+          const {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+          } = reply;
+          return expectedReplyValues;
         });
       comments.replies = filterReply;
       comments.likeCount = comments.likes.length;
@@ -373,7 +384,12 @@ export class FeedCommentsController {
       delete comments.__v;
       commentReplies.push(comments);
     }
-    return commentReplies;
+    return commentReplies.map(
+      (comments) => pick(
+        comments,
+        ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+      ),
+    );
   }
 
   @TransformImageUrls(
@@ -397,16 +413,19 @@ export class FeedCommentsController {
       .map((reply) => {
         // eslint-disable-next-line no-param-reassign
         reply.likeCount = reply.likes.length;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.likes;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.__v;
-        return reply;
+        const {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+        } = reply;
+        return expectedReplyValues;
       });
     commentAndReplies.replies = filterReply;
     commentAndReplies.likeCount = commentAndReplies.likes.length;
     delete commentAndReplies.likes;
     delete commentAndReplies.__v;
-    return commentAndReplies;
+    return pick(
+      commentAndReplies,
+      ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+    );
   }
 }

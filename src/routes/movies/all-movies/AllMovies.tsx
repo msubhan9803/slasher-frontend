@@ -4,11 +4,11 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -86,11 +86,7 @@ function AllMovies() {
           applyFilter={applyFilter}
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessage errorMessage={errorMessage} />
           <div className="m-md-2">
             <InfiniteScroll
               threshold={2000}

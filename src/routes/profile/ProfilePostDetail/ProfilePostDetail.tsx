@@ -16,7 +16,7 @@ import {
   CommentValue, FeedComments, Post, User, ReplyValue,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
@@ -26,6 +26,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
+import FormatImageVideoList from '../../../components/ui/FormatImageVideoList';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -64,17 +65,6 @@ function ProfilePostDetail({ user }: Props) {
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
-  };
-
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
   };
 
   const feedComments = (sortBy?: boolean) => {
@@ -140,7 +130,7 @@ function ProfilePostDetail({ user }: Props) {
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
-              postUrl: formatImageVideoList(res.data.images, res.data.message),
+              postUrl: FormatImageVideoList(res.data.images, res.data.message),
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
@@ -344,7 +334,7 @@ function ProfilePostDetail({ user }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: formatImageVideoList(res.data.images, res.data.message),
+            postUrl: FormatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,

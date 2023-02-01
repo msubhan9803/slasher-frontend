@@ -5,7 +5,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
 import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import ReportModal from '../../../components/ui/ReportModal';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { User } from '../../../types';
@@ -20,6 +19,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 interface FriendProps {
   _id?: string;
@@ -225,11 +225,7 @@ function ProfileFriends({ user }: Props) {
             </InfiniteScroll>
             {loadingFriends && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-3 text-start">
-                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              </div>
-            )}
+            <ErrorMessage errorMessage={errorMessage} />
           </div>
         </div>
         <ReportModal

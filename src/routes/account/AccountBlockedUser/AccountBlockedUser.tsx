@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import AccountHeader from '../AccountHeader';
 import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -11,6 +10,7 @@ import { LG_MEDIA_BREAKPOINT } from '../../../constants';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 interface BlockUsers {
   /* eslint no-underscore-dangle: 0 */
@@ -124,12 +124,7 @@ function AccountBlockedUser() {
               {blockUsersList.length === 0 && 'You have not blocked any users.'}
             </p>
           )}
-
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessage errorMessage={errorMessage} />
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

@@ -6,13 +6,13 @@ import InfiniteScroll from 'react-infinite-scroller';
 import ProfileHeader from '../ProfileHeader';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../../redux/hooks';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -86,11 +86,7 @@ function ProfilePhotos({ user }: Props) {
       <ContentPageWrapper>
         <ProfileHeader tabKey="photos" user={user} />
         <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessage errorMessage={errorMessage} />
           <InfiniteScroll
             pageStart={0}
             initialLoad

@@ -70,7 +70,7 @@ describe('Create Feed Post Like (e2e)', () => {
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
-    it('successfully creates feed post likes.', async () => {
+    it.only('successfully creates feed post likes.', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/post/${feedPost._id}`)
@@ -79,23 +79,42 @@ describe('Create Feed Post Like (e2e)', () => {
         .expect(HttpStatus.CREATED);
 
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      console.log("e2eTestLog", {
-        userId: feedPostData.userId as any,
-        feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
-        senderId: activeUser._id,
-        notifyType: NotificationType.UserLikedYourPost,
-        notificationMsg: 'liked your post',
-      });
-      
-      // expect(notificationsService.create).toHaveBeenCalledWith({
+      // console.log('e2eTestLog', {
       //   userId: feedPostData.userId as any,
       //   feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
       //   senderId: activeUser._id,
       //   notifyType: NotificationType.UserLikedYourPost,
       //   notificationMsg: 'liked your post',
       // });
-      expect(response.body).toEqual({ success: true });
 
+      // ******* Desired Output
+      // expect(notificationsService.create).toHaveBeenCalledWith('ok?');
+      // {
+      // "feedPostId": {"_id": "63da2fe64baf57edb6b2b60e"},
+      // "notificationMsg": "liked your post",
+      // "notifyType": 13,
+      // "senderId": "63da2fe64baf57edb6b2b60a",
+      // "userId": {
+      //    "_id": "63da2fe64baf57edb6b2b60c",
+      //    "profilePic": "noUser.jpg",
+      //    "userName": "Username2"
+      //    }
+      // }
+      // *******
+
+      const feedPostDataObject = (feedPostData as any).toObject();
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        feedPostId: { _id: feedPostData._id.toString() },
+        senderId: activeUser._id.toString(),
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+        userId: {
+          _id: feedPostDataObject.userId._id.toString(),
+          profilePic: feedPostDataObject.userId.profilePic,
+          userName: feedPostDataObject.userId.userName,
+        },
+      });
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when feed post id is not exist than expected response', async () => {

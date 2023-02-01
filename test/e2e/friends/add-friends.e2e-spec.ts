@@ -14,6 +14,9 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
+import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -26,6 +29,7 @@ describe('Add Friends (e2e)', () => {
   let configService: ConfigService;
   let friendsModel: Model<FriendDocument>;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let notificationsService: NotificationsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,6 +41,7 @@ describe('Add Friends (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -58,6 +63,8 @@ describe('Add Friends (e2e)', () => {
 
   describe('Post /friends', () => {
     it('when friend request is successfully created, returns the expected response', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -66,6 +73,13 @@ describe('Add Friends (e2e)', () => {
       const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
       expect(friends.to.toString()).toEqual(user1.id);
       expect(response.body).toEqual({ success: true });
+
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        userId: user1.id,
+        senderId: activeUser._id,
+        notifyType: NotificationType.UserSentYouAFriendRequest,
+        notificationMsg: 'sent you a friend request',
+      });
     });
 
     it('when friend request was previously declined, returns the expected response', async () => {

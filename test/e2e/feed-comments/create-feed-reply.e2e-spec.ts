@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
@@ -11,11 +11,14 @@ import { userFactory } from '../../factories/user.factory';
 import { createTempFiles } from '../../helpers/tempfile-helpers';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
+import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +30,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let notificationsService: NotificationsService;
 
   const sampleFeedReplyObject = {
     images: [
@@ -50,6 +54,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -66,15 +71,17 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
   describe('POST /feed-comments/replies', () => {
     let feedComments;
+    let user0;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: user0._id,
           },
         ),
       );
@@ -88,6 +95,8 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     });
 
     it('successfully creates feed reply with a message and files', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-comments/replies')
@@ -126,6 +135,17 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             },
           ],
         });
+        const feedPostData = await feedPostsService.findById(feedPost.id, false);
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedPostData.userId as any,
+          feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
+          feedCommentId: { _id: new mongoose.Types.ObjectId(response.body.feedCommentId) } as unknown as FeedComment,
+          feedReplyId: new mongoose.Types.ObjectId(response.body._id),
+          senderId: activeUser._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your post',
+        });
+
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

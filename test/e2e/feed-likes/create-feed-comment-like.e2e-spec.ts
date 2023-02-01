@@ -90,7 +90,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         );
     });
 
-    it.only('successfully creates feed comment likes.', async () => {
+    it('successfully creates feed comment likes.', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
       const response = await request(app.getHttpServer())

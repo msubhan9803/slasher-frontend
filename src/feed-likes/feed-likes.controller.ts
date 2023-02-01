@@ -41,7 +41,6 @@ export class FeedLikesController {
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
-        // userId: post.userId as any, // Ths is BAD as jest generated ambigious errors when we compaer mongo object directly
         userId: ({
           _id: (post.userId as any)._id.toString(),
           profilePic: (post.userId as any).profilePic,

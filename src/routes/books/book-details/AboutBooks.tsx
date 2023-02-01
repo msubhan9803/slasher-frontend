@@ -14,6 +14,7 @@ import BookOverview from './BookOverview';
 import BookComments from '../components/BookComments';
 import { BookIconList } from '../components/booksList';
 import BookPosts from '../book-posts/BookPosts';
+import BorderButton from '../../../components/ui/BorderButton';
 
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
@@ -112,9 +113,14 @@ function AboutBooks() {
         <Row className="d-lg-none mt-3 mb-2 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this book</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'} `}>
-              {bgColor ? 'Follow' : 'Unfollow'}
-            </FollowStyledButton>
+            <BorderButton
+              customButtonCss="width: 21.125rem !important;"
+              buttonClass="shadow-none"
+              variant="lg"
+              toggleBgColor={bgColor}
+              handleClick={setBgColor}
+              toggleButton
+            />
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">

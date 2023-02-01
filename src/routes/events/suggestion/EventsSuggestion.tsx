@@ -20,6 +20,7 @@ import { stateOptions } from '../../../utils/location-utils';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 
 interface Option {
   event_name: string;
@@ -38,10 +39,6 @@ interface Value {
   address: string;
 }
 
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
-`;
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
 `;
@@ -153,7 +150,13 @@ function EventSuggestion() {
                   style={{ resize: 'none' }}
                   className="fs-4"
                 />
-                <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
+                <CharactersCounter
+                  counterClass="float-end fs-4"
+                  charCount={charCount}
+                  totalChar={1000}
+                  marginTop="-1.43rem"
+                  marginRight=".5rem"
+                />
               </Form.Group>
             </Col>
           </Row>

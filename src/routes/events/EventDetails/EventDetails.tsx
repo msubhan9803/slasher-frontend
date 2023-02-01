@@ -14,27 +14,14 @@ import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-ut
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import EventRightSidebar from '../EventRightSidebar';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
+import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 
-interface LinearIconProps {
-  uniqueId?: string
-}
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
   img {
     object-fit: contain;
   }
-`;
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-  .favorite-icon{
-    height:3.57rem;
-    width:3.57rem;
-  }
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 function EventDetails() {
   const { id } = useParams();

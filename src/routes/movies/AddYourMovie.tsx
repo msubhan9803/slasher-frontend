@@ -10,16 +10,13 @@ import PhotoUploadInput from '../../components/ui/PhotoUploadInput';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import CharactersCounter from '../../components/ui/CharactersCounter';
 
 const CustomText = styled.p`
   color: #A6A6A6;
 `;
 const Text = styled.p`
   color: #DBDBDB;
-`;
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
 `;
 
 const noteList = [
@@ -103,7 +100,13 @@ function AddYourMovie() {
                       style={{ resize: 'none' }}
                       className="fs-4"
                     />
-                    <CustomSpan className="float-end fs-5">{`${charCount}/${113} characters`}</CustomSpan>
+                    <CharactersCounter
+                      counterClass="float-end fs-4"
+                      charCount={charCount}
+                      totalChar={113}
+                      marginTop="-1.43rem"
+                      marginRight=".5rem"
+                    />
                   </Form.Group>
                 </Col>
               </Row>

@@ -7,40 +7,21 @@ import RoundButton from '../../../components/ui/RoundButton';
 import postImage from '../../../images/places-post.jpg';
 import LikeDislike from './LikeDislike';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import BorderButton from '../../../components/ui/BorderButton';
+import CustomStarIcon from '../../../components/ui/CustomStarIcon';
+import CustomFavoriteIcons from '../../../components/ui/CustomFavoriteIcons';
+import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 
-interface LinearIconProps {
-  uniqueId?: string
-}
 interface Props {
   toggle: boolean;
   onToggleClick: (val: boolean) => void;
 }
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-  .favorite-icon{
-    height:3.57rem;
-    width:3.57rem;
-  }
-`;
 
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
-const StyledStar = styled(FontAwesomeIcon)`
-  color: #FF8A00;
-  width: 1.638rem;
-  height: 1.563rem;
 `;
 const StyledWorth = styled.div`
   color: #00FF0A;
@@ -54,13 +35,6 @@ const StyledWorth = styled.div`
     width: 1.326rem;
     height: 1.391rem;
   }
-`;
-const FavoriteIconDiv = styled.div`
-  top: 0;
-  left: 6.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid #3A3B46;
 `;
 function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
   return (
@@ -83,12 +57,12 @@ function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
           </LinearIcon>
           {toggle
             && (
-              <FavoriteIconDiv
-                role="button"
-                className="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle"
-              >
-                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary " onClick={() => onToggleClick(!toggle)} />
-              </FavoriteIconDiv>
+              <CustomFavoriteIcons
+                handleRemoveFavorite={onToggleClick}
+                favorite={toggle}
+                buttonClass="align-items-center bg-black d-flex justify-content-center position-absolute rounded-circle"
+                iconClass="text-primary"
+              />
             )}
         </div>
       </CustomCol>
@@ -100,16 +74,19 @@ function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
           </div>
           <div className="rating align-items-center d-flex py-3 pb-xxl-0 justify-content-center">
             <span className="fs-3 me-3 me-xxl-2 align-self-center d-flex justify-content-end">
-              <StyledStar icon={solid('star')} size="xs" className="star mb-2" />
+              <CustomStarIcon />
               <div className="d-flex">
                 <h1 className="h2 m-0 mx-2">3.3/5</h1>
                 <p className="fs-3 m-0 text-light me-xxl-2">(10K)</p>
               </div>
             </span>
-            <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-3" variant="lg">
-              <FontAwesomeIcon icon={regular('star')} className="align-self-center me-2" />
-              <h1 className="h3 m-0">Rate</h1>
-            </StyleBorderButton>
+            <BorderButton
+              buttonClass="d-flex px-3"
+              variant="lg"
+              icon={regular('star')}
+              iconClass="align-self-center me-2"
+              lable="Rate"
+            />
           </div>
         </div>
         <div>
@@ -124,10 +101,13 @@ function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
               <p className="fs-4"> USA  (7802.07 mi)</p>
             </div>
           </div>
-          <StyleBorderButton className="d-flex align-self-center rate-btn bg-black py-2" variant="lg">
-            <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-            <h1 className="h3 m-0">Share</h1>
-          </StyleBorderButton>
+          <BorderButton
+            buttonClass="d-flex"
+            variant="lg"
+            icon={solid('share-nodes')}
+            iconClass="align-self-center me-2"
+            lable="Share"
+          />
         </div>
         <div className="d-flex">
           <FontAwesomeIcon icon={solid('globe')} size="lg" className="my-1 me-2 text-primary" />

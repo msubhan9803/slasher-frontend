@@ -8,32 +8,14 @@ import styled from 'styled-components';
 import RoundButton from '../../../components/ui/RoundButton';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
+import { StyleButton } from '../../../components/ui/StyleButton';
 
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
-`;
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
 `;
 const CustomText = styled.p`
   color: #A6A6A6
-`;
-const StyleButton = styled.div`
-  .deactivate-btn {
-    border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-    }
-  }
-  @media (max-width: 767px) {
-    .update-btn{
-      width: 100%;
-    }
-    .deactivate-btn{
-      width: 100%;
-    }
-  }
 `;
 function PlacesEdit() {
   const [description, setDescription] = useState<string>('');
@@ -92,7 +74,13 @@ function PlacesEdit() {
               style={{ resize: 'none' }}
               className="fs-4"
             />
-            <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
+            <CharactersCounter
+              counterClass="float-end fs-4"
+              charCount={charCount}
+              totalChar={1000}
+              marginTop="-1.43rem"
+              marginRight=".5rem"
+            />
           </Form.Group>
         </Col>
       </Row>

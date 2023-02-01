@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import CharactersCounter from '../../components/ui/CharactersCounter';
 import PhotoUploadInput from '../../components/ui/PhotoUploadInput';
 import RoundButton from '../../components/ui/RoundButton';
 
@@ -16,10 +17,6 @@ const CustomText = styled.p`
 `;
 const Text = styled.p`
   color: #DBDBDB;
-`;
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.89rem;
-  margin-right: .75rem;
 `;
 
 const noteList = [
@@ -99,7 +96,13 @@ function AddYourBook() {
                       style={{ resize: 'none' }}
                       className="fs-5"
                     />
-                    <CustomSpan className="float-end fs-5">{`${charCount}/${1000} characters`}</CustomSpan>
+                    <CharactersCounter
+                      counterClass="float-end fs-5"
+                      charCount={charCount}
+                      totalChar={1000}
+                      marginTop="-1.89rem"
+                      marginRight=".75rem"
+                    />
                   </Form.Group>
                 </Col>
               </Row>

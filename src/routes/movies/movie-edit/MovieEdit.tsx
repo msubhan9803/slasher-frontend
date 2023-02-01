@@ -3,25 +3,9 @@ import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
+import { StyleButton } from '../../../components/ui/StyleButton';
 import MoviesModal from '../components/MoviesModal';
 
-const StyleButton = styled.div`
-  .deactivate-btn {
-    border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .update-btn{
-      width: 100%;
-    }
-    .deactivate-btn{
-      width: 100%;
-    }
-  }
-`;
 function MovieEdit() {
   // TODO: If user does not own this movie listing, redirect to details view instead of edit view
 

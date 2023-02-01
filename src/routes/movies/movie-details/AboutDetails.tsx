@@ -10,6 +10,7 @@ import MoviesModal from '../components/MoviesModal';
 import {
   AdditionalMovieData, Country, MovieReleaseResults, ReleaseDate,
 } from '../../../types';
+import BorderButton from '../../../components/ui/BorderButton';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -74,12 +75,6 @@ const AboutMovieDetails = styled.div`
   }
 
 `;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
 function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
   const [show, setShow] = useState(false);
 
@@ -97,7 +92,9 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
 
     return certificationData ? certificationData.certification : '';
   };
-
+  const handleBorderButton = () => {
+    setShow(true);
+  };
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -133,10 +130,15 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               <p className="m-0 text-light">(0)</p>
             </div>
           </span>
-          <StyleBorderButton onClick={() => setShow(true)} className="d-flex align-items-center rate-btn bg-black py-2" variant="lg">
-            <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
-            <p className="fs-3 fw-bold m-0">Rate</p>
-          </StyleBorderButton>
+          <BorderButton
+            buttonClass="d-flex rate-btn"
+            variant="lg"
+            icon={regular('star')}
+            iconClass="mb-1 me-2"
+            iconSize="sm"
+            lable="Rate"
+            handleClick={handleBorderButton}
+          />
         </div>
       </StyledRateBorder>
       <div className="d-block d-xxl-flex justify-content-center justify-content-xxl-between py-3">
@@ -144,10 +146,18 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
           <WorthWatchIcon />
         </div>
-        <StyleBorderButton className="d-none d-xxl-flex align-items-center share-btn bg-black py-2" variant="lg">
+        {/* <StyleBorderButton className="d-none d-xxl-flex align-items-center share-btn bg-black py-2" variant="lg">
           <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
           <p className="fs-3 fw-bold m-0">Share</p>
-        </StyleBorderButton>
+        </StyleBorderButton> */}
+        <BorderButton
+          buttonClass="d-none d-xxl-flex share-btn"
+          variant="lg"
+          icon={solid('share-nodes')}
+          iconClass="me-2"
+          iconSize="sm"
+          lable="Share"
+        />
       </div>
       <Row className="align-items-center justify-content-center justify-content-xl-start">
         <Col xs={6} sm={5} xl={12}>
@@ -159,10 +169,18 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           </StyledWorth>
         </Col>
         <Col xs={6} sm={5} xl={12} className="pt-xl-3 pt-xxl-0">
-          <StyleBorderButton className="d-flex d-xxl-none align-items-center share-btn bg-black py-2" variant="lg">
+          {/* <StyleBorderButton className="d-flex d-xxl-none align-items-center share-btn bg-black py-2" variant="lg">
             <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
             <p className="fs-3 fw-bold m-0">Share</p>
-          </StyleBorderButton>
+          </StyleBorderButton> */}
+          <BorderButton
+            buttonClass="d-flex d-xxl-none share-btn"
+            variant="lg"
+            icon={solid('share-nodes')}
+            iconClass="me-2"
+            iconSize="sm"
+            lable="Share"
+          />
         </Col>
       </Row>
       <MoviesModal show={show} setShow={setShow} ButtonType="rate" />

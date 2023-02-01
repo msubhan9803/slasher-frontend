@@ -1,4 +1,4 @@
-import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
+import { findFirstYouTubeLinkVideoId } from './text-utils';
 
 const FormatImageVideoList = (postImageList: any, postMessage: string) => {
   const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);

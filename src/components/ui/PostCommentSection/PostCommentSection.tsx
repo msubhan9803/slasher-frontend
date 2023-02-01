@@ -5,7 +5,7 @@ import React, {
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import {
   Button,
-  Col, Form, Image, InputGroup, Row,
+  Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
@@ -19,6 +19,7 @@ import EditCommentModal from '../editCommentModal';
 import { PopoverClickProps } from '../CustomPopover';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
+import ImagesContainer from '../ImagesContainer';
 
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -35,11 +36,6 @@ const StyledCommentInputGroup = styled(InputGroup)`
   svg {
     min-width: 1.875rem;
   }
-`;
-const PostImageContainer = styled.div`
-  width: 4.25rem;
-  height: 4.25rem;
-  border: 0.125rem solid #3A3B46
 `;
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
@@ -465,25 +461,20 @@ function PostCommentSection({
         <Row className="mx-5 px-3">
           {imageArray.map((post: File) => (
             <Col xs="auto" key={post.name} className="px-3 mb-1">
-              <PostImageContainer className="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0">
-                <Image
-                  src={URL.createObjectURL(post)}
-                  alt="Dating profile photograph"
-                  className="w-100 h-100 img-fluid rounded"
-                />
-                <FontAwesomeIcon
-                  icon={solid('times')}
-                  size="xs"
-                  role="button"
-                  className="position-absolute bg-white text-primary rounded-circle"
-                  style={{
-                    padding: '0.313rem 0.438rem',
-                    top: '-0.5rem',
-                    left: '3.5rem',
-                  }}
-                  onClick={() => handleRemoveFile(post)}
-                />
-              </PostImageContainer>
+              <ImagesContainer
+                containerWidth="4.25rem"
+                containerHeight="4.25rem"
+                containerBorder="0.125rem solid #3A3B46"
+                image={post}
+                alt="Post comment image"
+                handleRemoveImage={handleRemoveFile}
+                containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
+                removeIconStyle={{
+                  padding: '0.313rem 0.438rem',
+                  top: '-0.5rem',
+                  left: '3.5rem',
+                }}
+              />
             </Col>
           ))}
         </Row>
@@ -657,25 +648,21 @@ function PostCommentSection({
                             <Row className="mx-5 px-3">
                               {replyImageArray.map((reply: File) => (
                                 <Col xs="auto" key={reply.name} className="px-3 mb-1">
-                                  <PostImageContainer className="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0">
-                                    <Image
-                                      src={URL.createObjectURL(reply)}
-                                      alt="Dating profile photograph"
-                                      className="w-100 h-100 img-fluid rounded"
-                                    />
-                                    <FontAwesomeIcon
-                                      icon={solid('times')}
-                                      size="xs"
-                                      role="button"
-                                      className="position-absolute bg-white text-primary rounded-circle"
-                                      style={{
-                                        padding: '0.313rem 0.438rem',
-                                        top: '-0.5rem',
-                                        left: '3.5rem',
-                                      }}
-                                      onClick={() => handleRemoveFile(reply, data.id)}
-                                    />
-                                  </PostImageContainer>
+                                  <ImagesContainer
+                                    containerWidth="4.25rem"
+                                    containerHeight="4.25rem"
+                                    containerBorder="0.125rem solid #3A3B46"
+                                    image={reply}
+                                    alt="Post comment reply image"
+                                    handleRemoveImage={handleRemoveFile}
+                                    containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"
+                                    removeIconStyle={{
+                                      padding: '0.313rem 0.438rem',
+                                      top: '-0.5rem',
+                                      left: '3.5rem',
+                                    }}
+                                    dataId={data.id}
+                                  />
                                 </Col>
                               ))}
                             </Row>

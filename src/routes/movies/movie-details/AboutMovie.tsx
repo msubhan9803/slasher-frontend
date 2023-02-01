@@ -20,6 +20,7 @@ import MovieTrailers from './MovieTrailers';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
 import { AdditionalMovieData } from '../../../types';
+import BorderButton from '../../../components/ui/BorderButton';
 
 interface MovieIconProps {
   label: string;
@@ -62,13 +63,6 @@ const tabsForViewer = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts' },
 ];
-const FollowStyledButton = styled(RoundButton)`
-  width: 21.125rem;
-  border: 1px solid #3A3B46;
-  &:hover, &:focus{
-    border: 1px solid #3A3B46;
-  }
-`;
 
 function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
@@ -145,9 +139,14 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
         <Row className="d-lg-none mt-3 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this movie</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
-              {bgColor ? 'Follow' : 'Unfollow'}
-            </FollowStyledButton>
+            <BorderButton
+              customButtonCss="width: 21.125rem !important;"
+              buttonClass=""
+              variant="lg"
+              toggleBgColor={bgColor}
+              handleClick={setBgColor}
+              toggleButton
+            />
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">

@@ -28,6 +28,7 @@ import {
   newLineToBr,
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
+import { StyledBorder } from '../StyledBorder';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -67,9 +68,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {

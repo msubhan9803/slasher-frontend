@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import styled from 'styled-components';
-import RoundButton from '../../../ui/RoundButton';
+import BorderButton from '../../../ui/BorderButton';
 import Switch from '../../../ui/Switch';
 
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover, &:focus{
-    border: 1px solid #3A3B46;
-  }
-`;
 function NotificationSetting() {
   const [bgColor, setBgColor] = useState<boolean>(false);
+  const handleToggleBg = () => {
+    setBgColor(!bgColor);
+  };
   return (
     <div className="bg-dark p-3 mb-5 rounded-3">
       <Row>
         <Col xs={6}>
-          <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'}`}>
-            {bgColor ? 'Follow' : 'Unfollow'}
-          </StyleBorderButton>
+          <BorderButton
+            buttonClass="w-100 shadow-none"
+            toggleBgColor={bgColor}
+            handleClick={handleToggleBg}
+            toggleButton
+          />
         </Col>
       </Row>
       <Row className="mt-3">

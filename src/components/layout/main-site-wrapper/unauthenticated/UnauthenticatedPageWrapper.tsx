@@ -1,11 +1,11 @@
 import React from 'react';
-import { Container, Image } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
-import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -30,9 +30,6 @@ const StyledMain = styled.main<StyledMainProps>`
   `}
 `;
 
-const StyledLogoImage = styled(Image)`
-  height: 6rem;
-`;
 function UnauthenticatedPageWrapper({
   children, hideTopLogo, hideFooter, valign,
 }: Props) {
@@ -41,7 +38,7 @@ function UnauthenticatedPageWrapper({
       <header className="text-center text-md-start">
         <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
-            <StyledLogoImage src={slasherLogo} />
+            <HeaderLogo />
           </Link>
         </Container>
       </header>

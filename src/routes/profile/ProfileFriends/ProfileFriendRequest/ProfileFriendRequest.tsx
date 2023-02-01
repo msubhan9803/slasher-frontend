@@ -10,6 +10,7 @@ import RightSidebarWrapper from '../../../../components/layout/main-site-wrapper
 import RightSidebarSelf from '../../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
+import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
@@ -41,39 +42,38 @@ function ProfileFriendRequest({ user }: Props) {
   const friendsReqCount = useAppSelector((state) => state.user.friendRequestCount);
   const friendRequestContainerElementRef = useRef<any>(null);
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
+  const [loadingFriendRequests, setLoadingFriendRequests] = useState<boolean>(false);
+  const [additionalFriendRequest, setAdditionalFriendRequest] = useState<boolean>(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
-  useEffect(() => {
+  const fetchMoreFriendReqList = () => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
-        setFriendsReqList(res.data);
+        setFriendsReqList((prev: FriendProps[]) => [
+          ...prev,
+          ...res.data,
+        ]);
         setFriendRequestPage(friendRequestPage + 1);
         if (res.data.length === 0) {
           setNoMoreData(true);
         }
+        setLoadingFriendRequests(false);
       })
-      .catch((error) => setErrorMessage(error.response.data.message));
-  }, []);
-  const fetchMoreFriendReqList = () => {
-    if (friendRequestPage > 0) {
-      userProfileFriendsRequest(friendRequestPage)
-        .then((res) => {
-          setFriendsReqList((prev: FriendProps[]) => [
-            ...prev,
-            ...res.data,
-          ]);
-          setFriendRequestPage(friendRequestPage + 1);
-          if (res.data.length === 0) {
-            setNoMoreData(true);
-          }
-        })
-        .catch((error) => setErrorMessage(error.response.data.message));
-    }
+      .catch((error) => setErrorMessage(error.response.data.message))
+      .finally(
+        () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
+      );
   };
+  useEffect(() => {
+    if (additionalFriendRequest && !loadingFriendRequests) {
+      setLoadingFriendRequests(true);
+      fetchMoreFriendReqList();
+    }
+  }, [additionalFriendRequest, loadingFriendRequests]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -119,7 +119,7 @@ function ProfileFriendRequest({ user }: Props) {
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine) {
+      if (bottomLine && noMoreData && friendRequestPage > 0) {
         fetchMoreFriendReqList();
       }
     }
@@ -139,8 +139,8 @@ function ProfileFriendRequest({ user }: Props) {
               && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
             <InfiniteScroll
               pageStart={0}
-              initialLoad={false}
-              loadMore={fetchMoreFriendReqList}
+              initialLoad
+              loadMore={() => { setAdditionalFriendRequest(true); }}
               hasMore={!noMoreData}
             >
               <Row className="mt-4" ref={friendRequestContainerElementRef}>
@@ -157,6 +157,7 @@ function ProfileFriendRequest({ user }: Props) {
                 ))}
               </Row>
             </InfiniteScroll>
+            {loadingFriendRequests && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}
             {errorMessage && errorMessage.length > 0 && (
               <div className="mt-3 text-start">

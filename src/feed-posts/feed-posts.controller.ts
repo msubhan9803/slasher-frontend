@@ -213,4 +213,23 @@ export class FeedPostsController {
       success: true,
     };
   }
+
+  @Post(':id/hide')
+  async hidePost(
+    @Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+      param: SingleFeedPostsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
+
+    if (isUserOwnerOfThePost) {
+      throw new HttpException(
+        'You can only mark post as hidden which is created by you.',
+        HttpStatus.FORBIDDEN,
+        );
+    }
+    await this.feedPostsService.addUserToHideList(param.id, user._id);
+    return { success: true };
+  }
 }

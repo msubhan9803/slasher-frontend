@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { FeedPostsService } from './feed-posts.service';
 import { userFactory } from '../../../test/factories/user.factory';
@@ -32,6 +32,7 @@ describe('FeedPostsService', () => {
   let activeUser: UserDocument;
   let rssFeedProvider: RssFeedProvider;
   let rssFeedService: RssFeedService;
+  let user0: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -63,6 +64,7 @@ describe('FeedPostsService', () => {
       rssfeedProviderId: rssFeedProvider._id,
       content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
     }));
+    user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
   });
 
   it('should be defined', () => {
@@ -227,125 +229,160 @@ describe('FeedPostsService', () => {
   });
 
   describe('#findMainFeedPostsForUser', () => {
-    let userFriend1;
-    let userFriend2;
-    let userNonFriend;
-    let rssFeedProviderToFollow1;
-    let rssFeedProviderToFollow2;
-    let rssFeedProviderDoNotFollow;
-    beforeEach(async () => {
-      // Create some other users
-      userFriend1 = await usersService.create(userFactory.build());
-      userFriend2 = await usersService.create(userFactory.build());
-      userNonFriend = await usersService.create(userFactory.build());
+    describe('successful responses', () => {
+      let userFriend1;
+      let userFriend2;
+      let userNonFriend;
+      let rssFeedProviderToFollow1;
+      let rssFeedProviderToFollow2;
+      let rssFeedProviderDoNotFollow;
+      beforeEach(async () => {
+        // Create some other users
+        userFriend1 = await usersService.create(userFactory.build());
+        userFriend2 = await usersService.create(userFactory.build());
+        userNonFriend = await usersService.create(userFactory.build());
 
-      // Create accepted friend relationships for some of the users
-      await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
-      await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
-      await friendsService.createFriendRequest(userFriend2.id, activeUser.id);
-      await friendsService.acceptFriendRequest(userFriend2.id, activeUser.id);
+        // Create accepted friend relationships for some of the users
+        await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
+        await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
+        await friendsService.createFriendRequest(userFriend2.id, activeUser.id);
+        await friendsService.acceptFriendRequest(userFriend2.id, activeUser.id);
 
-      // Create some posts by all of the users (activeUser, activeUser's friends, and non-friend)
-      for (const user of [activeUser, userFriend1, userFriend2, userNonFriend]) {
-        for (let i = 0; i < 2; i += 1) {
-          await Promise.all([
-            // Active post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                userId: user._id,
-              }),
-            ),
-            // Inactive post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                userId: user._id,
-                status: FeedPostStatus.Inactive,
-              }),
-            ),
-            // Deleted post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                userId: user._id,
-                is_deleted: FeedPostDeletionState.Deleted,
-              }),
-            ),
-          ]);
+        // Create some posts by all of the users (activeUser, activeUser's friends, and non-friend)
+        for (const user of [activeUser, userFriend1, userFriend2, userNonFriend]) {
+          for (let i = 0; i < 2; i += 1) {
+            await Promise.all([
+              // Active post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user._id,
+                }),
+              ),
+              // Inactive post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user._id,
+                  status: FeedPostStatus.Inactive,
+                }),
+              ),
+              // Deleted post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  userId: user._id,
+                  is_deleted: FeedPostDeletionState.Deleted,
+                }),
+              ),
+            ]);
+          }
         }
-      }
 
-      // Create some rss feed providers
-      rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-      rssFeedProviderToFollow2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
-      rssFeedProviderDoNotFollow = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        // Create some rss feed providers
+        rssFeedProviderToFollow1 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        rssFeedProviderToFollow2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        rssFeedProviderDoNotFollow = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
 
-      // Create follow relationships for some of the rssFeedProviders
-      await rssFeedProviderFollowsService.create(
-        { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow1._id },
-      );
-      await rssFeedProviderFollowsService.create(
-        { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow2._id },
-      );
+        // Create follow relationships for some of the rssFeedProviders
+        await rssFeedProviderFollowsService.create(
+          { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow1._id },
+        );
+        await rssFeedProviderFollowsService.create(
+          { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow2._id },
+        );
 
-      // Create some posts by all of the rss feed providers (follow ones and non-follow one)
-      for (const rssFeedProv of [rssFeedProviderToFollow1, rssFeedProviderToFollow2, rssFeedProviderDoNotFollow]) {
-        for (let i = 0; i < 2; i += 1) {
-          await Promise.all([
-            // Active post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                rssfeedProviderId: rssFeedProv._id,
-                userId: rssFeedProv._id,
-              }),
-            ),
-            // Inactive post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                rssfeedProviderId: rssFeedProv._id,
-                userId: rssFeedProv._id,
-                status: FeedPostStatus.Inactive,
-              }),
-            ),
-            // Deleted post
-            await feedPostsService.create(
-              feedPostFactory.build({
-                rssfeedProviderId: rssFeedProv._id,
-                userId: rssFeedProv._id,
-                is_deleted: FeedPostDeletionState.Deleted,
-              }),
-            ),
-          ]);
+        // Create some posts by all of the rss feed providers (follow ones and non-follow one)
+        for (const rssFeedProv of [rssFeedProviderToFollow1, rssFeedProviderToFollow2, rssFeedProviderDoNotFollow]) {
+          for (let i = 0; i < 2; i += 1) {
+            await Promise.all([
+              // Active post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv._id,
+                  userId: rssFeedProv._id,
+                }),
+              ),
+              // Inactive post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv._id,
+                  userId: rssFeedProv._id,
+                  status: FeedPostStatus.Inactive,
+                }),
+              ),
+              // Deleted post
+              await feedPostsService.create(
+                feedPostFactory.build({
+                  rssfeedProviderId: rssFeedProv._id,
+                  userId: rssFeedProv._id,
+                  is_deleted: FeedPostDeletionState.Deleted,
+                }),
+              ),
+            ]);
+          }
         }
-      }
+      });
+
+      it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 100);
+
+        // We expect 10 posts total because:
+        // - The active user has 2 active posts = (2 posts)
+        // - The active user has 2 friends with 2 active posts each = (4 posts)
+        // - The active user is following 2 rssFeedProviders, each of those providers
+        //   have 2 active posts each = (4 more posts)
+        expect(feedPosts).toHaveLength(10);
+
+        // And we expect them to be sorted by updatedAt date
+        for (let i = 1; i < feedPosts.length; i += 1) {
+          expect(feedPosts[i].lastUpdateAt < feedPosts[i - 1].lastUpdateAt).toBe(true);
+        }
+      });
+
+      it('returns the first and second sets of paginated results', async () => {
+        const limit = 6;
+        const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
+        for (let index = 1; index < firstResults.length; index += 1) {
+          expect(firstResults[index].lastUpdateAt < firstResults[index - 1].lastUpdateAt).toBe(true);
+        }
+        expect(firstResults).toHaveLength(6);
+        // eslint-disable-next-line max-len
+        const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
+        for (let index = 1; index < secondResults.length; index += 1) {
+          expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
+        }
+        expect(secondResults).toHaveLength(4);
+      });
     });
 
-    it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
-      const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 100);
+    describe('should not include posts hidden for current user', () => {
+      let feedPost;
+      beforeEach(async () => {
+        const userFriend1 = await usersService.create(userFactory.build());
+        await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
+        await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
+        // Create post is associated with the `userFriend1`
+        const feedPostData = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userFriend1.id,
+          }),
+        );
+        feedPost = await feedPostsService.findById(feedPostData._id, false);
+      });
+      it('hidden post for current post is not returned', async () => {
+        const limit = 6;
+        // Verify that post is returend in the `activeUser` feed
+        const beforeResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
+        expect(beforeResults).toHaveLength(1);
+        expect(beforeResults[0]._id.toString()).toBe(feedPost._id.toString());
 
-      // We expect 10 posts total because:
-      // - The active user has 2 active posts = (2 posts)
-      // - The active user has 2 friends with 2 active posts each = (4 posts)
-      // - The active user is following 2 rssFeedProviders, each of those providers
-      //   have 2 active posts each = (4 more posts)
-      expect(feedPosts).toHaveLength(10);
+        // HIDE POST FOR `activeUser`
+        await feedPostsService.addUserToHideList(feedPost._id, activeUser.id);
+        // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
+        feedPost = await feedPostsService.findById(feedPost._id, false);
+        expect(feedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
 
-      // And we expect them to be sorted by updatedAt date
-      for (let i = 1; i < feedPosts.length; i += 1) {
-        expect(feedPosts[i].lastUpdateAt < feedPosts[i - 1].lastUpdateAt).toBe(true);
-      }
-    });
-
-    it('returns the first and second sets of paginated results', async () => {
-      const limit = 6;
-      const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
-      for (let index = 1; index < firstResults.length; index += 1) {
-        expect(firstResults[index].lastUpdateAt < firstResults[index - 1].lastUpdateAt).toBe(true);
-      }
-      expect(firstResults).toHaveLength(6);
-      const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
-      for (let index = 1; index < secondResults.length; index += 1) {
-        expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
-      }
-      expect(secondResults).toHaveLength(4);
+        const afterResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
+        expect(afterResults).toHaveLength(0);
+      });
     });
   });
 
@@ -481,6 +518,33 @@ describe('FeedPostsService', () => {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
       }
       expect(secondResults).toHaveLength(4);
+    });
+  });
+
+  describe('#addUserToHideList', () => {
+    let feedPost;
+    beforeEach(async () => {
+      // Create post is associated with the `activeUser`
+      const feedPostData = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: activeUser._id,
+        }),
+      );
+      feedPost = await feedPostsService.findById(feedPostData._id, false);
+    });
+
+    it('successfully add user to `hideList` field in the feed post', async () => {
+      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
+      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
+    });
+
+    it('should not add user to `hideList` field if *already* added in the feed post', async () => {
+      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
+      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
+
+      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
     });
   });
 });

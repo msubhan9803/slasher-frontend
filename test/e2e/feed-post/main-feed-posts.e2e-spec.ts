@@ -23,6 +23,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
+  let user1AuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
@@ -63,6 +64,9 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       configService.get<string>('JWT_SECRET_KEY'),
     );
     user1 = await usersService.create(userFactory.build());
+    user1AuthToken = user1.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
     user2 = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
@@ -144,6 +148,49 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
         }
         expect(secondResponse.body).toHaveLength(2);
+      });
+    });
+
+    describe('Main Feed should NOT include hidden posts for activeUser', () => {
+      let feedPost;
+      beforeEach(async () => {
+        feedPost = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1._id,
+            rssfeedProviderId: rssFeedProviderData2._id,
+          }),
+        );
+      });
+
+      it('returns the expected feed post response *except* hidden post for activeUser', async () => {
+        const limit = 5;
+          // Hide post for activeUser
+          const response1 = await request(app.getHttpServer())
+          .post(`/feed-posts/${feedPost._id.toString()}/hide`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+          expect(response1.status).toBe(201);
+
+          // Verify that hidden post is not returned
+          const response2 = await request(app.getHttpServer())
+          .get(`/feed-posts?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+          const ids = response2.body.map((feedpost) => feedpost._id.toString());
+          const hiddenPost = ids.findIndex((id) => id === feedPost._id.toString());
+          expect(hiddenPost).toBe(-1);
+      });
+
+      it('should *not* be able to mark post hidden which is created by user itself', async () => {
+          const response = await request(app.getHttpServer())
+          .post(`/feed-posts/${feedPost._id.toString()}/hide`)
+          .auth(user1AuthToken, { type: 'bearer' })
+          .send();
+          expect(response.status).toBe(403);
+          expect(response.body).toEqual({
+            message: 'You can only mark post as hidden which is created by you.',
+            statusCode: 403,
+          });
       });
     });
 

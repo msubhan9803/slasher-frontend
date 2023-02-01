@@ -98,8 +98,13 @@ export class FeedCommentsController {
     );
 
     // Create notification for post creator, informing them that a comment was added to their post.
-    // But don't send a notification to the creator if this is an rss feed post.
-    if (!post.rssfeedProviderId) {
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The commenter IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
@@ -109,17 +114,20 @@ export class FeedCommentsController {
         notificationMsg: 'commented on your post',
       });
     }
+
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(comment?.message);
     for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: comment._id } as unknown as FeedComment,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment',
-      });
+      if ((post.userId as any)._id.toString() !== mentionedUserId) {
+        await this.notificationsService.create({
+          userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+          feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+          feedCommentId: { _id: comment._id } as unknown as FeedComment,
+          senderId: user._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment',
+        });
+      }
     }
 
     return {
@@ -154,14 +162,16 @@ export class FeedCommentsController {
     // Create notifications if any NEW users were mentioned after the edit
     const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
     for (const mentionedUserId of newMentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: updatedComment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: updatedComment._id } as unknown as FeedComment,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment',
-      });
+      if (comment.userId.toString() !== mentionedUserId) {
+        await this.notificationsService.create({
+          userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+          feedPostId: { _id: updatedComment.feedPostId } as unknown as FeedPost,
+          feedCommentId: { _id: updatedComment._id } as unknown as FeedComment,
+          senderId: user._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment',
+        });
+      }
     }
     return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
@@ -235,9 +245,14 @@ export class FeedCommentsController {
     );
 
     // Create notification for post creator, informing them that a reply was added to their post.
-    // But don't send a notification to the creator if this is an rss feed post.
     const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
-    if (!post.rssfeedProviderId) {
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The commenter IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
@@ -248,18 +263,21 @@ export class FeedCommentsController {
         notificationMsg: 'replied on your post',
       });
     }
+
     // Create notifications if any users were mentioned
     const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
     for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: reply._id } as unknown as FeedComment,
-        feedReplyId: reply._id,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment reply',
-      });
+      if ((post.userId as any)._id.toString() !== mentionedUserId) {
+        await this.notificationsService.create({
+          userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+          feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+          feedCommentId: { _id: reply._id } as unknown as FeedComment,
+          feedReplyId: reply._id,
+          senderId: user._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+      }
     }
 
     return {
@@ -295,15 +313,17 @@ export class FeedCommentsController {
     // Create notifications if any NEW users were mentioned after the edit
     const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
     for (const mentionedUserId of newMentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: updatedReply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: updatedReply.feedCommentId } as unknown as FeedComment,
-        feedReplyId: updatedReply._id,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment reply',
-      });
+      if (reply.userId.toString() !== mentionedUserId) {
+        await this.notificationsService.create({
+          userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+          feedPostId: { _id: updatedReply.feedPostId } as unknown as FeedPost,
+          feedCommentId: { _id: updatedReply.feedCommentId } as unknown as FeedComment,
+          feedReplyId: updatedReply._id,
+          senderId: user._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+      }
     }
     return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }

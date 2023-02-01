@@ -33,8 +33,13 @@ export class FeedLikesController {
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
     // Create notification for post creator, informing them that a like was added to their post.
-    // But don't send a notification to the creator if this is an rss feed post.
-    if (!post.rssfeedProviderId) {
+    const skipPostCreatorNotification = (
+      // Don't send a notification to the creator if:
+      // - The liker IS the creator of the post.
+      // - This is an rssFeedProvider post
+      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: post.userId as any,
         feedPostId: { _id: post._id } as unknown as FeedPost,
@@ -66,14 +71,21 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
 
-    await this.notificationsService.create({
-      userId: comment.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourComment,
-      notificationMsg: 'liked your comment',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a notification if the liker is the comment creator.
+      user.id === comment.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: comment.userId as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourComment,
+        notificationMsg: 'liked your comment',
+      });
+    }
     return { success: true };
   }
 
@@ -97,15 +109,23 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
 
-    await this.notificationsService.create({
-      userId: reply.userId as any,
-      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-      feedReplyId: reply._id,
-      senderId: user._id,
-      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-      notificationMsg: 'liked your reply',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a notification if the liker is the reply creator.
+      user.id === reply.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: reply.userId as any,
+        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: reply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'liked your reply',
+      });
+    }
+
     return { success: true };
   }
 

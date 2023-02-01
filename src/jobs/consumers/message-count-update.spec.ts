@@ -1,4 +1,3 @@
-import { getQueueToken } from '@nestjs/bull';
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -15,7 +14,6 @@ import { MessageCountUpdateConsumer } from './message-count-update.consumer';
 
 describe('#message-count-update', () => {
   let app: INestApplication;
-  let mockQueue;
   let connection: Connection;
   let chatService: ChatService;
   let chatGateway: ChatGateway;

@@ -6,13 +6,11 @@ import { FeedPost, FeedPostSchema } from '../schemas/feedPost/feedPost.schema';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { RssFeedProviderFollowsModule } from '../rss-feed-provider-follows/rss-feed-provider-follows.module';
-import { FriendsModule } from '../friends/friends.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: FeedPost.name, schema: FeedPostSchema }]),
     RssFeedProviderFollowsModule,
-    FriendsModule,
   ],
   providers: [FeedPostsService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

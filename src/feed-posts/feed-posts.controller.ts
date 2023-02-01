@@ -236,7 +236,7 @@ export class FeedPostsController {
         HttpStatus.FORBIDDEN,
         );
     }
-    await this.feedPostsService.addUserToHideList(param.id, user._id);
+    await this.feedPostsService.hidePost(param.id, user._id);
     return { success: true };
   }
 }

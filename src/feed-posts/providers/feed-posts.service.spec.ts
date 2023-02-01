@@ -375,7 +375,7 @@ describe('FeedPostsService', () => {
         expect(beforeResults[0]._id.toString()).toBe(feedPost._id.toString());
 
         // HIDE POST FOR `activeUser`
-        await feedPostsService.addUserToHideList(feedPost._id, activeUser.id);
+        await feedPostsService.hidePost(feedPost._id, activeUser.id);
         // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
         feedPost = await feedPostsService.findById(feedPost._id, false);
         expect(feedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
@@ -521,7 +521,7 @@ describe('FeedPostsService', () => {
     });
   });
 
-  describe('#addUserToHideList', () => {
+  describe('#hidePost', () => {
     let feedPost;
     beforeEach(async () => {
       // Create post is associated with the `activeUser`
@@ -534,14 +534,14 @@ describe('FeedPostsService', () => {
     });
 
     it('successfully add user to `hideList` field in the feed post', async () => {
-      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
       const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
     });
 
     it('should not add user to `hideList` field if *already* added in the feed post', async () => {
-      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
-      await feedPostsService.addUserToHideList(feedPost._id, user0.id);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
 
       const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);

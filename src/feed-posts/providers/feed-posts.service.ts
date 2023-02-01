@@ -180,7 +180,7 @@ export class FeedPostsService {
     return this.feedPostModel.find({ rssFeedId: { $in: rssFeedIds } });
   }
 
-  async addUserToHideList(id: string, userId: string) {
+  async hidePost(id: string, userId: string) {
     const updatedPost = await this.feedPostModel.updateOne(
       { _id: new mongoose.Types.ObjectId(id) },
       { $addToSet: { hideUsers: new mongoose.Types.ObjectId(userId) } },

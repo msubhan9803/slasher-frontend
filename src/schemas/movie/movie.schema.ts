@@ -124,9 +124,12 @@ MovieSchema.index(
     releaseDate: 1, deleted: 1, status: 1,
   },
 );
-MovieSchema.index(
-  {
-    releaseDate: 1, type: 1, status: 1, deleted: 1, sort_name: 1, sortReleaseDate: 1, sortRating: 1, name: 1,
-  },
-);
+
+// TODO: Perform test queries with mongodb explain() to determine what keys would be best for MoviesService#findAll
+
+// MovieSchema.index(
+//   {
+//     releaseDate: 1, type: 1, status: 1, deleted: 1, sort_name: 1, sortReleaseDate: 1, sortRating: 1, name: 1,
+//   },
+// );
 export type MovieDocument = Movie & Document;

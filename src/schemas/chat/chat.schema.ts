@@ -60,24 +60,5 @@ export class Chat extends ChatUnusedFields {
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
-ChatSchema.index(
-  {
-    participants: 1, relationId: 1, roomType: 1, roomCategory: 1,
-  },
-);
-ChatSchema.index(
-  {
-    participants: 1, matchId: 1, deleted: 1,
-  },
-);
-ChatSchema.index(
-  {
-    isRead: 1, relationId: 1, senderId: 1, is_deleted: 1,
-  },
-);
 
 export type ChatDocument = Chat & Document;
-
-ChatSchema.index({
-  participants: 1, roomType: 1, roomCategory: 1, relationId: 1,
-});

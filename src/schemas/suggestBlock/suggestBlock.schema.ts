@@ -51,10 +51,9 @@ export class SuggestBlock extends SuggestBlockUnusedFields {
 
 export const SuggestBlockSchema = SchemaFactory.createForClass(SuggestBlock);
 
-// TODO: When reasonOfReport is removed, remove it from the index here too
 SuggestBlockSchema.index(
   {
-    to: 1, from: 1, reaction: 1, reasonOfReport: 1,
+    to: 1, from: 1, reaction: 1,
   },
 );
 

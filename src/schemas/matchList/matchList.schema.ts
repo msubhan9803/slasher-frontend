@@ -64,3 +64,9 @@ export type MatchListDocument = MatchList & Document;
 MatchListSchema.index({
   participants: 1, roomType: 1, roomCategory: 1, relationId: 1, lastMessageSentAt: -1,
 });
+// Index for ChatService#createOrFindPrivateDirectMessageConversationByParticipants
+MatchListSchema.index(
+  {
+    participants: 1, relationId: 1, roomType: 1, roomCategory: 1,
+  },
+);

@@ -60,10 +60,11 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
           },
         ),
       );
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+      expect(response.body).toEqual({ success: true });
       expect(activeUser._id.toString()).toEqual((feedPost.userId as any)._id.toString());
     });
 

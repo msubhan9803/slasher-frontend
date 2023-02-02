@@ -14,6 +14,7 @@ import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-ut
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import EventRightSidebar from '../EventRightSidebar';
+import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -36,9 +37,11 @@ const LinearIcon = styled.div<LinearIconProps>`
 const StyledBorder = styled.div`
   border-top: 1px solid #3A3B46
 `;
+
 function EventDetails() {
   const { id } = useParams();
   const [eventDetails, setEventDetails] = useState<any>();
+  const [showShareLinks, setShowShareLinks] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -47,6 +50,9 @@ function EventDetails() {
       });
     }
   }, []);
+
+  const handleShowShareLinks = () => setShowShareLinks(true);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -113,7 +119,7 @@ function EventDetails() {
                   {eventDetails?.url}
                 </a>
                 <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                  <RoundButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+                  <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
                     <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
                     <h1 className="h3 m-0">Share</h1>
                   </RoundButton>
@@ -124,7 +130,7 @@ function EventDetails() {
           <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
             <div className="d-flex align-self-center">
               <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                <RoundButton className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+                <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
                   <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
                   <h1 className="h3 m-0">Share</h1>
                 </RoundButton>
@@ -160,6 +166,7 @@ function EventDetails() {
             />
           </div>
         </div>
+        {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">
         <EventRightSidebar />

@@ -18,7 +18,7 @@ import NotFound from '../../../components/NotFound';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface Props {
   user: User
@@ -259,7 +259,7 @@ function ProfileEdit({ user }: Props) {
                 </Form.Group>
               </Col>
             </Row>
-            <ErrorMessage errorMessage={errorMessage} />
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <Row className="mt-2">
               <Col md={3} lg={4} xl={3}>
                 <RoundButton type="submit" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile}>

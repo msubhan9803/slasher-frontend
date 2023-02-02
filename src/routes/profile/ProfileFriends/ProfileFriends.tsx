@@ -19,7 +19,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface FriendProps {
   _id?: string;
@@ -225,7 +225,7 @@ function ProfileFriends({ user }: Props) {
             </InfiniteScroll>
             {loadingFriends && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}
-            <ErrorMessage errorMessage={errorMessage} />
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           </div>
         </div>
         <ReportModal

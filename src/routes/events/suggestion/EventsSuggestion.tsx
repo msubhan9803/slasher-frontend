@@ -191,7 +191,7 @@ function EventSuggestion() {
               </Form.Select>
             </Col>
           </Row>
-          {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="mt-4" />}
+          <ErrorMessageList errorMessages={errors} className="mt-4" />
           <Row className="my-4 pe-md-5">
             <Col md={5}>
               <RoundButton className="w-100 mb-5 mb-md-0 p-1" size="lg" onClick={() => onSendEventData()}>Send</RoundButton>

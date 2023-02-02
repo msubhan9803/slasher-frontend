@@ -7,7 +7,7 @@ import {
 import RoundButton from '../../components/ui/RoundButton';
 import { forgotPassword } from '../../api/users';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
-import ErrorMessage from '../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 interface Password {
   email: string;
@@ -55,7 +55,7 @@ function ForgotPassword() {
               value={forgotPasswordEmail.email}
               onChangeValue={handlePasswordChange}
             />
-            <ErrorMessage errorMessage={errorMessage} />
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             {
               passwordResetSent
                 ? (

@@ -94,7 +94,7 @@ function AddYourMovie() {
                       className="fs-4"
                     />
                     <CharactersCounter
-                      counterClass="float-end fs-4"
+                      counterClass="float-end fs-5"
                       charCount={charCount}
                       totalChar={113}
                       marginTop="-1.43rem"

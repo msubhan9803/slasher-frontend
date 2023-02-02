@@ -99,7 +99,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-          {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
+          <ErrorMessageList errorMessages={errors} className="m-0" />
           <div className="col-md-4 my-5">
             <RoundButton
               variant="primary"

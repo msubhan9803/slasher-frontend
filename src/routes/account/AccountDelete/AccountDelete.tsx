@@ -5,7 +5,7 @@ import { userAccountDelete } from '../../../api/users';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { clearSignInCookies } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
@@ -38,7 +38,7 @@ function AccountDelete() {
               </p>
             </Col>
           </Row>
-          <ErrorMessage errorMessage={errorMessage} />
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <Row className="mt-3">
             <Col md={3} lg={5}>
               <RoundButton className="fw-bold h-3 w-100" onClick={deleteAccount}>

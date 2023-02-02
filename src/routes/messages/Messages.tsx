@@ -10,7 +10,7 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import ErrorMessage from '../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -132,7 +132,7 @@ function Messages() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <div className="mb-3">
-          <ErrorMessage errorMessage={errorMessage} />
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <InfiniteScroll
             pageStart={0}
             initialLoad

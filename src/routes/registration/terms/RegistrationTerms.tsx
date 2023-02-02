@@ -69,7 +69,7 @@ function RegistrationTerms({ activeStep }: Props) {
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      {errorMessages && <ErrorMessageList errorMessages={errorMessages} />}
+      <ErrorMessageList errorMessages={errorMessages} />
       <div className="mt-1">
         <label htmlFor="term-agreement-checkbox" className="h2">
           <input

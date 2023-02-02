@@ -9,7 +9,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../../components
 import RightSidebarWrapper from '../../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
-import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { setUserInitialData } from '../../../../redux/slices/userSlice';
@@ -158,7 +158,7 @@ function ProfileFriendRequest({ user }: Props) {
               </Row>
             </InfiniteScroll>
             {noMoreData && renderNoMoreDataMessage()}
-            <ErrorMessage errorMessage={errorMessage} />
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           </div>
         </div>
       </ContentPageWrapper>

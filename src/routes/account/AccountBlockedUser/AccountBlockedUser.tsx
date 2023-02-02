@@ -10,7 +10,7 @@ import { LG_MEDIA_BREAKPOINT } from '../../../constants';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface BlockUsers {
   /* eslint no-underscore-dangle: 0 */
@@ -124,7 +124,7 @@ function AccountBlockedUser() {
               {blockUsersList.length === 0 && 'You have not blocked any users.'}
             </p>
           )}
-          <ErrorMessage errorMessage={errorMessage} />
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

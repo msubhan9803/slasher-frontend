@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import styled from 'styled-components';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyleButton } from '../../../components/ui/StyleButton';
@@ -56,9 +57,13 @@ function BookEdit() {
           placeholder="Overview"
           className="fs-5"
         />
-        <Form.Text className="float-end fs-6" style={{ marginTop: '-25px', marginRight: '10px' }}>
-          {`${charCount}/1000 characters`}
-        </Form.Text>
+        <CharactersCounter
+          counterClass="float-end fs-6"
+          charCount={charCount}
+          totalChar={1000}
+          marginTop="-25px"
+          marginRight="10px"
+        />
         <Row className="mt-4">
           <Col lg={6}>
             <Form.Control type="text" placeholder="Year" className="fs-5 mb-4" />

@@ -19,8 +19,8 @@ import { useAppSelector } from '../../../redux/hooks';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
 import ImagesContainer from '../../../components/ui/ImagesContainer';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 export interface MentionProps {
   id: string;
@@ -163,7 +163,7 @@ function CreatePost() {
                 ))}
               </Row>
             </Col>
-            <ErrorMessage errorMessage={errorMessage} />
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
               <AddPhotosButton size="md" disabled={uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5 py-2" onClick={() => inputFile.current?.click()}>
                 <FontAwesomeIcon icon={regular('image')} className="me-2" />

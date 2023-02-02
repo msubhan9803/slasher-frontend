@@ -8,7 +8,7 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -86,7 +86,7 @@ function AllMovies() {
           applyFilter={applyFilter}
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <ErrorMessage errorMessage={errorMessage} />
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <div className="m-md-2">
             <InfiniteScroll
               threshold={2000}

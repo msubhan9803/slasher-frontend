@@ -8,7 +8,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import { CustomVisibilityButton } from '../../../components/ui/CustomVisibilityButton';
-import ErrorMessage from '../../../components/ui/ErrorMessage';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { clearSignInCookies } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
@@ -92,7 +92,7 @@ function AccountChangePassword() {
                   your current login session will be reset and you will need to log in
                   again with your new password.
                 </p>
-                <ErrorMessage errorMessage={errorMessage} />
+                <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
                 <RoundButton
                   onClick={handleChangePassword}
                   className="fw-bold h-3 w-100 mt-2"

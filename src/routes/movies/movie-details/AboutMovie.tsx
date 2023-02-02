@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import {
   Row, Image, Col,
@@ -18,8 +19,10 @@ import MovieTrailers from './MovieTrailers';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
 import { AdditionalMovieData } from '../../../types';
+import RoundButton from '../../../components/ui/RoundButton';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
 
 interface MovieIconProps {
   label: string;
@@ -94,6 +97,13 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             <StyledMoviePoster className="mx-4">
               <Image src={aboutMovieData?.mainData?.poster_path} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
+          </Col>
+          <Col xl={7}>
+            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <div className="d-none d-xl-block mt-3">
               <p className="fs-5">Your lists</p>
               <div className="mt-2 d-flex justify-content-between">
@@ -111,13 +121,13 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                 ))}
               </div>
             </div>
-          </Col>
-          <Col xl={7}>
-            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
+            <div className="p-3 d-none d-xl-block">
+              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+            </div>
           </Col>
         </Row>
-        <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
-          <Col xs={10} sm={7} md={5} lg={9} className="text-center">
+        <Row className="d-xl-none justify-content-center mt-3">
+          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
             <span className="fs-5">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {movieIconListData.map((iconList: MovieIconProps) => (
@@ -133,11 +143,17 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                 />
               ))}
             </div>
+            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+            </div>
           </Col>
         </Row>
-        <Row className="d-lg-none mt-3 text-center">
+        <Row className="d-lg-none text-center">
+          <StyledBorder />
           <Col xs={12}>
-            <p className="text-center fw-bold">Get updates for this movie</p>
+            <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
+          </Col>
+          <Col xs={12} sm={7} md={5} className="m-auto">
             <BorderButton
               customButtonCss="width: 21.125rem !important;"
               buttonClass=""

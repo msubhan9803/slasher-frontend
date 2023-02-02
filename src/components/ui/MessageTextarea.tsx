@@ -58,11 +58,6 @@ function MessageTextarea({
     }
   };
 
-  function validateSearch(text: string) {
-    return text.length > 0;
-    // return true; // this is default value if we don't pass `validateSearch` function.
-  }
-
   return (
     <Mentions
       rows={rows}
@@ -71,7 +66,7 @@ function MessageTextarea({
       onSearch={handleSearch}
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
-      validateSearch={validateSearch as any}
+      notFoundContent="Type to search username"
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>

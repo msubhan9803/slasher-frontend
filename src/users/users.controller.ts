@@ -602,7 +602,7 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'images']),
+      (post) => pick(post, ['_id', 'images', 'createdAt']),
     );
   }
 

@@ -1,6 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -56,7 +57,13 @@ describe('Users reset password (e2e)', () => {
           .post('/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
-        expect(response.body.message).toBe('Password reset successfully');
+        expect(
+          bcrypt.compareSync(
+            postBody.newPassword,
+            (await usersService.findByEmail(postBody.email)).password,
+          ),
+        ).toBe(true);
+        expect(response.body).toEqual({ message: 'Password reset successfully' });
       });
 
       it('User does not exists', async () => {

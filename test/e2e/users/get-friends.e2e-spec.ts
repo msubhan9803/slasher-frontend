@@ -12,7 +12,6 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;
@@ -89,25 +88,25 @@ describe('Get All Friends (e2e)', () => {
           allFriendCount: 4,
           friends: [
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user2._id.toString(),
               userName: 'Abe Kenobi',
               firstName: 'First name 3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user1._id.toString(),
               userName: 'Albert DARTH Skywalker',
               firstName: 'First name 2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user5._id.toString(),
               userName: 'Darth Maul',
               firstName: 'First name 6',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user3._id.toString(),
               userName: 'Darth Vader',
               firstName: 'First name 4',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -128,7 +127,7 @@ describe('Get All Friends (e2e)', () => {
           allFriendCount: 4,
           friends: [
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user5._id.toString(),
               userName: 'Darth Maul',
               firstName: 'First name 12',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -153,19 +152,19 @@ describe('Get All Friends (e2e)', () => {
           allFriendCount: 3,
           friends: [
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user2._id.toString(),
               userName: 'Abe Kenobi',
               firstName: 'First name 15',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user4._id.toString(),
               userName: 'Princess Leia',
               firstName: 'First name 17',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: activeUser._id.toString(),
               userName: 'Star Wars Fan',
               firstName: 'First name 13',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -186,7 +185,7 @@ describe('Get All Friends (e2e)', () => {
           allFriendCount: 3,
           friends: [
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user2._id.toString(),
               userName: 'Abe Kenobi',
               firstName: 'First name 21',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',

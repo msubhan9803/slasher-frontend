@@ -7,7 +7,7 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user/user.schema';
+import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
@@ -20,7 +20,7 @@ describe('All Feed Post (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
@@ -73,8 +73,11 @@ describe('All Feed Post (e2e)', () => {
         .get(`/users/${activeUser._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      for (const body of response.body) {
-        expect(body).toEqual({
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        const postFromResponse = response.body[i];
+
+        expect(postFromResponse).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           images: [
             {
@@ -87,7 +90,7 @@ describe('All Feed Post (e2e)', () => {
             },
           ],
           userId: {
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: activeUser.id,
             userName: 'Username1',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
@@ -97,6 +100,7 @@ describe('All Feed Post (e2e)', () => {
           commentCount: 0,
         });
       }
+      expect(response.body).toHaveLength(5);
     });
   });
 

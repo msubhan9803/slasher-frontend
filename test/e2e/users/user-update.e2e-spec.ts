@@ -8,17 +8,16 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
-import { User } from '../../../src/schemas/user/user.schema';
+import { User, UserDocument } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
 
   const sampleUserUpdateObject = {
@@ -69,7 +68,7 @@ describe('Users / :id (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
           email: 'testuser@gmail.com',
@@ -78,7 +77,7 @@ describe('Users / :id (e2e)', () => {
         });
       });
 
-      it('when the email field is not provided, updated to other fields are still successful '
+      it('when the email field is not provided, updates to other fields are still successful '
         + 'and it returns the expected response', async () => {
           const { email, ...restPostBody } = postBody;
           const response = await request(app.getHttpServer())
@@ -87,13 +86,12 @@ describe('Users / :id (e2e)', () => {
             .send(restPostBody);
           expect(response.status).toEqual(HttpStatus.OK);
           expect(response.body).toEqual({
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: activeUser.id,
             firstName: 'user',
             userName: 'TestUser',
             aboutMe: 'I am a human being',
             profile_status: 1,
           });
-          expect(response.body.email).toBeUndefined();
         });
 
       it('update the userName successful, it returns the expected response', async () => {
@@ -104,7 +102,7 @@ describe('Users / :id (e2e)', () => {
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           userName: 'TestUser',
           aboutMe: 'I am a human being',
           profile_status: 1,
@@ -113,7 +111,7 @@ describe('Users / :id (e2e)', () => {
         expect(response.body.email).toBeUndefined();
       });
 
-      it('when the profile_status is not provided, updated to other fields are still successful', async () => {
+      it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { profile_status, ...restPostBody } = postBody;
         const response = await request(app.getHttpServer())
@@ -122,12 +120,17 @@ describe('Users / :id (e2e)', () => {
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
           email: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
         });
+
+        const user = await usersService.findById(response.body._id);
+        expect(user.userName).toEqual(postBody.userName);
+        expect(user.email).toEqual(postBody.email);
+        expect(user.firstName).toEqual(postBody.firstName);
       });
     });
 

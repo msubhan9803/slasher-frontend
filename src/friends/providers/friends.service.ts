@@ -94,7 +94,11 @@ export class FriendsService {
       .skip(offset)
       .exec();
     const friendsData = friends.map((friend) => ({
-      _id: friend.from._id, userName: friend.from.userName, profilePic: friend.from.profilePic, firstName: friend.from.firstName,
+      _id: friend.from._id,
+      userName: friend.from.userName,
+      profilePic: friend.from.profilePic,
+      firstName: friend.from.firstName,
+      createdAt: friend.createdAt,
     })) as Partial<UserDocument[]>;
     return friendsData;
   }

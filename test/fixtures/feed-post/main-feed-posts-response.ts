@@ -1,7 +1,7 @@
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 export default [
-    {
+  {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     message: 'Message 1',
     createdAt: '2022-10-17T00:00:00.000Z',
@@ -28,11 +28,12 @@ export default [
     commentCount: 0,
     likeCount: 0,
     likes: [],
+    lastUpdateAt: '2022-10-20T00:00:00.000Z',
   },
   {
     _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
     message: 'Message 2',
-    createdAt: '2022-10-17T00:00:00.000Z',
+    createdAt: '2022-10-18T00:00:00.000Z',
     rssfeedProviderId: {
       _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       logo: null,
@@ -56,5 +57,6 @@ export default [
     commentCount: 0,
     likeCount: 0,
     likes: [],
+    lastUpdateAt: '2022-10-19T00:00:00.000Z',
   },
 ];

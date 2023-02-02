@@ -95,13 +95,17 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
         createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+        updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(),
       }),
     );
     await feedPostsService.create(
       feedPostFactory.build({
         userId: user1._id,
         rssfeedProviderId: rssFeedProviderData2._id,
-        createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+        createdAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
+        updatedAt: DateTime.fromISO('2022-10-23T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
       }),
     );
   });
@@ -113,7 +117,10 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         .get(`/feed-posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-        expect(response.body).toEqual(getMainFeedPostResponse);
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
+      }
+      expect(response.body).toEqual(getMainFeedPostResponse);
     });
 
     describe('when `before` argument is supplied', () => {
@@ -134,12 +141,18 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.body).toHaveLength(3);
+        for (let index = 1; index < firstResponse.body.length; index += 1) {
+          expect(firstResponse.body[index].lastUpdateAt < firstResponse.body[index - 1].lastUpdateAt).toBe(true);
+        }
 
         const secondResponse = await request(app.getHttpServer())
           .get(`/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.body).toHaveLength(2);
+        for (let index = 1; index < secondResponse.body.length; index += 1) {
+          expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
+        }
       });
     });
 

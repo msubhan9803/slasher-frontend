@@ -195,7 +195,7 @@ export class FeedPostsController {
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
-        ['_id', 'message', 'createdAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
       ),
     );
   }

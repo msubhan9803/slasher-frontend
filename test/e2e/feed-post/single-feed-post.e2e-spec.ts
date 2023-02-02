@@ -12,7 +12,7 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
-import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedProviderDocument } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service';
@@ -28,7 +28,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let rssFeedProvidersService: RssFeedProvidersService;
-  let rssFeedProviderData: RssFeedProvider;
+  let rssFeedProviderData: RssFeedProviderDocument;
   let rssFeedService: RssFeedService;
 
   beforeAll(async () => {
@@ -84,10 +84,10 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        _id: feedPost.id,
         createdAt: '2022-10-17T00:00:00.000Z',
         rssfeedProviderId: {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: rssFeedProviderData.id,
           logo: null,
           title: 'RssFeedProvider 1',
         },

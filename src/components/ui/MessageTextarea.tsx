@@ -5,6 +5,7 @@ import { OptionProps } from 'rc-mentions/lib/Option';
 export interface MentionListProps {
   id: string;
   userName: string;
+  profilePic: string;
 }
 export interface FormatMentionListProps {
   id: string;
@@ -56,19 +57,28 @@ function MessageTextarea({
       setFormatMentionList([...formatMentionList, addFormatObject]);
     }
   };
+
+  function validateSearch(text: string) {
+    return text.length > 0;
+    // return true; // this is default value if we don't pass `validateSearch` function.
+  }
+
   return (
     <Mentions
+      className="yyoy"
       rows={rows}
       onChange={(e) => handleMessage(e)}
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
+      validateSearch={validateSearch as any}
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
+              <img width={40} alt="User Icon" src={mentionList.profilePic} className="img-fluid rounded-3 me-3" />
               <span>
                 &nbsp;@
                 {mentionList.userName}

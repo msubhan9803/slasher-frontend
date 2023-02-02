@@ -24,6 +24,7 @@ import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/r
 export interface MentionProps {
   id: string;
   userName: string;
+  profilePic: string;
 }
 export interface FormatMentionProps {
   id: string;

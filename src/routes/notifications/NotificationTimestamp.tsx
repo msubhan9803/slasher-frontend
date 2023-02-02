@@ -1,16 +1,8 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import styled from 'styled-components';
 import CustomPopover from '../../components/ui/CustomPopover';
-import RoundButton from '../../components/ui/RoundButton';
 import BorderButton from '../../components/ui/BorderButton';
 
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
 function NotificationTimestamp({
   isoDateString,
   show,

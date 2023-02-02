@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';

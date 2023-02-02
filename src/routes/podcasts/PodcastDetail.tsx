@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Image, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import RoundButton from '../../components/ui/RoundButton';
 import Switch from '../../components/ui/Switch';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import PodcastPoster from '../../images/podcast-poster.jpg';
@@ -26,7 +25,7 @@ const StyledIcons = styled(FontAwesomeIcon)`
 `;
 const episodeData = [
   {
-    id: 1,
+    id: '1',
     userName: 'The No Sleep Podcast',
     podcastImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
@@ -36,7 +35,7 @@ const episodeData = [
     likeIcon: false,
   },
   {
-    id: 2,
+    id: '2',
     userName: 'The No Sleep Podcast',
     podcastImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',

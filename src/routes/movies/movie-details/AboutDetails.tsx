@@ -4,41 +4,18 @@ import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
-import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon from '../components/WorthWatchIcon';
 import MoviesModal from '../components/MoviesModal';
 import {
   AdditionalMovieData, Country, MovieReleaseResults, ReleaseDate,
 } from '../../../types';
 import BorderButton from '../../../components/ui/BorderButton';
+import WorthContent from '../../../components/ui/WorthContent';
+import { StyledRateBorder } from '../../../components/ui/StyledRateBorder';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
 }
-const StyledRateBorder = styled.div`
-  @media (min-width: 89.938rem) {
-    border-bottom: 1px solid #3A3B46;
-  }
-  @media (max-width: 89.938rem) {
-    .rating {
-      border-bottom: 1px solid #3A3B46;
-      border-top: 1px solid #3A3B46;
-    }
-  }
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
-`;
 const AboutMovieDetails = styled.div`
   .small-initial {
     width: 2.063rem;
@@ -104,7 +81,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           </h1>
         </Col>
       </Row>
-      <StyledRateBorder className="pb-xxl-3 align-items-center d-block d-xxl-flex justify-content-center justify-content-xl-between">
+      <StyledRateBorder borderTop="1px solid #3A3B46" className="pb-xxl-3 align-items-center d-block d-xxl-flex justify-content-center justify-content-xl-between">
         <div className="py-3 pb-xxl-0 align-items-center d-flex justify-content-center justify-content-xl-start text-light">
           <p className="m-0 fs-3">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}</p>
           {getCertification() && (
@@ -146,10 +123,6 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           <p className="m-0 me-1 me-sm-3 fs-3 fw-bold">Worth watching?</p>
           <WorthWatchIcon />
         </div>
-        {/* <StyleBorderButton className="d-none d-xxl-flex align-items-center share-btn bg-black py-2" variant="lg">
-          <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-          <p className="fs-3 fw-bold m-0">Share</p>
-        </StyleBorderButton> */}
         <BorderButton
           buttonClass="d-none d-xxl-flex share-btn"
           variant="lg"
@@ -161,18 +134,9 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       </div>
       <Row className="align-items-center justify-content-center justify-content-xl-start">
         <Col xs={6} sm={5} xl={12}>
-          <StyledWorth className="align-items-center d-flex justify-content-end justify-content-xl-start">
-            <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
-              <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
-            </div>
-            <p className="fs-2 fw-bold m-0">Worth it!</p>
-          </StyledWorth>
+          <WorthContent />
         </Col>
         <Col xs={6} sm={5} xl={12} className="pt-xl-3 pt-xxl-0">
-          {/* <StyleBorderButton className="d-flex d-xxl-none align-items-center share-btn bg-black py-2" variant="lg">
-            <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-            <p className="fs-3 fw-bold m-0">Share</p>
-          </StyleBorderButton> */}
           <BorderButton
             buttonClass="d-flex d-xxl-none share-btn"
             variant="lg"

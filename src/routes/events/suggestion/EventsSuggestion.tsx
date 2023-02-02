@@ -21,6 +21,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
+import CustomText from '../../../components/ui/CustomText';
 
 interface Option {
   event_name: string;
@@ -44,9 +45,6 @@ const CustomCol = styled(Col)`
 `;
 const CustomContainer = styled(Container)`
   background-color: #1B1B1B;
-`;
-const CustomText = styled.p`
-  color: #A6A6A6
 `;
 
 function EventSuggestion() {
@@ -115,8 +113,8 @@ function EventSuggestion() {
                 </CustomCol>
                 <Col xs={12} md={7}>
                   <h2 className="text-center text-md-start  mb-1 mt-3 mt-md-0">Add Photo</h2>
-                  <CustomText className="text-light text-center text-md-start small mb-0">Recommended size: 830x467 pixels</CustomText>
-                  <CustomText className="text-light text-center text-md-start small ">(jpg, png)</CustomText>
+                  <CustomText text="Recommended size: 830x467 pixels" textColor="#A6A6A6" textClass="text-light text-center text-md-start small mb-0" />
+                  <CustomText text="(jpg, png)" textColor="#A6A6A6" textClass="text-light text-center text-md-start small" />
                 </Col>
               </Row>
             </Col>

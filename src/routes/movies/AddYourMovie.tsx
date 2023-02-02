@@ -4,20 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Col, Form, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
 import RoundButton from '../../components/ui/RoundButton';
 import PhotoUploadInput from '../../components/ui/PhotoUploadInput';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CharactersCounter from '../../components/ui/CharactersCounter';
-
-const CustomText = styled.p`
-  color: #A6A6A6;
-`;
-const Text = styled.p`
-  color: #DBDBDB;
-`;
+import CustomText from '../../components/ui/CustomText';
 
 const noteList = [
   'A listing in the movie database with your cover art, description, trailers, and more.',
@@ -51,8 +44,8 @@ function AddYourMovie() {
             </div>
           </div>
           <div className="my-3">
-            <Text className="mb-0 fs-4">Save time and build your audience by listing your movies.</Text>
-            <Text className="mb-0 fs-4">Here’s what you get:</Text>
+            <CustomText text="Save time and build your audience by listing your movies." textColor="#DBDBDB" textClass="mb-0 fs-4" />
+            <CustomText text="Here’s what you get:" textColor="#DBDBDB" textClass="mb-0 fs-4" />
           </div>
           <div>
             {noteList.map((notes: string) => (
@@ -78,8 +71,8 @@ function AddYourMovie() {
                 }}
               />
               <h3 className="text-center mb-1 mt-3">Upload cover art</h3>
-              <CustomText className="text-center fs-5 mb-0">Recommended size:</CustomText>
-              <CustomText className="text-center fs-5 ">600x900 pixels (Jpg, Png)</CustomText>
+              <CustomText text="Recommended size:" textColor="#A6A6A6" textClass="text-center fs-5 mb-0" />
+              <CustomText text="600x900 pixels (Jpg, Png)" textColor="#A6A6A6" textClass="text-center fs-5" />
             </Col>
             <Col>
               <Row>

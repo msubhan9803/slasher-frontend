@@ -9,9 +9,7 @@ import {
   Navigate,
   Route, Routes, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
-import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
-import ListIcon from './ListIcon';
 import AboutDetails from './AboutDetails';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import MovieOverview from './MovieOverview';
@@ -21,6 +19,7 @@ import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
 import { AdditionalMovieData } from '../../../types';
 import BorderButton from '../../../components/ui/BorderButton';
+import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 
 interface MovieIconProps {
   label: string;
@@ -99,14 +98,14 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
               <p className="fs-5">Your lists</p>
               <div className="mt-2 d-flex justify-content-between">
                 {movieIconListData.map((iconList: MovieIconProps) => (
-                  <ListIcon
+                  <CustomGroupIcons
                     key={iconList.label}
                     label={iconList.label}
                     icon={iconList.icon}
                     iconColor={iconList.iconColor}
                     width={iconList.width}
                     height={iconList.height}
-                    addMovie={iconList.addMovie}
+                    addData={iconList.addMovie}
                     onClickIcon={() => handleMovieAddRemove(iconList.label)}
                   />
                 ))}
@@ -122,14 +121,14 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             <span className="fs-5">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {movieIconListData.map((iconList: MovieIconProps) => (
-                <ListIcon
+                <CustomGroupIcons
                   key={iconList.label}
                   label={iconList.label}
                   icon={iconList.icon}
                   iconColor={iconList.iconColor}
                   width={iconList.width}
                   height={iconList.height}
-                  addMovie={iconList.addMovie}
+                  addData={iconList.addMovie}
                   onClickIcon={() => handleMovieAddRemove(iconList.label)}
                 />
               ))}

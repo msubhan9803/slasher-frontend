@@ -5,7 +5,6 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 import profileImage from '../../../images/shopping-profile.png';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import BorderButton from '../../../components/ui/BorderButton';
@@ -24,13 +23,6 @@ const CustomCol = styled(Col)`
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const FavoriteIconDiv = styled.div`
-  margin-top: 1.429rem;
-  margin-left: 3.214rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid #3A3B46;
 `;
 
 function ShoppingDetailSmallScreen({ toggle, onToggleClick }: Props) {

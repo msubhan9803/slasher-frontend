@@ -35,7 +35,7 @@ function CharactersCounter({
 
 CharactersCounter.defaultProps = {
   marginTop: '',
-  marginRights: '',
+  marginRight: '',
 };
 
 export default CharactersCounter;

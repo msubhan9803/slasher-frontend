@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import ListIcon from '../components/ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
-import RoundButton from '../../../components/ui/RoundButton';
 import BookSummary from './BookSummary';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { BookIconProps } from '../components/BookProps';
@@ -15,18 +13,12 @@ import BookComments from '../components/BookComments';
 import { BookIconList } from '../components/booksList';
 import BookPosts from '../book-posts/BookPosts';
 import BorderButton from '../../../components/ui/BorderButton';
+import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
   img{
   object - fit: cover;
-}
-`;
-const FollowStyledButton = styled(RoundButton)`
-width: 21.125rem;
-border: 1px solid #3A3B46;
-  &: hover, &:focus{
-  border: 1px solid #3A3B46;
 }
 `;
 const tabsForSelf = [
@@ -73,15 +65,15 @@ function AboutBooks() {
               <span className="h3">Your lists</span>
               <div className="mt-2 d-flex justify-content-between">
                 {bookIconListData.map((iconList: BookIconProps) => (
-                  <ListIcon
+                  <CustomGroupIcons
                     key={iconList.label}
                     label={iconList.label}
                     icon={iconList.icon}
                     iconColor={iconList.iconColor}
                     width={iconList.width}
                     height={iconList.height}
-                    addBook={iconList.addBook}
-                    onClickIcon={() => handleBookAddRemove(iconList.label)}
+                    addData={iconList.addBook}
+                    onClickIcon={handleBookAddRemove}
                   />
                 ))}
               </div>
@@ -96,14 +88,14 @@ function AboutBooks() {
             <span className="h3">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {bookIconListData.map((iconList: BookIconProps) => (
-                <ListIcon
+                <CustomGroupIcons
                   key={iconList.label}
                   label={iconList.label}
                   icon={iconList.icon}
                   iconColor={iconList.iconColor}
                   width={iconList.width}
                   height={iconList.height}
-                  addBook={iconList.addBook}
+                  addData={iconList.addBook}
                   onClickIcon={() => handleBookAddRemove(iconList.label)}
                 />
               ))}

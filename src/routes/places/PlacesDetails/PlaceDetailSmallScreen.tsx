@@ -5,7 +5,6 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 import postImage from '../../../images/places-post.jpg';
 import LikeDislike from './LikeDislike';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -14,6 +13,7 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import CustomStarIcon from '../../../components/ui/CustomStarIcon';
 import CustomFavoriteIcons from '../../../components/ui/CustomFavoriteIcons';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
+import WorthContent from '../../../components/ui/WorthContent';
 
 interface Props {
   toggle: boolean;
@@ -25,26 +25,6 @@ const CustomCol = styled(Col)`
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
-`;
-const FavoriteIconDiv = styled.div`
-  margin-top: 1.429rem;
-  margin-left: 3.214rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid #3A3B46;
 `;
 
 function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
@@ -104,12 +84,7 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
           <LikeDislike />
         </div>
         <div className="mt-4 d-flex justify-content-center align-items-center">
-          <StyledWorth className="me-3 align-items-center d-flex justify-content-center ">
-            <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
-              <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
-            </div>
-            <p className="fs-2 fw-bold m-0">Worth it!</p>
-          </StyledWorth>
+          <WorthContent />
           <BorderButton
             buttonClass="d-flex"
             variant="lg"

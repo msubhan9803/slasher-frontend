@@ -3,7 +3,6 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
-import { string } from 'prop-types';
 
 interface ImageContainerProps {
   image: any;

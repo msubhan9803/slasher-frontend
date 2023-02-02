@@ -9,30 +9,8 @@ import ShareButton from '../../../components/ui/ShareButton';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthContent from '../../../components/ui/WorthContent';
 import BooksModal from '../components/BooksModal';
+import { StyledRateBorder } from '../../../components/ui/StyledRateBorder';
 
-const StyledRateBorder = styled.div`
-  @media (min-width: 89.938rem) {
-    border-bottom: 1px solid #3A3B46;
-  }
-  @media (max-width: 89.938rem) {
-    .rating {
-      border-bottom: 1px solid #3A3B46;
-    }
-  }
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
-`;
 const AboutBookDetails = styled.div`
   .small-initial {
     width: 2.063rem;
@@ -147,9 +125,7 @@ function BookSummary() {
       <Row className="mt-2 mt-lg-0 align-items-center justify-content-center justify-content-xl-start">
         <Col xs={6} sm={5} xl={12}>
           <div className="d-flex justify-content-xl-between justify-content-end align-items-center">
-            <StyledWorth className="me-3 align-items-center d-flex justify-content-end justify-content-xl-start">
-              <WorthContent />
-            </StyledWorth>
+            <WorthContent />
             <RoundButton className="d-none d-xl-block bg-primary px-5 py-2 fw-bold fs-3">Buy now</RoundButton>
           </div>
         </Col>

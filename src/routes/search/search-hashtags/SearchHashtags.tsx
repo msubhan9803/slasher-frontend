@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import { StyledHastagsCircle } from '../component/Hashtags';
 import SearchHeader from '../SearchHeader';
 import { hashtags } from '../SearchResult';
 
@@ -12,11 +12,6 @@ interface SearchPeopleProps {
   hashtag: string;
   count: string;
 }
-const StyledHastagsCircle = styled.div`
-  border-radius: 50%;
-  height: 3.125rem;
-  width: 3.125rem;
-`;
 function SearchHashtags() {
   const [search, setSearch] = useState<string>('');
   const [searchHashtag, setSearchHashtag] = useState<SearchPeopleProps[]>(hashtags);

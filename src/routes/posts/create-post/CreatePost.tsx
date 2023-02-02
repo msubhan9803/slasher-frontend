@@ -3,7 +3,7 @@ import React, {
   ChangeEvent, useRef, useState,
 } from 'react';
 import {
-  Col, Form, Image, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

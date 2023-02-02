@@ -10,12 +10,10 @@ import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { StyleButton } from '../../../components/ui/StyleButton';
+import CustomText from '../../../components/ui/CustomText';
 
 const CustomCol = styled(Col)`
   width: 13.125rem !important;
-`;
-const CustomText = styled.p`
-  color: #A6A6A6
 `;
 function PlacesEdit() {
   const [description, setDescription] = useState<string>('');
@@ -43,9 +41,9 @@ function PlacesEdit() {
               />
             </CustomCol>
             <Col xs={12} md={7}>
-              <h2 className="text-center text-md-start  mb-1 mt-3 ms-3 mt-md-0">Change cover photo</h2>
-              <CustomText className="text-light text-center text-md-start ms-3 fs-5 mb-0">Recommended size: 830x467 pixels</CustomText>
-              <CustomText className="text-light text-center text-md-start ms-3 fs-5">(jpg, png)</CustomText>
+              <h2 className="text-center text-md-start mb-1 mt-3 ms-3 mt-md-0">Change cover photo</h2>
+              <CustomText text="Recommended size: 830x467 pixels" textColor="#A6A6A6" textClass="text-light text-center text-md-start ms-3 fs-5 mb-0" />
+              <CustomText text="(jpg, png)" textColor="#A6A6A6" textClass="text-light text-center text-md-start ms-3 fs-5" />
             </Col>
           </Row>
         </Col>

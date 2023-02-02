@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import RoundButton from '../../components/ui/RoundButton';
-import UserCircleImage from '../../components/ui/UserCircleImage';
+import RoundButton from './RoundButton';
+import UserCircleImage from './UserCircleImage';
 
 interface Props {
   id: number;
@@ -11,8 +11,8 @@ interface Props {
   sendMessage: boolean;
 }
 const SmallText = styled.p`
-  font-size: .75rem;
-`;
+    font-size: .75rem;
+  `;
 const modalData = [
   {
     id: 1, profile: 'https://i.pravatar.cc/300?img=12', name: 'John Noakes', email: '@username', sendMessage: false,
@@ -53,7 +53,7 @@ function LikeShareModalContent() {
           {data.sendMessage
             ? (
               <RoundButton
-                className="bg-black fw-bold"
+                className="bg-black fw-bold text-white"
               >
                 <p className="mb-0">Send message</p>
               </RoundButton>

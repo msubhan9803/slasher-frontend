@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { StyleButton } from '../../../components/ui/StyleButton';

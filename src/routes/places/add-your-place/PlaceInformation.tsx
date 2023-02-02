@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 

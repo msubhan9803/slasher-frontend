@@ -9,10 +9,9 @@ import profileImg4 from '../../../../images/dating/sample_profile/sample_profile
 import profileImg5 from '../../../../images/dating/sample_profile/sample_profile5.png';
 import profileImg6 from '../../../../images/dating/sample_profile/sample_profile6.png';
 import profileImg7 from '../../../../images/dating/sample_profile/sample_profile7.png';
+import { Gender } from './styledUtilsProfileView';
 
-const Gender = styled.div`
-  color: #FF1800;
-  font-size: 1rem;
+const StyledGender = styled(Gender)`
   margin-top: 0.625rem;
   margin-bottom: 1.125rem;
 `;
@@ -28,7 +27,7 @@ function ProfileMobileView({ state }: any) {
       <div className="text-center">
         <HeroProfileImgMobile><img className="rounded-3 d-block m-auto" src={profileImg1} alt="Profile Here" /></HeroProfileImgMobile>
         <div>{state.nameAndAge}</div>
-        <Gender>{state.gender}</Gender>
+        <StyledGender>{state.gender}</StyledGender>
         <div className="d-flex justify-content-center mb-3">
           <span className="me-2"><img style={{}} src={mapPinIcon} alt="Map Icon Here" /></span>
           <div className="text-light">{state.distance}</div>

@@ -53,7 +53,6 @@ function BorderButton({
   buttonClass, variant, icon, iconClass, iconSize, lable,
   handleClick, toggleBgColor, toggleButton, customButtonCss,
 }: BorderButtonProps) {
-  console.log('customButtonCss', customButtonCss);
   return (
     toggleButton ? (
       <StyleBorderButton

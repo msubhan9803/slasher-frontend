@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import styled from 'styled-components';
 import BorderButton from '../../components/ui/BorderButton';
-import RoundButton from '../../components/ui/RoundButton';
 import Switch from '../../components/ui/Switch';
 
 function NotificationSetting() {

@@ -5,7 +5,6 @@ import {
   Col, Image, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 import profileImage from '../../../images/shopping-profile.png';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomStarIcon from '../../../components/ui/CustomStarIcon';

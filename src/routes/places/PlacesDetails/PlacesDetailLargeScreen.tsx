@@ -3,7 +3,6 @@ import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 import postImage from '../../../images/places-post.jpg';
 import LikeDislike from './LikeDislike';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
@@ -11,6 +10,7 @@ import BorderButton from '../../../components/ui/BorderButton';
 import CustomStarIcon from '../../../components/ui/CustomStarIcon';
 import CustomFavoriteIcons from '../../../components/ui/CustomFavoriteIcons';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
+import WorthContent from '../../../components/ui/WorthContent';
 
 interface Props {
   toggle: boolean;
@@ -22,19 +22,6 @@ const CustomCol = styled(Col)`
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
 `;
 function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
   return (
@@ -118,12 +105,7 @@ function PlacesDetailLargeScreen({ toggle, onToggleClick }: Props) {
           <LikeDislike />
         </div>
         <div className="mt-4 d-flex">
-          <StyledWorth className="me-3 align-items-center d-flex">
-            <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
-              <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
-            </div>
-            <p className="fs-2 fw-bold m-0">Worth it!</p>
-          </StyledWorth>
+          <WorthContent />
         </div>
       </Col>
     </Row>

@@ -106,8 +106,8 @@ describe('Suggested user name (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          pick(await usersService.findByUsername('test1'), ['userName', 'id']),
-          pick(await usersService.findByUsername('test2'), ['userName', 'id']),
+          pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
+          pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
         ]);
         expect(response.body.map((suggestUserName) => suggestUserName.userName)).not.toContain('test3');
       });

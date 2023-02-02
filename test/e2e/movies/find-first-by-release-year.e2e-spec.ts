@@ -12,6 +12,7 @@ import { moviesFactory } from '../../factories/movies.factory';
 import { MoviesService } from '../../../src/movies/providers/movies.service';
 import { MovieActiveStatus } from '../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Movie / Find First By Release Year (e2e)', () => {
   let app: INestApplication;
@@ -74,7 +75,13 @@ describe('Movie / Find First By Release Year (e2e)', () => {
           .get(`/movies/firstByReleaseYear?year=${year}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.sortReleaseDate).toEqual(movie.sortReleaseDate);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          name: movie.name,
+          logo: null,
+          releaseDate: movie.releaseDate.toISOString(),
+          rating: 0,
+        });
       });
     });
   });

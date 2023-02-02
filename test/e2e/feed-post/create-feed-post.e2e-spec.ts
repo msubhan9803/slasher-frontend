@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { readdirSync } from 'fs';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -86,6 +87,10 @@ describe('Feed-Post / Post File (e2e)', () => {
             ],
           });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response when one or more uploads files user an unallowed extension', async () => {
@@ -103,6 +108,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Invalid file type');
       }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('allows the creation of a post with only a message, but no files', async () => {
@@ -134,6 +143,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.CREATED);
         expect(response.body.images).toHaveLength(2);
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response when neither message nor file are present in request', async () => {
@@ -161,6 +174,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Only allow a maximum of 4 images');
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response if file size should not larger than 20MB', async () => {
@@ -176,6 +193,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
       }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('check message length validation', async () => {
@@ -191,6 +212,10 @@ describe('Feed-Post / Post File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
   });
 });

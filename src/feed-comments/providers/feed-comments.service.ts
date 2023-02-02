@@ -132,7 +132,6 @@ export class FeedCommentsService {
       })
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: 1 }) // replies are always sorted by { createdAt: 1 }, regardless of comment sort
-      .limit(limit)
       .exec();
     const commentReplies = [];
     for (const comment of addRepliesKey) {

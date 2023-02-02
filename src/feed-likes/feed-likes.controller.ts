@@ -33,16 +33,17 @@ export class FeedLikesController {
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
     // Create notification for post creator, informing them that a like was added to their post.
+    const postUserId = (post.userId as any)._id.toString();
     const skipPostCreatorNotification = (
-      // Don't send a notification to the creator if:
-      // - The liker IS the creator of the post.
-      // - This is an rssFeedProvider post
-      user.id === (post.userId as any)._id.toString() || post.rssfeedProviderId
+      // Don't send a "liked your post" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === postUserId
+      || post.rssfeedProviderId
     );
     if (!skipPostCreatorNotification) {
       await this.notificationsService.create({
         userId: ({
-          _id: (post.userId as any)._id.toString(),
+          _id: postUserId,
           profilePic: (post.userId as any).profilePic,
           userName: (post.userId as any).userName,
         } as any),
@@ -77,7 +78,8 @@ export class FeedLikesController {
 
     // Create notification for comment creator, informing them that a like was added to their comment.
     const skipCommentCreatorNotification = (
-      // Don't send a notification if the liker is the comment creator.
+      // Don't send a "liked your comment" notification to the post creator if any of
+      // the following conditions apply:
       user.id === comment.userId.toString()
     );
     if (!skipCommentCreatorNotification) {
@@ -115,7 +117,8 @@ export class FeedLikesController {
 
     // Create notification for comment creator, informing them that a like was added to their comment.
     const skipCommentCreatorNotification = (
-      // Don't send a notification if the liker is the reply creator.
+      // Don't send a "liked your reply" notification to the post creator if any of
+      // the following conditions apply:
       user.id === reply.userId.toString()
     );
     if (!skipCommentCreatorNotification) {

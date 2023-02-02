@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -71,10 +72,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
   describe('POST /feed-comments/replies', () => {
     let feedComments;
+    let feedComments1;
+    let feedPost1;
     let user0;
+    let user1;
+    let user2;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
+      user2 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -85,16 +92,31 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           },
         ),
       );
+
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
+          user1._id.toString(),
+          sampleFeedReplyObject.message,
+          sampleFeedReplyObject.images,
+        );
+      feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
           activeUser._id.toString(),
           sampleFeedReplyObject.message,
           sampleFeedReplyObject.images,
         );
     });
 
-    it('successfully creates feed reply with a message and files', async () => {
+    it('successfully creates notifications when reply was added to their post', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
       await createTempFiles(async (tempPaths) => {
@@ -112,10 +134,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          feedCommentId: feedComments._id.toString(),
           message: 'hello test user',
-          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userId: activeUser._id.toString(),
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -139,11 +161,256 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         expect(notificationsService.create).toHaveBeenCalledWith({
           userId: feedPostData.userId as any,
           feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
-          feedCommentId: { _id: new mongoose.Types.ObjectId(response.body.feedCommentId) } as unknown as FeedComment,
+          feedCommentId: { _id: feedComments._id } as unknown as FeedComment,
           feedReplyId: new mongoose.Types.ObjectId(response.body._id),
           senderId: activeUser._id,
           notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
           notificationMsg: 'replied on your post',
+        });
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedComments.userId.toString(),
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your comment',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('successfully creates notifications when other user is mentioned other user', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-comments/replies')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`)
+          .field('feedCommentId', feedComments._id.toString())
+          .attach('images', tempPaths[0])
+          .attach('images', tempPaths[1])
+          .attach('images', tempPaths[2])
+          .attach('images', tempPaths[3])
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          feedCommentId: feedComments._id.toString(),
+          message: `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        const feedPostData = await feedPostsService.findById(feedPost.id, false);
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedPostData.userId as any,
+          feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id } as unknown as FeedComment,
+          feedReplyId: new mongoose.Types.ObjectId(response.body._id),
+          senderId: activeUser._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your post',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedComments.userId.toString(),
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your comment',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: user2.id,
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('successfully creates notifications for mentioned user ids', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-comments/replies')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`
+            + `##LINK_ID##${user0._id.toString()}@Username1##LINK_END## this is cretor of post`
+            + `##LINK_ID##${user1._id.toString()}@Username1##LINK_END## this cretor of comment`)
+          .field('feedCommentId', feedComments1._id.toString())
+          .attach('images', tempPaths[0])
+          .attach('images', tempPaths[1])
+          .attach('images', tempPaths[2])
+          .attach('images', tempPaths[3])
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost1._id.toString(),
+          feedCommentId: feedComments1._id.toString(),
+          message: `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`
+            + `##LINK_ID##${user0._id.toString()}@Username1##LINK_END## this is cretor of post`
+            + `##LINK_ID##${user1._id.toString()}@Username1##LINK_END## this cretor of comment`,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        const feedPostData = await feedPostsService.findById(feedPost1.id, false);
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: user0.id,
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments1._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: user1.id,
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments1._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: user2.id,
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments1._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('successfully creates notifications when other user is mentioned own', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .post('/feed-comments/replies')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`)
+          .field('feedCommentId', feedComments._id.toString())
+          .attach('images', tempPaths[0])
+          .attach('images', tempPaths[1])
+          .attach('images', tempPaths[2])
+          .attach('images', tempPaths[3])
+          .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          feedCommentId: feedComments._id.toString(),
+          message: `##LINK_ID##${user2._id.toString()}@Username1##LINK_END## test user`,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        const feedPostData = await feedPostsService.findById(feedPost.id, false);
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedPostData.userId as any,
+          feedPostId: { _id: feedPostData._id } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id } as unknown as FeedComment,
+          feedReplyId: new mongoose.Types.ObjectId(response.body._id),
+          senderId: activeUser._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your post',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedComments.userId.toString(),
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'replied on your comment',
+        });
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: user2.id,
+          feedPostId: { _id: feedPostData._id.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: feedComments._id.toString() } as unknown as FeedComment,
+          feedReplyId: response.body._id.toString(),
+          senderId: activeUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
         });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
 
@@ -183,14 +450,14 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .field('userId', activeUser._id.toString())
         .field('feedCommentId', feedComments._id.toString())
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          message: 'This is a test message',
-          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          images: [],
-        });
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'This is a test message',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [],
+      });
     });
 
     it('allows the creation of a reply with only files, but no message', async () => {

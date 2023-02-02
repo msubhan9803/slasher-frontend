@@ -19,6 +19,11 @@ export class MatchList extends MatchListUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
+  // Note: This new field was added to this new API app AND the old slasher-web API app.
+  // The field is not queried in the old API app, but it is set.  It can be used in the new app.
+  @Prop({ required: true, default: Date.now })
+  lastMessageSentAt: Date;
+
   @Prop({ default: null, ref: 'relations', required: true })
   relationId: mongoose.Schema.Types.ObjectId;
 
@@ -55,3 +60,8 @@ export class MatchList extends MatchListUnusedFields {
 export const MatchListSchema = SchemaFactory.createForClass(MatchList);
 
 export type MatchListDocument = MatchList & Document;
+
+// Index for ChatService#getConversations
+MatchListSchema.index({
+  participants: 1, roomType: 1, roomCategory: 1, relationId: 1, lastMessageSentAt: -1,
+});

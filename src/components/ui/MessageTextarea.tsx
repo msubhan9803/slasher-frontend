@@ -65,7 +65,6 @@ function MessageTextarea({
 
   return (
     <Mentions
-      className="yyoy"
       rows={rows}
       onChange={(e) => handleMessage(e)}
       placeholder={placeholder}

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, {
   useEffect, useRef, useState,
 } from 'react';
@@ -8,11 +9,12 @@ import {
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import { getConversation, createOrFindConversation } from '../../api/messages';
-import UnauthenticatedPageWrapper from '../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import NotFound from '../../components/NotFound';
 import useGlobalSocket from '../../hooks/useGlobalSocket';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 
 function Conversation() {
   const userId = Cookies.get('userId');
@@ -164,30 +166,33 @@ function Conversation() {
 
   if (showPageDoesNotExist) {
     return (
-      <UnauthenticatedPageWrapper>
-        <NotFound />
-      </UnauthenticatedPageWrapper>
+      <NotFound />
     );
   }
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <InfiniteScroll
-        pageStart={0}
-        initialLoad
-        loadMore={() => { setRequestAdditionalPosts(true); }}
-        hasMore={!noMoreData}
-        isReverse
-      >
-        <Chat
-          messages={messageList}
-          userData={chatUser}
-          sendMessageClick={sendMessageClick}
-          setMessage={setMessage}
-          message={message}
-        />
-      </InfiniteScroll>
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPosts(true); }}
+          hasMore={!noMoreData}
+          isReverse
+        >
+          <Chat
+            messages={messageList}
+            userData={chatUser}
+            sendMessageClick={sendMessageClick}
+            setMessage={setMessage}
+            message={message}
+          />
+        </InfiniteScroll>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

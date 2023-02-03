@@ -26,16 +26,22 @@ interface Props {
   likeIcon: boolean;
   popoverOptions: string[];
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
-  setIsReply?: (value: boolean) => void;
-  setReplyId?: (value: string) => void;
-  setReplyUserName?: (value: string) => void;
   feedCommentId?: string;
   content?: string;
   userId?: string;
   userName?: string;
-  handleSeeCompleteList?: () => void;
+  handleSeeCompleteList?: (
+    id: string,
+    name: string,
+    replyId: string,
+    scrollId: string,
+    index?: number,
+  ) => void;
   likeCount?: number;
   active?: boolean;
+  isReply?: boolean;
+  setIsReply?: (value: boolean) => void;
+  replyCommentIndex?: number;
 }
 interface ImageList {
   image_path: string;
@@ -68,9 +74,9 @@ const Likes = styled.div`
 
 function CommentSection({
   id, image, name, time, commentMention, commentMsg, commentImg,
-  onIconClick, likeIcon, popoverOptions, onPopoverClick, setIsReply,
-  setReplyId, feedCommentId, setReplyUserName, content, userId, userName,
-  handleSeeCompleteList, likeCount, active,
+  onIconClick, likeIcon, popoverOptions, onPopoverClick,
+  feedCommentId, content, userId, userName, handleSeeCompleteList,
+  likeCount, active, isReply, setIsReply, replyCommentIndex,
 }: Props) {
   const [images, setImages] = useState<ImageList[]>([]);
   const highlightRef = useRef<any>();
@@ -80,13 +86,6 @@ function CommentSection({
       setImages(commentImg);
     }
   }, [commentImg]);
-
-  const handleReply = (replyId: string, replyName: string) => {
-    if (setIsReply) setIsReply(true);
-    if (setReplyId) setReplyId(replyId);
-    if (setReplyUserName) setReplyUserName(replyName);
-    if (handleSeeCompleteList) handleSeeCompleteList();
-  };
 
   useEffect(() => {
     const tabs = highlightRef.current;
@@ -98,6 +97,14 @@ function CommentSection({
       });
     }
   }, []);
+
+  const handleReply = () => {
+    if (setIsReply) setIsReply(true);
+    const scrollId = isReply ? `reply-${id}` : `comment-${id}`;
+    if (handleSeeCompleteList) {
+      handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, replyCommentIndex);
+    }
+  };
 
   return (
     <div key={id} className="d-flex">
@@ -203,7 +210,7 @@ function CommentSection({
             <Button
               variant="link"
               className="shadow-none"
-              onClick={() => handleReply(feedCommentId || id, name)}
+              onClick={handleReply}
             >
               <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
               <span className="fs-5">Reply</span>
@@ -217,9 +224,6 @@ function CommentSection({
 CommentSection.defaultProps = {
   commentMention: '',
   commentImg: [],
-  setIsReply: undefined,
-  setReplyId: undefined,
-  setReplyUserName: undefined,
   feedCommentId: '',
   content: null,
   userId: null,
@@ -227,5 +231,8 @@ CommentSection.defaultProps = {
   handleSeeCompleteList: undefined,
   likeCount: 0,
   active: false,
+  isReply: false,
+  setIsReply: undefined,
+  replyCommentIndex: 0,
 };
 export default CommentSection;

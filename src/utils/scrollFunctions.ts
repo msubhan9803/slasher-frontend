@@ -5,7 +5,6 @@ export const scrollWithOffset = (el: any) => {
     window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
   }, 500);
 };
-
 export const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };

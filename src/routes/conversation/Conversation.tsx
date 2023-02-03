@@ -78,10 +78,17 @@ function Conversation() {
 
       lastConversationIdRef.current = conversationId;
 
+<<<<<<< Updated upstream
       getConversation(conversationId).then((res) => {
         setIsLoading(false);
 
         setMessageList([]);
+=======
+      getMatchIdDetail(conversationId).then((res) => {
+        setIsLoading(false);
+
+        setRecentMessageList([]);
+>>>>>>> Stashed changes
         // eslint-disable-next-line no-underscore-dangle, max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);

@@ -8,7 +8,6 @@ import { Chat, ChatSchema } from '../schemas/chat/chat.schema';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
-import { ChatGateway } from './providers/chat.gateway';
 
 @Module({
   imports: [
@@ -17,7 +16,7 @@ import { ChatGateway } from './providers/chat.gateway';
     MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  providers: [ChatService, LocalStorageService, S3StorageService, ChatGateway],
+  providers: [ChatService, LocalStorageService, S3StorageService],
   controllers: [ChatController],
   exports: [ChatService],
 })

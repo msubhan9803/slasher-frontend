@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -11,10 +11,8 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
-import { FeedComment, FeedCommentDocument } from '../../../src/schemas/feedComment/feedComment.schema';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
-import { FeedCommentDeletionState } from '../../../src/schemas/feedComment/feedComment.enums';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +24,6 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
-  let feedCommentsModel: Model<FeedCommentDocument>;
   let feedCommentsService: FeedCommentsService;
 
   const sampleFeedCommentsDeleteObject = {
@@ -51,7 +48,6 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
-    feedCommentsModel = moduleRef.get<Model<FeedCommentDocument>>(getModelToken(FeedComment.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -90,12 +86,12 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     });
 
     it('successfully delete feed comments', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-comments/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedCommentsDetails = await feedCommentsModel.findById(feedComments._id);
-      expect(feedCommentsDetails.is_deleted).toBe(FeedCommentDeletionState.Deleted);
+        .send()
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when feed comment id is not exists than expected response', async () => {
@@ -103,7 +99,8 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/${feedComments1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toContain('Not found.');
     });
 
@@ -118,7 +115,8 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
       expect(response.body.message).toContain('Permission denied.');
     });
   });

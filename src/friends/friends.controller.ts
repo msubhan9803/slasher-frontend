@@ -36,17 +36,26 @@ export class FriendsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
     }
-    const friendRequest = await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
+    await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
 
-    // Create notification for post creator, informing them that a comment was added to their post
-    await this.notificationsService.create({
-      userId: createFriendRequestDto.userId as any,
-      senderId: user._id,
-      notifyType: NotificationType.UserSentYouAFriendRequest,
-      notificationMsg: 'sent you a friend request',
-    });
-
-    return friendRequest;
+    const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
+      createFriendRequestDto.userId,
+      user._id,
+      NotificationType.UserSentYouAFriendRequest,
+    );
+    // Do not send another notification about this if a similar notification was recently sent.
+    // This prevents people from being able to spam each other with notifications in response to
+    // rapid friend-unfriend-friend-unfriend actions.
+    if (!recentNotificationExists) {
+      // Create notification for post creator, informing them that a comment was added to their post
+      await this.notificationsService.create({
+        userId: createFriendRequestDto.userId as any,
+        senderId: user._id,
+        notifyType: NotificationType.UserSentYouAFriendRequest,
+        notificationMsg: 'sent you a friend request',
+      });
+    }
+    return { success: true };
   }
 
   @TransformImageUrls('$[*].profilePic')
@@ -79,6 +88,7 @@ export class FriendsController {
   ) {
     const user = getUserFromRequest(request);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, cancelFriendshipOrDeclineRequestDto.userId);
+    return { success: true };
   }
 
   @Post('requests/accept')
@@ -88,8 +98,8 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      const acceptFriendRequestDetails = await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
-      return acceptFriendRequestDetails;
+      await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
+      return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);
     }

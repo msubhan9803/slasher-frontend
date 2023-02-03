@@ -197,6 +197,55 @@ describe('NotificationsService', () => {
     });
   });
 
+  describe('#similarRecentNotificationExists', () => {
+    it('returns the expected response when a similar notification exists in the db, and was created within the past 7 days', async () => {
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          feedPostId: feedPostData.id,
+          senderId: user1.id,
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          createdAt: new Date(),
+        }),
+      );
+      const exists = await notificationsService.similarRecentNotificationExists(
+        activeUser.id,
+        user1.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeTruthy();
+    });
+
+    it('returns the expected response when a similar notification does not exist in the db', async () => {
+      const exists = await notificationsService.similarRecentNotificationExists(
+        user1.id,
+        activeUser.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeFalsy();
+    });
+
+    it('returns the expected response when a similar notification exist in the db, but is more than 7 days old', async () => {
+      await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          feedPostId: feedPostData.id,
+          senderId: user1.id,
+          notifyType: NotificationType.UserSentYouAFriendRequest,
+          notificationMsg: 'sent you a friend request',
+          createdAt: DateTime.now().minus({ days: 10 }).toJSDate(),
+        }),
+      );
+      const exists = await notificationsService.similarRecentNotificationExists(
+        user1.id,
+        activeUser.id,
+        NotificationType.UserSentYouAFriendRequest,
+      );
+      expect(exists).toBeFalsy();
+    });
+  });
+
   describe('#cleanupNotifications', () => {
     let DAYS;
     let DAYS_NOTIFICATIONS_KEPT;
@@ -232,6 +281,35 @@ describe('NotificationsService', () => {
 
       const notificationsCount = await notificationModel.count();
       expect(notificationsCount).toBe(DAYS_NOTIFICATIONS_KEPT.length);
+    });
+  });
+
+  describe('#processNotification', () => {
+    it('when is process false than expected notification response', async () => {
+      const notification = await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+          senderId: user1.id,
+        }),
+      );
+      await notificationsService.processNotification(notification.id);
+      const notificationDetails = await notificationsService.findById(notification.id);
+      expect(notificationDetails.isProcessed).toBe(true);
+    });
+
+    it('when is process true than expected notification response', async () => {
+      const notification = await notificationsService.create(
+        notificationFactory.build({
+          userId: activeUser.id,
+          is_deleted: NotificationDeletionStatus.NotDeleted,
+          senderId: user1.id,
+          isProcessed: true,
+        }),
+      );
+      await notificationsService.processNotification(notification.id);
+      const notificationDetails = await notificationsService.findById(notification.id);
+      expect(notificationDetails.isProcessed).toBe(true);
     });
   });
 });

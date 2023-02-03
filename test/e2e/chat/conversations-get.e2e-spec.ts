@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { Message, MessageDocument } from '../../../src/schemas/message/message.schema';
 
 describe('Conversations all / (e2e)', () => {
@@ -72,13 +73,28 @@ describe('Conversations all / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        for (const body of response.body) {
-          expect(body.participants[0]).toEqual({
-            _id: user1._id.toString(),
-            userName: user1.userName,
-            profilePic: user1.profilePic,
-          });
-        }
+        expect(response.body).toEqual(
+          [
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              participants: [
+                {
+                  _id: user1._id.toString(),
+                  userName: 'Username3',
+                  profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                },
+                {
+                  _id: activeUser._id.toString(),
+                  userName: 'Username1',
+                  profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+                },
+              ],
+              unreadCount: 1,
+              latestMessage: 'Hi, test message 2.',
+              updatedAt: response.body[0].updatedAt,
+            },
+          ],
+        );
         expect(response.body).toHaveLength(1);
       });
     });
@@ -124,6 +140,15 @@ describe('Conversations all / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+      });
+
+      it('limit should be less than or equal to 20', async () => {
+        const limit = 21;
+        const response = await request(app.getHttpServer())
+          .get(`/chat/conversations?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 20');
       });
 
       it('before must be a mongodb id', async () => {

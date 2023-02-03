@@ -32,13 +32,28 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: post._id } as unknown as FeedPost,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourPost,
-      notificationMsg: 'liked your post',
-    });
+    // Create notification for post creator, informing them that a like was added to their post.
+    const postUserId = (post.userId as any)._id.toString();
+    const skipPostCreatorNotification = (
+      // Don't send a "liked your post" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === postUserId
+      || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
+      await this.notificationsService.create({
+        userId: ({
+          _id: postUserId,
+          profilePic: (post.userId as any).profilePic,
+          userName: (post.userId as any).userName,
+        } as any),
+        feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
+        senderId: user._id.toString(),
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+    }
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -49,6 +64,7 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    return { success: true };
   }
 
   @Post('comment/:feedCommentId')
@@ -60,14 +76,23 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
 
-    await this.notificationsService.create({
-      userId: comment.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourComment,
-      notificationMsg: 'liked your comment',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a "liked your comment" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === comment.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: comment.userId as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourComment,
+        notificationMsg: 'liked your comment',
+      });
+    }
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -78,6 +103,7 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    return { success: true };
   }
 
   @Post('reply/:feedReplyId')
@@ -89,15 +115,25 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
 
-    await this.notificationsService.create({
-      userId: reply.userId as any,
-      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-      feedReplyId: reply._id,
-      senderId: user._id,
-      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-      notificationMsg: 'liked your reply',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a "liked your reply" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === reply.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: reply.userId as any,
+        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: reply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'liked your reply',
+      });
+    }
+
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')
@@ -108,5 +144,6 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    return { success: true };
   }
 }

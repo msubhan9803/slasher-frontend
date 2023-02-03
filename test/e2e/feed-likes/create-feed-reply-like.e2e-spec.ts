@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -9,10 +9,13 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
+import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -24,6 +27,7 @@ describe('Create Feed Reply Like (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let notificationsService: NotificationsService;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -47,6 +51,7 @@ describe('Create Feed Reply Like (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -63,8 +68,10 @@ describe('Create Feed Reply Like (e2e)', () => {
   describe('POST /feed-likes/reply/:feedReplyId', () => {
     let feedComments;
     let feedReply;
+    let user0;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -85,19 +92,32 @@ describe('Create Feed Reply Like (e2e)', () => {
       feedReply = await feedCommentsService
         .createFeedReply(
           feedComments.id,
-          activeUser._id.toString(),
+          user0._id.toString(),
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
     });
 
     it('successfully creates feed reply likes.', async () => {
-      await request(app.getHttpServer())
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+      const response = await request(app.getHttpServer())
         .post(`/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
-      expect(feedReplyData.likes).toContainEqual(activeUser._id);
+        .send()
+        .expect(HttpStatus.CREATED);
+        expect(response.body).toEqual({ success: true });
+
+        const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
+
+        expect(notificationsService.create).toHaveBeenCalledWith({
+          userId: feedReplyData.userId as any,
+          feedPostId: { _id: feedReplyData.feedPostId } as unknown as FeedPost,
+          feedCommentId: { _id: feedReplyData.feedCommentId } as unknown as FeedComment,
+          feedReplyId: feedReplyData._id,
+          senderId: activeUser._id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'liked your reply',
+        });
     });
 
     it('when feed reply id is not exist than expected response', async () => {
@@ -105,7 +125,8 @@ describe('Create Feed Reply Like (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/reply/${feedReplyId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Reply not found');
     });
 

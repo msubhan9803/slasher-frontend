@@ -13,7 +13,6 @@ import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -23,6 +22,7 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
+import { pick } from '../utils/object-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -43,6 +43,7 @@ export class FeedPostsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -102,9 +103,8 @@ export class FeedPostsController {
       });
     }
 
-    asyncDeleteMulterFiles(files);
     return {
-      id: createFeedPost.id,
+      _id: createFeedPost.id,
       message: createFeedPost.message,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
@@ -121,7 +121,10 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    return feedPost;
+    return pick(
+      feedPost,
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes'],
+    );
   }
 
   @Patch(':id')
@@ -168,7 +171,7 @@ export class FeedPostsController {
     }
 
     return {
-      id: updatedFeedPost.id,
+      _id: updatedFeedPost.id,
       message: updatedFeedPost.message,
     };
   }
@@ -189,7 +192,12 @@ export class FeedPostsController {
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
-    return feedPosts;
+    return feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+      ),
+    );
   }
 
   @Delete(':id')

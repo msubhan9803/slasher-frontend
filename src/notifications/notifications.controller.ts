@@ -1,5 +1,5 @@
 import {
-  Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, ValidationPipe,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -12,6 +12,7 @@ import { GetNotificationsDto } from './dto/get-notifications.dto';
 import { ParamNotificationIdDto } from './dto/param-notificationId.dto';
 import { NotificationsGateway } from './providers/notifications.gateway';
 import { NotificationsService } from './providers/notifications.service';
+import { pick } from '../utils/object-utils';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -20,12 +21,6 @@ export class NotificationsController {
     private readonly notificationsGateway: NotificationsGateway,
     private readonly feedPostsService: FeedPostsService,
   ) { }
-
-  @Post('socket-test')
-  async socketMessageEmitTest() {
-    this.notificationsGateway.server.emit('hello', 'world');
-    return 'test';
-  }
 
   @TransformImageUrls(
     '$[*].senderId.profilePic',
@@ -55,7 +50,10 @@ export class NotificationsController {
         notificationAsObject.feedPostId = { _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id };
       }
       return notificationAsObject;
-    });
+    }).map((notification) => pick(notification, [
+      '_id', 'createdAt', 'feedCommentId', 'feedPostId', 'feedReplyId', 'isRead',
+      'notificationMsg', 'notifyType', 'rssFeedProviderId', 'senderId', 'userId',
+    ]));
   }
 
   @Delete(':id')

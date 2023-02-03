@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FriendsController } from './friends.controller';
 import { FriendsService } from './providers/friends.service';
@@ -8,6 +8,7 @@ import { SuggestBlock, SuggestBlockSchema } from '../schemas/suggestBlock/sugges
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlocksService } from '../blocks/providers/blocks.service';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Friend.name, schema: FriendSchema }]),

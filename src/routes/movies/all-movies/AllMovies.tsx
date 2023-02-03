@@ -6,6 +6,7 @@ import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
@@ -99,7 +100,7 @@ function AllMovies() {
               loadMore={() => { setRequestAdditionalPosts(true); }}
               hasMore={!noMoreData}
             >
-              <PosterCardList dataList={filteredMovies} />
+              <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
             </InfiniteScroll>
             {loadingPosts && <LoadingIndicator />}
             {noMoreData && renderNoMoreDataMessage()}

@@ -9,6 +9,10 @@ import InfiniteScroll from 'react-infinite-scroller';
 import EventHeader from '../EventHeader';
 import EventsPosterCard from '../EventsPosterCard';
 import { getEvents, getEventsDateCount } from '../../../api/eventByDate';
+import checkAdsEventByDate from './checkAdsEventByDate';
+import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
+import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import EventRightSidebar from '../EventRightSidebar';
@@ -124,6 +128,7 @@ function EventsByDate() {
   const endDate = `${selectedDateString}T23:59:59Z`;
   const eventContainerElementRef = useRef<any>(null);
   const [yPositionOfLastEventElement, setYPositionOfLastEventElement] = useState<number>(0);
+  const bp = useBootstrapBreakpointName();
 
   const getDateRange = (dateValue: Date) => {
     const startDateRange = DateTime.fromJSDate(dateValue).startOf('month').minus({ days: 7 }).toFormat('yyyy-MM-dd');
@@ -253,13 +258,19 @@ function EventsByDate() {
           >
             <Row ref={eventContainerElementRef}>
               {eventsList && eventsList.length > 0
-                && (eventsList.map((eventDetail) => (
-                  <Col md={6} key={eventDetail.id}>
-                    <EventsPosterCard
-                      listDetail={eventDetail}
-                    />
-                  </Col>
-                )))}
+              && (eventsList.map((eventDetail, i, arr) => {
+                // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
+                // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
+                const show = checkAdsEventByDate(bp, i, arr);
+                return (
+                  <React.Fragment key={eventDetail.id}>
+                    <Col md={6}>
+                      <EventsPosterCard listDetail={eventDetail} />
+                    </Col>
+                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                  </React.Fragment>
+                );
+              }))}
             </Row>
           </InfiniteScroll>
           {noMoreData && renderNoMoreDataMessage()}

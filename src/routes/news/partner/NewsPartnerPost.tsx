@@ -520,6 +520,7 @@ function NewsPartnerPost() {
               addUpdateComment={addUpdateComment}
               updateState={updateState}
               setUpdateState={setUpdateState}
+              isSinglePagePost
             />
           </Col>
         </Row>

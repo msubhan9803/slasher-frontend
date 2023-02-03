@@ -6,6 +6,7 @@ import { watchMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MovieRightSideNav from '../components/MovieRightSideNav';
 import MoviesHeader from '../MoviesHeader';
+import { MOVIE_WATCHLIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 function WatchListMovies() {
   const [showKeys, setShowKeys] = useState(false);
@@ -38,7 +39,7 @@ function WatchListMovies() {
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <div className="m-md-2">
-            <PosterCardList dataList={filteredMovies} />
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={MOVIE_WATCHLIST_DIV_ID} />
           </div>
         </div>
       </ContentPageWrapper>

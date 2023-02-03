@@ -10,7 +10,9 @@ import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import getEventDetails from '../../../api/events';
 import RoundButton from '../../../components/ui/RoundButton';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import EventRightSidebar from '../EventRightSidebar';
@@ -147,6 +149,7 @@ function EventDetails() {
             />
           </div>
         </div>
+        <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">
         <EventRightSidebar />

@@ -3,6 +3,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 import { favoritesMovies } from '../components/MovieList';
+import { MOVIE_FAVOURITE_DIV } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
@@ -38,7 +39,7 @@ function FavoriteMovies() {
         />
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           <div className="m-md-2">
-            <PosterCardList dataList={filteredMovies} />
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={MOVIE_FAVOURITE_DIV} />
           </div>
         </div>
       </ContentPageWrapper>

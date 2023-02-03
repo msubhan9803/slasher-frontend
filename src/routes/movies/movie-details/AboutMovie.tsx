@@ -23,6 +23,8 @@ import RoundButton from '../../../components/ui/RoundButton';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
+import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 
 interface MovieIconProps {
   label: string;
@@ -186,6 +188,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
           element={(
             <>
               <MovieOverview overView={aboutMovieData?.mainData?.overview} />
+              <PubWiseAd className="text-center my-3" id={MOVIE_INDIE_DIV} autoSequencer />
               <MovieCasts castList={aboutMovieData?.cast as any} />
               {
                 aboutMovieData?.video?.length > 0

@@ -163,14 +163,9 @@ export class ChatController {
       throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
     }
 
-    const toUserId = matchList.participants.map((id) => {
-      if ((id as unknown as User)._id.toString() !== user.id) {
-        // eslint-disable-next-line
-        return (id as unknown as User)._id.toString();
-      }
-    }).filter(Boolean);
+    const toUserId = matchList.participants.find((userId) => (userId as any)._id.toString() !== user.id);
 
-    const areFriends = await this.friendsService.areFriends(user._id, toUserId[0]);
+    const areFriends = await this.friendsService.areFriends(user._id, toUserId.id);
     if (!areFriends) {
       throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
     }
@@ -188,13 +183,13 @@ export class ChatController {
 
     const newMessages = [];
     for (const image of images) {
-      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId[0], '', image.image_path));
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, '', image.image_path));
     }
     if (messageDto.message) {
-      await this.chatService.sendPrivateDirectMessage(user.id, toUserId[0], messageDto.message);
+      await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message);
     }
     if (newMessages.length > 0) {
-      await this.chatGateway.emitMessageForConversation(newMessages, toUserId[0], user);
+      await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id, user);
 
       await this.messageCountUpdateQueue.add(
         'send-update-if-message-unread',

@@ -142,7 +142,6 @@ function Notifications() {
               {errorMessage}
             </div>
           )}
-
           <InfiniteScroll
             pageStart={0}
             initialLoad

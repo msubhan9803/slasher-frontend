@@ -1,14 +1,18 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
-import { Col, Image, Row } from 'react-bootstrap';
+import {
+  Col, Image, OverlayTrigger, Row, Tooltip,
+} from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import getEventDetails from '../../../api/events';
 import RoundButton from '../../../components/ui/RoundButton';
+import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import EventRightSidebar from '../EventRightSidebar';
@@ -29,12 +33,6 @@ const LinearIcon = styled.div<LinearIconProps>`
   .favorite-icon{
     height:3.57rem;
     width:3.57rem;
-  }
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
   }
 `;
 const StyledBorder = styled.div`
@@ -116,19 +114,23 @@ function EventDetails() {
                 >
                   {eventDetails?.url}
                 </a>
-                <StyleBorderButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn bg-black py-2" variant="lg">
-                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                  <h1 className="h3 m-0">Share</h1>
-                </StyleBorderButton>
+                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
+                  <RoundButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+                    <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                    <h1 className="h3 m-0">Share</h1>
+                  </RoundButton>
+                </OverlayTrigger>
               </div>
             </Col>
           </Row>
           <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
             <div className="d-flex align-self-center">
-              <StyleBorderButton className="d-flex align-self-center rate-btn bg-black py-2" variant="lg">
-                <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                <h1 className="h3 m-0">Share</h1>
-              </StyleBorderButton>
+              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
+                <RoundButton className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                  <h1 className="h3 m-0">Share</h1>
+                </RoundButton>
+              </OverlayTrigger>
             </div>
             <div>
               <LinearIcon role="button" uniqueId="favorite-sm" className="d-flex flex-column align-items-end">
@@ -160,6 +162,7 @@ function EventDetails() {
             />
           </div>
         </div>
+        <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">
         <EventRightSidebar />

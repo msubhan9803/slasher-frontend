@@ -24,6 +24,9 @@ const StyleTabs = styled.div`
     border-top: 2px solid #3A3B46;
     margin-top: -2px;
   }
+  .MuiTabs-flexContainer{
+    justify-content: space-evenly;
+  }
 `;
 const StyledBadge = styled.div`
   width: 24px;

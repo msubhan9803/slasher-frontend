@@ -61,7 +61,13 @@ function SidebarNavContent() {
         <li><Link className="text-light text-decoration-none" to="/">Download the app</Link></li>
         <li><Link className="text-light text-decoration-none" to="/">Advertise on Slasher</Link></li>
         <li><Link className="text-light text-decoration-none" to="/">Terms &amp; Policies</Link></li>
-        <li className="text-light text-decoration-none">&copy; 2022 Slasher Corp</li>
+        <li className="text-light text-decoration-none">
+          &copy;
+          {' '}
+          {new Date().getFullYear()}
+          {' '}
+          Slasher Corp
+        </li>
       </ul>
       <br />
     </Nav>

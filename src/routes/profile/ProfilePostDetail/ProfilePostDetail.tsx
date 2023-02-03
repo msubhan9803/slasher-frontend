@@ -605,6 +605,7 @@ function ProfilePostDetail({ user }: Props) {
           addUpdateComment={addUpdateComment}
           updateState={updateState}
           setUpdateState={setUpdateState}
+          isSinglePagePost
         />
         {dropDownValue !== 'Edit'
           && (

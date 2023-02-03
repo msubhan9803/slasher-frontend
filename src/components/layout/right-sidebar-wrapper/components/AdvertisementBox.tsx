@@ -1,17 +1,12 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const Advertisement = styled.div`
-  height: 250px;
-  width: 300px;
-  background-color: #272727;
-`;
+import PubWiseAd from '../../../ui/PubWiseAd';
+import { GLOBAL_RIGHT_NAV_DIV_ID } from '../../../../utils/pubwise-ad-units';
 
 function AdvertisementBox() {
   return (
     <div>
       <h2 className="mb-3">Advertisement</h2>
-      <Advertisement className="mx-auto" />
+      <PubWiseAd className="text-center my-3" id={GLOBAL_RIGHT_NAV_DIV_ID} />
     </div>
   );
 }

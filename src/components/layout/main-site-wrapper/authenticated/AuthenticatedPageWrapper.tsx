@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {
+  useContext, useEffect, useState,
+} from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -27,13 +29,14 @@ const StyledOffcanvas = styled(Offcanvas)`
 `;
 
 const LeftSidebarWrapper = styled.div`
-  width: 127px;
+  width: 142px;
   height: calc(100vh - 125px);
   overflow-y: hidden;
   position: sticky;
   top: 125px;
+  padding-right: 1rem;
   &:hover {
-    overflow-y: auto;
+    overflow-y: overlay;
   }
 `;
 
@@ -80,7 +83,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = () => {
     dispatch(incrementUnreadNotificationCount());
   };
-
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
@@ -94,7 +96,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   if (!userData.user) {
     return <LoadingIndicator />;
   }
-
   return (
     <div className="page-wrapper full">
       <AuthenticatedPageHeader
@@ -113,7 +114,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <main className="px-lg-3 flex-grow-1 min-width-0">
+          <main className="px-lg-2 flex-grow-1 min-width-0">
             {children}
           </main>
         </div>

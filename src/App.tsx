@@ -26,6 +26,8 @@ import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import useGoogleAnalytics from './hooks/useGoogleAnalytics';
+import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
+import { enableADs } from './constants';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -74,6 +76,7 @@ const routes: Record<string, TopLevelRoute> = {
 
 function App() {
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  if (enableADs) { usePubWiseAdSlots(); }
 
   const router = createBrowserRouter(
     createRoutesFromElements(

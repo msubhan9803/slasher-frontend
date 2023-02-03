@@ -29,28 +29,52 @@ export class Movie {
   @Prop({ default: null, ref: 'users' })
   userId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: MovieUserStatusFavorites.NotFavorite })
+  @Prop({
+    default: MovieUserStatusFavorites.NotFavorite,
+    enum: [MovieUserStatusFavorites.NotFavorite, MovieUserStatusFavorites.Favorite],
+   })
   favourite: MovieUserStatusFavorites;
 
-  @Prop({ default: MovieUserStatusWatch.NotWatch })
+  @Prop({
+    default: MovieUserStatusWatch.NotWatch,
+    enum: [MovieUserStatusWatch.NotWatch, MovieUserStatusWatch.Watch],
+  })
   watch: MovieUserStatusWatch;
 
-  @Prop({ default: MovieUserStatusWatched.NotWatched })
+  @Prop({
+    default: MovieUserStatusWatched.NotWatched,
+    enum: [MovieUserStatusWatch.NotWatch, MovieUserStatusWatch.Watch],
+  })
   watched: MovieUserStatusWatched;
 
-  @Prop({ default: MovieUserStatusBuy.NotBuy })
+  @Prop({
+    default: MovieUserStatusBuy.NotBuy,
+    enum: [MovieUserStatusBuy.NotBuy, MovieUserStatusBuy.Buy],
+   })
   buy: MovieUserStatusBuy;
 
-  @Prop({ default: MovieUserStatusRating.Free })
+  @Prop({
+    default: MovieUserStatusRating.Free,
+    enum: [MovieUserStatusRating.Free, MovieUserStatusRating.MovieDB],
+   })
   rating: MovieUserStatusRating;
 
-  @Prop({ default: MovieUserStatusRatingStatus.NotAvailable })
+  @Prop({
+    default: MovieUserStatusRatingStatus.NotAvailable,
+    enum: [MovieUserStatusRatingStatus.NotAvailable, MovieUserStatusRatingStatus.Available],
+  })
   ratingStatus: MovieUserStatusRatingStatus;
 
-  @Prop({ default: MovieUserStatusStatus.Active })
+  @Prop({
+    default: MovieUserStatusStatus.Active,
+    enum: [MovieUserStatusStatus.InActive, MovieUserStatusStatus.Active, MovieUserStatusStatus.Deactive],
+  })
   status: MovieUserStatusStatus;
 
-  @Prop({ default: MovieUserStatusDeletionStatus.NotDeleted })
+  @Prop({
+    default: MovieUserStatusDeletionStatus.NotDeleted,
+    enum: [MovieUserStatusDeletionStatus.NotDeleted, MovieUserStatusDeletionStatus.Deleted],
+   })
   deleted: MovieUserStatusDeletionStatus;
 
   /***********

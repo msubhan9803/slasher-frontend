@@ -5,10 +5,6 @@ import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 
-const comingSoonTemplate = {
-  label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#',
-};
-
 type MenuType = {
   label: string, icon: any, iconColor: string, to: string, id: any, desktopOnly?: boolean
 };

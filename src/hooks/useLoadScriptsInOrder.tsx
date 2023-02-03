@@ -1,0 +1,38 @@
+/* eslint-disable no-console,no-restricted-syntax,no-await-in-loop */
+import { useEffect, useState } from 'react';
+
+const useLoadScriptsInOrder = (URLs: string[]) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    async function main() {
+      try {
+        // SEQUENTIAL LOADING OF SCRIPTS
+        for (const url of URLs) {
+          await new Promise((resolve) => {
+            const tag = document.createElement('script');
+            // tag.async = true;
+            tag.src = url;
+            const body = document.getElementsByTagName('body')[0];
+            body.appendChild(tag);
+
+            tag.addEventListener('load', resolve);
+          });
+        }
+        setIsLoaded(true);
+      } catch (error: any) {
+        console.error('Slasher LOG: (failed to load PubWise scipts):', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        });
+      }
+    }
+
+    main();
+  }, []);
+
+  return isLoaded;
+};
+
+export default useLoadScriptsInOrder;

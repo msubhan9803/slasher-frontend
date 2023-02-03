@@ -3,26 +3,22 @@ import { Col, Image, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ProfileHeader from '../ProfileHeader';
-import CustomPopover, { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import ReportModal from '../../../components/ui/ReportModal';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../../redux/hooks';
-import { reportData } from '../../../api/report';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
   img {
     object-fit: cover;
   }
-`;
-const StyledPopover = styled.div`
-  top: 25px;
-  right: 8px;
 `;
 interface UserPhotos {
   id: string;
@@ -37,23 +33,11 @@ interface Props {
 }
 function ProfilePhotos({ user }: Props) {
   const [requestAdditionalPhotos, setRequestAdditionalPhotos] = useState<boolean>(false);
-  const [show, setShow] = useState(false);
   const [userPhotosList, setUserPhotosList] = useState<UserPhotos[]>([]);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [dropDownValue, setDropDownValue] = useState('');
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
   const loginUserId = useAppSelector((state) => state.user.user.id);
-  const viewerOptions = ['Report'];
-  const selfOptions = ['Edit post', 'Delete Image'];
-  const popoverOption = loginUserId === user?.id ? selfOptions : viewerOptions;
-  const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
-
-  const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
-    setShow(true);
-    setDropDownValue(value);
-    setPopoverClick(popoverClickProps);
-  };
 
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
@@ -96,64 +80,45 @@ function ProfilePhotos({ user }: Props) {
       }
     </p>
   );
-  const reportProfilePhoto = (reason: string) => {
-    const reportPayload = {
-      targetId: popoverClick?.id,
-      reason,
-      reportType: 'post',
-    };
-    reportData(reportPayload).then(() => {
-      setShow(false);
-    })
-      /* eslint-disable no-console */
-      .catch((error) => console.error(error));
-  };
   return (
-    <AuthenticatedPageWrapper rightSidebarType={loginUserId === user?.id ? 'profile-self' : 'profile-other-user'}>
-      <ProfileHeader tabKey="photos" user={user} />
-      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
-        )}
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalPhotos(true); }}
-          hasMore={!noMoreData}
-        >
-          <Row>
-            {userPhotosList.map((data: UserPhotos) => (
-              data.imagesList && data.imagesList.map((images: ImageList) => (
-                <Col xs={4} md={3} key={images._id}>
-                  <ProfilePhoto className="position-relative">
-                    <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                      <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
-                    </Link>
-                    <StyledPopover className="position-absolute">
-                      <CustomPopover
-                        popoverOptions={popoverOption}
-                        onPopoverClick={handlePopoverOption}
-                        id={data.id}
-                      />
-                    </StyledPopover>
-                  </ProfilePhoto>
-                </Col>
-              ))
-            ))}
-          </Row>
-        </InfiniteScroll>
-        {loadingPhotos && <LoadingIndicator />}
-        {noMoreData && renderNoMoreDataMessage()}
-      </div>
-      <ReportModal
-        show={show}
-        setShow={setShow}
-        slectedDropdownValue={dropDownValue}
-        handleReport={reportProfilePhoto}
-      />
-    </AuthenticatedPageWrapper>
+
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <ProfileHeader tabKey="photos" user={user} />
+        <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPhotos(true); }}
+            hasMore={!noMoreData}
+          >
+            <Row>
+              {userPhotosList.map((data: UserPhotos) => (
+                data.imagesList && data.imagesList.map((images: ImageList) => (
+                  <Col xs={4} md={3} key={images._id}>
+                    <ProfilePhoto className="position-relative">
+                      <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
+                        <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
+                      </Link>
+                    </ProfilePhoto>
+                  </Col>
+                ))
+              ))}
+            </Row>
+          </InfiniteScroll>
+          {loadingPhotos && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
+        </div>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

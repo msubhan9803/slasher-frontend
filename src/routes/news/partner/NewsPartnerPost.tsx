@@ -3,11 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ReportModal from '../../../components/ui/ReportModal';
 import { feedPostDetail } from '../../../api/feed-posts';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import { CommentValue, NewsPartnerPostProps } from '../../../types';
+import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
@@ -18,6 +17,10 @@ import {
 } from '../../../api/feed-comments';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
+import { useAppSelector } from '../../../redux/hooks';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 
 function NewsPartnerPost() {
   const { partnerId, postId } = useParams<string>();
@@ -32,7 +35,6 @@ function NewsPartnerPost() {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
-  const [commentValue, setCommentValue] = useState<CommentValue>();
   const [commentID, setCommentID] = useState<string>('');
   const [commentReplyID, setCommentReplyID] = useState<string>('');
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -44,6 +46,8 @@ function NewsPartnerPost() {
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
+  const userData = useAppSelector((state) => state.user);
+  const [updateState, setUpdateState] = useState(false);
 
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
@@ -142,80 +146,146 @@ function NewsPartnerPost() {
     }
   }, [requestAdditionalPosts, loadingComments]);
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (commentValue && (commentValue.commentMessage !== '' || commentValue.replyMessage !== '')) {
-      setLoadingComments(true);
-      if (!isEdit) {
-        if (!commentID) {
-          addFeedComments(postId!, commentValue.commentMessage, commentValue.imageArray)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
+  const addUpdateComment = (comment: CommentValue) => {
+    let commentValueData: any = {
+      feedPostId: '',
+      images: [],
+      message: '',
+      userId: userData.user,
+      replies: [],
+      createdAt: new Date().toISOString(),
+    };
+    if (comment?.commentId) {
+      updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
+        .then((res) => {
+          const updateCommentArray: any = commentData;
+          commentValueData = {
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: comment.imageArray,
+            message: comment.commentMessage,
+            userId: userData.user,
+            replies: [],
+            createdAt: new Date().toISOString(),
+          };
+          const index = updateCommentArray.findIndex(
+            (commentId: any) => commentId._id === res.data._id,
+          );
+          if (updateCommentArray[index]._id === res.data._id) {
+            updateCommentArray[index] = {
+              ...res.data,
+              ...commentValueData,
+              replies: updateCommentArray[index].replies,
+            };
+          }
+          setCommentData(updateCommentArray);
+          setUpdateState(true);
+          setErrorMessage([]);
+          setIsEdit(false);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response?.data.message);
+        });
+    } else {
+      addFeedComments(
+        postId!,
+        comment.commentMessage,
+        comment.imageArray,
+      )
+        .then((res) => {
+          let newCommentArray: any = commentData;
+          commentValueData = {
+            _id: res.data._id,
+            feedPostId: res.data.feedPostId,
+            images: comment.imageArray,
+            message: comment.commentMessage,
+            userId: userData.user,
+            replies: [],
+            createdAt: new Date().toISOString(),
+          };
+          newCommentArray = [commentValueData].concat(newCommentArray);
+          setCommentData(newCommentArray);
+          setUpdateState(true);
+          setErrorMessage([]);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
+    }
+  };
+
+  const addUpdateReply = (reply: ReplyValue) => {
+    let replyValueData: any = {
+      feedPostId: '',
+      feedCommentId: '',
+      images: [],
+      message: '',
+      userId: userData.user,
+      createdAt: new Date().toISOString(),
+    };
+    if (reply.replyMessage) {
+      if (reply.replyId) {
+        updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
+          .then((res) => {
+            const updateReplyArray: any = commentData;
+            replyValueData = {
+              message: res.data.message,
+              userId: userData.user,
+            };
+            updateReplyArray.map((comment: any) => {
+              const staticReplies = comment.replies;
+              if (comment._id === res.data.feedCommentId) {
+                const index = staticReplies.findIndex(
+                  (replyId: any) => replyId._id === res.data._id,
+                );
+                if (staticReplies[index]._id === res.data._id) {
+                  staticReplies[index] = { ...res.data, ...replyValueData };
+                }
+                return null;
+              }
+              return null;
             });
-        } else {
-          addFeedReplyComments(
-            postId!,
-            commentValue.replyMessage,
-            commentValue.imageArray,
-            commentID,
-          ).then(() => {
-            callLatestFeedComments();
+            setCommentData(updateReplyArray);
+            setUpdateState(true);
             setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentID('');
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-        }
-      } else {
-        if (commentID) {
-          updateFeedComments(postId!, commentValue.commentMessage, commentID)
-            .then(() => {
-              callLatestFeedComments();
-              setErrorMessage([]);
-              setCommentValue({
-                commentMessage: '',
-                replyMessage: '',
-                imageArray: [],
-              });
-              setCommentID('');
-              setIsEdit(false);
-            })
-            .catch((error) => {
-              setErrorMessage(error.response.data.message);
-            });
-        }
-        if (commentReplyID) {
-          updateFeedCommentReply(postId!, commentValue.replyMessage, commentReplyID).then(() => {
-            callLatestFeedComments();
-            setErrorMessage([]);
-            setCommentValue({
-              commentMessage: '',
-              replyMessage: '',
-              imageArray: [],
-            });
-            setCommentReplyID('');
             setIsEdit(false);
           }).catch((error) => {
             setErrorMessage(error.response.data.message);
           });
-        }
+      } else {
+        addFeedReplyComments(
+          postId!,
+          reply.replyMessage,
+          reply?.imageArray,
+          reply.commentId!,
+        ).then((res) => {
+          const newReplyArray: any = commentData;
+          replyValueData = {
+            feedPostId: postId,
+            feedCommentId: res.data.feedCommentId,
+            images: reply.imageArray,
+            message: reply.replyMessage,
+            userId: userData.user,
+            createdAt: new Date().toISOString(),
+            new: true,
+          };
+          newReplyArray.map((comment: any) => {
+            const staticReplies = comment.replies;
+            if (comment._id === reply.commentId) {
+              staticReplies.push({ ...replyValueData, _id: res.data._id });
+            }
+            return null;
+          });
+          setCommentData(newReplyArray);
+          setUpdateState(true);
+          setErrorMessage([]);
+          setCommentID('');
+        }).catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
       }
     }
-  }, [commentValue, postId, commentID, commentReplyID, isEdit]);
+  };
 
   const removeComment = () => {
     if (commentID) {
@@ -238,11 +308,42 @@ function NewsPartnerPost() {
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
-        if (res.status === 200) getFeedPostDetail(postId!);
+        if (res.status === 200) {
+          const unLikePostData = postData.map(
+            (unLikePost: NewsPartnerPostProps) => {
+              if (unLikePost._id === feedPostId) {
+                const removeUserLike = unLikePost.likes?.filter(
+                  (removeId: string) => removeId !== loginUserId,
+                );
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likes: removeUserLike,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPostData(unLikePostData);
+        }
       });
     } else {
       likeFeedPost(feedPostId).then((res) => {
-        if (res.status === 201) getFeedPostDetail(postId!);
+        if (res.status === 201) {
+          const likePostData = postData.map((likePost: NewsPartnerPostProps) => {
+            if (likePost._id === feedPostId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likes: [...likePost.likes!, loginUserId!],
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPostData(likePostData);
+        }
       });
     }
   };
@@ -257,11 +358,27 @@ function NewsPartnerPost() {
 
       if (checkCommentLike) {
         unlikeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 200) callLatestFeedComments();
+          if (res.status === 200) {
+            const unLikeCommentData = commentData.map(
+              (commentLike: any) => (commentLike === checkCommentId
+                ? { ...commentLike, likedByUser: false, likeCount: commentLike.likeCount - 1 }
+                : commentLike),
+            );
+            setCommentData(unLikeCommentData);
+            setUpdateState(true);
+          }
         });
       } else {
         likeFeedComment(feedCommentId).then((res) => {
-          if (res.status === 201) callLatestFeedComments();
+          if (res.status === 201) {
+            const likeCommentData = commentData.map(
+              (commentLike: any) => (commentLike === checkCommentId
+                ? { ...commentLike, likedByUser: true, likeCount: commentLike.likeCount + 1 }
+                : commentLike),
+            );
+            setCommentData(likeCommentData);
+            setUpdateState(true);
+          }
         });
       }
     }
@@ -269,11 +386,51 @@ function NewsPartnerPost() {
       const checkReplyLike = checkReplyId[0].likedByUser;
       if (checkReplyLike) {
         unlikeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 200) callLatestFeedComments();
+          if (res.status === 200) {
+            const updatedCommentData: any = [];
+            commentData.map((commentLike: any) => {
+              if (commentLike._id === checkReplyId[0].feedCommentId) {
+                commentLike.replies.map((reply: any) => {
+                  if (reply._id === checkReplyId[0]._id) {
+                    /* eslint-disable no-param-reassign */
+                    reply.likeCount -= 1;
+                    reply.likedByUser = false;
+                    return reply;
+                  }
+                  return reply;
+                });
+                updatedCommentData.push(commentLike);
+              } else {
+                updatedCommentData.push(commentLike);
+              }
+              return null;
+            });
+            setCommentData(updatedCommentData);
+          }
         });
       } else {
         likeFeedReply(feedCommentId).then((res) => {
-          if (res.status === 201) callLatestFeedComments();
+          if (res.status === 201) {
+            const updatedCommentData: any = [];
+            commentData.map((commentLike: any) => {
+              if (commentLike._id === checkReplyId[0].feedCommentId) {
+                commentLike.replies.map((reply: any) => {
+                  if (reply._id === checkReplyId[0]._id) {
+                    /* eslint-disable no-param-reassign */
+                    reply.likeCount += 1;
+                    reply.likedByUser = true;
+                    return reply;
+                  }
+                  return reply;
+                });
+                updatedCommentData.push(commentLike);
+              } else {
+                updatedCommentData.push(commentLike);
+              }
+              return null;
+            });
+            setCommentData(updatedCommentData);
+          }
         });
       }
     }
@@ -327,48 +484,57 @@ function NewsPartnerPost() {
     feedComments(true);
   };
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <Row className="mb-5 px-2">
-        <Col className="p-0">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
-          <PostFeed
-            detailPage
-            postFeedData={postData}
-            popoverOptions={loginUserPopoverOptions}
-            onPopoverClick={handlePopover}
-            isCommentSection
-            setCommentValue={setCommentValue}
-            commentsData={commentData}
-            removeComment={removeComment}
-            setCommentID={setCommentID}
-            setCommentReplyID={setCommentReplyID}
-            commentID={commentID}
-            commentReplyID={commentReplyID}
-            isEdit={isEdit}
-            setIsEdit={setIsEdit}
-            setRequestAdditionalPosts={setRequestAdditionalPosts}
-            noMoreData={noMoreData}
-            loadingPosts={loadingComments}
-            onLikeClick={onLikeClick}
-            newsPostPopoverOptions={popoverOption}
-            otherUserPopoverOptions={otherUserPopoverOptions}
-            escapeHtml={false}
-            loadNewerComment={loadNewerComment}
-            previousCommentsAvailable={previousCommentsAvailable}
-          />
-        </Col>
-      </Row>
-      <ReportModal
-        show={show}
-        setShow={setShow}
-        slectedDropdownValue={dropDownValue}
-        handleReport={reportNewsPost}
-      />
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <Row className="mb-5 px-2">
+          <Col className="p-0">
+            {errorMessage && errorMessage.length > 0 && (
+              <div className="mt-3 text-start">
+                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+              </div>
+            )}
+            <PostFeed
+              detailPage
+              postFeedData={postData}
+              popoverOptions={loginUserPopoverOptions}
+              onPopoverClick={handlePopover}
+              isCommentSection
+              commentsData={commentData}
+              removeComment={removeComment}
+              setCommentID={setCommentID}
+              setCommentReplyID={setCommentReplyID}
+              commentID={commentID}
+              commentReplyID={commentReplyID}
+              isEdit={isEdit}
+              setIsEdit={setIsEdit}
+              setRequestAdditionalPosts={setRequestAdditionalPosts}
+              noMoreData={noMoreData}
+              loadingPosts={loadingComments}
+              onLikeClick={onLikeClick}
+              newsPostPopoverOptions={popoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              escapeHtml={false}
+              loadNewerComment={loadNewerComment}
+              previousCommentsAvailable={previousCommentsAvailable}
+              addUpdateReply={addUpdateReply}
+              addUpdateComment={addUpdateComment}
+              updateState={updateState}
+              setUpdateState={setUpdateState}
+              isSinglePagePost
+            />
+          </Col>
+        </Row>
+        <ReportModal
+          show={show}
+          setShow={setShow}
+          slectedDropdownValue={dropDownValue}
+          handleReport={reportNewsPost}
+        />
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 export default NewsPartnerPost;

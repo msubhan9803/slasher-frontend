@@ -1,9 +1,11 @@
 import React from 'react';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ShoppingCardList from '../components/ShoppingCardList';
 import ShoppingSelect from '../components/ShoppingSelect';
 import ShoppingHeader from '../ShoppingHeader';
 import ShoppingPhotos from '../../../images/shopping-photos.png';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import ShoppingRightSidebar from '../ShoppingRightSidebar';
 
 const slasherDeals = [
   {
@@ -15,16 +17,21 @@ const slasherDeals = [
 ];
 function SlasherDeals() {
   return (
-    <AuthenticatedPageWrapper rightSidebarType="shopping">
-      <ShoppingHeader tabKey="slasher-deals" />
-      <div className="order-4 my-4">
-        <ShoppingSelect />
-      </div>
-      <div className="order-last bg-dark p-4 rounded">
-        <h2 className="fw-bold mb-4">Clothing &#38; Accessories</h2>
-        <ShoppingCardList shoppingList={slasherDeals} />
-      </div>
-    </AuthenticatedPageWrapper>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <ShoppingHeader tabKey="slasher-deals" />
+        <div className="order-4 my-4">
+          <ShoppingSelect />
+        </div>
+        <div className="order-last bg-dark p-4 rounded">
+          <h2 className="fw-bold mb-4">Clothing &#38; Accessories</h2>
+          <ShoppingCardList shoppingList={slasherDeals} />
+        </div>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <ShoppingRightSidebar />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

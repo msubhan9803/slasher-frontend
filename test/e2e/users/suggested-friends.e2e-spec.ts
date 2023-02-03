@@ -10,6 +10,7 @@ import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -71,7 +72,43 @@ describe('Users suggested friends (e2e)', () => {
           .get('/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(7);
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username11',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username10',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username9',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username8',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username7',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username6',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            userName: 'Username5',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
       });
     });
 

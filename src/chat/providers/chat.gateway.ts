@@ -9,6 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
@@ -25,9 +27,10 @@ type MessageReturnType = Partial<{ success: boolean, message: Message, errorMess
 @WebSocketGateway(SHARED_GATEWAY_OPTS)
 export class ChatGateway {
   constructor(
+    @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,
     private readonly usersService: UsersService,
-    private readonly friendsService: FriendsService,
     private readonly chatService: ChatService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @WebSocketServer()
@@ -56,8 +59,16 @@ export class ChatGateway {
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
-      client.to(socketId).emit('chatMessageReceived', { message: pick(messageObject, ['_id', 'message', 'matchId', 'createdAt']), user });
+      client.to(socketId).emit('chatMessageReceived', {
+        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+        user,
+      });
     });
+    await this.messageCountUpdateQueue.add(
+      'send-update-if-message-unread',
+      { messageId: messageObject.id },
+      { delay: 15_000 }, // 15 second delay
+    );
     return { success: true, message: messageObject };
   }
 
@@ -71,7 +82,7 @@ export class ChatGateway {
 
     const { matchListId, before } = data;
 
-    const matchList = await this.chatService.findMatchList(matchListId);
+    const matchList = await this.chatService.findMatchList(matchListId, true);
     if (!matchList) return { error: 'Permission denied' };
 
     const matchUserIds = matchList.participants.find(
@@ -83,6 +94,7 @@ export class ChatGateway {
     // since the user is requesting the LATEST messages in the chat and will then be caught up.
     if (!before) {
       await this.chatService.markAllReceivedMessagesReadForChat(user.id, matchList.id);
+      await this.emitMessageCountUpdateEvent(user.id);
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
@@ -106,7 +118,16 @@ export class ChatGateway {
       await this.chatService.markMessageAsRead(messageId);
       return { success: true };
     }
-    // If we got here, that means that the message was not sent TO the user making this request
     return { success: false, error: 'Unauthorized' };
+  }
+
+  async emitMessageCountUpdateEvent(userId: string) {
+    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(userId);
+
+    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(userId);
+
+    targetUserSocketIds.forEach((socketId) => {
+      this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+    });
   }
 }

@@ -22,7 +22,7 @@ export function MinYearsBeforeToday(numYears: number, validationOptions?: Valida
           const zeroHMSMilli = {
             hour: 0, minute: 0, second: 0, millisecond: 0,
           };
-          const midnightOnGivenDate = DateTime.fromJSDate(value).set(zeroHMSMilli);
+          const midnightOnGivenDate = DateTime.fromJSDate(new Date(value)).set(zeroHMSMilli);
           const midnightOnlatestAllowedIsoDate = DateTime.now().set(zeroHMSMilli).minus({ years: numyearsConstraint });
 
           return midnightOnGivenDate <= midnightOnlatestAllowedIsoDate;

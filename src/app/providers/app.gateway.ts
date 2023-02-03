@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
-import { HttpException, HttpStatus } from '@nestjs/common';
+import {
+  HttpException, HttpStatus, Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   MessageBody,
@@ -29,10 +30,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  private readonly logger = new Logger(AppGateway.name);
+
   constructor(private readonly config: ConfigService, private readonly usersService: UsersService) { }
 
   async handleConnection(client: any, ...args: any[]) {
-    console.log(`(app gateway) client connected: ${client.id}`);
+    this.logger.debug(`(app gateway) client connected: ${client.id}`);
 
     // We will first look for the token in the handshake auth field.  This is what clients will
     // generally be sending because it is more broadly compatible.  Browsers do not currently
@@ -85,7 +88,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     // If other checks failed above, then disconnect
-    console.log(`(app gateway) client connection rejected due to invalid credentials: ${client.id}`);
+    this.logger.debug(`(app gateway) client connection rejected due to invalid credentials: ${client.id}`);
     client.disconnect();
   }
 

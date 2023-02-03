@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
-import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ResetPasswordDto } from 'src/users/dto/reset-password.dto';
 import { AppModule } from '../../../src/app.module';
@@ -63,6 +63,7 @@ describe('Users reset password (e2e)', () => {
             (await usersService.findByEmail(postBody.email)).password,
           ),
         ).toBe(true);
+        expect(response.body).toEqual({ message: 'Password reset successfully' });
       });
 
       it('User does not exists', async () => {

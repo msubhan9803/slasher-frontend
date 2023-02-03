@@ -7,19 +7,20 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user/user.schema';
+import { UserDocument } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPost } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostDeletionState, FeedPostStatus } from '../../../src/schemas/feedPost/feedPost.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('All Feed Post (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
@@ -74,6 +75,30 @@ describe('All Feed Post (e2e)', () => {
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        const postFromResponse = response.body[i];
+
+        expect(postFromResponse).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          images: [
+            {
+              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+          userId: {
+            _id: activeUser.id,
+            userName: 'Username1',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          createdAt: expect.any(String),
+          likes: [],
+          likeCount: 0,
+          commentCount: 0,
+        });
       }
       expect(response.body).toHaveLength(5);
     });

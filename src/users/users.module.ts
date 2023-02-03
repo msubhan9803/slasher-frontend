@@ -5,7 +5,6 @@ import { UsersService } from './providers/users.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { User, UserSchema } from '../schemas/user/user.schema';
-import { FriendsModule } from '../friends/friends.module';
 import { FeedPostsModule } from '../feed-posts/feed-posts.module';
 import { UserSettingModule } from '../settings/user-settings.module';
 import { SocketUser, SocketUserSchema } from '../schemas/socketUser/socketUser.schema';
@@ -22,7 +21,6 @@ import { DisallowedUsernameModule } from '../disallowedUsername/disallowed-usern
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: SocketUser.name, schema: SocketUserSchema }]),
     FeedPostsModule,
-    FriendsModule,
     UserSettingModule,
     ChatModule,
     RssFeedProviderFollowsModule,

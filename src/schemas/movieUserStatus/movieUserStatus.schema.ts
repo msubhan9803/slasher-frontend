@@ -7,7 +7,7 @@ import {
 } from './movieUserStatus.enums';
 
 @Schema({ timestamps: true })
-export class Movie {
+export class MovieUserStatus {
   /***********
    * Fields *
    ***********/
@@ -81,7 +81,7 @@ export class Movie {
    * Methods *
    ***********/
 
-  constructor(options?: Partial<Movie>) {
+  constructor(options?: Partial<MovieUserStatus>) {
     if (!options) {
       return;
     }
@@ -91,9 +91,9 @@ export class Movie {
   }
 }
 
-export const MovieUserStatusSchema = SchemaFactory.createForClass(Movie);
+export const MovieUserStatusSchema = SchemaFactory.createForClass(MovieUserStatus);
 
-export type MovieUserStatusDocument = Movie & Document;
+export type MovieUserStatusDocument = MovieUserStatus & Document;
 
 MovieUserStatusSchema.index({ movieId: 1, userId: 1 });
 MovieUserStatusSchema.index({ favourite: 1, userId: 1 });

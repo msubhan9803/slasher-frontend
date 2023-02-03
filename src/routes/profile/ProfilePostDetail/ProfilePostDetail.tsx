@@ -600,31 +600,32 @@ function ProfilePostDetail({ user }: Props) {
         addUpdateComment={addUpdateComment}
         updateState={updateState}
         setUpdateState={setUpdateState}
+        isSinglePagePost
       />
       {dropDownValue !== 'Edit'
-        && (
-          <ReportModal
-            deleteText="Are you sure you want to delete this post?"
-            onConfirmClick={deletePostClick}
-            show={show}
-            setShow={setShow}
-            slectedDropdownValue={dropDownValue}
-            handleReport={reportProfilePost}
-            onBlockYesClick={onBlockYesClick}
-          />
-        )}
+          && (
+            <ReportModal
+              deleteText="Are you sure you want to delete this post?"
+              onConfirmClick={deletePostClick}
+              show={show}
+              setShow={setShow}
+              slectedDropdownValue={dropDownValue}
+              handleReport={reportProfilePost}
+              onBlockYesClick={onBlockYesClick}
+            />
+          )}
       {dropDownValue === 'Edit'
-        && (
-          <EditPostModal
-            show={show}
-            setShow={setShow}
-            handleSearch={handleSearch}
-            mentionList={mentionList}
-            setPostContent={setPostContent}
-            postContent={postContent}
-            onUpdatePost={onUpdatePost}
-          />
-        )}
+          && (
+            <EditPostModal
+              show={show}
+              setShow={setShow}
+              handleSearch={handleSearch}
+              mentionList={mentionList}
+              setPostContent={setPostContent}
+              postContent={postContent}
+              onUpdatePost={onUpdatePost}
+            />
+          )}
     </div>
   );
 }

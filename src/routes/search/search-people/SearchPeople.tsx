@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link } from 'react-router-dom';
-import { debounce } from 'lodash';
 import { getSearchUser } from '../../../api/searchUser';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import SearchHeader from '../SearchHeader';
@@ -67,10 +66,6 @@ function SearchPeople() {
     }
   };
 
-  const debouncedSearch = debounce(async (criteria: string) => {
-    await searchData(criteria);
-  }, 2000);
-
   const handleSearch = (value: string) => {
     setLoadUser(true);
     setMoreCharacters(false);
@@ -82,7 +77,7 @@ function SearchPeople() {
     }
     if (searchUser && searchUser.length >= 3) {
       setSearch(searchUser);
-      debouncedSearch(searchUser);
+      searchData(searchUser);
     } else {
       setLoadUser(false);
       setMoreCharacters(true);

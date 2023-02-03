@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
@@ -18,6 +17,9 @@ import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -264,64 +266,75 @@ function Home() {
       .catch((error) => console.error(error));
   };
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <CustomCreatePost />
-      <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
-      <SuggestedFriend />
-      {errorMessage && errorMessage.length > 0 && (
-        <div className="mt-3 text-start">
-          {errorMessage}
-        </div>
-      )}
-      <InfiniteScroll
-        threshold={2000}
-        pageStart={0}
-        initialLoad
-        loadMore={() => { setRequestAdditionalPosts(true); }}
-        hasMore={!noMoreData}
-      >
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <CustomCreatePost />
+        <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
+        <SuggestedFriend />
         {
-          posts.length > 0
+          errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              {errorMessage}
+            </div>
+          )
+        }
+        <InfiniteScroll
+          threshold={2000}
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPosts(true); }}
+          hasMore={!noMoreData}
+        >
+          {
+            posts.length > 0
+            && (
+              <PostFeed
+                postFeedData={posts}
+                popoverOptions={loginUserPopoverOptions}
+                isCommentSection={false}
+                onPopoverClick={handlePopoverOption}
+                otherUserPopoverOptions={otherUserPopoverOptions}
+                newsPostPopoverOptions={newsPostPopoverOptions}
+                onLikeClick={onLikeClick}
+              />
+            )
+          }
+        </InfiniteScroll>
+        {loadingPosts && <LoadingIndicator />}
+        {noMoreData && renderNoMoreDataMessage()}
+        {
+          dropDownValue !== 'Edit'
           && (
-            <PostFeed
-              postFeedData={posts}
-              popoverOptions={loginUserPopoverOptions}
-              isCommentSection={false}
-              onPopoverClick={handlePopoverOption}
-              otherUserPopoverOptions={otherUserPopoverOptions}
-              newsPostPopoverOptions={newsPostPopoverOptions}
-              onLikeClick={onLikeClick}
+            <ReportModal
+              deleteText="Are you sure you want to delete this post?"
+              onConfirmClick={deletePostClick}
+              show={show}
+              setShow={setShow}
+              slectedDropdownValue={dropDownValue}
+              onBlockYesClick={onBlockYesClick}
+              handleReport={reportHomePost}
             />
           )
         }
-      </InfiniteScroll>
-      {loadingPosts && <LoadingIndicator />}
-      {noMoreData && renderNoMoreDataMessage()}
-      {dropDownValue !== 'Edit'
-        && (
-          <ReportModal
-            deleteText="Are you sure you want to delete this post?"
-            onConfirmClick={deletePostClick}
-            show={show}
-            setShow={setShow}
-            slectedDropdownValue={dropDownValue}
-            onBlockYesClick={onBlockYesClick}
-            handleReport={reportHomePost}
-          />
-        )}
-      {dropDownValue === 'Edit'
-        && (
-          <EditPostModal
-            show={show}
-            setShow={setShow}
-            handleSearch={handleSearch}
-            mentionList={mentionList}
-            setPostContent={setPostContent}
-            postContent={postContent}
-            onUpdatePost={onUpdatePost}
-          />
-        )}
-    </AuthenticatedPageWrapper>
+        {
+          dropDownValue === 'Edit'
+          && (
+            <EditPostModal
+              show={show}
+              setShow={setShow}
+              handleSearch={handleSearch}
+              mentionList={mentionList}
+              setPostContent={setPostContent}
+              postContent={postContent}
+              onUpdatePost={onUpdatePost}
+            />
+          )
+        }
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

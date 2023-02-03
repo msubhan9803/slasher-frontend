@@ -5,7 +5,6 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 const hashtagList: string[] = [
@@ -47,7 +46,7 @@ function OnboardingHashtag() {
     setSelectedHashtag(removeHashtags);
   };
   return (
-    <UnauthenticatedPageWrapper hideFooter valign="start">
+    <>
       <h1 className="mt-5 mb-3 h2">Suggested hashtags:</h1>
       <Row>
         <Col>
@@ -100,7 +99,7 @@ function OnboardingHashtag() {
           </Row>
         </Col>
       </Row>
-    </UnauthenticatedPageWrapper>
+    </>
   );
 }
 

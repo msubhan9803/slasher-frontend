@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { watchMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
+import MovieRightSideNav from '../components/MovieRightSideNav';
 import MoviesHeader from '../MoviesHeader';
 import { MOVIE_WATCHLIST_DIV_ID } from '../../../utils/pubwise-ad-units';
 
@@ -26,20 +28,25 @@ function WatchListMovies() {
     searchData();
   }, [search]);
   return (
-    <AuthenticatedPageWrapper rightSidebarType="movie">
-      <MoviesHeader
-        tabKey="watch-list"
-        showKeys={showKeys}
-        setShowKeys={setShowKeys}
-        setSearch={setSearch}
-        search={search}
-      />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-        <div className="m-md-2">
-          <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={MOVIE_WATCHLIST_DIV_ID} />
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <MoviesHeader
+          tabKey="watch-list"
+          showKeys={showKeys}
+          setShowKeys={setShowKeys}
+          setSearch={setSearch}
+          search={search}
+        />
+        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+          <div className="m-md-2">
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={MOVIE_WATCHLIST_DIV_ID} />
+          </div>
         </div>
-      </div>
-    </AuthenticatedPageWrapper>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <MovieRightSideNav />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

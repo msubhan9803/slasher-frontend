@@ -18,7 +18,9 @@ const StyledMovieTrailer = styled(Row)`
   }
   &::-webkit-scrollbar {
     display: none;
-  }
+  } 
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 
 `;
 

@@ -13,7 +13,7 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
-import { CommentValue, Post } from '../../../types';
+import { CommentValue, Post, ReplyValue } from '../../../types';
 import LikeShareModal from '../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
@@ -43,7 +43,6 @@ interface Props {
   commentsData?: any[];
   isCommentSection?: boolean;
   onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void;
-  setCommentValue?: (value: CommentValue) => void;
   detailPage?: boolean;
   removeComment?: () => void;
   setCommentID?: (value: string) => void;
@@ -62,11 +61,18 @@ interface Props {
   loadNewerComment?: () => void;
   previousCommentsAvailable?: boolean;
   isSinglePagePost?: boolean;
+  addUpdateReply?: (value: ReplyValue) => void;
+  addUpdateComment?: (addUpdateComment: CommentValue) => void;
+  updateState?: boolean;
+  setUpdateState?: (value: boolean) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
     fill: url(#${(props) => props.uniqueId});
   }
+`;
+const StyledBorder = styled.div`
+  border-top: 1px solid #3A3B46
 `;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
@@ -81,11 +87,11 @@ const StyledPostFeed = styled.div`
 
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
-  setCommentValue, commentsData, removeComment,
-  setCommentID, setCommentReplyID, commentID, commentReplyID, otherUserPopoverOptions,
-  setIsEdit, setRequestAdditionalPosts, noMoreData, isEdit,
-  loadingPosts, onLikeClick, newsPostPopoverOptions,
-  escapeHtml, loadNewerComment, previousCommentsAvailable, isSinglePagePost,
+  commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
+  commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
+  noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
+  escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
+  addUpdateComment, updateState, setUpdateState, isSinglePagePost,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -222,22 +228,22 @@ function PostFeed({
               <Card.Body className="px-0 pt-3">
                 {renderPostContent(post)}
                 {post?.images && (
-                  <CustomSwiper
-                    images={
-                      post.images.map((imageData: any) => ({
-                        videoKey: imageData.videoKey,
-                        imageUrl: imageData.image_path,
-                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
-                        postId: post.id,
-                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                      }))
-                    }
-                    /* eslint no-underscore-dangle: 0 */
-                    initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
-                  />
+                <CustomSwiper
+                  images={
+                    post.images.map((imageData: any) => ({
+                      videoKey: imageData.videoKey,
+                      imageUrl: imageData.image_path,
+                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+                      postId: post.id,
+                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                    }))
+                  }
+                  /* eslint no-underscore-dangle: 0 */
+                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                />
                 )}
                 { /* Below ad is to be shown in the end of post content when the post is a
-                single pgae post */ }
+              single pgae post */ }
                 {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} autoSequencer />}
                 <Row className="pt-3 px-md-3">
                   <Col>
@@ -273,51 +279,53 @@ function PostFeed({
               <PostFooter
                 likeIcon={post.likeIcon}
                 postId={post.id}
-                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
                 userName={post.userName}
                 rssfeedProviderId={post.rssfeedProviderId}
+                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
               />
               {
-                isCommentSection
-                && (
-                  <>
-                    <InfiniteScroll
-                      pageStart={0}
-                      initialLoad
-                      loadMore={() => {
-                        if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
-                      }}
-                      hasMore={!noMoreData}
-                    >
-                      <PostCommentSection
-                        commentSectionData={commentsData}
-                        commentImage={post.profileImage}
-                        popoverOption={popoverOptions}
-                        setCommentValue={setCommentValue}
-                        removeComment={removeComment}
-                        setCommentID={setCommentID}
-                        setCommentReplyID={setCommentReplyID}
-                        commentID={commentID}
-                        commentReplyID={commentReplyID}
-                        loginUserId={loginUserId}
-                        otherUserPopoverOptions={otherUserPopoverOptions}
-                        setIsEdit={setIsEdit}
-                        isEdit={isEdit}
-                        onLikeClick={onLikeClick}
-                        loadNewerComment={loadNewerComment}
-                        previousCommentsAvailable={previousCommentsAvailable}
-                      />
-                    </InfiniteScroll>
-                    {loadingPosts && <LoadingIndicator />}
-                    {noMoreData && renderNoMoreDataMessage()}
-                  </>
-                )
-              }
+              isCommentSection
+              && (
+                <>
+                  <StyledBorder className="d-md-block d-none mb-4" />
+                  <InfiniteScroll
+                    pageStart={0}
+                    initialLoad
+                    loadMore={() => {
+                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                    }}
+                    hasMore={!noMoreData}
+                  >
+                    <PostCommentSection
+                      commentSectionData={commentsData}
+                      popoverOption={popoverOptions}
+                      removeComment={removeComment}
+                      setCommentID={setCommentID}
+                      setCommentReplyID={setCommentReplyID}
+                      commentID={commentID}
+                      commentReplyID={commentReplyID}
+                      loginUserId={loginUserId}
+                      otherUserPopoverOptions={otherUserPopoverOptions}
+                      setIsEdit={setIsEdit}
+                      isEdit={isEdit}
+                      onLikeClick={onLikeClick}
+                      loadNewerComment={loadNewerComment}
+                      previousCommentsAvailable={previousCommentsAvailable}
+                      addUpdateReply={addUpdateReply}
+                      addUpdateComment={addUpdateComment}
+                      updateState={updateState}
+                      setUpdateState={setUpdateState}
+                    />
+                  </InfiniteScroll>
+                  {loadingPosts && <LoadingIndicator />}
+                  {noMoreData && renderNoMoreDataMessage()}
+                </>
+              )
+            }
             </Card>
           </div>
           { (i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
         </div>
-
       ))}
       { !isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
       {
@@ -336,7 +344,6 @@ function PostFeed({
 PostFeed.defaultProps = {
   isCommentSection: false,
   detailPage: false,
-  setCommentValue: undefined,
   commentsData: [],
   removeComment: undefined,
   setCommentID: undefined,
@@ -355,5 +362,9 @@ PostFeed.defaultProps = {
   loadNewerComment: undefined,
   previousCommentsAvailable: false,
   isSinglePagePost: false,
+  addUpdateReply: undefined,
+  addUpdateComment: undefined,
+  updateState: false,
+  setUpdateState: undefined,
 };
 export default PostFeed;

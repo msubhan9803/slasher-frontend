@@ -12,7 +12,7 @@ import {
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import ListIcon from './ListIcon';
-import AboutDetails from './AboutDetails';
+import AboutDetails, { StyledBorder } from './AboutDetails';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import MovieOverview from './MovieOverview';
 import MovieCasts from './MovieCasts';
@@ -64,13 +64,6 @@ const tabsForViewer = [
   { value: 'details', label: 'Details' },
   { value: 'posts', label: 'Posts' },
 ];
-const FollowStyledButton = styled(RoundButton)`
-  width: 21.125rem;
-  border: 1px solid #3A3B46;
-  &:hover, &:focus{
-    border: 1px solid #3A3B46;
-  }
-`;
 
 function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
@@ -103,6 +96,13 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             <StyledMoviePoster className="mx-4">
               <Image src={aboutMovieData?.mainData?.poster_path} className="rounded-3 w-100 h-100" />
             </StyledMoviePoster>
+          </Col>
+          <Col xl={7}>
+            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <div className="d-none d-xl-block mt-3">
               <p className="fs-5">Your lists</p>
               <div className="mt-2 d-flex justify-content-between">
@@ -120,13 +120,13 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                 ))}
               </div>
             </div>
-          </Col>
-          <Col xl={7}>
-            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
+            <div className="p-3 d-none d-xl-block">
+              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+            </div>
           </Col>
         </Row>
-        <Row className="d-xl-none justify-content-center mt-4 mt-xl-2">
-          <Col xs={10} sm={7} md={5} lg={9} className="text-center">
+        <Row className="d-xl-none justify-content-center mt-3">
+          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
             <span className="fs-5">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {movieIconListData.map((iconList: MovieIconProps) => (
@@ -142,14 +142,22 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                 />
               ))}
             </div>
+            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+            </div>
           </Col>
         </Row>
-        <Row className="d-lg-none mt-3 text-center">
+        <Row className="d-lg-none text-center">
+          <StyledBorder />
           <Col xs={12}>
-            <p className="text-center fw-bold">Get updates for this movie</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
-              {bgColor ? 'Follow' : 'Unfollow'}
-            </FollowStyledButton>
+            <p className="text-center fw-bold  mt-3">Get updates for this movie</p>
+          </Col>
+          <Col xs={12} sm={7} md={5} className="m-auto">
+            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+              <RoundButton variant="black" className={`w-100 fs-3 ${bgColor ? 'w-100 bg-primary border-primary' : 'bg-black'}`} onClick={() => setBgColor(!bgColor)}>
+                {bgColor ? 'Follow' : 'Unfollow'}
+              </RoundButton>
+            </div>
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 d-lg-none">

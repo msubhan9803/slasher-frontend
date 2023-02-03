@@ -19,7 +19,7 @@ function NewsPostData({ partnerId }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [postData, setPostData] = useState<any>([]);
+  const [postData, setPostData] = useState<NewsPartnerPostProps[]>([]);
   const loginUserId = Cookies.get('userId');
   const popoverOption = ['Report'];
   const [show, setShow] = useState<boolean>(false);
@@ -99,11 +99,42 @@ function NewsPostData({ partnerId }: Props) {
 
     if (checkLike) {
       unlikeFeedPost(likeId).then((res) => {
-        if (res.status === 200) callLatestFeedPost();
+        if (res.status === 200) {
+          const unLikePostData = postData.map(
+            (unLikePost: NewsPartnerPostProps) => {
+              if (unLikePost._id === likeId) {
+                const removeUserLike = unLikePost.likes?.filter(
+                  (removeId: string) => removeId !== loginUserId,
+                );
+                return {
+                  ...unLikePost,
+                  likeIcon: false,
+                  likes: removeUserLike,
+                  likeCount: unLikePost.likeCount - 1,
+                };
+              }
+              return unLikePost;
+            },
+          );
+          setPostData(unLikePostData);
+        }
       });
     } else {
       likeFeedPost(likeId).then((res) => {
-        if (res.status === 201) callLatestFeedPost();
+        if (res.status === 201) {
+          const likePostData = postData.map((likePost: NewsPartnerPostProps) => {
+            if (likePost._id === likeId) {
+              return {
+                ...likePost,
+                likeIcon: true,
+                likes: [...likePost.likes!, loginUserId!],
+                likeCount: likePost.likeCount + 1,
+              };
+            }
+            return likePost;
+          });
+          setPostData(likePostData);
+        }
       });
     }
   };

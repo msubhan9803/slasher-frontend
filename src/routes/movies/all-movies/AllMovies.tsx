@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
@@ -8,6 +7,9 @@ import { MoviesProps } from '../components/MovieProps';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import MovieRightSideNav from '../components/MovieRightSideNav';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -72,39 +74,43 @@ function AllMovies() {
   );
 
   return (
-    <AuthenticatedPageWrapper rightSidebarType="movie">
-      <MoviesHeader
-        tabKey="all"
-        showKeys={showKeys}
-        setShowKeys={setShowKeys}
-        setSearch={setSearch}
-        search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
-        applyFilter={applyFilter}
-      />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <MoviesHeader
+          tabKey="all"
+          showKeys={showKeys}
+          setShowKeys={setShowKeys}
+          setSearch={setSearch}
+          search={search}
+          sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+          selectedKey={(keyValue: string) => setKey(keyValue)}
+          applyFilter={applyFilter}
+        />
+        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
+          <div className="m-md-2">
+            <InfiniteScroll
+              threshold={2000}
+              pageStart={0}
+              initialLoad
+              loadMore={() => { setRequestAdditionalPosts(true); }}
+              hasMore={!noMoreData}
+            >
+              <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
+            </InfiniteScroll>
+            {loadingPosts && <LoadingIndicator />}
+            {noMoreData && renderNoMoreDataMessage()}
           </div>
-        )}
-        <div className="m-md-2">
-          <InfiniteScroll
-            threshold={2000}
-            pageStart={0}
-            initialLoad
-            loadMore={() => { setRequestAdditionalPosts(true); }}
-            hasMore={!noMoreData}
-            element="span"
-          >
-            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
-          </InfiniteScroll>
-          {loadingPosts && <LoadingIndicator />}
-          {noMoreData && renderNoMoreDataMessage()}
         </div>
-      </div>
-    </AuthenticatedPageWrapper>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <MovieRightSideNav />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

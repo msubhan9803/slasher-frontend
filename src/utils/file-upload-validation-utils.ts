@@ -17,7 +17,7 @@ export function createProfileOrCoverImageParseFilePipeBuilder() {
     });
 }
 
-export function asyncDeleteMulterFiles(files: string[], logger?: Logger) {
+export function deleteMulterFiles(files: string[], logger?: Logger) {
   files.forEach((path) => {
     const fileDoesNotExist = !existsSync(path);
     if (fileDoesNotExist) return;

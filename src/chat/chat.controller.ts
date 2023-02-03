@@ -1,8 +1,12 @@
 import {
-  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch,
+  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch, UseInterceptors, UploadedFiles,
 } from '@nestjs/common';
 import { Request } from 'express';
 import mongoose from 'mongoose';
+import { ConfigService } from '@nestjs/config';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { ChatService } from './providers/chat.service';
@@ -15,13 +19,28 @@ import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MatchListIdDto } from './dto/match-list-id.dto';
+import { LocalStorageService } from '../local-storage/providers/local-storage.service';
+import { S3StorageService } from '../local-storage/providers/s3-storage.service';
+import { StorageLocationService } from '../global/providers/storage-location.service';
+import { MessageDto } from './dto/message.dto';
+import { UsersService } from '../users/providers/users.service';
+import { ChatGateway } from './providers/chat.gateway';
 
 @Controller('chat')
 export class ChatController {
   constructor(
+    @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,
     private readonly chatService: ChatService,
     private readonly friendsService: FriendsService,
     private readonly blocksService: BlocksService,
+    private readonly localStorageService: LocalStorageService,
+    private readonly s3StorageService: S3StorageService,
+    private readonly storageLocationService: StorageLocationService,
+    private readonly config: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly chatGateway: ChatGateway,
   ) { }
 
   @TransformImageUrls('$[*].participants[*].profilePic')
@@ -97,5 +116,100 @@ export class ChatController {
 
     await this.chatService.markAllReceivedMessagesReadForChat(user.id, param.matchListId);
     return { success: true };
+  }
+
+  @TransformImageUrls('$.messages[*].image')
+  @Post('conversation/:matchListId/message')
+  @UseInterceptors(
+    FilesInterceptor('files', 11, {
+      fileFilter: (req, file, cb) => {
+        if (
+          !file.mimetype.includes('image/png')
+          && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
+        ) {
+          return cb(new HttpException(
+            'Invalid file type',
+            HttpStatus.BAD_REQUEST,
+          ), false);
+        }
+        return cb(null, true);
+      },
+      limits: {
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
+      },
+    }),
+  )
+  async sendMessageInConversation(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MatchListIdDto,
+    @Body() messageDto: MessageDto,
+  ) {
+    if (files.length > 10) {
+      throw new HttpException(
+        'Only allow a maximum of 10 images',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const matchList = await this.chatService.findMatchList(params.matchListId, false);
+    if (!matchList) {
+      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+    }
+    const user = getUserFromRequest(request);
+
+    const validateUser = matchList.participants.find((userId) => (userId as unknown as User)._id.toString() === user.id);
+    if (!validateUser) {
+      throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
+    }
+
+    const toUserId = matchList.participants.map((id) => {
+      if ((id as unknown as User)._id.toString() !== user.id) {
+        // eslint-disable-next-line
+        return (id as unknown as User)._id.toString();
+      }
+    }).filter(Boolean);
+
+    const areFriends = await this.friendsService.areFriends(user._id, toUserId[0]);
+    if (!areFriends) {
+      throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+    }
+
+    const images = [];
+    for (const file of files) {
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('chat', file.filename);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
+      images.push({ image_path: storageLocation });
+    }
+
+    const newMessages = [];
+    for (const image of images) {
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId[0], '', image.image_path));
+    }
+    if (messageDto.message) {
+      await this.chatService.sendPrivateDirectMessage(user.id, toUserId[0], messageDto.message);
+    }
+    if (newMessages.length > 0) {
+      await this.chatGateway.emitMessageForConversation(newMessages, toUserId[0], user);
+
+      await this.messageCountUpdateQueue.add(
+        'send-update-if-message-unread',
+        { messageId: newMessages[newMessages.length - 1].id },
+        { delay: 15_000 }, // 15 second delay
+      );
+    }
+
+    return {
+      messages: newMessages.map(
+        (message) => pick(
+          message,
+          ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt', 'messageType', 'isRead', 'status', 'deleted'],
+        ),
+      ),
+    };
   }
 }

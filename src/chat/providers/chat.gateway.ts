@@ -11,6 +11,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
+import { Chat } from 'src/schemas/chat/chat.schema';
 import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
@@ -18,6 +19,7 @@ import { Message } from '../../schemas/message/message.schema';
 import { pick } from '../../utils/object-utils';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
+import { TransformImageUrls } from '../../app/decorators/transform-image-urls.decorator';
 
 const RECENT_MESSAGES_LIMIT = 10;
 
@@ -126,6 +128,18 @@ export class ChatGateway {
 
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+    });
+  }
+
+  async emitMessageForConversation(newMessagesArray, toUserId: string, user: object) {
+    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
+    (newMessagesArray as any).forEach((messageObject) => {
+      // Emit message to receiver
+      targetUserSocketIds.forEach((socketId) => {
+        this.server.to(socketId).emit('chatMessageReceived', {
+          message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']), user,
+        });
+      });
     });
   }
 }

@@ -1,5 +1,5 @@
 import { ParseFilePipeBuilder, HttpStatus, Logger } from '@nestjs/common';
-import { existsSync, unlink } from 'fs';
+import { existsSync, unlinkSync } from 'fs';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 
 // TODO: Change module name to file-upload-utils.ts
@@ -22,10 +22,10 @@ export function deleteMulterFiles(files: string[], logger?: Logger) {
     const fileDoesNotExist = !existsSync(path);
     if (fileDoesNotExist) return;
 
-    unlink(path, (err) => {
-      if (err) {
-        logger.error(`Encountered an error while deleting Multer temporary upload file at: ${path} -- ${err.message}`);
-      }
-    });
+    try {
+      unlinkSync(path);
+    } catch (err) {
+      logger.error(`Encountered an error while deleting Multer temporary upload file at: ${path} -- ${err.message}`);
+    }
   });
 }

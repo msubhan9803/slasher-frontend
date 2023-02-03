@@ -9,13 +9,13 @@ export class MusicUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: MusicType.Free })
+  @Prop({ default: MusicType.Free, enum: [MusicType.Free, MusicType.Paid] })
   type: MusicType;
 
-  @Prop({ default: MusicStatus.InActive })
+  @Prop({ default: MusicStatus.InActive, enum: [MusicStatus.InActive, MusicStatus.Active, MusicStatus.Deactive] })
   status: MusicStatus;
 
-  @Prop({ default: MusicDeletionState.NotDeleted })
+  @Prop({ default: MusicDeletionState.NotDeleted, enum: [MusicDeletionState.NotDeleted, MusicDeletionState.Deleted] })
   deleted: MusicDeletionState;
 
   @Prop({ default: null, ref: 'users' })

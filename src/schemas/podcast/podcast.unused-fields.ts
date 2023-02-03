@@ -9,13 +9,13 @@ export class PodcastUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: PodcastType.Free })
+  @Prop({ default: PodcastType.Free, enum: [PodcastType.Free, PodcastType.Paid] })
   type: PodcastType;
 
-  @Prop({ default: PodcastStatus.InActive })
+  @Prop({ default: PodcastStatus.InActive, enum: [PodcastStatus.InActive, PodcastStatus.Active, PodcastStatus.Deactive] })
   status: PodcastStatus;
 
-  @Prop({ default: PodcastDeletionState.NotDeleted })
+  @Prop({ default: PodcastDeletionState.NotDeleted, enum: [PodcastDeletionState.NotDeleted, PodcastDeletionState.Deleted] })
   deleted: PodcastDeletionState;
 
   @Prop({ default: null, ref: 'users' })

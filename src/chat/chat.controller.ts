@@ -186,7 +186,7 @@ export class ChatController {
       newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, '', image.image_path));
     }
     if (messageDto.message) {
-      await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message);
+      newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message));
     }
     if (newMessages.length > 0) {
       await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id, user);

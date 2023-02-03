@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-commented-out-tests */
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -15,6 +17,7 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -25,6 +28,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
+  let notificationsService: NotificationsService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,6 +39,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -54,23 +59,17 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
-      feedPost = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: activeUser._id,
-          },
-        ),
-      );
+      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
     });
 
-    it('successfully creates feed comments with a message and files', async () => {
+    it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
@@ -79,9 +78,9 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .expect(HttpStatus.CREATED);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
           message: 'hello test user',
-          userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          userId: activeUser._id.toString(),
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -239,6 +238,78 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('feedPostId', nonExistentPostId)
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toContain('Post not found');
+    });
+
+    describe('notifications', () => {
+      let postCreatorUser;
+      let postCreatorAuthToken;
+      let otherUser1;
+      let otherUser1AuthToken;
+      let otherUser2;
+      let otherUser3;
+      beforeEach(async () => {
+        postCreatorUser = await usersService.create(userFactory.build());
+        postCreatorAuthToken = postCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser2 = await usersService.create(userFactory.build());
+        otherUser3 = await usersService.create(userFactory.build());
+      });
+
+      it('sends the expected notifications when the commenter user is not the post creator user', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        await request(app.getHttpServer())
+          .post('/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(1);
+
+        // TODO: Uncomment and fix lines below
+
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: response.body._id,
+        //   senderId: otherUser1._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'replied to a comment on your post',
+        // });
+      });
+
+      it('does not send any notifications when the commenter user is the post creator user', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        await request(app.getHttpServer())
+          .post('/feed-comments').auth(postCreatorAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedPostId', post._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(0);
+        // TODO: Examine notificationsService.create() arguments in greater detail to make sure the right ones went to the right users
+      });
+
+      it('sends the expected notifications when the commenter user is not the post creator user, '
+        + 'AND there are three users mentioned in the message and one is the post creator', async () => {
+          const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+          await request(app.getHttpServer())
+            .post('/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('feedPostId', post._id.toString())
+            .field(
+              'message',
+              `##LINK_ID##${postCreatorUser._id.toString()}@PostCreatorUser##LINK_END## post creator user`
+              + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`
+              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`,
+            )
+            .expect(HttpStatus.CREATED);
+
+          expect(notificationsService.create).toHaveBeenCalledTimes(3);
+          // TODO: Examine notificationsService.create() arguments in greater detail to make sure the right ones went to the right users
+        });
     });
   });
 });

@@ -3,7 +3,6 @@ import {
   IsMongoId,
   IsOptional, MaxLength,
 } from 'class-validator';
-import { Schema } from 'mongoose';
 import { EventCategory } from '../../schemas/eventCategory/eventCategory.schema';
 
 export class UpdateEventDto {
@@ -12,11 +11,7 @@ export class UpdateEventDto {
   name: string;
 
   @IsOptional()
-  @IsMongoId()
-  userId: Schema.Types.ObjectId;
-
-  @IsOptional()
-  @IsMongoId()
+  @IsMongoId({ message: 'Invalid event_type' })
   event_type: EventCategory;
 
   @IsOptional()

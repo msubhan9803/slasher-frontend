@@ -69,10 +69,6 @@ export class EventsController {
       );
     }
 
-    if (user.id !== createEventDto.userId) {
-      throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
-    }
-
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('event', file.filename);
@@ -84,7 +80,7 @@ export class EventsController {
       images.push(storageLocation);
     }
 
-    const createEventData = new Event(createEventDto);
+    const createEventData = new Event({ ...createEventDto, userId: user.id });
     createEventData.images = images;
     const event = await this.eventService.create(createEventData);
 
@@ -125,6 +121,8 @@ export class EventsController {
     @Body() updateEventDto: UpdateEventDto,
   ) {
     const user = getUserFromRequest(request);
+
+    // For now, only admins can edit events
     if (user.userType !== UserType.Admin) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }

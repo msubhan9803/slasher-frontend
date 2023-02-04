@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsOptional, MaxLength,
 } from 'class-validator';
-import { Schema } from 'mongoose';
 import { EventCategory } from '../../schemas/eventCategory/eventCategory.schema';
 
 export class CreateEventDto {
@@ -12,12 +11,8 @@ export class CreateEventDto {
   @MaxLength(150)
   name: string;
 
-  @IsOptional()
-  @IsMongoId()
-  userId: Schema.Types.ObjectId;
-
-  @IsOptional()
-  @IsMongoId()
+  @IsNotEmpty()
+  @IsMongoId({ message: 'Invalid event_type' })
   event_type: EventCategory;
 
   @IsNotEmpty()

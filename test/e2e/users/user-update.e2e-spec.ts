@@ -8,7 +8,7 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
-import { User } from '../../../src/schemas/user/user.schema';
+import { User, UserDocument } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
@@ -17,7 +17,7 @@ describe('Users / :id (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
 
   const sampleUserUpdateObject = {
@@ -66,24 +66,32 @@ describe('Users / :id (e2e)', () => {
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
-        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toMatchObject(postBody);
-        expect(userDetails).toMatchObject(postBody);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          firstName: 'user',
+          userName: 'TestUser',
+          email: 'testuser@gmail.com',
+          aboutMe: 'I am a human being',
+          profile_status: 1,
+        });
       });
 
-      it('when the email field is not provided, updated to other fields are still successful '
+      it('when the email field is not provided, updates to other fields are still successful '
         + 'and it returns the expected response', async () => {
           const { email, ...restPostBody } = postBody;
           const response = await request(app.getHttpServer())
             .patch(`/users/${activeUser._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send(restPostBody);
-          const userDetails = await usersService.findById(response.body.id);
           expect(response.status).toEqual(HttpStatus.OK);
-          expect(response.body.email).toBeUndefined();
-          expect(userDetails).toMatchObject(restPostBody);
-          expect(userDetails.email).toEqual(activeUser.email);
+          expect(response.body).toEqual({
+            _id: activeUser.id,
+            firstName: 'user',
+            userName: 'TestUser',
+            aboutMe: 'I am a human being',
+            profile_status: 1,
+          });
         });
 
       it('update the userName successful, it returns the expected response', async () => {
@@ -92,29 +100,37 @@ describe('Users / :id (e2e)', () => {
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
-        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          userName: 'TestUser',
+          aboutMe: 'I am a human being',
+          profile_status: 1,
+        });
         expect(response.body.firstName).toBeUndefined();
         expect(response.body.email).toBeUndefined();
-
-        expect(userDetails.userName).toEqual(postBody.userName);
-        expect(userDetails.email).toEqual(activeUser.email);
-        expect(userDetails.firstName).toEqual(activeUser.firstName);
       });
 
-      it('when the profile_status is not provided, updated to other fields are still successful', async () => {
+      it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { profile_status, ...restPostBody } = postBody;
         const response = await request(app.getHttpServer())
           .patch(`/users/${activeUser._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
-        const userDetails = await usersService.findById(response.body.id);
         expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          firstName: 'user',
+          userName: 'TestUser',
+          email: 'testuser@gmail.com',
+          aboutMe: 'I am a human being',
+        });
 
-        expect(userDetails.userName).toEqual(postBody.userName);
-        expect(userDetails.email).toEqual(postBody.email);
-        expect(userDetails.firstName).toEqual(postBody.firstName);
+        const user = await usersService.findById(response.body._id);
+        expect(user.userName).toEqual(postBody.userName);
+        expect(user.email).toEqual(postBody.email);
+        expect(user.firstName).toEqual(postBody.firstName);
       });
     });
 

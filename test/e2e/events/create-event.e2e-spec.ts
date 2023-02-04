@@ -99,7 +99,7 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[2])
             .attach('files', tempPath[3])
             .expect(HttpStatus.CREATED);
-          const expectedImageValues = tempPath.map(() => expect.stringMatching(/\/event\/event_.+\.png|jpe?g/));
+          const expectedImageValues = tempPath.map(() => expect.stringMatching(/\/event\/event_.+\.png|jpe?g|gif/));
 
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -116,7 +116,7 @@ describe('Events create / (e2e)', () => {
             url: 'www.example.com',
             event_info: 'test event start',
           });
-        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }]);
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)
         const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
@@ -751,7 +751,7 @@ describe('Events create / (e2e)', () => {
         expect(allFilesNames).toEqual(['.keep']);
       });
 
-      it('when file is not jpg, jpeg or png then it will give expected response', async () => {
+      it('when one of the files is not jpg, jpeg, png, or gif then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
             .post('/events')

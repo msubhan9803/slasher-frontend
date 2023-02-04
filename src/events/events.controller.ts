@@ -21,6 +21,8 @@ import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { CreateEventDto } from './dto/create-event-dto';
+import { UserType } from '../schemas/user/user.enums';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller('events')
 export class EventsController {
@@ -39,6 +41,7 @@ export class EventsController {
         if (
           !file.mimetype.includes('image/png')
           && !file.mimetype.includes('image/jpeg')
+          && !file.mimetype.includes('image/gif')
         ) {
           return cb(new HttpException(
             'Invalid file type',
@@ -102,6 +105,10 @@ export class EventsController {
     if (!eventData) {
       throw new HttpException('Event not found', HttpStatus.NOT_FOUND);
     }
+    if (eventData.images.length === 0) {
+      // eslint-disable-next-line no-param-reassign
+      eventData.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+    }
     const pickConversationFields = [
       '_id', 'images', 'startDate',
       'endDate', 'event_type', 'city',
@@ -113,9 +120,15 @@ export class EventsController {
 
   @Patch(':id')
   async update(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateEventIdDto,
     @Body() updateEventDto: UpdateEventDto,
   ) {
+    const user = getUserFromRequest(request);
+    if (user.userType !== UserType.Admin) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
     const eventData = await this.eventService.update(params.id, updateEventDto);
     return {
       _id: eventData.id,
@@ -136,6 +149,12 @@ export class EventsController {
       true,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
     );
+    eventData.forEach((event) => {
+      if (event.images.length === 0) {
+        // eslint-disable-next-line no-param-reassign
+        event.images.push(relativeToFullImagePath(this.config, '/placeholders/no_image_available.png'));
+      }
+    });
     return eventData.map(
       (event) => pick(
         event,

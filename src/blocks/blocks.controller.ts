@@ -25,7 +25,7 @@ export class BlocksController {
     const user = getUserFromRequest(request);
     await this.blocksService.createBlock(user._id, createBlockDto.userId);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, createBlockDto.userId);
-    await this.chatService.removeChatMessagesFromDb(user._id, createBlockDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversations(user._id, createBlockDto.userId);
     return { success: true };
   }
 

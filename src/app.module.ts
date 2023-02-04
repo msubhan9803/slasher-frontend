@@ -30,6 +30,7 @@ import { SearchModule } from './search/search.module';
 import { validateEnv } from './utils/env-validation';
 import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
+import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 
 @Module({
@@ -71,6 +72,7 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
     SearchModule,
     FeedLikesModule,
     ReportsModule,
+    QueuedJobsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -98,6 +100,7 @@ export class AppModule {
         '/local-storage/(.*)', // the /local-storage endpoint is only used in development environments
         '/users/activate-account',
         '/users/check-user-name',
+        '/users/validate-registration-fields',
         '/users/forgot-password',
         '/users/register',
         '/users/reset-password',

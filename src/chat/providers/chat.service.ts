@@ -304,7 +304,7 @@ export class ChatService {
       },
       { $set: { deleted: true } },
     );
-    await this.messageModel.updateOne(
+    await this.messageModel.updateMany(
       {
         $or: [
           { fromId: new mongoose.Types.ObjectId(fromUserId), senderId: new mongoose.Types.ObjectId(toUserId) },

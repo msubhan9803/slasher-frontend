@@ -157,12 +157,12 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
         ),
       );
       const feedComments1 = await feedCommentsService
-      .createFeedComment(
-        feedPost1.id,
-        user4._id.toString(),
-        'hello test user',
-        commentImages,
-      );
+        .createFeedComment(
+          feedPost1.id,
+          user4._id.toString(),
+          'hello test user',
+          commentImages,
+        );
       await blocksModel.create({
         from: activeUser._id,
         to: user4._id,
@@ -204,12 +204,12 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       });
 
       it('should not find feed comments when given user is not a friend', async () => {
-          const response = await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .get(`/feed-comments/${feedComment1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
       });
     });
 

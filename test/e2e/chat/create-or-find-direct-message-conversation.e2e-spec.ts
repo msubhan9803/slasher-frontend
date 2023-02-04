@@ -136,7 +136,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
         const matchListCount = await matchListModel.count();
         expect(matchListCount).toBe(0);
       });

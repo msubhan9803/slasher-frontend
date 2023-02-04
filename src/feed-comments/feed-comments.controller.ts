@@ -31,7 +31,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
-import { User, User, UserDocument } from '../schemas/user/user.schema';
+import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 
 @Controller('feed-comments')
@@ -94,7 +94,7 @@ export class FeedCommentsController {
     if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
       }
     }
     const images = [];
@@ -221,7 +221,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
       }
     }
     const images = [];
@@ -319,7 +319,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
       }
     }
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
@@ -383,7 +383,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
       }
     }
     const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));

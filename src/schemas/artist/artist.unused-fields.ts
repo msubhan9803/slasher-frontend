@@ -9,13 +9,13 @@ export class ArtistUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: ArtistType.Free })
+  @Prop({ default: ArtistType.Free, enum: [ArtistType.Free, ArtistType.Paid] })
   type: ArtistType;
 
-  @Prop({ default: ArtistStatus.InActive })
+  @Prop({ default: ArtistStatus.InActive, enum: [ArtistStatus.InActive, ArtistStatus.Active, ArtistStatus.Deactive] })
   status: ArtistStatus;
 
-  @Prop({ default: ArtistDeletionState.NotDeleted })
+  @Prop({ default: ArtistDeletionState.NotDeleted, enum: [ArtistDeletionState.NotDeleted, ArtistDeletionState.Deleted] })
   deleted: ArtistDeletionState;
 
   @Prop({ default: null, ref: 'users' })

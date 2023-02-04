@@ -285,7 +285,7 @@ export class ChatService {
       new mongoose.Types.ObjectId(fromUserId),
       new mongoose.Types.ObjectId(toUserId),
     ];
-    await this.matchListModel.update(
+    await this.matchListModel.updateOne(
       {
         participants: { $all: participants },
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
@@ -295,7 +295,7 @@ export class ChatService {
       { $set: { deleted: true } },
     );
 
-    await this.chatModel.update(
+    await this.chatModel.updateOne(
       {
         participants: { $all: participants },
         relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
@@ -304,7 +304,7 @@ export class ChatService {
       },
       { $set: { deleted: true } },
     );
-    await this.messageModel.update(
+    await this.messageModel.updateMany(
       {
         $or: [
           { fromId: new mongoose.Types.ObjectId(fromUserId), senderId: new mongoose.Types.ObjectId(toUserId) },

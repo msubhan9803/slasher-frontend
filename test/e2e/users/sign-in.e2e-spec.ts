@@ -76,10 +76,13 @@ describe('Users sign-in (e2e)', () => {
             .post('/users/sign-in')
             .send(postBody);
           expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
-          expect(response.body.email).toEqual(activeUser.email);
-          expect(response.body.token).toMatch(simpleJwtRegex);
-          expect(response.body.id).toMatch(activeUser.id);
-          expect(response.body.userName).toMatch(activeUser.userName);
+          expect(response.body).toEqual({
+            id: activeUser.id,
+            userName: 'Username1',
+            email: 'User1@Example.com',
+            firstName: 'First name 1',
+            token: expect.stringMatching(simpleJwtRegex),
+          });
         }
       });
 

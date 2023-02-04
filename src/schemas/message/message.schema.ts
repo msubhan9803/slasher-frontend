@@ -35,6 +35,9 @@ export class Message extends MessageUnusedFields {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
   senderId: User;
 
+  @Prop({ tyep: Array, default: [] })
+  deletefor: mongoose.Schema.Types.ObjectId[];
+
   @Prop({ default: MessageType.Text })
   messageType: MessageType.Text;
 
@@ -43,6 +46,11 @@ export class Message extends MessageUnusedFields {
   // message field with the word "Image".
   @Prop({ default: null })
   image: string;
+
+  // Note: We don't query on this field in this app, but we set it to ensure compatibility with the
+  // old API app.  We will probably be able to get rid of it when the old API app is retired.
+  @Prop()
+  created: string;
 
   /***********
    * Methods *

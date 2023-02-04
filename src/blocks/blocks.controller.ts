@@ -6,6 +6,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { BlocksService } from './providers/blocks.service';
 import { FriendsService } from '../friends/providers/friends.service';
+import { ChatService } from '../chat/providers/chat.service';
 import { CreateBlockDto } from './dto/create-lock.dto';
 import { DeleteBlockQueryDto } from './dto/delete.block.query.dto';
 import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
@@ -16,6 +17,7 @@ export class BlocksController {
   constructor(
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly chatService: ChatService,
   ) { }
 
   @Post()
@@ -23,6 +25,7 @@ export class BlocksController {
     const user = getUserFromRequest(request);
     await this.blocksService.createBlock(user._id, createBlockDto.userId);
     await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, createBlockDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversations(user._id, createBlockDto.userId);
     return { success: true };
   }
 

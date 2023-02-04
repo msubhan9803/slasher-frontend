@@ -8,11 +8,11 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -70,14 +70,14 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          id: activeUser.id,
-          aboutMe: activeUser.aboutMe,
-          email: activeUser.email,
-          userName: activeUser.userName,
-          firstName: activeUser.firstName,
-          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Public,
+          _id: activeUser.id,
+          firstName: 'First name 1',
+          userName: 'Username1',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 0,
+          email: 'User1@Example.com',
         });
       });
 
@@ -90,13 +90,13 @@ describe('GET /users/:id (e2e)', () => {
         // Hide email for users other than active user
         expect(response.body.email).toBeUndefined();
         expect(response.body).toEqual({
-          id: activeUser.id,
-          aboutMe: activeUser.aboutMe,
-          userName: activeUser.userName,
-          firstName: activeUser.firstName,
-          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Public,
+          _id: activeUser.id,
+          firstName: 'First name 3',
+          userName: 'Username3',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 0,
         });
       });
 
@@ -120,14 +120,14 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          id: otherUser.id,
-          aboutMe: otherUser.aboutMe,
-          email: otherUser.email,
-          userName: otherUser.userName,
-          firstName: otherUser.firstName,
-          profilePic: relativeToFullImagePath(configService, otherUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Private,
+          _id: otherUser.id,
+          firstName: 'First name 8',
+          userName: 'Username8',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 1,
+          email: 'User8@Example.com',
         });
       });
     });
@@ -139,14 +139,14 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          id: activeUser.id,
-          aboutMe: activeUser.aboutMe,
-          email: activeUser.email,
-          userName: activeUser.userName,
-          firstName: activeUser.firstName,
-          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Public,
+          _id: activeUser.id,
+          firstName: 'First name 9',
+          userName: 'Username9',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 0,
+          email: 'User9@Example.com',
         });
       });
 
@@ -172,13 +172,13 @@ describe('GET /users/:id (e2e)', () => {
         // Hide email for users other than active user
         expect(response.body.email).toBeUndefined();
         expect(response.body).toEqual({
-          id: activeUser.id,
-          aboutMe: activeUser.aboutMe,
-          userName: activeUser.userName,
-          firstName: activeUser.firstName,
-          profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Public,
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          firstName: 'First name 13',
+          userName: 'Username13',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 0,
         });
       });
 
@@ -189,13 +189,13 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          id: otherUser.id,
-          aboutMe: otherUser.aboutMe,
-          userName: otherUser.userName,
-          firstName: otherUser.firstName,
-          profilePic: relativeToFullImagePath(configService, otherUser.profilePic),
-          coverPhoto: relativeToFullImagePath(configService, null),
-          profile_status: ProfileVisibility.Private,
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          firstName: 'First name 16',
+          userName: 'Username16',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 1,
         });
       });
     });

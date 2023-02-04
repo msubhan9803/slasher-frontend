@@ -65,7 +65,22 @@ describe('Get Friends (e2e)', () => {
           .get(`/friends/requests/received?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body).toHaveLength(2);
+        expect(response.body).toEqual([
+          {
+            _id: user3._id.toString(),
+            userName: 'Username4',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: 'First name 4',
+            createdAt: expect.any(String),
+          },
+          {
+            _id: user1._id.toString(),
+            userName: 'Username2',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            firstName: 'First name 2',
+            createdAt: expect.any(String),
+          },
+        ]);
       });
     });
 

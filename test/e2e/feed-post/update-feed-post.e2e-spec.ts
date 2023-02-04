@@ -12,6 +12,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -69,10 +70,13 @@ describe('Update Feed Post (e2e)', () => {
         .patch(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
-      const feedPostDetails = await feedPostsService.findById(response.body.id, true);
-      expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
+      const feedPostDetails = await feedPostsService.findById(response.body._id, true);
       expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body.message).toContain(feedPostDetails.message);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'hello all test user upload your feed post',
+      });
+      expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
 
     it('when userId is not match than expected feed post response', async () => {

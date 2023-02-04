@@ -10,6 +10,7 @@ import { userFactory } from '../../../test/factories/user.factory';
 import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -24,6 +25,7 @@ describe('ChatService', () => {
   let activeUser: UserDocument;
   let messageModel: Model<MessageDocument>;
   let matchListModel: Model<MatchListDocument>;
+  let chatModel: Model<ChatDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -34,6 +36,7 @@ describe('ChatService', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
+    chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -79,21 +82,49 @@ describe('ChatService', () => {
 
       expect(messageData.message).toBe('Image');
     });
+
+    it('message.created should match with `message.createdAt`, `matchList.updatedAt`, '
+      + '`matchList.lastMessageSentAt`, and `chat.updatedAt`', async () => {
+        const messageData = await messageModel.findById(message._id);
+        const matchList = await matchListModel.findById(messageData.matchId);
+        const chat = await chatModel.findOne({ matchId: messageData.matchId });
+
+        const messageCreated = Number(message.created);
+        [
+          message.createdAt.getTime(),
+          matchList.updatedAt.getTime(),
+          matchList.lastMessageSentAt.getTime(),
+          chat.updatedAt.getTime(),
+        ].forEach((time) => {
+          expect(time).toBe(messageCreated);
+        });
+      });
   });
 
   describe('#createPrivateDirectMessageConversation', () => {
     let users;
+    let matchList;
     beforeEach(async () => {
       users = await Promise.all([
         userFactory.build(),
         userFactory.build(),
       ].map((userData) => usersService.create(userData)));
+
+      matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
     });
 
     it('successfully creates the expected MatchList', async () => {
-      const matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, users[1]._id]);
       expect(matchList).toBeTruthy();
       expect(matchList.participants).toEqual([users[0]._id, users[1]._id]);
+    });
+
+    it('creates a corresponding Chat record (for old API compatibility)', async () => {
+      const chat = await chatModel.findOne({ matchId: matchList._id });
+      expect(chat).toBeTruthy();
+      expect(chat.participants).toEqual(matchList.participants);
+      expect(chat.relationId).toEqual(matchList.relationId);
+      expect(chat.roomType).toEqual(matchList.roomType);
+      expect(chat.roomCategory).toEqual(matchList.roomCategory);
     });
   });
 
@@ -127,16 +158,19 @@ describe('ChatService', () => {
   });
 
   describe('#getConversations', () => {
+    let messageLatest1;
+    let m2;
+    let m3;
     beforeEach(async () => {
       // User 1 sends a message and receives a message. Received message is unread.
       const message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
       message1.isRead = true;
       await message1.save();
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
+      messageLatest1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
 
       // User 1 sends two messages. Both sent messages are unread.
-      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
-      await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
+      m3 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
     });
 
     it('successfully returns a list of convesations for a user', async () => {
@@ -153,6 +187,23 @@ describe('ChatService', () => {
       expect(conversations[1].latestMessage).toBe('This is a reply');
       // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
       expect(conversations[1].unreadCount).toBe(1);
+    });
+
+    it('should filter deleted message for single user when returning list of convesations for a user', async () => {
+      await messageModel.updateOne({ _id: messageLatest1._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: m2._id }, { $set: { deletefor: [user1._id] } });
+      await messageModel.updateOne({ _id: m3._id }, { $set: { deletefor: [user1._id] } });
+
+      const conversations = await chatService.getConversations(user1._id, 5);
+
+      // Note: The second conversation should not be returned since all messages for second conversation
+      // are set in `deletefor` this user
+      expect(conversations).toHaveLength(1);
+
+      // Expect newest conversation in array position 0 having latest message which is `non-deleted` message for user
+      expect(conversations[0].latestMessage).toBe('Hi, there!');
+      // Expect unreadCount of 1 because the unread message in the conversation is unread by the viewing user
+      expect(conversations[0].unreadCount).toBe(1);
     });
 
     it('applies the given limit', async () => {
@@ -225,32 +276,148 @@ describe('ChatService', () => {
 
       expect(messages).toHaveLength(1);
     });
+
+    it('should not return message deleted for a single user (using `deletefor` field)', async () => {
+      const limit = 5;
+      await messageModel.updateOne({ _id: message1._id }, { $set: { deletefor: [user0._id] } });
+      const messages = await chatService.getMessages(matchList._id, user0._id, limit);
+
+      expect(messages).toHaveLength(1);
+    });
   });
 
   describe('#findMatchList', () => {
     let matchList;
     beforeEach(async () => {
       matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
     });
     it('get match list details', async () => {
-      const matchListDetails = await chatService.findMatchList(matchList.matchId._id);
+      const matchListDetails = await chatService.findMatchList(matchList.matchId._id, true);
+      expect(matchListDetails.participants).toHaveLength(2);
+      expect(matchListDetails._id).toEqual(matchList.matchId._id);
+    });
+
+    it('get match list details when active only is false', async () => {
+      const matchListDetails = await chatService.findMatchList(matchList.matchId._id, false);
       expect(matchListDetails.participants).toHaveLength(2);
       expect(matchListDetails._id).toEqual(matchList.matchId._id);
     });
   });
 
   describe('#getUnreadDirectPrivateMessageCount', () => {
+    let msgLatest;
+
     beforeEach(async () => {
       const firstMessage = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 1');
       firstMessage.isRead = true;
       firstMessage.save();
       await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Reply 1');
       await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 2');
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
+      msgLatest = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
     });
 
     it('returns the expected count', async () => {
       expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(2);
+    });
+
+    it('returns the expected count filtered with `deletefor` field (messages deleted for user)', async () => {
+      await messageModel.updateOne({ _id: msgLatest._id }, { $set: { deletefor: [user1._id] } });
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(1);
+    });
+  });
+
+  describe('#markAllReceivedMessagesReadForChat', () => {
+    let m1;
+    let m2;
+    let m3;
+    let m4;
+
+    beforeEach(async () => {
+      m1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 1');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 2');
+      m3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Send 3');
+      m4 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Reply 1');
+    });
+
+    it('all messages should be marked as read which are sent from a user to target user', async () => {
+      const matchId = m1.matchId._id;
+      await chatService.markAllReceivedMessagesReadForChat(user0._id.toString(), matchId);
+      m1 = await messageModel.findById(m1._id);
+      m2 = await messageModel.findById(m2._id);
+      m3 = await messageModel.findById(m3._id);
+      m4 = await messageModel.findById(m4._id);
+
+      expect(m1.isRead).toBe(true);
+      expect(m2.isRead).toBe(true);
+      expect(m3.isRead).toBe(false);
+      expect(m4.isRead).toBe(false);
+    });
+  });
+
+  describe('#findByMessageId', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+    });
+
+    it('when message is exists than expected response', async () => {
+      const messageData = await chatService.findByMessageId(message.id);
+      expect(messageData.id).toEqual(message.id);
+    });
+
+    it('when message is does not exists than expected response', async () => {
+      const messageData = await chatService.findByMessageId('5c9cb7138a874f1dcd0d8dcc');
+      expect(messageData).toBeNull();
+    });
+  });
+
+  describe('#markMessageAsRead', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+    });
+    it('finds the expected message and update the details', async () => {
+      const updatedMesage = await chatService.markMessageAsRead(message._id);
+      expect(updatedMesage.isRead).toBe(true);
+    });
+  });
+
+  describe('#removeChatMessagesFromDb', () => {
+    let message1;
+    let message2;
+    let message3;
+    let matchList;
+
+    beforeEach(async () => {
+      message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Hi, Test!');
+      matchList = await matchListModel.findOne({
+        participants: user1._id,
+      });
+    });
+
+    it('works as expected', async () => {
+      await chatService.deletePrivateDirectMessageConversations(user0._id, user1._id);
+
+      // Check messages
+      const messageData1 = await messageModel.findById(message1._id);
+      expect(messageData1.deleted).toBe(true);
+
+      const messageData2 = await messageModel.findById(message2._id);
+      expect(messageData2.deleted).toBe(true);
+
+      const messageData3 = await messageModel.findById(message3._id);
+      expect(messageData3.message).toBe('Hi, Test!');
+
+      // Check unread count
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user0.id)).toBe(1);
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(0);
+
+      // matchlist document should be deleted
+      const nontExistsMatchList = await matchListModel.findOne(matchList._id);
+      expect(nontExistsMatchList.deleted).toBe(true);
     });
   });
 });

@@ -11,6 +11,7 @@ import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { MailService } from '../providers/mail.service';
 import { UsersService } from '../users/providers/users.service';
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
+import { ChatService } from '../chat/providers/chat.service';
 
 @Controller('reports')
 export class ReportsController {
@@ -20,6 +21,7 @@ export class ReportsController {
     private readonly mailService: MailService,
     private readonly usersService: UsersService,
     private readonly feedCommentsService: FeedCommentsService,
+    private readonly chatService: ChatService,
   ) { }
 
   @Post()
@@ -41,6 +43,7 @@ export class ReportsController {
           reasonOfReport: createReportDto.reason,
         };
         await this.reportAndUnreportService.create(reportAndUnreportObj);
+        await this.chatService.deletePrivateDirectMessageConversations(user._id, createReportDto.targetId);
         break;
       }
       case 'post': {

@@ -66,7 +66,7 @@ describe('Create Feed Comment Like (e2e)', () => {
   });
 
   describe('POST /feed-likes/comment/:feedCommentId', () => {
-    let feedComments;
+    let feedComment;
     let user0;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
@@ -81,7 +81,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
+      feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
           user0._id.toString(),
@@ -90,22 +90,22 @@ describe('Create Feed Comment Like (e2e)', () => {
         );
     });
 
-    it('successfully creates feed comment likes.', async () => {
+    it('successfully creates a feed comment like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/comment/${feedComments._id}`)
+        .post(`/feed-likes/comment/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
-
-      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+      const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
+      expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
 
       expect(notificationsService.create).toHaveBeenCalledWith({
-        userId: feedCommentsData.userId as any,
-        feedPostId: { _id: feedCommentsData.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: feedCommentsData._id } as unknown as FeedComment,
+        userId: reloadedFeedComment.userId as any,
+        feedPostId: { _id: reloadedFeedComment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reloadedFeedComment._id } as unknown as FeedComment,
         senderId: activeUser._id,
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',

@@ -70,19 +70,22 @@ describe('Create Feed Post Like (e2e)', () => {
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
-    it('successfully creates feed post likes.', async () => {
+    it('successfully creates a feed post like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
+      expect(response.body).toEqual({ success: true });
 
-      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
+      expect(reloadedFeedPost.likes).toHaveLength(2);
+      expect(reloadedFeedPost.likeCount).toBe(2);
 
-      const feedPostDataObject = (feedPostData as any).toObject();
+      const feedPostDataObject = (reloadedFeedPost as any).toObject();
       expect(notificationsService.create).toHaveBeenCalledWith({
-        feedPostId: { _id: feedPostData._id.toString() },
+        feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id.toString(),
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
@@ -92,7 +95,6 @@ describe('Create Feed Post Like (e2e)', () => {
           userName: feedPostDataObject.userId.userName,
         },
       });
-      expect(response.body).toEqual({ success: true });
     });
 
     it('when feed post id is not exist than expected response', async () => {

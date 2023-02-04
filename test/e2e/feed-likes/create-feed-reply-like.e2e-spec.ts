@@ -98,26 +98,26 @@ describe('Create Feed Reply Like (e2e)', () => {
         );
     });
 
-    it('successfully creates feed reply likes.', async () => {
+    it('successfully creates a feed reply like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
+      expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
-        const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
-
-        expect(notificationsService.create).toHaveBeenCalledWith({
-          userId: feedReplyData.userId as any,
-          feedPostId: { _id: feedReplyData.feedPostId } as unknown as FeedPost,
-          feedCommentId: { _id: feedReplyData.feedCommentId } as unknown as FeedComment,
-          feedReplyId: feedReplyData._id,
-          senderId: activeUser._id,
-          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-          notificationMsg: 'liked your reply',
-        });
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        userId: reloadedFeedReply.userId as any,
+        feedPostId: { _id: reloadedFeedReply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reloadedFeedReply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: reloadedFeedReply._id,
+        senderId: activeUser._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'liked your reply',
+      });
     });
 
     it('when feed reply id is not exist than expected response', async () => {

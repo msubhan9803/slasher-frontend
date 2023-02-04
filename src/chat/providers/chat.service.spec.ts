@@ -290,9 +290,16 @@ describe('ChatService', () => {
     let matchList;
     beforeEach(async () => {
       matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
     });
     it('get match list details', async () => {
-      const matchListDetails = await chatService.findMatchList(matchList.matchId._id);
+      const matchListDetails = await chatService.findMatchList(matchList.matchId._id, true);
+      expect(matchListDetails.participants).toHaveLength(2);
+      expect(matchListDetails._id).toEqual(matchList.matchId._id);
+    });
+
+    it('get match list details when active only is false', async () => {
+      const matchListDetails = await chatService.findMatchList(matchList.matchId._id, false);
       expect(matchListDetails.participants).toHaveLength(2);
       expect(matchListDetails._id).toEqual(matchList.matchId._id);
     });
@@ -392,14 +399,14 @@ describe('ChatService', () => {
     });
 
     it('works as expected', async () => {
-      await chatService.removeChatMessagesFromDb(user0._id, user1._id);
+      await chatService.deletePrivateDirectMessageConversations(user0._id, user1._id);
 
       // Check messages
       const messageData1 = await messageModel.findById(message1._id);
-      expect(messageData1).toBeNull();
+      expect(messageData1.deleted).toBe(true);
 
       const messageData2 = await messageModel.findById(message2._id);
-      expect(messageData2).toBeNull();
+      expect(messageData2.deleted).toBe(true);
 
       const messageData3 = await messageModel.findById(message3._id);
       expect(messageData3.message).toBe('Hi, Test!');
@@ -410,7 +417,7 @@ describe('ChatService', () => {
 
       // matchlist document should be deleted
       const nontExistsMatchList = await matchListModel.findOne(matchList._id);
-      expect(nontExistsMatchList).toBeNull();
+      expect(nontExistsMatchList.deleted).toBe(true);
     });
   });
 });

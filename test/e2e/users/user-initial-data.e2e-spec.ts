@@ -140,22 +140,25 @@ describe('Users suggested friends (e2e)', () => {
           friendRequestCount: 4,
           recentFriendRequests: [
             {
-              _id: user2._id.toString(),
+              _id: user2.id,
               userName: 'Friend2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               firstName: user2.firstName,
+              createdAt: expect.any(String),
             },
             {
-              _id: user1._id.toString(),
+              _id: user1.id,
               userName: 'Friend1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               firstName: user1.firstName,
+              createdAt: expect.any(String),
             },
             {
-              _id: user3._id.toString(),
+              _id: user3.id,
               userName: 'Friend3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               firstName: user3.firstName,
+              createdAt: expect.any(String),
             },
           ],
         });
@@ -204,22 +207,25 @@ describe('Users suggested friends (e2e)', () => {
           friendRequestCount: 4,
           recentFriendRequests: [
             {
-              _id: user2._id.toString(),
+              _id: user2.id,
               userName: 'Friend2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user2.firstName,
+              firstName: 'First name 8',
+              createdAt: expect.any(String),
             },
             {
-              _id: user1._id.toString(),
+              _id: user1.id,
               userName: 'Friend1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user1.firstName,
+              firstName: 'First name 7',
+              createdAt: expect.any(String),
             },
             {
-              _id: user3._id.toString(),
+              _id: user3.id,
               userName: 'Friend3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: user3.firstName,
+              firstName: 'First name 9',
+              createdAt: expect.any(String),
             },
           ],
         });

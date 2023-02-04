@@ -84,38 +84,35 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-
-        expect(response.body.allFriendCount).toBe(4);
-        expect(response.body.friends).toEqual([
-          {
-            // Abe Kenobi
-            firstName: user2.firstName,
-            userName: user2.userName,
-            _id: user2._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-          {
-            // Albert DARTH Skywalker
-            firstName: user1.firstName,
-            userName: user1.userName,
-            _id: user1._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-          {
-            // Darth Maul
-            firstName: user5.firstName,
-            userName: user5.userName,
-            _id: user5._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-          {
-            // Darth Vader
-            firstName: user3.firstName,
-            userName: user3.userName,
-            _id: user3._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-        ]);
+        expect(response.body).toEqual({
+          allFriendCount: 4,
+          friends: [
+            {
+              _id: user2._id.toString(),
+              userName: 'Abe Kenobi',
+              firstName: 'First name 3',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+            {
+              _id: user1._id.toString(),
+              userName: 'Albert DARTH Skywalker',
+              firstName: 'First name 2',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+            {
+              _id: user5._id.toString(),
+              userName: 'Darth Maul',
+              firstName: 'First name 6',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+            {
+              _id: user3._id.toString(),
+              userName: 'Darth Vader',
+              firstName: 'First name 4',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+          ],
+        });
       });
 
       it('when applying limt and offset, and filtering on userName, returns the expected response', async () => {
@@ -126,16 +123,17 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.allFriendCount).toBe(4);
-        expect(response.body.friends).toEqual([
-          // Darth Maul
-          {
-            firstName: user5.firstName,
-            userName: user5.userName,
-            _id: user5._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-        ]);
+        expect(response.body).toEqual({
+          allFriendCount: 4,
+          friends: [
+            {
+              _id: user5._id.toString(),
+              userName: 'Darth Maul',
+              firstName: 'First name 12',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+          ],
+        });
       });
     });
 
@@ -150,30 +148,29 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.allFriendCount).toBe(3);
-        expect(response.body.friends).toEqual([
-          {
-            // Abe Kenobi
-            firstName: user2.firstName,
-            userName: user2.userName,
-            _id: user2._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-          {
-            // Princess Leia
-            firstName: user4.firstName,
-            userName: user4.userName,
-            _id: user4._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-          {
-            // Star Wars Fan
-            firstName: activeUser.firstName,
-            userName: activeUser.userName,
-            _id: activeUser._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-        ]);
+        expect(response.body).toEqual({
+          allFriendCount: 3,
+          friends: [
+            {
+              _id: user2._id.toString(),
+              userName: 'Abe Kenobi',
+              firstName: 'First name 15',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+            {
+              _id: user4._id.toString(),
+              userName: 'Princess Leia',
+              firstName: 'First name 17',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+            {
+              _id: activeUser._id.toString(),
+              userName: 'Star Wars Fan',
+              firstName: 'First name 13',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+          ],
+        });
       });
 
       it('find all friend when filtering by username', async () => {
@@ -184,15 +181,17 @@ describe('Get All Friends (e2e)', () => {
           .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.allFriendCount).toBe(3);
-        expect(response.body.friends).toEqual([
-          {
-            firstName: user2.firstName,
-            userName: user2.userName, // Abe Kenobi
-            _id: user2._id.toString(),
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-          },
-        ]);
+        expect(response.body).toEqual({
+          allFriendCount: 3,
+          friends: [
+            {
+              _id: user2._id.toString(),
+              userName: 'Abe Kenobi',
+              firstName: 'First name 21',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+            },
+          ],
+        });
       });
     });
 

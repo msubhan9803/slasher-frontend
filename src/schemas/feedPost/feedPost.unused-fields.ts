@@ -15,10 +15,6 @@ export class FeedPostUnusedFields {
   reportUsers: ReportUser[];
 
   // NOT USED
-  @Prop({ default: [] })
-  hideUsers: mongoose.Schema.Types.ObjectId[];
-
-  // NOT USED
   // Also, in current DB, 0 feedPosts actually store any values for this field. Seems completely unused.
   @Prop({ default: [] })
   shareUsers: mongoose.Schema.Types.ObjectId[];

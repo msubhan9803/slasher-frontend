@@ -64,39 +64,37 @@ describe('Find Follow (e2e)', () => {
   });
 
   describe('GET /rss-feed-providers/:id/follows/:userId', () => {
-    describe('Successful get rss feed providers follows data', () => {
-      it('get the rss feed providers follows successful if parameter rssFeedProviderId and userId is exists', async () => {
-        const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.body).toEqual({ notification: 0 });
-      });
+    it('get the rss feed providers follows successful if parameter rssFeedProviderId and userId is exists', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({ notification: 0 });
+    });
 
-      it('when rss feed provider id is not exists than expected response', async () => {
-        const tempRssFeedProviderFollowsObjectId = '6337f478980180f44e64487c';
-        const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${tempRssFeedProviderFollowsObjectId}/follows/${activeUser._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body).toEqual({
-          message: 'News partner not found',
-          statusCode: 404,
-        });
+    it('returns the expected response when the rss feed provider id is not found', async () => {
+      const rssFeedProviderId = '6337f478980180f44e64487c';
+      const response = await request(app.getHttpServer())
+        .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.body).toEqual({
+        message: 'News partner not found',
+        statusCode: 404,
       });
+    });
 
-      it('when active userid is not exists than expected response', async () => {
-        const tempActiveUserIdObjectId = '6337f478980180f44e64487c';
-        const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${tempActiveUserIdObjectId}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
-        expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({
-          message: 'Not authorized',
-          statusCode: 401,
-        });
+    it("returns the expected error response when a user tries to get another user's follow status", async () => {
+      const differentUserId = '6337f478980180f44e64487c';
+      const response = await request(app.getHttpServer())
+        .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${differentUserId}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
+      expect(response.body).toEqual({
+        message: 'Not authorized',
+        statusCode: 401,
       });
     });
 

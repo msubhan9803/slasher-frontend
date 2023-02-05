@@ -256,25 +256,26 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when user is block for feedPost than expected response.', async () => {
-      const user1 = await usersService.create(userFactory.build({}));
+    it('when a block exists between the comment creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: user1._id,
+            userId: postCreatorUser._id,
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
+      const feedComment1 = await feedCommentsService
         .createFeedComment(
           feedPost1.id,
-          user1._id.toString(),
+          commentCreatorUser._id.toString(),
           sampleFeedReplyObject.message,
           sampleFeedReplyObject.images,
         );
       await blocksModel.create({
         from: activeUser._id,
-        to: user1._id,
+        to: commentCreatorUser._id,
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
@@ -282,33 +283,34 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
-        .field('feedCommentId', feedComments1._id.toString());
+        .field('feedCommentId', feedComment1._id.toString());
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
-        message: 'Request failed due to user block.',
+        message: 'Request failed due to user block (comment owner).',
         statusCode: 400,
       });
     });
 
-    it('when user is block for feedComment than expected response.', async () => {
-      const user1 = await usersService.create(userFactory.build({}));
+    it('when a block exists between the post creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: postCreatorUser._id,
           },
         ),
       );
       const feedComments1 = await feedCommentsService
         .createFeedComment(
           feedPost1.id,
-          user1._id.toString(),
+          commentCreatorUser._id.toString(),
           sampleFeedReplyObject.message,
           sampleFeedReplyObject.images,
         );
       await blocksModel.create({
         from: activeUser._id,
-        to: user1._id,
+        to: postCreatorUser._id,
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
@@ -319,7 +321,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .field('feedCommentId', feedComments1._id.toString());
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
-        message: 'Request failed due to user block.',
+        message: 'Request failed due to user block (post owner).',
         statusCode: 400,
       });
     });
@@ -336,7 +338,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       expect(response.body.message).toContain('Comment not found');
     });
 
-    describe('should NOT create feed reply when users are *not* friends', () => {
+    describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
       let feedComment1;
@@ -360,7 +362,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           );
       });
 
-      it('should not create feed reply when given user is not a friend', async () => {
+      it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
         await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
             .post('/feed-comments/replies')

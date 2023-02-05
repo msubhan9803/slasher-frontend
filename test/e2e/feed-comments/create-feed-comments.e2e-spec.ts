@@ -245,7 +245,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       expect(response.body.message).toContain('Post not found');
     });
 
-    it('when user is block than expected response.', async () => {
+    it('when a block exists between the post creator and the commenter, it returns the expected response', async () => {
       const user1 = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
@@ -272,7 +272,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       });
     });
 
-    describe('should NOT create feed comments when users are *not* friends', () => {
+    describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
       beforeEach(async () => {
@@ -288,7 +288,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         );
       });
 
-      it('should not create feed comments when given user is not a friend', async () => {
+      it('should not allow the creation of a feed comments when commenter is not a friend of the post creator', async () => {
         await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
             .post('/feed-comments')

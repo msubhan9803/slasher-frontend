@@ -126,7 +126,7 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
           email: 'User8@Example.com',
         });
       });
@@ -195,7 +195,7 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
       });
     });

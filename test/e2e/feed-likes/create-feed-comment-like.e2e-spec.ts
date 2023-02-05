@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -13,9 +13,12 @@ import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPo
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../src/schemas/notification/notification.enums';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -28,6 +31,7 @@ describe('Create Feed Comment Like (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
   let notificationsService: NotificationsService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   const feedCommentsAndReplyObject = {
     images: [
@@ -52,6 +56,8 @@ describe('Create Feed Comment Like (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -99,6 +105,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         .send()
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
+
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
       expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
 
@@ -120,6 +127,104 @@ describe('Create Feed Comment Like (e2e)', () => {
         .send()
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Comment not found');
+    });
+
+    it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
+      const user1 = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user1._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          user1._id.toString(),
+          feedCommentsAndReplyObject.message,
+          feedCommentsAndReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post(`/feed-likes/comment/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (post owner).',
+        statusCode: 400,
+      });
+    });
+
+    it('when a block exists between the comment creator and the liker, it returns the expected response', async () => {
+      const user1 = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          user1._id.toString(),
+          feedCommentsAndReplyObject.message,
+          feedCommentsAndReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post(`/feed-likes/comment/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (comment owner).',
+        statusCode: 400,
+      });
+    });
+
+    describe('when the feed post was created by a user with a non-public profile', () => {
+      let user1;
+      let feedPost1;
+      let feedComments1;
+      beforeEach(async () => {
+        user1 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+        feedComments1 = await feedCommentsService
+          .createFeedComment(
+            feedPost1.id,
+            user1._id.toString(),
+            feedCommentsAndReplyObject.message,
+            feedCommentsAndReplyObject.images,
+          );
+      });
+
+      it('should not allow the creation of a comment like when liking user is not a friend of the post creator', async () => {
+        const response = await request(app.getHttpServer())
+          .post(`/feed-likes/comment/${feedComments1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+      });
     });
 
     describe('Validation', () => {

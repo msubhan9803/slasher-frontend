@@ -20,6 +20,7 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -277,7 +278,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       let feedPost1;
       beforeEach(async () => {
         user1 = await usersService.create(userFactory.build({
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         }));
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(

@@ -18,6 +18,7 @@ import getFeedCommentsResponse from '../../fixtures/comments/get-feed-comments-r
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Find Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -317,12 +318,12 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       });
     });
 
-    describe('should NOT find feed comments when users are *not* friends', () => {
+    describe('when the feed post was created by a user with a non-public profile', () => {
       let user5;
       let feedPost1;
       beforeEach(async () => {
         user5 = await usersService.create(userFactory.build({
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         }));
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(
@@ -333,7 +334,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         );
       });
 
-      it('should not find feed comments when given user is not a friend', async () => {
+      it('should not return comments when the requesting user is not a friend of the post creator', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
           .get(`/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)

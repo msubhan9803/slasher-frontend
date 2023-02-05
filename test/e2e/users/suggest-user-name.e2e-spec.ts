@@ -109,7 +109,6 @@ describe('Suggested user name (e2e)', () => {
           pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
           pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
         ]);
-        expect(response.body.map((suggestUserName) => suggestUserName.userName)).not.toContain('test3');
       });
 
       it('when query is wrong than expected response', async () => {

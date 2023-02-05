@@ -17,6 +17,7 @@ import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/bl
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../src/schemas/notification/notification.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -137,12 +138,12 @@ describe('Create Feed Post Like (e2e)', () => {
       });
     });
 
-    describe('should NOT create feed post like when users are *not* friends', () => {
+    describe('when the feed post was created by a user with a non-public profile', () => {
       let user1;
       let feedPost1;
       beforeEach(async () => {
         user1 = await usersService.create(userFactory.build({
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         }));
         feedPost1 = await feedPostsService.create(
           feedPostFactory.build(
@@ -153,7 +154,7 @@ describe('Create Feed Post Like (e2e)', () => {
         );
       });
 
-      it('should not create feed post like when given user is not a friend', async () => {
+      it('should not allow the creation of a post like when liking user is not a friend of the post creator', async () => {
         const response = await request(app.getHttpServer())
           .post(`/feed-likes/post/${feedPost1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

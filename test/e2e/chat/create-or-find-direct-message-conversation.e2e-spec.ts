@@ -130,7 +130,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
         ].map((userData) => usersService.create(userData)));
       });
 
-      it('should not create/find a conversation when given user is not a friend', async () => {
+      it('returns the expected response status and error message, and does not create a new conversation', async () => {
         const response = await request(app.getHttpServer())
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })

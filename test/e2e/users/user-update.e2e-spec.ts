@@ -73,7 +73,7 @@ describe('Users / :id (e2e)', () => {
           userName: 'TestUser',
           email: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
       });
 
@@ -90,7 +90,7 @@ describe('Users / :id (e2e)', () => {
             firstName: 'user',
             userName: 'TestUser',
             aboutMe: 'I am a human being',
-            profile_status: 1,
+            profile_status: ProfileVisibility.Private,
           });
         });
 
@@ -105,7 +105,7 @@ describe('Users / :id (e2e)', () => {
           _id: activeUser.id,
           userName: 'TestUser',
           aboutMe: 'I am a human being',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
         expect(response.body.firstName).toBeUndefined();
         expect(response.body.email).toBeUndefined();

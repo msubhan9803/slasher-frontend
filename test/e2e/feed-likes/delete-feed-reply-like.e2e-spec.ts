@@ -66,7 +66,7 @@ describe('Delete Feed Reply Like (e2e)', () => {
 
   describe('DELETE /feed-likes/reply/:feedReplyId', () => {
     let feedComments; let
-feedReply;
+      feedReply;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
@@ -104,7 +104,9 @@ feedReply;
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
+      expect(feedReplyData.likes).toHaveLength(1);
     });
 
     it('when feed reply id is not exist than expected response', async () => {

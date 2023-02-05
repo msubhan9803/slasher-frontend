@@ -354,34 +354,34 @@ describe('FeedPostsService', () => {
     });
 
     describe('should not include posts hidden for current user', () => {
-      let feedPost;
+      let feedPost1: FeedPostDocument;
+      let feedPost2: FeedPostDocument;
       beforeEach(async () => {
         const userFriend1 = await usersService.create(userFactory.build());
         await friendsService.createFriendRequest(activeUser.id, userFriend1.id);
         await friendsService.acceptFriendRequest(activeUser.id, userFriend1.id);
-        // Create post is associated with the `userFriend1`
-        const feedPostData = await feedPostsService.create(
-          feedPostFactory.build({
-            userId: userFriend1.id,
-          }),
-        );
-        feedPost = await feedPostsService.findById(feedPostData._id, false);
+        // Created post is associated with the `userFriend1`
+        feedPost1 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
+        feedPost2 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
+        // feedPost = await feedPostsService.findById(feedPost1._id, false);
       });
-      it('hidden post for current post is not returned', async () => {
+      it('does not include a hidden post in the returned results', async () => {
         const limit = 6;
-        // Verify that post is returend in the `activeUser` feed
+        // Before hiding, verify that post is returend in the `activeUser` feed
         const beforeResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
-        expect(beforeResults).toHaveLength(1);
-        expect(beforeResults[0]._id.toString()).toBe(feedPost._id.toString());
+        expect(beforeResults).toHaveLength(2);
+        expect(beforeResults[0]._id.toString()).toBe(feedPost2._id.toString());
+        expect(beforeResults[1]._id.toString()).toBe(feedPost1._id.toString());
 
-        // HIDE POST FOR `activeUser`
-        await feedPostsService.hidePost(feedPost._id, activeUser.id);
+        // Hide feedPost1 for `activeUser`
+        await feedPostsService.hidePost(feedPost1._id, activeUser.id);
         // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
-        feedPost = await feedPostsService.findById(feedPost._id, false);
-        expect(feedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
+        const reloadedFeedPost1 = await feedPostsService.findById(feedPost1._id, false);
+        expect(reloadedFeedPost1.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
 
+        // Verify that the post is not returned after hiding, but that other posts still are
         const afterResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
-        expect(afterResults).toHaveLength(0);
+        expect(afterResults).toHaveLength(1);
       });
     });
   });
@@ -524,7 +524,7 @@ describe('FeedPostsService', () => {
   describe('#hidePost', () => {
     let feedPost;
     beforeEach(async () => {
-      // Create post is associated with the `activeUser`
+      // Created post is associated with the `activeUser`
       const feedPostData = await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser._id,
@@ -533,13 +533,13 @@ describe('FeedPostsService', () => {
       feedPost = await feedPostsService.findById(feedPostData._id, false);
     });
 
-    it('successfully add user to `hideList` field in the feed post', async () => {
+    it('successfully add user to `hideUsers` field in the feed post', async () => {
       await feedPostsService.hidePost(feedPost._id, user0.id);
       const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
     });
 
-    it('should not add user to `hideList` field if *already* added in the feed post', async () => {
+    it('should not add user id to `hideUsers` field a second time if id *already* exists in the `hideUsers` array', async () => {
       await feedPostsService.hidePost(feedPost._id, user0.id);
       await feedPostsService.hidePost(feedPost._id, user0.id);
 

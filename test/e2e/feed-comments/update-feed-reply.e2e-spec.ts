@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -26,6 +27,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let notificationsService: NotificationsService;
 
   const sampleFeedCommentsObject = {
     message: 'hello all test user upload your feed reply',
@@ -49,6 +51,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -66,6 +69,8 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     let feedComments;
     let feedReply;
     beforeEach(async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -115,6 +120,60 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
         ],
         feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+      });
+    });
+
+    describe('notifications', () => {
+      let postCreatorUser;
+      let commentCreatorUser;
+      let commentCreatorUserAuthToken;
+      let otherUser1;
+      let otherUser2;
+      let otherUser3;
+      beforeEach(async () => {
+        postCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser2 = await usersService.create(userFactory.build());
+        otherUser3 = await usersService.create(userFactory.build());
+      });
+
+      it('sends notifications to newly-added users in the message, but ignores the comment creator', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const comment = await feedCommentsService.createFeedComment(post.id, otherUser1.id, 'This is a comment', []);
+        const reply = await feedCommentsService
+          .createFeedReply(
+            comment._id.toString(),
+            commentCreatorUser.id,
+            `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+            [],
+          );
+        await request(app.getHttpServer())
+          .patch(`/feed-comments/replies/${reply._id}`)
+          .auth(commentCreatorUserAuthToken, { type: 'bearer' })
+          .send({
+            message: `##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1` // do not notify
+              + `##LINK_ID##${postCreatorUser._id.toString()}@PostCreatorUser##LINK_END## post creator user` // do not notify
+              + `##LINK_ID##${commentCreatorUser._id.toString()}@PostCreatorUser##LINK_END## comment creator user` // notify
+              + `##LINK_ID##${otherUser2._id.toString()}@OtherUser3##LINK_END## other user 2` // notify
+              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`, // notify
+          })
+          .expect(HttpStatus.OK);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(3);
+
+        // TODO: Uncomment and fix lines below
+
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: comment._id.toString(),
+        //   feedReplyId: response.body._id,
+        //   senderId: otherUser1._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'mentioned you in a reply',
+        // });
       });
     });
 

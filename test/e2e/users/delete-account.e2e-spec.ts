@@ -96,11 +96,12 @@ describe('Users / delete account (e2e)', () => {
         const userId = activeUser._id;
         const oldHashedPassword = activeUser.password;
 
-        await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .delete(`/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
 
         const userData = await usersService.findById(activeUser.id);
         expect(userData.deleted).toBe(true); // check delete

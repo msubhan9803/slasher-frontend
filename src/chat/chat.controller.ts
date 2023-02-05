@@ -42,7 +42,7 @@ export class ChatController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: GetConversationQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    const matchList = await this.chatService.findMatchList(param.matchListId);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
     if (!matchList) {
       throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
     }
@@ -67,7 +67,7 @@ export class ChatController {
     }
     const areFriends = await this.friendsService.areFriends(user._id, createOrFindConversationQueryDto.userId);
     if (!areFriends) {
-      throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
@@ -84,7 +84,7 @@ export class ChatController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: MarkConversationReadDto,
   ) {
     const user = getUserFromRequest(request);
-    const matchList = await this.chatService.findMatchList(param.matchListId);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
     if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
 
     const matchUserIds = (matchList.participants as unknown as User[]).filter(

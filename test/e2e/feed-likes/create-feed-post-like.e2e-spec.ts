@@ -15,6 +15,8 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +29,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedLikesService: FeedLikesService;
+  let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
@@ -39,6 +42,7 @@ describe('Create Feed Post Like (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -64,20 +68,38 @@ describe('Create Feed Post Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: user0._id,
           },
         ),
       );
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
-    it('successfully creates feed post likes.', async () => {
+    it('successfully creates a feed post like, and sends the expected notification', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+
+      const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
+      expect(reloadedFeedPost.likes).toHaveLength(2);
+      expect(reloadedFeedPost.likeCount).toBe(2);
+
+      const feedPostDataObject = (reloadedFeedPost as any).toObject();
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        feedPostId: { _id: reloadedFeedPost._id.toString() },
+        senderId: activeUser._id.toString(),
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+        userId: {
+          _id: feedPostDataObject.userId._id.toString(),
+          profilePic: feedPostDataObject.userId.profilePic,
+          userName: feedPostDataObject.userId.userName,
+        },
+      });
     });
 
     it('when feed post id is not exist than expected response', async () => {
@@ -132,12 +154,12 @@ describe('Create Feed Post Like (e2e)', () => {
       });
 
       it('should not create feed post like when given user is not a friend', async () => {
-          const response = await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .post(`/feed-likes/post/${feedPost1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
       });
     });
 

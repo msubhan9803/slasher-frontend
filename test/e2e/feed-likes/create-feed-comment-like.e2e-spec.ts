@@ -9,12 +9,15 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { User } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { NotificationType } from '../../../src/schemas/notification/notification.enums';
+import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -26,6 +29,7 @@ describe('Create Feed Comment Like (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
   const feedCommentsAndReplyObject = {
@@ -50,6 +54,7 @@ describe('Create Feed Comment Like (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -66,9 +71,11 @@ describe('Create Feed Comment Like (e2e)', () => {
   });
 
   describe('POST /feed-likes/comment/:feedCommentId', () => {
-    let feedComments;
+    let feedComment;
+    let user0;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -79,22 +86,36 @@ describe('Create Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
+      feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser._id.toString(),
+          user0._id.toString(),
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
     });
 
-    it('successfully creates feed comment likes.', async () => {
+    it('successfully creates a feed comment like, and sends the expected notification', async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/comment/${feedComments._id}`)
+        .post(`/feed-likes/comment/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
+
+      const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
+      expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
+
+      expect(notificationsService.create).toHaveBeenCalledWith({
+        userId: reloadedFeedComment.userId as any,
+        feedPostId: { _id: reloadedFeedComment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reloadedFeedComment._id } as unknown as FeedComment,
+        senderId: activeUser._id,
+        notifyType: NotificationType.UserLikedYourComment,
+        notificationMsg: 'liked your comment',
+      });
     });
 
     it('when feed comment id is not exist than expected response', async () => {
@@ -187,12 +208,12 @@ describe('Create Feed Comment Like (e2e)', () => {
           ),
         );
         feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          user1._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+          .createFeedComment(
+            feedPost1.id,
+            user1._id.toString(),
+            feedCommentsAndReplyObject.message,
+            feedCommentsAndReplyObject.images,
+          );
       });
 
       it('should not create feed comment like when given user is not a friend', async () => {

@@ -112,7 +112,7 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(response.body.message).toBe('Post not found');
     });
 
-    it('when user is block than expected response.', async () => {
+    it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
       const user1 = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
@@ -159,7 +159,7 @@ describe('Create Feed Post Like (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with the given user.' });
+        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
       });
     });
 

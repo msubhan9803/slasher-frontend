@@ -3,9 +3,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -17,6 +17,8 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
@@ -29,6 +31,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let notificationsService: NotificationsService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +43,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -238,6 +243,65 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .field('feedPostId', nonExistentPostId)
         .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toContain('Post not found');
+    });
+
+    it('when a block exists between the post creator and the commenter, it returns the expected response', async () => {
+      const user1 = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user1._id,
+          },
+        ),
+      );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('feedPostId', feedPost1._id.toString());
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block.',
+        statusCode: 400,
+      });
+    });
+
+    describe('when the feed post was created by a user with a non-public profile', () => {
+      let user1;
+      let feedPost1;
+      beforeEach(async () => {
+        user1 = await usersService.create(userFactory.build({
+          profile_status: 1,
+        }));
+        feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+      });
+
+      it('should not allow the creation of a feed comments when commenter is not a friend of the post creator', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost1._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
     });
 
     describe('notifications', () => {

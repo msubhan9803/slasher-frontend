@@ -366,7 +366,7 @@ describe('Chat Gateway (e2e)', () => {
     });
 
     describe('successful responses', () => {
-      it('should return the expected message, and should mark returned messages TO the user as read', async () => {
+      it('should return the expected response, and should mark the message as read', async () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 

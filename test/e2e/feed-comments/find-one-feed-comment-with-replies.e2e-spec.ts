@@ -147,7 +147,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       expect(response.body.message).toBe('Comment not found');
     });
 
-    it('when user is block than expected response.', async () => {
+    it('when a block exists between the post creator and the requester, it returns the expected response', async () => {
       const user4 = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(

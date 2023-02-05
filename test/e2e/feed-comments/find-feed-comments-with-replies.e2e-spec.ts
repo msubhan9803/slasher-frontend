@@ -291,7 +291,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       });
     });
 
-    it('when user is block than expected response.', async () => {
+    it('when a block exists between the post creator and the requester, it returns the expected response', async () => {
       const user4 = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(

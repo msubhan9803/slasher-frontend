@@ -40,7 +40,7 @@ export class UserRegisterDto {
   securityAnswer: string;
 
   @IsNotEmpty()
-  @MinYearsBeforeToday(18, { message: 'You must be at least 18 to register' })
+  @MinYearsBeforeToday(17, { message: 'You must be at least 17 to register' })
   @Type((typeOptions) => (typeOptions.object[typeOptions.property] === '' ? null : Date))
   dob: Date;
 }

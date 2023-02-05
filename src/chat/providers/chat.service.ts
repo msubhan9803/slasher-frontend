@@ -1,7 +1,9 @@
+/* eslint-disable max-lines */
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { FRIEND_RELATION_ID } from '../../constants';
+import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import {
   MatchListRoomCategory,
   MatchListRoomType,
@@ -11,7 +13,7 @@ import {
   MatchListDocument,
 } from '../../schemas/matchList/matchList.schema';
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
-import { NotificationReadStatus, NotificationDeletionStatus } from '../../schemas/notification/notification.enums';
+import { NotificationReadStatus } from '../../schemas/notification/notification.enums';
 import { UsersService } from '../../users/providers/users.service';
 
 export interface Conversation extends MatchList {
@@ -22,8 +24,10 @@ export interface Conversation extends MatchList {
 @Injectable()
 export class ChatService {
   constructor(
+    @InjectConnection() private readonly connection: mongoose.Connection,
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     @InjectModel(MatchList.name) private matchListModel: Model<MatchListDocument>,
+    @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     private usersService: UsersService,
   ) { }
 
@@ -43,7 +47,13 @@ export class ChatService {
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
     };
-    return this.matchListModel.create(insertData);
+    const matchList = await this.matchListModel.create(insertData);
+
+    // For compatibility with the old API, whenever a matchList is created, we also need to create a
+    // corresponding Chat record with the same fields
+    await this.chatModel.create({ ...insertData, matchId: matchList._id });
+
+    return matchList;
   }
 
   async createOrFindPrivateDirectMessageConversationByParticipants(participants: mongoose.Types.ObjectId[]) {
@@ -52,6 +62,7 @@ export class ChatService {
       relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
       roomType: MatchListRoomType.Match,
       roomCategory: MatchListRoomCategory.DirectMessage,
+      deleted: false,
     });
 
     return matchList || this.createPrivateDirectMessageConversation(participants);
@@ -73,18 +84,40 @@ export class ChatService {
     // - The fromUser and toUser are definitely participants in the returned conversation.
     const matchList = await this.createOrFindPrivateDirectMessageConversationByParticipants(participants);
 
-    const messageObject = await this.messageModel.create({
-      matchId: matchList,
-      relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-      fromId: new mongoose.Types.ObjectId(fromUser),
-      senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
-      message: image ? 'Image' : message,
-      image,
-    });
+    const currentTime = Date.now();
+
+    const messageSession = await this.connection.startSession();
+    messageSession.startTransaction();
+    const [messageObject] = (await this.messageModel.create(
+      [{
+        matchId: matchList._id,
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        fromId: new mongoose.Types.ObjectId(fromUser),
+        senderId: new mongoose.Types.ObjectId(toUser), // due to bad old-API field naming, this is the "to" field
+        message: image ? 'Image' : message,
+        image,
+        created: currentTime.toString(),
+        createdAt: currentTime, // overwrite `createdAt`
+      }],
+      { timestamps: false },
+    ) as unknown as MessageDocument[]);
+
     await this.matchListModel.updateOne(
       { _id: matchList._id },
-      { $set: { updatedAt: Date.now() } },
+      {
+        $set: {
+          updatedAt: currentTime, // overwrite `updatedAt`
+          lastMessageSentAt: currentTime,
+        },
+      },
+      { timestamps: false },
     );
+    await this.chatModel.updateOne(
+      { matchId: matchList._id },
+      { $set: { updatedAt: currentTime } }, // overwrite `updatedAt`
+      { timestamps: false },
+    );
+    messageSession.endSession();
 
     return messageObject;
   }
@@ -96,9 +129,12 @@ export class ChatService {
     before?: string,
   ): Promise<Message[]> {
     const where: any = [
-      { matchId: new mongoose.Types.ObjectId(matchListId) },
-      { partcipants: new mongoose.Types.ObjectId(requiredParticipantId) },
-      { deleted: false },
+      {
+        matchId: new mongoose.Types.ObjectId(matchListId),
+        partcipants: new mongoose.Types.ObjectId(requiredParticipantId),
+        deleted: false,
+        deletefor: { $ne: new mongoose.Types.ObjectId(requiredParticipantId) },
+      },
     ];
     let beforeCreatedAt;
 
@@ -123,10 +159,12 @@ export class ChatService {
       .find({
         $and: [{
           senderId: new mongoose.Types.ObjectId(userId), // due to bad old-API field naming, this is the "to" field
-          isRead: NotificationReadStatus.Unread,
-          is_deleted: NotificationDeletionStatus.NotDeleted,
+          isRead: false,
+          deleted: false,
           relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-        }],
+          deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
+        },
+        ],
       })
       .count()
       .exec();
@@ -147,15 +185,12 @@ export class ChatService {
 
     const matchLists: any = await this.matchListModel
       .find({
-        $and: [
-          {
-            participants: new mongoose.Types.ObjectId(userId),
-            roomType: MatchListRoomType.Match,
-            roomCategory: MatchListRoomCategory.DirectMessage,
-            relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
-          },
-          before ? { updatedAt: beforeUpdatedAt } : {},
-        ],
+        deleted: false,
+        participants: new mongoose.Types.ObjectId(userId),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        ...(before ? { updatedAt: beforeUpdatedAt } : {}),
       })
       .populate('participants', 'userName _id profilePic')
       .sort({ updatedAt: -1 })
@@ -167,11 +202,15 @@ export class ChatService {
     const conversations = [];
     for (const matchList of matchLists) {
       const latestMessage = await this.messageModel
-        .findOne({ matchId: matchList._id })
+        .findOne({
+          matchId: matchList._id,
+          deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
+          // TODO: Exclude {deleted: true} messages
+        })
         .sort({ createdAt: -1 })
         .exec();
       const unreadCount = await this.messageModel
-        .countDocuments({
+        .countDocuments({ // TODO: Exclude {deleted: true} messages
           isRead: false,
           fromId: { $ne: new mongoose.Types.ObjectId(userId) },
           matchId: matchList._id,
@@ -185,17 +224,94 @@ export class ChatService {
           participants: matchList.participants,
           unreadCount,
           latestMessage: latestMessage.message.trim().split('\n')[0],
-          updatedAt: latestMessage.updatedAt,
+          updatedAt: matchList.updatedAt,
         });
       }
     }
     return conversations;
   }
 
-  async findMatchList(id: string): Promise<any> {
+  async findMatchList(id: string, activeOnly: boolean): Promise<any> {
     const matchList = await this.matchListModel
-      .findById(id)
+      .findOne({
+        _id: new mongoose.Types.ObjectId(id),
+        ...(activeOnly ? { deleted: false } : {}),
+      })
       .populate('participants', 'id userName firstName profilePic');
     return matchList;
+  }
+
+  /** Call this service function to mark all messages received from all participants for a given chat for a user.
+   * @param receiverUserId This refers to receiver user
+   * @param matchListId Match id for a chat
+   */
+  async markAllReceivedMessagesReadForChat(receiverUserId: string, matchListId: string) {
+    const matchListDoc = await this.matchListModel.findById(matchListId);
+    if (!matchListDoc) throw new Error('matchList document not found for given `matchListId`');
+
+    const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
+    if (!participants.find((p) => p === receiverUserId)) {
+      throw new Error('You are not a part of this chat. Invalid `matchListId`.');
+    }
+
+    await this.messageModel
+      .updateMany({
+        matchId: matchListDoc._id,
+        isRead: NotificationReadStatus.Unread,
+        senderId: receiverUserId, // due to bad old-API field naming, this is the "to" field
+      }, { isRead: NotificationReadStatus.Read })
+      .exec();
+  }
+
+  async markMessageAsRead(messageId: string): Promise<MessageDocument> {
+    return this.messageModel
+      .findOneAndUpdate({ _id: messageId }, { $set: { isRead: true } }, { new: true })
+      .exec();
+  }
+
+  async findByMessageId(messageId: string): Promise<MessageDocument> {
+    return this.messageModel.findOne({ _id: messageId }).exec();
+  }
+
+  /**
+   * Deletes private direct message conversations and all messages in the conversation.
+   * Note: This can sometimes delete multiple MatchLists because the old API will sometimes create
+   * more than one conversation over time, if a user unfriends and then re-friends another user.
+   * @param fromUserId
+   * @param toUserId
+   */
+  async deletePrivateDirectMessageConversations(fromUserId: string, toUserId: string): Promise<any> {
+    const participants = [
+      new mongoose.Types.ObjectId(fromUserId),
+      new mongoose.Types.ObjectId(toUserId),
+    ];
+    await this.matchListModel.updateOne(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+      },
+      { $set: { deleted: true } },
+    );
+
+    await this.chatModel.updateOne(
+      {
+        participants: { $all: participants },
+        relationId: new mongoose.Types.ObjectId(FRIEND_RELATION_ID),
+        roomType: MatchListRoomType.Match,
+        roomCategory: MatchListRoomCategory.DirectMessage,
+      },
+      { $set: { deleted: true } },
+    );
+    await this.messageModel.updateMany(
+      {
+        $or: [
+          { fromId: new mongoose.Types.ObjectId(fromUserId), senderId: new mongoose.Types.ObjectId(toUserId) },
+          { fromId: new mongoose.Types.ObjectId(toUserId), senderId: new mongoose.Types.ObjectId(fromUserId) },
+        ],
+      },
+      { $set: { deleted: true } },
+    );
   }
 }

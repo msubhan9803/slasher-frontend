@@ -1,23 +1,26 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
-import * as bcrypt from 'bcryptjs';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
-import { validUuidV4Regex } from '../../helpers/regular-expressions';
 import { MailService } from '../../../src/providers/mail.service';
-import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { DisallowedUsernameService } from '../../../src/disallowedUsername/providers/disallowed-username.service';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
-  let userSettingsService: UserSettingsService;
   let mailService: MailService;
+  let disallowedUsernameService: DisallowedUsernameService;
+  let userSettingsService: UserSettingsService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -37,8 +40,9 @@ describe('Users / Register (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     usersService = moduleRef.get<UsersService>(UsersService);
-    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     mailService = moduleRef.get<MailService>(MailService);
+    disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -66,8 +70,13 @@ describe('Users / Register (e2e)', () => {
           .post('/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-        const registeredUser = await usersService.findById(response.body.id);
 
+        expect(response.body).toEqual({
+          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
+
+        // Verify that the correct fields were set on the created user object
+        const registeredUser = await usersService.findById(response.body.id);
         expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
         expect(postBody.firstName).toEqual(registeredUser.firstName);
         expect(postBody.userName).toEqual(registeredUser.userName);
@@ -81,7 +90,6 @@ describe('Users / Register (e2e)', () => {
         ).toBe(true);
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
-
         expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
         expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
           registeredUser.email,
@@ -283,12 +291,12 @@ describe('Users / Register (e2e)', () => {
       });
 
       it('dob is under age', async () => {
-        postBody.dob = DateTime.now().minus({ years: 17, months: 11 }).toISODate();
+        postBody.dob = DateTime.now().minus({ years: 16, months: 11 }).toISODate();
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('You must be at least 18 to register');
+        expect(response.body.message).toContain('You must be at least 17 to register');
       });
     });
 
@@ -322,6 +330,19 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain(
           'Email address is already associated with an existing user.',
+        );
+      });
+
+      it('returns an error when disallowed username already exists', async () => {
+        await disallowedUsernameService.create({
+          username: 'TeStUsEr',
+        });
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is not available',
         );
       });
     });

@@ -5,8 +5,10 @@ import {
 } from './matchList.enums';
 
 export class MatchListUnusedFields {
-  // NOT USED
-  @Prop({ default: 0 })
+  // Note: The default value below is weird, but it doesn't seem to matter and this
+  // 'undefinedundefinedundefined' value is the kind of thing we see in the current prod database
+  // (though in the prod database, 'undefined' is repeated many more times).
+  @Prop({ default: 'undefinedundefinedundefined' })
   roomName: string;
 
   // NOT USED

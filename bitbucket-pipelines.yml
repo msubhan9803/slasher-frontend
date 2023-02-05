@@ -19,6 +19,10 @@ definitions:
           - node
           - docker
         script:
+          # Install NPM dependencies
+          - npm ci
+          # Run linter
+          - npm run lint
           # Start docker mongo
           - >
             DOCKER_MONGO_CONTAINER_ID=$(
@@ -32,10 +36,6 @@ definitions:
             docker run --detach -p 6389:6379
             $(docker build -q ./docker/redis)
             )
-          # Install NPM dependencies
-          - npm ci
-          # Run linter
-          - npm run lint
           # Copy template env file to .env.test (to support testing)
           - cp .env.test.template .env.test
           # Run tests

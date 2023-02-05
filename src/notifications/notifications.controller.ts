@@ -1,5 +1,5 @@
 import {
-  Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, ValidationPipe,
+  Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Query, Req, ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -21,12 +21,6 @@ export class NotificationsController {
     private readonly notificationsGateway: NotificationsGateway,
     private readonly feedPostsService: FeedPostsService,
   ) { }
-
-  @Post('socket-test')
-  async socketMessageEmitTest() {
-    this.notificationsGateway.server.emit('hello', 'world');
-    return 'test';
-  }
 
   @TransformImageUrls(
     '$[*].senderId.profilePic',

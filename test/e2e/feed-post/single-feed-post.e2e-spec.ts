@@ -4,6 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -11,11 +12,13 @@ import { User } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
-import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
+import { RssFeedProviderDocument } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service';
 import { rssFeedFactory } from '../../factories/rss-feed.factory';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +29,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let rssFeedProvidersService: RssFeedProvidersService;
-  let rssFeedProviderData: RssFeedProvider;
+  let rssFeedProviderData: RssFeedProviderDocument;
   let rssFeedService: RssFeedService;
 
   beforeAll(async () => {
@@ -73,6 +76,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
             userId: activeUser._id,
             rssfeedProviderId: rssFeedProviderData._id,
             rssFeedId: rssFeed._id,
+            createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
         ),
       );
@@ -80,9 +84,39 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect((response.body.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
-      expect(response.body._id).toEqual(feedPost._id.toString());
-      expect(response.body.rssfeedProviderId._id).toEqual(rssFeedProviderData._id.toString());
+      expect(response.body).toEqual({
+        _id: feedPost.id,
+        createdAt: '2022-10-17T00:00:00.000Z',
+        rssfeedProviderId: {
+          _id: rssFeedProviderData.id,
+          logo: null,
+          title: 'RssFeedProvider 1',
+        },
+        rssFeedId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
+        },
+        images: [
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: {
+          _id: activeUser._id.toString(),
+          profile_status: ProfileVisibility.Public,
+          userName: 'Username1',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+        },
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likes: [],
+      });
     });
   });
 });

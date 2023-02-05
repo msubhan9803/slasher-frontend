@@ -80,12 +80,12 @@ describe('Delete Feed Comment Like (e2e)', () => {
         ),
       );
       feedComments = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        activeUser._id.toString(),
-        feedCommentsAndReplyObject.message,
-        feedCommentsAndReplyObject.images,
-      );
+        .createFeedComment(
+          feedPost.id,
+          activeUser._id.toString(),
+          feedCommentsAndReplyObject.message,
+          feedCommentsAndReplyObject.images,
+        );
       await feedLikesService.createFeedCommentLike(feedComments.id, activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments.id, user0._id.toString());
     });
@@ -96,7 +96,9 @@ describe('Delete Feed Comment Like (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
-        expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({ success: true });
+      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+      expect(feedCommentsData.likes).toHaveLength(1);
     });
 
     it('when feed comment id is not exist than expected response', async () => {

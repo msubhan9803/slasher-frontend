@@ -22,6 +22,7 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
+import { pick } from '../utils/object-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -103,7 +104,7 @@ export class FeedPostsController {
     }
 
     return {
-      id: createFeedPost.id,
+      _id: createFeedPost.id,
       message: createFeedPost.message,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
@@ -120,7 +121,10 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    return feedPost;
+    return pick(
+      feedPost,
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes'],
+    );
   }
 
   @Patch(':id')
@@ -167,7 +171,7 @@ export class FeedPostsController {
     }
 
     return {
-      id: updatedFeedPost.id,
+      _id: updatedFeedPost.id,
       message: updatedFeedPost.message,
     };
   }
@@ -188,7 +192,12 @@ export class FeedPostsController {
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
-    return feedPosts;
+    return feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+      ),
+    );
   }
 
   @Delete(':id')

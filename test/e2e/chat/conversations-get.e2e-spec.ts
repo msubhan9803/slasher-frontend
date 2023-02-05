@@ -142,6 +142,15 @@ describe('Conversations all / (e2e)', () => {
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
       });
 
+      it('limit should be less than or equal to 20', async () => {
+        const limit = 21;
+        const response = await request(app.getHttpServer())
+          .get(`/chat/conversations?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body.message).toContain('limit must not be greater than 20');
+      });
+
       it('before must be a mongodb id', async () => {
         const limit = 5;
         const before = '634912b2@2c2f4f5e0e6228#';

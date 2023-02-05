@@ -32,7 +32,7 @@ export class FeedPostsService {
     }
     return this.feedPostModel
       .findOne(feedPostFindQuery)
-      .populate('userId', 'userName _id profilePic')
+      .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content')
       .exec();
@@ -90,7 +90,7 @@ export class FeedPostsService {
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
-      .sort({ updatedAt: -1 })
+      .sort({ lastUpdateAt: -1 })
       .limit(limit);
 
     return query.exec();

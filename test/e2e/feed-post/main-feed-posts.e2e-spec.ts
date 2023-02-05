@@ -4,6 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -17,6 +18,7 @@ import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedPro
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import getMainFeedPostResponse from '../../fixtures/feed-post/main-feed-posts-response';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -92,12 +94,18 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       feedPostFactory.build({
         userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
+        createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+        updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(),
       }),
     );
     await feedPostsService.create(
       feedPostFactory.build({
         userId: user1._id,
         rssfeedProviderId: rssFeedProviderData2._id,
+        createdAt: DateTime.fromISO('2022-10-18T00:00:00Z').toJSDate(),
+        updatedAt: DateTime.fromISO('2022-10-23T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
       }),
     );
   });
@@ -112,6 +120,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].lastUpdateAt < response.body[i - 1].lastUpdateAt).toBe(true);
       }
+      expect(response.body).toEqual(getMainFeedPostResponse);
     });
 
     describe('when `before` argument is supplied', () => {
@@ -131,19 +140,19 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
           .get(`/feed-posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+        expect(firstResponse.body).toHaveLength(3);
         for (let index = 1; index < firstResponse.body.length; index += 1) {
           expect(firstResponse.body[index].lastUpdateAt < firstResponse.body[index - 1].lastUpdateAt).toBe(true);
         }
-        expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
           .get(`/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+        expect(secondResponse.body).toHaveLength(2);
         for (let index = 1; index < secondResponse.body.length; index += 1) {
           expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
         }
-        expect(secondResponse.body).toHaveLength(2);
       });
     });
 

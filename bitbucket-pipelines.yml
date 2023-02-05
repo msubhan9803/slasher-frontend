@@ -5,7 +5,10 @@ definitions:
     node: node_modules
   services:
     docker:
-      memory: 3072 # increase default docker memory to speed up docker apps
+      # Below, increase the default available docker memory to speed up docker apps.
+      # Note: Whatever amount is allocated here will be deducted from the amount of memory allocated
+      # to the main process. 4096 MB is the total available amount for a default "1x" pipeline instance.
+      memory: 1536
   steps:
     - step: &lint-test-build
         # If our test runs for more than 20 minutes, something is definitely wrong.

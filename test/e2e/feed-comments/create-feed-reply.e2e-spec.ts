@@ -2,9 +2,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { readdirSync } from 'fs';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -17,8 +17,11 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -27,11 +30,12 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
-  let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
-  let feedComment: FeedComment;
   let notificationsService: NotificationsService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
+  let feedPost: FeedPostDocument;
+  let feedComment: FeedComment;
 
   const sampleFeedReplyObject = {
     images: [
@@ -56,6 +60,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -162,7 +167,9 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
-        .field('feedCommentId', feedComment._id.toString());
+        .field('feedCommentId', feedComment._id.toString())
+        .expect(HttpStatus.CREATED);
+
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -248,6 +255,128 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when a block exists between the comment creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: postCreatorUser._id,
+          },
+        ),
+      );
+      const feedComment1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          commentCreatorUser._id.toString(),
+          sampleFeedReplyObject.message,
+          sampleFeedReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: commentCreatorUser._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComment1._id.toString());
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (comment owner).',
+        statusCode: 400,
+      });
+    });
+
+    it('when a block exists between the post creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: postCreatorUser._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          commentCreatorUser._id.toString(),
+          sampleFeedReplyObject.message,
+          sampleFeedReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: postCreatorUser._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComments1._id.toString());
+      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (post owner).',
+        statusCode: 400,
+      });
+    });
+
+    it('returns the expected error response if the comment cannot be found', async () => {
+      const nonExistentCommentId = '239ae2550dae24b30c70f6c7';
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'Hello')
+        .field('feedCommentId', nonExistentCommentId)
+        .expect(HttpStatus.NOT_FOUND);
+      expect(response.body.message).toContain('Comment not found');
+    });
+
+    describe('when the feed post was created by a user with a non-public profile', () => {
+      let user1;
+      let feedPost1;
+      let feedComment1;
+      beforeEach(async () => {
+        user1 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+        feedComment1 = await feedCommentsService
+          .createFeedComment(
+            feedPost1.id,
+            user1._id.toString(),
+            sampleFeedReplyObject.message,
+            sampleFeedReplyObject.images,
+          );
+      });
+
+      it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments/replies')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedCommentId', feedComment1._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
     });
 
     describe('notifications', () => {

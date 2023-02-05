@@ -349,8 +349,8 @@ describe('UsersService', () => {
       const limit = 5;
       const suggestUserNames = await usersService.suggestUserName(query, limit, true, excludedUserIds);
       expect(suggestUserNames).toEqual([
-        pick(await usersService.findByUsername('test1'), ['userName', 'id']),
-        pick(await usersService.findByUsername('test2'), ['userName', 'id']),
+        pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
+        pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
       ]);
       expect(suggestUserNames.map((suggestUserName) => suggestUserName.userName)).not.toContain('test4');
     });

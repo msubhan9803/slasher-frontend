@@ -12,6 +12,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { pick } from '../../../src/utils/object-utils';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
@@ -105,8 +106,8 @@ describe('Suggested user name (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
-          { userName: 'test1', id: (await usersService.findByUsername('test1')).id },
-          { userName: 'test2', id: (await usersService.findByUsername('test2')).id },
+          pick(await usersService.findByUsername('test1'), ['userName', 'id', 'profilePic']),
+          pick(await usersService.findByUsername('test2'), ['userName', 'id', 'profilePic']),
         ]);
       });
 

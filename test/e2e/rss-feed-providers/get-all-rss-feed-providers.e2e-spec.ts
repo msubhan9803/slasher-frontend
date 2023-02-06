@@ -12,6 +12,7 @@ import { RssFeedProvidersService } from '../../../src/rss-feed-providers/provide
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('rssFeedProviders all (e2e)', () => {
   let app: INestApplication;
@@ -64,17 +65,34 @@ describe('rssFeedProviders all (e2e)', () => {
   describe('GET /rss-feed-providers', () => {
     describe('Successful get all rss feed providers data', () => {
       it('get all rss feed providers details', async () => {
-        const limit = 10;
+        const limit = 3;
         const response = await request(app.getHttpServer())
           .get(`/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
-        for (let index = 1; index < response.body.length; index += 1) {
-          expect(response.body[index - 1].sortTitle < response.body[index].sortTitle).toBe(true);
-        }
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toHaveLength(5);
+        expect(response.body).toHaveLength(3);
+        expect(response.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: null,
+            logo: null,
+            title: 'RssFeedProvider 10',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: null,
+            logo: null,
+            title: 'RssFeedProvider 2',
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            description: null,
+            logo: null,
+            title: 'RssFeedProvider 4',
+          },
+        ]);
       });
 
       describe('when `after` argument is supplied', () => {
@@ -85,20 +103,34 @@ describe('rssFeedProviders all (e2e)', () => {
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
-          for (let index = 1; index < firstResponse.body.length; index += 1) {
-            expect(firstResponse.body[index - 1].sortTitle < firstResponse.body[index].sortTitle).toBe(true);
-          }
           expect(firstResponse.status).toEqual(HttpStatus.OK);
           expect(firstResponse.body).toHaveLength(3);
+          expect(firstResponse.body).toEqual([
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: null,
+              logo: null,
+              title: 'RssFeedProvider 12',
+            },
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: null,
+              logo: null,
+              title: 'RssFeedProvider 14',
+            },
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              description: null,
+              logo: null,
+              title: 'RssFeedProvider 16',
+            },
+          ]);
 
           const secondResponse = await request(app.getHttpServer())
             .get(`/rss-feed-providers?limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
-          for (let index = 1; index < secondResponse.body.length; index += 1) {
-            expect(secondResponse.body[index - 1].sortTitle < secondResponse.body[index].sortTitle).toBe(true);
-          }
           expect(secondResponse.status).toEqual(HttpStatus.OK);
           expect(secondResponse.body).toHaveLength(2);
         });
@@ -111,7 +143,15 @@ describe('rssFeedProviders all (e2e)', () => {
           .get('/rss-feed-providers')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit should not be empty');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+            'limit must be a number conforming to the specified constraints',
+            'limit should not be empty',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('limit should be a number', async () => {
@@ -120,7 +160,14 @@ describe('rssFeedProviders all (e2e)', () => {
           .get(`/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+            'limit must be a number conforming to the specified constraints',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('limit should not be grater than 20', async () => {
@@ -129,7 +176,13 @@ describe('rssFeedProviders all (e2e)', () => {
           .get(`/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 20');
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'limit must not be greater than 20',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

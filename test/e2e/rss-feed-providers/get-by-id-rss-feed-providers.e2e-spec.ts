@@ -13,6 +13,7 @@ import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.facto
 import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('rssFeedProviders / :id (e2e)', () => {
   let app: INestApplication;
@@ -62,8 +63,12 @@ describe('rssFeedProviders / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body._id).toEqual(activeRssFeedProvider._id.toString());
-        expect(response.body.title).toEqual(activeRssFeedProvider.title);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          description: null,
+          logo: null,
+          title: 'RssFeedProvider 1',
+        });
       });
 
       it('rss feed providers not found if parameter id value does not exists', async () => {
@@ -73,7 +78,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('RssFeedProvider not found');
+        expect(response.body).toEqual({ message: 'RssFeedProvider not found', statusCode: 404 });
       });
     });
   });

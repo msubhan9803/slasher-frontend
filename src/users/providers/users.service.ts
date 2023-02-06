@@ -131,7 +131,7 @@ export class UsersService {
       .exec();
 
     const userNameSuggestions: UserNameSuggestion[] = users.map(
-      (user) => ({ userName: user.userName, id: user.id }),
+      (user) => ({ userName: user.userName, id: user.id, profilePic: user.profilePic }),
     );
 
     return userNameSuggestions;

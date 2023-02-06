@@ -53,7 +53,13 @@ export const SuggestBlockSchema = SchemaFactory.createForClass(SuggestBlock);
 
 SuggestBlockSchema.index(
   {
-    to: 1, from: 1, reaction: 1,
+    from: 1, reaction: 1,
+  },
+);
+
+SuggestBlockSchema.index(
+  {
+    from: 1, to: 1,
   },
 );
 

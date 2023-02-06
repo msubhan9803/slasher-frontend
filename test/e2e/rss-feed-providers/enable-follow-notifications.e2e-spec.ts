@@ -14,7 +14,6 @@ import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedPro
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
-import { RssFeedProviderFollowNotificationsEnabled } from '../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 
 describe('Enable Follow Notifications (e2e)', () => {
   let app: INestApplication;
@@ -66,32 +65,32 @@ describe('Enable Follow Notifications (e2e)', () => {
 
   describe('PATCH /rss-feed-providers/:id/follows/:userId/enable-notifications', () => {
     describe('enable notifications in rss feed providers follows details', () => {
-      it('when notification is enable than expected response', async () => {
+      it('returns the expected response when notifications are enabled', async () => {
         const response = await request(app.getHttpServer())
           .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.notification).toEqual(RssFeedProviderFollowNotificationsEnabled.Enabled);
+        expect(response.body).toEqual({ notification: 1 });
       });
 
-      it('when rss feed provider id is not exists than expected response', async () => {
-        const tempRssFeedProviderFollowsObjectId = '6337f478980180f44e64487c';
+      it('returns the expected response when the rss feed provider id is not found', async () => {
+        const rssFeedProviderId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .patch(`/rss-feed-providers/${tempRssFeedProviderFollowsObjectId}/follows/${activeUser._id}/enable-notifications`)
+          .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
-        expect(response.body.message).toContain('News partner not found');
+        expect(response.body).toEqual({ message: 'News partner not found', statusCode: 404 });
       });
 
-      it('when active userid is not exists than expected response', async () => {
-        const tempActiveUserIdObjectId = '6337f478980180f44e64487c';
+      it("returns the expected error response when a user tries to update another user's notification status", async () => {
+        const differentUserId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${tempActiveUserIdObjectId}/enable-notifications`)
+          .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${differentUserId}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toContain('Not authorized');
+        expect(response.body).toEqual({ message: 'Not authorized', statusCode: 401 });
       });
     });
 
@@ -102,9 +101,13 @@ describe('Enable Follow Notifications (e2e)', () => {
           .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'id must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'id must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('userId must be a mongodb id', async () => {
@@ -113,9 +116,13 @@ describe('Enable Follow Notifications (e2e)', () => {
           .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'userId must be a mongodb id',
-        );
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'userId must be a mongodb id',
+          ],
+          statusCode: 400,
+        });
       });
     });
   });

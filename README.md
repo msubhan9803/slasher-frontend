@@ -84,6 +84,14 @@ npm run start:dev-https
 
 Note: When using this with the slasher-web-frontend app, you'll probably need to visit https://localhost:4000 in your browser first and accept the self-signed certificate.
 
+Monitoring memory usage:
+
+If you want to monitor memory usage during tests, you can add the `--logHeapUsage` argument after any of the test commands in package.json.  Example:
+
+```
+"test": "jest --config ./test/jest-config.json --runInBand --logHeapUsage"
+```
+
 ## Scripts
 
 ### Local scripts

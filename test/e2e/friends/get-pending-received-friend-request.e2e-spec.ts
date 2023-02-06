@@ -71,12 +71,14 @@ describe('Get Friends (e2e)', () => {
             userName: 'Username4',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             firstName: 'First name 4',
+            createdAt: expect.any(String),
           },
           {
             _id: user1._id.toString(),
             userName: 'Username2',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             firstName: 'First name 2',
+            createdAt: expect.any(String),
           },
         ]);
       });

@@ -19,7 +19,7 @@ export class Event extends EventUnusedFields {
   @Prop()
   updatedAt: Date; // automatically populated on save by Mongoose {timestamps: true} configuration
 
-  @Prop({ required: true, index: true, text: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ default: null, ref: User.name })

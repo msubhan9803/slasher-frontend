@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { StorageLocationService } from './providers/storage-location.service';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
+import { deleteMulterFiles } from '../utils/file-upload-validation-utils';
 
 const logger = new Logger('UploadsModule');
 
@@ -35,7 +35,7 @@ const logger = new Logger('UploadsModule');
             // See this open Multer issue: https://github.com/expressjs/multer/issues/259
             req.on('aborted', () => {
               file.stream.on('end', () => {
-                asyncDeleteMulterFiles([filePath], logger);
+                deleteMulterFiles([filePath], logger);
               });
               file.stream.emit('end');
             });

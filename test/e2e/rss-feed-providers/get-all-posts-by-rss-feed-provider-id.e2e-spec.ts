@@ -4,6 +4,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -15,6 +16,7 @@ import { RssFeedProvider } from '../../../src/schemas/rssFeedProvider/rssFeedPro
 import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +29,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
   let rssFeedProviderData: RssFeedProvider;
   let nonActiveRssFeedProviderData: RssFeedProvider;
   let rssFeedProvidersService: RssFeedProvidersService;
+  let firstFeedPostsDates: { createdAt: Date, lastUpdateAt: Date };
+  let feedPostsDates: Array<{ createdAt: Date, lastUpdateAt: Date }>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -60,10 +64,32 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
 
     nonActiveRssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
 
+    firstFeedPostsDates = {
+      createdAt: DateTime.fromISO('2022-01-20T00:00:00Z').toJSDate(),
+      lastUpdateAt: DateTime.fromISO('2022-01-21T00:00:00Z').toJSDate(),
+    };
+
+    feedPostsDates = [
+      {
+        createdAt: DateTime.fromISO('2022-01-10T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-11T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-08T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-09T00:00:00Z').toJSDate(),
+      },
+      {
+        createdAt: DateTime.fromISO('2022-01-06T00:00:00Z').toJSDate(),
+        lastUpdateAt: DateTime.fromISO('2022-01-07T00:00:00Z').toJSDate(),
+      },
+    ];
+
     await feedPostsService.create(
       feedPostFactory.build({
         userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
+        createdAt: firstFeedPostsDates.createdAt,
+        lastUpdateAt: firstFeedPostsDates.lastUpdateAt,
       }),
     );
   });
@@ -78,6 +104,35 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
       }
+      expect(response.body).toEqual([
+        {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          commentCount: 0,
+          images: [
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            },
+            {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            },
+          ],
+          createdAt: firstFeedPostsDates.createdAt.toISOString(),
+          lastUpdateAt: firstFeedPostsDates.lastUpdateAt.toISOString(),
+          likeCount: 0,
+          likes: [],
+          message: 'Message 1',
+          movieId: null,
+          rssFeedId: null,
+          rssfeedProviderId: {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            logo: null,
+            title: 'RssFeedProvider 1',
+          },
+          userId: activeUser._id.toString(),
+        },
+      ]);
     });
 
     it('returns the expected response when rss feed provider not found', async () => {
@@ -87,7 +142,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
-      expect(response.body.message).toContain('RssFeedProvider not found');
+      expect(response.body).toEqual({ message: 'RssFeedProvider not found', statusCode: 404 });
     });
 
     describe('when `before` argument is supplied', () => {
@@ -97,6 +152,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             feedPostFactory.build({
               userId: activeUser._id,
               rssfeedProviderId: rssFeedProviderData._id,
+              createdAt: feedPostsDates[index].createdAt,
+              lastUpdateAt: feedPostsDates[index].lastUpdateAt,
             }),
           );
         }
@@ -111,6 +168,89 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           expect(firstResponse.body[index].createdAt < firstResponse.body[index - 1].createdAt).toBe(true);
         }
         expect(firstResponse.body).toHaveLength(3);
+        expect(firstResponse.body).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            commentCount: 0,
+            createdAt: firstFeedPostsDates.createdAt.toISOString(),
+            lastUpdateAt: firstFeedPostsDates.lastUpdateAt.toISOString(),
+            images: [
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+            ],
+            likeCount: 0,
+            likes: [],
+            message: 'Message 3',
+            movieId: null,
+            rssFeedId: null,
+            rssfeedProviderId: {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              logo: null,
+              title: 'RssFeedProvider 5',
+            },
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            commentCount: 0,
+            createdAt: feedPostsDates[0].createdAt.toISOString(),
+            lastUpdateAt: feedPostsDates[0].lastUpdateAt.toISOString(),
+            images: [
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+            ],
+            likeCount: 0,
+            likes: [],
+            message: 'Message 4',
+            movieId: null,
+            rssFeedId: null,
+            rssfeedProviderId: {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              logo: null,
+              title: 'RssFeedProvider 5',
+            },
+            userId: activeUser._id.toString(),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            commentCount: 0,
+            createdAt: feedPostsDates[1].createdAt.toISOString(),
+            lastUpdateAt: feedPostsDates[1].lastUpdateAt.toISOString(),
+            images: [
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+              {
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              },
+            ],
+            likeCount: 0,
+            likes: [],
+            message: 'Message 5',
+            movieId: null,
+            rssFeedId: null,
+            rssfeedProviderId: {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              logo: null,
+              title: 'RssFeedProvider 5',
+            },
+            userId: activeUser._id.toString(),
+          },
+        ]);
 
         const secondResponse = await request(app.getHttpServer())
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
@@ -131,16 +271,15 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderId}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'id must be a mongodb id',
-        );
+        expect(response.body.message).toEqual(['id must be a mongodb id']);
       });
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit should not be empty');
+        // eslint-disable-next-line max-len
+        expect(response.body.message).toEqual(['limit must not be greater than 30', 'limit must be a number conforming to the specified constraints', 'limit should not be empty']);
       });
 
       it('limit should be a number', async () => {
@@ -149,7 +288,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
+        // eslint-disable-next-line max-len
+        expect(response.body.message).toEqual(['limit must not be greater than 30', 'limit must be a number conforming to the specified constraints']);
       });
 
       it('limit should not be grater than 30', async () => {
@@ -158,7 +298,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain('limit must not be greater than 30');
+        expect(response.body.message).toEqual(['limit must not be greater than 30']);
       });
 
       it('`before` must match regular expression', async () => {
@@ -168,9 +308,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.body.message).toContain(
-          'before must be a mongodb id',
-        );
+        expect(response.body.message).toEqual(['before must be a mongodb id']);
       });
     });
   });

@@ -15,6 +15,7 @@ import { SHARED_GATEWAY_OPTS } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
+import { User } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
 import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
@@ -52,13 +53,16 @@ export class ChatGateway {
     const { toUserId } = data;
     const areFriends = await this.friendsService.areFriends(user._id, toUserId);
     if (!areFriends) {
-      return { success: false, errorMessage: 'You are not friends with the given user.' };
+      return { success: false, errorMessage: 'You are not friends with this user.' };
     }
 
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     targetUserSocketIds.forEach((socketId) => {
-      client.to(socketId).emit('chatMessageReceived', { message: pick(messageObject, ['_id', 'message', 'matchId', 'createdAt']), user });
+      client.to(socketId).emit('chatMessageReceived', {
+        message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+        user,
+      });
     });
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',
@@ -78,7 +82,7 @@ export class ChatGateway {
 
     const { matchListId, before } = data;
 
-    const matchList = await this.chatService.findMatchList(matchListId);
+    const matchList = await this.chatService.findMatchList(matchListId, true);
     if (!matchList) return { error: 'Permission denied' };
 
     const matchUserIds = matchList.participants.find(
@@ -109,6 +113,7 @@ export class ChatGateway {
     const message = await this.chatService.findByMessageId(messageId);
     if (!message) return { error: 'Message not found' };
 
+    // Reminder: mesage.senderId is who the message was sent TO
     if (message.senderId.toString() === user.id) {
       await this.chatService.markMessageAsRead(messageId);
       return { success: true };

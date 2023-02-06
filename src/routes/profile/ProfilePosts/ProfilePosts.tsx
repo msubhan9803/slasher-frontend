@@ -19,10 +19,6 @@ import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -238,65 +234,60 @@ function ProfilePosts() {
   };
 
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="posts" user={user} />
-        {loginUserData.userName === userName
-          && (
-            <div className="my-4">
-              <CustomCreatePost />
-            </div>
-          )}
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            {errorMessage}
+    <div>
+      <ProfileHeader tabKey="posts" user={user} />
+      {loginUserData.userName === userName
+        && (
+          <div className="my-4">
+            <CustomCreatePost />
           </div>
         )}
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalPosts(true); }}
-          hasMore={!noMoreData}
-        >
-          {
-            posts.length > 0
-            && (
-              <PostFeed
-                postFeedData={posts}
-                popoverOptions={loginUserPopoverOptions}
-                isCommentSection={false}
-                onPopoverClick={handlePopoverOption}
-                otherUserPopoverOptions={otherUserPopoverOptions}
-                onLikeClick={onLikeClick}
-              />
-            )
-          }
-        </InfiniteScroll>
-        {loadingPosts && <LoadingIndicator />}
-        {noMoreData && renderNoMoreDataMessage()}
-        <ReportModal
-          show={showReportModal}
-          setShow={setShowReportModal}
-          slectedDropdownValue={dropDownValue}
-        />
-        {dropDownValue !== 'Edit'
+      {errorMessage && errorMessage.length > 0 && (
+        <div className="mt-3 text-start">
+          {errorMessage}
+        </div>
+      )}
+      <InfiniteScroll
+        pageStart={0}
+        initialLoad
+        loadMore={() => { setRequestAdditionalPosts(true); }}
+        hasMore={!noMoreData}
+      >
+        {
+          posts.length > 0
           && (
-            <ReportModal
-              deleteText="Are you sure you want to delete this post?"
-              onConfirmClick={deletePostClick}
-              show={showReportModal}
-              setShow={setShowReportModal}
-              slectedDropdownValue={dropDownValue}
-              onBlockYesClick={onBlockYesClick}
-              handleReport={reportProfilePost}
+            <PostFeed
+              postFeedData={posts}
+              popoverOptions={loginUserPopoverOptions}
+              isCommentSection={false}
+              onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
             />
-          )}
-        {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+          )
+        }
+      </InfiniteScroll>
+      {loadingPosts && <LoadingIndicator />}
+      {noMoreData && renderNoMoreDataMessage()}
+      <ReportModal
+        show={showReportModal}
+        setShow={setShowReportModal}
+        slectedDropdownValue={dropDownValue}
+      />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={showReportModal}
+            setShow={setShowReportModal}
+            slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportProfilePost}
+          />
+        )}
+      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
+    </div>
   );
 }
 export default ProfilePosts;

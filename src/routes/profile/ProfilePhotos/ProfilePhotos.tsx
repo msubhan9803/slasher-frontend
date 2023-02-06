@@ -8,11 +8,6 @@ import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -37,7 +32,6 @@ function ProfilePhotos({ user }: Props) {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [loadingPhotos, setLoadingPhotos] = useState<boolean>(false);
-  const loginUserId = useAppSelector((state) => state.user.user.id);
 
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
@@ -81,44 +75,38 @@ function ProfilePhotos({ user }: Props) {
     </p>
   );
   return (
-
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="photos" user={user} />
-        <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad
-            loadMore={() => { setRequestAdditionalPhotos(true); }}
-            hasMore={!noMoreData}
-          >
-            <Row>
-              {userPhotosList.map((data: UserPhotos) => (
-                data.imagesList && data.imagesList.map((images: ImageList) => (
-                  <Col xs={4} md={3} key={images._id}>
-                    <ProfilePhoto className="position-relative">
-                      <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                        <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
-                      </Link>
-                    </ProfilePhoto>
-                  </Col>
-                ))
-              ))}
-            </Row>
-          </InfiniteScroll>
-          {loadingPhotos && <LoadingIndicator />}
-          {noMoreData && renderNoMoreDataMessage()}
-        </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+    <div>
+      <ProfileHeader tabKey="photos" user={user} />
+      <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
+        {errorMessage && errorMessage.length > 0 && (
+          <div className="mt-3 text-start">
+            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+          </div>
+        )}
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad
+          loadMore={() => { setRequestAdditionalPhotos(true); }}
+          hasMore={!noMoreData}
+        >
+          <Row>
+            {userPhotosList.map((data: UserPhotos) => (
+              data.imagesList && data.imagesList.map((images: ImageList) => (
+                <Col xs={4} md={3} key={images._id}>
+                  <ProfilePhoto className="position-relative">
+                    <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
+                      <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
+                    </Link>
+                  </ProfilePhoto>
+                </Col>
+              ))
+            ))}
+          </Row>
+        </InfiniteScroll>
+        {loadingPhotos && <LoadingIndicator />}
+        {noMoreData && renderNoMoreDataMessage()}
+      </div>
+    </div>
   );
 }
 

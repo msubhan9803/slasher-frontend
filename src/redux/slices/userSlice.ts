@@ -28,9 +28,8 @@ export const userSlice = createSlice({
     incrementUnreadNotificationCount: (state) => {
       state.unreadNotificationCount += 1;
     },
-    /* eslint-disable no-param-reassign */
-    incrementUnreadMessageCount: (state) => {
-      state.unreadMessageCount += 1;
+    handleUpdatedUnreadMessageCount: (state, payload) => {
+      state.unreadMessageCount = payload.payload;
     },
   },
 });
@@ -38,7 +37,7 @@ export const userSlice = createSlice({
 export const {
   setUserInitialData,
   incrementUnreadNotificationCount,
-  incrementUnreadMessageCount,
+  handleUpdatedUnreadMessageCount,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { userPhotos } from '../../../../api/users';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
-import { useAppSelector } from '../../../../redux/hooks';
+import { User } from '../../../../types';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -22,13 +22,14 @@ interface ImageList {
   _id: string;
 }
 
-function Photos() {
+type PhotosProps = { user: User };
+
+function Photos({ user }: PhotosProps) {
   const [photos, setPhotos] = useState<PhotoList[]>([]);
-  const sidebarContext = useAppSelector((state) => state.sidebarContext);
 
   useEffect(() => {
-    if (sidebarContext.userId) {
-      userPhotos(sidebarContext.userId, '', '6')
+    if (user.id) {
+      userPhotos(user.id, '', '6')
         .then((res) => {
           const newPhotoList: PhotoList[] = [];
           res.data.map((photosData: any) => {
@@ -47,16 +48,16 @@ function Photos() {
           setPhotos(newPhotoList);
         });
     }
-  }, [sidebarContext]);
+  }, [user]);
   return (
     <>
-      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${sidebarContext?.userName}/photos`} />
+      <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
           {photos.map((photo, photoIndex) => {
             return (
               <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
-                <Link to={`/${sidebarContext?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
+                <Link to={`/${user?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
                   <ProfilePhoto>
                     <img
                       alt={`${photoIndex}`}

@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,9 +15,9 @@ interface Props {
   message: string;
   image: string;
   count?: number;
-  timeStamp?: string;
+  timeStamp?: string | null;
   handleDropdownOption?: (value: string) => void;
-  matchListId?: string;
+  matchListId?: string | null;
 }
 
 const TrucatedText = styled.p`
@@ -94,7 +95,8 @@ export const CustomDropDown = styled(Dropdown)`
 `;
 
 function UserMessageListItem({
-  userName, message, image, count, timeStamp, handleDropdownOption, matchListId,
+  userName, message, image, count = 0, timeStamp = null,
+  handleDropdownOption = () => {}, matchListId = null,
 }: Props, ref: any) {
   const sharedYPadding = 'py-3 py-lg-4';
 
@@ -149,10 +151,4 @@ function UserMessageListItem({
     </StyledItem>
   );
 }
-UserMessageListItem.defaultProps = ({
-  count: 0,
-  timeStamp: null,
-  handleDropdownOption: () => { },
-  matchListId: null,
-} as any);
 export default React.forwardRef(UserMessageListItem);

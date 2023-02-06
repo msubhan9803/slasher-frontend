@@ -41,7 +41,7 @@ function UnauthenticatedPageWrapper({
       <header className="text-center text-md-start">
         <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
-            <StyledLogoImage src={slasherLogo} />
+            <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
           </Link>
         </Container>
       </header>

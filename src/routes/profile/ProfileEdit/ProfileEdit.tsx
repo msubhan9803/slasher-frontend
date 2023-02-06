@@ -62,7 +62,8 @@ function ProfileEdit({ user }: Props) {
         locallyStoredUserData.userName,
         locallyStoredUserData.firstName,
         locallyStoredUserData.email,
-        locallyStoredUserData.id,
+        /* eslint no-underscore-dangle: 0 */
+        locallyStoredUserData._id,
         locallyStoredUserData.profile_status,
       );
     } catch (requestError: any) {

@@ -57,6 +57,7 @@ function RegistrationIdentity({ activeStep }: Props) {
         <Row className="justify-content-center">
           <Form.Group className="col-md-4 mb-3 text-start">
             <Form.Control
+              aria-label="First Name"
               type="text"
               placeholder="First Name"
               value={identityInfo.firstName}
@@ -69,6 +70,7 @@ function RegistrationIdentity({ activeStep }: Props) {
 
           <Form.Group className="col-md-4 mb-3 text-start">
             <Form.Control
+              aria-label="Username"
               type="text"
               placeholder="Username"
               value={identityInfo.userName}
@@ -88,6 +90,7 @@ function RegistrationIdentity({ activeStep }: Props) {
 
           <Form.Group className="col-md-4 mb-3 text-start">
             <Form.Control
+              aria-label="Email address"
               type="email"
               placeholder="Email address"
               value={identityInfo.email}

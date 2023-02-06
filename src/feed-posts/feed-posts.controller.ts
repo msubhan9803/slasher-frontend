@@ -222,4 +222,30 @@ export class FeedPostsController {
       success: true,
     };
   }
+
+  @Post(':id/hide')
+  async hidePost(
+    @Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+      param: SingleFeedPostsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException(
+        'Post not found.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+  const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
+
+    if (isUserOwnerOfThePost) {
+      throw new HttpException(
+        'You cannot hide your own post.',
+        HttpStatus.FORBIDDEN,
+        );
+    }
+    await this.feedPostsService.hidePost(param.id, user._id);
+    return { success: true };
+  }
 }

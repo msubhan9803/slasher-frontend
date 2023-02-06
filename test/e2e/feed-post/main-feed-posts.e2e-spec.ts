@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user/user.schema';
+import { User, UserDocument } from '../../../src/schemas/user/user.schema';
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
@@ -19,13 +19,14 @@ import { RssFeedProvidersService } from '../../../src/rss-feed-providers/provide
 import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import getMainFeedPostResponse from '../../fixtures/feed-post/main-feed-posts-response';
+import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let user1: User;
@@ -153,6 +154,36 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         for (let index = 1; index < secondResponse.body.length; index += 1) {
           expect(secondResponse.body[index].lastUpdateAt < secondResponse.body[index - 1].lastUpdateAt).toBe(true);
         }
+      });
+    });
+
+    describe('Main Feed should NOT include hidden posts for activeUser', () => {
+      let feedPost: FeedPostDocument;
+      beforeEach(async () => {
+        // Create post by `user1`
+        feedPost = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: user1._id,
+            rssfeedProviderId: rssFeedProviderData2._id,
+          }),
+        );
+      });
+
+      it('returns the expected feed post response, which does *not* include posts hidden by activeUser', async () => {
+        const limit = 5;
+
+        // Hide the post
+        await feedPostsService.hidePost(feedPost.id, activeUser.id);
+
+        // Verify that hidden post is not included in the response
+        const response2 = await request(app.getHttpServer())
+          .get(`/feed-posts?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        const ids: string[] = response2.body.map((post) => post._id);
+        expect(ids).toHaveLength(2);
+        const hiddenPost = ids.findIndex((id) => id === feedPost.id);
+        expect(hiddenPost).toBe(-1);
       });
     });
 

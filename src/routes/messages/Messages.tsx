@@ -3,12 +3,14 @@ import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
 import { getMessagesList } from '../../api/messages';
-import AuthenticatedPageWrapper from '../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -127,46 +129,51 @@ function Messages() {
     }
   }, [yPositionOfLastMessageElement]);
   return (
-    <AuthenticatedPageWrapper rightSidebarType="profile-self">
-      <div className="mb-3">
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
-        )}
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalMessages(true); }}
-          hasMore={!noMoreData}
-        >
-          {
-            messages.length > 0
-            && messages.map((message) => (
-              <div key={message._id} ref={messageContainerElementRef}>
-                <UserMessageListItem
-                  image={message.profilePic}
-                  userName={message.userName}
-                  message={message.latestMessage}
-                  count={message.unreadCount}
-                  timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption}
-                  matchListId={message._id}
-                />
-              </div>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <div className="mb-3">
+          {errorMessage && errorMessage.length > 0 && (
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
+          )}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalMessages(true); }}
+            hasMore={!noMoreData}
+          >
+            {
+              messages.length > 0
+              && messages.map((message) => (
+                <div key={message._id} ref={messageContainerElementRef}>
+                  <UserMessageListItem
+                    image={message.profilePic}
+                    userName={message.userName}
+                    message={message.latestMessage}
+                    count={message.unreadCount}
+                    timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
+                    handleDropdownOption={handleMessagesOption}
+                    matchListId={message._id}
+                  />
+                </div>
 
-            ))
-          }
-        </InfiniteScroll>
-      </div>
-      {loadingChats && <LoadingIndicator />}
-      {noMoreData && renderNoMoreDataMessage()}
-      <MessagesOptionDialog
-        show={show}
-        setShow={setShow}
-        slectedMessageDropdownValue={messageOptionValue}
-      />
-    </AuthenticatedPageWrapper>
+              ))
+            }
+          </InfiniteScroll>
+        </div>
+        {loadingChats && <LoadingIndicator />}
+        {noMoreData && renderNoMoreDataMessage()}
+        <MessagesOptionDialog
+          show={show}
+          setShow={setShow}
+          slectedMessageDropdownValue={messageOptionValue}
+        />
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

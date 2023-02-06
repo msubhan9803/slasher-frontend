@@ -38,7 +38,7 @@ function ChatMessage({ messages }: ChatProps) {
     if (messageRef.current) {
       messageRef.current.scrollIntoView(
         {
-          behavior: 'smooth',
+          behavior: 'auto',
           block: 'end',
           inline: 'nearest',
         },

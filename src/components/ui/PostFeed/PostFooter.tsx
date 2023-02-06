@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { HashLink } from 'react-router-hash-link';
 import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
+import ShareLinksModal from '../ShareLinksModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -31,6 +32,8 @@ const LinearIcon = styled.span<LinearIconProps>`
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
 }: PostFooterProps) {
+  const [showShareLinks, setShowShareLinks] = useState(false);
+  const handleShowShareLinks = () => setShowShareLinks(true);
   return (
     <CardFooter className="p-0">
       <Row className="justify-content-evenly py-3 px-md-3">
@@ -64,7 +67,7 @@ function PostFooter({
         </Col>
         <Col className="text-end">
           <CustomDropDown>
-            <Dropdown.Toggle className="cursor-pointer bg-transparent p-0 text-white">
+            <Dropdown.Toggle onClick={handleShowShareLinks} className="cursor-pointer bg-transparent p-0 text-white">
               <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>
@@ -91,6 +94,7 @@ function PostFooter({
           </linearGradient>
         </svg>
       </Row>
+      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
     </CardFooter>
   );
 }

@@ -57,4 +57,10 @@ SuggestBlockSchema.index(
   },
 );
 
+SuggestBlockSchema.index(
+  {
+    from: 1, to: 1,
+  },
+);
+
 export type SuggestBlockDocument = SuggestBlock & Document;

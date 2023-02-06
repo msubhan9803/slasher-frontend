@@ -56,7 +56,7 @@ function Conversation() {
       participant: 'other',
     };
     // eslint-disable-next-line no-underscore-dangle
-    if (payload.message.matchId._id === conversationId) {
+    if (payload.message.matchId === conversationId) {
       // eslint-disable-next-line no-underscore-dangle
       socket?.emit('messageRead', { messageId: payload.message._id });
       setMessageList((prev: any) => [

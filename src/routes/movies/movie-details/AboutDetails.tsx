@@ -11,6 +11,7 @@ import MoviesModal from '../components/MoviesModal';
 import {
   AdditionalMovieData, Country, MovieReleaseResults, ReleaseDate,
 } from '../../../types';
+import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -84,6 +85,7 @@ const StyledInitial = styled.p`
 function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
+  const [showShareLinks, setShowShareLinks] = useState(false);
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -96,6 +98,8 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
     );
     return certificationData ? certificationData.certification : '';
   };
+  const handleShowShareLinks = () => setShowShareLinks(true);
+
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -125,7 +129,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               </p>
             </div>
             <div>
-              <StyleBorderButton className="d-flex align-items-center share-btn bg-black py-2" variant="lg">
+              <StyleBorderButton onClick={handleShowShareLinks} className="d-flex align-items-center share-btn bg-black py-2" variant="lg">
                 <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
                 <p className="fs-3 fw-bold m-0">Share</p>
               </StyleBorderButton>
@@ -199,6 +203,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       </div>
       <MoviesModal show={showRating} setShow={setShowRating} ButtonType="rate" />
       <MoviesModal show={showGoreRating} setShow={setShowGoreRating} ButtonType="gore" />
+      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
     </AboutMovieDetails>
   );
 }

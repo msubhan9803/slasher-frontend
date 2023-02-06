@@ -30,6 +30,9 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ type: [ImageSchema] })
   images: Image[];
 
+  @Prop({ default: [] })
+  hideUsers: mongoose.Schema.Types.ObjectId[];
+
   @Prop({
     required: true,
     enum: [

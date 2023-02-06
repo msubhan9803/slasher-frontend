@@ -9,13 +9,13 @@ export class BookUnusedFields {
   @Prop({ default: null })
   logo: string;
 
-  @Prop({ default: BookType.Free })
+  @Prop({ default: BookType.Free, enum: [BookType.Free, BookType.Paid] })
   type: BookType;
 
-  @Prop({ default: BookStatus.InActive })
+  @Prop({ default: BookStatus.InActive, enum: [BookStatus.InActive, BookStatus.Active, BookStatus.Deactive] })
   status: BookStatus;
 
-  @Prop({ default: BookDeletionState.NotDeleted })
+  @Prop({ default: BookDeletionState.NotDeleted, enum: [BookDeletionState.NotDeleted, BookDeletionState.Deleted] })
   deleted: BookDeletionState;
 
   @Prop({ default: null, ref: 'users' })

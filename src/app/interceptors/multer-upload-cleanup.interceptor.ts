@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { asyncDeleteMulterFiles } from '../../utils/file-upload-validation-utils';
+import { deleteMulterFiles } from '../../utils/file-upload-validation-utils';
 
 @Injectable()
 export class MulterUploadCleanupInterceptor implements NestInterceptor {
@@ -18,12 +18,12 @@ export class MulterUploadCleanupInterceptor implements NestInterceptor {
       .pipe(
         tap(() => {
           if (request.filesToBeRemoved) {
-            asyncDeleteMulterFiles(request.filesToBeRemoved, this.logger);
+            deleteMulterFiles(request.filesToBeRemoved, this.logger);
           }
         }),
         catchError((err) => throwError(() => {
           if (request.filesToBeRemoved) {
-            asyncDeleteMulterFiles(request.filesToBeRemoved, this.logger);
+            deleteMulterFiles(request.filesToBeRemoved, this.logger);
           }
           return err;
         })),

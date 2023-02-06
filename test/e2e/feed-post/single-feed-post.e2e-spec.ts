@@ -18,6 +18,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service';
 import { rssFeedFactory } from '../../factories/rss-feed.factory';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -106,7 +107,8 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           },
         ],
         userId: {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser._id.toString(),
+          profile_status: ProfileVisibility.Public,
           userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
         },

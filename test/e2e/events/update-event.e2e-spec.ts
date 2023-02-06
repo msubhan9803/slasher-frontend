@@ -170,6 +170,16 @@ describe('Events update / :id (e2e)', () => {
         expect(response.body.message).toContain('url must be shorter than or equal to 300 characters');
       });
 
+      it('event_type must be a valid mongodb id', async () => {
+        const response = await request(app.getHttpServer())
+          .patch(`/events/${activeEvent._id}`)
+          .auth(adminUserAuthToken, { type: 'bearer' })
+          .send({ ...sampleEventUpdateObject, event_type: 'not-valid' })
+          .expect(HttpStatus.BAD_REQUEST);
+
+        expect(response.body.message).toContain('Invalid event_type');
+      });
+
       it('author must be shorter than or equal to 100 characters', async () => {
         sampleEventUpdateObject.author = new Array(102).join('a');
 

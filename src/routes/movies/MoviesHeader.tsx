@@ -6,6 +6,7 @@ import SortData from '../../components/filter-sort/SortData';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
+import { enableDevFeatures } from '../../utils/configEnvironment';
 
 interface MovisHeaderProps {
   tabKey: string;
@@ -27,6 +28,7 @@ const tabs = [
   { value: 'buy-list', label: 'Buy list' },
   { value: 'my-movies', label: 'My movies' },
 ];
+const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'All movies');
 const sortoptions = [
   { value: 'name', label: 'Alphabetical' },
   { value: 'releaseDate', label: 'Release Date' },
@@ -37,7 +39,7 @@ function MoviesHeader({
 }: MovisHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={tabs} toLink="/movies" selectedTab={tabKey} />
+      <TabLinks tabLink={allTabs} toLink="/movies" selectedTab={tabKey} />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

@@ -20,6 +20,7 @@ import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { enableDevFeatures } from '../../utils/configEnvironment';
 
 interface Props {
   tabKey: string;
@@ -38,6 +39,7 @@ const tabs = [
   { value: 'photos', label: 'Photos' },
   { value: 'watched-list', label: 'Watched list' },
 ];
+const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label !== 'Watched list');
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
@@ -199,7 +201,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         </Row>
       </Row>
       <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={tabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+      <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
       <ReportModal
         show={show}
         setShow={setShow}

@@ -414,6 +414,7 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('suggest-user-name')
   async suggestUserName(
     @Req() request: Request,

@@ -1,6 +1,7 @@
 import React, { createRef, useEffect } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
+import UserCircleImage from './UserCircleImage';
 
 export interface MentionListProps {
   id: string;
@@ -66,13 +67,13 @@ function MessageTextarea({
       onSearch={handleSearch}
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
-      notFoundContent="Type to search username"
+      notFoundContent="Type to search for a username"
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
-              <img width={40} alt="User Icon" src={mentionList.profilePic} className="img-fluid rounded-3 me-3" />
+              <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
               <span>
                 &nbsp;@
                 {mentionList.userName}

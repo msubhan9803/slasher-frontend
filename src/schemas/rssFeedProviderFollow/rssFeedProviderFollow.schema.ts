@@ -56,11 +56,11 @@ export class RssFeedProviderFollow extends RssFeedProviderFollowUnusedFields {
 }
 
 export const RssFeedProviderFollowSchema = SchemaFactory.createForClass(RssFeedProviderFollow);
-RssFeedProviderFollowSchema.index(
-  {
-    _id: 1,
-  },
-);
+// RssFeedProviderFollowSchema.index(
+//   {
+//     _id: 1,
+//   },
+// );
 RssFeedProviderFollowSchema.index(
   {
     userId: 1,

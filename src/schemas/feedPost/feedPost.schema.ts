@@ -89,5 +89,19 @@ export class FeedPost extends FeedPostUnusedFields {
 }
 
 export const FeedPostSchema = SchemaFactory.createForClass(FeedPost);
-
+FeedPostSchema.index(
+  {
+    userId: 1, createdAt: 1, is_deleted: 1, status: 1,
+  },
+);
+FeedPostSchema.index(
+  {
+    updatedAt: 1, createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1, userId: 1,
+  },
+);
+FeedPostSchema.index(
+  {
+   createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,
+  },
+);
 export type FeedPostDocument = FeedPost & Document;

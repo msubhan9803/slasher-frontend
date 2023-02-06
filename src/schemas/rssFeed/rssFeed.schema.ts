@@ -49,5 +49,9 @@ export class RssFeed extends RssFeedUnusedFields {
 }
 
 export const RssFeedSchema = SchemaFactory.createForClass(RssFeed);
-
+RssFeedSchema.index(
+  {
+    _id: 1, deleted: 1,
+  },
+);
 export type RssFeedDocument = RssFeed & Document;

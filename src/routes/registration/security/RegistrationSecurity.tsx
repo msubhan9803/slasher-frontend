@@ -36,6 +36,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={6} className="order-first">
               <InputGroup>
                 <Form.Control
+                  aria-label="Password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   className="border-end-0"
@@ -50,6 +51,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={6} className="order-last">
               <InputGroup>
                 <Form.Control
+                  aria-label="Confirm Password"
                   value={securityInfo.passwordConfirmation}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'passwordConfirmation')}
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -89,6 +91,7 @@ function RegistrationSecurity({ activeStep }: Props) {
         <Col sm={12} md={9} className="mt-4">
           <Form.Group controlId="formBasicAnswer">
             <Form.Control
+              aria-label="Security answer"
               type="text"
               placeholder="Security answer"
               value={securityInfo.securityAnswer}

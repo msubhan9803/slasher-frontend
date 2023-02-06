@@ -2,7 +2,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import {
-  Col, Image, OverlayTrigger, Row, Tooltip,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';

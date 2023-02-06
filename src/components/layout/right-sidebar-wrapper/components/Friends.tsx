@@ -24,7 +24,8 @@ function Friends({ user }: FriendsProps) {
   useEffect(() => {
     if (userNameOrId) {
       setLoader(true);
-      getUsersFriends(user.id)
+      /* eslint no-underscore-dangle: 0 */
+      getUsersFriends(user._id)
         .then((res) => { setFriendsList(res.data.friends); setLoader(false); });
     }
   }, [userNameOrId]);
@@ -48,7 +49,7 @@ function Friends({ user }: FriendsProps) {
                   />
                 </Col>
               ))
-}
+          }
         </Row>
       </div>
     </>

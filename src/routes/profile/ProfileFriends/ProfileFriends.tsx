@@ -66,7 +66,8 @@ function ProfileFriends({ user }: Props) {
     setNoMoreData(false);
     if (page === 0) setFriendsList([]);
     setLoadingFriends(true);
-    userProfileFriends(user.id, search ? 0 : page, search)
+    /* eslint no-underscore-dangle: 0 */
+    userProfileFriends(user._id, search ? 0 : page, search)
       .then((res) => {
         setFriendsList(res.data.friends);
         setFriendCount(res.data.allFriendCount);
@@ -89,7 +90,7 @@ function ProfileFriends({ user }: Props) {
   const fetchMoreFriendList = () => {
     if (page > 0) {
       setLoadingFriends(true);
-      userProfileFriends(user.id, page, search)
+      userProfileFriends(user._id, page, search)
         .then((res) => {
           setLoadingFriends(false);
           setFriendsList((prev: any) => [

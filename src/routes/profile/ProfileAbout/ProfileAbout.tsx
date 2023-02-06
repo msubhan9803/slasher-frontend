@@ -35,7 +35,8 @@ function ProfileAbout({ user }: Props) {
       <div className="bg-dark rounded p-4 my-3">
         <div className="d-flex justify-content-between">
           <h2 className="mb-4">About me</h2>
-          {loginUserId === user?.id
+          {loginUserId === user?._id
+            /* eslint no-underscore-dangle: 0 */
             && <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" onClick={() => setEdit(!isEdit)} />}
         </div>
         {isEdit

@@ -36,8 +36,9 @@ function ProfilePhotos({ user }: Props) {
   useEffect(() => {
     if (requestAdditionalPhotos && !loadingPhotos) {
       setLoadingPhotos(true);
+      /* eslint no-underscore-dangle: 0 */
       userPhotos(
-        user.id,
+        user._id,
         userPhotosList.length > 0 ? userPhotosList[userPhotosList.length - 1].id : undefined,
       )
         .then((res) => {

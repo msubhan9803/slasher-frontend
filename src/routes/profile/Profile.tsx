@@ -27,8 +27,8 @@ function Profile() {
   const [userNotFound, setUserNotFound] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const isSelfProfile = loginUserData.id === user?.id;
+  /* eslint no-underscore-dangle: 0 */
+  const isSelfProfile = loginUserData.id === user?._id;
 
   useEffect(() => {
     if (userNameOrId) {

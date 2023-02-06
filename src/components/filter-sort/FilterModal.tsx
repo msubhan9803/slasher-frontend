@@ -37,7 +37,7 @@ function FilterModal({
   };
 
   const keyValue = () => {
-    if (selectedKey) {
+    if (selectedKey && key !== '') {
       selectedKey(key);
     }
   };

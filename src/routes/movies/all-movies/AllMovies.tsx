@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
@@ -13,6 +12,7 @@ import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import MovieRightSideNav from '../components/MovieRightSideNav';
+import RoundButton from '../../../components/ui/RoundButton';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -84,7 +84,6 @@ function AllMovies() {
     getMovies(search, sortVal)
       .then((result: any) => {
         setFilteredMovies(result.data);
-        setKeyMoviesReady(true);
       });
   };
 
@@ -104,13 +103,13 @@ function AllMovies() {
         {key !== '' && isKeyMoviesReady
           && (
           <div className="w-100 d-flex justify-content-center mb-3">
-            <Badge pill bg="secondary" onClick={clearKeyHandler}>
+            <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               Starts with
               {' '}
               {key}
               {' '}
-              <FontAwesomeIcon icon={solid('circle')} size="sm" />
-            </Badge>
+              <FontAwesomeIcon icon={solid('x')} size="sm" />
+            </RoundButton>
           </div>
           )}
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">

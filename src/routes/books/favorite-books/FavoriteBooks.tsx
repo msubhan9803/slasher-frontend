@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import AuthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
+import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
 import { BooksProps } from '../components/BookProps';
 import { favoriteBooks } from '../components/booksList';
+import BooksRigthSideNav from '../components/BooksRigthSideNav';
 
 function FavoriteBooks() {
   const [showKeys, setShowKeys] = useState(false);
@@ -25,20 +27,25 @@ function FavoriteBooks() {
     searchData();
   }, [search]);
   return (
-    <AuthenticatedPageWrapper rightSidebarType="book">
-      <BooksHeader
-        tabKey="favorites"
-        showKeys={showKeys}
-        setShowKeys={setShowKeys}
-        setSearch={setSearch}
-        search={search}
-      />
-      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-        <div className="m-md-2">
-          <PosterCardList dataList={filteredBooks} />
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <BooksHeader
+          tabKey="favorites"
+          showKeys={showKeys}
+          setShowKeys={setShowKeys}
+          setSearch={setSearch}
+          search={search}
+        />
+        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+          <div className="m-md-2">
+            <PosterCardList dataList={filteredBooks} />
+          </div>
         </div>
-      </div>
-    </AuthenticatedPageWrapper>
+      </ContentPageWrapper>
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <BooksRigthSideNav />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 

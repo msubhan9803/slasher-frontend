@@ -3,7 +3,6 @@ import {
   Col, Form, Row,
 } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import UnauthenticatedPageWrapper from '../../../components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -28,7 +27,7 @@ function OnboardingPhoto() {
     });
   };
   return (
-    <UnauthenticatedPageWrapper hideFooter valign="center">
+    <>
       <h1 className="h2 text-center">Add your profile photo</h1>
       <Form>
         <div className="my-3">
@@ -62,7 +61,7 @@ function OnboardingPhoto() {
           </Col>
         </Row>
       </Form>
-    </UnauthenticatedPageWrapper>
+    </>
   );
 }
 

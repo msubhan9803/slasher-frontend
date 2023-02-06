@@ -2,97 +2,64 @@ import React, { useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 
-const StyledOnLikedIcon = styled(RoundButton)`
-  color: #00FF0A;
-  border: 1px solid #00FF0A;
+interface LikeProps {
+  isLike?: boolean
+}
+interface DislikeProps {
+  isDislike?: boolean
+}
+
+const StyledDislikeIcon = styled.div <DislikeProps>`
+  color: #FF1800;
   width: 1.875rem;
   height: 1.875rem;
+  transform: rotateY(180deg);
+  ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
+  FontAwesomeIcon {
+    width: 1.326rem;
+    height: 1.391rem;
+  }
   &:hover {
-    color: #00FF0A;
-    border: 1px solid #00FF0A;
-  }  
+    color: #FF1800;
+    ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
+  } 
+`;
+export const StyledLikeIcon = styled.div <LikeProps>`
+  color: #00FF0A;
+  width: 1.875rem;
+  height: 1.875rem;
+  ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
   svg {
     margin-left: 0.125rem;
     margin-top: -1px;
   }
-`;
-const StyledLikeIcon = styled(RoundButton)`
-  color: #00FF0A;
-  border: 1px solid #3A3B46;
-  width: 1.875rem;
-  height: 1.875rem;
   &:hover {
     color: #00FF0A;
-    border: 1px solid #3A3B46;
-  }
-  svg {
-    margin-left: 0.125rem;
-    margin-top: -1px;
-  }
-`;
-const StyledOnDisLikeIcon = styled(RoundButton)`
-  color: #FF1800;
-  border: 1px solid #FF1800;
-  transform: rotateY(180deg);
-  width: 1.875rem;
-  height: 1.875rem;
-  &:hover {
-    color: #FF1800;
-    border: 1px solid #FF1800;
-  } 
-  svg {
-    margin-left: -1px;
-  }
-`;
-const StyledDisLikeIcon = styled(RoundButton)`
-  color: #FF1800;
-  border: 1px solid #3A3B46;
-  transform: rotateY(180deg);
-  width: 1.875rem;
-  height: 1.875rem;
-  &:hover {
-    color: #FF1800;
-    border: 1px solid #3A3B46;
-  } 
-  svg {
-    margin-left: -1px;
+    ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
   }
 `;
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
-width: 0.995rem;
-height: 0.997rem;
+  width: 0.995rem;
+  height: 0.997rem;
 `;
 function WorthWatchIcon() {
-  const [liked, setLike] = useState(false);
-  const [disLiked, setDisLike] = useState(false);
+  const [liked, setLike] = useState<boolean>(true);
+  const [disLiked, setDisLike] = useState<boolean>(false);
   return (
-    <div className="mx-1 d-flex align-items-center justify-content-between">
-      <span className="align-items-center d-flex me-xl-0">
-        {liked ? (
-          <StyledOnLikedIcon onClick={() => setLike(false)} className="d-flex justify-content-center shadow-none bg-transparent me-1 rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-          </StyledOnLikedIcon>
-        ) : (
-          <StyledLikeIcon onClick={() => { setLike(true); setDisLike(false); }} className="d-flex justify-content-center shadow-none bg-transparent me-1 rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-          </StyledLikeIcon>
-        )}
-        <p className="m-0 fs-3 text-light">(0)</p>
-      </span>
-      <span className="align-items-center d-flex ms-3">
-        {disLiked ? (
-          <StyledOnDisLikeIcon onClick={() => setDisLike(false)} className="shadow-none bg-transparent me-1 px-2 py-1 rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-          </StyledOnDisLikeIcon>
-        ) : (
-          <StyledDisLikeIcon onClick={() => { setDisLike(true); setLike(false); }} className="shadow-none bg-transparent me-1 px-2 py-1 rounded-circle">
-            <StyleWatchWorthIcon icon={regular('thumbs-down')} />
-          </StyledDisLikeIcon>
-        )}
-        <p className="m-0 fs-3 text-light">(0)</p>
-      </span>
+    <div className="mx-1 d-flex align-items-center justify-content-around">
+      <div className="mt-2 d-flex justify-content-center ">
+        <StyledLikeIcon isLike={liked} role="button" onClick={() => { setLike(!liked); setDisLike(false); }} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+          <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+        </StyledLikeIcon>
+        <p className="m-0 fs-3 text-light">(99k)</p>
+      </div>
+      <div className="mt-2 d-flex justify-content-center ">
+        <StyledDislikeIcon isDislike={disLiked} role="button" onClick={() => { setDisLike(!disLiked); setLike(false); }} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+          <StyleWatchWorthIcon icon={regular('thumbs-down')} />
+        </StyledDislikeIcon>
+        <p className="m-0 fs-3 text-light">(99k)</p>
+      </div>
     </div>
   );
 }

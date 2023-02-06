@@ -31,7 +31,7 @@ export default function VerificationEmailNotReceived() {
         <Form className="my-5">
           <Row className="flex-column align-items-center">
             <Col xs="10" sm="8" lg="6">
-              <Form.Control className="text-white shadow-none" type="email" placeholder="Email address" />
+              <Form.Control aria-label="Email" className="text-white shadow-none" type="email" placeholder="Email address" />
               <Button size="lg" className="mt-4 w-100" onClick={handleShow}>Send</Button>
             </Col>
           </Row>

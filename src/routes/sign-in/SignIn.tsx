@@ -88,8 +88,8 @@ function SignIn() {
       <Col sm={12} lg={6}>
         <div className="h-100 w-100 d-flex align-items-center">
           <div className="d-flex w-100 h-100 justify-content-center align-items-center">
-            <StyledMobileSlasherLogo src={signInImageMobile} className="w-100 d-lg-none" />
-            <StyledDesktopSlasherLogo src={slasherLogo} className="p-4 d-none d-lg-block" />
+            <StyledMobileSlasherLogo src={signInImageMobile} alt="Slasher logo" className="w-100 d-lg-none" />
+            <StyledDesktopSlasherLogo src={slasherLogo} alt="Slasher logo" className="p-4 d-none d-lg-block" />
           </div>
         </div>
       </Col>
@@ -129,7 +129,7 @@ function SignIn() {
                 </Link>
               </p>
               {errorMessage && errorMessage.length > 0 && (
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
               )}
               <RoundButton id="sign-in-button" type="submit" onClick={handleUserSignIn} className="w-100 my-3" variant="primary">
                 Sign in

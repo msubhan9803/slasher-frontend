@@ -103,7 +103,12 @@ export class ChatGateway {
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
-
+    messages.forEach((messageObject) => {
+      if (messageObject.image) {
+          // eslint-disable-next-line no-param-reassign
+        messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+      }
+    });
     return messages;
   }
 

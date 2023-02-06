@@ -10,6 +10,7 @@ import FacebookIcon from '../../images/share-links-modal-facebook.png';
 import InstagramIcon from '../../images/share-links-modal-instagram.png';
 import TwitterIcon from '../../images/share-links-modal-twitter.png';
 import { MD_MEDIA_BREAKPOINT } from '../../constants';
+import { enableDevFeatures } from '../../utils/configEnvironment';
 
 const StyledModalBody = styled(Modal.Body)`
   @media (min-width: ${MD_MEDIA_BREAKPOINT}){
@@ -47,24 +48,36 @@ function ShareLinksModal({ show, setShow }: any) {
       <StyledModalBody className="d-flex flex-column align-items-center text-center pt-0">
         <h1 className="mb-0 text-primary text-center">Share</h1>
         <Row xs={3} lg="auto" className="mt-4">
-          <Col className="pb-5">
-            <ShareIconButton label="Share as a post" onClick={() => { }} imgSrc={ShareAsApostIcon} />
-          </Col>
-          <Col className="pb-5">
-            <ShareIconButton label="Share as a message" onClick={() => { }} imgSrc={ShareAsAmessageIcon} />
-          </Col>
+          {
+            enableDevFeatures && (
+              <>
+                <Col className="pb-5">
+                  <ShareIconButton label="Share as a post" onClick={() => { }} imgSrc={ShareAsApostIcon} />
+                </Col>
+                <Col className="pb-5">
+                  <ShareIconButton label="Share as a message" onClick={() => { }} imgSrc={ShareAsAmessageIcon} />
+                </Col>
+              </>
+            )
+          }
           <Col className="pb-5">
             <ShareIconButton label="Copy link" onClick={() => { handleCloseModal(); copyUrlToClipboard(); }} imgSrc={CopyLinkIcon} />
           </Col>
-          <Col className="pb-5">
-            <ShareIconButton label="Facebook" onClick={() => { }} imgSrc={FacebookIcon} />
-          </Col>
-          <Col className="pb-5">
-            <ShareIconButton label="Instagram" onClick={() => { }} imgSrc={InstagramIcon} />
-          </Col>
-          <Col className="pb-5">
-            <ShareIconButton label="Twitter" onClick={() => { }} imgSrc={TwitterIcon} />
-          </Col>
+          {
+            enableDevFeatures && (
+              <>
+                <Col className="pb-5">
+                  <ShareIconButton label="Facebook" onClick={() => { }} imgSrc={FacebookIcon} />
+                </Col>
+                <Col className="pb-5">
+                  <ShareIconButton label="Instagram" onClick={() => { }} imgSrc={InstagramIcon} />
+                </Col>
+                <Col className="pb-5">
+                  <ShareIconButton label="Twitter" onClick={() => { }} imgSrc={TwitterIcon} />
+                </Col>
+              </>
+            )
+          }
         </Row>
       </StyledModalBody>
     </ModalContainer>

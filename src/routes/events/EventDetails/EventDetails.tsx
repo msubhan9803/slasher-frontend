@@ -120,23 +120,19 @@ function EventDetails() {
                 >
                   {eventDetails?.url}
                 </a>
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                  <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
-                    <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                    <h1 className="h3 m-0">Share</h1>
-                  </RoundButton>
-                </OverlayTrigger>
+                <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                  <h1 className="h3 m-0">Share</h1>
+                </RoundButton>
               </div>
             </Col>
           </Row>
           <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
             <div className="d-flex align-self-center">
-              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
-                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                  <h1 className="h3 m-0">Share</h1>
-                </RoundButton>
-              </OverlayTrigger>
+              <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+                <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                <h1 className="h3 m-0">Share</h1>
+              </RoundButton>
             </div>
             <div>
               <LinearIcon role="button" uniqueId="favorite-sm" className="d-flex flex-column align-items-end">
@@ -168,7 +164,7 @@ function EventDetails() {
             />
           </div>
         </div>
-        {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
+        {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
         <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

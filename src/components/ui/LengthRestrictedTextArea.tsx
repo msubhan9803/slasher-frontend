@@ -26,6 +26,7 @@ function LengthRestrictedTextArea({
         value={contentDetail}
         onChange={handleMessageChange}
         placeholder={placeholder}
+        aria-label="about-me text area"
       />
       <Form.Text className="float-end">
         {`${charCount}/${maxLength} characters`}

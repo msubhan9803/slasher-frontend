@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button, Col, Form, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
-import { updateUserAbout } from '../../../api/users';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -18,9 +17,6 @@ import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.43rem;
   margin-right: .5rem;
-`;
-const CustomDiv = styled.div`
-  white-space: pre;
 `;
 
 interface Props {
@@ -37,12 +33,6 @@ function ProfileAbout({ user }: Props) {
     setMessage(e.target.value);
   };
 
-  const handleUserAbout = (id: string) => {
-    updateUserAbout(id, message).then((res) => {
-      setMessage(res.data.aboutMe);
-      setEdit(!isEdit);
-    });
-  };
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

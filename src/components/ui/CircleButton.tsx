@@ -26,6 +26,7 @@ function CircleButton({
       onClick={() => onAcceptRejectClick(userId)}
       variant={variant}
       className={`d-flex flex-row align-items-center justify-content-center rounded-5 ${className}`}
+      aria-label="Icon button"
     >
       <FontAwesomeIcon icon={icon} />
     </CircleStyledButton>

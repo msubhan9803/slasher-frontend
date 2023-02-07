@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements, BrowserRouter,
+  Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
 import VerificationEmailNotReceived from './routes/verification-email-not-received/VerificationEmailNotReceived';
 import ForgotPassword from './routes/forgot-password/ForgotPassword';

@@ -171,15 +171,17 @@ function ProfileEdit({ user }: Props) {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="h3">Name</Form.Label>
+                  <Form.Label className="h3" htmlFor="name">Name</Form.Label>
                   <Form.Control
                     type="text"
+                    id="name"
                     placeholder="Name"
                     value={locallyStoredUserData.firstName || ''}
                     onChange={
                       (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'firstName')
                     }
                     className="my-3 fs-5"
+                    aria-label="Name"
                   />
                   <div className="d-flex pe-5">
                     <Form.Text className="text-muted fs-4">
@@ -190,15 +192,17 @@ function ProfileEdit({ user }: Props) {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="h3">Username</Form.Label>
+                  <Form.Label className="h3" htmlFor="username">Username</Form.Label>
                   <Form.Control
                     type="text"
+                    id="username"
                     placeholder="Username"
                     value={locallyStoredUserData.userName || ''}
                     onChange={
                       (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'userName')
                     }
                     className="my-3 fs-5"
+                    aria-label="Username"
                   />
                   <Form.Text className="text-muted fs-4">
                     This is how people will see you post and comment on Slasher.
@@ -209,15 +213,17 @@ function ProfileEdit({ user }: Props) {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="h3">Email address</Form.Label>
+                  <Form.Label className="h3" htmlFor="email">Email address</Form.Label>
                   <Form.Control
                     type="email"
+                    id="email"
                     placeholder="Email"
                     value={locallyStoredUserData.email || ''}
                     onChange={
                       (changeData: ChangeEvent<HTMLInputElement>) => handleChange(changeData.target.value, 'email')
                     }
                     className="my-3 fs-5"
+                    aria-label="Email"
                   />
                   <Form.Text className="text-muted fs-4">
                     In order to edit your email address, we will ask your
@@ -237,7 +243,7 @@ function ProfileEdit({ user }: Props) {
 
               <Col md={6}>
                 <Form.Group className="mb-4">
-                  <Form.Label className="h3">Profile visibility</Form.Label>
+                  <h2 className="h3">Profile visibility</h2>
                   <Form.Check
                     key="profileVisibility"
                     type="radio"

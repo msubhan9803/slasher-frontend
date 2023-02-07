@@ -23,17 +23,11 @@ import { useAppSelector } from '../../../redux/hooks';
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function ProfilePosts() {
-  const { userName } = useParams<string>();
-  const [user, setUser] = useState<User>();
-  useEffect(() => {
-    if (userName) {
-      getUser(userName)
-        .then((res) => {
-          setUser(res.data);
-        });
-    }
-  }, [userName]);
+interface Props {
+  user: User
+}
+
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -237,7 +231,7 @@ function ProfilePosts() {
   return (
     <div>
       <ProfileHeader tabKey="posts" user={user} />
-      {loginUserData.userName === userName
+      {loginUserData.userName === user.userName
         && (
           <div className="my-4">
             <CustomCreatePost />

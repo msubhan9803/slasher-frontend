@@ -15,7 +15,7 @@ function CustomCreatePost() {
   return (
     <StyledRoundButtonLink to="/posts/create" variant="dark" className="w-100 d-flex justify-content-between">
       <div>
-        <UserCircleImage size="2.5rem" src={userProfilePic} />
+        <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
         <span className="ms-2 text-light fs-5">Create a post</span>
       </div>
       <div className="align-self-center me-2">

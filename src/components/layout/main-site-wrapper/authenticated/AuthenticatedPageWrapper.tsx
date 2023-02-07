@@ -12,8 +12,9 @@ import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnre
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
-import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
+import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 
 interface Props {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
+  if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
   useEffect(() => {
     const token = Cookies.get('sessionToken');

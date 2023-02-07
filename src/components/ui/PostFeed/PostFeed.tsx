@@ -242,9 +242,6 @@ function PostFeed({
                   initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                 />
                 )}
-                { /* Below ad is to be shown in the end of post content when the post is a
-              single pgae post */ }
-                {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} autoSequencer />}
                 <Row className="pt-3 px-md-3">
                   <Col>
                     <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>

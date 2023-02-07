@@ -203,6 +203,7 @@ describe('Chat Gateway (e2e)', () => {
   });
 
   describe('#getMessages', () => {
+    let message0;
     let message1;
     let message2;
     let message3;
@@ -210,7 +211,7 @@ describe('Chat Gateway (e2e)', () => {
 
     beforeEach(async () => {
       // user1 messages
-      await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+      message0 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
       message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
       matchList = await matchListModel.findOne({
         participants: activeUser._id,
@@ -230,6 +231,10 @@ describe('Chat Gateway (e2e)', () => {
         const payload = {
           matchListId: matchList._id,
         };
+        message1.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message1.save();
+        message0.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message0.save();
 
         const response = await new Promise<any>((resolve) => {
           client.emit('getMessages', payload, (data) => {
@@ -239,7 +244,46 @@ describe('Chat Gateway (e2e)', () => {
         client.close();
 
         expect(response).toHaveLength(2);
-
+        expect(response).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'Hi, there!',
+            isRead: true,
+            status: 1,
+            deleted: false,
+            createdAt: expect.any(String),
+            matchId: matchList.id,
+            relationId: '5c9cb7138a874f1dcd0d8dcc',
+            fromId: user1.id,
+            senderId: activeUser.id,
+            deletefor: [],
+            messageType: 0,
+            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            created: expect.any(String),
+            urls: [],
+            __v: 0,
+            updatedAt: expect.any(String),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'Hi, test message.',
+            isRead: false,
+            status: 1,
+            deleted: false,
+            createdAt: expect.any(String),
+            matchId: matchList.id,
+            relationId: '5c9cb7138a874f1dcd0d8dcc',
+            fromId: activeUser.id,
+            senderId: user1.id,
+            deletefor: [],
+            messageType: 0,
+            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            created: expect.any(String),
+            urls: [],
+            __v: 0,
+            updatedAt: expect.any(String),
+          },
+        ]);
         // All messages NOT from the activeUser should be marked as read when they are returned
         // by the socket response.
         // Note: message.senderId actually means "message.toId" (bad naming in old API app)

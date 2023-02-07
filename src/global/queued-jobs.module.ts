@@ -23,6 +23,6 @@ import { ChatGateway } from '../chat/providers/chat.gateway';
     ChatModule,
   ],
   providers: [MessageCountUpdateConsumer, ChatGateway],
-  exports: [BullModule],
+  exports: [BullModule, ChatGateway],
 })
 export class QueuedJobsModule { }

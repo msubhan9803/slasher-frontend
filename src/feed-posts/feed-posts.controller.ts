@@ -23,6 +23,7 @@ import { NotificationsGateway } from '../notifications/providers/notifications.g
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -39,19 +40,7 @@ export class FeedPostsController {
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },

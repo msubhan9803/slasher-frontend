@@ -1,13 +1,12 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';

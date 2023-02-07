@@ -18,7 +18,7 @@ function FriendsProfileCard({
         <div className="d-flex align-items-center">
           <Link to={`/${friend.userName}`} className="text-decoration-none">
             <div>
-              <UserCircleImage src={friend.profilePic} className="me-2" />
+              <UserCircleImage src={friend.profilePic} alt="user picture" className="me-2" />
             </div>
           </Link>
 

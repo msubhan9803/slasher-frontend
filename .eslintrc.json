@@ -45,6 +45,15 @@
             {
                 "checkFragmentShorthand": true
             }
+        ],
+        // Allow underscore exception for "_id" because it's common in retrieved MongoDB objects
+        "no-underscore-dangle": [
+            "error",
+            {
+                "allow": [
+                    "_id"
+                ]
+            }
         ]
     },
     "overrides": [

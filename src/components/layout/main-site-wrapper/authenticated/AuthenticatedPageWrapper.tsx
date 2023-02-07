@@ -51,10 +51,24 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
+  const token = Cookies.get('sessionToken');
   if (analyticsId) { useGoogleAnalytics(analyticsId); }
 
+  const [show, setShow] = useState(false);
+  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
+
+  const hideOffcanvasSidebar = () => setShow(false);
+  const showOffcanvasSidebar = () => setShow(true);
+
+  const onNotificationReceivedHandler = () => {
+    dispatch(incrementUnreadNotificationCount());
+  };
+
+  const onUnreadMessageCountUpdate = (count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  };
+
   useEffect(() => {
-    const token = Cookies.get('sessionToken');
     if (!token) {
       navigate(`/sign-in?path=${pathname}`);
       return;
@@ -72,23 +86,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
     }
   }, []);
 
-  const [show, setShow] = useState(false);
-  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-
-  const hideOffcanvasSidebar = () => setShow(false);
-  const showOffcanvasSidebar = () => setShow(true);
-
   useEffect(() => {
     dispatch(setUserInitialData(userData));
   }, []);
-
-  const onNotificationReceivedHandler = () => {
-    dispatch(incrementUnreadNotificationCount());
-  };
-
-  const onUnreadMessageCountUpdate = (count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
-  };
 
   useEffect(() => {
     if (socket) {
@@ -102,7 +102,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
     return () => { };
   }, []);
 
-  if (!userData.user) {
+  if (!token || !userData.user) {
     return <LoadingIndicator />;
   }
   return (

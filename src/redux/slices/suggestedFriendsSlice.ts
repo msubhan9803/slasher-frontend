@@ -1,14 +1,19 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+const initialState = {
+  suggestedFriends: [] as any[],
+  lastRetrievalTime: null as null | string,
+  forceReload: false,
+};
 
 export const suggestedFriendsSlice = createSlice({
   name: 'suggestedFriends',
-  initialState: {
-    suggestedFriends: [],
-    lastRetrievalTime: null,
-    forceReload: false,
-  },
+  initialState,
   reducers: {
-    setSuggestedFriendsList: (state, action) => (
+    setSuggestedFriendsState: (
+      state,
+      action: PayloadAction<typeof initialState>,
+    ) => (
       {
         ...state,
         suggestedFriends: action.payload.suggestedFriends,
@@ -17,15 +22,17 @@ export const suggestedFriendsSlice = createSlice({
       }
     ),
 
-    setForceReload: (state, action) => (
+    forceReloadSuggestedFriends: (state) => (
       {
         ...state,
-        forceReload: action.payload.forceReload,
+        forceReload: true,
       }
     ),
   },
 });
 
-export const { setSuggestedFriendsList, setForceReload } = suggestedFriendsSlice.actions;
+export const {
+  setSuggestedFriendsState, forceReloadSuggestedFriends,
+} = suggestedFriendsSlice.actions;
 
 export default suggestedFriendsSlice.reducer;

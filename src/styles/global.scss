@@ -2,6 +2,9 @@
 @import "~bootstrap/scss/bootstrap";
 
 :root {
+  @media(min-width: 978px){
+    overflow: overlay;
+  }
   --slasher-comments-bg-color: #{$slasher-comments-bg-color};
   --stroke-and-line-separator-color: #{$stroke-and-line-separator-color};
 }

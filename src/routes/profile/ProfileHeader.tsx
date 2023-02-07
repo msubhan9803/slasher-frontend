@@ -136,12 +136,12 @@ function ProfileHeader({ tabKey, user }: Props) {
       <Row className="p-md-4">
         <Col>
           <ImageContainer>
-            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover image" className="w-100 rounded" />
+            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="w-100 rounded" />
           </ImageContainer>
         </Col>
         <Row className="d-flex ms-3">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage size="11.25rem" src={user?.profilePic} />
+            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
             {!isSelfUserProfile
               && (
                 <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -170,7 +170,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
-                        <h3 className="mb-0"> Edit profile</h3>
+                        <h2 className="h3 mb-0"> Edit profile</h2>
                       </RoundButton>
                     </div>
                   )}

@@ -72,7 +72,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               ? (
                 <Image
                   src={message.image}
-                  alt="message photograph"
+                  alt="User upload"
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />
@@ -96,7 +96,7 @@ function ChatMessage({ messages, messageLoading }: ChatProps) {
               ? (
                 <Image
                   src={message.image}
-                  alt="message photograph"
+                  alt="User upload"
                   className="w-50 h-auto img-fluid rounded-3"
                   onLoad={() => onImageLoad()}
                 />

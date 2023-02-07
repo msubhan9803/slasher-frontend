@@ -29,7 +29,7 @@ import {
   newLineToBr,
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -195,14 +195,6 @@ function PostFeed({
   }
   if (location.pathname.includes('/news/partner/')) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
-  }
-
-  let singlePagePostPubWiseAdDivId: string;
-  if (location.pathname.includes('/news/partner/')) {
-    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
-  }
-  if (location.pathname.includes('/posts/')) {
-    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
   }
 
   return (

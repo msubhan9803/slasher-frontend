@@ -52,5 +52,9 @@ export class EventCategory extends EventCategoryUnusedFields {
 }
 
 export const EventCategorySchema = SchemaFactory.createForClass(EventCategory);
-
+EventCategorySchema.index(
+  {
+    is_deleted: 1, status: 1, _id: 1,
+  },
+);
 export type EventCategoryDocument = EventCategory & Document;

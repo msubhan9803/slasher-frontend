@@ -417,6 +417,7 @@ export class MoviesService {
       title: mainData.title,
       original_title: mainData.original_title,
       production_countries: mainData.production_countries,
+      release_date: mainData.release_date,
     };
 
     return {

@@ -414,6 +414,7 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$[*].profilePic')
   @Get('suggest-user-name')
   async suggestUserName(
     @Req() request: Request,
@@ -543,7 +544,7 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'messages', 'images', 'userId', 'createdAt', 'likes', 'likeCount', 'commentCount']),
+      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likes', 'likeCount', 'commentCount']),
     );
   }
 

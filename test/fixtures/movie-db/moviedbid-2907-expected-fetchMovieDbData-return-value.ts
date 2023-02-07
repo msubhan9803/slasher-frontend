@@ -239,6 +239,7 @@ export default {
     ],
     runtime: 102,
     title: 'The Addams Family',
+    release_date: '1991-11-22',
     release_dates: {
       results: [
         {

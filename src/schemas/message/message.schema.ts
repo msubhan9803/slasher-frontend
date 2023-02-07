@@ -68,5 +68,22 @@ export class Message extends MessageUnusedFields {
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
+MessageSchema.index(
+  {
+    matchId: 1, deleted: 1,
+  },
+);
 
+// Index for ChatService#getMessages
+MessageSchema.index(
+  {
+    participants: 1, matchId: 1, deleted: 1,
+  },
+);
+// Index for ChatService#getUnreadDirectPrivateMessageCount
+MessageSchema.index(
+  {
+    isRead: 1, relationId: 1, senderId: 1, is_deleted: 1,
+  },
+);
 export type MessageDocument = Message & Document;

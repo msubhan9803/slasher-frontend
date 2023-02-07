@@ -96,6 +96,7 @@ describe('All Feed Post (e2e)', () => {
           },
           createdAt: expect.any(String),
           likes: [],
+          message: expect.any(String),
           likeCount: 0,
           commentCount: 0,
         });

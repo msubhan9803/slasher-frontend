@@ -61,7 +61,6 @@ export class ChatGateway {
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
         message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
-        user,
       });
     });
     await this.messageCountUpdateQueue.add(

@@ -53,6 +53,7 @@ function AccountChangePassword() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     autoComplete="password"
+                    aria-label="Current Password"
                   />
                   <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none" onClick={() => setShowCurrentPassword(!showCurrentPassword)}>
                     {showCurrentPassword ? 'Hide' : 'Show'}
@@ -66,6 +67,7 @@ function AccountChangePassword() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     autoComplete="new-password"
+                    aria-label="New Password"
                   />
                   <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none my-3" onClick={() => setShowNewPassword(!showNewPassword)}>
                     {showNewPassword ? 'Hide' : 'Show'}
@@ -82,6 +84,7 @@ function AccountChangePassword() {
                     className="fs-5 border-end-0 my-4"
                     value={newPasswordConfirmation}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    aria-label="Re-enter new password"
                   />
                   <CustomVisibilityButton className="fs-5 fw-normal text-light border border-start-0 shadow-none my-4" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                     {showConfirmPassword ? 'Hide' : 'Show'}

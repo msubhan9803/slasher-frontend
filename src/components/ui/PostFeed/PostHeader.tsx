@@ -40,7 +40,7 @@ function PostHeader({
               className="text-decoration-none"
             >
               <div className="rounded-circle">
-                <UserCircleImage size="3.313rem" src={profileImage} className="bg-secondary" />
+                <UserCircleImage size="3.313rem" src={profileImage} alt={`${userName}profile picture`} className="bg-secondary" />
               </div>
             </HashLink>
           </Col>

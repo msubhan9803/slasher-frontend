@@ -64,6 +64,7 @@ function MessageTextarea({
       onSearch={handleSearch}
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
+      aria-label="post"
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>

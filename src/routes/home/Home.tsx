@@ -269,7 +269,7 @@ function Home() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <CustomCreatePost />
-        <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
+        <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
         {
           errorMessage && errorMessage.length > 0 && (

@@ -1,35 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import { getUser, getUsersFriends } from '../../../../api/users';
+import { getUsersFriends } from '../../../../api/users';
 import { User } from '../../../../types';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
 import FriendCircleWithLabel from './FriendCircleWithLabel';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
-interface FriendProps {
+interface FriendType {
   /* eslint no-underscore-dangle: 0 */
   _id: string;
   userName: string;
   profilePic: string;
 }
 
-function Friends() {
-  const [friendsList, setFriendsList] = useState<FriendProps[]>([]);
-  const [user, setUser] = useState<User>();
+type FriendsProps = { user: User };
+
+function Friends({ user }: FriendsProps) {
+  const [friendsList, setFriendsList] = useState<FriendType[]>([]);
   const [loader, setLoader] = useState<boolean>(false);
   const { userName: userNameOrId } = useParams<string>();
-
-  const getUserFriendList = (id: string) => {
-    getUsersFriends(id)
-      .then((res) => { setFriendsList(res.data.friends); setLoader(false); });
-  };
 
   useEffect(() => {
     if (userNameOrId) {
       setLoader(true);
-      getUser(userNameOrId)
-        .then((res) => { getUserFriendList(res.data.id); setUser(res.data); });
+      /* eslint no-underscore-dangle: 0 */
+      getUsersFriends(user._id)
+        .then((res) => { setFriendsList(res.data.friends); setLoader(false); });
     }
   }, [userNameOrId]);
 
@@ -40,7 +37,7 @@ function Friends() {
         <Row>
           {
             loader ? <LoadingIndicator />
-              : friendsList.map((friend: FriendProps, i: number) => (
+              : friendsList.map((friend: FriendType, i: number) => (
                 /* eslint no-underscore-dangle: 0 */
                 <Col xs="4" key={friend._id} className={i > 2 ? 'mt-3' : ''}>
                   <FriendCircleWithLabel
@@ -52,7 +49,7 @@ function Friends() {
                   />
                 </Col>
               ))
-}
+          }
         </Row>
       </div>
     </>

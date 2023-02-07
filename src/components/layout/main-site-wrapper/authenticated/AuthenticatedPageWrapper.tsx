@@ -10,7 +10,7 @@ import SidebarNavContent from '../../sidebar-nav/SidebarNavContent';
 import AuthenticatedPageHeader from './AuthenticatedPageHeader';
 import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent';
 import { userInitialData } from '../../../../api/users';
-import { incrementUnreadNotificationCount, setUserInitialData } from '../../../../redux/slices/userSlice';
+import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { clearSignInCookies } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
@@ -83,11 +83,18 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const onNotificationReceivedHandler = () => {
     dispatch(incrementUnreadNotificationCount());
   };
+
+  const onUnreadMessageCountUpdate = (count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on('notificationReceived', onNotificationReceivedHandler);
+      socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       return () => {
         socket.off('notificationReceived', onNotificationReceivedHandler);
+        socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       };
     }
     return () => { };

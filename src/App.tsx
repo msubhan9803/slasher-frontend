@@ -19,7 +19,6 @@ import Events from './routes/events/Events';
 import Posts from './routes/posts/Posts';
 import Search from './routes/search/Search';
 import Movies from './routes/movies/Movies';
-import TempRightNavViewer from './routes/temp-right-nav-viewer/TempRightNavViewer';
 import Profile from './routes/profile/Profile';
 import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
@@ -57,7 +56,6 @@ const routes: Record<string, TopLevelRoute> = {
   'news/*': { wrapper: AuthenticatedPageWrapper, component: News },
   'events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
   'posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
-  'right-nav-viewer': { wrapper: AuthenticatedPageWrapper, component: TempRightNavViewer },
   'movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
   notifications: { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'account/*': { wrapper: AuthenticatedPageWrapper, component: Account },

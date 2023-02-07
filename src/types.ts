@@ -30,7 +30,7 @@ export interface Post {
 }
 
 export interface User {
-  id: string;
+  _id: string;
   firstName: string;
   userName: string;
   email: string;

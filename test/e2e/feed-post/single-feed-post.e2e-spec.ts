@@ -116,6 +116,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         likeCount: 0,
         sharedList: 0,
         likes: [],
+        message: expect.any(String),
       });
     });
   });

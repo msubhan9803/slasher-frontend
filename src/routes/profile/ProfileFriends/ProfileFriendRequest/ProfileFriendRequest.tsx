@@ -142,7 +142,7 @@ function ProfileFriendRequest({ user }: Props) {
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
           <InfiniteScroll
             pageStart={0}
-            initialLoad={false}
+            initialLoad
             loadMore={() => { setAdditionalFriendRequest(true); }}
             hasMore={!noMoreData}
           >

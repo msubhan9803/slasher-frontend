@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Form, Row,
+  Col, Form, Row, Button,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
+import { updateUserAbout } from '../../../api/users';
 
 const CustomSpan = styled(Form.Text)`
   margin-top: -1.43rem;
   margin-right: .5rem;
 `;
-
+const CustomDiv = styled.div`
+  white-space: pre;
+`;
 interface Props {
   user: User
 }
@@ -28,7 +31,12 @@ function ProfileAbout({ user }: Props) {
     setCharCount(e.target.value.length);
     setMessage(e.target.value);
   };
-
+  const handleUserAbout = (id: string) => {
+    updateUserAbout(id, message).then((res) => {
+      setMessage(res.data.aboutMe);
+      setEdit(!isEdit);
+    });
+  };
   return (
     <div>
       <ProfileHeader tabKey="about" user={user} />
@@ -37,7 +45,12 @@ function ProfileAbout({ user }: Props) {
           <h2 className="mb-4">About me</h2>
           {loginUserId === user?._id
             /* eslint no-underscore-dangle: 0 */
-            && <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" onClick={() => setEdit(!isEdit)} />}
+            && <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" />
+            && (
+              <Button variant="link" onClick={() => setEdit(!isEdit)}>
+                <FontAwesomeIcon icon={solid('pen')} className="me-1 mt-1" size="lg" />
+              </Button>
+            )}
         </div>
         {isEdit
           ? (
@@ -66,7 +79,7 @@ function ProfileAbout({ user }: Props) {
                       </RoundButton>
                     </Col>
                     <Col xs={6}>
-                      <RoundButton className="w-100" variant="primary" onClick={() => setEdit(!isEdit)}>
+                      <RoundButton className="w-100" variant="primary" onClick={() => handleUserAbout(user?._id)}>
                         Save
                       </RoundButton>
                     </Col>
@@ -76,9 +89,9 @@ function ProfileAbout({ user }: Props) {
             </div>
           )
           : (
-            <div>
-              {user.aboutMe}
-            </div>
+            <CustomDiv>
+              {message}
+            </CustomDiv>
           )}
       </div>
     </div>

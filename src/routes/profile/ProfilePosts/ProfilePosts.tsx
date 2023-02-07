@@ -74,8 +74,9 @@ function ProfilePosts() {
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && user) {
       setLoadingPosts(true);
+      /* eslint no-underscore-dangle: 0 */
       getProfilePosts(
-        user.id,
+        user._id,
         posts.length > 0 ? posts[posts.length - 1]._id : undefined,
       ).then((res) => {
         const newPosts = res.data.map((data: any) => (
@@ -129,7 +130,7 @@ function ProfilePosts() {
   };
   const callLatestFeedPost = () => {
     if (user) {
-      getProfilePosts(user.id).then((res) => {
+      getProfilePosts(user._id).then((res) => {
         const newPosts = res.data.map((data: any) => ({
           _id: data._id,
           id: data._id,

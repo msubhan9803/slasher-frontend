@@ -2,7 +2,7 @@ import {
   IsOptional,
 } from 'class-validator';
 
-export class MessageDto {
+export class SendMessageInConversationDto {
   @IsOptional()
   message?: string;
 }

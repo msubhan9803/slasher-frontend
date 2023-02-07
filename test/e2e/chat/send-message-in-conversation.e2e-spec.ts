@@ -75,13 +75,13 @@ describe('Send Message In Conversation / (e2e)', () => {
             .attach('files', tempPath[1])
             .attach('files', tempPath[2]);
 
-          const expectedImageValues = tempPath.map(() => expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/));
+          const expectedImageValueMatcher = expect.stringMatching(/\/chat\/chat.+\.png|jpe?g|gif/);
           expect(response.body).toEqual(
             {
               messages: [
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                  image: expectedImageValues[0],
+                  image: expectedImageValueMatcher,
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -94,7 +94,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 },
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                  image: expectedImageValues[0],
+                  image: expectedImageValueMatcher,
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -107,7 +107,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                 },
                 {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                  image: expectedImageValues[0],
+                  image: expectedImageValueMatcher,
                   message: 'Image',
                   fromId: activeUser._id.toString(),
                   senderId: user1._id.toString(),
@@ -173,7 +173,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
       });
 
-      it('if files more than 4 then it will give expected response', async () => {
+      it('if files more than 10 then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = message1.matchId._id;
           const response = await request(app.getHttpServer())

@@ -19,14 +19,14 @@ import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
-import { MatchListIdDto } from './dto/match-list-id.dto';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
-import { MessageDto } from './dto/message.dto';
-import { UsersService } from '../users/providers/users.service';
+import { SendMessageInConversationParamsDto } from './dto/send-message-in-conversation-params-dto';
+import { SendMessageInConversationDto } from './dto/send-message-in-conversation-dto';
 import { ChatGateway } from './providers/chat.gateway';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
 
 @Controller('chat')
 export class ChatController {
@@ -39,7 +39,6 @@ export class ChatController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly config: ConfigService,
-    private readonly usersService: UsersService,
     private readonly chatGateway: ChatGateway,
   ) { }
 
@@ -122,19 +121,7 @@ export class ChatController {
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
     FilesInterceptor('files', 11, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -143,8 +130,8 @@ export class ChatController {
   async sendMessageInConversation(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() request: Request,
-    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MatchListIdDto,
-    @Body() messageDto: MessageDto,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: SendMessageInConversationParamsDto,
+    @Body() messageDto: SendMessageInConversationDto,
   ) {
     if (files.length > 10) {
       throw new HttpException(
@@ -194,7 +181,7 @@ export class ChatController {
       await this.messageCountUpdateQueue.add(
         'send-update-if-message-unread',
         { messageId: newMessages[newMessages.length - 1].id },
-        { delay: 15_000 }, // 15 second delay
+        { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
       );
     }
 

@@ -7,21 +7,17 @@ import {
   WebSocketServer,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { Chat } from 'src/schemas/chat/chat.schema';
-import { SHARED_GATEWAY_OPTS } from '../../constants';
+import { log } from 'console';
+import { SHARED_GATEWAY_OPTS, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
-import { User } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
-import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
-import { TransformImageUrls } from '../../app/decorators/transform-image-urls.decorator';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 
 const RECENT_MESSAGES_LIMIT = 10;
@@ -72,7 +68,7 @@ export class ChatGateway {
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',
       { messageId: messageObject.id },
-      { delay: 15_000 }, // 15 second delay
+      { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
     return { success: true, message: messageObject };
   }

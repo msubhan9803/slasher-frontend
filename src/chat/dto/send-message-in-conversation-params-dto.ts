@@ -2,7 +2,7 @@ import {
   IsMongoId, IsNotEmpty, IsOptional,
 } from 'class-validator';
 
-export class MatchListIdDto {
+export class SendMessageInConversationParamsDto {
   @IsNotEmpty()
   @IsMongoId()
   matchListId: string;

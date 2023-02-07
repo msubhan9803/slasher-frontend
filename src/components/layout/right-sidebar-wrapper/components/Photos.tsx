@@ -28,8 +28,9 @@ function Photos({ user }: PhotosProps) {
   const [photos, setPhotos] = useState<PhotoList[]>([]);
 
   useEffect(() => {
-    if (user.id) {
-      userPhotos(user.id, '', '6')
+    /* eslint no-underscore-dangle: 0 */
+    if (user._id) {
+      userPhotos(user._id, '', '6')
         .then((res) => {
           const newPhotoList: PhotoList[] = [];
           res.data.map((photosData: any) => {

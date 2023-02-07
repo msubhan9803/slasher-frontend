@@ -203,3 +203,14 @@ export async function userAccountDelete() {
   };
   return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
 }
+
+export async function updateUserAbout(
+  id: string,
+  aboutMe: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/users/${id}`, { aboutMe }, { headers });
+}

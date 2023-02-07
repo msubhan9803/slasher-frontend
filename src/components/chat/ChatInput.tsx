@@ -48,6 +48,7 @@ function ChatInput({ sendMessageClick, setMessage, message }: ChatInputProps) {
           onChange={
             (messageInput) => setMessage!(messageInput.target.value)
           }
+          aria-label="message"
         />
         <InputGroup.Text className="border-start-0">
           <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" onClick={sendMessageClick} />

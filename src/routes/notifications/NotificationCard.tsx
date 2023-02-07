@@ -76,7 +76,7 @@ function NotificationCard({ notification, lastCard }: Props) {
         )}
         <div>
           <div className="d-flex align-items-center">
-            <h3 className="h4 mb-0 fw-bold me-1">
+            <h2 className="h4 mb-0 fw-bold me-1">
               {notification.rssFeedProviderId ? '' : notification.senderId?.userName}
               <span className="fs-4 mb-0 fw-normal">
                 &nbsp;
@@ -86,9 +86,9 @@ function NotificationCard({ notification, lastCard }: Props) {
                   <FontAwesomeIcon icon={solid('circle')} className="text-primary" />
                 )}
               </span>
-            </h3>
+            </h2>
           </div>
-          <h4 className="h5 mb-0 text-light">{DateTime.fromISO(notification.createdAt).toFormat('MM/dd/yyyy t')}</h4>
+          <h3 className="h5 mb-0 text-light">{DateTime.fromISO(notification.createdAt).toFormat('MM/dd/yyyy t')}</h3>
         </div>
       </Link>
     </StyledBorder>

@@ -123,7 +123,8 @@ export class FeedPostsController {
     }
     return pick(
       feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes', 'message'],
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+    'message'],
     );
   }
 

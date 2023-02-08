@@ -314,4 +314,22 @@ export class ChatService {
       { $set: { deleted: true } },
     );
   }
+
+  async deleteConversationMessages(userId: string, matchListId: string) {
+    const matchListDoc = await this.matchListModel.findById(matchListId);
+    if (!matchListDoc) throw new Error(`matchList document not found for given ${matchListId}`);
+
+    const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
+    if (!participants.find((p) => p === userId)) {
+      throw new Error(`User with id ${userId} is not a member of MatchList ${matchListId}`);
+    }
+
+    await this.messageModel.updateMany(
+      {
+        matchId: matchListDoc._id,
+        deletefor: { $ne: new mongoose.Types.ObjectId(userId) },
+      },
+      { $addToSet: { deletefor: new mongoose.Types.ObjectId(userId) } },
+    );
+  }
 }

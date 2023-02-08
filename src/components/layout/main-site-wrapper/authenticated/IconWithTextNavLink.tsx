@@ -5,8 +5,10 @@ import IconWithTextNavItemInnerElement from './IconWithTextNavItemInnerElement';
 
 interface Props {
   label: string;
-  icon: IconDefinition;
-  iconSize: SizeProp;
+  userProfileIcon?: string;
+  userProfileIconSize?: string;
+  icon?: IconDefinition;
+  iconSize?: SizeProp;
   to: string;
   badge?: number;
   badgeIconClassName?: string;
@@ -15,13 +17,16 @@ interface Props {
 }
 
 function IconWithTextNavLink({
-  label, icon, iconSize, to, badge, badgeIconClassName, className, children,
+  label, userProfileIcon, userProfileIconSize, icon, iconSize,
+  to, badge, badgeIconClassName, className, children,
 }: Props) {
   const { pathname } = useLocation();
   return (
     <Link to={to} className={`text-decoration-none ${className}`}>
       <IconWithTextNavItemInnerElement
         label={label}
+        userProfileIcon={userProfileIcon}
+        userProfileIconSize={userProfileIconSize}
         icon={icon}
         iconSize={iconSize}
         badge={badge}
@@ -38,6 +43,10 @@ IconWithTextNavLink.defaultProps = {
   className: '',
   badge: null,
   children: null,
+  icon: null,
+  iconSize: null,
+  userProfileIcon: null,
+  userProfileIconSize: null,
 };
 
 export default IconWithTextNavLink;

@@ -2,6 +2,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { RegisterUser } from '../types';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
@@ -43,16 +44,37 @@ export async function register(
   );
 }
 
+export async function validateRegistrationFields(
+  {
+    firstName,
+    userName,
+    email,
+    password,
+    passwordConfirmation,
+    securityQuestion,
+    securityAnswer,
+    dob,
+  }: RegisterUser,
+) {
+  return axios.get(
+    `${apiUrl}/users/validate-registration-fields`,
+    {
+      params: {
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dob,
+      },
+    },
+  );
+}
+
 export async function forgotPassword(email: string) {
   return axios.post(`${apiUrl}/users/forgot-password`, { email });
-}
-
-export async function checkUserName(userName: string) {
-  return axios.get(`${apiUrl}/users/check-user-name?userName=${userName}`);
-}
-
-export async function checkUserEmail(email: string) {
-  return axios.get(`${apiUrl}/users/check-email?email=${email}`);
 }
 
 export async function userInitialData() {

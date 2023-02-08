@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
-import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
+import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -36,6 +37,8 @@ const StyledLogoImage = styled(Image)`
 function UnauthenticatedPageWrapper({
   children, hideTopLogo, hideFooter, valign,
 }: Props) {
+  if (analyticsId) { useGoogleAnalytics(analyticsId); }
+
   return (
     <div className="page-wrapper nonav">
       <header className="text-center text-md-start">

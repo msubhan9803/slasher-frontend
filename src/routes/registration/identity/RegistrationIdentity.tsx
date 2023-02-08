@@ -8,7 +8,7 @@ import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
 import RoundButton from '../../../components/ui/RoundButton';
-import { checkUserEmail, checkUserName } from '../../../api/users';
+import { validateRegistrationFields } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface Props {
@@ -31,16 +31,13 @@ function RegistrationIdentity({ activeStep }: Props) {
     e.preventDefault();
     let errorList: string[] = [];
 
-    try {
-      await checkUserName(identityInfo.userName);
-    } catch (requestError: any) {
-      errorList = errorList.concat(requestError.response.data.message);
-    }
+    const { firstName, userName, email } = identityInfo;
 
     try {
-      await checkUserEmail(identityInfo.email);
+      const res = await validateRegistrationFields({ firstName, userName, email });
+      if (res.data) errorList = res.data;
     } catch (requestError: any) {
-      errorList = errorList.concat(requestError.response.data.message);
+      errorList = requestError.response.data.message;
     }
 
     setErrors(errorList);

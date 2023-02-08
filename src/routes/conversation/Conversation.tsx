@@ -54,7 +54,7 @@ function Conversation() {
   const onChatMessageReceivedHandler = (payload: any) => {
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
-      id: payload.user._id,
+      id: payload.message.fromId,
       message: payload.message.message,
       time: DateTime.now().toISO().toString(),
       participant: 'other',

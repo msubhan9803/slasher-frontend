@@ -24,7 +24,6 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
-import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
 // import Books from './routes/books/Books';
@@ -32,7 +31,6 @@ import { enableADs } from './constants';
 // import Places from './routes/places/Places';
 // import Podcasts from './routes/podcasts/Podcasts';
 
-const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 const DEFAULT_INDEX_REDIRECT = 'home';
 
 interface TopLevelRoute {
@@ -73,7 +71,6 @@ const routes: Record<string, TopLevelRoute> = {
 };
 
 function App() {
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
   if (enableADs) { usePubWiseAdSlots(); }
 
   const router = createBrowserRouter(

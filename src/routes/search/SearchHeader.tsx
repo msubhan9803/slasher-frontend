@@ -23,7 +23,6 @@ function SearchHeader({
   tabKey, setSearch, search, label = '',
 }: Search) {
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'People');
-
   return (
     <>
       <CustomSearchInput label={label} setSearch={setSearch} search={search} />

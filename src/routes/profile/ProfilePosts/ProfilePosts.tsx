@@ -1,39 +1,33 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../../redux/hooks';
+import FormatImageVideoList from '../../../utils/vido-utils';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function ProfilePosts() {
-  const { userName } = useParams<string>();
-  const [user, setUser] = useState<User>();
-  useEffect(() => {
-    if (userName) {
-      getUser(userName)
-        .then((res) => {
-          setUser(res.data);
-        });
-    }
-  }, [userName]);
+interface Props {
+  user: User
+}
+
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -48,16 +42,6 @@ function ProfilePosts() {
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
 
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
-  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -86,7 +70,7 @@ function ProfilePosts() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: formatImageVideoList(data.images, data.message),
+            images: FormatImageVideoList(data.images, data.message),
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -110,7 +94,7 @@ function ProfilePosts() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts, user]);
+  }, [requestAdditionalPosts, loadingPosts, user, loginUserId, posts]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -136,7 +120,7 @@ function ProfilePosts() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: formatImageVideoList(data.images, data.message),
+          images: FormatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
@@ -237,17 +221,13 @@ function ProfilePosts() {
   return (
     <div>
       <ProfileHeader tabKey="posts" user={user} />
-      {loginUserData.userName === userName
+      {loginUserData.userName === user.userName
         && (
           <div className="my-4">
             <CustomCreatePost />
           </div>
         )}
-      {errorMessage && errorMessage.length > 0 && (
-        <div className="mt-3 text-start">
-          {errorMessage}
-        </div>
-      )}
+      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
       <InfiniteScroll
         pageStart={0}
         initialLoad

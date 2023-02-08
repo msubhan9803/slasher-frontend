@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
+import { deleteConversationMessages } from '../../api/messages';
 import ModalContainer from '../ui/CustomModal';
 import RoundButton from '../ui/RoundButton';
-import { deleteConversationMessages } from '../../api/messages';
+import { StyledTextarea } from '../ui/StyledTextarea';
 
 interface Props {
   show: boolean;
@@ -13,11 +13,6 @@ interface Props {
   handleReport?: (value: string) => void;
   onBlockYesClick?: () => void | undefined;
 }
-const StyledTextarea = styled(Form)`
-  .form-control {
-    resize: none;
-  }
-`;
 function ChatOptionDialog({
   show, setShow, slectedDropdownValue, handleReport, onBlockYesClick,
 }: Props) {

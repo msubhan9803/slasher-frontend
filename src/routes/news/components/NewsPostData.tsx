@@ -61,7 +61,7 @@ function NewsPostData({ partnerId }: Props) {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [partnerId, requestAdditionalPosts, loadingPosts]);
+  }, [partnerId, requestAdditionalPosts, loadingPosts, loginUserId, postData]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">

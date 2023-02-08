@@ -6,7 +6,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
 import UserCircleImage from '../../ui/UserCircleImage';
 import { useAppSelector } from '../../../redux/hooks';
 
@@ -22,6 +21,7 @@ interface Props {
 
 function MobileOnlySidebarContent({ className }: Props) {
   const loggedinUserName = useAppSelector((state) => state.user.user.userName);
+  const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
 
   return (
     <div className={className}>
@@ -29,7 +29,7 @@ function MobileOnlySidebarContent({ className }: Props) {
         <Row>
           <Col xs={3}>
             <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
-              <UserCircleImage size="1.25em" className="mb-1" src={userProfileIconPlaceholder} alt="User icon" />
+              <UserCircleImage size="1.25em" className="mb-1" src={userProfilePic} alt="User icon" />
               Me
             </SpecificHeightLink>
           </Col>

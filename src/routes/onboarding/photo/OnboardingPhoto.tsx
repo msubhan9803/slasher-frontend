@@ -41,11 +41,7 @@ function OnboardingPhoto() {
         </div>
         <Row className="justify-content-center">
           <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-4">
-                <ErrorMessageList errorMessages={errorMessage} />
-              </div>
-            )}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-4" />
             <Row>
               <Col xs={6}>
                 <RoundButtonLink to="/onboarding/about-me" className="w-100" variant="dark">

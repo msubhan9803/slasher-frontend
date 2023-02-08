@@ -48,9 +48,7 @@ function OnboardingAboutMe() {
             />
           </Col>
         </Row>
-        {errorMessages && errorMessages.length > 0 && (
-          <ErrorMessageList errorMessages={errorMessages} />
-        )}
+        <ErrorMessageList errorMessages={errorMessages} />
         <Row className="justify-content-center my-5">
           <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
             <Row>

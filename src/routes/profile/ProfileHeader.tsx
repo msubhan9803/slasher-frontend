@@ -20,6 +20,7 @@ import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 
 interface Props {
@@ -28,9 +29,6 @@ interface Props {
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 const tabs = [
   { value: 'about', label: 'About' },
@@ -96,7 +94,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         }
       });
     }
-  }, [user, friendshipStatus]);
+  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
   const friendRequestApi = (status: string) => {
     if (user && user._id) {

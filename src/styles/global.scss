@@ -158,16 +158,19 @@ html {
 }
 
 body {
-  background-color: #0B0B0B;
-  background-repeat: no-repeat;
-  background-image: -webkit-gradient(linear, top, bottom, color-stop(0%, #161618), color-stop(1200px, #0B0B0B), color-stop(100%, transparent));
-  /* Chrome, Safari4+ */
-  background-image: -webkit-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
-  /* Chrome10+, Safari5.1+ */
-  background-image: -moz-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
-  /* FF3.6+ */
-  background-image: linear-gradient(to bottom, #161618 0%, #0B0B0B 1200px, transparent 700px);
-  background-attachment: fixed;
+  background-color: #000000;
+
+  // NOTE: Keeping this here in case we decide to go back to a gradient later
+  // background-color: #0B0B0B;
+  // background-repeat: no-repeat;
+  // background-image: -webkit-gradient(linear, top, bottom, color-stop(0%, #161618), color-stop(1200px, #0B0B0B), color-stop(100%, transparent));
+  // /* Chrome, Safari4+ */
+  // background-image: -webkit-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
+  // /* Chrome10+, Safari5.1+ */
+  // background-image: -moz-linear-gradient(top, #161618 0%, #0B0B0B 1200px, transparent 700px);
+  // /* FF3.6+ */
+  // background-image: linear-gradient(to bottom, #161618 0%, #0B0B0B 1200px, transparent 700px);
+  // background-attachment: fixed;
 }
 
 input:hover {
@@ -230,10 +233,12 @@ input:hover {
   pointer-events: none;
   color: transparent;
   z-index: -1;
+  padding: 1rem;
 }
 
 .rc-mentions-dropdown {
   position: absolute;
+  padding: 1rem 0rem;
 }
 
 .rc-mentions-dropdown-menu {
@@ -256,9 +261,10 @@ input:hover {
 }
 
 .rc-mentions-dropdown {
-  border: 1px solid #999;
-  border-radius: 3px;
+  border: 1px solid gray;
+  border-radius: 10px;
   background: rgb(15, 15, 15);
+  overflow: hidden;
   z-index: 9999;
 }
 

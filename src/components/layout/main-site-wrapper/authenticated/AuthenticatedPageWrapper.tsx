@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useState,
+  useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { clearSignInCookies } from '../../../../utils/session-utils';
+import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
@@ -52,21 +52,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
 
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
-
-  const onNotificationReceivedHandler = () => {
-    dispatch(incrementUnreadNotificationCount());
-  };
-
-  const onUnreadMessageCountUpdate = (count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
-  };
 
   useEffect(() => {
     if (!token) {
@@ -79,16 +71,23 @@ function AuthenticatedPageWrapper({ children }: Props) {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
         if (err.response.status === 401) {
-          clearSignInCookies();
-          navigate('/sign-in');
+          signOut();
         }
       });
     }
-  }, []);
+  }, [dispatch, navigate, pathname, userData.user.userName, token]);
 
-  useEffect(() => {
+  useCallback(() => {
     dispatch(setUserInitialData(userData));
-  }, []);
+  }, [dispatch, userData]);
+
+  const onNotificationReceivedHandler = useCallback(() => {
+    dispatch(incrementUnreadNotificationCount());
+  }, [dispatch]);
+
+  const onUnreadMessageCountUpdate = useCallback((count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
@@ -100,7 +99,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       };
     }
     return () => { };
-  }, []);
+  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
   if (!token || !userData.user) {
     return <LoadingIndicator />;

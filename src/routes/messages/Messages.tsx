@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
 import { getMessagesList } from '../../api/messages';
-import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import UserMessageListItem from '../../components/ui/UserMessageList/UserMessageListItem';
 import { MessagesList } from '../../types';
 import MessagesOptionDialog from './MessagesOptionDialog';
@@ -11,6 +12,7 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 export interface NewMessagesList {
   unreadCount: number;
@@ -79,7 +81,7 @@ function Messages() {
         () => { setRequestAdditionalMessages(false); setLoadingChats(false); },
       );
     }
-  }, [requestAdditionalMessages, loadingChats]);
+  }, [requestAdditionalMessages, loadingChats, messages, userId]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -91,7 +93,7 @@ function Messages() {
     </p>
   );
 
-  const fetchMoreMessages = () => {
+  const fetchMoreMessages = useCallback(() => {
     getMessagesList()
       .then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
@@ -113,7 +115,7 @@ function Messages() {
         setMessages(newMessages);
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  };
+  }, [userId]);
   const getYPosition = () => {
     const yPosition = messageContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastMessageElement(yPosition);
@@ -129,16 +131,12 @@ function Messages() {
         fetchMoreMessages();
       }
     }
-  }, [yPositionOfLastMessageElement]);
+  }, [yPositionOfLastMessageElement, fetchMoreMessages]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <div className="mb-3">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <InfiniteScroll
             pageStart={0}
             initialLoad
@@ -148,18 +146,17 @@ function Messages() {
             {
               messages.length > 0
               && messages.map((message) => (
-                <div key={message._id} ref={messageContainerElementRef}>
-                  <UserMessageListItem
-                    image={message.profilePic}
-                    userName={message.userName}
-                    message={message.latestMessage}
-                    count={message.unreadCount}
-                    timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                    handleDropdownOption={handleMessagesOption(message._id)}
-                    matchListId={message._id}
-                  />
-                </div>
-
+                <UserMessageListItem
+                  key={message._id}
+                  ref={messageContainerElementRef}
+                  image={message.profilePic}
+                  userName={message.userName}
+                  message={message.latestMessage}
+                  count={message.unreadCount}
+                  timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
+                  handleDropdownOption={handleMessagesOption(message._id)}
+                  matchListId={message._id}
+                />
               ))
             }
           </InfiniteScroll>

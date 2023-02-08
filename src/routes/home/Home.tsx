@@ -6,24 +6,26 @@ import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
-import { deleteFeedPost, getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
+import {
+  deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
+} from '../../api/feed-posts';
 import { Post } from '../../types';
 import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
 import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
-import { findFirstYouTubeLinkVideoId } from '../../utils/text-utils';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import FormatImageVideoList from '../../utils/vido-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
-const newsPostPopoverOptions = ['Report'];
+const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
+const newsPostPopoverOptions = ['Report', 'Hide'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -39,6 +41,16 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Hide') {
+      const postIdToHide = popoverClickProps.id;
+      if (!postIdToHide) return;
+      hideFeedPost(postIdToHide).then(() => {
+        // Set posts excluding the `focussedPost` so that the focussedPost is hidden immediately
+        setPosts((allPosts) => allPosts.filter((post) => post._id !== postIdToHide));
+      });
+      return;
+    }
+
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
     }
@@ -60,17 +72,6 @@ function Home() {
     }
   };
 
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
-  };
-
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
       setLoadingPosts(true);
@@ -86,7 +87,7 @@ function Home() {
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
-              images: formatImageVideoList(data.images, data.message),
+              images: FormatImageVideoList(data.images, data.message),
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
@@ -102,7 +103,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: formatImageVideoList(data.images, data.message),
+            images: FormatImageVideoList(data.images, data.message),
             userName: data.rssfeedProviderId?.title,
             profileImage: data.rssfeedProviderId?.logo,
             likes: data.likes,
@@ -126,7 +127,7 @@ function Home() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -149,7 +150,7 @@ function Home() {
             id: data._id,
             postDate: data.createdAt,
             content: data.message,
-            images: formatImageVideoList(data.images, data.message),
+            images: FormatImageVideoList(data.images, data.message),
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
@@ -165,7 +166,7 @@ function Home() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: formatImageVideoList(data.images, data.message),
+          images: FormatImageVideoList(data.images, data.message),
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
           likes: data.likes,
@@ -303,7 +304,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue !== 'Edit'
+          dropDownValue === 'Delete'
           && (
             <ReportModal
               deleteText="Are you sure you want to delete this post?"

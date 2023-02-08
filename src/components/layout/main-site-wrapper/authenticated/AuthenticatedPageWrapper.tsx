@@ -1,5 +1,5 @@
 import React, {
-  useContext, useEffect, useState,
+  useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -60,14 +60,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
 
-  const onNotificationReceivedHandler = () => {
-    dispatch(incrementUnreadNotificationCount());
-  };
-
-  const onUnreadMessageCountUpdate = (count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
-  };
-
   useEffect(() => {
     if (!token) {
       navigate(`/sign-in?path=${pathname}`);
@@ -84,11 +76,19 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, []);
+  }, [dispatch, navigate, pathname, userData.user.userName, token]);
 
-  useEffect(() => {
+  useCallback(() => {
     dispatch(setUserInitialData(userData));
-  }, []);
+  }, [dispatch, userData]);
+
+  const onNotificationReceivedHandler = useCallback(() => {
+    dispatch(incrementUnreadNotificationCount());
+  }, [dispatch]);
+
+  const onUnreadMessageCountUpdate = useCallback((count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
@@ -100,7 +100,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       };
     }
     return () => { };
-  }, []);
+  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
   if (!token || !userData.user) {
     return <LoadingIndicator />;

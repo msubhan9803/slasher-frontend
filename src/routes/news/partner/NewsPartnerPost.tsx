@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -49,7 +49,7 @@ function NewsPartnerPost() {
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
-  const getFeedPostDetail = (feedPostId: string) => {
+  const getFeedPostDetail = useCallback((feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
       /* eslint no-underscore-dangle: 0 */
       if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
@@ -77,13 +77,13 @@ function NewsPartnerPost() {
         setErrorMessage(error.response.data.message);
       },
     );
-  };
+  }, [loginUserId, navigate, postId, partnerId, queryCommentId]);
 
   useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
     }
-  }, [postId]);
+  }, [postId, getFeedPostDetail]);
 
   const handlePopover = (selectedOption: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -99,7 +99,7 @@ function NewsPartnerPost() {
     });
   };
 
-  const feedComments = (sortBy?: boolean) => {
+  const feedComments = useCallback((sortBy?: boolean) => {
     let data;
     if (sortBy) {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
@@ -136,7 +136,7 @@ function NewsPartnerPost() {
     ).finally(
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
-  };
+  }, [commentData, postId]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments) {
@@ -144,7 +144,7 @@ function NewsPartnerPost() {
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  }, [requestAdditionalPosts, loadingComments, feedComments]);
 
   const addUpdateComment = (comment: CommentValue) => {
     let commentValueData: any = {
@@ -458,7 +458,7 @@ function NewsPartnerPost() {
       .catch((error) => console.error(error));
   };
 
-  const getSingleComment = () => {
+  const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
@@ -472,13 +472,13 @@ function NewsPartnerPost() {
       }
       setCommentData([res.data]);
     });
-  };
+  }, [navigate, partnerId, postId, queryCommentId, queryReplyId]);
 
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId]);
+  }, [queryCommentId, queryReplyId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);

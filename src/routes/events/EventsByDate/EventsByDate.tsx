@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallbackProperties } from 'react-calendar';
@@ -163,7 +165,7 @@ function EventsByDate() {
       const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toUTC().toFormat('yyyy-MM-dd'));
       setMarkDateList(formatDateList);
     });
-  }, [viewChange]);
+  }, [viewChange, selectedDate]);
 
   useEffect(() => {
     setNoMoreData(false); // reset when day changes
@@ -173,9 +175,9 @@ function EventsByDate() {
         setNoMoreData(true);
       }
     }).catch(() => { });
-  }, [startDate]);
+  }, [startDate, endDate]);
 
-  const fetchMoreEvent = () => {
+  const fetchMoreEvent = useCallback(() => {
     if (eventsList && eventsList.length > 0) {
       getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
@@ -189,7 +191,7 @@ function EventsByDate() {
         })
         .catch(() => { });
     }
-  };
+  }, [endDate, eventsList, startDate]);
 
   const onActiveStartDateChange = (data: ViewCallbackProperties) => {
     if (data.view === 'month') {
@@ -227,7 +229,7 @@ function EventsByDate() {
         fetchMoreEvent();
       }
     }
-  }, [yPositionOfLastEventElement]);
+  }, [yPositionOfLastEventElement, fetchMoreEvent]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -258,19 +260,19 @@ function EventsByDate() {
           >
             <Row ref={eventContainerElementRef}>
               {eventsList && eventsList.length > 0
-              && (eventsList.map((eventDetail, i, arr) => {
-                // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
-                // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
-                const show = checkAdsEventByDate(bp, i, arr);
-                return (
-                  <React.Fragment key={eventDetail.id}>
-                    <Col md={6}>
-                      <EventsPosterCard listDetail={eventDetail} />
-                    </Col>
-                    {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
-                  </React.Fragment>
-                );
-              }))}
+                && (eventsList.map((eventDetail, i, arr) => {
+                  // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
+                  // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
+                  const show = checkAdsEventByDate(bp, i, arr);
+                  return (
+                    <React.Fragment key={eventDetail.id}>
+                      <Col md={6}>
+                        <EventsPosterCard listDetail={eventDetail} />
+                      </Col>
+                      {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_DATE_DIV_ID} autoSequencer />}
+                    </React.Fragment>
+                  );
+                }))}
             </Row>
           </InfiniteScroll>
           {noMoreData && renderNoMoreDataMessage()}

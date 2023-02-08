@@ -26,16 +26,14 @@ function Friends({ user }: FriendsProps) {
     /* eslint no-underscore-dangle: 0 */
     getUsersFriends(user._id)
       .then((res) => { setFriendsList(res.data.friends); setLoading(false); });
-  }, [userNameOrId]);
-
-  if (!userNameOrId) return null;
+  }, [userNameOrId, user._id]);
 
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${user && user.userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {!loading && friendsList.length === 0 && <div>No friends yet.</div> }
+          {!loading && friendsList.length === 0 && <div>No friends yet.</div>}
           {loading ? <LoadingIndicator />
             : friendsList.map((friend: FriendType, i: number) => (
               /* eslint no-underscore-dangle: 0 */

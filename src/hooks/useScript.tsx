@@ -13,7 +13,7 @@ const useScript = (URL: string) => {
     tag.addEventListener('load', () => {
       setIsLoaded(true);
     });
-  }, []);
+  }, [URL]);
 
   return isLoaded;
 };

@@ -102,7 +102,7 @@ const usePubWiseAdSlots = () => {
       // Mark ad-slots as ready so we can try now load ads for any of those
       dispatch(setPubWiseSlots());
     });
-  }, [isScriptsLoaded]);
+  }, [isScriptsLoaded, dispatch]);
 };
 
 export default usePubWiseAdSlots;

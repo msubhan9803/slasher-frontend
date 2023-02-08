@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
@@ -23,7 +23,7 @@ function SearchNews() {
   const [searchNews, setSearchNews] = useState<SearchNewsProps[]>(news);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = news;
     if (search) {
@@ -34,10 +34,10 @@ function SearchNews() {
     } else {
       setSearchNews(news);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
 
   const handlePopoverOption = (value: string) => {
     setShow(true);

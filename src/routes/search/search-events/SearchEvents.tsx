@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
@@ -17,7 +17,7 @@ interface SearchEventsProps {
 function SearchEvents() {
   const [search, setSearch] = useState<string>('');
   const [searchEvents, setSearchEvents] = useState<SearchEventsProps[]>(events);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = events;
     if (search) {
@@ -28,10 +28,10 @@ function SearchEvents() {
     } else {
       setSearchEvents(events);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

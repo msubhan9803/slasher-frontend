@@ -94,7 +94,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         }
       });
     }
-  }, [user, friendshipStatus]);
+  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
   const friendRequestApi = (status: string) => {
     if (user && user._id) {

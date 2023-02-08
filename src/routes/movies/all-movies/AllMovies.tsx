@@ -56,7 +56,7 @@ function AllMovies() {
           () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
         );
     }
-  }, [requestAdditionalPosts, loadingPosts, search, sortVal]);
+  }, [requestAdditionalPosts, loadingPosts, search, sortVal, filteredMovies]);
 
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())

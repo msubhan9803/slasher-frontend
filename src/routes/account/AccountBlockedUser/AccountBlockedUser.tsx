@@ -45,7 +45,7 @@ function AccountBlockedUser() {
   };
 
   useEffect(() => {
-    getBlockedUserList(page);
+    getBlockedUserList(0);
   }, []);
 
   const fetchMoreBlockUsersList = () => {

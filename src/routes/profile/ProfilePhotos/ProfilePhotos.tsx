@@ -64,7 +64,7 @@ function ProfilePhotos({ user }: Props) {
           () => { setRequestAdditionalPhotos(false); setLoadingPhotos(false); },
         );
     }
-  }, [requestAdditionalPhotos, loadingPhotos]);
+  }, [requestAdditionalPhotos, loadingPhotos, user._id, userPhotosList]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">

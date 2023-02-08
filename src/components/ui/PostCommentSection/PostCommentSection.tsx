@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  SyntheticEvent, useEffect, useRef, useState, ChangeEvent,
+  SyntheticEvent, useEffect, useRef, useState, ChangeEvent, useCallback,
 } from 'react';
 import {
   Button, Col, Row,
@@ -84,7 +84,7 @@ function PostCommentSection({
     }
   };
 
-  const handleSeeCompleteList = (
+  const handleSeeCompleteList = useCallback((
     commentReplyId: string,
     replyName: string,
     selectedReply?: string | null,
@@ -111,11 +111,13 @@ function PostCommentSection({
       });
       setCommentData(updatedCommentData);
     }
-  };
+  }, [commentData]);
 
   useEffect(() => {
     handleSeeCompleteList(selectedReplyCommentId, replyUserName, selectedReplyId, scrollId);
-  }, [selectedReplyCommentId, replyUserName, scrollId, selectedReplyId, isReply]);
+  }, [selectedReplyCommentId, replyUserName, scrollId, selectedReplyId, isReply,
+    handleSeeCompleteList,
+  ]);
 
   useEffect(() => {
     if (isReply) {
@@ -135,64 +137,63 @@ function PostCommentSection({
         return null;
       });
     }
-  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId]);
-
-  const feedCommentData = () => {
-    const comments = commentSectionData.map((comment: FeedComments) => {
-      const commentReplies = comment.replies.map((replies: any) => {
-        const feeedCommentReplies: any = {
-          /* eslint no-underscore-dangle: 0 */
-          id: replies._id,
-          profilePic: replies.userId?.profilePic,
-          name: replies.userId?.userName,
-          time: replies.createdAt,
-          commentMsg: replies.message,
-          commentImg: replies.images,
-          feedCommentId: replies.feedCommentId,
-          userId: replies.userId,
-          likeIcon: replies.likedByUser,
-          likeCount: replies.likeCount,
-          commentCount: replies.commentCount,
-          newComment: replies?.new || (replies._id === commentReplyID),
-        };
-        return feeedCommentReplies;
-      });
-      const feedComment: any = {
-        /* eslint no-underscore-dangle: 0 */
-        id: comment._id,
-        profilePic: comment.userId?.profilePic,
-        name: comment.userId?.userName,
-        time: comment.createdAt,
-        commentMsg: comment.message,
-        commentImg: comment.images,
-        commentReplySection: commentReplies,
-        userId: comment.userId,
-        likeIcon: comment.likedByUser,
-        likeCount: comment.likeCount,
-        commentCount: comment.commentCount,
-        isReplyIndex: checkLoadMoreId.find(
-          (loadedComment: any) => loadedComment.id === comment._id,
-        )?.isReplyIndex
-          ?? commentData.find(
-            (replyComment: any) => replyComment.id === comment._id,
-          )?.isReplyIndex! >= 0
-          ? commentData.find(
-            (replyComment: any) => replyComment.id === comment._id,
-          )?.isReplyIndex
-          : 2,
-      };
-      return feedComment;
-    });
-    setCommentData(comments);
-    setUpdatedReply(false);
-    if (setUpdateState) setUpdateState(false);
-  };
+  }, [isReply, commentData, tabsRef, replyIndex, selectedReplyCommentId, scrollId]);
 
   useEffect(() => {
     if (commentSectionData || updateState) {
+      const feedCommentData = () => {
+        const comments = commentSectionData.map((comment: FeedComments) => {
+          const commentReplies = comment.replies.map((replies: any) => {
+            const feeedCommentReplies: any = {
+              /* eslint no-underscore-dangle: 0 */
+              id: replies._id,
+              profilePic: replies.userId?.profilePic,
+              name: replies.userId?.userName,
+              time: replies.createdAt,
+              commentMsg: replies.message,
+              commentImg: replies.images,
+              feedCommentId: replies.feedCommentId,
+              userId: replies.userId,
+              likeIcon: replies.likedByUser,
+              likeCount: replies.likeCount,
+              commentCount: replies.commentCount,
+              newComment: replies?.new || (replies._id === commentReplyID),
+            };
+            return feeedCommentReplies;
+          });
+          const feedComment: any = {
+            /* eslint no-underscore-dangle: 0 */
+            id: comment._id,
+            profilePic: comment.userId?.profilePic,
+            name: comment.userId?.userName,
+            time: comment.createdAt,
+            commentMsg: comment.message,
+            commentImg: comment.images,
+            commentReplySection: commentReplies,
+            userId: comment.userId,
+            likeIcon: comment.likedByUser,
+            likeCount: comment.likeCount,
+            commentCount: comment.commentCount,
+            isReplyIndex: checkLoadMoreId.find(
+              (loadedComment: any) => loadedComment.id === comment._id,
+            )?.isReplyIndex
+              ?? commentData.find(
+                (replyComment: any) => replyComment.id === comment._id,
+              )?.isReplyIndex! >= 0
+              ? commentData.find(
+                (replyComment: any) => replyComment.id === comment._id,
+              )?.isReplyIndex
+              : 2,
+          };
+          return feedComment;
+        });
+        setCommentData(comments);
+        setUpdatedReply(false);
+        if (setUpdateState) setUpdateState(false);
+      };
       feedCommentData();
     }
-  }, [commentSectionData, updateState]);
+  }, [commentSectionData, updateState, checkLoadMoreId, commentReplyID, setUpdateState]);
 
   useEffect(() => {
     setReplyMessage('');

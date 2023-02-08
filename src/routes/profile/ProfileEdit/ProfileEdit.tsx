@@ -236,7 +236,7 @@ function ProfileEdit({ user }: Props) {
               <Form.Group className="mb-4">
                 <Form.Label className="h3">Profile visibility</Form.Label>
                 <Form.Check
-                  key="profileVisibility"
+                  key="profileVisibilityPublic"
                   type="radio"
                   id="report-public"
                   checked={publicStatus}
@@ -245,7 +245,7 @@ function ProfileEdit({ user }: Props) {
                   onChange={publicChangeHandler}
                 />
                 <Form.Check
-                  key="profileVisibility"
+                  key="profileVisibilityPrivate"
                   type="radio"
                   id="report-private"
                   checked={privateStatus}

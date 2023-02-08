@@ -30,7 +30,7 @@ const useLoadScriptsInOrder = (URLs: string[]) => {
     }
 
     main();
-  }, []);
+  }, [URLs]);
 
   return isLoaded;
 };

@@ -36,7 +36,7 @@ const useGoogleAnalytics = (analyticsId: string) => {
       page_location: path,
       page_title: document.title,
     });
-  }, [location, isLoaded]);
+  }, [location, isLoaded, analyticsId, hash, pathname, search]);
 };
 
 export default useGoogleAnalytics;

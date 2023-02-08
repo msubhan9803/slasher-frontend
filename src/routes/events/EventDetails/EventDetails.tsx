@@ -34,7 +34,7 @@ function EventDetails() {
         setEventDetails(res.data);
       });
     }
-  }, []);
+  }, [id]);
 
   const handleShowShareLinks = () => setShowShareLinks(true);
 

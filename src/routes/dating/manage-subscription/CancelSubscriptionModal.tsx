@@ -36,7 +36,7 @@ function ConfirmCancelModal({ show, setShow }: ModalProps) {
   );
 }
 
-function cancelSubscriptionModal({ show, setShow }: ModalProps) {
+function CancelSubscriptionModal({ show, setShow }: ModalProps) {
   const [confirmSubShow, setConfirmSubShow] = useState<boolean>(false);
 
   const closeModal = () => {
@@ -80,4 +80,4 @@ function cancelSubscriptionModal({ show, setShow }: ModalProps) {
   );
 }
 
-export default cancelSubscriptionModal;
+export default CancelSubscriptionModal;

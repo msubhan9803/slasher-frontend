@@ -60,7 +60,7 @@ function SignIn() {
     if (Cookies.get('sessionToken')) {
       navigate('/home');
     }
-  }, []);
+  }, [navigate]);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };

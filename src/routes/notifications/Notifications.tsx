@@ -42,7 +42,7 @@ function Notifications() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, notificationData]);
   const handleLikesOption = (likeValue: string) => {
     <Link to={`/navigations/${likeValue}`} />;
   };

@@ -127,7 +127,7 @@ function Home() {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">

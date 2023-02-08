@@ -71,7 +71,7 @@ const routes: Record<string, TopLevelRoute> = {
 };
 
 function App() {
-  if (enableADs) { usePubWiseAdSlots(); }
+  usePubWiseAdSlots(enableADs);
 
   const router = createBrowserRouter(
     createRoutesFromElements(

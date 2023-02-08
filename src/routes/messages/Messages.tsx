@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
@@ -77,7 +79,7 @@ function Messages() {
         () => { setRequestAdditionalMessages(false); setLoadingChats(false); },
       );
     }
-  }, [requestAdditionalMessages, loadingChats]);
+  }, [requestAdditionalMessages, loadingChats, messages, userId]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -89,7 +91,7 @@ function Messages() {
     </p>
   );
 
-  const fetchMoreMessages = () => {
+  const fetchMoreMessages = useCallback(() => {
     getMessagesList()
       .then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
@@ -111,7 +113,7 @@ function Messages() {
         setMessages(newMessages);
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  };
+  }, [userId]);
   const getYPosition = () => {
     const yPosition = messageContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastMessageElement(yPosition);
@@ -127,7 +129,7 @@ function Messages() {
         fetchMoreMessages();
       }
     }
-  }, [yPositionOfLastMessageElement]);
+  }, [yPositionOfLastMessageElement, fetchMoreMessages]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

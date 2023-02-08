@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import React, {
   ChangeEvent,
+  useCallback,
   useEffect, useRef, useState,
 } from 'react';
 import Cookies from 'js-cookie';
@@ -49,9 +50,9 @@ function Conversation() {
         navigate('/messages', { replace: true });
       }
     }
-  }, []);
+  }, [location.pathname, navigate, searchParams]);
 
-  const onChatMessageReceivedHandler = (payload: any) => {
+  const onChatMessageReceivedHandler = useCallback((payload: any) => {
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
       id: payload.message.fromId,
@@ -69,7 +70,7 @@ function Conversation() {
         chatreceivedObj,
       ]);
     }
-  };
+  }, [conversationId, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -79,7 +80,7 @@ function Conversation() {
       };
     }
     return () => { };
-  }, []);
+  }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {
@@ -111,7 +112,7 @@ function Conversation() {
         setPageDoesNotExist(true);
       });
     }
-  }, [conversationId]);
+  }, [conversationId, loadingMessages, location.pathname, userId]);
 
   const sendMessageClick = () => {
     if (imageArray.length > 0) {
@@ -200,7 +201,7 @@ function Conversation() {
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
+  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
   if (isLoading || !socketConnected) return null;
 

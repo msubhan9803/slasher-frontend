@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
@@ -9,7 +9,7 @@ function FavoriteMovies() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(favoritesMovies);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = favoritesMovies;
     if (search) {
@@ -20,10 +20,10 @@ function FavoriteMovies() {
     } else {
       setFilteredMovies(favoritesMovies);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <div>
       <MoviesHeader

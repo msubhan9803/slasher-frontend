@@ -94,7 +94,7 @@ function ProfilePosts({ user }: Props) {
         () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
       );
     }
-  }, [requestAdditionalPosts, loadingPosts, user]);
+  }, [requestAdditionalPosts, loadingPosts, user, loginUserId, posts]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {

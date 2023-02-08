@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from '../ui/CustomModal';
@@ -36,11 +36,11 @@ function FilterModal({
     setShowKeys(false);
   };
 
-  const keyValue = () => {
+  const keyValue = useCallback(() => {
     if (selectedKey && key !== '') {
       selectedKey(key);
     }
-  };
+  }, [key, selectedKey]);
 
   const onClickApplyFilter = () => {
     if (applyFilter) {
@@ -49,7 +49,9 @@ function FilterModal({
     }
   };
 
-  useEffect(() => { keyValue(); }, [key]);
+  useEffect(() => {
+    keyValue();
+  }, [keyValue]);
   return (
     <CustomModal
       show={showKeys}

@@ -49,7 +49,7 @@ function PhotoUploadInput({
 
   useEffect(() => {
     if (onChange) { onChange(photo); setImageUrl(undefined); }
-  }, [photo]);
+  }, [photo, onChange]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newPhoto = acceptedFiles?.[0] || null;

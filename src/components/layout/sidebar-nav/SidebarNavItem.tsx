@@ -2,7 +2,7 @@ import React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface Props {
   label: string;
@@ -43,8 +43,12 @@ const StyledIcon = styled(FontAwesomeIcon)`
 function SidebarNavItem({
   label, icon, iconColor: color, to, className, id,
 }: Props) {
+  const { pathname } = useLocation();
   return (
-    <StyledLink className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
+    <StyledLink
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} ${pathname.includes(to) ? 'btn-filter' : ''}`}
+      to={to}
+    >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>
           <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />

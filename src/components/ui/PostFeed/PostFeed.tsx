@@ -71,9 +71,6 @@ const LinearIcon = styled.div<LinearIconProps>`
     fill: url(#${(props) => props.uniqueId});
   }
 `;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
-`;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -210,7 +207,7 @@ function PostFeed({
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0 px-md-4">
               <Card.Header className="border-0 px-0 bg-transparent">
                 <PostHeader
                   detailPage={detailPage}
@@ -228,19 +225,19 @@ function PostFeed({
               <Card.Body className="px-0 pt-3">
                 {renderPostContent(post)}
                 {post?.images && (
-                <CustomSwiper
-                  images={
-                    post.images.map((imageData: any) => ({
-                      videoKey: imageData.videoKey,
-                      imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
-                      postId: post.id,
-                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                    }))
-                  }
-                  /* eslint no-underscore-dangle: 0 */
-                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
-                />
+                  <CustomSwiper
+                    images={
+                      post.images.map((imageData: any) => ({
+                        videoKey: imageData.videoKey,
+                        imageUrl: imageData.image_path,
+                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+                        postId: post.id,
+                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                      }))
+                    }
+                    /* eslint no-underscore-dangle: 0 */
+                    initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                  />
                 )}
                 { /* Below ad is to be shown in the end of post content when the post is a
               single pgae post */ }
@@ -283,11 +280,12 @@ function PostFeed({
                 rssfeedProviderId={post.rssfeedProviderId}
                 onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
               />
-              {
+            </Card>
+            {
               isCommentSection
               && (
                 <>
-                  <StyledBorder className="d-md-block d-none mb-4" />
+                  {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     pageStart={0}
                     initialLoad
@@ -322,12 +320,11 @@ function PostFeed({
                 </>
               )
             }
-            </Card>
           </div>
-          { (i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
+          {(i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
         </div>
       ))}
-      { !isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
+      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         openLikeShareModal
         && (

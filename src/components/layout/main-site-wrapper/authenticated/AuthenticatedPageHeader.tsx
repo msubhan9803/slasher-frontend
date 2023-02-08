@@ -16,7 +16,7 @@ const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA
 
 const StyledNavbar = styled(Navbar)`
   z-index:1;
-  background-color: #101010 !important;
+  // background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
     padding-left: .25rem;
@@ -106,7 +106,7 @@ function AuthenticatedPageHeader(
     <>
       {/* nav-bar for large & medium screen */}
       <header>
-        <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
+        <StyledNavbar bg="black" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
           <div className="w-100 d-flex px-4 container-xxl">
             <Navbar.Brand as={Link} to="/" className="py-0">
               <StyledLogoImage src={slasherLogo} alt="Slasher logo" />

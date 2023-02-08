@@ -113,7 +113,7 @@ export class FeedPostsController {
     return pick(
       feedPost,
       ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
-    'message'],
+        'message'],
     );
   }
 
@@ -216,7 +216,7 @@ export class FeedPostsController {
   @Post(':id/hide')
   async hidePost(
     @Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-      param: SingleFeedPostsDto,
+    param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
     const feedPost = await this.feedPostsService.findById(param.id, true);
@@ -227,13 +227,13 @@ export class FeedPostsController {
       );
     }
 
-  const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
+    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any)._id.toString() !== user._id.toString();
 
-    if (isUserOwnerOfThePost) {
+    if (!postCreatedByDifferentUser) {
       throw new HttpException(
         'You cannot hide your own post.',
         HttpStatus.FORBIDDEN,
-        );
+      );
     }
     await this.feedPostsService.hidePost(param.id, user._id);
     return { success: true };

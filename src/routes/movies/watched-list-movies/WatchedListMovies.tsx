@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
-import { watchedMovieList, watchedMovieList } from '../components/MovieList';
+import { watchedMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 import { MOVIE_WATCHED_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';

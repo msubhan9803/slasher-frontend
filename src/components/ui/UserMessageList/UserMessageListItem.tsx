@@ -96,7 +96,7 @@ export const CustomDropDown = styled(Dropdown)`
 
 function UserMessageListItem({
   userName, message, image, count = 0, timeStamp = null,
-  handleDropdownOption = () => {}, matchListId = null,
+  handleDropdownOption = () => { }, matchListId = null,
 }: Props, ref: any) {
   const sharedYPadding = 'py-3 py-lg-4';
 
@@ -125,7 +125,7 @@ function UserMessageListItem({
               </TrucatedText>
               {
                 count !== 0
-                  ? <div className="badge rounded-pill bg-primary ms-3">{count}</div>
+                  ? <div className="text-black badge rounded-pill bg-primary ms-3">{count}</div>
                   : <div>&nbsp;</div>
               }
             </div>

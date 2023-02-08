@@ -28,12 +28,12 @@ function IconWithTextNavItemInnerElement({
       {/* <div className="d-flex flex-column position-relative fs-5"> */}
       {
         userProfileIcon
-          ? <UserCircleImage size={userProfileIconSize} src={userProfileIcon} className="mx-auto" />
+          ? <UserCircleImage size={userProfileIconSize} src={userProfileIcon} alt="user picture" className="mx-auto" />
           : <FontAwesomeIcon icon={icon!} size={iconSize!} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
       }
       {!!badge
         && (
-          <BadgeSpan className="top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
+          <BadgeSpan className="text-black top-0 start-50 translate-middle-y badge rounded-pill bg-primary position-absolute">
             {badge}
           </BadgeSpan>
         )}

@@ -46,6 +46,9 @@ const sidebarMenuList: MenuType[] = [
   {
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
   },
+  {
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/account/settings', desktopOnly: true,
+  },
 ];
 const customSidebarMenuList = enableDevFeatures
   ? sidebarMenuList

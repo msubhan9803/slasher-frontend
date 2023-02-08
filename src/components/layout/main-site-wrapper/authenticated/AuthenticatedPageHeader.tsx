@@ -3,11 +3,10 @@ import {
   Navbar, Container, Nav, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
-import CustomPopover from '../../../ui/CustomPopover';
 import { useAppSelector } from '../../../../redux/hooks';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
 import HeaderLogo from '../../../ui/HeaderLogo';
@@ -33,8 +32,8 @@ const MobileNavbar = styled(Navbar)`
 const StyledNav = styled(Nav)`
   font-size: .875em;
   @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
-    // We need to use an exact offset here because we're matching the width of the word "Profile"
-    transform: translateX(2.3rem);
+    // We need to use an exact offset here because we're matching the width of the word "Me"
+    transform: translateX(0.7rem);
     overflow: hidden;
 
   }
@@ -56,18 +55,7 @@ function AuthenticatedPageHeader(
     userName, onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId,
   }: Props,
 ) {
-  const navigate = useNavigate();
-  const popoverOption = ['My profile', 'Settings'];
   const userData = useAppSelector((state) => state.user);
-
-  const handleNavigate = (selectedOption: string) => {
-    if (selectedOption === 'My profile') {
-      navigate(`/${userName}`);
-    }
-    if (selectedOption === 'Settings') {
-      navigate('/account/settings');
-    }
-  };
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -90,13 +78,7 @@ function AuthenticatedPageHeader(
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
-    <div key="me">
-      <CustomPopover
-        popoverOptions={popoverOption}
-        onPopoverClick={handleNavigate}
-        userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64}
-      />
-    </div>,
+    <IconWithTextNavLink key="Me" label="Me" userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64} to={`/${userName}`} className="nav-link" userProfileIconSize="2rem" />,
   ];
 
   return (

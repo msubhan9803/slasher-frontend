@@ -1,28 +1,25 @@
 import React, { useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 import { userAccountDelete } from '../../../api/users';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { clearSignInCookies } from '../../../utils/session-utils';
+import { signOut } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 import DeleteAccountDialog from './DeleteAccountDialog';
 
 function AccountDelete() {
   const [show, setShow] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const navigate = useNavigate();
 
   const deleteAccount = () => {
     setShow(!show);
   };
   const handleDeleteAccount = () => {
     userAccountDelete()
-      .then(() => clearSignInCookies())
-      .then(() => navigate('/sign-in'))
+      .then(() => signOut())
       .catch((error) => setErrorMessage(error.response.data.message));
   };
   return (

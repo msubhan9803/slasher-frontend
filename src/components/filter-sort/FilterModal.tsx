@@ -37,7 +37,7 @@ function FilterModal({
   };
 
   const keyValue = () => {
-    if (selectedKey) {
+    if (selectedKey && key !== '') {
       selectedKey(key);
     }
   };
@@ -59,14 +59,14 @@ function FilterModal({
       scrollable
     >
       <Modal.Header className="border-0 shadow-none m-0" closeButton>
-        <Modal.Title className="fs-2 mx-auto">Filter</Modal.Title>
+        <Modal.Title className="fs-2">Filter Options</Modal.Title>
       </Modal.Header>
       <Modal.Body className="pb-5">
         <div className="d-lg-none mb-4">
           <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
           <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
         </div>
-        <Modal.Title className="fs-3 mb-1">Jump to</Modal.Title>
+        <h2 className="fs-3 mb-3 text-center">Title starts with:</h2>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
           {keyboard.map((keys) => (
             <KeyboardButtons

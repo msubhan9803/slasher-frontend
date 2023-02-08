@@ -3,8 +3,13 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
-const sidebarMenuList = [
+type MenuType = {
+  label: string, icon: any, iconColor: string, to: string, id: any, desktopOnly?: boolean
+};
+
+const sidebarMenuList: MenuType[] = [
   {
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/news', id: 1,
   },
@@ -41,12 +46,28 @@ const sidebarMenuList = [
   {
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
   },
+  {
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/account/settings', desktopOnly: true,
+  },
 ];
+const customSidebarMenuList = enableDevFeatures
+  ? sidebarMenuList
+  : sidebarMenuList.map((item, idx) => {
+    const { label } = item;
+    if (label === 'Places' || label === 'Dating' || label === 'Podcasts' || label === 'Video Channels' || label === 'Shopping' || label === 'Books' || label === 'Music' || label === 'Art' || label === 'Help') {
+      return {
+        label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${idx}`,
+      };
+    }
+    return item;
+  })
+    // order `Coming Soon` tab items in the end
+    .sort((_, b) => (b.label !== 'Coming Soon' ? 0 : -1));
 
 function SidebarNavContent() {
   return (
     <Nav>
-      {sidebarMenuList.map((menu) => (
+      {customSidebarMenuList.map((menu) => (
         <SidebarNavItem
           id={menu.id}
           key={menu.id}

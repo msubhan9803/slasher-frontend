@@ -25,7 +25,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
-const newsPostPopoverOptions = ['Report'];
+const newsPostPopoverOptions = ['Report', 'Hide'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);

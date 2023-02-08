@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import SearchHeader from '../SearchHeader';
@@ -44,25 +41,20 @@ function SearchPosts() {
     setDropDownValue(value);
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <SearchHeader
-          tabKey="posts"
-          setSearch={setSearch}
-          search={search}
-        />
-        <PostFeed
-          postFeedData={searchPosts}
-          popoverOptions={popoverOptions}
-          isCommentSection={false}
-          onPopoverClick={handlePopoverOption}
-        />
-        <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+    <div>
+      <SearchHeader
+        tabKey="posts"
+        setSearch={setSearch}
+        search={search}
+      />
+      <PostFeed
+        postFeedData={searchPosts}
+        popoverOptions={popoverOptions}
+        isCommentSection={false}
+        onPopoverClick={handlePopoverOption}
+      />
+      <ReportModal show={show} setShow={setShow} slectedDropdownValue={dropDownValue} />
+    </div>
   );
 }
 

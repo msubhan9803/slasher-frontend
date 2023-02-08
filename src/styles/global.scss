@@ -233,10 +233,12 @@ input:hover {
   pointer-events: none;
   color: transparent;
   z-index: -1;
+  padding: 1rem;
 }
 
 .rc-mentions-dropdown {
   position: absolute;
+  padding: 1rem 0rem;
 }
 
 .rc-mentions-dropdown-menu {
@@ -259,9 +261,10 @@ input:hover {
 }
 
 .rc-mentions-dropdown {
-  border: 1px solid #999;
-  border-radius: 3px;
+  border: 1px solid gray;
+  border-radius: 10px;
   background: rgb(15, 15, 15);
+  overflow: hidden;
   z-index: 9999;
 }
 

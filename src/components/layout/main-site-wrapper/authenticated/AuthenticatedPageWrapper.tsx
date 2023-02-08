@@ -52,7 +52,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });

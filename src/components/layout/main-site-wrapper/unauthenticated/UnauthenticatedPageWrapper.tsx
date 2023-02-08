@@ -34,7 +34,7 @@ const StyledMain = styled.main<StyledMainProps>`
 function UnauthenticatedPageWrapper({
   children, hideTopLogo, hideFooter, valign,
 }: Props) {
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  useGoogleAnalytics(analyticsId);
 
   return (
     <div className="page-wrapper nonav">

@@ -7,9 +7,6 @@ import CustomPopover from '../../../components/ui/CustomPopover';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { blockedUsers, removeBlockedUsers } from '../../../api/blocks';
 import { LG_MEDIA_BREAKPOINT } from '../../../constants';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface BlockUsers {
@@ -73,64 +70,59 @@ function AccountBlockedUser() {
   };
 
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <AccountHeader tabKey="blocked-users" />
-        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3">
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad={false}
-            loadMore={fetchMoreBlockUsersList}
-            hasMore={!noMoreData}
-          >
-            <Row>
-              {
-                blockUsersList.length > 0
-                && blockUsersList.map((blockUser) => (
-                  <Col xs sm={6} md={4} lg={6} xl={4} key={blockUser._id}>
-                    <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
-                      <div>
-                        <div className="d-flex align-items-center">
-                          <div>
-                            <UserCircleImage
-                              src={blockUser.profilePic}
-                              className="me-2"
-                            />
-                          </div>
-                          <div>
-                            <h1 className="h3 mb-0">{blockUser.firstName}</h1>
-                            <p className="fs-6 mb-0 text-light">
-                              {blockUser.userName}
-                            </p>
-                          </div>
+    <div>
+      <AccountHeader tabKey="blocked-users" />
+      <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 my-3">
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad={false}
+          loadMore={fetchMoreBlockUsersList}
+          hasMore={!noMoreData}
+        >
+          <Row>
+            {
+              blockUsersList.length > 0
+              && blockUsersList.map((blockUser) => (
+                <Col xs sm={6} md={4} lg={6} xl={4} key={blockUser._id}>
+                  <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
+                    <div>
+                      <div className="d-flex align-items-center">
+                        <div>
+                          <UserCircleImage
+                            src={blockUser.profilePic}
+                            className="me-2"
+                          />
+                        </div>
+                        <div>
+                          <h1 className="h3 mb-0">{blockUser.firstName}</h1>
+                          <p className="fs-6 mb-0 text-light">
+                            {blockUser.userName}
+                          </p>
                         </div>
                       </div>
-                      <div className="d-flex align-self-center">
-                        <CustomPopover
-                          popoverOptions={PopoverOption}
-                          onPopoverClick={() => {
-                            removeBlockUser(blockUser._id);
-                          }}
-                        />
-                      </div>
-                    </Container>
-                  </Col>
-                ))
-              }
-            </Row>
-          </InfiniteScroll>
-          {noMoreData && (
-            <p className="text-center my-2">
-              {blockUsersList.length === 0 && 'You have not blocked any users.'}
-            </p>
-          )}
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-        </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+                    </div>
+                    <div className="d-flex align-self-center">
+                      <CustomPopover
+                        popoverOptions={PopoverOption}
+                        onPopoverClick={() => {
+                          removeBlockUser(blockUser._id);
+                        }}
+                      />
+                    </div>
+                  </Container>
+                </Col>
+              ))
+            }
+          </Row>
+        </InfiniteScroll>
+        {noMoreData && (
+          <p className="text-center my-2">
+            {blockUsersList.length === 0 && 'You have not blocked any users.'}
+          </p>
+        )}
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+      </div>
+    </div>
   );
 }
 

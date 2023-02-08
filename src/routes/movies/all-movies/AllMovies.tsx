@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import MovieRightSideNav from '../components/MovieRightSideNav';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import RoundButton from '../../../components/ui/RoundButton';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -18,6 +18,7 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
+  const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -60,6 +61,7 @@ function AllMovies() {
         getMovies(search, sortVal, res.data._id)
           .then((result) => {
             setFilteredMovies(result.data);
+            setKeyMoviesReady(true);
           });
       });
   };
@@ -73,40 +75,56 @@ function AllMovies() {
     </p>
   );
 
+  const clearKeyHandler = () => {
+    setKey('');
+    setKeyMoviesReady(false);
+    getMovies(search, sortVal)
+      .then((result: any) => {
+        setFilteredMovies(result.data);
+      });
+  };
+
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <MoviesHeader
-          tabKey="all"
-          showKeys={showKeys}
-          setShowKeys={setShowKeys}
-          setSearch={setSearch}
-          search={search}
-          sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-          selectedKey={(keyValue: string) => setKey(keyValue)}
-          applyFilter={applyFilter}
-        />
-        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-          <div className="m-md-2">
-            <InfiniteScroll
-              threshold={2000}
-              pageStart={0}
-              initialLoad
-              loadMore={() => { setRequestAdditionalPosts(true); }}
-              hasMore={!noMoreData}
-            >
-              <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
-            </InfiniteScroll>
-            {loadingPosts && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
+    <div>
+      <MoviesHeader
+        tabKey="all"
+        showKeys={showKeys}
+        setShowKeys={setShowKeys}
+        setSearch={setSearch}
+        search={search}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        selectedKey={(keyValue: string) => setKey(keyValue)}
+        applyFilter={applyFilter}
+      />
+      {key !== '' && isKeyMoviesReady
+        && (
+          <div className="w-100 d-flex justify-content-center mb-3">
+            <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
+              Starts with
+              {' '}
+              {key}
+              {' '}
+              <FontAwesomeIcon icon={solid('x')} size="sm" />
+            </RoundButton>
           </div>
+        )}
+      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+        <div className="m-md-2">
+          <InfiniteScroll
+            threshold={2000}
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPosts(true); }}
+            hasMore={!noMoreData}
+          >
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
+          </InfiniteScroll>
+          {loadingPosts && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <MovieRightSideNav />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/prefer-default-export
 export const apiUrl = process.env.REACT_APP_API_URL;
+export const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
 
 export const XS_MEDIA_BREAKPOINT = '0px';
 export const SM_MEDIA_BREAKPOINT = '576px';

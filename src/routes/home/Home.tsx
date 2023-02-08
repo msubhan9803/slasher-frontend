@@ -6,7 +6,9 @@ import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
-import { deleteFeedPost, getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
+import {
+  deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
+} from '../../api/feed-posts';
 import { Post } from '../../types';
 import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
@@ -22,8 +24,8 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import FormatImageVideoList from '../../utils/vido-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
-const newsPostPopoverOptions = ['Report'];
+const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
+const newsPostPopoverOptions = ['Report', 'Hide'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -39,6 +41,16 @@ function Home() {
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Hide') {
+      const postIdToHide = popoverClickProps.id;
+      if (!postIdToHide) return;
+      hideFeedPost(postIdToHide).then(() => {
+        // Set posts excluding the `focussedPost` so that the focussedPost is hidden immediately
+        setPosts((allPosts) => allPosts.filter((post) => post._id !== postIdToHide));
+      });
+      return;
+    }
+
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
     }
@@ -258,7 +270,7 @@ function Home() {
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <CustomCreatePost />
-        <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
+        <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
         {
           errorMessage && errorMessage.length > 0 && (
@@ -292,7 +304,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue !== 'Edit'
+          dropDownValue === 'Delete'
           && (
             <ReportModal
               deleteText="Are you sure you want to delete this post?"

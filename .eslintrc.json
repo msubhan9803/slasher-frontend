@@ -10,6 +10,7 @@
         "plugin:import/warnings",
         "plugin:import/typescript",
         "plugin:storybook/recommended"
+        // "plugin:react-hooks/recommended" // TODO: Uncomment later
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -44,6 +45,15 @@
             "warn",
             {
                 "checkFragmentShorthand": true
+            }
+        ],
+        // Allow underscore exception for "_id" because it's common in retrieved MongoDB objects
+        "no-underscore-dangle": [
+            "error",
+            {
+                "allow": [
+                    "_id"
+                ]
             }
         ]
     },

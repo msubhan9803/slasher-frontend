@@ -2,7 +2,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import {
-  Col, Image, OverlayTrigger, Row, Tooltip,
+  Col, Image, Row,
 } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -18,6 +18,7 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import EventRightSidebar from '../EventRightSidebar';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
+import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -28,6 +29,7 @@ const EventBanner = styled.div`
 function EventDetails() {
   const { id } = useParams();
   const [eventDetails, setEventDetails] = useState<any>();
+  const [showShareLinks, setShowShareLinks] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -36,6 +38,9 @@ function EventDetails() {
       });
     }
   }, []);
+
+  const handleShowShareLinks = () => setShowShareLinks(true);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -101,23 +106,19 @@ function EventDetails() {
                 >
                   {eventDetails?.url}
                 </a>
-                <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                  <RoundButton className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
-                    <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                    <h1 className="h3 m-0">Share</h1>
-                  </RoundButton>
-                </OverlayTrigger>
+                <RoundButton onClick={handleShowShareLinks} className="d-none d-md-flex d-lg-none d-xl-flex align-self-center rate-btn py-2" variant="black">
+                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                  <h1 className="h3 m-0">Share</h1>
+                </RoundButton>
               </div>
             </Col>
           </Row>
           <div className="d-flex d-md-none d-lg-flex d-xl-none justify-content-between">
             <div className="d-flex align-self-center">
-              <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">Not available in beta.</Tooltip>}>
-                <RoundButton className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
-                  <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-                  <h1 className="h3 m-0">Share</h1>
-                </RoundButton>
-              </OverlayTrigger>
+              <RoundButton onClick={handleShowShareLinks} className="d-flex align-self-center rate-btn bg-black py-2" variant="black">
+                <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
+                <h1 className="h3 m-0">Share</h1>
+              </RoundButton>
             </div>
             <div>
               <LinearIcon role="button" uniqueId="favorite-sm" className="d-flex flex-column align-items-end">
@@ -149,6 +150,7 @@ function EventDetails() {
             />
           </div>
         </div>
+        {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
         <PubWiseAd className="text-center my-3" id={EVENT_DETAIL_DIV_ID} autoSequencer />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

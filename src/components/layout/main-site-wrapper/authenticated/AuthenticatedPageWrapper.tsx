@@ -12,7 +12,7 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { clearSignInCookies } from '../../../../utils/session-utils';
+import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
 import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
@@ -71,8 +71,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
         if (err.response.status === 401) {
-          clearSignInCookies();
-          navigate('/sign-in');
+          signOut();
         }
       });
     }

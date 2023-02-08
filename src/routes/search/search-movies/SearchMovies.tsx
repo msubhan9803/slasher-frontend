@@ -1,7 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import SearchHeader from '../SearchHeader';
 import { movies } from '../SearchResult';
@@ -32,23 +29,18 @@ function SearchMovies() {
     searchData();
   }, [search, searchData]);
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <SearchHeader
-          tabKey="movies"
-          setSearch={setSearch}
-          search={search}
-        />
-        <div className="rounded-3 px-lg-4 p-3">
-          <div className="m-md-2">
-            <PosterCardList dataList={searchMovies} />
-          </div>
+    <div>
+      <SearchHeader
+        tabKey="movies"
+        setSearch={setSearch}
+        search={search}
+      />
+      <div className="rounded-3 px-lg-4 p-3">
+        <div className="m-md-2">
+          <PosterCardList dataList={searchMovies} />
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

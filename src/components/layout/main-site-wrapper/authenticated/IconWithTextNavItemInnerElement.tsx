@@ -28,7 +28,7 @@ function IconWithTextNavItemInnerElement({
       {/* <div className="d-flex flex-column position-relative fs-5"> */}
       {
         userProfileIcon
-          ? <UserCircleImage size={userProfileIconSize} src={userProfileIcon} className="mx-auto" />
+          ? <UserCircleImage size={userProfileIconSize} src={userProfileIcon} alt="user picture" className="mx-auto" />
           : <FontAwesomeIcon icon={icon!} size={iconSize!} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
       }
       {!!badge

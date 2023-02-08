@@ -28,10 +28,11 @@ const EventsCardStyle = styled(Card)`
 `;
 
 function EventsPosterCard({ listDetail }: Props) {
+  console.log('listDetail', listDetail);
   return (
     <Link to={`/events/${listDetail.id}`} className="text-decoration-none">
       <EventsCardStyle className="rounded-3 px-3 pt-4 pb-2">
-        <Card.Img variant="top" src={listDetail.image} className="mb-2 bg-black" />
+        <Card.Img variant="top" src={listDetail.image} alt="event poster" className="mb-2 bg-black" />
         <Card.Body className="p-0 mt-2">
           <div className="d-flex justify-content-between align-items-center">
             <p className="fs-5 m-0 mt-2 text-light">
@@ -45,7 +46,7 @@ function EventsPosterCard({ listDetail }: Props) {
                 <span className="fs-3">{listDetail.location}</span>
               </div>
             )}
-          <h2 className="my-3">{listDetail.eventName}</h2>
+          {listDetail.eventName && <h2 className="my-3">{listDetail.eventName}</h2>}
         </Card.Body>
       </EventsCardStyle>
     </Link>

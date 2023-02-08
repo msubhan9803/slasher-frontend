@@ -176,7 +176,7 @@ export class ChatController {
       newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message));
     }
     if (newMessages.length > 0) {
-      await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id, user);
+      await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id);
 
       await this.messageCountUpdateQueue.add(
         'send-update-if-message-unread',

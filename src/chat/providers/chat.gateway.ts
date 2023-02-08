@@ -136,7 +136,7 @@ export class ChatGateway {
     });
   }
 
-  async emitMessageForConversation(newMessagesArray, toUserId: string, user: object) {
+  async emitMessageForConversation(newMessagesArray, toUserId: string) {
     const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
     (newMessagesArray as any).forEach((messageObject) => {
       const cloneMessage = messageObject.toObject();
@@ -144,7 +144,7 @@ export class ChatGateway {
       // Emit message to receiver
       targetUserSocketIds.forEach((socketId) => {
         this.server.to(socketId).emit('chatMessageReceived', {
-          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']), user,
+          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
         });
       });
     });

@@ -162,11 +162,7 @@ function ProfileFriendRequest({ user }: Props) {
           </InfiniteScroll>
           {loadingFriendRequests && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         </div>
       </div>
     </div>

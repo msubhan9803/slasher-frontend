@@ -185,7 +185,7 @@ function RegistrationSecurity({ activeStep }: Props) {
       </Row>
       <Row className="justify-content-center mt-4">
         <Col sm={12} md={9} className="order-xs-1 ">
-          {errorMessages && <ErrorMessageList errorMessages={errorMessages} />}
+          <ErrorMessageList errorMessages={errorMessages} />
         </Col>
       </Row>
       <Row className="justify-content-center my-4">

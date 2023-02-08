@@ -18,7 +18,7 @@ interface PostFooterProps {
   likeIcon: boolean;
   postId: string;
   userName: string;
-  rssfeedProviderId: string;
+  rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
 }
 const CardFooter = styled(Card.Footer)`
@@ -98,5 +98,9 @@ function PostFooter({
     </CardFooter>
   );
 }
+
+PostFooter.defaultProps = {
+  rssfeedProviderId: '',
+};
 
 export default PostFooter;

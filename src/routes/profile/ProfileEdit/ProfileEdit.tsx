@@ -10,12 +10,12 @@ import Cookies from 'js-cookie';
 import {
   uploadUserCoverImage, uploadUserProfileImage, updateUser,
 } from '../../../api/users';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
 import { ProfileVisibility, User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface Props {
   user: User
@@ -256,11 +256,7 @@ function ProfileEdit({ user }: Props) {
               </Form.Group>
             </Col>
           </Row>
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <Row className="mt-2">
             <Col md={3} lg={4} xl={3}>
               <RoundButton type="submit" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile}>

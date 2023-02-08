@@ -5,7 +5,6 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import ReportModal from '../../../components/ui/ReportModal';
 import { feedPostDetail } from '../../../api/feed-posts';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
@@ -18,9 +17,7 @@ import {
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 function NewsPartnerPost() {
   const { partnerId, postId } = useParams<string>();
@@ -484,57 +481,48 @@ function NewsPartnerPost() {
     feedComments(true);
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <Row className="mb-5 px-2">
-          <Col className="p-0">
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-3 text-start">
-                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              </div>
-            )}
-            <PostFeed
-              detailPage
-              postFeedData={postData}
-              popoverOptions={loginUserPopoverOptions}
-              onPopoverClick={handlePopover}
-              isCommentSection
-              commentsData={commentData}
-              removeComment={removeComment}
-              setCommentID={setCommentID}
-              setCommentReplyID={setCommentReplyID}
-              commentID={commentID}
-              commentReplyID={commentReplyID}
-              isEdit={isEdit}
-              setIsEdit={setIsEdit}
-              setRequestAdditionalPosts={setRequestAdditionalPosts}
-              noMoreData={noMoreData}
-              loadingPosts={loadingComments}
-              onLikeClick={onLikeClick}
-              newsPostPopoverOptions={popoverOption}
-              otherUserPopoverOptions={otherUserPopoverOptions}
-              escapeHtml={false}
-              loadNewerComment={loadNewerComment}
-              previousCommentsAvailable={previousCommentsAvailable}
-              addUpdateReply={addUpdateReply}
-              addUpdateComment={addUpdateComment}
-              updateState={updateState}
-              setUpdateState={setUpdateState}
-              isSinglePagePost
-            />
-          </Col>
-        </Row>
-        <ReportModal
-          show={show}
-          setShow={setShow}
-          slectedDropdownValue={dropDownValue}
-          handleReport={reportNewsPost}
-        />
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+    <div>
+      <Row className="mb-5 px-2">
+        <Col className="p-0">
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          <PostFeed
+            detailPage
+            postFeedData={postData}
+            popoverOptions={loginUserPopoverOptions}
+            onPopoverClick={handlePopover}
+            isCommentSection
+            commentsData={commentData}
+            removeComment={removeComment}
+            setCommentID={setCommentID}
+            setCommentReplyID={setCommentReplyID}
+            commentID={commentID}
+            commentReplyID={commentReplyID}
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            setRequestAdditionalPosts={setRequestAdditionalPosts}
+            noMoreData={noMoreData}
+            loadingPosts={loadingComments}
+            onLikeClick={onLikeClick}
+            newsPostPopoverOptions={popoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            escapeHtml={false}
+            loadNewerComment={loadNewerComment}
+            previousCommentsAvailable={previousCommentsAvailable}
+            addUpdateReply={addUpdateReply}
+            addUpdateComment={addUpdateComment}
+            updateState={updateState}
+            setUpdateState={setUpdateState}
+            isSinglePagePost
+          />
+        </Col>
+      </Row>
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportNewsPost}
+      />
+    </div>
   );
 }
 export default NewsPartnerPost;

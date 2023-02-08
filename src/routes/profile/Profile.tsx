@@ -29,7 +29,6 @@ function Profile() {
   const location = useLocation();
   /* eslint no-underscore-dangle: 0 */
   const isSelfProfile = loginUserData.id === user?._id;
-
   useEffect(() => {
     if (userNameOrId) {
       getUser(userNameOrId)

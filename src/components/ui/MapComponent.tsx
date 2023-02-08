@@ -139,12 +139,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
           </Form>
         </Col>
       </Row>
-      {
-        errors.length > 0
-        && (
-          <ErrorMessageList errorMessages={errors} className="my-4" />
-        )
-      }
+      <ErrorMessageList errorMessages={errors} className="my-4" />
       {
         resolvedSearchLocationDisplayName
         && (

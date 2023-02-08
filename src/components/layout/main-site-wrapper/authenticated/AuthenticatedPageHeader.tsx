@@ -1,15 +1,15 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Image, Col, Row,
+  Navbar, Container, Nav, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
 import { useAppSelector } from '../../../../redux/hooks';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
@@ -21,9 +21,6 @@ const StyledNavbar = styled(Navbar)`
     padding-left: .25rem;
     padding-right: .25rem;
   }
-`;
-const StyledLogoImage = styled(Image)`
-  height: 6.6rem;
 `;
 
 const MobileNavbar = styled(Navbar)`
@@ -91,7 +88,7 @@ function AuthenticatedPageHeader(
         <StyledNavbar bg="black" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
           <div className="w-100 d-flex px-4 container-xxl">
             <Navbar.Brand as={Link} to="/" className="py-0">
-              <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
+              <HeaderLogo />
             </Navbar.Brand>
             <StyledNav className="ms-auto">
               {

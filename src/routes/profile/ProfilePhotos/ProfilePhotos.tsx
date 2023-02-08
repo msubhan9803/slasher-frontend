@@ -6,8 +6,8 @@ import InfiniteScroll from 'react-infinite-scroller';
 import ProfileHeader from '../ProfileHeader';
 import { User } from '../../../types';
 import { userPhotos } from '../../../api/users';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -79,11 +79,7 @@ function ProfilePhotos({ user }: Props) {
     <div>
       <ProfileHeader tabKey="photos" user={user} />
       <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
-        )}
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         <InfiniteScroll
           pageStart={0}
           initialLoad

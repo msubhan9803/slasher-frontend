@@ -6,12 +6,9 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import MovieRightSideNav from '../components/MovieRightSideNav';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 
 function AllMovies() {
@@ -88,20 +85,19 @@ function AllMovies() {
   };
 
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <MoviesHeader
-          tabKey="all"
-          showKeys={showKeys}
-          setShowKeys={setShowKeys}
-          setSearch={setSearch}
-          search={search}
-          sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-          selectedKey={(keyValue: string) => setKey(keyValue)}
-          applyFilter={applyFilter}
-        />
-        {key !== '' && isKeyMoviesReady
-          && (
+    <div>
+      <MoviesHeader
+        tabKey="all"
+        showKeys={showKeys}
+        setShowKeys={setShowKeys}
+        setSearch={setSearch}
+        search={search}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
+        selectedKey={(keyValue: string) => setKey(keyValue)}
+        applyFilter={applyFilter}
+      />
+      {key !== '' && isKeyMoviesReady
+        && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               Starts with
@@ -111,32 +107,24 @@ function AllMovies() {
               <FontAwesomeIcon icon={solid('x')} size="sm" />
             </RoundButton>
           </div>
-          )}
-        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
-          <div className="m-md-2">
-            <InfiniteScroll
-              threshold={2000}
-              pageStart={0}
-              initialLoad
-              loadMore={() => { setRequestAdditionalPosts(true); }}
-              hasMore={!noMoreData}
-            >
-              <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
-            </InfiniteScroll>
-            {loadingPosts && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
-          </div>
+        )}
+      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
+        <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+        <div className="m-md-2">
+          <InfiniteScroll
+            threshold={2000}
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setRequestAdditionalPosts(true); }}
+            hasMore={!noMoreData}
+          >
+            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
+          </InfiniteScroll>
+          {loadingPosts && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <MovieRightSideNav />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

@@ -11,8 +11,8 @@ interface PostHeaderProps {
   id: string;
   postDate: string;
   profileImage: string;
-  popoverOptions: string[];
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
+  popoverOptions?: string[];
+  onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage: boolean | undefined;
   content?: string;
   userId?: string;
@@ -83,8 +83,8 @@ function PostHeader({
       </Col>
       <Col xs="auto" className="d-block">
         <CustomPopover
-          popoverOptions={popoverOptions}
-          onPopoverClick={onPopoverClick}
+          popoverOptions={popoverOptions!}
+          onPopoverClick={onPopoverClick!}
           content={content}
           id={id}
           userId={userId}
@@ -98,6 +98,9 @@ PostHeader.defaultProps = {
   content: null,
   userId: null,
   rssfeedProviderId: null,
+  // Remove after Podcast popover implementation
+  onPopoverClick: undefined,
+  popoverOptions: null,
 };
 
 export default PostHeader;

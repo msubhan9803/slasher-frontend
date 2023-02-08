@@ -16,12 +16,13 @@ import {
   CommentValue, FeedComments, Post, User, ReplyValue,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import { useAppSelector } from '../../../redux/hooks';
 import { createBlockUser } from '../../../api/blocks';
+import FormatImageVideoList from '../../../utils/vido-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -60,17 +61,6 @@ function ProfilePostDetail({ user }: Props) {
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
-  };
-
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
   };
 
   const feedComments = (sortBy?: boolean) => {
@@ -136,7 +126,7 @@ function ProfilePostDetail({ user }: Props) {
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
-              postUrl: formatImageVideoList(res.data.images, res.data.message),
+              postUrl: FormatImageVideoList(res.data.images, res.data.message),
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
@@ -340,7 +330,7 @@ function ProfilePostDetail({ user }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: formatImageVideoList(res.data.images, res.data.message),
+            postUrl: FormatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -603,29 +593,29 @@ function ProfilePostDetail({ user }: Props) {
         isSinglePagePost
       />
       {dropDownValue !== 'Edit'
-          && (
-            <ReportModal
-              deleteText="Are you sure you want to delete this post?"
-              onConfirmClick={deletePostClick}
-              show={show}
-              setShow={setShow}
-              slectedDropdownValue={dropDownValue}
-              handleReport={reportProfilePost}
-              onBlockYesClick={onBlockYesClick}
-            />
-          )}
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+            handleReport={reportProfilePost}
+            onBlockYesClick={onBlockYesClick}
+          />
+        )}
       {dropDownValue === 'Edit'
-          && (
-            <EditPostModal
-              show={show}
-              setShow={setShow}
-              handleSearch={handleSearch}
-              mentionList={mentionList}
-              setPostContent={setPostContent}
-              postContent={postContent}
-              onUpdatePost={onUpdatePost}
-            />
-          )}
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </div>
   );
 }

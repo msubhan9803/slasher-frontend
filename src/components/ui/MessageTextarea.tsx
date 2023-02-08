@@ -58,7 +58,6 @@ function MessageTextarea({
       setFormatMentionList([...formatMentionList, addFormatObject]);
     }
   };
-
   return (
     <Mentions
       rows={rows}

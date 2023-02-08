@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Col, Form, InputGroup, Row,
 } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { changePassword } from '../../../api/users';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
@@ -10,7 +10,7 @@ import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/r
 import { CustomVisibilityButton } from '../../../components/ui/CustomVisibilityButton';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
-import { clearSignInCookies } from '../../../utils/session-utils';
+import { signOut } from '../../../utils/session-utils';
 import AccountHeader from '../AccountHeader';
 
 function AccountChangePassword() {
@@ -21,12 +21,10 @@ function AccountChangePassword() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
 
   const handleChangePassword = () => {
     changePassword(currentPassword, newPassword, newPasswordConfirmation)
-      .then(() => clearSignInCookies())
-      .then(() => navigate('/sign-in'))
+      .then(() => signOut())
       .catch((error) => setErrorMessage(error.response.data.message));
   };
   return (

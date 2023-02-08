@@ -51,7 +51,7 @@ const SINGLES_ADS = [
   [GLOBAL_RIGHT_NAV, GLOBAL_RIGHT_NAV_DIV_ID],
 ];
 
-const usePubWiseAdSlots = () => {
+const usePubWiseAdSlots = (enableADs: boolean) => {
   const dispatch = useAppDispatch();
 
   // Load scripts required for required for PubWise Adslots
@@ -59,9 +59,10 @@ const usePubWiseAdSlots = () => {
     'https://securepubads.g.doubleclick.net/tag/js/gpt.js',
     '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pre_pws.js?type=web',
     '//fdyn.pubwise.io/script/786ead05-a265-491d-aeb6-cdbb8ad4cac7/v3/dyn/pws.js?type=web',
-  ]);
+  ], !enableADs);
 
   useEffect(() => {
+    if (!enableADs) return;
     if (!isScriptsLoaded) return;
 
     // Run code after loading all the required pubwise scripts
@@ -102,7 +103,7 @@ const usePubWiseAdSlots = () => {
       // Mark ad-slots as ready so we can try now load ads for any of those
       dispatch(setPubWiseSlots());
     });
-  }, [isScriptsLoaded, dispatch]);
+  }, [isScriptsLoaded, dispatch, enableADs]);
 };
 
 export default usePubWiseAdSlots;

@@ -1,10 +1,15 @@
 /* eslint-disable no-console,no-restricted-syntax,no-await-in-loop */
 import { useEffect, useState } from 'react';
 
-const useLoadScriptsInOrder = (URLs: string[]) => {
+/**
+ * This hook loads a array of script urls in order. You can pass first argument as array of
+ * string URLs and also pass a second argument as true if you want to *disable* the hook.
+*/
+const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    if (disableHook) return;
     async function main() {
       try {
         // SEQUENTIAL LOADING OF SCRIPTS
@@ -30,7 +35,7 @@ const useLoadScriptsInOrder = (URLs: string[]) => {
     }
 
     main();
-  }, [URLs]);
+  }, [URLs, disableHook]);
 
   return isLoaded;
 };

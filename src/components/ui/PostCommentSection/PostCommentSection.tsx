@@ -193,7 +193,10 @@ function PostCommentSection({
       };
       feedCommentData();
     }
-  }, [commentSectionData, updateState, checkLoadMoreId, commentReplyID, setUpdateState]);
+  }, [
+    commentSectionData, updateState, checkLoadMoreId,
+    commentReplyID, setUpdateState, commentData,
+  ]);
 
   useEffect(() => {
     setReplyMessage('');

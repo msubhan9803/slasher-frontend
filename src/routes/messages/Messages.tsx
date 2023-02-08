@@ -146,18 +146,17 @@ function Messages() {
             {
               messages.length > 0
               && messages.map((message) => (
-                <div key={message._id} ref={messageContainerElementRef}>
-                  <UserMessageListItem
-                    image={message.profilePic}
-                    userName={message.userName}
-                    message={message.latestMessage}
-                    count={message.unreadCount}
-                    timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                    handleDropdownOption={handleMessagesOption}
-                    matchListId={message._id}
-                  />
-                </div>
-
+                <UserMessageListItem
+                  key={message._id}
+                  ref={messageContainerElementRef}
+                  image={message.profilePic}
+                  userName={message.userName}
+                  message={message.latestMessage}
+                  count={message.unreadCount}
+                  timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
+                  handleDropdownOption={handleMessagesOption}
+                  matchListId={message._id}
+                />
               ))
             }
           </InfiniteScroll>

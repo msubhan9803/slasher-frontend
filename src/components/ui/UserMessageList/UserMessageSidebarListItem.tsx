@@ -28,7 +28,7 @@ const StyledItem = styled.div`
   }
 `;
 
-function UserMessageListItem({
+function UserMessageSidebarListItem({
   userName, message, image, messageId, count,
 }: Props) {
   return (
@@ -50,7 +50,7 @@ function UserMessageListItem({
     </StyledItem>
   );
 }
-UserMessageListItem.defaultProps = {
+UserMessageSidebarListItem.defaultProps = {
   count: 0,
 };
-export default UserMessageListItem;
+export default UserMessageSidebarListItem;

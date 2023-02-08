@@ -28,7 +28,6 @@ const EventsCardStyle = styled(Card)`
 `;
 
 function EventsPosterCard({ listDetail }: Props) {
-  console.log('listDetail', listDetail);
   return (
     <Link to={`/events/${listDetail.id}`} className="text-decoration-none">
       <EventsCardStyle className="rounded-3 px-3 pt-4 pb-2">

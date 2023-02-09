@@ -38,7 +38,7 @@ function DatingLikesDialog({ show, setShow, slectedDropdownValue }: Props) {
         <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
           <FontAwesomeIcon icon={solid('user-plus')} size="2x" className="border border-primary mb-4 rounded-5 text-primary" style={{ padding: '15px 12px' }} />
           <h3> Want to see who likes you?</h3>
-          <Link to="/dating/likes" className="text-decoration-none text-primary">
+          <Link to="/app/dating/likes" className="text-decoration-none text-primary">
             Click here
           </Link>
         </Modal.Body>

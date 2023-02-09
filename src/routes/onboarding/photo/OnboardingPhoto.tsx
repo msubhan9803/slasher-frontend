@@ -21,7 +21,7 @@ function OnboardingPhoto() {
     setErrorMessage([]);
 
     onboardingPhoto(imageUpload).then(() => {
-      navigate('/onboarding/about-me');
+      navigate('/app/onboarding/about-me');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });
@@ -44,7 +44,7 @@ function OnboardingPhoto() {
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-4" />
             <Row>
               <Col xs={6}>
-                <RoundButtonLink to="/onboarding/about-me" className="w-100" variant="dark">
+                <RoundButtonLink to="/app/onboarding/about-me" className="w-100" variant="dark">
                   Skip
                 </RoundButtonLink>
               </Col>

@@ -1,11 +1,10 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import ReportModal from '../../../components/ui/ReportModal';
 import { feedPostDetail } from '../../../api/feed-posts';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
@@ -18,9 +17,7 @@ import {
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 function NewsPartnerPost() {
   const { partnerId, postId } = useParams<string>();
@@ -49,11 +46,11 @@ function NewsPartnerPost() {
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
-  const getFeedPostDetail = (feedPostId: string) => {
+  const getFeedPostDetail = useCallback((feedPostId: string) => {
     feedPostDetail(feedPostId).then((res) => {
       /* eslint no-underscore-dangle: 0 */
       if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
-        navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
+        navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
       }
       const newsPost: any = {
         /* eslint no-underscore-dangle: 0 */
@@ -77,13 +74,13 @@ function NewsPartnerPost() {
         setErrorMessage(error.response.data.message);
       },
     );
-  };
+  }, [loginUserId, navigate, postId, partnerId, queryCommentId]);
 
   useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
     }
-  }, [postId]);
+  }, [postId, getFeedPostDetail]);
 
   const handlePopover = (selectedOption: string, popoverClickProps: PopoverClickProps) => {
     setShow(true);
@@ -99,7 +96,7 @@ function NewsPartnerPost() {
     });
   };
 
-  const feedComments = (sortBy?: boolean) => {
+  const feedComments = useCallback((sortBy?: boolean) => {
     let data;
     if (sortBy) {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
@@ -136,7 +133,7 @@ function NewsPartnerPost() {
     ).finally(
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
-  };
+  }, [commentData, postId]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments) {
@@ -144,7 +141,7 @@ function NewsPartnerPost() {
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  }, [requestAdditionalPosts, loadingComments, feedComments]);
 
   const addUpdateComment = (comment: CommentValue) => {
     let commentValueData: any = {
@@ -458,83 +455,74 @@ function NewsPartnerPost() {
       .catch((error) => console.error(error));
   };
 
-  const getSingleComment = () => {
+  const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
         if (queryReplyId) {
           if (queryCommentId !== res.data._id) {
-            navigate(`/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+            navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           }
         } else {
-          navigate(`/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
+          navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
       }
       setCommentData([res.data]);
     });
-  };
+  }, [navigate, partnerId, postId, queryCommentId, queryReplyId]);
 
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId]);
+  }, [queryCommentId, queryReplyId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <Row className="mb-5 px-2">
-          <Col className="p-0">
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-3 text-start">
-                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              </div>
-            )}
-            <PostFeed
-              detailPage
-              postFeedData={postData}
-              popoverOptions={loginUserPopoverOptions}
-              onPopoverClick={handlePopover}
-              isCommentSection
-              commentsData={commentData}
-              removeComment={removeComment}
-              setCommentID={setCommentID}
-              setCommentReplyID={setCommentReplyID}
-              commentID={commentID}
-              commentReplyID={commentReplyID}
-              isEdit={isEdit}
-              setIsEdit={setIsEdit}
-              setRequestAdditionalPosts={setRequestAdditionalPosts}
-              noMoreData={noMoreData}
-              loadingPosts={loadingComments}
-              onLikeClick={onLikeClick}
-              newsPostPopoverOptions={popoverOption}
-              otherUserPopoverOptions={otherUserPopoverOptions}
-              escapeHtml={false}
-              loadNewerComment={loadNewerComment}
-              previousCommentsAvailable={previousCommentsAvailable}
-              addUpdateReply={addUpdateReply}
-              addUpdateComment={addUpdateComment}
-              updateState={updateState}
-              setUpdateState={setUpdateState}
-              isSinglePagePost
-            />
-          </Col>
-        </Row>
-        <ReportModal
-          show={show}
-          setShow={setShow}
-          slectedDropdownValue={dropDownValue}
-          handleReport={reportNewsPost}
-        />
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+    <div>
+      <Row className="mb-5 px-2">
+        <Col className="p-0">
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          <PostFeed
+            detailPage
+            postFeedData={postData}
+            popoverOptions={loginUserPopoverOptions}
+            onPopoverClick={handlePopover}
+            isCommentSection
+            commentsData={commentData}
+            removeComment={removeComment}
+            setCommentID={setCommentID}
+            setCommentReplyID={setCommentReplyID}
+            commentID={commentID}
+            commentReplyID={commentReplyID}
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            setRequestAdditionalPosts={setRequestAdditionalPosts}
+            noMoreData={noMoreData}
+            loadingPosts={loadingComments}
+            onLikeClick={onLikeClick}
+            newsPostPopoverOptions={popoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            escapeHtml={false}
+            loadNewerComment={loadNewerComment}
+            previousCommentsAvailable={previousCommentsAvailable}
+            addUpdateReply={addUpdateReply}
+            addUpdateComment={addUpdateComment}
+            updateState={updateState}
+            setUpdateState={setUpdateState}
+            isSinglePagePost
+          />
+        </Col>
+      </Row>
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportNewsPost}
+      />
+    </div>
   );
 }
 export default NewsPartnerPost;

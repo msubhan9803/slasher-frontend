@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,6 +16,7 @@ import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
+import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
 
 interface FriendProps {
   _id?: string;
@@ -47,7 +50,7 @@ function ProfileFriendRequest({ user }: Props) {
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
-  const fetchMoreFriendReqList = () => {
+  const fetchMoreFriendReqList = useCallback(() => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
         setFriendsReqList((prev: FriendProps[]) => [
@@ -64,13 +67,13 @@ function ProfileFriendRequest({ user }: Props) {
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  };
+  }, [friendRequestPage]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
       setLoadingFriendRequests(true);
       fetchMoreFriendReqList();
     }
-  }, [additionalFriendRequest, loadingFriendRequests]);
+  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -84,7 +87,10 @@ function ProfileFriendRequest({ user }: Props) {
     acceptFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(forceReloadSuggestedFriends());
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -94,7 +100,10 @@ function ProfileFriendRequest({ user }: Props) {
     rejectFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(forceReloadSuggestedFriends());
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -111,7 +120,7 @@ function ProfileFriendRequest({ user }: Props) {
       navigate(`/${params.userName}/friends`);
     }
     getYPosition();
-  }, [friendsReqList]);
+  }, [loginUserName, navigate, params.userName, user.userName]);
 
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
@@ -120,7 +129,7 @@ function ProfileFriendRequest({ user }: Props) {
         fetchMoreFriendReqList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendReqList, friendRequestPage, noMoreData]);
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />
@@ -135,7 +144,7 @@ function ProfileFriendRequest({ user }: Props) {
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
           <InfiniteScroll
             pageStart={0}
-            initialLoad={false}
+            initialLoad
             loadMore={() => { setAdditionalFriendRequest(true); }}
             hasMore={!noMoreData}
           >
@@ -155,11 +164,7 @@ function ProfileFriendRequest({ user }: Props) {
           </InfiniteScroll>
           {loadingFriendRequests && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         </div>
       </div>
     </div>

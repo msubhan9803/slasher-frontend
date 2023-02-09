@@ -5,67 +5,26 @@ import {
   Button, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from '../../../components/ui/RoundButton';
 import postImage from '../../../images/places-post.jpg';
 import LikeDislike from './LikeDislike';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import BorderButton from '../../../components/ui/BorderButton';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
+import CustomStarIcon from '../../../components/ui/CustomStarIcon';
+import CustomFavoriteIcons from '../../../components/ui/CustomFavoriteIcons';
+import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
+import WorthContent from '../../../components/ui/WorthContent';
 
-interface LinearIconProps {
-  uniqueId?: string
-}
 interface Props {
   toggle: boolean;
   onToggleClick: (val: boolean) => void;
 }
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-  .favorite-icon{
-    height:3.57rem;
-    width:3.57rem;
-  }
-`;
 
 const CustomCol = styled(Col)`
   margin-top: -3.938rem;
 `;
 const PlaceProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
-const StyledStar = styled(FontAwesomeIcon)`
-  color: #FF8A00;
-  width: 1.638rem;
-  height: 1.563rem;
-`;
-const StyledWorth = styled.div`
-  color: #00FF0A;
-  div {
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #3A3B46;
-    background: #1F1F1F;
-  }
-  FontAwesomeIcon {
-    width: 1.326rem;
-    height: 1.391rem;
-  }
-`;
-const FavoriteIconDiv = styled.div`
-  margin-top: 1.429rem;
-  margin-left: 3.214rem;
-  width: 1.5rem;
-  height: 1.5rem;
-  border: 1px solid #3A3B46;
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 
 function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
@@ -93,26 +52,31 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
           </LinearIcon>
           {toggle
             && (
-              <FavoriteIconDiv
-                className="position-absolute bg-black rounded-circle text-center"
-              >
-                <FontAwesomeIcon icon={solid('times')} size="lg" className="text-primary text-center" onClick={() => onToggleClick(!toggle)} />
-              </FavoriteIconDiv>
+              <CustomFavoriteIcons
+                handleRemoveFavorite={onToggleClick}
+                favorite={toggle}
+                buttonClass="position-absolute bg-black rounded-circle text-center"
+                iconClass="text-primary text-center"
+                mobileView
+              />
             )}
 
         </div>
         <div className="rating align-items-center d-flex my-3 justify-content-center">
           <span className="fs-3 me-3 me-xxl-2 align-self-center d-flex justify-content-end">
-            <StyledStar icon={solid('star')} size="xs" className="star mb-2" />
+            <CustomStarIcon />
             <div className="d-flex">
               <h1 className="h2 m-0 mx-2">3.3/5</h1>
               <p className="fs-3 m-0 text-light me-xxl-2">(10K)</p>
             </div>
           </span>
-          <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-3" variant="lg">
-            <FontAwesomeIcon icon={regular('star')} className="align-self-center me-2" />
-            <h1 className="h3 m-0">Rate</h1>
-          </StyleBorderButton>
+          <BorderButton
+            buttonClass="d-flex px-3"
+            variant="lg"
+            icon={regular('star')}
+            iconClass="align-self-center me-2"
+            lable="Rate"
+          />
         </div>
         <StyledBorder className="mb-3" />
         <div className="align-items-center d-flex justify-content-center">
@@ -120,16 +84,14 @@ function PlaceDetailSmallScreen({ toggle, onToggleClick }: Props) {
           <LikeDislike />
         </div>
         <div className="mt-4 d-flex justify-content-center align-items-center">
-          <StyledWorth className="me-3 align-items-center d-flex justify-content-center ">
-            <div className="rounded-circle p-3 me-2 d-flex align-items-center justify-content-center">
-              <FontAwesomeIcon icon={regular('thumbs-up')} size="lg" />
-            </div>
-            <p className="fs-2 fw-bold m-0">Worth it!</p>
-          </StyledWorth>
-          <StyleBorderButton className="d-flex align-self-center rate-btn bg-black py-2" variant="lg">
-            <FontAwesomeIcon icon={solid('share-nodes')} className="align-self-center me-2" />
-            <h1 className="h3 m-0">Share</h1>
-          </StyleBorderButton>
+          <WorthContent />
+          <BorderButton
+            buttonClass="d-flex"
+            variant="lg"
+            icon={solid('share-nodes')}
+            iconClass="align-self-center me-2"
+            lable="Share"
+          />
         </div>
         <StyledBorder className="mt-3" />
         <div className="d-flex mt-4">

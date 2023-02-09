@@ -20,7 +20,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
   const [progress, setProgress] = useState<ProgressButtonStatus>('default');
 
   useEffect(() => {
-    if (progress === 'loading') return () => {};
+    if (progress === 'loading' || progress === 'default') return () => {};
 
     const restoreDefaultStatusTimeout = setTimeout(() => {
       setProgress('default');

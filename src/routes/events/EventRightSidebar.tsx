@@ -8,7 +8,7 @@ import RoundButton from '../../components/ui/RoundButton';
 function EventRightSidebar() {
   return (
     <>
-      <Link to="/events/suggestion">
+      <Link to="/app/events/suggestion">
         <RoundButton className="w-100 mb-4 fs-4">Suggest event</RoundButton>
       </Link>
       <AdvertisementBox />

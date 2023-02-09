@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallbackProperties } from 'react-calendar';
@@ -13,9 +15,6 @@ import checkAdsEventByDate from './checkAdsEventByDate';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { EVENTS_BY_DATE_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import EventRightSidebar from '../EventRightSidebar';
 
 const EventCalender = styled(Calendar)`
   .react-calendar__tile--now {
@@ -163,7 +162,7 @@ function EventsByDate() {
       const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toUTC().toFormat('yyyy-MM-dd'));
       setMarkDateList(formatDateList);
     });
-  }, [viewChange]);
+  }, [viewChange, selectedDate]);
 
   useEffect(() => {
     setNoMoreData(false); // reset when day changes
@@ -173,9 +172,9 @@ function EventsByDate() {
         setNoMoreData(true);
       }
     }).catch(() => { });
-  }, [startDate]);
+  }, [startDate, endDate]);
 
-  const fetchMoreEvent = () => {
+  const fetchMoreEvent = useCallback(() => {
     if (eventsList && eventsList.length > 0) {
       getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
@@ -189,7 +188,7 @@ function EventsByDate() {
         })
         .catch(() => { });
     }
-  };
+  }, [endDate, eventsList, startDate]);
 
   const onActiveStartDateChange = (data: ViewCallbackProperties) => {
     if (data.view === 'month') {
@@ -227,37 +226,36 @@ function EventsByDate() {
         fetchMoreEvent();
       }
     }
-  }, [yPositionOfLastEventElement]);
+  }, [yPositionOfLastEventElement, fetchMoreEvent]);
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <EventHeader tabKey="by-date" />
-        <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
-          <EventCalender
-            className="w-100 p-4 pb-0 bg-dark border-0 text-white"
-            onClickDay={setSelectedDate}
-            onActiveStartDateChange={onActiveStartDateChange}
-            onDrillDown={onDrillDownChange}
-            value={selectedDate}
-            minDetail="year"
-            prev2Label={null}
-            next2Label={null}
-            tileClassName={({ date }: CalendarTileProperties) => {
-              if (markDateList.find((x: any) => x === DateTime.fromJSDate(date).toFormat('yyyy-MM-dd'))) {
-                return 'highlight';
-              }
-              return null;
-            }}
-          />
-          <InfiniteScroll
-            pageStart={0}
-            initialLoad={false}
-            loadMore={fetchMoreEvent}
-            hasMore={!noMoreData}
-            element="span"
-          >
-            <Row ref={eventContainerElementRef}>
-              {eventsList && eventsList.length > 0
+    <div>
+      <EventHeader tabKey="by-date" />
+      <div className="mt-md-3 bg-dark bg-mobile-transparent p-4 rounded">
+        <EventCalender
+          className="w-100 p-4 pb-0 bg-dark border-0 text-white"
+          onClickDay={setSelectedDate}
+          onActiveStartDateChange={onActiveStartDateChange}
+          onDrillDown={onDrillDownChange}
+          value={selectedDate}
+          minDetail="year"
+          prev2Label={null}
+          next2Label={null}
+          tileClassName={({ date }: CalendarTileProperties) => {
+            if (markDateList.find((x: any) => x === DateTime.fromJSDate(date).toFormat('yyyy-MM-dd'))) {
+              return 'highlight';
+            }
+            return null;
+          }}
+        />
+        <InfiniteScroll
+          pageStart={0}
+          initialLoad={false}
+          loadMore={fetchMoreEvent}
+          hasMore={!noMoreData}
+          element="span"
+        >
+          <Row ref={eventContainerElementRef}>
+            {eventsList && eventsList.length > 0
               && (eventsList.map((eventDetail, i, arr) => {
                 // (*temporary*) DEBUGGING TIP: Use `Array(15).fill(eventsList[0]).map(..)`
                 // inplace of `eventsList.map(..)`  to mimic sample data from a single data item.
@@ -271,15 +269,11 @@ function EventsByDate() {
                   </React.Fragment>
                 );
               }))}
-            </Row>
-          </InfiniteScroll>
-          {noMoreData && renderNoMoreDataMessage()}
-        </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <EventRightSidebar />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+          </Row>
+        </InfiniteScroll>
+        {noMoreData && renderNoMoreDataMessage()}
+      </div>
+    </div>
   );
 }
 

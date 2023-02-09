@@ -56,7 +56,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
   // Whenever center changes, call onCenterChange
   useEffect(() => {
     onCenterChange(center);
-  }, [center]);
+  }, [center, onCenterChange]);
 
   const detectLocation = () => {
     const onError = () => {
@@ -139,12 +139,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
           </Form>
         </Col>
       </Row>
-      {
-        errors.length > 0
-        && (
-          <ErrorMessageList errorMessages={errors} className="my-4" />
-        )
-      }
+      <ErrorMessageList errorMessages={errors} className="my-4" />
       {
         resolvedSearchLocationDisplayName
         && (

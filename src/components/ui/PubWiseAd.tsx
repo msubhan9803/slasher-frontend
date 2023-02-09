@@ -36,7 +36,7 @@ function PubWiseAdUnit({ id, style, className }: PubWiseAdTypes) {
         window.googletag.pubads().refresh([window.gptadslots[id]]);
       });
     }
-  }, []);
+  }, [id]);
 
   return <div style={style} className={className} id={id} />;
 }
@@ -77,7 +77,7 @@ function PubWiseAd({
         window.slasherAds[id] += 1;
       }
     }
-  }, []);
+  }, [autoSequencer, id]);
 
   const props = {
     style, className, autoSequencer, id: autoSequencer ? sequencedId : id,

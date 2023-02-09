@@ -47,7 +47,7 @@ function Conversation() {
           navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
         }).catch((e) => { throw e; });
       } else {
-        navigate('/messages', { replace: true });
+        navigate('/app/messages', { replace: true });
       }
     }
   }, [location.pathname, navigate, searchParams]);

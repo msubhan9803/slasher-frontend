@@ -15,19 +15,19 @@ function DatingMenuSmallScreen() {
         <p className="text-center mt-1">Dating Menu</p>
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="My Profile" icon={regular('user')} to="/dating/profile" iconSize="lg" />
+        <IconWithTextNavLink label="My Profile" icon={regular('user')} to="/app/dating/profile" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} to="/dating/deck" iconSize="lg" />
+        <IconWithTextNavLink label="Profiles" icon={regular('id-badge')} to="/app/dating/deck" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Messages" icon={regular('comments')} to="/dating/messages" iconSize="lg" />
+        <IconWithTextNavLink label="Messages" icon={regular('comments')} to="/app/dating/messages" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/dating/likes?user=subscriber" iconSize="lg" />
+        <IconWithTextNavLink label="Likes" icon={regular('heart')} to="/app/dating/likes?user=subscriber" iconSize="lg" />
       </Col>
       <Col className="my-2">
-        <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/dating/setup/additional-preferences" iconSize="lg" />
+        <IconWithTextNavLink label="Preferences" icon={solid('sliders')} to="/app/dating/setup/additional-preferences" iconSize="lg" />
       </Col>
     </DatingMenuList>
   );

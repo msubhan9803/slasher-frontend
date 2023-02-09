@@ -50,7 +50,7 @@ function NewsPartnerPost() {
     feedPostDetail(feedPostId).then((res) => {
       /* eslint no-underscore-dangle: 0 */
       if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
-        navigate(`/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
+        navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
       }
       const newsPost: any = {
         /* eslint no-underscore-dangle: 0 */
@@ -461,10 +461,10 @@ function NewsPartnerPost() {
       if (postId !== res.data.feedPostId) {
         if (queryReplyId) {
           if (queryCommentId !== res.data._id) {
-            navigate(`/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+            navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
           }
         } else {
-          navigate(`/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
+          navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
       }
       setCommentData([res.data]);

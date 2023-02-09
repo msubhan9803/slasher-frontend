@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { apiUrl } from '../../src/constants';
 
-const pagePath = '/events/suggestion';
+const pagePath = '/app/events/suggestion';
 
 const eventCategoryResponse = [
   {

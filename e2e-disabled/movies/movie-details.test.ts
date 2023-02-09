@@ -3,7 +3,7 @@ import {
   // expect
 } from '@playwright/test';
 
-const pagePath = '/movies/1/details';
+const pagePath = '/app/movies/1/details';
 
 test.describe(pagePath, () => {
   test.describe('for a signed-in user', () => {

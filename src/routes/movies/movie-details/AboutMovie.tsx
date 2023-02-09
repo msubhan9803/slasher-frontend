@@ -76,7 +76,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const params = useParams();
 
   useEffect(() => {
-    if (params['*'] === 'edit' && !selfView) { navigate(`/movies/${params.id}/details`); }
+    if (params['*'] === 'edit' && !selfView) { navigate(`/app/movies/${params.id}/details`); }
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
@@ -176,7 +176,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
         </Row>
         <Row className="justify-content-center justify-content-xl-start">
           <Col xs={12} md={6} lg={selfView ? 10 : 12} xl={9}>
-            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
+            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

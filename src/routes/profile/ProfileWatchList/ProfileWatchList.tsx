@@ -8,11 +8,6 @@ import CustomSearchInput from '../../../components/ui/CustomSearchInput';
 import ProfileHeader from '../ProfileHeader';
 import MoviePost from '../../../images/movie-poster.jpg';
 import { User } from '../../../types';
-import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 
 const allMovies = [
   {
@@ -46,34 +41,28 @@ interface Props {
 function ProfileWatchList({ user }: Props) {
   const [search, setSearch] = useState<string>('');
   const [showKeys, setShowKeys] = useState<boolean>(false);
-  const loginUserId = useAppSelector((state) => state.user.user.id);
 
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="watched-list" user={user} />
-        <Row className="mt-3 mb-md-3 align-items-center">
-          <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
-            <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
-          </Col>
-          <Col md={4} className="text-center">
-            <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
-          </Col>
-          <Col md={4} className="d-none d-lg-block">
-            <SortData title="Sort: " className="rounded-5" />
-          </Col>
-        </Row>
-        {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
-        <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4">
-          <div className="m-md-2">
-            <PosterCardList dataList={allMovies} />
-          </div>
+    <div>
+      <ProfileHeader tabKey="watched-list" user={user} />
+      <Row className="mt-3 mb-md-3 align-items-center">
+        <Col md={4} className="my-3 my-md-0 order-md-second order-md-first">
+          <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
+        </Col>
+        <Col md={4} className="text-center">
+          <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
+        </Col>
+        <Col md={4} className="d-none d-lg-block">
+          <SortData title="Sort: " className="rounded-5" />
+        </Col>
+      </Row>
+      {showKeys && (<FilterModal showKeys={showKeys} setShowKeys={setShowKeys} />)}
+      <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4">
+        <div className="m-md-2">
+          <PosterCardList dataList={allMovies} />
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserId === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

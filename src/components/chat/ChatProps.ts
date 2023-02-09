@@ -1,3 +1,4 @@
+import { ChangeEvent } from 'react';
 import { User } from '../../types';
 
 export interface ChatProps {
@@ -6,6 +7,10 @@ export interface ChatProps {
   sendMessageClick?: () => void;
   setMessage?: (value: string) => void;
   message?: string;
+  handleFileChange?: (value: ChangeEvent<HTMLInputElement>) => void;
+  handleRemoveFile?: (value: File) => void;
+  imageArray?: any[];
+  messageLoading?: boolean;
 }
 interface MessageProps {
   id: string;

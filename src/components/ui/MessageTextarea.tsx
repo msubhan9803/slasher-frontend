@@ -1,10 +1,12 @@
 import React, { createRef, useEffect } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
+import UserCircleImage from './UserCircleImage';
 
 export interface MentionListProps {
   id: string;
   userName: string;
+  profilePic: string;
 }
 export interface FormatMentionListProps {
   id: string;
@@ -42,7 +44,7 @@ function MessageTextarea({
     if (defaultValue) {
       setMessageContent(defaultValue);
     }
-  }, []);
+  }, [defaultValue, setMessageContent]);
   const handleSelect = (option: OptionProps) => {
     const mentionString = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
     const addFormatObject = {
@@ -64,12 +66,14 @@ function MessageTextarea({
       onSearch={handleSearch}
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
+      notFoundContent="Type to search for a username"
       aria-label="post"
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
+              <UserCircleImage size="2rem" src={mentionList?.profilePic} className="ms-0 me-3 bg-secondary" />
               <span>
                 &nbsp;@
                 {mentionList.userName}

@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,10 +17,6 @@ import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface FriendProps {
@@ -49,6 +47,7 @@ function ProfileFriends({ user }: Props) {
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+  const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -66,47 +65,31 @@ function ProfileFriends({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (page === 0) setFriendsList([]);
-    setLoadingFriends(true);
-    userProfileFriends(user.id, search ? 0 : page, search)
+  const fetchMoreFriendList = useCallback(() => {
+    userProfileFriends(user._id, page, search)
       .then((res) => {
-        setFriendsList(res.data.friends);
-        setFriendCount(res.data.allFriendCount);
-        setPage(page + 1);
         setLoadingFriends(false);
-        if (search) {
-          setPage(0);
-        } else {
-          setPage(page + 1);
-        }
+        setFriendsList((prev: any) => [
+          ...prev,
+          ...res.data.friends,
+        ]);
+        setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
+        setLoadingFriends(false);
       })
-      .catch((error) => {
-        setErrorMessage(error.response.data.message); setLoadingFriends(false);
-      });
-  }, [search, user]);
-
-  const fetchMoreFriendList = () => {
-    if (page > 0) {
+      .catch((error) => setErrorMessage(error.response.data.message))
+      .finally(
+        () => { setAdditionalFriend(false); setLoadingFriends(false); },
+      );
+  }, [search, page, user._id]);
+  useEffect(() => {
+    if (additionalFriend && !loadingFriends) {
       setLoadingFriends(true);
-      userProfileFriends(user.id, page, search)
-        .then((res) => {
-          setLoadingFriends(false);
-          setFriendsList((prev: any) => [
-            ...prev,
-            ...res.data.friends,
-          ]);
-          setPage(page + 1);
-          if (res.data.friends.length === 0) {
-            setNoMoreData(true);
-          }
-        });
+      fetchMoreFriendList();
     }
-  };
+  }, [additionalFriend, loadingFriends, fetchMoreFriendList]);
   const getYPosition = () => {
     const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
@@ -118,12 +101,12 @@ function ProfileFriends({ user }: Props) {
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine) {
-        if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
+      if (bottomLine && noMoreData && page > 0) {
+        // if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
         fetchMoreFriendList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendList, page, search.length, noMoreData]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -179,67 +162,62 @@ function ProfileFriends({ user }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="friends" user={user} />
-        <div className="mt-3">
-          <div className="d-sm-flex d-block justify-content-between">
-            <div>
-              <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
-            </div>
-            <div className="d-flex align-self-center mt-3 mt-md-0">
-              {
-                friendCount
-                  ? (
-                    <p className="fs-3 text-primary me-3 my-auto">
-                      {friendCount}
-                      {' '}
-                      friends
-                    </p>
-                  )
-                  : ''
-              }
-            </div>
+    <div>
+      <ProfileHeader tabKey="friends" user={user} />
+      <div className="mt-3">
+        <div className="d-sm-flex d-block justify-content-between">
+          <div>
+            <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
           </div>
-          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-            {loginUserData.userName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
-            <InfiniteScroll
-              pageStart={0}
-              initialLoad={false}
-              loadMore={fetchMoreFriendList}
-              hasMore={!noMoreData}
-            >
-              <Row className="mt-4" ref={friendContainerElementRef}>
-                {friendsList.map((friend: FriendProps) => (
-                  /* eslint no-underscore-dangle: 0 */
-                  <Col md={4} lg={6} xl={4} key={friend._id}>
-                    <FriendsProfileCard
-                      friend={friend}
-                      popoverOption={popoverOption}
-                      handlePopoverOption={handlePopoverOption}
-                    />
-                  </Col>
-                ))}
-              </Row>
-            </InfiniteScroll>
-            {loadingFriends && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-          </div>
+          {/* <div className="d-flex align-self-center mt-3 mt-md-0">
+      {
+        friendCount
+          ? (
+            <p className="fs-3 text-primary me-3 my-auto">
+              {friendCount}
+              {' '}
+              friends
+            </p>
+          )
+          : ''
+      } */}
+          {/* </div> */}
         </div>
-        <ReportModal
-          show={show}
-          setShow={setShow}
-          slectedDropdownValue={dropDownValue}
-          handleReport={reportProfileFriend}
-          onBlockYesClick={onBlockYesClick}
-        />
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+          {loginUserData.userName === user.userName
+            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad={false}
+            loadMore={() => { setAdditionalFriend(true); }}
+            hasMore={!noMoreData}
+          >
+            <Row className="mt-4" ref={friendContainerElementRef}>
+              {friendsList.map((friend: FriendProps) => (
+                /* eslint no-underscore-dangle: 0 */
+                <Col md={4} lg={6} xl={4} key={friend._id}>
+                  <FriendsProfileCard
+                    friend={friend}
+                    popoverOption={popoverOption}
+                    handlePopoverOption={handlePopoverOption}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </InfiniteScroll>
+          {loadingFriends && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+        </div>
+      </div>
+      <ReportModal
+        show={show}
+        setShow={setShow}
+        slectedDropdownValue={dropDownValue}
+        handleReport={reportProfileFriend}
+        onBlockYesClick={onBlockYesClick}
+      />
+    </div>
   );
 }
 

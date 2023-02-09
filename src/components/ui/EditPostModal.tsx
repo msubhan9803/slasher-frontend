@@ -38,7 +38,7 @@ function EditPostModal({
         });
       setFormatMention(finalFormatMentionList);
     }
-  }, []);
+  }, [postContent]);
   const closeModal = () => {
     setShow(false);
   };

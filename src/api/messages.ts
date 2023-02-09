@@ -40,3 +40,26 @@ export async function markAllReadForSingleConversation(matchListId: string) {
 
   return axios.patch(`${apiUrl}/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, { headers });
 }
+
+export async function attachFile(message: string, file: any, conversationId: string) {
+  const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  for (let i = 0; i < file.length; i += 1) {
+    formData.append('files', file[i]);
+  }
+  formData.append('message', message);
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/chat/conversation/${conversationId}/message`, formData, { headers });
+}
+
+export async function deleteConversationMessages(matchListId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/chat/conversation/${matchListId}`, { headers });
+}

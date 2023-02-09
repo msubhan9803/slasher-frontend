@@ -32,7 +32,7 @@ function NewPostHeader({
         <Col xs="auto">
           <Row className="d-flex">
             <Col className="my-auto rounded-circle" xs="auto">
-              <Link to={`/news/partner/${partnerId}/posts/${postId}`} className="rounded-circle">
+              <Link to={`/app/news/partner/${partnerId}/posts/${postId}`} className="rounded-circle">
                 <UserCircleImage src={logo} className="bg-secondary" />
               </Link>
             </Col>

@@ -25,6 +25,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 export interface MentionProps {
   id: string;
   userName: string;
+  profilePic: string;
 }
 export interface FormatMentionProps {
   id: string;

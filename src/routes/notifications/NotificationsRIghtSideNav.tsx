@@ -8,7 +8,7 @@ function NotificationsRIghtSideNav() {
   return (
     <>
       <RoundButtonLink
-        to="/account/notifications"
+        to="app/account/notifications"
         variant="black"
         className="w-100 mb-4"
       >

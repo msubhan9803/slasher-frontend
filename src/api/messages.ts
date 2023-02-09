@@ -54,3 +54,12 @@ export async function attachFile(message: string, file: any, conversationId: str
   };
   return axios.post(`${apiUrl}/chat/conversation/${conversationId}/message`, formData, { headers });
 }
+
+export async function deleteConversationMessages(matchListId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/chat/conversation/${matchListId}`, { headers });
+}

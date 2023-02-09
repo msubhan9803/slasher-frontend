@@ -20,5 +20,5 @@ const clearSignInCookies = () => {
 
 export const signOut = () => {
   clearSignInCookies();
-  window.location.replace('/sign-in'); // redirect clears redux data and js caches
+  window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
 };

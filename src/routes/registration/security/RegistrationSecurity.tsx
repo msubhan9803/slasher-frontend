@@ -58,7 +58,7 @@ function RegistrationSecurity({ activeStep }: Props) {
       },
     ).then((res) => {
       if (res.data.length > 0) setErrorMessages(res.data);
-      else navigate('/registration/terms');
+      else navigate('/app/registration/terms');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });
@@ -191,7 +191,7 @@ function RegistrationSecurity({ activeStep }: Props) {
       <Row className="justify-content-center my-4">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
-            to="/registration/identity"
+            to="/app/registration/identity"
             className="w-100"
             variant="secondary"
           >

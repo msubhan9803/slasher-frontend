@@ -10,7 +10,6 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../../../src/constants';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Upload Profile image (e2e)', () => {

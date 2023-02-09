@@ -503,6 +503,7 @@ export class UsersController {
     };
   }
 
+  @TransformImageUrls('$.profilePic')
   @Post('profile-image')
   @UseInterceptors(FileInterceptor(
     'file',
@@ -573,6 +574,7 @@ export class UsersController {
     return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
+  @TransformImageUrls('$.coverPhoto')
   @Post('cover-image')
   @UseInterceptors(FileInterceptor(
     'file',

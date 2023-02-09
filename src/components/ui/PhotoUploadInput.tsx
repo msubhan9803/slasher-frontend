@@ -11,7 +11,7 @@ interface Props {
   height?: string;
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
-  imagePreview?: string;
+  defaultPhotoUrl?: string;
   onChange?: (files: File | undefined) => void
 }
 
@@ -38,17 +38,19 @@ const CornerIconButton = styled(Button)`
 `;
 
 function PhotoUploadInput({
-  aspectRatio, height, onChange, variant, className, style, imagePreview,
+  aspectRatio, height, onChange, variant, className, style, defaultPhotoUrl,
 }: Props) {
   const [photo, setPhoto] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>();
+  useEffect(() => {
+    if (defaultPhotoUrl) { setImageUrl(defaultPhotoUrl); }
+  }, [defaultPhotoUrl]);
 
   useEffect(() => {
-    if (imagePreview) setImageUrl(imagePreview);
-  }, [imagePreview]);
-
-  useEffect(() => {
-    if (onChange) { onChange(photo); setImageUrl(undefined); }
+    if (onChange && photo) {
+      onChange(photo);
+      setImageUrl(undefined);
+    }
   }, [photo, onChange]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -83,18 +85,20 @@ function PhotoUploadInput({
       style={{ aspectRatio, height, ...style }}
     >
       <input {...getInputProps()} />
-      {(!photo && !imageUrl && !imagePreview) && renderUploadPlaceholder(isDragActive)}
+      {(!photo && !imageUrl) && renderUploadPlaceholder(isDragActive)}
+
       {
-        (photo || imagePreview)
+        photo
         && (
           <img
-            src={photo ? URL.createObjectURL(photo) : imagePreview}
+            src={photo ? URL.createObjectURL(photo) : defaultPhotoUrl}
             alt="Upload preview"
           />
         )
       }
+
       {
-        imageUrl && (
+        imageUrl && !photo && (
           <img
             src={imageUrl}
             alt="Upload preview"
@@ -132,7 +136,7 @@ PhotoUploadInput.defaultProps = {
   style: {},
   onChange: undefined,
   height: undefined,
-  imagePreview: undefined,
+  defaultPhotoUrl: undefined,
 };
 
 export default PhotoUploadInput;

@@ -17,19 +17,11 @@ import Switch from '../../../components/ui/Switch';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PlaceRightSidebar from '../PlaceRightSidebar';
+import BorderButton from '../../../components/ui/BorderButton';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
 
 const ImageContainer = styled.div`
   acpect-ratio: '1.78'
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
-`;
-const FollowStyledButton = styled(RoundButton)`
-width: 21.125rem;
-border: 1px solid #3A3B46;
-  &: hover, &:focus{
-  border: 1px solid #3A3B46;
-}
 `;
 const tabsForSelf = [
   { value: 'posts', label: 'Posts' },
@@ -87,9 +79,13 @@ function PlacesDetails() {
                 <Row className="mt-3 mb-2 text-center d-lg-none">
                   <Col xs={12}>
                     <p className="text-center fw-bold">Get updates for this book</p>
-                    <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
-                      {bgColor ? 'Follow' : 'Unfollow'}
-                    </FollowStyledButton>
+                    <BorderButton
+                      customButtonCss="width: 21.125rem !important;"
+                      buttonClass="shadow-none"
+                      toggleBgColor={bgColor}
+                      handleClick={setBgColor}
+                      toggleButton
+                    />
                   </Col>
                 </Row>
                 <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">

@@ -3,7 +3,7 @@ import React, {
   ChangeEvent, useRef, useState,
 } from 'react';
 import {
-  Col, Form, Image, Row,
+  Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,28 +13,25 @@ import { useNavigate } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import { getSuggestUserName } from '../../../api/users';
 import MessageTextarea from '../../../components/ui/MessageTextarea';
 import { useAppSelector } from '../../../redux/hooks';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import ImagesContainer from '../../../components/ui/ImagesContainer';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 export interface MentionProps {
   id: string;
   userName: string;
+  profilePic: string;
 }
 export interface FormatMentionProps {
   id: string;
   value: string;
   format: string;
 }
-const PostImageContainer = styled.div`
-  width: 7.25rem;
-  height: 7.25rem;
-  border: 0.125rem solid #3A3B46
-`;
 const AddPhotosButton = styled(RoundButton)`
   background-color: #1F1F1F !important;
 `;
@@ -149,34 +146,25 @@ function CreatePost() {
               <Row>
                 {imageArray.map((post: File) => (
                   <Col xs="auto" key={post.name} className="mb-1">
-                    <PostImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
-                      <Image
-                        src={URL.createObjectURL(post)}
-                        alt="Dating profile photograph"
-                        className="w-100 h-100 img-fluid rounded"
-                      />
-                      <FontAwesomeIcon
-                        icon={solid('times')}
-                        size="xs"
-                        role="button"
-                        className="position-absolute bg-white text-primary rounded-circle"
-                        style={{
-                          padding: '0.313rem 0.438rem',
-                          top: '6.313rem',
-                          left: '6.313rem',
-                        }}
-                        onClick={() => handleRemoveFile(post)}
-                      />
-                    </PostImageContainer>
+                    <ImagesContainer
+                      containerWidth="7.25rem"
+                      containerHeight="7.25rem"
+                      containerBorder="0.125rem solid #3A3B46"
+                      image={post}
+                      alt="post image"
+                      handleRemoveImage={handleRemoveFile}
+                      containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
+                      removeIconStyle={{
+                        padding: '0.313rem 0.438rem',
+                        top: '6.313rem',
+                        left: '6.313rem',
+                      }}
+                    />
                   </Col>
                 ))}
               </Row>
             </Col>
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-3 text-start">
-                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              </div>
-            )}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <Col md="auto" className="mb-3 mb-md-0 order-0 order-md-1 me-auto">
               <AddPhotosButton size="md" disabled={uploadPost.length >= 10} className="mt-4 border-0 btn btn-form w-100 rounded-5 py-2" onClick={() => inputFile.current?.click()}>
                 <FontAwesomeIcon icon={regular('image')} className="me-2" />

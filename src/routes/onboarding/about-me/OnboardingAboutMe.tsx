@@ -26,7 +26,7 @@ function OnboardingAboutMe() {
     }
 
     onboardingAboutMe(message).then(() => {
-      navigate('/onboarding/hashtag');
+      navigate('/app/onboarding/hashtag');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });
@@ -53,7 +53,7 @@ function OnboardingAboutMe() {
           <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
             <Row>
               <Col xs={6}>
-                <RoundButtonLink to="/onboarding/hashtag" className="w-100" variant="dark">
+                <RoundButtonLink to="/app/onboarding/hashtag" className="w-100" variant="dark">
                   Skip
                 </RoundButtonLink>
               </Col>

@@ -11,6 +11,7 @@ import { markRead } from '../../api/notification';
 interface Props {
   notification: Notification;
   lastCard: boolean;
+  onSelect: (value: string) => void;
 }
 interface StyleBorderProps {
   lastCard: boolean;
@@ -54,18 +55,18 @@ function urlForNotification(notification: Notification) {
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
-      return `/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
+      return `/app/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
     default:
-      return '/notifications';
+      return '/app/notifications';
   }
 }
 
-function NotificationCard({ notification, lastCard }: Props) {
+function NotificationCard({ notification, lastCard, onSelect }: Props) {
   return (
     /* eslint no-underscore-dangle: 0 */
     <StyledBorder lastCard={lastCard} key={notification._id} className="d-flex justify-content-between py-3">
       <Link
-        onClick={() => markRead(notification._id)}
+        onClick={() => { markRead(notification._id); onSelect!(notification._id); }}
         to={urlForNotification(notification)}
         className="text-decoration-none px-0 shadow-none text-white text-start d-flex align-items-center bg-transparent border-0"
       >

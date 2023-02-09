@@ -28,7 +28,7 @@ const StyledItem = styled.div`
   }
 `;
 
-function UserMessageListItem({
+function UserMessageSidebarListItem({
   userName, message, image, messageId, count,
 }: Props) {
   return (
@@ -39,7 +39,7 @@ function UserMessageListItem({
         </Link>
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
-        <Link to={`/messages/conversation/${messageId}`} className="text-decoration-none">
+        <Link to={`/app/messages/conversation/${messageId}`} className="text-decoration-none">
           <p className="mb-0 text-capitalize">
             {userName}
           </p>
@@ -50,7 +50,7 @@ function UserMessageListItem({
     </StyledItem>
   );
 }
-UserMessageListItem.defaultProps = {
+UserMessageSidebarListItem.defaultProps = {
   count: 0,
 };
-export default UserMessageListItem;
+export default UserMessageSidebarListItem;

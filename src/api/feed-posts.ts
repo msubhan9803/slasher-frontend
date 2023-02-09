@@ -51,3 +51,11 @@ export async function deleteFeedPost(postId: string) {
   };
   return axios.delete(`${apiUrl}/feed-posts/${postId}`, { headers });
 }
+
+export async function hideFeedPost(postId: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/feed-posts/${postId}/hide`, {}, { headers });
+}

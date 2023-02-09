@@ -1,13 +1,13 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';
@@ -17,33 +17,24 @@ import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../../redux/hooks';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
-import RightSidebarViewer from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import FormatImageVideoList from '../../../utils/vido-utils';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function ProfilePosts() {
-  const { userName } = useParams<string>();
-  const [user, setUser] = useState<User>();
-  useEffect(() => {
-    if (userName) {
-      getUser(userName)
-        .then((res) => {
-          setUser(res.data);
-        });
-    }
-  }, [userName]);
+interface Props {
+  user: User
+}
+
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
@@ -51,6 +42,13 @@ function ProfilePosts() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [posts, setPosts] = useState<Post[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -67,43 +65,63 @@ function ProfilePosts() {
   };
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && user) {
-      setLoadingPosts(true);
-      getProfilePosts(
-        user.id,
-        posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => (
-          {
-            /* eslint no-underscore-dangle: 0 */
-            _id: data._id,
-            id: data._id,
-            postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
-            userName: data.userId.userName,
-            profileImage: data.userId.profilePic,
-            userId: data.userId._id,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
-            likeCount: data.likeCount,
-            commentCount: data.commentCount,
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || posts.length >= scrollPosition?.data?.length
+        || posts.length === 0
+      ) {
+        setLoadingPosts(true);
+        /* eslint no-underscore-dangle: 0 */
+        getProfilePosts(
+          user._id,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              _id: data._id,
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              images: FormatImageVideoList(data.images, data.message),
+              userName: data.userId.userName,
+              profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
+            }
+          ));
+          setPosts((prev: Post[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          if (scrollPosition?.pathname === location.pathname
+            && scrollPosition?.position >= window.pageYOffset) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
           }
-        ));
-        setPosts((prev: Post[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts, user]);
+  }, [
+    requestAdditionalPosts, loadingPosts, user, loginUserId,
+    posts, scrollPosition, location, dispatch,
+  ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -123,7 +141,7 @@ function ProfilePosts() {
   };
   const callLatestFeedPost = () => {
     if (user) {
-      getProfilePosts(user.id).then((res) => {
+      getProfilePosts(user._id).then((res) => {
         const newPosts = res.data.map((data: any) => ({
           _id: data._id,
           id: data._id,
@@ -227,66 +245,68 @@ function ProfilePosts() {
       .catch((error) => console.error(error));
   };
 
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="posts" user={user} />
-        {loginUserData.userName === userName
-          && (
-            <div className="my-4">
-              <CustomCreatePost />
-            </div>
-          )}
-        {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            {errorMessage}
+    <div>
+      <ProfileHeader tabKey="posts" user={user} />
+      {loginUserData.userName === user.userName
+        && (
+          <div className="my-4">
+            <CustomCreatePost />
           </div>
         )}
-        <InfiniteScroll
-          pageStart={0}
-          initialLoad
-          loadMore={() => { setRequestAdditionalPosts(true); }}
-          hasMore={!noMoreData}
-        >
-          {
-            posts.length > 0
-            && (
-              <PostFeed
-                postFeedData={posts}
-                popoverOptions={loginUserPopoverOptions}
-                isCommentSection={false}
-                onPopoverClick={handlePopoverOption}
-                otherUserPopoverOptions={otherUserPopoverOptions}
-                onLikeClick={onLikeClick}
-              />
-            )
-          }
-        </InfiniteScroll>
-        {loadingPosts && <LoadingIndicator />}
-        {noMoreData && renderNoMoreDataMessage()}
-        <ReportModal
-          show={showReportModal}
-          setShow={setShowReportModal}
-          slectedDropdownValue={dropDownValue}
-        />
-        {dropDownValue !== 'Edit'
+      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+      <InfiniteScroll
+        pageStart={0}
+        initialLoad
+        loadMore={() => { setRequestAdditionalPosts(true); }}
+        hasMore={!noMoreData}
+      >
+        {
+          posts.length > 0
           && (
-            <ReportModal
-              deleteText="Are you sure you want to delete this post?"
-              onConfirmClick={deletePostClick}
-              show={showReportModal}
-              setShow={setShowReportModal}
-              slectedDropdownValue={dropDownValue}
-              onBlockYesClick={onBlockYesClick}
-              handleReport={reportProfilePost}
+            <PostFeed
+              postFeedData={posts}
+              popoverOptions={loginUserPopoverOptions}
+              isCommentSection={false}
+              onPopoverClick={handlePopoverOption}
+              otherUserPopoverOptions={otherUserPopoverOptions}
+              onLikeClick={onLikeClick}
+              onSelect={persistScrollPosition}
             />
-          )}
-        {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        {loginUserData.id === user?.id ? <RightSidebarSelf /> : <RightSidebarViewer />}
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+          )
+        }
+      </InfiniteScroll>
+      {loadingPosts && <LoadingIndicator />}
+      {noMoreData && renderNoMoreDataMessage()}
+      <ReportModal
+        show={showReportModal}
+        setShow={setShowReportModal}
+        slectedDropdownValue={dropDownValue}
+      />
+      {dropDownValue !== 'Edit'
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={showReportModal}
+            setShow={setShowReportModal}
+            slectedDropdownValue={dropDownValue}
+            onBlockYesClick={onBlockYesClick}
+            handleReport={reportProfilePost}
+          />
+        )}
+      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
+    </div>
   );
 }
 export default ProfilePosts;

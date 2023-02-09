@@ -1,3 +1,5 @@
+$prefix: 'bs-'; // default bootstrap value
+
 $grid-breakpoints: (
   xs: 0,
   sm: 576px,
@@ -22,7 +24,7 @@ $warning: #e64d03;
 $danger: #9d0059;
 $success: #00FF0A;
 $light: #cccccc;
-$dark: #1b1b1b;
+$dark: #141414;
 
 $slasher-comments-bg-color: #171717;
 $stroke-and-line-separator-color: #3A3B46;
@@ -54,7 +56,10 @@ $input-btn-padding-y-lg: 1.15rem;
 $input-border-radius: 10px;
 $btn-font-weight: 'bold';
 
-$input-bg: #1F1F1F;
-$input-border-color: #3A3B46;
+$input-bg: $dark;
+$input-border-color: $stroke-and-line-separator-color;
 $input-focus-border-color: $input-border-color;
 $input-box-shadow: none;
+
+$form-check-input-border: 1px solid $stroke-and-line-separator-color;
+

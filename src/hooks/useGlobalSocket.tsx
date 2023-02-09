@@ -26,7 +26,7 @@ const useGlobalSocket = () => {
       };
     }
     return undefined;
-  }, []);
+  }, [socket]);
 
   return { socket, socketConnected };
 };

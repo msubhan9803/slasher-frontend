@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { SearchProps } from '../SearchInterface';
 
-const StyledHastagsCircle = styled.div`
+export const StyledHastagsCircle = styled.div`
   border-radius: 50%;
   height: 3.125rem;
   width: 3.125rem;

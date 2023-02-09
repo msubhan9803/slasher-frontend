@@ -10,7 +10,7 @@ function MovieRightSideNav() {
   const params = useParams();
   return (
     <>
-      <Link to="/movies/add">
+      <Link to="/app/movies/add">
         <RoundButton className="w-100 mb-4 fs-3 fw-bold">Add your movie</RoundButton>
       </Link>
       {params.id && params.summary && <NotificationSetting />}

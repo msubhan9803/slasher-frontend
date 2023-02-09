@@ -1,8 +1,9 @@
 import React from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Card } from 'react-bootstrap';
 import styled from 'styled-components';
+import LikeIconButton from './LikeIconButton';
 
 interface PosterProps {
   name: string;
@@ -42,23 +43,6 @@ const PosterCardStyle = styled(Card)`
 const RatingDiv = styled.div`
   margin-top: -1.875rem;
 `;
-const StyledLikeButton = styled.div`
-  width: 1.514rem;
-  height: 1.514rem;
-  border: 1px solid #3A3B46;
-  background-color: #1F1F1F;
-  .fa-thumbs-up {
-    color: #00FF0A;
-    width: 0.804rem;
-    height: 0.805rem;
-  }
-  .fa-thumbs-down {
-    color: #FF1800;
-    transform: rotateY(180deg);
-    width: 0.804rem;
-    height: 0.805rem;
-  }
-`;
 
 function PosterCard({
   name, poster, year, liked, rating,
@@ -77,12 +61,13 @@ function PosterCard({
       <Card.Body className="px-0 pb-4">
         <div className="fs-5 d-flex justify-content-between align-items-center m-0 text-light">
           {year}
-          <StyledLikeButton className="align-items-center d-flex justify-content-center me-2 p-1 rounded-circle">
-            <FontAwesomeIcon
-              icon={liked ? regular('thumbs-up') : regular('thumbs-down')}
-              className="border-0"
-            />
-          </StyledLikeButton>
+          <LikeIconButton
+            liked={liked}
+            thumbsUpWidth="0.804rem"
+            thumbsUpHeight="0.805rem"
+            thumbsDownWidth="0.804rem"
+            thumbsDownHeight="0.805rem"
+          />
         </div>
         <Card.Text className="h3 fw-bold mt-1">
           {name}

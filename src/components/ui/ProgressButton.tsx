@@ -20,6 +20,8 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
   const [progress, setProgress] = useState<ProgressButtonStatus>('default');
 
   useEffect(() => {
+    if (progress === 'loading') return () => {};
+
     const restoreDefaultStatusTimeout = setTimeout(() => {
       setProgress('default');
     }, 1_500);
@@ -30,7 +32,7 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
     function ProgessButton({
       label, className = '', onClick = () => { },
     }: Props) {
-      const disabled = progress !== 'default';
+      const disabled = progress === 'loading';
       return (
         <RoundButton disabled={disabled} type="submit" className={className} onClick={onClick}>
           {progress === 'default' && label}

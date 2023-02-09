@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Col, Row,
 } from 'react-bootstrap';
@@ -21,7 +21,7 @@ function NewsRightSideNav() {
   const { partnerId } = useParams();
   const userData = useAppSelector((state) => state.user);
 
-  const callGetFollowUnfollowDetail = () => {
+  const callGetFollowUnfollowDetail = useCallback(() => {
     if (userData?.user) {
       getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
         if (res.data) {
@@ -39,13 +39,13 @@ function NewsRightSideNav() {
         }
       });
     }
-  };
+  }, [partnerId, userData.user]);
 
   useEffect(() => {
     if (userData && userData.user) {
       callGetFollowUnfollowDetail();
     }
-  }, [partnerId, userData]);
+  }, [partnerId, userData, callGetFollowUnfollowDetail]);
 
   const followUnfollowClick = () => {
     if (!following) {
@@ -87,15 +87,15 @@ function NewsRightSideNav() {
         </Row>
         {following
           && (
-          <Row className="mt-3">
-            <Col>
-              <p className="fs-3 fw-bold">Get updates for this news partner</p>
-              <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
-                <span>Push notifications</span>
-                <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-              </div>
-            </Col>
-          </Row>
+            <Row className="mt-3">
+              <Col>
+                <p className="fs-3 fw-bold">Get updates for this news partner</p>
+                <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
+                  <span>Push notifications</span>
+                  <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+                </div>
+              </Col>
+            </Row>
           )}
       </div>
       <AdvertisementBox />

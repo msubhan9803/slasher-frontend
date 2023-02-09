@@ -58,9 +58,9 @@ function SignIn() {
 
   useEffect(() => {
     if (Cookies.get('sessionToken')) {
-      navigate('/home');
+      navigate('/app/home');
     }
-  }, []);
+  }, [navigate]);
   const passwordVisiblility = () => {
     setShowPassword(!showPassword);
   };
@@ -77,7 +77,7 @@ function SignIn() {
       setErrorMessage([]);
       setSignInCookies(res.data.token, res.data.id, res.data.userName);
       const targetPath = searchParams.get('path');
-      navigate(`${targetPath ?? '/home'}`);
+      navigate(`${targetPath ?? '/app/home'}`);
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });
@@ -124,7 +124,7 @@ function SignIn() {
 
               <p className="text-center fs-5 text-light">
                 Forgot your password?&nbsp;
-                <Link to="/forgot-password" className="text-primary">
+                <Link to="/app/forgot-password" className="text-primary">
                   Click here
                 </Link>
               </p>
@@ -133,7 +133,7 @@ function SignIn() {
                 Sign in
               </RoundButton>
               <p className="text-center">OR</p>
-              <RoundButtonLink to="/registration" className="w-100" variant="primary">
+              <RoundButtonLink to="/app/registration" className="w-100" variant="primary">
                 Create an account
               </RoundButtonLink>
 
@@ -149,7 +149,7 @@ function SignIn() {
               <p className="text-center mb-0 text-light">
                 Please check your spam folder for the email.
                 If you have not received it, please&nbsp;
-                <Link to="/verification-email-not-received" className="text-primary">click here.</Link>
+                <Link to="/app/verification-email-not-received" className="text-primary">click here.</Link>
               </p>
             </Form>
           </div>

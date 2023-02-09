@@ -3,6 +3,7 @@ import registrationReducer from './slices/registrationSlice';
 import suggestedFriendsReducer from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
 import pubWiseReducer from './slices/pubWiseSlice';
+import scrollPositionReducer from './slices/scrollPositionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     user: userReducer,
     suggestedFriendList: suggestedFriendsReducer,
     pubWise: pubWiseReducer,
+    scrollPosition: scrollPositionReducer,
   },
 });
 

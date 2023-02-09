@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Cookies from 'js-cookie';
@@ -33,12 +35,14 @@ function Messages() {
   const userId = Cookies.get('userId');
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
+  const [selectedMatchListId, setSelectedMatchListId] = useState('');
 
-  const handleMessagesOption = (messageOption: string) => {
+  const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
+    setSelectedMatchListId(matchListId);
   };
 
   useEffect(() => {
@@ -77,7 +81,7 @@ function Messages() {
         () => { setRequestAdditionalMessages(false); setLoadingChats(false); },
       );
     }
-  }, [requestAdditionalMessages, loadingChats]);
+  }, [requestAdditionalMessages, loadingChats, messages, userId]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -89,7 +93,7 @@ function Messages() {
     </p>
   );
 
-  const fetchMoreMessages = () => {
+  const fetchMoreMessages = useCallback(() => {
     getMessagesList()
       .then((res) => {
         const newMessages = res.data.map((data: MessagesList) => {
@@ -111,7 +115,7 @@ function Messages() {
         setMessages(newMessages);
       })
       .catch((error) => setErrorMessage(error.response.data.message));
-  };
+  }, [userId]);
   const getYPosition = () => {
     const yPosition = messageContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastMessageElement(yPosition);
@@ -127,7 +131,7 @@ function Messages() {
         fetchMoreMessages();
       }
     }
-  }, [yPositionOfLastMessageElement]);
+  }, [yPositionOfLastMessageElement, fetchMoreMessages]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -150,7 +154,7 @@ function Messages() {
                   message={message.latestMessage}
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption}
+                  handleDropdownOption={handleMessagesOption(message._id)}
                   matchListId={message._id}
                 />
               ))
@@ -163,6 +167,8 @@ function Messages() {
           show={show}
           setShow={setShow}
           slectedMessageDropdownValue={messageOptionValue}
+          selectedMatchListId={selectedMatchListId}
+          setMessages={setMessages}
         />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

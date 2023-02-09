@@ -56,7 +56,7 @@ function MapComponent({ defaultCenter, defaultZoomLevel, onCenterChange }: Props
   // Whenever center changes, call onCenterChange
   useEffect(() => {
     onCenterChange(center);
-  }, [center]);
+  }, [center, onCenterChange]);
 
   const detectLocation = () => {
     const onError = () => {

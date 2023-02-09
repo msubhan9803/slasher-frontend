@@ -2,7 +2,7 @@ import React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, matchPath, useLocation } from 'react-router-dom';
 
 interface Props {
   label: string;
@@ -46,7 +46,8 @@ function SidebarNavItem({
   const { pathname } = useLocation();
   return (
     <StyledLink
-      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} ${pathname.includes(to) ? 'btn-filter' : ''}`}
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} 
+      ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">

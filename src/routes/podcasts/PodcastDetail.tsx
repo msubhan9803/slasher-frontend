@@ -63,7 +63,7 @@ function PodcastDetail() {
   const params = useParams();
   useEffect(() => {
     if (params.podcastId === 'edit' && queryParam !== 'self') { navigate(`/podcasts/${params.podcastId}/episodes`); }
-  }, [params]);
+  }, [params, navigate, queryParam]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

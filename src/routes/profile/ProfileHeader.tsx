@@ -94,7 +94,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         }
       });
     }
-  }, [user, friendshipStatus]);
+  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
   const friendRequestApi = (status: string) => {
     if (user && user._id) {
@@ -180,7 +180,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                 {!isSelfUserProfile
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
+                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
                       <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
                         {friendStatus}
                       </RoundButton>

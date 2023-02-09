@@ -5,9 +5,9 @@ import { Col, Row } from 'react-bootstrap';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import CustomPackages from '../../../components/ui/CustomPackages';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
-import Packages from './Packages';
 import ShoppingInformation from './ShoppingInformation';
 
 const noteList = [
@@ -66,7 +66,7 @@ function BecomeVendor() {
             handleMessageChange={handleMessageChange}
           />
           <h2 className="my-4 pt-2 fw-bold">Select package</h2>
-          <Packages />
+          <CustomPackages />
           <Row className="mt-5">
             <Col md={4} lg={6} xl={4}>
               <RoundButton className="w-100 p-1 fs-3" size="lg">Submit</RoundButton>

@@ -11,16 +11,13 @@ import MoviesModal from '../components/MoviesModal';
 import {
   AdditionalMovieData, Country, MovieReleaseResults, ReleaseDate,
 } from '../../../types';
+import BorderButton from '../../../components/ui/BorderButton';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
 }
-export const StyledBorder = styled.div`
-  @media(max-width: 767px) { 
-      border-bottom: 1px solid #3A3B46;
-  }
-`;
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
   @media(min-width: 767px) { 
@@ -30,7 +27,6 @@ const StyledVerticalBorder = styled.div`
 const AboutMovieDetails = styled.div`
   .small-initial {
     width: 2.063rem;
-    height: 2.063rem;
   }
   .circle {
     width: 0.188rem;
@@ -68,12 +64,6 @@ const AboutMovieDetails = styled.div`
   }
 
 `;
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
 const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
   height: 0.997rem;
@@ -91,15 +81,19 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
     const minutes = totalMinutes % 60;
     return `${hours}h ${minutes}m`;
   };
+
   const getCertification = () => {
     const releaseDateForUS = aboutMovieDetail?.mainData?.release_dates?.results?.find((result: MovieReleaseResults) => result.iso_3166_1 === 'US');
     const certificationData = releaseDateForUS?.release_dates?.find(
       (movieCertificate: ReleaseDate) => movieCertificate.certification.length > 0,
     );
+
     return certificationData ? certificationData.certification : '';
   };
+  const handleBorderButton = () => {
+    setShowRating(true);
+  };
   const handleShowShareLinks = () => setShowShareLinks(true);
-
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -126,10 +120,15 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               </p>
             </div>
             <div>
-              <StyleBorderButton onClick={handleShowShareLinks} className="d-flex align-items-center share-btn bg-black py-2" variant="lg">
-                <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-                <p className="fs-3 fw-bold m-0">Share</p>
-              </StyleBorderButton>
+              <BorderButton
+                buttonClass="d-flex share-btn bg-black py-2"
+                variant="lg"
+                icon={solid('share-nodes')}
+                iconClass="me-2"
+                iconSize="sm"
+                lable="Share"
+                handleClick={handleShowShareLinks}
+              />
             </div>
           </div>
           {aboutMovieDetail?.mainData?.production_countries.length > 0
@@ -138,7 +137,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
                 {aboutMovieDetail?.mainData?.production_countries.map((country: Country) => country.name).join(', ')}
               </p>
             )}
-          <StyledBorder />
+          <StyledBorder className="d-md-none" />
         </Row>
 
         <Row className="justify-content-between mt-4">
@@ -152,15 +151,20 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
                   <p className="m-0 text-light">(99k)</p>
                 </div>
               </div>
-              <StyleBorderButton onClick={() => setShowRating(!showRating)} className="d-flex align-items-center mx-md-auto share-btn bg-black py-2 mt-md-4 justify-content-md-center" variant="lg">
-                <FontAwesomeIcon icon={solid('star')} size="sm" className="me-2" />
-                <p className="fs-3 fw-bold m-0">Rate</p>
-              </StyleBorderButton>
+              <BorderButton
+                buttonClass="mx-md-auto rate-btn bg-black py-2 mt-md-4 justify-content-md-center"
+                variant="lg"
+                icon={regular('star')}
+                iconClass="me-2"
+                iconSize="sm"
+                lable="Rate"
+                handleClick={handleBorderButton}
+              />
             </div>
             <div className="d-flex justify-content-center my-3 d-md-none ">
               <RoundButton className="w-100 fs-3 fw-bold">Write a review</RoundButton>
             </div>
-            <StyledBorder />
+            <StyledBorder className="d-md-none" />
           </Col>
           <Col xs={6} md={5} className="p-0">
             <StyledVerticalBorder className="mt-4 mt-md-0">
@@ -186,16 +190,21 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               </div>
             </div>
             <div className="mt-4 d-flex justify-content-center">
-              <StyleBorderButton onClick={() => setShowGoreRating(!showGoreRating)} className="d-flex align-items-center share-btn bg-black py-2" variant="lg">
-                <FontAwesomeIcon icon={solid('burst')} size="sm" className="me-2" />
-                <p className="fs-3 fw-bold m-0">Rate</p>
-              </StyleBorderButton>
+              <BorderButton
+                buttonClass="d-flex rate-btn bg-black py-2"
+                variant="lg"
+                icon={solid('burst')}
+                iconClass="me-2"
+                iconSize="sm"
+                lable="Rate"
+                handleClick={handleBorderButton}
+              />
             </div>
           </Col>
           <div className="d-none d-md-flex justify-content-center mt-3">
             <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
           </div>
-          <StyledBorder className="my-3" />
+          <StyledBorder className="d-md-none my-3" />
         </Row>
       </div>
       <MoviesModal show={showRating} setShow={setShowRating} ButtonType="rate" />

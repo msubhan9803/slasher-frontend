@@ -29,7 +29,6 @@ function Profile() {
   const location = useLocation();
   /* eslint no-underscore-dangle: 0 */
   const isSelfProfile = loginUserData.id === user?._id;
-
   useEffect(() => {
     if (userNameOrId) {
       getUser(userNameOrId)
@@ -46,7 +45,7 @@ function Profile() {
           setUser(res.data);
         }).catch(() => setUserNotFound(true));
     }
-  }, [userNameOrId]);
+  }, [userNameOrId, location.pathname, location.search, navigate]);
 
   if (userNotFound) {
     return (

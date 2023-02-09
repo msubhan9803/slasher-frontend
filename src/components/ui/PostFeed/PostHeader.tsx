@@ -11,8 +11,8 @@ interface PostHeaderProps {
   id: string;
   postDate: string;
   profileImage: string;
-  popoverOptions: string[];
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
+  popoverOptions?: string[];
+  onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage: boolean | undefined;
   content?: string;
   userId?: string;
@@ -34,7 +34,7 @@ function PostHeader({
             }
             <HashLink
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -51,7 +51,7 @@ function PostHeader({
             }
             <HashLink
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -68,7 +68,7 @@ function PostHeader({
               ) : (
                 <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
                   className="text-decoration-none"
                 >
@@ -83,8 +83,8 @@ function PostHeader({
       </Col>
       <Col xs="auto" className="d-block">
         <CustomPopover
-          popoverOptions={popoverOptions}
-          onPopoverClick={onPopoverClick}
+          popoverOptions={popoverOptions!}
+          onPopoverClick={onPopoverClick!}
           content={content}
           id={id}
           userId={userId}
@@ -98,6 +98,9 @@ PostHeader.defaultProps = {
   content: null,
   userId: null,
   rssfeedProviderId: null,
+  // Remove after Podcast popover implementation
+  onPopoverClick: undefined,
+  popoverOptions: null,
 };
 
 export default PostHeader;

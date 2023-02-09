@@ -20,6 +20,7 @@ import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 
 interface Props {
@@ -28,9 +29,6 @@ interface Props {
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 const tabs = [
   { value: 'about', label: 'About' },
@@ -96,7 +94,7 @@ function ProfileHeader({ tabKey, user }: Props) {
         }
       });
     }
-  }, [user, friendshipStatus]);
+  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
   const friendRequestApi = (status: string) => {
     if (user && user._id) {
@@ -182,7 +180,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                 {!isSelfUserProfile
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
+                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
                       <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
                         {friendStatus}
                       </RoundButton>

@@ -108,7 +108,7 @@ function UserMessageListItem({
   return (
     <StyledItem ref={ref} className="bg-dark bg-mobile-transparent">
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
-        <StyledLink to={`/messages/conversation/${matchListId}`} className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
+        <StyledLink to={`/app/messages/conversation/${matchListId}`} className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>
             <UserCircleImage src={image} />
           </div>

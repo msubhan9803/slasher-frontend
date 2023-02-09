@@ -39,7 +39,7 @@ function MoviesHeader({
 }: MovisHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={allTabs} toLink="/movies" selectedTab={tabKey} />
+      <TabLinks tabLink={allTabs} toLink="/app/movies" selectedTab={tabKey} />
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />

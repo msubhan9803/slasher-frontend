@@ -44,7 +44,7 @@ function MessageTextarea({
     if (defaultValue) {
       setMessageContent(defaultValue);
     }
-  }, []);
+  }, [defaultValue, setMessageContent]);
   const handleSelect = (option: OptionProps) => {
     const mentionString = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
     const addFormatObject = {
@@ -58,7 +58,6 @@ function MessageTextarea({
       setFormatMentionList([...formatMentionList, addFormatObject]);
     }
   };
-
   return (
     <Mentions
       rows={rows}

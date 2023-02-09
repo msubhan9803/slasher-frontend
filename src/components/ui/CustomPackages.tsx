@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import styled from 'styled-components';
 
@@ -40,10 +40,11 @@ const StyledPackages = styled(Button) <PackageProps>`
     height: 1.6rem;
     border: 1px solid #3A3B46
   }
+}
 `;
-function Packages() {
-  const [month, setMonth] = useState(true);
-  const [fullMonth, setFullMonth] = useState(false);
+function CustomPackages() {
+  const [month, setMonth] = useState(false);
+  const [fullMonth, setFullMonth] = useState(true);
   return (
     <div className="d-flex">
       <StyledPackages btnborder={(month && 'month').toString()} className="rounded-3 text-white position-relative package-1 me-4 bg-transparent" onClick={() => { setMonth(true); setFullMonth(false); }}>
@@ -56,9 +57,9 @@ function Packages() {
           /mo
         </p>
         {month && (
-          <div className="check d-flex justify-content-center align-items-center rounded-circle position-absolute bg-black">
-            <FontAwesomeIcon icon={solid('check')} size="sm" className="text-success" />
-          </div>
+        <div className="check d-flex justify-content-center align-items-center rounded-circle position-absolute bg-black">
+          <FontAwesomeIcon icon={solid('check')} size="sm" className="text-success" />
+        </div>
         )}
       </StyledPackages>
       <StyledPackages btnborder={(fullMonth && 'fullMonth').toString()} className="rounded-3 text-white position-relative package-2 rounded bg-transparent" onClick={() => { setFullMonth(true); setMonth(false); }}>
@@ -72,13 +73,13 @@ function Packages() {
           <p className="m-0 fs-5 text-light month">2 months free</p>
         </div>
         {fullMonth && (
-          <div className="check d-flex justify-content-center align-items-center rounded-circle position-absolute bg-black">
-            <FontAwesomeIcon icon={solid('check')} size="sm" className="text-success" />
-          </div>
+        <div className="check d-flex justify-content-center align-items-center rounded-circle position-absolute bg-black">
+          <FontAwesomeIcon icon={solid('check')} size="sm" className="text-success" />
+        </div>
         )}
       </StyledPackages>
     </div>
   );
 }
 
-export default Packages;
+export default CustomPackages;

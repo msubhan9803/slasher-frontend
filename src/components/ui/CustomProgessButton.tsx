@@ -1,10 +1,12 @@
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
 export type ProgressButtonState = 'default' | 'loading' | 'success' | 'failure';
+
+type ButtonComponentType = ({ label, className, onClick }: Props) => ReactElement<any>;
 
 type Props = {
   label: string, className: string,
@@ -13,7 +15,7 @@ type Props = {
 
 type SetProgressType = (status: ProgressButtonState) => void;
 
-const useCustomProgressButtonStatus = (): [any, SetProgressType] => {
+const useCustomProgressButtonStatus = (): [ButtonComponentType, SetProgressType] => {
   const [progress, setProgress] = useState<ProgressButtonState>('default');
 
   useEffect(() => {

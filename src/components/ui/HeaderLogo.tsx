@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import slasherLogo from '../../images/slasher-logo-medium.png';
 
 const StyledLogoImage = styled(Image)`
-  height: 6.6rem;
+  height: 5rem;
 `;
 function HeaderLogo() {
   return <StyledLogoImage src={slasherLogo} alt="Slasher logo" />;

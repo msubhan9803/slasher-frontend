@@ -86,4 +86,10 @@ MessageSchema.index(
     isRead: 1, relationId: 1, senderId: 1, is_deleted: 1,
   },
 );
+// Index for ChatService#deleteConversationMessages
+MessageSchema.index(
+  {
+    matchId: 1, deletefor: 1,
+  },
+);
 export type MessageDocument = Message & Document;

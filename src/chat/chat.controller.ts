@@ -1,5 +1,5 @@
 import {
-  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch, UseInterceptors, UploadedFiles,
+  Controller, Req, Get, ValidationPipe, Query, Param, HttpException, HttpStatus, Post, Body, Patch, UseInterceptors, UploadedFiles, Delete,
 } from '@nestjs/common';
 import { Request } from 'express';
 import mongoose from 'mongoose';
@@ -176,7 +176,7 @@ export class ChatController {
       newMessages.push(await this.chatService.sendPrivateDirectMessage(user.id, toUserId.id, messageDto.message));
     }
     if (newMessages.length > 0) {
-      await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id, user);
+      await this.chatGateway.emitMessageForConversation(newMessages, toUserId.id);
 
       await this.messageCountUpdateQueue.add(
         'send-update-if-message-unread',
@@ -193,5 +193,24 @@ export class ChatController {
         ),
       ),
     };
+  }
+
+  @Delete('conversation/:matchListId')
+  async deleteConversationMessages(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) param: GetConversationQueryDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const matchList = await this.chatService.findMatchList(param.matchListId, true);
+    if (!matchList) {
+      throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);
+    }
+    const matchUserIds = matchList.participants.filter((userId) => (userId as any)._id.toString() === user.id);
+    if (!matchUserIds.length) {
+      throw new HttpException('You are not a member of this conversation', HttpStatus.UNAUTHORIZED);
+    }
+
+    await this.chatService.deleteConversationMessages(user.id, param.matchListId);
+    return { success: true };
   }
 }

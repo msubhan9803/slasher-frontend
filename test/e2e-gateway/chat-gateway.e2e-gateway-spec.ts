@@ -18,6 +18,7 @@ import { clearDatabase } from '../helpers/mongo-helpers';
 import { Message, MessageDocument } from '../../src/schemas/message/message.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
 import { FriendsService } from '../../src/friends/providers/friends.service';
+import { ChatGateway } from '../../src/chat/providers/chat.gateway';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -35,6 +36,7 @@ describe('Chat Gateway (e2e)', () => {
   let messageModel: Model<MessageDocument>;
   let chatModel: Model<ChatDocument>;
   let friendsService: FriendsService;
+  let chatGateway: ChatGateway;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -42,6 +44,7 @@ describe('Chat Gateway (e2e)', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     chatService = moduleRef.get<ChatService>(ChatService);
+    chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
     usersService = moduleRef.get<UsersService>(UsersService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
@@ -285,7 +288,6 @@ describe('Chat Gateway (e2e)', () => {
         });
         client.close();
 
-        expect(response).toHaveLength(2);
         expect(response).toEqual([
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -528,6 +530,64 @@ describe('Chat Gateway (e2e)', () => {
         client.close();
         // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
         await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+  });
+
+  describe('#emitMessageForConversation', () => {
+    let message0;
+    let matchList;
+
+    beforeEach(async () => {
+      message0 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
+      matchList = await matchListModel.findOne({
+        participants: activeUser._id,
+      });
+    });
+
+    it('ChatController#sendMessageInConversation calls emitMessageForConversation, which emits the expected socket message', async () => {
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const user1AuthToken = user1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+      const receiverClient = io(baseAddress, { auth: { token: user1AuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(receiverClient);
+
+      const message = [message0];
+      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser.id);
+
+      await chatGateway.emitMessageForConversation(message, toUserId);
+
+      let receivedPayload;
+      const socketListenPromise = new Promise<void>((resolve) => {
+        receiverClient.on('chatMessageReceived', (...args) => {
+          // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
+          // if expect() comparison fails.
+          [receivedPayload] = args;
+          resolve();
+        });
+      });
+
+      // Await socket response to receive emitted event
+      await socketListenPromise;
+
+      client.close();
+      receiverClient.close();
+
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+      await waitForSocketUserCleanup(receiverClient, usersService);
+
+      expect(receivedPayload).toEqual({
+        message: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          createdAt: expect.any(String),
+          fromId: toUserId.toString(),
+          image: null,
+          matchId: matchList.id,
+          message: 'Hi, there!',
+          senderId: activeUser.id,
+        },
       });
     });
   });

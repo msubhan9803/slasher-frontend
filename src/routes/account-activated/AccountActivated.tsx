@@ -8,7 +8,7 @@ function AccountActivated() {
         <h1 className="mb-3">Account Activated!</h1>
         <p>You have successfully activated your account!</p>
         <p>
-          <Link to="/sign-in" className="text-primary text-decoration-none">Click here </Link>
+          <Link to="/app/sign-in" className="text-primary text-decoration-none">Click here </Link>
           {' '}
           to sign in.
         </p>

@@ -2,9 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getAccountNotification, updateAccountNotification } from '../../../api/settings';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import Switch from '../../../components/ui/Switch';
 import AccountHeader from '../AccountHeader';
 
@@ -47,160 +44,155 @@ function AccountNotification() {
       .then((res) => setNotification(res.data));
   };
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <AccountHeader tabKey="notifications" />
-        <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
-          <h1 className="mb-5">Push Notifications</h1>
-          <div>
-            <div className="mb-4">
-              <span className="fs-3">Dating</span>
-              <span className="text-light fs-3"> (Only if you created a dating profile)</span>
-            </div>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Like or Match received</span>
-                <Switch
-                  id="dating_got_a_match"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'dating_got_a_match')}
-                  isChecked={!!(allNotification && allNotification.dating_got_a_match === 1)}
-                />
-              </div>
-            </StyledBorder>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Mesage received</span>
-                <Switch
-                  id="dating_message_received"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'dating_message_received')}
-                  isChecked={!!(allNotification && allNotification.dating_message_received === 1)}
-                />
-              </div>
-            </StyledBorder>
+    <div>
+      <AccountHeader tabKey="notifications" />
+      <div className="mt-3 p-md-4 bg-dark bg-mobile-transparent rounded">
+        <h1 className="mb-5">Push Notifications</h1>
+        <div>
+          <div className="mb-4">
+            <span className="fs-3">Dating</span>
+            <span className="text-light fs-3"> (Only if you created a dating profile)</span>
           </div>
-          <div className="mt-5">
-            <h2 className="h3 mb-3">Friends</h2>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Friend request</span>
-                <Switch
-                  id="friends_got_a_match"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'friends_got_a_match')}
-                  isChecked={!!(allNotification && allNotification.friends_got_a_match === 1)}
-                />
-              </div>
-            </StyledBorder>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Message received</span>
-                <Switch
-                  id="friends_message_received"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'friends_message_received')}
-                  isChecked={
-                    !!(allNotification
-                      && allNotification.friends_message_received === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
-          </div>
-          <div className="mt-5">
-            <h2 className="h3 mb-3">Groups</h2>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Like on your post/comment/reply</span>
-                <Switch
-                  id="message_board_like_your_post"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'message_board_like_your_post')}
-                  isChecked={
-                    !!(allNotification
-                      && allNotification.message_board_like_your_post === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Comment/reply to your post</span>
-                <Switch
-                  id="message_board_reply_your_post"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'message_board_reply_your_post')}
-                  isChecked={
-                    !!(allNotification
-                      && allNotification.message_board_reply_your_post === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">New post in thread</span>
-                <Switch
-                  id="message_board_new_post_on_thread"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'message_board_new_post_on_thread')}
-                  isChecked={
-                    !!(allNotification && allNotification.message_board_new_post_on_thread === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
-          </div>
-          <div className="mt-5">
-            <h2 className="h3 mb-3">Mentions</h2>
+          <StyledBorder className="mt-2 mb-3">
             <div className="fs-3  d-flex justify-content-between">
-              <span className="fs-4">Mention on post/comment/reply</span>
+              <span className="fs-4">Like or Match received</span>
               <Switch
-                id="feed_mention_on_post_comment_reply"
+                id="dating_got_a_match"
                 className="ms-0 ms-md-3"
-                onSwitchToggle={(e) => handleChange(e, 'feed_mention_on_post_comment_reply')}
-                isChecked={!!(allNotification
-                  && allNotification.feed_mention_on_post_comment_reply === 1)}
+                onSwitchToggle={(e) => handleChange(e, 'dating_got_a_match')}
+                isChecked={!!(allNotification && allNotification.dating_got_a_match === 1)}
               />
             </div>
-          </div>
-          <div className="mt-5">
-            <h2 className="h3 mb-3">Posts</h2>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Like on your post/comment/reply</span>
-                <Switch
-                  id="message_board_mention_on_comment_reply"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'message_board_mention_on_comment_reply')}
-                  isChecked={
-                    !!(allNotification
-                      && allNotification.message_board_mention_on_comment_reply === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
-            <StyledBorder className="mt-2 mb-3">
-              <div className="fs-3  d-flex justify-content-between">
-                <span className="fs-4">Comment/reply on your post</span>
-                <Switch
-                  id="feed_post_like"
-                  className="ms-0 ms-md-3"
-                  onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
-                  isChecked={
-                    !!(allNotification && allNotification.feed_post_like === 1)
-                  }
-                />
-              </div>
-            </StyledBorder>
+          </StyledBorder>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Mesage received</span>
+              <Switch
+                id="dating_message_received"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'dating_message_received')}
+                isChecked={!!(allNotification && allNotification.dating_message_received === 1)}
+              />
+            </div>
+          </StyledBorder>
+        </div>
+        <div className="mt-5">
+          <h2 className="h3 mb-3">Friends</h2>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Friend request</span>
+              <Switch
+                id="friends_got_a_match"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'friends_got_a_match')}
+                isChecked={!!(allNotification && allNotification.friends_got_a_match === 1)}
+              />
+            </div>
+          </StyledBorder>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Message received</span>
+              <Switch
+                id="friends_message_received"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'friends_message_received')}
+                isChecked={
+                  !!(allNotification
+                    && allNotification.friends_message_received === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+        </div>
+        <div className="mt-5">
+          <h2 className="h3 mb-3">Groups</h2>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Like on your post/comment/reply</span>
+              <Switch
+                id="message_board_like_your_post"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'message_board_like_your_post')}
+                isChecked={
+                  !!(allNotification
+                    && allNotification.message_board_like_your_post === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Comment/reply to your post</span>
+              <Switch
+                id="message_board_reply_your_post"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'message_board_reply_your_post')}
+                isChecked={
+                  !!(allNotification
+                    && allNotification.message_board_reply_your_post === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">New post in thread</span>
+              <Switch
+                id="message_board_new_post_on_thread"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'message_board_new_post_on_thread')}
+                isChecked={
+                  !!(allNotification && allNotification.message_board_new_post_on_thread === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+        </div>
+        <div className="mt-5">
+          <h2 className="h3 mb-3">Mentions</h2>
+          <div className="fs-3  d-flex justify-content-between">
+            <span className="fs-4">Mention on post/comment/reply</span>
+            <Switch
+              id="feed_mention_on_post_comment_reply"
+              className="ms-0 ms-md-3"
+              onSwitchToggle={(e) => handleChange(e, 'feed_mention_on_post_comment_reply')}
+              isChecked={!!(allNotification
+                && allNotification.feed_mention_on_post_comment_reply === 1)}
+            />
           </div>
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+        <div className="mt-5">
+          <h2 className="h3 mb-3">Posts</h2>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Like on your post/comment/reply</span>
+              <Switch
+                id="message_board_mention_on_comment_reply"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'message_board_mention_on_comment_reply')}
+                isChecked={
+                  !!(allNotification
+                    && allNotification.message_board_mention_on_comment_reply === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+          <StyledBorder className="mt-2 mb-3">
+            <div className="fs-3  d-flex justify-content-between">
+              <span className="fs-4">Comment/reply on your post</span>
+              <Switch
+                id="feed_post_like"
+                className="ms-0 ms-md-3"
+                onSwitchToggle={(e) => handleChange(e, 'feed_post_like')}
+                isChecked={
+                  !!(allNotification && allNotification.feed_post_like === 1)
+                }
+              />
+            </div>
+          </StyledBorder>
+        </div>
+      </div>
+    </div>
   );
 }
 

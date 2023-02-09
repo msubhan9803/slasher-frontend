@@ -6,7 +6,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import userProfileIconPlaceholder from '../../../placeholder-images/placeholder-user.jpg';
 import UserCircleImage from '../../ui/UserCircleImage';
 import { useAppSelector } from '../../../redux/hooks';
 
@@ -17,36 +16,38 @@ const SpecificHeightLink = styled(Link)`
 `;
 
 interface Props {
-  className?: string
+  className?: string;
+  onToggleCanvas: () => void;
 }
 
-function MobileOnlySidebarContent({ className }: Props) {
+function MobileOnlySidebarContent({ className, onToggleCanvas }: Props) {
   const loggedinUserName = useAppSelector((state) => state.user.user.userName);
+  const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
 
   return (
     <div className={className}>
       <Container fluid className="px-0">
         <Row>
           <Col xs={3}>
-            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
-              <UserCircleImage size="1.25em" className="mb-1" src={userProfileIconPlaceholder} alt="User icon" />
+            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
+              <UserCircleImage size="1.25em" className="mb-1" src={userProfilePic} alt="User icon" />
               Me
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to={`/${loggedinUserName}/friends`} className="btn btn-dark btn-sidebar w-100 pt-2">
+            <SpecificHeightLink to={`/${loggedinUserName}/friends`} className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
               <FontAwesomeIcon icon={solid('user-group')} size="lg" className="mb-1" />
               Friends
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/account/settings" className="btn btn-dark btn-sidebar w-100 pt-2">
+            <SpecificHeightLink to="/app/account/settings" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
               <FontAwesomeIcon icon={solid('gear')} size="lg" className="mb-1" />
               Settings
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2">
+            <SpecificHeightLink to="/" className="btn btn-dark btn-sidebar w-100 pt-2" onClick={onToggleCanvas}>
               <FontAwesomeIcon icon={solid('circle-question')} size="lg" className="mb-1" />
               Help
             </SpecificHeightLink>

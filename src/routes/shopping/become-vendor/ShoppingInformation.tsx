@@ -1,16 +1,12 @@
 import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 
 interface InformationProps {
   description: string;
   charCount: number;
   handleMessageChange: (value: ChangeEvent<HTMLInputElement>) => void;
 }
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.77rem;
-  margin-right: .7rem;
-`;
 
 function ShoppingInformation({
   description, charCount, handleMessageChange,
@@ -29,7 +25,13 @@ function ShoppingInformation({
           style={{ resize: 'none' }}
           className="fs-4"
         />
-        <CustomSpan className="float-end fs-4">{`${charCount}/${113} characters`}</CustomSpan>
+        <CharactersCounter
+          counterClass="float-end fs-4"
+          charCount={charCount}
+          totalChar={113}
+          marginTop="-1.77rem"
+          marginRight=".7rem"
+        />
       </Form.Group>
       <Row>
         <Col md={6} lg={12} xl={6} className="mt-3">

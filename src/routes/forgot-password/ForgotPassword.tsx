@@ -4,10 +4,10 @@ import {
   Alert,
   Col, Form, Row,
 } from 'react-bootstrap';
-import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import RoundButton from '../../components/ui/RoundButton';
 import { forgotPassword } from '../../api/users';
 import CustomInputGroup from '../../components/ui/CustomInputGroup';
+import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 interface Password {
   email: string;
@@ -55,11 +55,7 @@ function ForgotPassword() {
               value={forgotPasswordEmail.email}
               onChangeValue={handlePasswordChange}
             />
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-3 text-start">
-                <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-              </div>
-            )}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             {
               passwordResetSent
                 ? (
@@ -101,7 +97,7 @@ function ForgotPassword() {
         <p>
           If you never received an account verification email,
           &nbsp;
-          <Link to="/verification-email-not-received" className="text-decoration-none text-primary">
+          <Link to="/app/verification-email-not-received" className="text-decoration-none text-primary">
             click here
           </Link>
           .

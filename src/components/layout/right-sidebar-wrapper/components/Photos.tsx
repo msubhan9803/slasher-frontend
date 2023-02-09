@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { userPhotos } from '../../../../api/users';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 import { User } from '../../../../types';
+import LoadingIndicator from '../../../ui/LoadingIndicator';
 
 const ProfilePhoto = styled.div`
   aspect-ratio:1;
@@ -26,50 +27,56 @@ type PhotosProps = { user: User };
 
 function Photos({ user }: PhotosProps) {
   const [photos, setPhotos] = useState<PhotoList[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (user.id) {
-      userPhotos(user.id, '', '6')
-        .then((res) => {
-          const newPhotoList: PhotoList[] = [];
-          res.data.map((photosData: any) => {
-            photosData.images.forEach((photo: ImageList) => {
-              if (newPhotoList.length < 6) {
-                /* eslint no-underscore-dangle: 0 */
-                newPhotoList.push({
-                  id: photosData._id,
-                  imageId: photo._id,
-                  image: photo.image_path,
-                });
-              }
-            });
-            return null;
+    if (!user._id) return;
+    /* eslint no-underscore-dangle: 0 */
+    userPhotos(user._id, '', '6')
+      .then((res) => {
+        const newPhotoList: PhotoList[] = [];
+        res.data?.forEach((photosData: any) => {
+          photosData.images.forEach((photo: ImageList) => {
+            if (newPhotoList.length < 6) {
+              /* eslint no-underscore-dangle: 0 */
+              newPhotoList.push({
+                id: photosData._id,
+                imageId: photo._id,
+                image: photo.image_path,
+              });
+            }
           });
-          setPhotos(newPhotoList);
         });
-    }
+        setPhotos(newPhotoList);
+        setLoading(false);
+      });
   }, [user]);
+
+  if (!user._id) return null;
+
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {photos.map((photo, photoIndex) => {
-            return (
-              <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
-                <Link to={`/${user?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
-                  <ProfilePhoto>
-                    <img
-                      alt={`${photoIndex}`}
-                      src={photo.image}
-                      className={`w-100 h-100 img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
-                    />
-                  </ProfilePhoto>
-                </Link>
-              </Col>
-            );
-            return null;
-          })}
+          {!loading && photos.length === 0 && <div>No photos yet.</div> }
+          {loading ? <LoadingIndicator />
+            : photos.map((photo, photoIndex) => {
+              return (
+                <Col xs="4" key={`${photo.id}_${photo.imageId}`}>
+                  <Link to={`/${user?.userName}/posts/${photo.id}?imageId=${photo.imageId}`}>
+                    <ProfilePhoto>
+                      <img
+                        alt={`${photoIndex}`}
+                        src={photo.image}
+                        className={`w-100 h-100 img-fluid rounded-3 ${photoIndex > 2 ? 'mt-3' : ''}`}
+                      />
+                    </ProfilePhoto>
+                  </Link>
+                </Col>
+              );
+              return null;
+            })}
         </Row>
       </div>
     </>

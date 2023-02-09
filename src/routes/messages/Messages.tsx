@@ -35,12 +35,14 @@ function Messages() {
   const userId = Cookies.get('userId');
   const messageContainerElementRef = useRef<any>(null);
   const [yPositionOfLastMessageElement, setYPositionOfLastMessageElement] = useState<number>(0);
+  const [selectedMatchListId, setSelectedMatchListId] = useState('');
 
-  const handleMessagesOption = (messageOption: string) => {
+  const handleMessagesOption = (matchListId: string) => (messageOption: string) => {
     if (messageOption !== 'markAsRead') {
       setShow(true);
     }
     setMessageOptionValue(messageOption);
+    setSelectedMatchListId(matchListId);
   };
 
   useEffect(() => {
@@ -152,7 +154,7 @@ function Messages() {
                   message={message.latestMessage}
                   count={message.unreadCount}
                   timeStamp={DateTime.fromISO(message.updatedAt).toFormat('MM/dd/yyyy t')}
-                  handleDropdownOption={handleMessagesOption}
+                  handleDropdownOption={handleMessagesOption(message._id)}
                   matchListId={message._id}
                 />
               ))
@@ -165,6 +167,8 @@ function Messages() {
           show={show}
           setShow={setShow}
           slectedMessageDropdownValue={messageOptionValue}
+          selectedMatchListId={selectedMatchListId}
+          setMessages={setMessages}
         />
       </ContentPageWrapper>
       <RightSidebarWrapper className="d-none d-lg-block">

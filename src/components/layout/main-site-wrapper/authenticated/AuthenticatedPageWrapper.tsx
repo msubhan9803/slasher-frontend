@@ -62,7 +62,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   useEffect(() => {
     if (!token) {
-      navigate(`/sign-in?path=${pathname}`);
+      navigate(`/app/sign-in?path=${pathname}`);
       return;
     }
 

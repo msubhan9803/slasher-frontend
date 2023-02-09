@@ -31,7 +31,7 @@ function AccountChangePassword() {
         <p className="fs-5 m-0">Enter your current password, then enter a new password below to change your password.</p>
         <p className="fs-5">
           If you do not remember your current password&nbsp;
-          <Link to="/forgot-password" className="text-primary">
+          <Link to="/app/forgot-password" className="text-primary">
             click here
           </Link>
           .

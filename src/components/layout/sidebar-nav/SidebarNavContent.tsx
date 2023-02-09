@@ -11,16 +11,16 @@ type MenuType = {
 
 const sidebarMenuList: MenuType[] = [
   {
-    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/news', id: 1,
+    label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1,
   },
   {
-    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/events', id: 2,
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
     label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/places', id: 3,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/dating', id: 4,
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 4,
   },
   {
     label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/podcasts', id: 5,
@@ -32,7 +32,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/shopping', id: 7,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/movies', id: 8,
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 8,
   },
   {
     label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/books', id: 9,
@@ -47,7 +47,7 @@ const sidebarMenuList: MenuType[] = [
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/help', desktopOnly: true,
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/account/settings', desktopOnly: true,
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/app/account/settings', desktopOnly: true,
   },
 ];
 const customSidebarMenuList = enableDevFeatures

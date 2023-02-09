@@ -40,7 +40,7 @@ function MobileOnlySidebarContent({ className }: Props) {
             </SpecificHeightLink>
           </Col>
           <Col xs={3}>
-            <SpecificHeightLink to="/account/settings" className="btn btn-dark btn-sidebar w-100 pt-2">
+            <SpecificHeightLink to="/app/account/settings" className="btn btn-dark btn-sidebar w-100 pt-2">
               <FontAwesomeIcon icon={solid('gear')} size="lg" className="mb-1" />
               Settings
             </SpecificHeightLink>

@@ -34,7 +34,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId }: PosterCardProps) {
           /* eslint no-underscore-dangle: 0 */
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
-              <Link to={`/movies/${listDetail._id}/details`}>
+              <Link to={`/app/movies/${listDetail._id}/details`}>
                 <PosterCard
                   name={listDetail.name}
                   poster={listDetail.logo}

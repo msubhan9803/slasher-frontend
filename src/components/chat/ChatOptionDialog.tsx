@@ -42,7 +42,7 @@ function ChatOptionDialog({
   };
   const handleDeleteConversationMessages = () => {
     if (!conversationId) return;
-    deleteConversationMessages(conversationId).then(() => { setShow(false); navigate('/messages'); });
+    deleteConversationMessages(conversationId).then(() => { setShow(false); navigate('/app/messages'); });
   };
   return (
     <ModalContainer

@@ -97,7 +97,7 @@ function ForgotPassword() {
         <p>
           If you never received an account verification email,
           &nbsp;
-          <Link to="/verification-email-not-received" className="text-decoration-none text-primary">
+          <Link to="/app/verification-email-not-received" className="text-decoration-none text-primary">
             click here
           </Link>
           .

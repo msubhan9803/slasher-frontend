@@ -49,7 +49,7 @@ function RegistrationTerms({ activeStep }: Props) {
       dobIsoString,
     ).then(() => {
       setErrorMessages([]);
-      navigate('/registration/final');
+      navigate('/app/registration/final');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });
@@ -93,7 +93,7 @@ function RegistrationTerms({ activeStep }: Props) {
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
-            to="/registration/security"
+            to="/app/registration/security"
             className="w-100"
             variant="secondary"
           >

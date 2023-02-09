@@ -11,7 +11,7 @@ import EndUserLicenseAgreement from '../../../components/terms-and-policies/EndU
 import PrivacyPolicy from '../../../components/terms-and-policies/PrivacyPolicy';
 import TermsAndConditions from '../../../components/terms-and-policies/TermsAndConditions';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import RoundButton from '../../../components/ui/RoundButton';
+import useProgressButton from '../../../components/ui/ProgressButton';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 import { useAppSelector } from '../../../redux/hooks';
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
@@ -26,9 +26,12 @@ function RegistrationTerms({ activeStep }: Props) {
   const [errorMessages, setErrorMessages] = useState<string[]>();
   const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+
   const submitRegister = () => {
     if (!isAgreedToTerms) {
       setShowAgreeToTermsError(true);
+      setProgressButtonStatus('loading');
       return;
     }
 
@@ -101,7 +104,7 @@ function RegistrationTerms({ activeStep }: Props) {
           </RoundButtonLink>
         </Col>
         <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
-          <RoundButton className="mb-3 w-100" onClick={() => submitRegister()}>Sign up</RoundButton>
+          <ProgressButton label="Next step" className="py-2 w-100  fs-3 fw-bold" onClick={() => submitRegister()} />
         </Col>
       </Row>
     </RegistrationPageWrapper>

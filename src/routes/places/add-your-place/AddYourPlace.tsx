@@ -5,12 +5,12 @@ import {
   Col, Row,
 } from 'react-bootstrap';
 import RoundButton from '../../../components/ui/RoundButton';
-import Packages from './Packages';
 import PlaceInformation from './PlaceInformation';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import CustomPackages from '../../../components/ui/CustomPackages';
 
 const noteList = [
   'A listing in the Places area of Slasher with your logo, description, link to your website, and more.',
@@ -74,7 +74,7 @@ function AddYourPlace() {
             handleMessageChange={handleMessageChange}
           />
           <h2 className="mt-5 mb-4 fw-bold">Select package</h2>
-          <Packages />
+          <CustomPackages />
           <Row className="mt-5">
             <Col md={4} lg={6} xl={4}>
               <RoundButton className="w-100 p-1 fs-3" size="lg">Submit</RoundButton>

@@ -1,15 +1,8 @@
 import React from 'react';
 import { DateTime } from 'luxon';
-import styled from 'styled-components';
 import CustomPopover from '../../components/ui/CustomPopover';
-import RoundButton from '../../components/ui/RoundButton';
+import BorderButton from '../../components/ui/BorderButton';
 
-const StyleBorderButton = styled(RoundButton)`
-  border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-  }
-`;
 function NotificationTimestamp({
   isoDateString,
   show,
@@ -37,7 +30,11 @@ function NotificationTimestamp({
       </h1>
       {show && (
         <div className="d-flex align-items-center">
-          <StyleBorderButton className="text-white bg-black px-4 me-2" onClick={() => onMarkAllReadClick()}>Mark all read</StyleBorderButton>
+          <BorderButton
+            buttonClass="text-white px-4 me-2"
+            lable="Mark all read"
+            handleClick={onMarkAllReadClick}
+          />
           <span className="d-lg-none">
             <CustomPopover
               popoverOptions={popoverOption}

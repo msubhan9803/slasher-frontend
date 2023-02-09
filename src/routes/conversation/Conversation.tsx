@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
 import React, {
+  ChangeEvent,
+  useCallback,
   useEffect, useRef, useState,
 } from 'react';
 import Cookies from 'js-cookie';
@@ -9,7 +11,7 @@ import {
 import InfiniteScroll from 'react-infinite-scroller';
 import { DateTime } from 'luxon';
 import Chat from '../../components/chat/Chat';
-import { getConversation, createOrFindConversation } from '../../api/messages';
+import { getConversation, createOrFindConversation, attachFile } from '../../api/messages';
 import NotFound from '../../components/NotFound';
 import useGlobalSocket from '../../hooks/useGlobalSocket';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
@@ -32,6 +34,9 @@ function Conversation() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const [imageArray, setImageArray] = useState<any>([]);
+  const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [messageLoading, setMessageLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (location.pathname.includes('/new')) {
@@ -42,21 +47,22 @@ function Conversation() {
           navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
         }).catch((e) => { throw e; });
       } else {
-        navigate('/messages', { replace: true });
+        navigate('/app/messages', { replace: true });
       }
     }
-  }, []);
+  }, [location.pathname, navigate, searchParams]);
 
-  const onChatMessageReceivedHandler = (payload: any) => {
+  const onChatMessageReceivedHandler = useCallback((payload: any) => {
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
-      id: payload.user._id,
+      id: payload.message.fromId,
       message: payload.message.message,
       time: DateTime.now().toISO().toString(),
       participant: 'other',
+      image: payload.message.image ?? null,
     };
     // eslint-disable-next-line no-underscore-dangle
-    if (payload.message.matchId._id === conversationId) {
+    if (payload.message.matchId === conversationId) {
       // eslint-disable-next-line no-underscore-dangle
       socket?.emit('messageRead', { messageId: payload.message._id });
       setMessageList((prev: any) => [
@@ -64,7 +70,7 @@ function Conversation() {
         chatreceivedObj,
       ]);
     }
-  };
+  }, [conversationId, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -74,7 +80,7 @@ function Conversation() {
       };
     }
     return () => { };
-  }, []);
+  }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {
@@ -106,25 +112,54 @@ function Conversation() {
         setPageDoesNotExist(true);
       });
     }
-  }, [conversationId]);
+  }, [conversationId, loadingMessages, location.pathname, userId]);
 
   const sendMessageClick = () => {
-    // eslint-disable-next-line no-underscore-dangle
-    socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
-      if (chatMessageResponse.success) {
-        setMessageList((prev: any) => [
-          ...prev,
-          {
-            // eslint-disable-next-line no-underscore-dangle
-            id: chatMessageResponse.message._id,
-            message: chatMessageResponse.message.message,
-            time: chatMessageResponse.message.createdAt,
-            participant: 'self',
+    if (imageArray.length > 0) {
+      setMessageLoading(true);
+      attachFile(message, imageArray, conversationId!)
+        .then((res) => {
+          res.data.messages.map((sentMessage: any) => {
+            setMessageList((prev: any) => [
+              ...prev,
+              {
+                // eslint-disable-next-line no-underscore-dangle
+                id: sentMessage._id,
+                message: sentMessage.message,
+                time: sentMessage.createdAt,
+                participant: 'self',
+                image: sentMessage.image ?? null,
+              },
+            ]);
+            setMessageLoading(false);
+            return null;
+          });
+          setMessage('');
+          setImageArray([]);
+        }).catch(
+          () => {
+            setMessageLoading(false);
           },
-        ]);
-        setMessage('');
-      }
-    });
+        );
+    } else {
+      // eslint-disable-next-line no-underscore-dangle
+      socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
+        if (chatMessageResponse.success) {
+          setMessageList((prev: any) => [
+            ...prev,
+            {
+              // eslint-disable-next-line no-underscore-dangle
+              id: chatMessageResponse.message._id,
+              message: chatMessageResponse.message.message,
+              time: chatMessageResponse.message.createdAt,
+              participant: 'self',
+              image: chatMessageResponse.message.image ?? null,
+            },
+          ]);
+          setMessage('');
+        }
+      });
+    }
   };
 
   useEffect(() => {
@@ -145,6 +180,7 @@ function Conversation() {
               id: newMessage._id,
               message: newMessage.message,
               time: newMessage.createdAt,
+              image: newMessage.image ? newMessage.image : null,
             };
             if (newMessage.fromId === userId) {
               finalData.participant = 'self';
@@ -165,7 +201,7 @@ function Conversation() {
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
+  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
   if (isLoading || !socketConnected) return null;
 
@@ -174,6 +210,31 @@ function Conversation() {
       <NotFound />
     );
   }
+
+  const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
+    if (!postImage.target) {
+      return;
+    }
+    if (postImage.target.name === 'post' && postImage.target && postImage.target.files) {
+      const uploadedPostList = [...uploadPost];
+      const imageArrayList = [...imageArray];
+      const fileList = postImage.target.files;
+      for (let list = 0; list < fileList.length; list += 1) {
+        if (uploadedPostList.length < 10) {
+          const image = URL.createObjectURL(postImage.target.files[list]);
+          uploadedPostList.push(image);
+          imageArrayList.push(postImage.target.files[list]);
+        }
+      }
+      setUploadPost(uploadedPostList);
+      setImageArray(imageArrayList);
+    }
+  };
+
+  const handleRemoveFile = (postImage: File) => {
+    const removePostImage = imageArray.filter((image: File) => image !== postImage);
+    setImageArray(removePostImage);
+  };
 
   return (
     <ContentSidbarWrapper>
@@ -191,6 +252,10 @@ function Conversation() {
             sendMessageClick={sendMessageClick}
             setMessage={setMessage}
             message={message}
+            handleFileChange={handleFileChange}
+            handleRemoveFile={handleRemoveFile}
+            imageArray={imageArray}
+            messageLoading={messageLoading}
           />
         </InfiniteScroll>
       </ContentPageWrapper>

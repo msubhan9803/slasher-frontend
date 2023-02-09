@@ -32,7 +32,7 @@ function PlacesPhoto() {
 
   const navigate = useNavigate();
   const handlePopoverOption = (value: string) => {
-    navigate(`/home/${value}`);
+    navigate(`/app/home/${value}`);
   };
   return (
     <div className="bg-dark rounded px-md-4 pb-md-4 bg-mobile-transparent mt-3">

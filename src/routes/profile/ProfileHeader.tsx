@@ -20,6 +20,7 @@ import RoundButtonLink from '../../components/ui/RoundButtonLink';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
 
 interface Props {
@@ -28,9 +29,6 @@ interface Props {
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
 `;
 const tabs = [
   { value: 'about', label: 'About' },
@@ -78,13 +76,14 @@ function ProfileHeader({ tabKey, user }: Props) {
 
   useEffect(() => {
     if (user && !isSelfUserProfile) {
-      friendship(user.id).then((res) => {
+      /* eslint no-underscore-dangle: 0 */
+      friendship(user._id).then((res) => {
         if (res.data.reaction === FriendRequestReaction.Pending
           && res.data.from === loginUserId
-          && res.data.to === user.id) {
+          && res.data.to === user._id) {
           setFriendStatus('Cancel pending request');
         } else if (res.data.reaction === FriendRequestReaction.Pending
-          && res.data.from === user.id
+          && res.data.from === user._id
           && res.data.to === loginUserId) {
           setFriendStatus('Accept friend request');
         } else if (res.data.reaction === FriendRequestReaction.Accepted) {
@@ -95,16 +94,16 @@ function ProfileHeader({ tabKey, user }: Props) {
         }
       });
     }
-  }, [user, friendshipStatus]);
+  }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
 
   const friendRequestApi = (status: string) => {
-    if (user && user.id) {
+    if (user && user._id) {
       if (status === 'Add friend') {
-        addFriend(user.id).then(() => setFriendshipStatus(status));
+        addFriend(user._id).then(() => setFriendshipStatus(status));
       } else if (status === 'Accept friend request') {
-        acceptFriendsRequest(user.id).then(() => setFriendshipStatus(status));
+        acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
       } else if (status === 'Remove friend' || status === 'Cancel pending request') {
-        rejectFriendsRequest(user.id).then(() => setFriendshipStatus(status));
+        rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
       }
     }
   };
@@ -152,7 +151,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                   <CustomPopover
                     popoverOptions={popoverOption}
                     onPopoverClick={handlePopoverOption}
-                    userId={user?.id}
+                    userId={user?._id}
                   />
                 </StyledPopoverContainer>
               )}
@@ -181,7 +180,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                 {!isSelfUserProfile
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/messages/conversation/new?userId=${user?.id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
+                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
                       <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
                         {friendStatus}
                       </RoundButton>
@@ -190,7 +189,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                         <CustomPopover
                           popoverOptions={popoverOption}
                           onPopoverClick={handlePopoverOption}
-                          userId={user?.id}
+                          userId={user?._id}
                         />
                       </StyledPopoverContainer>
                     </div>

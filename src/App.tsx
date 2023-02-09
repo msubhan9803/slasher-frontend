@@ -24,7 +24,6 @@ import Notifications from './routes/notifications/Notifications';
 import Account from './routes/account/Account';
 import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
-import useGoogleAnalytics from './hooks/useGoogleAnalytics';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
 // import Books from './routes/books/Books';
@@ -32,8 +31,7 @@ import { enableADs } from './constants';
 // import Places from './routes/places/Places';
 // import Podcasts from './routes/podcasts/Podcasts';
 
-const analyticsId = process.env.REACT_APP_GOOGLE_ANALYTICS_PROPERTY_ID;
-const DEFAULT_INDEX_REDIRECT = 'home';
+const DEFAULT_INDEX_REDIRECT = 'app/home';
 
 interface TopLevelRoute {
   component: any;
@@ -46,35 +44,34 @@ interface TopLevelRoute {
 }
 
 const routes: Record<string, TopLevelRoute> = {
-  home: { wrapper: AuthenticatedPageWrapper, component: Home },
+  'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
-  'search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
-  'dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
-  messages: { wrapper: AuthenticatedPageWrapper, component: Messages },
-  'messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  'messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
-  'news/*': { wrapper: AuthenticatedPageWrapper, component: News },
-  'events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
-  'posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
-  'movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
-  notifications: { wrapper: AuthenticatedPageWrapper, component: Notifications },
-  'account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
+  'app/dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
+  'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
+  'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'app/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
+  'app/news/*': { wrapper: AuthenticatedPageWrapper, component: News },
+  'app/events/*': { wrapper: AuthenticatedPageWrapper, component: Events },
+  'app/posts/*': { wrapper: AuthenticatedPageWrapper, component: Posts },
+  'app/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
+  'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
+  'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
   // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
   // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
   // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
-  'forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
-  'reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
-  'verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
-  'registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
-  'onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
-  'account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
-  'sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
+  'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
+  'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
+  'app/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  'app/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
+  'app/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
+  'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
+  'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };
 
 function App() {
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
-  if (enableADs) { usePubWiseAdSlots(); }
+  usePubWiseAdSlots(enableADs);
 
   const router = createBrowserRouter(
     createRoutesFromElements(

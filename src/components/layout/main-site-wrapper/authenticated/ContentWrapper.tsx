@@ -15,7 +15,7 @@ export const ContentPageWrapper = styled.div`
   }
   width: 100%;
   @media (min-width: 980px) {
-    width: calc(100% - 295px);
+    width: calc(100% - 319px);
     padding-right: 1rem;
   }
 `;

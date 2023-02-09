@@ -18,37 +18,35 @@ type FriendsProps = { user: User };
 
 function Friends({ user }: FriendsProps) {
   const [friendsList, setFriendsList] = useState<FriendType[]>([]);
-  const [loader, setLoader] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const { userName: userNameOrId } = useParams<string>();
 
   useEffect(() => {
-    if (userNameOrId) {
-      setLoader(true);
-      getUsersFriends(user.id)
-        .then((res) => { setFriendsList(res.data.friends); setLoader(false); });
-    }
-  }, [userNameOrId]);
+    if (!userNameOrId) return;
+    /* eslint no-underscore-dangle: 0 */
+    getUsersFriends(user._id)
+      .then((res) => { setFriendsList(res.data.friends); setLoading(false); });
+  }, [userNameOrId, user._id]);
 
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Friends" linkLabel="See All" linkTo={`/${user && user.userName}/friends`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {
-            loader ? <LoadingIndicator />
-              : friendsList.map((friend: FriendType, i: number) => (
-                /* eslint no-underscore-dangle: 0 */
-                <Col xs="4" key={friend._id} className={i > 2 ? 'mt-3' : ''}>
-                  <FriendCircleWithLabel
-                    className="mx-auto"
-                    photo={friend.profilePic}
-                    label={friend.userName}
-                    photoAlt={`${i}`}
-                    linkTo={`/${friend.userName}`}
-                  />
-                </Col>
-              ))
-}
+          {!loading && friendsList.length === 0 && <div>No friends yet.</div>}
+          {loading ? <LoadingIndicator />
+            : friendsList.map((friend: FriendType, i: number) => (
+              /* eslint no-underscore-dangle: 0 */
+              <Col xs="4" key={friend._id} className={i > 2 ? 'mt-3' : ''}>
+                <FriendCircleWithLabel
+                  className="mx-auto"
+                  photo={friend.profilePic}
+                  label={friend.userName}
+                  photoAlt={`${i}`}
+                  linkTo={`/${friend.userName}`}
+                />
+              </Col>
+            ))}
         </Row>
       </div>
     </>

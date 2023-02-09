@@ -26,7 +26,7 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { SendMessageInConversationParamsDto } from './dto/send-message-in-conversation-params-dto';
 import { SendMessageInConversationDto } from './dto/send-message-in-conversation-dto';
 import { ChatGateway } from './providers/chat.gateway';
-import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('chat')
 export class ChatController {

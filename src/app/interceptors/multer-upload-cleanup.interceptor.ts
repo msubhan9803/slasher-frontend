@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { deleteMulterFiles } from '../../utils/file-upload-validation-utils';
+import { deleteMulterFiles } from '../../utils/file-upload-utils';
 
 @Injectable()
 export class MulterUploadCleanupInterceptor implements NestInterceptor {

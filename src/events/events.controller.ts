@@ -23,7 +23,7 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { CreateEventDto } from './dto/create-event-dto';
 import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
-import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('events')
 export class EventsController {

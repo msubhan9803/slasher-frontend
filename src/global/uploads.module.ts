@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { StorageLocationService } from './providers/storage-location.service';
-import { deleteMulterFiles } from '../utils/file-upload-validation-utils';
+import { deleteMulterFiles } from '../utils/file-upload-utils';
 
 const logger = new Logger('UploadsModule');
 

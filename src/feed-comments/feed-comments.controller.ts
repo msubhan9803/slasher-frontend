@@ -33,7 +33,7 @@ import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
 import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
-import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-comments')
 export class FeedCommentsController {

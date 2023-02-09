@@ -65,7 +65,7 @@ describe('Users / Upload Cover image (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users/upload-cover-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toContain('File is required');
     });
@@ -77,8 +77,8 @@ describe('Users / Upload Cover image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png|gif)$/)');
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Invalid file type');
       }, { extension: 'zpng' });
     });
 
@@ -89,8 +89,8 @@ describe('Users / Upload Cover image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
+          .expect(HttpStatus.PAYLOAD_TOO_LARGE);
+        expect(response.body.message).toContain('File too large');
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
     });
   });

@@ -23,7 +23,7 @@ import { NotificationsGateway } from '../notifications/providers/notifications.g
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
-import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {

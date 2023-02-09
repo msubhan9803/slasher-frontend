@@ -8,7 +8,11 @@ import {
 } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import {
-  uploadUserCoverImage, uploadUserProfileImage, updateUser,
+  uploadUserCoverImage,
+  uploadUserProfileImage,
+  updateUser,
+  removeUserCoverImage,
+  reomoveUserProfileImage,
 } from '../../../api/users';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { ProfileVisibility, User } from '../../../types';
@@ -16,6 +20,8 @@ import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setUserInitialData } from '../../../redux/slices/userSlice';
 
 interface Props {
   user: User
@@ -28,6 +34,8 @@ function ProfileEdit({ user }: Props) {
   const [errorMessage, setErrorMessages] = useState<string[]>();
   const [profilePhoto, setProfilePhoto] = useState<any>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
+  const [isProfileDelete, setProfileDelete] = useState<Boolean>(false);
+  const [isCoverImageDelete, setCoverImageDelete] = useState<Boolean>(false);
   const [publicStatus, setPublic] = useState<boolean>(
     user.profile_status === ProfileVisibility.Public,
   );
@@ -37,6 +45,9 @@ function ProfileEdit({ user }: Props) {
   const { userName } = useParams<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
+  const userData = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,20 +55,47 @@ function ProfileEdit({ user }: Props) {
     setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
-    if (profilePhoto) {
+    if (profilePhoto && !isProfileDelete) {
       try {
-        await uploadUserProfileImage(profilePhoto);
+        await uploadUserProfileImage(profilePhoto)
+          .then((res) => {
+            dispatch(
+              setUserInitialData(
+                {
+                  ...userData,
+                  user: { ...userData.user, profilePic: res.data.profilePic },
+                },
+              ),
+            );
+          });
       } catch (requestError: any) {
         errorList = errorList.concat(requestError.response.data.message);
       }
     }
+    if (isProfileDelete) {
+      reomoveUserProfileImage()
+        .then((res) => {
+          dispatch(
+            setUserInitialData(
+              {
+                ...userData,
+                user: { ...userData.user, profilePic: res.data.profilePic },
+              },
+            ),
+          );
+        });
+    }
 
-    if (coverPhoto) {
+    if (coverPhoto && !isCoverImageDelete) {
       try {
         await uploadUserCoverImage(coverPhoto);
       } catch (requestError: any) {
         errorList = errorList.concat(requestError.response.data.message);
       }
+    }
+
+    if (isCoverImageDelete) {
+      removeUserCoverImage();
     }
 
     try {
@@ -134,7 +172,8 @@ function ProfileEdit({ user }: Props) {
                       ? undefined
                       : locallyStoredUserData.profilePic
                   }
-                  onChange={(file) => { setProfilePhoto(file); }}
+                  onChange={(file) => { setProfilePhoto(file); setProfileDelete(false); }}
+                  setRemoveImage={setProfileDelete}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change profile photo</h1>
@@ -156,7 +195,8 @@ function ProfileEdit({ user }: Props) {
                   height="10rem"
                   variant="outline"
                   defaultPhotoUrl={locallyStoredUserData.coverPhoto}
-                  onChange={(file) => { setCoverPhoto(file); }}
+                  onChange={(file) => { setCoverPhoto(file); setCoverImageDelete(false); }}
+                  setRemoveImage={setCoverImageDelete}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
                   <h1 className="h3 mb-2 fw-bold">Change cover photo</h1>

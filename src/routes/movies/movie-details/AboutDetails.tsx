@@ -14,6 +14,7 @@ import {
 import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -133,79 +134,82 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           </div>
           {aboutMovieDetail?.mainData?.production_countries.length > 0
             && (
-              <p className="mb-3 text-light">
+              <p className="mb-3 text-light p-0">
                 {aboutMovieDetail?.mainData?.production_countries.map((country: Country) => country.name).join(', ')}
               </p>
             )}
           <StyledBorder className="d-md-none" />
         </Row>
 
-        <Row className="justify-content-between mt-4">
-          <Col xs={12} md={3} className="px-0">
-            <div className="d-flex justify-content-between d-md-block align-items-center">
-              <p className="fs-3 fw-bold text-md-center m-md-0 mb-0">User rating</p>
-              <div className="d-flex mt-md-3 justify-content-md-center">
-                <FontAwesomeIcon icon={solid('star')} size="xs" className="star m-md-0" />
-                <div className="d-flex align-items-center m-md-0 ">
-                  <p className="fw-bold m-0 mx-2">3.3/5</p>
-                  <p className="m-0 text-light">(99k)</p>
+        { enableDevFeatures
+          && (
+            <Row className="justify-content-between mt-4">
+              <Col xs={12} md={3} className="px-0">
+                <div className="d-flex justify-content-between d-md-block align-items-center">
+                  <p className="fs-3 fw-bold text-md-center m-md-0 mb-0">User rating</p>
+                  <div className="d-flex mt-md-3 justify-content-md-center">
+                    <FontAwesomeIcon icon={solid('star')} size="xs" className="star m-md-0" />
+                    <div className="d-flex align-items-center m-md-0 ">
+                      <p className="fw-bold m-0 mx-2">3.3/5</p>
+                      <p className="m-0 text-light">(99k)</p>
+                    </div>
+                  </div>
+                  <BorderButton
+                    buttonClass="mx-md-auto rate-btn bg-black py-2 mt-md-4 justify-content-md-center"
+                    variant="lg"
+                    icon={regular('star')}
+                    iconClass="me-2"
+                    iconSize="sm"
+                    lable="Rate"
+                    handleClick={handleBorderButton}
+                  />
                 </div>
+                <div className="d-flex justify-content-center my-3 d-md-none ">
+                  <RoundButton className="w-100 fs-3 fw-bold">Write a review</RoundButton>
+                </div>
+                <StyledBorder className="d-md-none" />
+              </Col>
+              <Col xs={6} md={5} className="p-0">
+                <StyledVerticalBorder className="mt-4 mt-md-0">
+                  <p className="fs-3 fw-bold text-center">Worth watching?</p>
+                  <div className="mt-2 d-flex justify-content-center">
+                    <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
+                      <StyleWatchWorthIcon icon={regular('thumbs-up')} />
+                    </StyledLikeIcon>
+                    <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#00FF0A' }}>Worth it!</p>
+                  </div>
+                  <div className="mt-3">
+                    <WorthWatchIcon />
+                  </div>
+                </StyledVerticalBorder>
+              </Col>
+              <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
+                <p className="fs-3 fw-bold text-center">Gore factor</p>
+                <div className="mt-2 d-flex justify-content-center">
+                  <FontAwesomeIcon icon={solid('burst')} size="xs" className="burst" />
+                  <div className="d-flex align-items-center">
+                    <p className="fw-bold m-0 mx-2">3.3/5</p>
+                    <p className="m-0 text-light">(99k)</p>
+                  </div>
+                </div>
+                <div className="mt-4 d-flex justify-content-center">
+                  <BorderButton
+                    buttonClass="d-flex rate-btn bg-black py-2"
+                    variant="lg"
+                    icon={solid('burst')}
+                    iconClass="me-2"
+                    iconSize="sm"
+                    lable="Rate"
+                    handleClick={handleBorderButton}
+                  />
+                </div>
+              </Col>
+              <div className="d-none d-md-flex justify-content-center mt-3">
+                <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
               </div>
-              <BorderButton
-                buttonClass="mx-md-auto rate-btn bg-black py-2 mt-md-4 justify-content-md-center"
-                variant="lg"
-                icon={regular('star')}
-                iconClass="me-2"
-                iconSize="sm"
-                lable="Rate"
-                handleClick={handleBorderButton}
-              />
-            </div>
-            <div className="d-flex justify-content-center my-3 d-md-none ">
-              <RoundButton className="w-100 fs-3 fw-bold">Write a review</RoundButton>
-            </div>
-            <StyledBorder className="d-md-none" />
-          </Col>
-          <Col xs={6} md={5} className="p-0">
-            <StyledVerticalBorder className="mt-4 mt-md-0">
-              <p className="fs-3 fw-bold text-center">Worth watching?</p>
-              <div className="mt-2 d-flex justify-content-center">
-                <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                  <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-                </StyledLikeIcon>
-                <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#00FF0A' }}>Worth it!</p>
-              </div>
-              <div className="mt-3">
-                <WorthWatchIcon />
-              </div>
-            </StyledVerticalBorder>
-          </Col>
-          <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
-            <p className="fs-3 fw-bold text-center">Gore factor</p>
-            <div className="mt-2 d-flex justify-content-center">
-              <FontAwesomeIcon icon={solid('burst')} size="xs" className="burst" />
-              <div className="d-flex align-items-center">
-                <p className="fw-bold m-0 mx-2">3.3/5</p>
-                <p className="m-0 text-light">(99k)</p>
-              </div>
-            </div>
-            <div className="mt-4 d-flex justify-content-center">
-              <BorderButton
-                buttonClass="d-flex rate-btn bg-black py-2"
-                variant="lg"
-                icon={solid('burst')}
-                iconClass="me-2"
-                iconSize="sm"
-                lable="Rate"
-                handleClick={handleBorderButton}
-              />
-            </div>
-          </Col>
-          <div className="d-none d-md-flex justify-content-center mt-3">
-            <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>
-          </div>
-          <StyledBorder className="d-md-none my-3" />
-        </Row>
+              <StyledBorder className="d-md-none my-3" />
+            </Row>
+          )}
       </div>
       <MoviesModal show={showRating} setShow={setShowRating} ButtonType="rate" />
       <MoviesModal show={showGoreRating} setShow={setShowGoreRating} ButtonType="gore" />

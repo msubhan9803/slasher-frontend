@@ -143,7 +143,7 @@ function EventSuggestion() {
                 placeholder="Event description"
                 style={{ resize: 'none' }}
                 className="fs-4"
-                  aria-label="Event description"
+                aria-label="Event description"
               />
               <CharactersCounter
                 counterClass="float-end fs-4"
@@ -157,8 +157,8 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col>
-              <Form.Control aria-label="Event website" type="text" placeholder="Event website" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'url')} />
-            </Col>
+            <Form.Control aria-label="Event website" type="text" placeholder="Event website" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'url')} />
+          </Col>
         </Row>
         <Row>
           <Col md={6} className="mt-3">
@@ -170,8 +170,8 @@ function EventSuggestion() {
         </Row>
         <Row>
           <Col md={6} className="mt-3">
-              <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
-            </Col>
+            <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
+          </Col>
           <Col md={6} className="mt-3">
             <Form.Control aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
           </Col>

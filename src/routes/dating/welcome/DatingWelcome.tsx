@@ -50,7 +50,7 @@ function DatingWelcome() {
                   <h2 className="h6 mb-0">Be safe.</h2>
                   <p className="fw-light m-0 pe-md-5 text-light">
                     Don’t give your personal info to anyone if you aren’t comfortable.
-                    <Link className="text-primary" to="/dating/welcome"> Click here </Link>
+                    <Link className="text-primary" to="/app/dating/welcome"> Click here </Link>
                     for safety tips.
                   </p>
                 </span>

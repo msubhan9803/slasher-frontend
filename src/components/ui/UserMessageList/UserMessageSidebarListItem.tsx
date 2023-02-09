@@ -34,7 +34,7 @@ function UserMessageSidebarListItem({
   return (
     <StyledItem className="px-2 py-3 d-flex align-items-center">
       <div>
-        <Link to={`/messages/conversation/${messageId}`} className="text-decoration-none">
+        <Link to={`/app/messages/conversation/${messageId}`} className="text-decoration-none">
           <UserCircleImage size="3.625rem" src={image} alt="user picture" />
         </Link>
       </div>

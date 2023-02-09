@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/registration/final';
+const pagePath = '/app/registration/final';
 
 test.describe(pagePath, () => {
   test.beforeEach(async ({ page }) => {

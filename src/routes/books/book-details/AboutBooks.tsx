@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import ListIcon from '../components/ListIcon';
 import AboutBookPoster from '../../../images/book-detail-poster.jpg';
 import Switch from '../../../components/ui/Switch';
-import RoundButton from '../../../components/ui/RoundButton';
 import BookSummary from './BookSummary';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { BookIconProps } from '../components/BookProps';
@@ -14,18 +12,13 @@ import BookOverview from './BookOverview';
 import BookComments from '../components/BookComments';
 import { BookIconList } from '../components/booksList';
 import BookPosts from '../book-posts/BookPosts';
+import BorderButton from '../../../components/ui/BorderButton';
+import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 
 const StyledBookPoster = styled.div`
 aspect - ratio: 0.67;
   img{
   object - fit: cover;
-}
-`;
-const FollowStyledButton = styled(RoundButton)`
-width: 21.125rem;
-border: 1px solid #3A3B46;
-  &: hover, &:focus{
-  border: 1px solid #3A3B46;
 }
 `;
 const tabsForSelf = [
@@ -72,15 +65,15 @@ function AboutBooks() {
               <span className="h3">Your lists</span>
               <div className="mt-2 d-flex justify-content-between">
                 {bookIconListData.map((iconList: BookIconProps) => (
-                  <ListIcon
+                  <CustomGroupIcons
                     key={iconList.label}
                     label={iconList.label}
                     icon={iconList.icon}
                     iconColor={iconList.iconColor}
                     width={iconList.width}
                     height={iconList.height}
-                    addBook={iconList.addBook}
-                    onClickIcon={() => handleBookAddRemove(iconList.label)}
+                    addData={iconList.addBook}
+                    onClickIcon={handleBookAddRemove}
                   />
                 ))}
               </div>
@@ -95,14 +88,14 @@ function AboutBooks() {
             <span className="h3">Your lists</span>
             <div className="mt-2 d-flex justify-content-around">
               {bookIconListData.map((iconList: BookIconProps) => (
-                <ListIcon
+                <CustomGroupIcons
                   key={iconList.label}
                   label={iconList.label}
                   icon={iconList.icon}
                   iconColor={iconList.iconColor}
                   width={iconList.width}
                   height={iconList.height}
-                  addBook={iconList.addBook}
+                  addData={iconList.addBook}
                   onClickIcon={() => handleBookAddRemove(iconList.label)}
                 />
               ))}
@@ -112,9 +105,14 @@ function AboutBooks() {
         <Row className="d-lg-none mt-3 mb-2 text-center">
           <Col xs={12}>
             <p className="text-center fw-bold">Get updates for this book</p>
-            <FollowStyledButton variant="lg" onClick={() => setBgColor(!bgColor)} className={`rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'} `}>
-              {bgColor ? 'Follow' : 'Unfollow'}
-            </FollowStyledButton>
+            <BorderButton
+              customButtonCss="width: 21.125rem !important;"
+              buttonClass="shadow-none"
+              variant="lg"
+              toggleBgColor={bgColor}
+              handleClick={setBgColor}
+              toggleButton
+            />
           </Col>
         </Row>
         <Row className="align-items-center justify-content-center mt-4 mb-2 d-lg-none">

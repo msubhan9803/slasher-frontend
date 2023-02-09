@@ -2,6 +2,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { RegisterUser } from '../types';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
@@ -43,16 +44,37 @@ export async function register(
   );
 }
 
+export async function validateRegistrationFields(
+  {
+    firstName,
+    userName,
+    email,
+    password,
+    passwordConfirmation,
+    securityQuestion,
+    securityAnswer,
+    dob,
+  }: RegisterUser,
+) {
+  return axios.get(
+    `${apiUrl}/users/validate-registration-fields`,
+    {
+      params: {
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dob,
+      },
+    },
+  );
+}
+
 export async function forgotPassword(email: string) {
   return axios.post(`${apiUrl}/users/forgot-password`, { email });
-}
-
-export async function checkUserName(userName: string) {
-  return axios.get(`${apiUrl}/users/check-user-name?userName=${userName}`);
-}
-
-export async function checkUserEmail(email: string) {
-  return axios.get(`${apiUrl}/users/check-email?email=${email}`);
 }
 
 export async function userInitialData() {
@@ -202,4 +224,15 @@ export async function userAccountDelete() {
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
+}
+
+export async function updateUserAbout(
+  id: string,
+  aboutMe: string,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.patch(`${apiUrl}/users/${id}`, { aboutMe }, { headers });
 }

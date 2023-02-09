@@ -11,17 +11,18 @@ interface PostHeaderProps {
   id: string;
   postDate: string;
   profileImage: string;
-  popoverOptions: string[];
-  onPopoverClick: (value: string, popoverClickProps: PopoverClickProps) => void,
+  popoverOptions?: string[];
+  onPopoverClick?: (value: string, popoverClickProps: PopoverClickProps) => void,
   detailPage: boolean | undefined;
   content?: string;
   userId?: string;
   rssfeedProviderId?: string;
+  onSelect?: (value: string) => void;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId,
+  content, userId, rssfeedProviderId, onSelect,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -33,8 +34,9 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -50,8 +52,9 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -67,8 +70,9 @@ function PostHeader({
                 </p>
               ) : (
                 <HashLink
+                  onClick={() => onSelect!(rssfeedProviderId || id)}
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
                   className="text-decoration-none"
                 >
@@ -83,8 +87,8 @@ function PostHeader({
       </Col>
       <Col xs="auto" className="d-block">
         <CustomPopover
-          popoverOptions={popoverOptions}
-          onPopoverClick={onPopoverClick}
+          popoverOptions={popoverOptions!}
+          onPopoverClick={onPopoverClick!}
           content={content}
           id={id}
           userId={userId}
@@ -98,6 +102,10 @@ PostHeader.defaultProps = {
   content: null,
   userId: null,
   rssfeedProviderId: null,
+  // Remove after Podcast popover implementation
+  onPopoverClick: undefined,
+  popoverOptions: null,
+  onSelect: undefined,
 };
 
 export default PostHeader;

@@ -33,12 +33,12 @@ function TutorialProfile() {
           </Col>
         </Row>
         <div className="d-sm-flex justify-content-center mt-3">
-          <Link to="/dating/tutorial/profile" className="me-3">
+          <Link to="/app/dating/tutorial/profile" className="me-3">
             <StyledNextButton variant="primary" className="fs-3">
               Find your match
             </StyledNextButton>
           </Link>
-          <Link to="/dating/tutorial/profile">
+          <Link to="/app/dating/tutorial/profile">
             <StyledNextButton variant="secondary" className="fs-3 mt-3 mt-sm-0">
               Review your profile
             </StyledNextButton>

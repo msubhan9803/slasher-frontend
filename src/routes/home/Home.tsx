@@ -2,11 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
 import PostFeed from '../../components/ui/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
-import { deleteFeedPost, getHomeFeedPosts, updateFeedPost } from '../../api/feed-posts';
+import {
+  deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
+} from '../../api/feed-posts';
 import { Post } from '../../types';
 import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
@@ -20,16 +23,17 @@ import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/righ
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import FormatImageVideoList from '../../utils/vido-utils';
+import { useAppSelector, useAppDispatch } from '../../redux/hooks';
+import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
-const otherUserPopoverOptions = ['Report', 'Block user'];
-const newsPostPopoverOptions = ['Report'];
+const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];
+const newsPostPopoverOptions = ['Report', 'Hide'];
 
 function Home() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [show, setShow] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
@@ -38,7 +42,24 @@ function Home() {
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [posts, setPosts] = useState<Post[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (value === 'Hide') {
+      const postIdToHide = popoverClickProps.id;
+      if (!postIdToHide) return;
+      hideFeedPost(postIdToHide).then(() => {
+        // Set posts excluding the `focussedPost` so that the focussedPost is hidden immediately
+        setPosts((allPosts) => allPosts.filter((post) => post._id !== postIdToHide));
+      });
+      return;
+    }
+
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
     }
@@ -62,60 +83,73 @@ function Home() {
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      setLoadingPosts(true);
-      getHomeFeedPosts(
-        posts.length > 1 ? posts[posts.length - 1]._id : undefined,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => {
-          if (data.userId) {
-            // Regular post
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || posts.length >= scrollPosition?.data?.length
+        || posts.length === 0
+      ) {
+        setLoadingPosts(true);
+        getHomeFeedPosts(
+          posts.length > 1 ? posts[posts.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => {
+            if (data.userId) {
+              // Regular post
+              return {
+                /* eslint no-underscore-dangle: 0 */
+                _id: data._id,
+                id: data._id,
+                postDate: data.createdAt,
+                content: data.message,
+                images: FormatImageVideoList(data.images, data.message),
+                userName: data.userId.userName,
+                profileImage: data.userId.profilePic,
+                userId: data.userId._id,
+                likes: data.likes,
+                likeIcon: data.likes.includes(loginUserId),
+                likeCount: data.likeCount,
+                commentCount: data.commentCount,
+              };
+            }
+            // RSS feed post
             return {
-              /* eslint no-underscore-dangle: 0 */
               _id: data._id,
               id: data._id,
               postDate: data.createdAt,
               content: data.message,
               images: FormatImageVideoList(data.images, data.message),
-              userName: data.userId.userName,
-              profileImage: data.userId.profilePic,
-              userId: data.userId._id,
+              userName: data.rssfeedProviderId?.title,
+              profileImage: data.rssfeedProviderId?.logo,
               likes: data.likes,
               likeIcon: data.likes.includes(loginUserId),
               likeCount: data.likeCount,
               commentCount: data.commentCount,
+              rssfeedProviderId: data.rssfeedProviderId._id,
             };
-          }
-          // RSS feed post
-          return {
-            _id: data._id,
-            id: data._id,
-            postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
-            userName: data.rssfeedProviderId?.title,
-            profileImage: data.rssfeedProviderId?.logo,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
-            likeCount: data.likeCount,
-            commentCount: data.commentCount,
-            rssfeedProviderId: data.rssfeedProviderId._id,
+          });
+          setPosts((prev: Post[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          const positionData = {
+            pathname: '',
+            position: 0,
+            data: [],
+            positionElementId: '',
           };
-        });
-        setPosts((prev: Post[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+          dispatch(setScrollPosition(positionData));
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, loginUserId, posts, scrollPosition, dispatch]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -254,11 +288,22 @@ function Home() {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <CustomCreatePost />
-        <h1 className="h2 mt-2 ms-3 ms-md-0">Suggested friends</h1>
+        <h1 className="h2 my-3 ms-3 ms-md-0">Suggested friends</h1>
         <SuggestedFriend />
         {
           errorMessage && errorMessage.length > 0 && (
@@ -285,6 +330,7 @@ function Home() {
                 otherUserPopoverOptions={otherUserPopoverOptions}
                 newsPostPopoverOptions={newsPostPopoverOptions}
                 onLikeClick={onLikeClick}
+                onSelect={persistScrollPosition}
               />
             )
           }
@@ -292,7 +338,7 @@ function Home() {
         {loadingPosts && <LoadingIndicator />}
         {noMoreData && renderNoMoreDataMessage()}
         {
-          dropDownValue !== 'Edit'
+          dropDownValue === 'Delete'
           && (
             <ReportModal
               deleteText="Are you sure you want to delete this post?"

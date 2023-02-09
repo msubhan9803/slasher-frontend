@@ -13,6 +13,7 @@ import {
 } from '../../../types';
 import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
+import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -74,6 +75,7 @@ const StyledInitial = styled.p`
 function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
+  const [showShareLinks, setShowShareLinks] = useState(false);
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -91,6 +93,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
   const handleBorderButton = () => {
     setShowRating(true);
   };
+  const handleShowShareLinks = () => setShowShareLinks(true);
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -106,16 +109,13 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
             <div className="d-flex">
               <p className="m-0 fs-3 align-self-center">{DateTime.fromJSDate(new Date(aboutMovieDetail?.mainData?.release_date)).toFormat('yyyy')}</p>
               {getCertification() && (
-                <p className="fs-3 px-3 mb-0 mx-2 align-items-center border border-primary d-flex justify-content-center text-primary">
-                  {getCertification()}
-                </p>
+                <div className="d-flex align-items-center mx-3 mx-lg-2">
+                  <StyledInitial className="border border-primary mb-0 text-center text-primary">
+                    {getCertification()}
+                  </StyledInitial>
+                </div>
               )}
-              <div className="d-flex align-items-center mx-3 mx-lg-2">
-                <StyledInitial className="border border-primary mb-0 text-center text-primary">
-                  R
-                </StyledInitial>
-              </div>
-              <p className="m-0 fs-3 align-self-center">
+              <p className="m-0 ms-1 fs-3 align-self-center">
                 {toHoursAndMinutes(aboutMovieDetail && aboutMovieDetail?.mainData?.runtime)}
               </p>
             </div>
@@ -127,6 +127,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
                 iconClass="me-2"
                 iconSize="sm"
                 lable="Share"
+                handleClick={handleShowShareLinks}
               />
             </div>
           </div>
@@ -208,6 +209,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
       </div>
       <MoviesModal show={showRating} setShow={setShowRating} ButtonType="rate" />
       <MoviesModal show={showGoreRating} setShow={setShowGoreRating} ButtonType="gore" />
+      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
     </AboutMovieDetails>
   );
 }

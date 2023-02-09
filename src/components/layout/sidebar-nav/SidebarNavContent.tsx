@@ -5,6 +5,10 @@ import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 
+interface Props {
+  onToggleCanvas?: () => void;
+}
+
 type MenuType = {
   label: string, icon: any, iconColor: string, to: string, id: any, desktopOnly?: boolean
 };
@@ -64,7 +68,7 @@ const customSidebarMenuList = enableDevFeatures
     // order `Coming Soon` tab items in the end
     .sort((_, b) => (b.label !== 'Coming Soon' ? 0 : -1));
 
-function SidebarNavContent() {
+function SidebarNavContent({ onToggleCanvas }: Props) {
   return (
     <Nav>
       {customSidebarMenuList.map((menu) => (
@@ -76,6 +80,7 @@ function SidebarNavContent() {
           iconColor={menu.iconColor}
           to={menu.to}
           className={menu.desktopOnly ? 'd-none d-md-flex' : ''}
+          onToggleCanvas={onToggleCanvas}
         />
       ))}
       <ul className="list-inline mt-4 link-hover-underline fs-6">
@@ -94,4 +99,7 @@ function SidebarNavContent() {
     </Nav>
   );
 }
+SidebarNavContent.defaultProps = {
+  onToggleCanvas: () => { },
+};
 export default SidebarNavContent;

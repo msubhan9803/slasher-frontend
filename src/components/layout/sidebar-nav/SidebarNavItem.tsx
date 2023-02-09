@@ -11,6 +11,7 @@ interface Props {
   iconColor?: string;
   className?: string;
   id: number;
+  onToggleCanvas?: () => void;
 }
 
 interface LinearIconProps {
@@ -41,14 +42,15 @@ const StyledIcon = styled(FontAwesomeIcon)`
 `;
 
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className, id,
+  label, icon, iconColor: color, to, className, id, onToggleCanvas,
 }: Props) {
   const { pathname } = useLocation();
   return (
     <StyledLink
-      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className} 
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}
       ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
       to={to}
+      onClick={onToggleCanvas}
     >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>
@@ -71,6 +73,7 @@ function SidebarNavItem({
 SidebarNavItem.defaultProps = {
   className: '',
   iconColor: '',
+  onToggleCanvas: () => { },
 };
 
 export default SidebarNavItem;

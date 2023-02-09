@@ -5,7 +5,7 @@ import {
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import LikeShareModalContent from '../../routes/books/components/LikeShareModalContent';
+import LikeShareModalContent from './LikeShareModalContent';
 
 interface Props {
   show: boolean;
@@ -92,8 +92,7 @@ function LikeShareModal({ show, setShow, click }: Props) {
         <FontAwesomeIcon icon={solid('xmark')} size="lg" className="me-2" onClick={closeModal} />
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
-        {tab === 'like' && <LikeShareModalContent />}
-        {tab === 'share' && <LikeShareModalContent />}
+        {(tab === 'like' || tab === 'share') && <LikeShareModalContent />}
       </Modal.Body>
     </CustomModal>
   );

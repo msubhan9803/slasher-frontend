@@ -9,7 +9,7 @@ interface SearchProps {
   search: string;
   label: string;
 }
-const StyledInputGroup = styled(InputGroup)`
+const StyledSearchInput = styled(InputGroup)`
   .form-control {
     border-right: 1px solid var(--bs-input-border-color);
     border-bottom-left-radius: 1.875rem;
@@ -35,7 +35,7 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
     }
   };
   return (
-    <StyledInputGroup>
+    <StyledSearchInput>
       <FormControl
         className="fs-5"
         placeholder={label}
@@ -57,7 +57,7 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
           onClick={handleSearch}
         />
       </InputGroup.Text>
-    </StyledInputGroup>
+    </StyledSearchInput>
   );
 }
 

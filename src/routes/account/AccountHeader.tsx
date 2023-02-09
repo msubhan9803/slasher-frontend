@@ -13,7 +13,7 @@ const tabs = [
 ];
 function AccountHeader({ tabKey }: AccountHeaderProps) {
   return (
-    <TabLinks tabLink={tabs} toLink="/account" selectedTab={tabKey} />
+    <TabLinks tabLink={tabs} toLink="/app/account" selectedTab={tabKey} />
   );
 }
 

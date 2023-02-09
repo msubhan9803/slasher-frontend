@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Col, Image, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import RoundButton from '../../components/ui/RoundButton';
 import Switch from '../../components/ui/Switch';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
 import PodcastPoster from '../../images/podcast-poster.jpg';
@@ -12,15 +11,10 @@ import PodcastEpisodes from './PodcastEpisodes';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import PodcastsSidebar from './components/PodcastsSidebar';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import BorderButton from '../../components/ui/BorderButton';
 
 const StyledPodcastPoster = styled(Image)`
   aspect-ratio: 1;
-`;
-const StyleBorderButton = styled(RoundButton)`
-  border: 0.063rem solid #3A3B46;
-  &:hover {
-    border: 0.063rem solid #3A3B46;
-  }
 `;
 const StyledIcons = styled(FontAwesomeIcon)`
   &.star {
@@ -31,7 +25,7 @@ const StyledIcons = styled(FontAwesomeIcon)`
 `;
 const episodeData = [
   {
-    id: 1,
+    id: '1',
     userName: 'The No Sleep Podcast',
     podcastImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
@@ -41,7 +35,7 @@ const episodeData = [
     likeIcon: false,
   },
   {
-    id: 2,
+    id: '2',
     userName: 'The No Sleep Podcast',
     podcastImage: 'https://i.pravatar.cc/300?img=12',
     postDate: '06/18/2022 11:10 PM',
@@ -69,7 +63,7 @@ function PodcastDetail() {
   const params = useParams();
   useEffect(() => {
     if (params.podcastId === 'edit' && queryParam !== 'self') { navigate(`/podcasts/${params.podcastId}/episodes`); }
-  }, [params]);
+  }, [params, navigate, queryParam]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -106,26 +100,37 @@ function PodcastDetail() {
                         <p className="m-0 text-light me-xxl-2">(10K)</p>
                       </div>
                     </span>
-                    <StyleBorderButton className="d-flex align-items-center rate-btn bg-black py-2 px-4" variant="lg">
-                      <FontAwesomeIcon icon={regular('star')} size="sm" className="mb-1 me-2" />
-                      <p className="fs-3 fw-bold m-0">Rate</p>
-                    </StyleBorderButton>
+                    <BorderButton
+                      buttonClass="d-flex rate-btn ypx-4"
+                      variant="lg"
+                      icon={regular('star')}
+                      iconClass="mb-1 me-2"
+                      iconSize="sm"
+                      lable="Rate"
+                    />
                   </div>
                 </Col>
                 <Col xl={4}>
-                  <StyleBorderButton className="mt-4 mt-xl-0 mx-auto me-xl-0 ms-xl-auto d-flex d-xxl-none align-items-center share-btn bg-black px-4 py-2" variant="lg">
-                    <FontAwesomeIcon icon={solid('share-nodes')} size="sm" className="me-2" />
-                    <p className="fs-3 fw-bold m-0">Share</p>
-                  </StyleBorderButton>
+                  <BorderButton
+                    buttonClass="mt-4 mt-xl-0 mx-auto me-xl-0 ms-xl-auto d-flex d-xxl-none px-4"
+                    variant="lg"
+                    icon={solid('share-nodes')}
+                    iconClass="me-2"
+                    iconSize="sm"
+                    lable="Share"
+                  />
                 </Col>
               </Row>
               <div className="d-lg-none mt-4 text-center">
                 <p className="fw-bold m-0">Get updates for this movie</p>
                 <Row className="justify-content-center">
                   <Col xs={10} sm={5}>
-                    <StyleBorderButton onClick={() => setBgColor(!bgColor)} className={`my-3 w-100 rounded-pill shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black'}`}>
-                      {bgColor ? 'Follow' : 'Unfollow'}
-                    </StyleBorderButton>
+                    <BorderButton
+                      buttonClass="my-3 w-100 shadow-none"
+                      toggleBgColor={bgColor}
+                      handleClick={setBgColor}
+                      toggleButton
+                    />
                     <div className="mb-2 lh-lg d-flex justify-content-center">
                       <span>Push notifications</span>
                       <Switch id="pushNotificationSwitch" className="ms-3" />

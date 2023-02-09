@@ -12,8 +12,13 @@ export const updateUserName = (userName: string) => {
   Cookies.set('userName', userName, { secure: onlySendCookieOverHttps });
 };
 
-export const clearSignInCookies = () => {
+const clearSignInCookies = () => {
   Cookies.remove('sessionToken');
   Cookies.remove('userId');
   Cookies.remove('userName');
+};
+
+export const signOut = () => {
+  clearSignInCookies();
+  window.location.replace('/app/sign-in'); // redirect clears redux data and js caches
 };

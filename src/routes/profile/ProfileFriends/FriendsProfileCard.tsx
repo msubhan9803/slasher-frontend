@@ -10,13 +10,14 @@ const Container = styled.div`
   background: #1F1F1F;
 `;
 function FriendsProfileCard({
-  friend, popoverOption, handlePopoverOption, friendsType, onAcceptClick, onRejectClick,
+  friend, popoverOption, handlePopoverOption, friendsType, onAcceptClick,
+  onRejectClick, onSelect,
 }: any) {
   return (
     <Container className="d-flex p-2 justify-content-between pe-2 w-100 rounded mb-3">
       <div>
         <div className="d-flex align-items-center">
-          <Link to={`/${friend.userName}`} className="text-decoration-none">
+          <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="text-decoration-none">
             <div>
               <UserCircleImage src={friend.profilePic} alt="user picture" className="me-2" />
             </div>

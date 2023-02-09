@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { HashLink } from 'react-router-hash-link';
 import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
+import ShareLinksModal from '../ShareLinksModal';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -19,6 +20,7 @@ interface PostFooterProps {
   userName: string;
   rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
+  onSelect?: (value: string) => void
 }
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid  #3A3B46
@@ -29,8 +31,10 @@ const LinearIcon = styled.span<LinearIconProps>`
   }
 `;
 function PostFooter({
-  likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
+  likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
 }: PostFooterProps) {
+  const [showShareLinks, setShowShareLinks] = useState(false);
+  const handleShowShareLinks = () => setShowShareLinks(true);
   return (
     <CardFooter className="p-0">
       <Row className="justify-content-evenly py-3 px-md-3">
@@ -52,8 +56,9 @@ function PostFooter({
         </Col>
         <Col className="text-center">
           <HashLink
+            onClick={() => onSelect!(rssfeedProviderId || postId)}
             to={rssfeedProviderId
-              ? `/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
               : `/${userName}/posts/${postId}#comments`}
             className="text-decoration-none"
             scroll={scrollWithOffset}
@@ -64,7 +69,7 @@ function PostFooter({
         </Col>
         <Col className="text-end">
           <CustomDropDown>
-            <Dropdown.Toggle className="cursor-pointer bg-transparent p-0 text-white">
+            <Dropdown.Toggle onClick={handleShowShareLinks} className="cursor-pointer bg-transparent p-0 text-white">
               <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
               <span className="fs-3">Share</span>
             </Dropdown.Toggle>
@@ -91,12 +96,14 @@ function PostFooter({
           </linearGradient>
         </svg>
       </Row>
+      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
     </CardFooter>
   );
 }
 
 PostFooter.defaultProps = {
   rssfeedProviderId: '',
+  onSelect: undefined,
 };
 
 export default PostFooter;

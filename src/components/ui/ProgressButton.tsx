@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
-export type ProgressButtonStatus = 'default' | 'loading' | 'success' | 'failure';
+type ProgressButtonStatus = 'default' | 'loading' | 'success' | 'failure';
 
 type ProgressButtonComponentType = ({ label, className, onClick }: Props) => ReactElement<any>;
 
@@ -30,8 +30,9 @@ const useProgressButton = (): [ProgressButtonComponentType, SetProgressFunction]
     function ProgessButton({
       label, className = '', onClick = () => { },
     }: Props) {
+      const disabled = progress !== 'default';
       return (
-        <RoundButton type="submit" className={className} onClick={onClick}>
+        <RoundButton disabled={disabled} type="submit" className={className} onClick={onClick}>
           {progress === 'default' && label}
           {progress === 'loading' && <Spinner size="sm" animation="border" role="status" />}
           {progress === 'success' && <FontAwesomeIcon icon={solid('check')} size="1x" style={{ paddingTop: 3 }} />}

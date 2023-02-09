@@ -45,7 +45,7 @@ function Profile() {
           setUser(res.data);
         }).catch(() => setUserNotFound(true));
     }
-  }, [userNameOrId]);
+  }, [userNameOrId, location.pathname, location.search, navigate]);
 
   if (userNotFound) {
     return (

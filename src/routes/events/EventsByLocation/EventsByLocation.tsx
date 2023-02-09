@@ -10,9 +10,6 @@ import PubWiseAd from '../../../components/ui/PubWiseAd';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import checkAdsEventByLocation from './checkAdsEventByLocation';
 import { EVENTS_BY_LOCATION_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import EventRightSidebar from '../EventRightSidebar';
 
 const eventsList = [
   {
@@ -133,42 +130,37 @@ function EventsByLocation() {
   const bp = useBootstrapBreakpointName();
 
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <EventHeader tabKey="by-location" />
-        <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
-          <MapComponent
-            defaultCenter={center}
-            onCenterChange={(newCenter) => setCenter(newCenter)}
-            defaultZoomLevel={10}
-          />
-          <p
-            className="fs-3 text-light mt-4 mb-3 text-center"
-          >
-            Click on a pin for info
-          </p>
-          <Row className="justify-content-md-center">
-            {eventsList.map((eventDetail, i, arr) => {
-              const show = checkAdsEventByLocation(bp, i, arr);
-              return (
-                <React.Fragment key={eventDetail.id}>
-                  <Col md={6}>
-                    <EventsPosterCard
-                      listDetail={eventDetail}
-                    />
-                  </Col>
-                  {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
-                </React.Fragment>
-              );
-            })}
-          </Row>
+    <div>
+      <EventHeader tabKey="by-location" />
+      <div className="mt-3 bg-dark bg-mobile-transparent p-4 rounded">
+        <MapComponent
+          defaultCenter={center}
+          onCenterChange={(newCenter) => setCenter(newCenter)}
+          defaultZoomLevel={10}
+        />
+        <p
+          className="fs-3 text-light mt-4 mb-3 text-center"
+        >
+          Click on a pin for info
+        </p>
+        <Row className="justify-content-md-center">
+          {eventsList.map((eventDetail, i, arr) => {
+            const show = checkAdsEventByLocation(bp, i, arr);
+            return (
+              <React.Fragment key={eventDetail.id}>
+                <Col md={6}>
+                  <EventsPosterCard
+                    listDetail={eventDetail}
+                  />
+                </Col>
+                {show && <PubWiseAd className="text-center my-3" id={EVENTS_BY_LOCATION_DIV_ID} autoSequencer />}
+              </React.Fragment>
+            );
+          })}
+        </Row>
 
-        </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <EventRightSidebar />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

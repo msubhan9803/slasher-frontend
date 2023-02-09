@@ -40,7 +40,7 @@ export default function VerificationEmailNotReceived() {
         <p>
           If you have already done this and never received the email,
           please let us know by emailing us at&nbsp;
-          <Link to="/verification-email-not-received" className="text-decoration-none text-primary">
+          <Link to="/app/verification-email-not-received" className="text-decoration-none text-primary">
             help@slasher.tv
           </Link>
           &nbsp;from the email address you used when you created your
@@ -62,7 +62,7 @@ export default function VerificationEmailNotReceived() {
             </h3>
             <p>
               Please email&nbsp;
-              <Link to="/verification-email-not-received" className="text-decoration-none text-primary">
+              <Link to="/app/verification-email-not-received" className="text-decoration-none text-primary">
                 help@slasher.tv
               </Link>
               &nbsp;for assistance

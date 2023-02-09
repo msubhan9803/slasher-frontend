@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { getNotifications, markAllRead } from '../../api/notification';
 import { Notification } from '../../types';
@@ -12,37 +12,69 @@ import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import { useAppSelector, useAppDispatch } from '../../redux/hooks';
+import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
 
 function Notifications() {
   const popoverOption = ['Settings'];
-  const [notificationData, setNotificationData] = useState<Notification[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [notificationData, setNotificationData] = useState<Notification[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      setLoadingPosts(true);
-      getNotifications(
-        /* eslint no-underscore-dangle: 0 */
-        notificationData.length > 1 ? notificationData[notificationData.length - 1]._id : undefined,
-      ).then((res) => {
-        const notification = res.data;
-        setNotificationData((prev: any) => [
-          ...prev,
-          ...notification,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response?.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || notificationData.length >= scrollPosition?.data?.length
+        || notificationData.length === 0
+      ) {
+        setLoadingPosts(true);
+        getNotifications(
+          /* eslint no-underscore-dangle: 0 */
+          notificationData.length > 1 ? notificationData[notificationData.length - 1]._id : undefined,
+        ).then((res) => {
+          const notification = res.data;
+          setNotificationData((prev: any) => [
+            ...prev,
+            ...notification,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          const positionData = {
+            pathname: '',
+            position: 0,
+            data: [],
+            positionElementId: '',
+          };
+          dispatch(setScrollPosition(positionData));
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response?.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts]);
+  }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
+
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: notificationData,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   const handleLikesOption = (likeValue: string) => {
     <Link to={`/navigations/${likeValue}`} />;
   };
@@ -125,7 +157,13 @@ function Notifications() {
         markButton = false;
         notificationsForGroup.forEach((notification, index) => {
           const lastCard = notificationsForGroup.length - 1 === index;
-          elementsToRender.push(<NotificationCard notification={notification} lastCard={lastCard} />);
+          elementsToRender.push(
+            <NotificationCard
+              notification={notification}
+              lastCard={lastCard}
+              onSelect={persistScrollPosition}
+            />,
+          );
         });
       }
     });

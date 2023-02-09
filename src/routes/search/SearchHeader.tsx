@@ -23,12 +23,11 @@ function SearchHeader({
   tabKey, setSearch, search, label = '',
 }: Search) {
   const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'People');
-
   return (
     <>
       <CustomSearchInput label={label} setSearch={setSearch} search={search} />
       <div className="mt-3">
-        <TabLinks display="underline" tabLink={allTabs} toLink="/search" selectedTab={tabKey} />
+        <TabLinks display="underline" tabLink={allTabs} toLink="/app/search" selectedTab={tabKey} />
       </div>
     </>
   );

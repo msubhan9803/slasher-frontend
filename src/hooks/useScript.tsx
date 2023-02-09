@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 
-const useScript = (URL: string) => {
+/**
+ * This hook loads a script from a url. You can pass first argument as URL of
+ * the script and also pass a second argument as true if you want to *disable* the hook.
+*/
+const useScript = (URL: string, disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    if (disableHook) return;
+
     const tag = document.createElement('script');
     tag.async = true;
     tag.src = URL;
@@ -13,7 +19,7 @@ const useScript = (URL: string) => {
     tag.addEventListener('load', () => {
       setIsLoaded(true);
     });
-  }, []);
+  }, [URL, disableHook]);
 
   return isLoaded;
 };

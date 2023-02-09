@@ -57,8 +57,10 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
 
-  const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
+  const toggleOffCanvas = () => {
+    setShow(!show);
+  };
 
   useEffect(() => {
     if (!token) {
@@ -134,14 +136,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
         <StyledOffcanvas
           id={offcanvasId}
           show={show && !isDesktopResponsiveSize}
-          onHide={hideOffcanvasSidebar}
+          onHide={toggleOffCanvas}
         >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Menu</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            <MobileOnlySidebarContent className="mb-3" />
-            <SidebarNavContent />
+            <MobileOnlySidebarContent className="mb-3" onToggleCanvas={toggleOffCanvas} />
+            <SidebarNavContent onToggleCanvas={toggleOffCanvas} />
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}

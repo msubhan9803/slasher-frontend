@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Card, Col, Row } from 'react-bootstrap';
+import { Card, Row, Col } from 'react-bootstrap';
 import styled from 'styled-components';
-import PostHeader from './PostHeader';
+import RoundButton from '../RoundButton';
 import PostFooter from './PostFooter';
-import RoundButton from '../../../../components/ui/RoundButton';
+import PostHeader from './PostHeader';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -14,7 +14,7 @@ interface Props {
   episode: EpisodeProps
 }
 interface EpisodeProps {
-  id: number,
+  id: string,
   userName: string,
   podcastImage: string,
   postDate: string,
@@ -24,21 +24,21 @@ interface EpisodeProps {
   likeIcon: boolean,
 }
 const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-`;
+    svg * {
+      fill: url(#${(props) => props.uniqueId});
+    }
+  `;
 const StylePlayButton = styled(RoundButton)`
-  width: 2.667rem;
-  height: 2.667rem;
-`;
+    width: 2.667rem;
+    height: 2.667rem;
+  `;
 const StyledPodcastPlay = styled.div`
-  background: #0F0F0F;;
-`;
-function PostFeed({ episode }: Props) {
+    background: #0F0F0F;;
+  `;
+function PostcastPostFeed({ episode }: Props) {
   const [postData, setPostData] = useState<EpisodeProps>(episode);
 
-  const onLikeClick = (likeId: number) => {
+  const onLikeClick = (likeId: string) => {
     let checkLikeId = postData;
     if (checkLikeId.id === likeId) {
       checkLikeId = { ...checkLikeId, likeIcon: !checkLikeId.likeIcon };
@@ -50,9 +50,17 @@ function PostFeed({ episode }: Props) {
     <Card className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
       <Card.Header className="border-0 px-0">
         <PostHeader
-          userName={postData?.userName}
+          // userName={postData?.userName}
+          // postDate={postData.postDate}
+          // profileImage={postData.podcastImage}
+          detailPage={false}
+          id={postData.id}
+          userName={postData.userName}
           postDate={postData.postDate}
           profileImage={postData.podcastImage}
+          // popoverOptions={[]}
+          // onPopoverClick={undefined}
+          content={postData.content}
         />
       </Card.Header>
       <Card.Body className="px-0 mt-2">
@@ -91,13 +99,16 @@ function PostFeed({ episode }: Props) {
       </Card.Body>
       <PostFooter
         likeIcon={postData.likeIcon}
-        id={postData.id}
-        onLikeClick={() => onLikeClick(postData.id)}
+        postId={postData.id}
+        userName={postData.userName}
+        onLikeClick={() => { if (onLikeClick) onLikeClick(postData.id); }}
       />
     </Card>
   );
 }
-PostFeed.default = {
+
+PostcastPostFeed.default = {
   hastags: [],
 };
-export default PostFeed;
+
+export default PostcastPostFeed;

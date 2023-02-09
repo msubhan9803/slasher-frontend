@@ -15,7 +15,7 @@ const StyledNextButton = styled(RoundButton)`
 function TutorialButtons({ nextLink }: TutorialButtonProps) {
   return (
     <div className="d-flex justify-content-center mt-3 px-5 w-100">
-      <Link to={`/dating/tutorial/${nextLink}`} className="w-100">
+      <Link to={`/app/dating/tutorial/${nextLink}`} className="w-100">
         <StyledNextButton variant="primary" className="fs-3">
           Next
         </StyledNextButton>

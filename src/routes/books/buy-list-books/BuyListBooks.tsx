@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
@@ -11,7 +11,7 @@ function BuyListBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>(buyListBooks);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = buyListBooks;
     if (search) {
@@ -22,10 +22,10 @@ function BuyListBooks() {
     } else {
       setFilteredBooks(buyListBooks);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

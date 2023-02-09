@@ -8,12 +8,12 @@ import { store } from '../../redux/store';
 test('renders the expected text', () => {
   const routes = [
     {
-      path: '/home',
+      path: '/app/home',
       element: <Home />,
     },
   ];
   const router = createMemoryRouter(routes, {
-    initialEntries: ['/', '/home'],
+    initialEntries: ['/', '/app/home'],
     initialIndex: 1,
   });
   render(

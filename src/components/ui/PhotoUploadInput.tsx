@@ -83,12 +83,12 @@ function PhotoUploadInput({
       style={{ aspectRatio, height, ...style }}
     >
       <input {...getInputProps()} />
-      {(!photo && !imageUrl) && renderUploadPlaceholder(isDragActive)}
+      {(!photo && !imageUrl && !imagePreview) && renderUploadPlaceholder(isDragActive)}
       {
-        photo
+        (photo || imagePreview)
         && (
           <img
-            src={URL.createObjectURL(photo)}
+            src={photo ? URL.createObjectURL(photo) : imagePreview}
             alt="Upload preview"
           />
         )

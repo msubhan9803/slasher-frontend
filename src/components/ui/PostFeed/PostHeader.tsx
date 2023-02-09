@@ -17,11 +17,12 @@ interface PostHeaderProps {
   content?: string;
   userId?: string;
   rssfeedProviderId?: string;
+  onSelect?: (value: string) => void;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId,
+  content, userId, rssfeedProviderId, onSelect,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -33,6 +34,7 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
@@ -50,6 +52,7 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
                 ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
@@ -67,6 +70,7 @@ function PostHeader({
                 </p>
               ) : (
                 <HashLink
+                  onClick={() => onSelect!(rssfeedProviderId || id)}
                   to={rssfeedProviderId
                     ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
@@ -101,6 +105,7 @@ PostHeader.defaultProps = {
   // Remove after Podcast popover implementation
   onPopoverClick: undefined,
   popoverOptions: null,
+  onSelect: undefined,
 };
 
 export default PostHeader;

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
@@ -16,9 +17,10 @@ import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import FormatImageVideoList from '../../../utils/vido-utils';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -33,7 +35,6 @@ function ProfilePosts({ user }: Props) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
@@ -41,6 +42,13 @@ function ProfilePosts({ user }: Props) {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [posts, setPosts] = useState<Post[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
@@ -57,44 +65,63 @@ function ProfilePosts({ user }: Props) {
   };
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && user) {
-      setLoadingPosts(true);
-      /* eslint no-underscore-dangle: 0 */
-      getProfilePosts(
-        user._id,
-        posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => (
-          {
-            /* eslint no-underscore-dangle: 0 */
-            _id: data._id,
-            id: data._id,
-            postDate: data.createdAt,
-            content: data.message,
-            images: FormatImageVideoList(data.images, data.message),
-            userName: data.userId.userName,
-            profileImage: data.userId.profilePic,
-            userId: data.userId._id,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
-            likeCount: data.likeCount,
-            commentCount: data.commentCount,
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || posts.length >= scrollPosition?.data?.length
+        || posts.length === 0
+      ) {
+        setLoadingPosts(true);
+        /* eslint no-underscore-dangle: 0 */
+        getProfilePosts(
+          user._id,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              _id: data._id,
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              images: FormatImageVideoList(data.images, data.message),
+              userName: data.userId.userName,
+              profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
+            }
+          ));
+          setPosts((prev: Post[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          if (scrollPosition?.pathname === location.pathname
+            && scrollPosition?.position >= window.pageYOffset) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
           }
-        ));
-        setPosts((prev: Post[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts, user, loginUserId, posts]);
+  }, [
+    requestAdditionalPosts, loadingPosts, user, loginUserId,
+    posts, scrollPosition, location, dispatch,
+  ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -218,6 +245,16 @@ function ProfilePosts({ user }: Props) {
       .catch((error) => console.error(error));
   };
 
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   return (
     <div>
       <ProfileHeader tabKey="posts" user={user} />
@@ -244,6 +281,7 @@ function ProfilePosts({ user }: Props) {
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               onLikeClick={onLikeClick}
+              onSelect={persistScrollPosition}
             />
           )
         }

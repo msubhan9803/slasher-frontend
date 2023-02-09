@@ -34,7 +34,7 @@ function PostHeader({
             }
             <HashLink
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -51,7 +51,7 @@ function PostHeader({
             }
             <HashLink
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -68,7 +68,7 @@ function PostHeader({
               ) : (
                 <HashLink
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
                   className="text-decoration-none"
                 >

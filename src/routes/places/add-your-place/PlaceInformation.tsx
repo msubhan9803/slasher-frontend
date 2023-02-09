@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 import CustomDatePicker from '../../../components/ui/CustomDatePicker';
 
 interface InformationProps {
@@ -13,10 +13,6 @@ interface InformationProps {
   handleMessageChange: (value: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.77rem;
-  margin-right: 0.7rem;
-`;
 function PlaceInformation({
   description, charCount, startDate, setStartDate, endDate, setEndDate, handleMessageChange,
 }: InformationProps) {
@@ -43,7 +39,13 @@ function PlaceInformation({
           style={{ resize: 'none' }}
           className="fs-4"
         />
-        <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
+        <CharactersCounter
+          counterClass="float-end fs-4"
+          charCount={charCount}
+          totalChar={1000}
+          marginTop="-1.77rem"
+          marginRight=".7rem"
+        />
       </Form.Group>
       <Form.Control type="text" placeholder="Website" className="fs-4 mt-3" />
       <Row>

@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import SearchHeader from '../SearchHeader';
 import { movies } from '../SearchResult';
@@ -16,7 +13,7 @@ interface SearchMoviesProps {
 function SearchMovies() {
   const [search, setSearch] = useState<string>('');
   const [searchMovies, setSearchMovies] = useState<SearchMoviesProps[]>(movies);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = movies;
     if (search) {
@@ -27,28 +24,23 @@ function SearchMovies() {
     } else {
       setSearchMovies(movies);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <SearchHeader
-          tabKey="movies"
-          setSearch={setSearch}
-          search={search}
-        />
-        <div className="rounded-3 px-lg-4 p-3">
-          <div className="m-md-2">
-            <PosterCardList dataList={searchMovies} />
-          </div>
+    <div>
+      <SearchHeader
+        tabKey="movies"
+        setSearch={setSearch}
+        search={search}
+      />
+      <div className="rounded-3 px-lg-4 p-3">
+        <div className="m-md-2">
+          <PosterCardList dataList={searchMovies} />
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+      </div>
+    </div>
   );
 }
 

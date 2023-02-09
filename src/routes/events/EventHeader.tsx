@@ -17,10 +17,10 @@ const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'By da
 function EventHeader({ tabKey }: EventHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={allTabs} toLink="/events" selectedTab={tabKey} />
+      <TabLinks tabLink={allTabs} toLink="/app/events" selectedTab={tabKey} />
       <Row className="justify-content-center mt-4 d-lg-none">
         <Col md={6}>
-          <Link to="/events/suggestion">
+          <Link to="/app/events/suggestion">
             <RoundButton className="w-100 fs-4">Suggest event</RoundButton>
           </Link>
         </Col>

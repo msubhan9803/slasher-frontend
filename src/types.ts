@@ -30,7 +30,7 @@ export interface Post {
 }
 
 export interface User {
-  id: string;
+  _id: string;
   firstName: string;
   userName: string;
   email: string;
@@ -229,6 +229,17 @@ export enum ProfileVisibility {
   Private = 1,
 }
 
+export type RegisterUser = Partial<
+{
+  firstName: string,
+  userName: string,
+  email: string,
+  password: string,
+  passwordConfirmation: string,
+  securityQuestion: string,
+  securityAnswer: string,
+  dob: string,
+}>;
 export interface CommentValue {
   commentMessage: string,
   imageArray?: string[],

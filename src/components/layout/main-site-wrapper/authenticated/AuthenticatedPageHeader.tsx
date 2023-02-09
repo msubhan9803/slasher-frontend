@@ -1,30 +1,26 @@
 import React from 'react';
 import {
-  Navbar, Container, Nav, Image, Col, Row,
+  Navbar, Container, Nav, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import slasherLogo from '../../../../images/slasher-logo-medium.png';
 import IconWithTextNavLink from './IconWithTextNavLink';
 import IconWithTextNavButton from './IconWithTextNavButton';
-import CustomPopover from '../../../ui/CustomPopover';
 import { useAppSelector } from '../../../../redux/hooks';
 import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import HeaderLogo from '../../../ui/HeaderLogo';
 
 const SOLID_BLACK_IMAGE_BASE64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 const StyledNavbar = styled(Navbar)`
   z-index:1;
-  background-color: #101010 !important;
+  // background-color: #101010 !important;
   .nav-link {
     min-width: 5rem;
     padding-left: .25rem;
     padding-right: .25rem;
   }
-`;
-const StyledLogoImage = styled(Image)`
-  height: 6.6rem;
 `;
 
 const MobileNavbar = styled(Navbar)`
@@ -36,8 +32,8 @@ const MobileNavbar = styled(Navbar)`
 const StyledNav = styled(Nav)`
   font-size: .875em;
   @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
-    // We need to use an exact offset here because we're matching the width of the word "Profile"
-    transform: translateX(2.3rem);
+    // We need to use an exact offset here because we're matching the width of the word "Me"
+    transform: translateX(0.7rem);
     overflow: hidden;
 
   }
@@ -59,18 +55,7 @@ function AuthenticatedPageHeader(
     userName, onToggleClick, offcanvasSidebarExpandBreakPoint, ariaToggleTargetId,
   }: Props,
 ) {
-  const navigate = useNavigate();
-  const popoverOption = ['My profile', 'Settings'];
   const userData = useAppSelector((state) => state.user);
-
-  const handleNavigate = (selectedOption: string) => {
-    if (selectedOption === 'My profile') {
-      navigate(`/${userName}`);
-    }
-    if (selectedOption === 'Settings') {
-      navigate('/account/settings');
-    }
-  };
 
   const mobileNavLinkElements = [
     <IconWithTextNavButton
@@ -81,35 +66,29 @@ function AuthenticatedPageHeader(
       iconSize="lg"
       onClick={onToggleClick}
     />,
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" iconSize="lg" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" iconSize="lg" badge={userData.unreadNotificationCount} />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" iconSize="lg" badge={userData.unreadMessageCount} />,
-    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" iconSize="lg" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" iconSize="lg" />,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" iconSize="lg" badge={userData.unreadNotificationCount} />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" iconSize="lg" badge={userData.unreadMessageCount} />,
+    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" iconSize="lg" />,
   ];
 
   const desktopNavLinkElements = [
-    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/home" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Home" label="Home" icon={solid('home')} to="/app/home" className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Friends" label="Friends" icon={solid('user-group')} to={`/${userName}/friends`} badge={userData.friendRequestCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/search" className="nav-link" iconSize="2x" />,
-    <div key="me">
-      <CustomPopover
-        popoverOptions={popoverOption}
-        onPopoverClick={handleNavigate}
-        userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64}
-      />
-    </div>,
+    <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" className="nav-link" iconSize="2x" />,
+    <IconWithTextNavLink key="Me" label="Me" userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64} to={`/${userName}`} className="nav-link" userProfileIconSize="2rem" />,
   ];
 
   return (
     <>
       {/* nav-bar for large & medium screen */}
       <header>
-        <StyledNavbar bg="dark" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
+        <StyledNavbar bg="black" variant="dark" expand={offcanvasSidebarExpandBreakPoint} className={`fixed-top py-1 mb-3 d-none d-${offcanvasSidebarExpandBreakPoint}-flex`}>
           <div className="w-100 d-flex px-4 container-xxl">
             <Navbar.Brand as={Link} to="/" className="py-0">
-              <StyledLogoImage src={slasherLogo} alt="Slasher logo" />
+              <HeaderLogo />
             </Navbar.Brand>
             <StyledNav className="ms-auto">
               {

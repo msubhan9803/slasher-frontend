@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/places/newest';
+const pagePath = '/app/places/newest';
 
 test.describe(pagePath, () => {
   test.describe('for a signed-in user', () => {

@@ -24,11 +24,12 @@ function RegistrationTerms({ activeStep }: Props) {
   const navigate = useNavigate();
   const registrationInfo = useAppSelector((state) => state.registration);
   const [errorMessages, setErrorMessages] = useState<string[]>();
-  const [userHasAgreedToTerms, setUserHasAgreedToTerms] = useState(false);
-  const [isAlert, setAlert] = useState(false);
+  const [isAgreedToTerms, setIsAgreedToTerms] = useState(false);
+  const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
   const submitRegister = () => {
-    if (!userHasAgreedToTerms) {
-      setAlert(true);
+    if (!isAgreedToTerms) {
+      setShowAgreeToTermsError(true);
+      return;
     }
 
     const {
@@ -48,12 +49,16 @@ function RegistrationTerms({ activeStep }: Props) {
       dobIsoString,
     ).then(() => {
       setErrorMessages([]);
-      navigate('/registration/final');
+      navigate('/app/registration/final');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });
   };
 
+  const handleCheckbox = () => {
+    setIsAgreedToTerms(!isAgreedToTerms);
+    setShowAgreeToTermsError(isAgreedToTerms);
+  };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
@@ -75,20 +80,20 @@ function RegistrationTerms({ activeStep }: Props) {
           <input
             id="term-agreement-checkbox"
             type="checkbox"
-            checked={userHasAgreedToTerms}
-            onChange={() => setUserHasAgreedToTerms(!userHasAgreedToTerms)}
+            checked={isAgreedToTerms}
+            onChange={handleCheckbox}
             className="me-2"
           />
           I agree to these terms
         </label>
       </div>
       <div className="mt-2">
-        {isAlert && <Alert variant="info">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
+        {showAgreeToTermsError && <Alert variant="info">You must check the checkbox above and agree to these terms if you want to sign up.</Alert>}
       </div>
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
-            to="/registration/security"
+            to="/app/registration/security"
             className="w-100"
             variant="secondary"
           >

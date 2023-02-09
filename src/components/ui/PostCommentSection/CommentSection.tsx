@@ -65,7 +65,7 @@ const LikesButton = styled.div`
   }
 `;
 const CommentBox = styled.div`
-  background-color: #171717;
+  // background-color: #101010;
   word-break: break-word;
 `;
 const Likes = styled.div`
@@ -115,7 +115,7 @@ function CommentSection({
       </div>
       <div className="w-100">
         <CommentBox
-          className={`ms-3 ms-md-0 pt-3 px-3 pb-4 rounded position-relative ${active ? 'border border-primary' : ''}`}
+          className={`ms-3 ms-md-0 pt-3 px-3 pb-4 bg-dark rounded position-relative ${active ? 'border border-primary' : ''}`}
           ref={active ? highlightRef : null}
         >
           <div className="d-flex justify-content-between">

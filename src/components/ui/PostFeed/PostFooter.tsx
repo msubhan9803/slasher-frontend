@@ -20,6 +20,7 @@ interface PostFooterProps {
   userName: string;
   rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
+  onSelect?: (value: string) => void
 }
 const CardFooter = styled(Card.Footer)`
   border-top: .063rem solid  #3A3B46
@@ -30,7 +31,7 @@ const LinearIcon = styled.span<LinearIconProps>`
   }
 `;
 function PostFooter({
-  likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
+  likeIcon, postId, userName, rssfeedProviderId, onLikeClick, onSelect,
 }: PostFooterProps) {
   const [showShareLinks, setShowShareLinks] = useState(false);
   const handleShowShareLinks = () => setShowShareLinks(true);
@@ -55,6 +56,7 @@ function PostFooter({
         </Col>
         <Col className="text-center">
           <HashLink
+            onClick={() => onSelect!(rssfeedProviderId || postId)}
             to={rssfeedProviderId
               ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
               : `/${userName}/posts/${postId}#comments`}
@@ -101,6 +103,7 @@ function PostFooter({
 
 PostFooter.defaultProps = {
   rssfeedProviderId: '',
+  onSelect: undefined,
 };
 
 export default PostFooter;

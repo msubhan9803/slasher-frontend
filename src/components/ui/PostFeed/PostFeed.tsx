@@ -30,6 +30,7 @@ import {
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { useAppSelector } from '../../../redux/hooks';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -65,6 +66,7 @@ interface Props {
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
+  onSelect?: (value: string) => void;
 }
 const LinearIcon = styled.div<LinearIconProps>`
   svg * {
@@ -88,7 +90,7 @@ function PostFeed({
   commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
-  addUpdateComment, updateState, setUpdateState, isSinglePagePost,
+  addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -97,7 +99,7 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-
+  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -194,6 +196,17 @@ function PostFeed({
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
+  useEffect(() => {
+    if (postData.length > 1
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'auto',
+      });
+    }
+  }, [postData, scrollPosition, location.pathname]);
+
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -212,6 +225,7 @@ function PostFeed({
                   content={post.content}
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
+                  onSelect={onSelect}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
@@ -229,6 +243,7 @@ function PostFeed({
                     }
                     /* eslint no-underscore-dangle: 0 */
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                    onSelect={onSelect}
                   />
                 )}
                 <Row className="pt-3 px-md-3">
@@ -240,6 +255,7 @@ function PostFeed({
                   </Col>
                   <Col className="text-center" role="button">
                     <HashLink
+                      onClick={() => onSelect!(post.id)}
                       to={post.rssfeedProviderId
                         ? `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
                         : `/${post.userName}/posts/${post.id}#comments`}
@@ -268,6 +284,7 @@ function PostFeed({
                 userName={post.userName}
                 rssfeedProviderId={post.rssfeedProviderId}
                 onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
+                onSelect={onSelect}
               />
             </Card>
             {
@@ -352,5 +369,6 @@ PostFeed.defaultProps = {
   addUpdateComment: undefined,
   updateState: false,
   setUpdateState: undefined,
+  onSelect: undefined,
 };
 export default PostFeed;

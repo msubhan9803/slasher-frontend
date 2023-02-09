@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 import { getRssFeedProviderPosts } from '../../../api/rss-feed-providers';
 import { NewsPartnerPostProps } from '../../../types';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -10,6 +11,8 @@ import { reportData } from '../../../api/report';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
+import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 interface Props {
   partnerId: string;
@@ -19,49 +22,71 @@ function NewsPostData({ partnerId }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [postData, setPostData] = useState<NewsPartnerPostProps[]>([]);
   const loginUserId = Cookies.get('userId');
   const popoverOption = ['Report'];
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [postData, setPostData] = useState<NewsPartnerPostProps[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
 
   useEffect(() => {
     if (partnerId && requestAdditionalPosts && !loadingPosts) {
-      setLoadingPosts(true);
-      getRssFeedProviderPosts(
-        partnerId,
-        postData.length > 1 ? postData[postData.length - 1]._id : undefined,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => ({
-          /* eslint no-underscore-dangle: 0 */
-          _id: data._id,
-          id: data._id,
-          postDate: data.createdAt,
-          content: data.message,
-          images: data.images,
-          userName: data.rssfeedProviderId?.title,
-          rssFeedProviderLogo: data.rssfeedProviderId?.logo,
-          likes: data.likes,
-          likeIcon: data.likes.includes(loginUserId),
-          likeCount: data.likeCount,
-          commentCount: data.commentCount,
-          rssfeedProviderId: data.rssfeedProviderId._id,
-        }));
-        setPostData((prev: NewsPartnerPostProps[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        () => {
-          setNoMoreData(true);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || postData.length >= scrollPosition?.data?.length
+        || postData.length === 0
+      ) {
+        setLoadingPosts(true);
+        getRssFeedProviderPosts(
+          partnerId,
+          postData.length > 1 ? postData[postData.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => ({
+            /* eslint no-underscore-dangle: 0 */
+            _id: data._id,
+            id: data._id,
+            postDate: data.createdAt,
+            content: data.message,
+            images: data.images,
+            userName: data.rssfeedProviderId?.title,
+            rssFeedProviderLogo: data.rssfeedProviderId?.logo,
+            likes: data.likes,
+            likeIcon: data.likes.includes(loginUserId),
+            likeCount: data.likeCount,
+            commentCount: data.commentCount,
+            rssfeedProviderId: data.rssfeedProviderId._id,
+          }));
+          setPostData((prev: NewsPartnerPostProps[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          const positionData = {
+            pathname: '',
+            position: 0,
+            data: [],
+            positionElementId: '',
+          };
+          dispatch(setScrollPosition(positionData));
+        }).catch(
+          () => {
+            setNoMoreData(true);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [partnerId, requestAdditionalPosts, loadingPosts, loginUserId, postData]);
+  }, [
+    partnerId, requestAdditionalPosts, loadingPosts, loginUserId,
+    scrollPosition, postData, dispatch,
+  ]);
 
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
@@ -159,6 +184,16 @@ function NewsPostData({ partnerId }: Props) {
       .catch((error) => console.error(error));
   };
 
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: postData,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   return (
     <>
       <InfiniteScroll
@@ -176,6 +211,7 @@ function NewsPostData({ partnerId }: Props) {
               isCommentSection={false}
               onPopoverClick={handlePopoverOption}
               onLikeClick={onLikeClick}
+              onSelect={persistScrollPosition}
             />
           )
         }

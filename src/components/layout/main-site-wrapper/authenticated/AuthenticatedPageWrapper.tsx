@@ -2,7 +2,7 @@ import React, {
   useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -126,6 +126,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
             )}
           <main className="px-lg-2 flex-grow-1 min-width-0">
             {children}
+            <ScrollRestoration
+              getKey={(location: any) => location.pathname}
+            />
           </main>
         </div>
       </div>

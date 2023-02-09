@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /* eslint-disable max-lines */
 import React, { ChangeEvent, useState } from 'react';
 import {
@@ -16,7 +15,7 @@ import { ProfileVisibility, User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import CustomProgessButton, { useCustomProgressButtonStatus } from '../../../components/ui/CustomProgessButton';
+import useCustomProgressButtonStatus from '../../../components/ui/CustomProgessButton';
 
 interface Props {
   user: User
@@ -36,13 +35,13 @@ function ProfileEdit({ user }: Props) {
     user.profile_status === ProfileVisibility.Private,
   );
   const { userName } = useParams<string>();
-  const [progressButtonStatus, setProgressButtonStatus] = useCustomProgressButtonStatus();
+  const [ProgressButton1, setProgressStatusBtn1] = useCustomProgressButtonStatus();
 
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setProgressButtonStatus('loading');
+    setProgressStatusBtn1('loading');
     let errorList: string[] = [];
 
     if (profilePhoto) {
@@ -83,9 +82,9 @@ function ProfileEdit({ user }: Props) {
         location.pathname.replace(params.userName!, locallyStoredUserData.userName),
         { replace: true },
       );
-      setProgressButtonStatus('success');
+      setProgressStatusBtn1('success');
     } else {
-      setProgressButtonStatus('failure');
+      setProgressStatusBtn1('failure');
     }
   };
 
@@ -266,7 +265,7 @@ function ProfileEdit({ user }: Props) {
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <Row className="mt-2">
             <Col xs={12} md={3} lg={4} xl={3}>
-              <CustomProgessButton label="Update profile" status={progressButtonStatus} setStatus={setProgressButtonStatus} className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile} />
+              <ProgressButton1 label="Update profile" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile} />
             </Col>
           </Row>
         </div>

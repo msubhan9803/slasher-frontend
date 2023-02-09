@@ -4,36 +4,41 @@ import React, { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
-export const useCustomProgressButtonStatus = () => useState<ProgressButtonState>('default');
-
 export type ProgressButtonState = 'default' | 'loading' | 'success' | 'failure';
 
 type Props = {
-  status: ProgressButtonState, label: string, className?: string,
-  onClick: Function, setStatus: Function
+  label: string, className: string,
+  onClick: Function,
 };
 
-function CustomProgessButton({
-  status, label, className = '', onClick = () => {}, setStatus = () => {},
-}: Props) {
+type SetProgressType = (status: ProgressButtonState) => void;
+
+const useCustomProgressButtonStatus = (): [any, SetProgressType] => {
+  const [progress, setProgress] = useState<ProgressButtonState>('default');
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setStatus('default');
+      setProgress('default');
     }, 3_000);
     return () => clearTimeout(timer);
-  }, [status, setStatus]);
-  return (
-    <RoundButton type="submit" className={className} onClick={onClick}>
-      { status === 'default' && label}
-      { status === 'loading' && <Spinner size="sm" animation="border" role="status" />}
-      { status === 'success' && <FontAwesomeIcon icon={solid('check')} size="1x" style={{ paddingTop: 3 }} />}
-      { status === 'failure' && <FontAwesomeIcon icon={solid('x')} size="1x" style={{ paddingTop: 3 }} />}
-    </RoundButton>
-  );
-}
+  }, [progress, setProgress]);
 
-CustomProgessButton.defaultProps = {
-  className: '',
+  const Button = React.useMemo(() => {
+    function CustomProgessButton({
+      label, className = '', onClick = () => {},
+    }: Props) {
+      return (
+        <RoundButton type="submit" className={className} onClick={onClick}>
+          { progress === 'default' && label}
+          { progress === 'loading' && <Spinner size="sm" animation="border" role="status" />}
+          { progress === 'success' && <FontAwesomeIcon icon={solid('check')} size="1x" style={{ paddingTop: 3 }} />}
+          { progress === 'failure' && <FontAwesomeIcon icon={solid('x')} size="1x" style={{ paddingTop: 3 }} />}
+        </RoundButton>
+      );
+    }
+    return CustomProgessButton;
+  }, [progress]);
+  return [Button, setProgress];
 };
 
-export default CustomProgessButton;
+export default useCustomProgressButtonStatus;

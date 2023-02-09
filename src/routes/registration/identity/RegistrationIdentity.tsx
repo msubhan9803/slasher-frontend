@@ -46,7 +46,7 @@ function RegistrationIdentity({ activeStep }: Props) {
       return;
     }
 
-    navigate('/registration/security');
+    navigate('/app/registration/security');
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -110,7 +110,7 @@ function RegistrationIdentity({ activeStep }: Props) {
           <div className="text-center fs-5">
             Already have an account?
             {' '}
-            <Link to="/sign-in" className="text-primary">Click here</Link>
+            <Link to="/app/sign-in" className="text-primary">Click here</Link>
             {' '}
             to go to the sign in screen.
           </div>

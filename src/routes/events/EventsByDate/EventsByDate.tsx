@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import Calendar, { CalendarTileProperties, DrillCallbackProperties, ViewCallbackProperties } from 'react-calendar';
@@ -160,7 +162,7 @@ function EventsByDate() {
       const formatDateList = countedDateList.map((dateCount: any) => DateTime.fromISO(dateCount.date).toUTC().toFormat('yyyy-MM-dd'));
       setMarkDateList(formatDateList);
     });
-  }, [viewChange]);
+  }, [viewChange, selectedDate]);
 
   useEffect(() => {
     setNoMoreData(false); // reset when day changes
@@ -170,9 +172,9 @@ function EventsByDate() {
         setNoMoreData(true);
       }
     }).catch(() => { });
-  }, [startDate]);
+  }, [startDate, endDate]);
 
-  const fetchMoreEvent = () => {
+  const fetchMoreEvent = useCallback(() => {
     if (eventsList && eventsList.length > 0) {
       getEvents(startDate, endDate, eventsList[eventsList.length - 1]._id)
         .then((res) => {
@@ -186,7 +188,7 @@ function EventsByDate() {
         })
         .catch(() => { });
     }
-  };
+  }, [endDate, eventsList, startDate]);
 
   const onActiveStartDateChange = (data: ViewCallbackProperties) => {
     if (data.view === 'month') {
@@ -224,7 +226,7 @@ function EventsByDate() {
         fetchMoreEvent();
       }
     }
-  }, [yPositionOfLastEventElement]);
+  }, [yPositionOfLastEventElement, fetchMoreEvent]);
   return (
     <div>
       <EventHeader tabKey="by-date" />

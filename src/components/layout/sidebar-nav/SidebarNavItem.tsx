@@ -2,7 +2,7 @@ import React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, matchPath, useLocation } from 'react-router-dom';
 
 interface Props {
   label: string;
@@ -11,6 +11,7 @@ interface Props {
   iconColor?: string;
   className?: string;
   id: number;
+  onToggleCanvas?: () => void;
 }
 
 interface LinearIconProps {
@@ -41,10 +42,16 @@ const StyledIcon = styled(FontAwesomeIcon)`
 `;
 
 function SidebarNavItem({
-  label, icon, iconColor: color, to, className, id,
+  label, icon, iconColor: color, to, className, id, onToggleCanvas,
 }: Props) {
+  const { pathname } = useLocation();
   return (
-    <StyledLink className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}`} to={to}>
+    <StyledLink
+      className={`w-100 btn rounded-3 btn-dark d-flex align-items-center ${className}
+      ${matchPath({ path: to, end: false }, pathname) ? 'btn-filter' : ''}`}
+      to={to}
+      onClick={onToggleCanvas}
+    >
       <LinkContentWrapper className="d-flex align-items-center justify-content-between">
         <LinearIcon uniqueId={`icon-${id}`}>
           <StyledIcon icon={icon} size="lg" className="me-1 fa-fw" />
@@ -66,6 +73,7 @@ function SidebarNavItem({
 SidebarNavItem.defaultProps = {
   className: '',
   iconColor: '',
+  onToggleCanvas: () => { },
 };
 
 export default SidebarNavItem;

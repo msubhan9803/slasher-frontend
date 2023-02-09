@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { useLocation } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
@@ -10,50 +11,65 @@ import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
-  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
+    scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
+  );
 
   useEffect(() => {
-    setFilteredMovies([]);
-    setRequestAdditionalPosts(true);
-  }, [search, sortVal]);
+    if (scrollPosition === null) {
+      setFilteredMovies([]);
+      setRequestAdditionalPosts(true);
+    }
+  }, [search, sortVal, scrollPosition]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
-      /* eslint no-underscore-dangle: 0 */
-      setNoMoreData(false);
-      setLoadingPosts(true);
-      getMovies(
-        search,
-        sortVal,
-        filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
-      )
-        .then((res) => {
-          setFilteredMovies((prev: MoviesProps[]) => [
-            ...prev,
-            ...res.data,
-          ]);
-          if (res.data.length === 0) { setNoMoreData(true); }
-        }).catch(
-          (error) => {
-            setNoMoreData(true);
-            setErrorMessage(error.response.data.message);
-          },
-        ).finally(
-          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-        );
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || filteredMovies.length >= scrollPosition?.data?.length
+        || filteredMovies.length === 0
+      ) {
+        /* eslint no-underscore-dangle: 0 */
+        setNoMoreData(false);
+        setLoadingPosts(true);
+        getMovies(
+          search,
+          sortVal,
+          filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
+        )
+          .then((res) => {
+            setFilteredMovies((prev: MoviesProps[]) => [
+              ...prev,
+              ...res.data,
+            ]);
+            if (res.data.length === 0) { setNoMoreData(true); }
+          }).catch(
+            (error) => {
+              setNoMoreData(true);
+              setErrorMessage(error.response.data.message);
+            },
+          ).finally(
+            () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+          );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts, search, sortVal]);
+  }, [requestAdditionalPosts, loadingPosts, search, sortVal, filteredMovies, scrollPosition]);
 
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())
@@ -82,6 +98,16 @@ function AllMovies() {
       .then((result: any) => {
         setFilteredMovies(result.data);
       });
+  };
+
+  const persistScrollPosition = () => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: filteredMovies,
+      id: '',
+    };
+    dispatch(setScrollPosition(positionData));
   };
 
   return (
@@ -118,7 +144,11 @@ function AllMovies() {
             loadMore={() => { setRequestAdditionalPosts(true); }}
             hasMore={!noMoreData}
           >
-            <PosterCardList dataList={filteredMovies} pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID} />
+            <PosterCardList
+              dataList={filteredMovies}
+              pubWiseAdUnitDivId={ALL_MOVIES_DIV_ID}
+              onSelect={persistScrollPosition}
+            />
           </InfiniteScroll>
           {loadingPosts && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}

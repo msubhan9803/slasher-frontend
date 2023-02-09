@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
@@ -63,7 +63,7 @@ function ProfilePostDetail({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  const feedComments = (sortBy?: boolean) => {
+  const feedComments = useCallback((sortBy?: boolean) => {
     let data;
     if (sortBy) {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
@@ -100,7 +100,7 @@ function ProfilePostDetail({ user }: Props) {
     ).finally(
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
-  };
+  }, [commentData, postId]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments) {
@@ -108,7 +108,7 @@ function ProfilePostDetail({ user }: Props) {
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  }, [requestAdditionalPosts, loadingComments, feedComments]);
 
   useEffect(() => {
     if (postId) {
@@ -142,7 +142,7 @@ function ProfilePostDetail({ user }: Props) {
           setErrorMessage(error.response.data.message);
         });
     }
-  }, [postId, user]);
+  }, [postId, user, loginUserId, navigate]);
 
   const callLatestFeedComments = () => {
     getFeedComments(postId!).then((res) => {
@@ -525,7 +525,7 @@ function ProfilePostDetail({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  const getSingleComment = () => {
+  const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
@@ -539,12 +539,12 @@ function ProfilePostDetail({ user }: Props) {
       }
       setCommentData([res.data]);
     });
-  };
+  }, [navigate, postId, queryCommentId, queryReplyId, user.userName]);
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId]);
+  }, [queryCommentId, queryReplyId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);

@@ -34,7 +34,7 @@ const useBootstrapBreakpointName = () => {
     window.addEventListener('resize', resizeCallback);
 
     return () => window.removeEventListener('resize', resizeCallback);
-  }, []);
+  }, [resizeCallback]);
 
   return breakpointName;
 };

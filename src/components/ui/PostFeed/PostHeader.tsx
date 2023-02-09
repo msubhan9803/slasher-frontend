@@ -17,11 +17,12 @@ interface PostHeaderProps {
   content?: string;
   userId?: string;
   rssfeedProviderId?: string;
+  onSelect?: (value: string) => void;
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId,
+  content, userId, rssfeedProviderId, onSelect,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -33,8 +34,9 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -50,8 +52,9 @@ function PostHeader({
               // else the `scrollToTop/scrollWithOffset` won't work.
             }
             <HashLink
+              onClick={() => onSelect!(rssfeedProviderId || id)}
               to={rssfeedProviderId
-                ? `/news/partner/${rssfeedProviderId}#`
+                ? `/app/news/partner/${rssfeedProviderId}#`
                 : `/${userName}#`}
               scroll={scrollToTop}
               className="text-decoration-none"
@@ -67,8 +70,9 @@ function PostHeader({
                 </p>
               ) : (
                 <HashLink
+                  onClick={() => onSelect!(rssfeedProviderId || id)}
                   to={rssfeedProviderId
-                    ? `/news/partner/${rssfeedProviderId}/posts/${id}#`
+                    ? `/app/news/partner/${rssfeedProviderId}/posts/${id}#`
                     : `/${userName}/posts/${id}#`}
                   className="text-decoration-none"
                 >
@@ -101,6 +105,7 @@ PostHeader.defaultProps = {
   // Remove after Podcast popover implementation
   onPopoverClick: undefined,
   popoverOptions: null,
+  onSelect: undefined,
 };
 
 export default PostHeader;

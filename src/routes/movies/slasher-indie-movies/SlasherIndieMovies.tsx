@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { slasherIndieMovies } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
@@ -8,7 +8,7 @@ function SlasherIndieMovies() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(slasherIndieMovies);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = slasherIndieMovies;
     if (search) {
@@ -19,10 +19,10 @@ function SlasherIndieMovies() {
     } else {
       setFilteredMovies(slasherIndieMovies);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <div>
       <MoviesHeader

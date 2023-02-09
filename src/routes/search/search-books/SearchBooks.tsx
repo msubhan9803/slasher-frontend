@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import SearchHeader from '../SearchHeader';
 import { books } from '../SearchResult';
@@ -13,7 +13,7 @@ export interface SearchBooksProps {
 function SearchBooks() {
   const [search, setSearch] = useState<string>('');
   const [searchBooks, setSearchBooks] = useState<SearchBooksProps[]>(books);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = books;
     if (search) {
@@ -24,10 +24,10 @@ function SearchBooks() {
     } else {
       setSearchBooks(books);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <div>
       <SearchHeader

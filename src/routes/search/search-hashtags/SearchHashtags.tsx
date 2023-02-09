@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { StyledHastagsCircle } from '../component/Hashtags';
 import SearchHeader from '../SearchHeader';
@@ -12,7 +12,7 @@ interface SearchPeopleProps {
 function SearchHashtags() {
   const [search, setSearch] = useState<string>('');
   const [searchHashtag, setSearchHashtag] = useState<SearchPeopleProps[]>(hashtags);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = hashtags;
     if (search) {
@@ -23,10 +23,10 @@ function SearchHashtags() {
     } else {
       setSearchHashtag(hashtags);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <div>
       <SearchHeader

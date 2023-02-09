@@ -39,7 +39,7 @@ function UserMessageSidebarListItem({
         </Link>
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
-        <Link to={`/messages/conversation/${messageId}`} className="text-decoration-none">
+        <Link to={`/app/messages/conversation/${messageId}`} className="text-decoration-none">
           <p className="mb-0 text-capitalize">
             {userName}
           </p>

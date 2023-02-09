@@ -10,6 +10,7 @@ import PubWiseAd from '../PubWiseAd';
 interface PosterCardProps {
   dataList: CardListProps[] | [];
   pubWiseAdUnitDivId?: string;
+  onSelect?: () => void;
 }
 interface CardListProps {
   id: number;
@@ -23,7 +24,7 @@ interface CardListProps {
   releaseDate?: string;
 }
 
-function PosterCardList({ dataList, pubWiseAdUnitDivId }: PosterCardProps) {
+function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
 
   return (
@@ -34,7 +35,10 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId }: PosterCardProps) {
           /* eslint no-underscore-dangle: 0 */
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
-              <Link to={`/movies/${listDetail._id}/details`}>
+              <Link
+                onClick={() => onSelect!()}
+                to={`/app/movies/${listDetail._id}/details`}
+              >
                 <PosterCard
                   name={listDetail.name}
                   poster={listDetail.logo}
@@ -54,6 +58,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId }: PosterCardProps) {
 
 PosterCardList.defaultProps = {
   pubWiseAdUnitDivId: '',
+  onSelect: undefined,
 };
 
 export default PosterCardList;

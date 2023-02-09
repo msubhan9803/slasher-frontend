@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -45,6 +47,7 @@ function ProfileFriends({ user }: Props) {
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+  const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -62,48 +65,31 @@ function ProfileFriends({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (page === 0) setFriendsList([]);
-    setLoadingFriends(true);
-    /* eslint no-underscore-dangle: 0 */
-    userProfileFriends(user._id, search ? 0 : page, search)
+  const fetchMoreFriendList = useCallback(() => {
+    userProfileFriends(user._id, page, search)
       .then((res) => {
-        setFriendsList(res.data.friends);
-        setFriendCount(res.data.allFriendCount);
-        setPage(page + 1);
         setLoadingFriends(false);
-        if (search) {
-          setPage(0);
-        } else {
-          setPage(page + 1);
-        }
+        setFriendsList((prev: any) => [
+          ...prev,
+          ...res.data.friends,
+        ]);
+        setPage(page + 1);
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
+        setLoadingFriends(false);
       })
-      .catch((error) => {
-        setErrorMessage(error.response.data.message); setLoadingFriends(false);
-      });
-  }, [search, user]);
-
-  const fetchMoreFriendList = () => {
-    if (page > 0) {
+      .catch((error) => setErrorMessage(error.response.data.message))
+      .finally(
+        () => { setAdditionalFriend(false); setLoadingFriends(false); },
+      );
+  }, [search, page, user._id]);
+  useEffect(() => {
+    if (additionalFriend && !loadingFriends) {
       setLoadingFriends(true);
-      userProfileFriends(user._id, page, search)
-        .then((res) => {
-          setLoadingFriends(false);
-          setFriendsList((prev: any) => [
-            ...prev,
-            ...res.data.friends,
-          ]);
-          setPage(page + 1);
-          if (res.data.friends.length === 0) {
-            setNoMoreData(true);
-          }
-        });
+      fetchMoreFriendList();
     }
-  };
+  }, [additionalFriend, loadingFriends, fetchMoreFriendList]);
   const getYPosition = () => {
     const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
@@ -115,12 +101,12 @@ function ProfileFriends({ user }: Props) {
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine) {
-        if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
+      if (bottomLine && noMoreData && page > 0) {
+        // if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
         fetchMoreFriendList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendList, page, search.length, noMoreData]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -203,7 +189,7 @@ function ProfileFriends({ user }: Props) {
           <InfiniteScroll
             pageStart={0}
             initialLoad={false}
-            loadMore={fetchMoreFriendList}
+            loadMore={() => { setAdditionalFriend(true); }}
             hasMore={!noMoreData}
           >
             <Row className="mt-4" ref={friendContainerElementRef}>

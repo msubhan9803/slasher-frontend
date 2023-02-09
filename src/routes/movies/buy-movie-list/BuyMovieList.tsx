@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { buyMovieList } from '../components/MovieList';
 import { MoviesProps } from '../components/MovieProps';
@@ -9,7 +9,7 @@ function BuyMovieList() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(buyMovieList);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = buyMovieList;
     if (search) {
@@ -20,10 +20,10 @@ function BuyMovieList() {
     } else {
       setFilteredMovies(buyMovieList);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <div>
       <MoviesHeader

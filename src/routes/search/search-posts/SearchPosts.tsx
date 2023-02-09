@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import SearchHeader from '../SearchHeader';
@@ -20,7 +20,7 @@ function SearchPosts() {
   const [searchPosts, setSearchPosts] = useState<SearchPostsProps[]>(posts);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = posts;
     if (search) {
@@ -31,10 +31,10 @@ function SearchPosts() {
     } else {
       setSearchPosts(posts);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
 
   const handlePopoverOption = (value: string) => {
     setShow(true);

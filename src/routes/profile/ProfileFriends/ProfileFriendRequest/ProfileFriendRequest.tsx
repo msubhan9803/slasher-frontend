@@ -1,5 +1,7 @@
 import Cookies from 'js-cookie';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -48,7 +50,7 @@ function ProfileFriendRequest({ user }: Props) {
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
-  const fetchMoreFriendReqList = () => {
+  const fetchMoreFriendReqList = useCallback(() => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
         setFriendsReqList((prev: FriendProps[]) => [
@@ -65,13 +67,13 @@ function ProfileFriendRequest({ user }: Props) {
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  };
+  }, [friendRequestPage]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
       setLoadingFriendRequests(true);
       fetchMoreFriendReqList();
     }
-  }, [additionalFriendRequest, loadingFriendRequests]);
+  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -118,7 +120,7 @@ function ProfileFriendRequest({ user }: Props) {
       navigate(`/${params.userName}/friends`);
     }
     getYPosition();
-  }, [friendsReqList]);
+  }, [loginUserName, navigate, params.userName, user.userName]);
 
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
@@ -127,7 +129,7 @@ function ProfileFriendRequest({ user }: Props) {
         fetchMoreFriendReqList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendReqList, friendRequestPage, noMoreData]);
   return (
     <div>
       <ProfileHeader tabKey="friends" user={user} />

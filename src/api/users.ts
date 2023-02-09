@@ -178,7 +178,6 @@ export async function uploadUserCoverImage(file: File) {
 export async function removeUserCoverImage() {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/users/cover-image`, { headers });
@@ -187,7 +186,6 @@ export async function removeUserCoverImage() {
 export async function reomoveUserProfileImage() {
   const token = Cookies.get('sessionToken');
   const headers = {
-    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
   return axios.delete(`${apiUrl}/users/profile-image`, { headers });

@@ -503,7 +503,7 @@ export class UsersController {
     };
   }
 
-  @Post('upload-profile-image')
+  @Post('profile-image')
   @UseInterceptors(FileInterceptor(
     'file',
     {
@@ -532,7 +532,7 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { profilePic: user.profilePic };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
@@ -573,7 +573,7 @@ export class UsersController {
     return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
-  @Post('upload-cover-image')
+  @Post('cover-image')
   @UseInterceptors(FileInterceptor(
     'file',
     {
@@ -602,7 +602,7 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { coverPhoto: user.coverPhoto };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
@@ -667,5 +667,27 @@ export class UsersController {
     return {
       success: true,
     };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
   }
 }

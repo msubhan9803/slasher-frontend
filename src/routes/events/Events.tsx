@@ -1,5 +1,8 @@
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ContentSidbarWrapper, ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
+import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import EventDetails from './EventDetails/EventDetails';
 import EventsByDate from './EventsByDate/EventsByDate';
 import EventsByLocation from './EventsByLocation/EventsByLocation';
@@ -8,14 +11,23 @@ import EventsSuggestion from './suggestion/EventsSuggestion';
 
 function Events() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="by-date" replace />} />
-      <Route path="/suggestion" element={<EventsSuggestion />} />
-      <Route path="/by-location" element={<EventsByLocation />} />
-      <Route path="/by-date" element={<EventsByDate />} />
-      <Route path="/favorites" element={<Favorites />} />
-      <Route path="/:id" element={<EventDetails />} />
-    </Routes>
+    <ContentSidbarWrapper>
+      <ContentPageWrapper>
+        <Routes>
+          <Route path="/" element={<Navigate to="by-date" replace />} />
+          <Route path="/suggestion" element={<EventsSuggestion />} />
+          <Route path="/by-location" element={<EventsByLocation />} />
+          <Route path="/by-date" element={<EventsByDate />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/:id" element={<EventDetails />} />
+        </Routes>
+      </ContentPageWrapper>
+
+      {/* Global right sidebar for all above routes */}
+      <RightSidebarWrapper className="d-none d-lg-block">
+        <RightSidebarSelf />
+      </RightSidebarWrapper>
+    </ContentSidbarWrapper>
   );
 }
 export default Events;

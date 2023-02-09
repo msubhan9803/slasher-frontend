@@ -50,7 +50,7 @@ function ShoppingDetails() {
     if ((params.summary === 'edit' || params.summary === 'shopping-offer') && queryParam !== 'self') {
       navigate(`/shopping/${params.id}/posts`);
     }
-  }, [params, queryParam]);
+  }, [params, queryParam, navigate]);
 
   const handleToggle = () => {
     setFavorite(!isFavorite);

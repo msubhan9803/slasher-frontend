@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormControl, InputGroup } from 'react-bootstrap';
@@ -38,7 +38,7 @@ const SearchInputGroup = styled(InputGroup)`
 function SearchInput({
   setFiltered, filtered, data, selectedTab, setMessage, search, setSearch, isRedirect,
 }: SearchPropss) {
-  const searchString = (str: string) => {
+  const searchString = useCallback((str: string) => {
     const prevFilter = filtered;
     let errMsg = 'No data Found';
     if (str) {
@@ -52,13 +52,13 @@ function SearchInput({
       setFiltered(data);
     }
     setMessage(errMsg);
-  };
+  }, [data, filtered, selectedTab, setFiltered, setMessage]);
 
   useEffect(() => {
     if (isRedirect === true) {
       searchString(search);
     }
-  }, [isRedirect]);
+  }, [isRedirect, search, searchString]);
 
   const searchData = (query: any) => {
     const searchQuery = query.target.value;

@@ -54,9 +54,9 @@ function urlForNotification(notification: Notification) {
       }
       return `/${notification.feedPostId.userId}/posts/${notification.feedPostId._id}`;
     case NotificationType.NewPostFromFollowedRssFeedProvider:
-      return `/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
+      return `/app/news/partner/${notification.rssFeedProviderId}/posts/${notification.feedPostId._id}`;
     default:
-      return '/notifications';
+      return '/app/notifications';
   }
 }
 

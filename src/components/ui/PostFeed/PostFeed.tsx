@@ -100,7 +100,7 @@ function PostFeed({
 
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
-      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+      return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
     return `/${post.userName}/posts/${post.id}`;
   };
@@ -125,7 +125,7 @@ function PostFeed({
 
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
-      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+      return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
     }
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
   };
@@ -187,10 +187,10 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/home' || location.pathname.endsWith('/posts')) {
+  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (location.pathname.includes('/news/partner/')) {
+  if (location.pathname.includes('/app/news/partner/')) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
@@ -241,7 +241,7 @@ function PostFeed({
                   <Col className="text-center" role="button">
                     <HashLink
                       to={post.rssfeedProviderId
-                        ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
+                        ? `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
                         : `/${post.userName}/posts/${post.id}#comments`}
                       className="text-decoration-none"
                       scroll={scrollWithOffset}

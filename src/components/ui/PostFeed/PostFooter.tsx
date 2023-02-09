@@ -56,7 +56,7 @@ function PostFooter({
         <Col className="text-center">
           <HashLink
             to={rssfeedProviderId
-              ? `/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
               : `/${userName}/posts/${postId}#comments`}
             className="text-decoration-none"
             scroll={scrollWithOffset}
@@ -94,7 +94,7 @@ function PostFooter({
           </linearGradient>
         </svg>
       </Row>
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
+      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} />}
     </CardFooter>
   );
 }

@@ -29,7 +29,7 @@ const EventsCardStyle = styled(Card)`
 
 function EventsPosterCard({ listDetail }: Props) {
   return (
-    <Link to={`/events/${listDetail.id}`} className="text-decoration-none">
+    <Link to={`/app/events/${listDetail.id}`} className="text-decoration-none">
       <EventsCardStyle className="rounded-3 px-3 pt-4 pb-2">
         <Card.Img variant="top" src={listDetail.image} className="mb-2 bg-black" />
         <Card.Body className="p-0 mt-2">

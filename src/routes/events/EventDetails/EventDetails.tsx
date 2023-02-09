@@ -42,7 +42,7 @@ function EventDetails() {
     <div>
       <Row className="justify-content-center my-4 d-lg-none">
         <Col md={6}>
-          <Link to="/events/suggestion">
+          <Link to="/app/events/suggestion">
             <RoundButton className="w-100 fs-4">Suggest event</RoundButton>
           </Link>
         </Col>

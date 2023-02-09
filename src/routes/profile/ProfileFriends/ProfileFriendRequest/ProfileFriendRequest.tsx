@@ -1,13 +1,12 @@
 import Cookies from 'js-cookie';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
 import { acceptFriendsRequest, rejectFriendsRequest, userProfileFriendsRequest } from '../../../../api/friends';
 import { userInitialData } from '../../../../api/users';
-import { ContentPageWrapper, ContentSidbarWrapper } from '../../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarWrapper from '../../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
@@ -17,6 +16,7 @@ import { setUserInitialData } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
+import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
 
 interface FriendProps {
   _id?: string;
@@ -50,7 +50,7 @@ function ProfileFriendRequest({ user }: Props) {
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
 
-  const fetchMoreFriendReqList = () => {
+  const fetchMoreFriendReqList = useCallback(() => {
     userProfileFriendsRequest(friendRequestPage)
       .then((res) => {
         setFriendsReqList((prev: FriendProps[]) => [
@@ -67,13 +67,13 @@ function ProfileFriendRequest({ user }: Props) {
       .finally(
         () => { setAdditionalFriendRequest(false); setLoadingFriendRequests(false); },
       );
-  };
+  }, [friendRequestPage]);
   useEffect(() => {
     if (additionalFriendRequest && !loadingFriendRequests) {
       setLoadingFriendRequests(true);
       fetchMoreFriendReqList();
     }
-  }, [additionalFriendRequest, loadingFriendRequests]);
+  }, [additionalFriendRequest, loadingFriendRequests, fetchMoreFriendReqList]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -87,7 +87,10 @@ function ProfileFriendRequest({ user }: Props) {
     acceptFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(forceReloadSuggestedFriends());
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -97,7 +100,10 @@ function ProfileFriendRequest({ user }: Props) {
     rejectFriendsRequest(userId)
       .then(() => {
         userProfileFriendsRequest(0)
-          .then((res) => setFriendsReqList(res.data));
+          .then((res) => {
+            setFriendsReqList(res.data);
+            dispatch(forceReloadSuggestedFriends());
+          });
         userInitialData().then((res) => {
           dispatch(setUserInitialData(res.data));
         });
@@ -114,7 +120,7 @@ function ProfileFriendRequest({ user }: Props) {
       navigate(`/${params.userName}/friends`);
     }
     getYPosition();
-  }, [friendsReqList]);
+  }, [loginUserName, navigate, params.userName, user.userName]);
 
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
@@ -123,50 +129,45 @@ function ProfileFriendRequest({ user }: Props) {
         fetchMoreFriendReqList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendReqList, friendRequestPage, noMoreData]);
   return (
-    <ContentSidbarWrapper>
-      <ContentPageWrapper>
-        <ProfileHeader tabKey="friends" user={user} />
-        <div className="mt-3">
-          <div className="d-sm-flex d-block justify-content-between">
-            <div>
-              <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
-            </div>
-          </div>
-          <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
-            {loginUserName === user.userName
-              && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
-            <InfiniteScroll
-              pageStart={0}
-              initialLoad
-              loadMore={() => { setAdditionalFriendRequest(true); }}
-              hasMore={!noMoreData}
-            >
-              <Row className="mt-4" ref={friendRequestContainerElementRef}>
-                {friendsReqList.map((friend: FriendProps) => (
-                  /* eslint no-underscore-dangle: 0 */
-                  <Col md={4} lg={6} xl={4} key={friend._id}>
-                    <FriendsProfileCard
-                      friend={friend}
-                      friendsType="requested"
-                      onAcceptClick={handleAcceptRequest}
-                      onRejectClick={handleRejectRequest}
-                    />
-                  </Col>
-                ))}
-              </Row>
-            </InfiniteScroll>
-            {loadingFriendRequests && <LoadingIndicator />}
-            {noMoreData && renderNoMoreDataMessage()}
-            <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+    <div>
+      <ProfileHeader tabKey="friends" user={user} />
+      <div className="mt-3">
+        <div className="d-sm-flex d-block justify-content-between">
+          <div>
+            <CustomSearchInput label="Search friends..." setSearch={setSearch} search={search} />
           </div>
         </div>
-      </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
-      </RightSidebarWrapper>
-    </ContentSidbarWrapper>
+        <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
+          {loginUserName === user.userName
+            && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="request" />}
+          <InfiniteScroll
+            pageStart={0}
+            initialLoad
+            loadMore={() => { setAdditionalFriendRequest(true); }}
+            hasMore={!noMoreData}
+          >
+            <Row className="mt-4" ref={friendRequestContainerElementRef}>
+              {friendsReqList.map((friend: FriendProps) => (
+                /* eslint no-underscore-dangle: 0 */
+                <Col md={4} lg={6} xl={4} key={friend._id}>
+                  <FriendsProfileCard
+                    friend={friend}
+                    friendsType="requested"
+                    onAcceptClick={handleAcceptRequest}
+                    onRejectClick={handleRejectRequest}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </InfiniteScroll>
+          {loadingFriendRequests && <LoadingIndicator />}
+          {noMoreData && renderNoMoreDataMessage()}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+        </div>
+      </div>
+    </div>
   );
 }
 

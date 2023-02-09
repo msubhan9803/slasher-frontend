@@ -13,7 +13,7 @@ const StyledRoundButtonLink = styled(RoundButtonLink)`
 function CustomCreatePost() {
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
   return (
-    <StyledRoundButtonLink to="/posts/create" variant="dark" className="w-100 d-flex justify-content-between">
+    <StyledRoundButtonLink to="/app/posts/create" variant="dark" className="w-100 d-flex justify-content-between">
       <div>
         <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
         <span className="ms-2 text-light fs-5">Create a post</span>

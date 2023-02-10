@@ -482,14 +482,17 @@ export class UsersController {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
     }
 
-    if (updateUserDto.userName !== user.userName && await this.usersService.userNameExists(updateUserDto.userName)) {
+    if (updateUserDto.userName
+      && updateUserDto.userName !== user.userName
+      && await this.usersService.userNameExists(updateUserDto.userName)
+    ) {
       throw new HttpException(
         'Username is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 
-    if (updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
+    if (updateUserDto.email && updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
       throw new HttpException(
         'Email address is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,

@@ -106,19 +106,19 @@ describe('MoviesService', () => {
   });
 
   describe('#findFirstBySortName', () => {
-    it('finds the expected sort name, with lower case input', async () => {
+    it('finds the expected movie when sort name prefix is lower case', async () => {
       const sortNameStartsWith = movie.sort_name.slice(0, 11).toLowerCase();
       const movieDetails = await moviesService.findFirstBySortName(sortNameStartsWith, false);
-      expect(movieDetails.name.replace(' ', '').toLowerCase().startsWith(sortNameStartsWith.toLowerCase())).toBeTruthy();
+      expect(movieDetails.id).toEqual(movie.id);
     });
 
     it('finds the expected sort name, with capital case input', async () => {
       const sortNameStartsWith = movie.sort_name.slice(0, 11).toUpperCase();
       const movieDetails = await moviesService.findFirstBySortName(sortNameStartsWith, false);
-      expect(movieDetails.name.replace(' ', '').toLowerCase().startsWith(sortNameStartsWith.toLowerCase())).toBeTruthy();
+      expect(movieDetails.id).toEqual(movie.id);
     });
 
-    it('sort name is does not exist than expected response', async () => {
+    it('returns null if no movie exists with the given sort name prefix', async () => {
       const movieDetails = await moviesService.findFirstBySortName('usertestuser', false);
       expect(movieDetails).toBeNull();
     });

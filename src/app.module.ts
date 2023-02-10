@@ -15,6 +15,10 @@ import { LocalStorageModule } from './local-storage/local-storage.module';
 import { ChatModule } from './chat/chat.module';
 import { RssFeedProvidersModule } from './rss-feed-providers/rss-feed-providers.module';
 import { RssFeedModule } from './rss-feed/rss-feed.module';
+import { ArtistsModule } from './artists/artists.module';
+import { BooksModule } from './books/books.module';
+import { PodcastsModule } from './podcasts/podcasts.module';
+import { MusicModule } from './music/music.module';
 import { MoviesModule } from './movies/movies.module';
 import { EventsModule } from './events/events.module';
 import { EventCategoriesModule } from './event-categories/event-categories.module';
@@ -58,6 +62,10 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
     ChatModule,
     RssFeedProvidersModule,
     RssFeedModule,
+    ArtistsModule,
+    BooksModule,
+    PodcastsModule,
+    MusicModule,
     MoviesModule,
     EventsModule,
     EventCategoriesModule,

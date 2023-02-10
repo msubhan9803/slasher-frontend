@@ -259,7 +259,7 @@ function Conversation() {
           />
         </InfiniteScroll>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

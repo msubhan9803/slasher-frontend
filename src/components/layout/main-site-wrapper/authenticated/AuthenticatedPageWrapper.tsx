@@ -28,17 +28,18 @@ const StyledOffcanvas = styled(Offcanvas)`
     background-color: #fff;
   }
 `;
+interface Propse {
+  height: number;
+}
 
-const LeftSidebarWrapper = styled.div`
+const LeftSidebarWrapper = styled.div<Propse>`
   width: 142px;
   height: calc(100vh - 125px);
-  overflow-y: hidden;
   position: sticky;
   top: 125px;
+  overflow-y: ${(props) => (props.height ? 'overlay' : 'hidden')};
   padding-right: 1rem;
-  &:hover {
-    overflow-y: overlay;
-  }
+  overscroll-behavior: contain;
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
@@ -53,6 +54,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
   useGoogleAnalytics(analyticsId);
+  const [isScroll, setIsScroll] = useState<boolean>(false);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
@@ -119,7 +121,13 @@ function AuthenticatedPageWrapper({ children }: Props) {
           {isDesktopResponsiveSize
             && (
               <div className={`d-${desktopBreakPoint}-block d-none`}>
-                <LeftSidebarWrapper>
+                <LeftSidebarWrapper
+                  height={isScroll ? 1 : 0}
+                  onMouseEnter={() => setIsScroll(true)}
+                  onMouseLeave={() => setIsScroll(false)}
+                  onTouchStart={() => setIsScroll(true)}
+                  onTouchEnd={() => setIsScroll(false)}
+                >
                   <SidebarNavContent />
                 </LeftSidebarWrapper>
               </div>

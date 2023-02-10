@@ -20,9 +20,9 @@ interface PostFooterProps {
   rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
   onSelect?: (value: string) => void
-  likeCount: string;
-  commentCount: string;
-  handleLikeModal: (value: string) => void;
+  likeCount?: string;
+  commentCount?: string;
+  handleLikeModal?: (value: string) => void;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -60,7 +60,7 @@ function PostFooter({
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <Button
               className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal('like')}
+              onClick={() => handleLikeModal!('like')}
             >
               <span className="fs-3">{likeCount}</span>
             </Button>
@@ -107,6 +107,9 @@ function PostFooter({
 PostFooter.defaultProps = {
   rssfeedProviderId: '',
   onSelect: undefined,
+  likeCount: '',
+  commentCount: '',
+  handleLikeModal: undefined,
 };
 
 export default PostFooter;

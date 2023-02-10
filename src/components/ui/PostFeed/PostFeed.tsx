@@ -1,12 +1,9 @@
 /* eslint-disable max-lines */
 import React, { useState, useEffect } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -21,7 +18,6 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import PubWiseAd from '../PubWiseAd';
-import { scrollWithOffset } from '../../../utils/scrollFunctions';
 import {
   decryptMessage,
   cleanExternalHtmlContent,
@@ -33,10 +29,6 @@ import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwi
 import { useAppSelector } from '../../../redux/hooks';
 
 const READ_MORE_TEXT_LIMIT = 300;
-
-interface LinearIconProps {
-  uniqueId?: string
-}
 
 interface Props {
   popoverOptions: string[];
@@ -68,11 +60,6 @@ interface Props {
   setUpdateState?: (value: boolean) => void;
   onSelect?: (value: string) => void;
 }
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-`;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -246,46 +233,22 @@ function PostFeed({
                     onSelect={onSelect}
                   />
                 )}
-                <Row className="pt-3 px-md-3">
+                <Row>
                   <Col>
-                    <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
-                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                      <span className="fs-3">{post.likeCount}</span>
-                    </LinearIcon>
+                    <PostFooter
+                      likeIcon={post.likeIcon}
+                      postId={post.id}
+                      userName={post.userName}
+                      rssfeedProviderId={post.rssfeedProviderId}
+                      onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
+                      onSelect={onSelect}
+                      likeCount={post.likeCount}
+                      commentCount={post.commentCount}
+                      handleLikeModal={openDialogue}
+                    />
                   </Col>
-                  <Col className="text-center" role="button">
-                    <HashLink
-                      onClick={() => onSelect!(post.id)}
-                      to={post.rssfeedProviderId
-                        ? `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
-                        : `/${post.userName}/posts/${post.id}#comments`}
-                      className="text-decoration-none"
-                      scroll={scrollWithOffset}
-                    >
-                      <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                      <span className="fs-3">{post.commentCount}</span>
-                    </HashLink>
-                  </Col>
-                  <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
-                    <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                    <span className="fs-3">{post.sharedList}</span>
-                  </Col>
-                  <svg width="0" height="0">
-                    <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                      <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                    </linearGradient>
-                  </svg>
                 </Row>
               </Card.Body>
-              <PostFooter
-                likeIcon={post.likeIcon}
-                postId={post.id}
-                userName={post.userName}
-                rssfeedProviderId={post.rssfeedProviderId}
-                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
-                onSelect={onSelect}
-              />
             </Card>
             {
               isCommentSection

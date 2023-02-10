@@ -5,11 +5,11 @@ import NotificationSetting from '../../../components/layout/right-sidebar-wrappe
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 
-function BooksRigthSideNav() {
+function ArtsRightSideNav() {
   const params = useParams();
   return (
     <>
-      {params.id && params.summary && <NotificationSetting />}
+      {params.podcastId && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />
@@ -17,4 +17,4 @@ function BooksRigthSideNav() {
   );
 }
 
-export default BooksRigthSideNav;
+export default ArtsRightSideNav;

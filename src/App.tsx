@@ -26,10 +26,12 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
-// import Books from './routes/books/Books';
+import Books from './routes/books/Books';
+import Artists from './routes/art/Artists';
+import Podcasts from './routes/podcasts/Podcasts';
+import Music from './routes/music/Music';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
-// import Podcasts from './routes/podcasts/Podcasts';
 
 const DEFAULT_INDEX_REDIRECT = 'home';
 
@@ -57,10 +59,12 @@ const routes: Record<string, TopLevelRoute> = {
   'movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
   notifications: { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
-  // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
-  // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
+  'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
+  'music/*': { wrapper: AuthenticatedPageWrapper, component: Music },
   // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
   // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
+  'art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
   'verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
@@ -87,7 +91,7 @@ function App() {
                   <opts.wrapper {...(opts.wrapperProps)}>
                     <opts.component />
                   </opts.wrapper>
-                )}
+                  )}
               />
             ),
           )

@@ -3,11 +3,19 @@ import registrationReducer from './slices/registrationSlice';
 import suggestedFriendsReducer from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
 import pubWiseReducer from './slices/pubWiseSlice';
+import booksReducer from './slices/booksSlice';
+import artsReducer from './slices/artsSlice';
+import musicReducer from './slices/musicSlice';
+import podcastsReducer from './slices/podcasts';
 
 export const store = configureStore({
   reducer: {
     registration: registrationReducer,
     user: userReducer,
+    books: booksReducer,
+    arts: artsReducer,
+    music: musicReducer,
+    podcasts: podcastsReducer,
     suggestedFriendList: suggestedFriendsReducer,
     pubWise: pubWiseReducer,
   },

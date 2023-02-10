@@ -91,10 +91,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
 
   useEffect(() => {
     if (socket) {
+      // eslint-disable-next-line react/destructuring-assignment
       socket.on('notificationReceived', onNotificationReceivedHandler);
+      // eslint-disable-next-line react/destructuring-assignment
       socket.on('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       return () => {
+        // eslint-disable-next-line react/destructuring-assignment
         socket.off('notificationReceived', onNotificationReceivedHandler);
+        // eslint-disable-next-line react/destructuring-assignment
         socket.off('unreadMessageCountUpdate', onUnreadMessageCountUpdate);
       };
     }

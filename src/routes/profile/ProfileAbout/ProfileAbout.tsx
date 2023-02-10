@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Col, Form, Row, Button,
+  Button, Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
-`;
 const CustomDiv = styled.div`
   white-space: pre;
 `;
@@ -26,6 +24,7 @@ function ProfileAbout({ user }: Props) {
   const [message, setMessage] = useState<string>(user?.aboutMe || '');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
@@ -34,6 +33,7 @@ function ProfileAbout({ user }: Props) {
   const handleUserAbout = (id: string) => {
     updateUserAbout(id, message).then((res) => {
       setMessage(res.data.aboutMe);
+      setProgressButtonStatus('loading');
       setEdit(!isEdit);
     });
   };
@@ -67,7 +67,13 @@ function ProfileAbout({ user }: Props) {
                     style={{ resize: 'none' }}
                     className="fs-4"
                   />
-                  <CustomSpan className="float-end fs-4">{`${charCount}/${1000} characters`}</CustomSpan>
+                  <CharactersCounter
+                    counterClass="float-end fs-4"
+                    charCount={charCount}
+                    totalChar={1000}
+                    marginTop="-1.43rem"
+                    marginRight=".5rem"
+                  />
                 </Col>
               </Row>
               <Row className="justify-content-center mt-4">
@@ -79,9 +85,7 @@ function ProfileAbout({ user }: Props) {
                       </RoundButton>
                     </Col>
                     <Col xs={6}>
-                      <RoundButton className="w-100" variant="primary" onClick={() => handleUserAbout(user?._id)}>
-                        Save
-                      </RoundButton>
+                      <ProgressButton label="Save" className="py-2 w-100  fs-3 fw-bold" onClick={() => handleUserAbout(user?._id)} />
                     </Col>
                   </Row>
                 </Col>

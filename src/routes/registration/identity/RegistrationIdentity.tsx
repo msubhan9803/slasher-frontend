@@ -46,7 +46,7 @@ function RegistrationIdentity({ activeStep }: Props) {
       return;
     }
 
-    navigate('/registration/security');
+    navigate('/app/registration/security');
   };
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
@@ -96,7 +96,7 @@ function RegistrationIdentity({ activeStep }: Props) {
               you do not activate your account, you will not be able to login.
             </p>
           </Form.Group>
-          {errors.length > 0 && <ErrorMessageList errorMessages={errors} className="m-0" />}
+          <ErrorMessageList errorMessages={errors} className="m-0" />
           <div className="col-md-4 my-5">
             <RoundButton
               variant="primary"
@@ -110,7 +110,7 @@ function RegistrationIdentity({ activeStep }: Props) {
           <div className="text-center fs-5">
             Already have an account?
             {' '}
-            <Link to="/sign-in" className="text-primary">Click here</Link>
+            <Link to="/app/sign-in" className="text-primary">Click here</Link>
             {' '}
             to go to the sign in screen.
           </div>

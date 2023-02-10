@@ -1,30 +1,9 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
-
-const CustomSpan = styled(Form.Text)`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
-`;
-
-const StyleButton = styled.div`
-  .deactivate-btn {
-    border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-    }
-  }
-  @media (max-width: 767px) {
-    .update-btn{
-      width: 100%;
-    }
-    .deactivate-btn{
-      width: 100%;
-    }
-  }
-`;
+import { StyleButton } from '../../../components/ui/StyleButton';
 
 function ShoppingEdit() {
   const [description, setDescription] = useState<string>('');
@@ -134,7 +113,13 @@ function ShoppingEdit() {
               style={{ resize: 'none' }}
               className="fs-4"
             />
-            <CustomSpan className="float-end fs-4">{`${charCount}/${113} characters`}</CustomSpan>
+            <CharactersCounter
+              counterClass="float-end fs-4"
+              charCount={charCount}
+              totalChar={113}
+              marginTop="-1.43rem"
+              marginRight=".5rem"
+            />
           </Form.Group>
         </Col>
       </Row>

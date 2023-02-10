@@ -49,7 +49,7 @@ function RegistrationTerms({ activeStep }: Props) {
       dobIsoString,
     ).then(() => {
       setErrorMessages([]);
-      navigate('/registration/final');
+      navigate('/app/registration/final');
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });
@@ -59,7 +59,6 @@ function RegistrationTerms({ activeStep }: Props) {
     setIsAgreedToTerms(!isAgreedToTerms);
     setShowAgreeToTermsError(isAgreedToTerms);
   };
-
   return (
     <RegistrationPageWrapper activeStep={activeStep}>
       <p className="fs-3 mb-5">
@@ -75,7 +74,7 @@ function RegistrationTerms({ activeStep }: Props) {
         to our Terms and Conditions, Privacy Policy, End User License Agreement, and Community
         Standards.
       </p>
-      {errorMessages && <ErrorMessageList errorMessages={errorMessages} />}
+      <ErrorMessageList errorMessages={errorMessages} />
       <div className="mt-1">
         <label htmlFor="term-agreement-checkbox" className="h2">
           <input
@@ -94,7 +93,7 @@ function RegistrationTerms({ activeStep }: Props) {
       <Row className="justify-content-center my-5">
         <Col sm={4} md={3} className="mb-sm-0 mb-3 order-2 order-sm-1">
           <RoundButtonLink
-            to="/registration/security"
+            to="/app/registration/security"
             className="w-100"
             variant="secondary"
           >

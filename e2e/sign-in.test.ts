@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pagePath = '/sign-in';
+const pagePath = '/app/sign-in';
 
 test.describe(pagePath, () => {
   // We perform a sign-in in our globalSetup function,
@@ -9,8 +9,8 @@ test.describe(pagePath, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(pagePath);
     });
-    test('should redirect to the /home page', async ({ page, baseURL }) => {
-      const homeUrl = `${baseURL}/home`;
+    test('should redirect to the /app/home page', async ({ page, baseURL }) => {
+      const homeUrl = `${baseURL}/app/home`;
       await page.waitForURL(homeUrl);
       await expect(page.url()).toBe(homeUrl);
     });

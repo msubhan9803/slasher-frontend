@@ -1,8 +1,8 @@
 import React, {
-  useContext, useEffect, useState,
+  useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -52,25 +52,19 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
-  if (analyticsId) { useGoogleAnalytics(analyticsId); }
+  useGoogleAnalytics(analyticsId);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
 
-  const hideOffcanvasSidebar = () => setShow(false);
   const showOffcanvasSidebar = () => setShow(true);
-
-  const onNotificationReceivedHandler = () => {
-    dispatch(incrementUnreadNotificationCount());
-  };
-
-  const onUnreadMessageCountUpdate = (count: any) => {
-    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  const toggleOffCanvas = () => {
+    setShow(!show);
   };
 
   useEffect(() => {
     if (!token) {
-      navigate(`/sign-in?path=${pathname}`);
+      navigate(`/app/sign-in?path=${pathname}`);
       return;
     }
 
@@ -83,11 +77,19 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, []);
+  }, [dispatch, navigate, pathname, userData.user.userName, token]);
 
-  useEffect(() => {
+  useCallback(() => {
     dispatch(setUserInitialData(userData));
-  }, []);
+  }, [dispatch, userData]);
+
+  const onNotificationReceivedHandler = useCallback(() => {
+    dispatch(incrementUnreadNotificationCount());
+  }, [dispatch]);
+
+  const onUnreadMessageCountUpdate = useCallback((count: any) => {
+    dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
+  }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
@@ -103,7 +105,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
       };
     }
     return () => { };
-  }, []);
+  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
   if (!token || !userData.user) {
     return <LoadingIndicator />;
@@ -128,6 +130,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
             )}
           <main className="px-lg-2 flex-grow-1 min-width-0">
             {children}
+            <ScrollRestoration
+              getKey={(location: any) => location.pathname}
+            />
           </main>
         </div>
       </div>
@@ -135,14 +140,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
         <StyledOffcanvas
           id={offcanvasId}
           show={show && !isDesktopResponsiveSize}
-          onHide={hideOffcanvasSidebar}
+          onHide={toggleOffCanvas}
         >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Menu</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            <MobileOnlySidebarContent className="mb-3" />
-            <SidebarNavContent />
+            <MobileOnlySidebarContent className="mb-3" onToggleCanvas={toggleOffCanvas} />
+            <SidebarNavContent onToggleCanvas={toggleOffCanvas} />
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}

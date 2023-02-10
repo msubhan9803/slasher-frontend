@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
@@ -16,12 +16,13 @@ import {
   CommentValue, FeedComments, Post, User, ReplyValue,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
-import { decryptMessage, findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
+import { decryptMessage } from '../../../utils/text-utils';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { reportData } from '../../../api/report';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import { useAppSelector } from '../../../redux/hooks';
 import { createBlockUser } from '../../../api/blocks';
+import FormatImageVideoList from '../../../utils/vido-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
@@ -62,18 +63,7 @@ function ProfilePostDetail({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
-  };
-
-  const feedComments = (sortBy?: boolean) => {
+  const feedComments = useCallback((sortBy?: boolean) => {
     let data;
     if (sortBy) {
       data = commentData.length > 0 ? commentData[0]._id : undefined;
@@ -110,7 +100,7 @@ function ProfilePostDetail({ user }: Props) {
     ).finally(
       () => { setRequestAdditionalPosts(false); setLoadingComments(false); },
     );
-  };
+  }, [commentData, postId]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingComments) {
@@ -118,7 +108,7 @@ function ProfilePostDetail({ user }: Props) {
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments]);
+  }, [requestAdditionalPosts, loadingComments, feedComments]);
 
   useEffect(() => {
     if (postId) {
@@ -136,7 +126,7 @@ function ProfilePostDetail({ user }: Props) {
               id: res.data._id,
               postDate: res.data.createdAt,
               content: decryptMessage(res.data.message),
-              postUrl: formatImageVideoList(res.data.images, res.data.message),
+              postUrl: FormatImageVideoList(res.data.images, res.data.message),
               userName: res.data.userId.userName,
               profileImage: res.data.userId.profilePic,
               userId: res.data.userId._id,
@@ -152,7 +142,7 @@ function ProfilePostDetail({ user }: Props) {
           setErrorMessage(error.response.data.message);
         });
     }
-  }, [postId, user]);
+  }, [postId, user, loginUserId, navigate]);
 
   const callLatestFeedComments = () => {
     getFeedComments(postId!).then((res) => {
@@ -340,7 +330,7 @@ function ProfilePostDetail({ user }: Props) {
             id: res.data._id,
             postDate: res.data.createdAt,
             content: decryptMessage(res.data.message),
-            postUrl: formatImageVideoList(res.data.images, res.data.message),
+            postUrl: FormatImageVideoList(res.data.images, res.data.message),
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
@@ -535,7 +525,7 @@ function ProfilePostDetail({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
-  const getSingleComment = () => {
+  const getSingleComment = useCallback(() => {
     singleComment(queryCommentId!).then((res) => {
       setPreviousCommentsAvailable(true);
       if (postId !== res.data.feedPostId) {
@@ -549,12 +539,12 @@ function ProfilePostDetail({ user }: Props) {
       }
       setCommentData([res.data]);
     });
-  };
+  }, [navigate, postId, queryCommentId, queryReplyId, user.userName]);
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId]);
+  }, [queryCommentId, queryReplyId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);
@@ -603,29 +593,29 @@ function ProfilePostDetail({ user }: Props) {
         isSinglePagePost
       />
       {dropDownValue !== 'Edit'
-          && (
-            <ReportModal
-              deleteText="Are you sure you want to delete this post?"
-              onConfirmClick={deletePostClick}
-              show={show}
-              setShow={setShow}
-              slectedDropdownValue={dropDownValue}
-              handleReport={reportProfilePost}
-              onBlockYesClick={onBlockYesClick}
-            />
-          )}
+        && (
+          <ReportModal
+            deleteText="Are you sure you want to delete this post?"
+            onConfirmClick={deletePostClick}
+            show={show}
+            setShow={setShow}
+            slectedDropdownValue={dropDownValue}
+            handleReport={reportProfilePost}
+            onBlockYesClick={onBlockYesClick}
+          />
+        )}
       {dropDownValue === 'Edit'
-          && (
-            <EditPostModal
-              show={show}
-              setShow={setShow}
-              handleSearch={handleSearch}
-              mentionList={mentionList}
-              setPostContent={setPostContent}
-              postContent={postContent}
-              onUpdatePost={onUpdatePost}
-            />
-          )}
+        && (
+          <EditPostModal
+            show={show}
+            setShow={setShow}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+          />
+        )}
     </div>
   );
 }

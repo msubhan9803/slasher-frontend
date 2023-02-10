@@ -27,9 +27,9 @@ function Likes() {
 
   const handleLikesOption = (likeValue: string) => {
     if (likeValue === 'Message') {
-      navigate('/dating/conversation');
+      navigate('/app/dating/conversation');
     } else if (likeValue === 'View profile') {
-      navigate('/dating/likes?user=subscriber');
+      navigate('/app/dating/likes?user=subscriber');
     } else {
       setShow(true);
     }
@@ -46,7 +46,7 @@ function Likes() {
 
   return (
     <DatingPageWrapper>
-      <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink="/dating" params={`?${searchParams.toString()}`} selectedTab={selectedTab} />
+      <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink="/app/dating" params={`?${searchParams.toString()}`} selectedTab={selectedTab} />
 
       <div className="mt-3">
         <LikesAndMatches

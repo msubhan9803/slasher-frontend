@@ -15,8 +15,15 @@ const StyledRightSidebarWrapper = styled.div<StyledRighhtSideBar>`
   position: sticky;
   top: 125px;
   padding-right: 1rem;
-  overflow-y: ${(props) => (props.height ? 'overlay' : 'hidden')};
+  overflow-y: overlay;
   overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    display: ${(props) => (props.height ? 'block' : 'none')};
+  }
+
+  -ms-overflow-style: ${(props) => (props.height ? 'block' : 'none')};
+  scrollbar-width: ${(props) => (props.height ? 'block' : 'none')};
 `;
 
 function RightSidebarWrapper({ children }: Props) {

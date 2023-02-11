@@ -37,9 +37,16 @@ const LeftSidebarWrapper = styled.div<Propse>`
   height: calc(100vh - 125px);
   position: sticky;
   top: 125px;
-  overflow-y: ${(props) => (props.height ? 'overlay' : 'hidden')};
+  overflow-y: overlay;
   padding-right: 1rem;
   overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    display: ${(props) => (props.height ? 'block' : 'none')};
+  }
+
+  -ms-overflow-style: ${(props) => (props.height ? 'block' : 'none')};
+  scrollbar-width: ${(props) => (props.height ? 'block' : 'none')};
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.

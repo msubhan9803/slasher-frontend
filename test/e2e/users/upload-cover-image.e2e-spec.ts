@@ -40,29 +40,28 @@ describe('Users / Upload Cover image (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/upload-cover-image', () => {
+  describe('POST /users/cover-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
-    it('responds with true if file upload successful', async () => {
+    it('responds with cover photo url if file upload successful', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-cover-image')
+          .post('/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
-        expect((await usersService.findById(activeUser.id)).coverPhoto).toMatch(/\/cover\/cover_[a-f0-9\\-]+\.png/);
+        expect(response.body).toEqual({ coverPhoto: expect.stringMatching(/\/cover\/cover_[a-f0-9\\-]+\.png/) });
       }, { extension: 'png' });
     });
 
     it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users/upload-cover-image')
+        .post('/users/cover-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -72,7 +71,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     it('responds expected response when file is not jpg, jpeg, png, or gif', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-cover-image')
+          .post('/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -84,7 +83,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-cover-image')
+          .post('/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)

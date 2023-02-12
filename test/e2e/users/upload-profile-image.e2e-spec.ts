@@ -41,7 +41,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/upload-profile-image', () => {
+  describe('POST /users/profile-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -53,16 +53,15 @@ describe('Users / Upload Profile image (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('responds with true if file upload successful and ensure temp file is removed', async () => {
+    it('responds with profile pic url if file upload successful and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
           .expect(HttpStatus.CREATED);
-        expect(response.body).toEqual({ success: true });
-        expect((await usersService.findById(activeUser.id)).profilePic).toMatch(/\/profile\/profile_[a-f0-9\\-]+\.png/);
+        expect(response.body).toEqual({ profilePic: expect.stringMatching(/\/profile\/profile_[a-f0-9\\-]+\.png/) });
       }, { extension: 'png' });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -72,7 +71,7 @@ describe('Users / Upload Profile image (e2e)', () => {
 
     it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users/upload-profile-image')
+        .post('/users/profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -82,7 +81,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds with expected response when file is not jpg, jpeg, png, or gif and ensures that temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -98,7 +97,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/upload-profile-image')
+          .post('/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)

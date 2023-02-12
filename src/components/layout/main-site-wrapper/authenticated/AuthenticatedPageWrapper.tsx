@@ -28,25 +28,25 @@ const StyledOffcanvas = styled(Offcanvas)`
     background-color: #fff;
   }
 `;
-interface Propse {
-  height: number;
-}
 
-const LeftSidebarWrapper = styled.div<Propse>`
+const LeftSidebarWrapper = styled.div`
   width: 142px;
   height: calc(100vh - 125px);
+  padding-bottom: 50px;
   position: sticky;
   top: 125px;
   overflow-y: overlay;
   padding-right: 1rem;
   overscroll-behavior: contain;
 
-  &::-webkit-scrollbar {
-    display: ${(props) => (props.height ? 'block' : 'none')};
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style { display: none; }
+  scrollbar-width { display: none; }
+  &:hover {
+    ::-webkit-scrollbar { display: block; }
+    -ms-overflow-style { display: block; }
+    scrollbar-width { display: block; }
   }
-
-  -ms-overflow-style: ${(props) => (props.height ? 'block' : 'none')};
-  scrollbar-width: ${(props) => (props.height ? 'block' : 'none')};
 `;
 
 // This id links the offcanvas to the top navar toggle for accessibility.
@@ -61,7 +61,6 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
   useGoogleAnalytics(analyticsId);
-  const [isScroll, setIsScroll] = useState<boolean>(false);
 
   const [show, setShow] = useState(false);
   const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
@@ -128,13 +127,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
           {isDesktopResponsiveSize
             && (
               <div className={`d-${desktopBreakPoint}-block d-none`}>
-                <LeftSidebarWrapper
-                  height={isScroll ? 1 : 0}
-                  onMouseEnter={() => setIsScroll(true)}
-                  onMouseLeave={() => setIsScroll(false)}
-                  onTouchStart={() => setIsScroll(true)}
-                  onTouchEnd={() => setIsScroll(false)}
-                >
+                <LeftSidebarWrapper>
                   <SidebarNavContent />
                 </LeftSidebarWrapper>
               </div>

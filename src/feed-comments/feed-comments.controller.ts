@@ -33,6 +33,7 @@ import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
 import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
@@ -51,19 +52,7 @@ export class FeedCommentsController {
   @Post()
   @UseInterceptors(
     FilesInterceptor('images', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -89,7 +78,7 @@ export class FeedCommentsController {
     const user = getUserFromRequest(request);
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
@@ -172,19 +161,7 @@ export class FeedCommentsController {
   @Post('replies')
   @UseInterceptors(
     FilesInterceptor('images', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -212,11 +189,11 @@ export class FeedCommentsController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
     }
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
-      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
@@ -314,7 +291,7 @@ export class FeedCommentsController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
@@ -378,7 +355,7 @@ export class FeedCommentsController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());

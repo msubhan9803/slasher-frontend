@@ -47,9 +47,9 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
-import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
-import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -506,13 +506,24 @@ export class UsersController {
     };
   }
 
-  @Post('upload-profile-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @TransformImageUrls('$.profilePic')
+  @Post('profile-image')
+  @UseInterceptors(FileInterceptor(
+    'file',
+    {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: {
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
+      },
+    },
+  ))
   async uploadProfileImage(
     @Req() request: Request,
-    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
+    if (!file) { throw new HttpException('File is required', HttpStatus.BAD_REQUEST); }
+
     const user = getUserFromRequest(request);
 
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor('profile', file.filename);
@@ -525,7 +536,7 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { profilePic: user.profilePic };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
@@ -566,13 +577,24 @@ export class UsersController {
     return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
-  @Post('upload-cover-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @TransformImageUrls('$.coverPhoto')
+  @Post('cover-image')
+  @UseInterceptors(FileInterceptor(
+    'file',
+    {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: {
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
+      },
+    },
+  ))
   async uploadCoverImage(
     @Req() request: Request,
-    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
+    if (!file) { throw new HttpException('File is required', HttpStatus.BAD_REQUEST); }
+
     const user = getUserFromRequest(request);
 
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor('cover', file.filename);
@@ -585,7 +607,7 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { coverPhoto: user.coverPhoto };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
@@ -650,5 +672,29 @@ export class UsersController {
     return {
       success: true,
     };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
   }
 }

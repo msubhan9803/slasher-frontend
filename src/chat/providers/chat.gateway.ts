@@ -7,18 +7,18 @@ import {
   WebSocketServer,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { SHARED_GATEWAY_OPTS } from '../../constants';
+import { log } from 'console';
+import { SHARED_GATEWAY_OPTS, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../../constants';
 import { UsersService } from '../../users/providers/users.service';
 import { ChatService } from './chat.service';
 import { Message } from '../../schemas/message/message.schema';
-import { User } from '../../schemas/user/user.schema';
 import { pick } from '../../utils/object-utils';
-import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
 import { FriendsService } from '../../friends/providers/friends.service';
+import { relativeToFullImagePath } from '../../utils/image-utils';
 
 const RECENT_MESSAGES_LIMIT = 10;
 
@@ -31,6 +31,7 @@ export class ChatGateway {
     private readonly usersService: UsersService,
     private readonly chatService: ChatService,
     private readonly friendsService: FriendsService,
+    private readonly config: ConfigService,
   ) { }
 
   @WebSocketServer()
@@ -61,13 +62,12 @@ export class ChatGateway {
     targetUserSocketIds.forEach((socketId) => {
       client.to(socketId).emit('chatMessageReceived', {
         message: pick(messageObject, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
-        user,
       });
     });
     await this.messageCountUpdateQueue.add(
       'send-update-if-message-unread',
       { messageId: messageObject.id },
-      { delay: 15_000 }, // 15 second delay
+      { delay: UNREAD_MESSAGE_NOTIFICATION_DELAY }, // 15 second delay
     );
     return { success: true, message: messageObject };
   }
@@ -98,7 +98,12 @@ export class ChatGateway {
     }
 
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
-
+    messages.forEach((messageObject) => {
+      if (messageObject.image) {
+          // eslint-disable-next-line no-param-reassign
+        messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
+      }
+    });
     return messages;
   }
 
@@ -128,6 +133,20 @@ export class ChatGateway {
 
     targetUserSocketIds.forEach((socketId) => {
       this.server.to(socketId).emit('unreadMessageCountUpdate', { unreadMessageCount });
+    });
+  }
+
+  async emitMessageForConversation(newMessagesArray, toUserId: string) {
+    const targetUserSocketIds = await this.usersService.findSocketIdsForUser(toUserId);
+    (newMessagesArray as any).forEach((messageObject) => {
+      const cloneMessage = messageObject.toObject();
+      cloneMessage.image = relativeToFullImagePath(this.config, cloneMessage.image);
+      // Emit message to receiver
+      targetUserSocketIds.forEach((socketId) => {
+        this.server.to(socketId).emit('chatMessageReceived', {
+          message: pick(cloneMessage, ['_id', 'image', 'message', 'fromId', 'senderId', 'matchId', 'createdAt']),
+        });
+      });
     });
   }
 }

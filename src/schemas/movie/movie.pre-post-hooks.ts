@@ -1,7 +1,7 @@
 import { MovieDocument, MovieSchema } from './movie.schema';
 
 function generateSortName(name: string, id: string) {
-  return `${name.toLowerCase().replace(/a |an |the |/, '')}_${id}`;
+  return `${name.toLowerCase().replace(/a |an |the | /g, '')} ${id}`;
 }
 
 function generateSortReleaseDate(releaseDate: Date, id: string) {

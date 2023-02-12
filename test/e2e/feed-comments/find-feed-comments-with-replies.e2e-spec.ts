@@ -311,10 +311,10 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         .get(`/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

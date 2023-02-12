@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
@@ -418,6 +419,47 @@ describe('ChatService', () => {
       // matchlist document should be deleted
       const nontExistsMatchList = await matchListModel.findOne(matchList._id);
       expect(nontExistsMatchList.deleted).toBe(true);
+    });
+  });
+
+  describe('#deleteConversationMessages', () => {
+    let message1;
+    let message2;
+    let matchList;
+
+    beforeEach(async () => {
+      message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      matchList = await matchListModel.findOne({
+        participants: user1._id,
+      });
+    });
+
+    it('should delete message for given user', async () => {
+      // Perform delete conversation action by `user1`
+      await chatService.deleteConversationMessages(user1._id.toString(), matchList._id.toString());
+
+      // Check messages
+      const messageData1 = await messageModel.findById(message1._id);
+      expect(messageData1.deletefor.map((u) => u.toString())).toContain(user1._id.toString());
+
+      const messageData2 = await messageModel.findById(message2._id);
+      expect(messageData2.deletefor.map((u) => u.toString())).toContain(user1._id.toString());
+
+      // Check unread count
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user0.id)).toBe(1);
+      expect(await chatService.getUnreadDirectPrivateMessageCount(user1.id)).toBe(0);
+    });
+
+    it('should not add user twice to the deletefor field', async () => {
+      // Intentionally call delete conversation action *twice* for `user1`
+      await chatService.deleteConversationMessages(user1._id.toString(), matchList._id.toString());
+      await chatService.deleteConversationMessages(user1._id.toString(), matchList._id.toString());
+
+      // Check messages
+      const messageData1 = await messageModel.findById(message1._id);
+      expect(messageData1.deletefor.map((u) => u.toString())).toContain(user1._id.toString());
+      expect(messageData1.deletefor).toHaveLength(1);
     });
   });
 });

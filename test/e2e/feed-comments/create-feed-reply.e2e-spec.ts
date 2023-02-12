@@ -285,10 +285,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
         .field('feedCommentId', feedComment1._id.toString());
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block (comment owner).',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 
@@ -320,10 +320,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
         .field('feedCommentId', feedComments1._id.toString());
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block (post owner).',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

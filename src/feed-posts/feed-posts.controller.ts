@@ -19,10 +19,12 @@ import { TransformImageUrls } from '../app/decorators/transform-image-urls.decor
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
-import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
+import { ProfileVisibility } from '../schemas/user/user.enums';
+import { BlocksService } from '../blocks/providers/blocks.service';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -33,25 +35,14 @@ export class FeedPostsController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly blocksService: BlocksService,
+
   ) { }
 
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -114,16 +105,26 @@ export class FeedPostsController {
   @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path')
   @Get(':id')
   async singleFeedPostDetails(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
   ) {
+    const user = getUserFromRequest(request);
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+    if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
+      throw new HttpException('You are not friends with this user.', HttpStatus.FORBIDDEN);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+    }
     return pick(
       feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes'],
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+        'message'],
     );
   }
 
@@ -226,7 +227,7 @@ export class FeedPostsController {
   @Post(':id/hide')
   async hidePost(
     @Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
-      param: SingleFeedPostsDto,
+    param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
     const feedPost = await this.feedPostsService.findById(param.id, true);
@@ -237,13 +238,13 @@ export class FeedPostsController {
       );
     }
 
-  const isUserOwnerOfThePost = (feedPost.userId as any)._id.toString() === user._id.toString();
+    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any)._id.toString() !== user._id.toString();
 
-    if (isUserOwnerOfThePost) {
+    if (!postCreatedByDifferentUser) {
       throw new HttpException(
         'You cannot hide your own post.',
         HttpStatus.FORBIDDEN,
-        );
+      );
     }
     await this.feedPostsService.hidePost(param.id, user._id);
     return { success: true };

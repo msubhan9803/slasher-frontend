@@ -39,7 +39,7 @@ export class FeedLikesController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     if ((post.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
@@ -97,11 +97,11 @@ export class FeedLikesController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
     if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
     }
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
-      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());

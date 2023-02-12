@@ -23,6 +23,7 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { CreateEventDto } from './dto/create-event-dto';
 import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('events')
 export class EventsController {
@@ -37,19 +38,7 @@ export class EventsController {
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-          && !file.mimetype.includes('image/gif')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE, // size in bytes, 20MB
       },

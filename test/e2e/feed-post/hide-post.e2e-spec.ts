@@ -72,45 +72,55 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
 
   describe('making post hidden for a user', () => {
     let feedPost;
+    let rssFeedPost;
     beforeEach(async () => {
       // Create post by `user1`
-      feedPost = await feedPostsService.create(
-        feedPostFactory.build({
-          userId: user1._id,
-          rssfeedProviderId: rssFeedProviderData._id,
-        }),
-      );
+      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: user1._id }));
+      rssFeedPost = await feedPostsService.create(feedPostFactory.build({
+        userId: rssFeedProviderData._id,
+        rssfeedProviderId: rssFeedProviderData._id,
+      }));
     });
 
-    it('should successfully mark post hidden', async () => {
-        // Hide post for activeUser
-        const response = await request(app.getHttpServer())
+    it("should successfully mark a different user's post as hidden", async () => {
+      // Hide post for activeUser
+      const response = await request(app.getHttpServer())
         .post(`/feed-posts/${feedPost._id.toString()}/hide`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-        expect(response.status).toBe(201);
-        expect(response.body).toEqual({ success: true });
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ success: true });
+    });
+
+    it('should successfully mark an rss feed post as hidden', async () => {
+      // Hide post for activeUser
+      const response = await request(app.getHttpServer())
+        .post(`/feed-posts/${rssFeedPost._id.toString()}/hide`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ success: true });
     });
 
     describe('validations', () => {
       it('should *not* be able to mark post hidden which is created by user', async () => {
-          const response = await request(app.getHttpServer())
+        const response = await request(app.getHttpServer())
           .post(`/feed-posts/${feedPost._id.toString()}/hide`)
           .auth(user1AuthToken, { type: 'bearer' })
           .send();
-          expect(response.status).toBe(403);
-          expect(response.body).toEqual({
-            message: 'You cannot hide your own post.',
-            statusCode: 403,
-          });
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
+          message: 'You cannot hide your own post.',
+          statusCode: 403,
+        });
       });
 
       it('should return appropriate error when post is not found', async () => {
         const unknownFeedPost = new mongoose.Types.ObjectId();
         const response = await request(app.getHttpServer())
-        .post(`/feed-posts/${unknownFeedPost._id.toString()}/hide`)
-        .auth(user1AuthToken, { type: 'bearer' })
-        .send();
+          .post(`/feed-posts/${unknownFeedPost._id.toString()}/hide`)
+          .auth(user1AuthToken, { type: 'bearer' })
+          .send();
         expect(response.status).toBe(404);
         expect(response.body).toEqual({
           message: 'Post not found.',

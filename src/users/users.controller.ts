@@ -677,6 +677,7 @@ export class UsersController {
     @Req() request: Request,
   ) {
     const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
     user.profilePic = 'noUser.jpg';
     await user.save();
     return { profilePic: user.profilePic };
@@ -688,6 +689,7 @@ export class UsersController {
     @Req() request: Request,
   ) {
     const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
     user.coverPhoto = null;
     await user.save();
     return { coverPhoto: user.coverPhoto };

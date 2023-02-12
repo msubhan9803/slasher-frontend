@@ -16,7 +16,7 @@ const noteList = [
   'People on Slasher can follow your movie and get notifIed of new posts.',
 ];
 function AddYourMovie() {
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
 

@@ -12,8 +12,7 @@ interface Props {
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
   defaultPhotoUrl?: string;
-  onChange?: (files: File | undefined) => void;
-  setRemoveImage?: (value: boolean) => void;
+  onChange?: (files: File | null | undefined) => void;
 }
 
 const StyledImageUploadContainer = styled.div`
@@ -39,7 +38,7 @@ const CornerIconButton = styled(Button)`
 `;
 
 function PhotoUploadInput({
-  aspectRatio, height, onChange, variant, className, style, defaultPhotoUrl, setRemoveImage,
+  aspectRatio, height, onChange, variant, className, style, defaultPhotoUrl,
 }: Props) {
   const [photo, setPhoto] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>();
@@ -114,7 +113,7 @@ function PhotoUploadInput({
               e.stopPropagation();
               setPhoto(undefined);
               setImageUrl(undefined);
-              if (setRemoveImage) setRemoveImage(true);
+              if (onChange) { onChange(null); }
             }
             : undefined
         }
@@ -141,7 +140,6 @@ PhotoUploadInput.defaultProps = {
   onChange: undefined,
   height: undefined,
   defaultPhotoUrl: undefined,
-  setRemoveImage: false,
 };
 
 export default PhotoUploadInput;

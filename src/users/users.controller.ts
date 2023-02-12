@@ -203,7 +203,6 @@ export class UsersController {
   @Get('validate-registration-fields')
   async validateRegistrationFields(@Query() inputQuery) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-
     if (Object.keys(inputQuery).length === 0) {
       throw new HttpException(
         'You must provide at least one field for validation.',
@@ -246,7 +245,19 @@ export class UsersController {
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
-    if (await this.disallowedUsernameService.findUserName(userRegisterDto.userName)) {
+    // TODO: Move values below into the database instead of hard-coding here
+    const hardCodedDisallowedUsernames = [
+      'app',
+      'pages',
+      'admin',
+      'go',
+      'slasher.tv',
+    ];
+
+    if (
+      hardCodedDisallowedUsernames.includes(userRegisterDto.userName)
+      || await this.disallowedUsernameService.findUserName(userRegisterDto.userName)
+    ) {
       throw new HttpException(
         'Username is not available',
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -675,6 +686,7 @@ export class UsersController {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
   @Delete('profile-image')
   async deleteProfileImage(
     @Req() request: Request,
@@ -687,6 +699,7 @@ export class UsersController {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
   @Delete('cover-image')
   async deleteCoverImage(
     @Req() request: Request,

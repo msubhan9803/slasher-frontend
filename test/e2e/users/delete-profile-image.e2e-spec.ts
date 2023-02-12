@@ -51,7 +51,7 @@ describe('Users / Delete Profile image (e2e)', () => {
         .delete('/users/profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ profilePic: 'noUser.jpg' });
+      expect(response.body).toEqual({ profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' });
     });
   });
 });

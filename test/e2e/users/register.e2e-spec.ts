@@ -298,6 +298,17 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('You must be at least 17 to register');
       });
+
+      // TODO: Uncomment this test and update UserRegisterDto to make the test pass
+      // eslint-disable-next-line jest/no-commented-out-tests
+      // it('dob must be a valid-format iso date', async () => {
+      //   postBody.dob = '1970-1';
+      //   const response = await request(app.getHttpServer())
+      //     .post('/users/register')
+      //     .send(postBody);
+      //   expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      //   expect(response.body.message).toContain('Invalid date of birth');
+      // });
     });
 
     describe('Existing username or email check', () => {
@@ -333,13 +344,23 @@ describe('Users / Register (e2e)', () => {
         );
       });
 
-      it('returns an error when disallowed username already exists', async () => {
+      it('returns an error when user submits a database-backed disallowed username', async () => {
         await disallowedUsernameService.create({
           username: 'TeStUsEr',
         });
         const response = await request(app.getHttpServer())
           .post('/users/register')
           .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is not available',
+        );
+      });
+
+      it('returns an error when user submits a hard-coded disallowed username', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send({ ...postBody, userName: 'pages' });
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain(
           'Username is not available',

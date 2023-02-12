@@ -154,10 +154,10 @@ describe('Create Feed Comment Like (e2e)', () => {
         .post(`/feed-likes/comment/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block (post owner).',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 
@@ -186,10 +186,10 @@ describe('Create Feed Comment Like (e2e)', () => {
         .post(`/feed-likes/comment/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block (comment owner).',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

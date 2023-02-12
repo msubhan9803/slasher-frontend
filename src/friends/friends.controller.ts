@@ -34,7 +34,7 @@ export class FriendsController {
     }
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, createFriendRequestDto.userId);
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
 

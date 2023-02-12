@@ -106,27 +106,19 @@ describe('MoviesService', () => {
   });
 
   describe('#findFirstBySortName', () => {
-    beforeEach(async () => {
-      for (let i = 0; i < 3; i += 1) {
-        await moviesService.create(
-          moviesFactory.build(),
-        );
-      }
-    });
-
-    it('finds the expected sort name, with lower case input', async () => {
-      const sortNameStartsWith = movie.sort_name.slice(0, 12).toLowerCase();
+    it('finds the expected movie when sort name prefix is lower case', async () => {
+      const sortNameStartsWith = movie.sort_name.slice(0, 11).toLowerCase();
       const movieDetails = await moviesService.findFirstBySortName(sortNameStartsWith, false);
-      expect(movieDetails.name.toLowerCase().startsWith(sortNameStartsWith.toLowerCase())).toBeTruthy();
+      expect(movieDetails.id).toEqual(movie.id);
     });
 
     it('finds the expected sort name, with capital case input', async () => {
-      const sortNameStartsWith = movie.sort_name.slice(0, 12).toUpperCase();
+      const sortNameStartsWith = movie.sort_name.slice(0, 11).toUpperCase();
       const movieDetails = await moviesService.findFirstBySortName(sortNameStartsWith, false);
-      expect(movieDetails.name.toLowerCase().startsWith(sortNameStartsWith.toLowerCase())).toBeTruthy();
+      expect(movieDetails.id).toEqual(movie.id);
     });
 
-    it('sort name is does not exist than expected response', async () => {
+    it('returns null if no movie exists with the given sort name prefix', async () => {
       const movieDetails = await moviesService.findFirstBySortName('usertestuser', false);
       expect(movieDetails).toBeNull();
     });
@@ -171,7 +163,35 @@ describe('MoviesService', () => {
         moviesFactory.build(
           {
             status: MovieActiveStatus.Active,
-            name: 'a',
+            name: 'Alien',
+            movieDBId: 551234,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien!',
+            movieDBId: 551235,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien 2',
+            movieDBId: 551230,
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'Alien: Containment',
+            movieDBId: 551233,
           },
         ),
       );
@@ -180,6 +200,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'b',
+            movieDBId: 551224,
           },
         ),
       );
@@ -188,6 +209,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'c',
+            movieDBId: 551214,
           },
         ),
       );
@@ -196,6 +218,7 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'd',
+            movieDBId: 551219,
           },
         ),
       );
@@ -204,15 +227,16 @@ describe('MoviesService', () => {
           {
             status: MovieActiveStatus.Active,
             name: 'e',
+            movieDBId: 551218,
           },
         ),
       );
-      const limit = 5;
+      const limit = 10;
       const moviesList = await moviesService.findAll(limit, true, 'name');
       for (let i = 1; i < moviesList.length; i += 1) {
         expect(moviesList[i - 1].sort_name < moviesList[i].sort_name).toBe(true);
       }
-      expect(moviesList).toHaveLength(5);
+      expect(moviesList).toHaveLength(8);
     });
 
     it('when movies is sort by releaseDate than expected response', async () => {

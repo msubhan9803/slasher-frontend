@@ -266,10 +266,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
         .field('feedPostId', feedPost1._id.toString());
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

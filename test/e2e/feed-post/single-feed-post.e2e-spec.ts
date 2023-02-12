@@ -144,12 +144,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
-        message: 'User not found',
-        statusCode: 404,
+        message: 'Request failed due to user block.',
+        statusCode: 403,
       });
     });
 
-    it('check user profile status', async () => {
+    it('returns the expected response when profile status is not public and requesting user is not a friend of post creator', async () => {
       const user = await usersService.create(userFactory.build({
         profile_status: 1,
       }));
@@ -162,7 +162,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ statusCode: 401, message: 'Profile status not found' });
+      expect(response.body).toEqual({ statusCode: 403, message: 'You are not friends with this user.' });
     });
   });
 });

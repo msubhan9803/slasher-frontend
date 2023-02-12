@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -19,6 +19,8 @@ import { RssFeedService } from '../../../src/rss-feed/providers/rss-feed.service
 import { rssFeedFactory } from '../../factories/rss-feed.factory';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -31,6 +33,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let rssFeedProvidersService: RssFeedProvidersService;
   let rssFeedProviderData: RssFeedProviderDocument;
   let rssFeedService: RssFeedService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -43,6 +46,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -58,8 +62,10 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
 
   describe('Single Feed Post Details', () => {
     let rssFeed;
+    let user1;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -118,6 +124,45 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         likes: [],
         message: expect.any(String),
       });
+    });
+
+    it('when user is block than expected response.', async () => {
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user1._id,
+          },
+        ),
+      );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block.',
+        statusCode: 403,
+      });
+    });
+
+    it('returns the expected response when profile status is not public and requesting user is not a friend of post creator', async () => {
+      const user = await usersService.create(userFactory.build({
+        profile_status: 1,
+      }));
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user._id,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({ statusCode: 403, message: 'You are not friends with this user.' });
     });
   });
 });

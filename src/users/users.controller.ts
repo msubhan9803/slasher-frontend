@@ -47,9 +47,9 @@ import { Device, User, UserDocument } from '../schemas/user/user.schema';
 import { AllFeedPostQueryDto } from '../feed-posts/dto/all-feed-posts-query.dto';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
 import { ParamUserIdDto } from './dto/param-user-id.dto';
-import { SIMPLE_MONGODB_ID_REGEX } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, SIMPLE_MONGODB_ID_REGEX } from '../constants';
 import { SuggestUserNameQueryDto } from './dto/suggest-user-name-query.dto';
-import { createProfileOrCoverImageParseFilePipeBuilder } from '../utils/file-upload-validation-utils';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { GetFriendsDto } from './dto/get-friends.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
@@ -504,12 +504,22 @@ export class UsersController {
   }
 
   @Post('upload-profile-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor(
+    'file',
+    {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: {
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
+      },
+    },
+  ))
   async uploadProfileImage(
     @Req() request: Request,
-    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
+    if (!file) { throw new HttpException('File is required', HttpStatus.BAD_REQUEST); }
+
     const user = getUserFromRequest(request);
 
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor('profile', file.filename);
@@ -564,12 +574,22 @@ export class UsersController {
   }
 
   @Post('upload-cover-image')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor(
+    'file',
+    {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: {
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
+      },
+    },
+  ))
   async uploadCoverImage(
     @Req() request: Request,
-    @UploadedFile(createProfileOrCoverImageParseFilePipeBuilder())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
+    if (!file) { throw new HttpException('File is required', HttpStatus.BAD_REQUEST); }
+
     const user = getUserFromRequest(request);
 
     const storageLocation = this.storageLocationService.generateNewStorageLocationFor('cover', file.filename);

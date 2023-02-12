@@ -10,7 +10,6 @@ import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { createTempFile } from '../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../src/schemas/user/user.schema';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../../../src/constants';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 
 describe('Users / Upload Profile image (e2e)', () => {
@@ -75,7 +74,7 @@ describe('Users / Upload Profile image (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/users/upload-profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .expect(HttpStatus.UNPROCESSABLE_ENTITY);
+        .expect(HttpStatus.BAD_REQUEST);
 
       expect(response.body.message).toContain('File is required');
     });
@@ -87,8 +86,8 @@ describe('Users / Upload Profile image (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain('Validation failed (expected type is /(jpg|jpeg|png|gif)$/)');
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Invalid file type');
       }, { extension: 'zpng' });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -96,15 +95,15 @@ describe('Users / Upload Profile image (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('responds expected response if file size should not larger than 20MB  and ensure temp file is removed', async () => {
+    it('responds expected response if file size should not larger than 20MB and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
           .post('/users/upload-profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
-          .expect(HttpStatus.UNPROCESSABLE_ENTITY);
-        expect(response.body.message).toContain(`Validation failed (expected size is less than ${MAXIMUM_IMAGE_UPLOAD_SIZE})`);
+          .expect(HttpStatus.PAYLOAD_TOO_LARGE);
+        expect(response.body.message).toContain('File too large');
       }, { extension: 'jpg', size: 1024 * 1024 * 21 });
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

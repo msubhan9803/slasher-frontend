@@ -22,9 +22,9 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
-import { defaultFileInterceptorFileFilter } from '../utils/file-upload-validation-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { BlocksService } from '../blocks/providers/blocks.service';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {

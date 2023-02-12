@@ -292,12 +292,8 @@ describe('Users / :id (e2e)', () => {
         );
       });
 
-      it('when the email field is not exists on db than expected response', async () => {
+      it("succeeds, and doesn't call usersService.emailExists() internally when email field is not in the request body", async () => {
         jest.spyOn(usersService, 'emailExists').mockImplementation(() => Promise.resolve(undefined));
-        const user = await usersService.create(userFactory.build({
-          email: 'hello@gmail.com',
-        }));
-        await usersModel.findOneAndUpdate({ _id: user._id }, { $unset: { email: 1 } }, { new: true });
         const body = {
           aboutMe: 'I am a human being',
         };
@@ -313,13 +309,30 @@ describe('Users / :id (e2e)', () => {
         });
       });
 
-      it('when the userName field is not exists on db than expected response', async () => {
-        jest.spyOn(usersService, 'userNameExists').mockImplementation(() => Promise.resolve(undefined));
-        const user = await usersService.create(userFactory.build({
-          userName: 'this test user',
-        }));
-        await usersModel.findOneAndUpdate({ _id: user._id }, { $unset: { userName: 1 } }, { new: true });
+      // This test is for ensuring compatibility with the old API, since the old API allowed older
+      // users to create accounts with no email address (because they used Facebook for login instead).
+      // TODO: When we get to a point where 100% of users in the production database have email
+      // address values, we can delete this test.
+      it('succeeds, and does not return an error when email is not provided in the request body and '
+        + 'at least one user in the database has an undefined email address value', async () => {
+          const user = await usersService.create(userFactory.build({ email: 'hello@gmail.com' }));
+          await usersModel.findOneAndUpdate({ _id: user._id }, { $unset: { email: 1 } }, { new: true });
+          const body = {
+            aboutMe: 'I am a human being',
+          };
+          const response = await request(app.getHttpServer())
+            .patch(`/users/${activeUser._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send(body);
+          expect(response.status).toEqual(HttpStatus.OK);
+          expect(response.body).toEqual({
+            _id: activeUser.id,
+            aboutMe: 'I am a human being',
+          });
+        });
 
+      it("succeeds, and doesn't call usersService.userNameExists() internally when userName field is not in the request body", async () => {
+        jest.spyOn(usersService, 'userNameExists').mockImplementation(() => Promise.resolve(undefined));
         const body = {
           aboutMe: 'I am a human being',
         };

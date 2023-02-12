@@ -136,10 +136,10 @@ describe('Add Friends (e2e)', () => {
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 

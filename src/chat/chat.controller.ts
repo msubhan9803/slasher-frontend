@@ -81,7 +81,7 @@ export class ChatController {
     const user = getUserFromRequest(request);
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, createOrFindConversationQueryDto.userId);
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
     const areFriends = await this.friendsService.areFriends(user._id, createOrFindConversationQueryDto.userId);
     if (!areFriends) {

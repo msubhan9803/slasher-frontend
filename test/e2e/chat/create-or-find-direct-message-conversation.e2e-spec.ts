@@ -113,9 +113,10 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: user1._id });
+        expect(response.status).toEqual(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({
           message: 'Request failed due to user block.',
-          statusCode: 400,
+          statusCode: HttpStatus.FORBIDDEN,
         });
       });
     });

@@ -8,7 +8,7 @@ import type { User } from '../../../../types';
 
 type RightSidebarViewerType = { user: User };
 
-function RightSidebarViewer({ user } : RightSidebarViewerType) {
+function RightSidebarViewer({ user }: RightSidebarViewerType) {
   return (
     <>
       <AdvertisementBox />

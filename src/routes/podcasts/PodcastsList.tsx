@@ -29,7 +29,7 @@ function PodcastsList() {
           </Row>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <PodcastsSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import styled from 'styled-components';
 import ModalContainer from './CustomModal';
 import RoundButton from './RoundButton';
+import { StyledTextarea } from './StyledTextarea';
 
 interface Props {
   show: boolean;
@@ -14,11 +14,6 @@ interface Props {
   handleReport?: (value: string) => void;
   removeComment?: () => void;
 }
-const StyledTextarea = styled(Form)`
-  .form-control {
-    resize: none;
-  }
-`;
 function ReportModal({
   show, setShow, slectedDropdownValue, onConfirmClick, deleteText, onBlockYesClick,
   handleReport, removeComment,
@@ -31,8 +26,8 @@ function ReportModal({
     setShow(false);
   };
   const removeData = () => {
-    if (removeComment) removeComment();
-    if (onConfirmClick) onConfirmClick();
+    if (removeComment) { removeComment(); }
+    if (onConfirmClick) { onConfirmClick(); }
     closeModal();
   };
 
@@ -42,14 +37,14 @@ function ReportModal({
   };
 
   const handleClickModal = () => {
-    if (onBlockYesClick) onBlockYesClick();
+    if (onBlockYesClick) { onBlockYesClick(); }
     closeModal();
   };
 
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
-      if (handleReport) handleReport(reason);
+      if (handleReport) { handleReport(reason); }
       closeModal();
     }
   };

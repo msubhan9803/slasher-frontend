@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  Button,
-  Card, Col, Dropdown, Row,
+  Button, Card, Col, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { HashLink } from 'react-router-hash-link';
-import { CustomDropDown } from '../UserMessageList/UserMessageListItem';
 import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import ShareLinksModal from '../ShareLinksModal';
+import ShareLinkButton from '../ShareLinkButton';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface LinearIconProps {
   uniqueId?: string
@@ -18,11 +17,16 @@ interface PostFooterProps {
   likeIcon: boolean;
   postId: string;
   userName: string;
-  rssfeedProviderId: string;
+  rssfeedProviderId?: string;
   onLikeClick: (id: string) => void
+  onSelect?: (value: string) => void
+  likeCount?: string;
+  commentCount?: string;
+  handleLikeModal?: (value: string) => void;
 }
-const CardFooter = styled(Card.Footer)`
-  border-top: .063rem solid  #3A3B46
+const StyleDot = styled(FontAwesomeIcon)`
+  width: 0.267rem;
+  height: 0.267rem;
 `;
 const LinearIcon = styled.span<LinearIconProps>`
   svg * {
@@ -31,61 +35,62 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
+  onSelect, likeCount, commentCount, handleLikeModal,
 }: PostFooterProps) {
-  const [showShareLinks, setShowShareLinks] = useState(false);
-  const handleShowShareLinks = () => setShowShareLinks(true);
+  const showRepost = !!enableDevFeatures;
   return (
-    <CardFooter className="p-0">
-      <Row className="justify-content-evenly py-3 px-md-3">
-        <Col>
-          <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
-            {likeIcon ? (
-              <LinearIcon uniqueId="like-button-footer">
-                <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                <span className="fs-3">Like</span>
-              </LinearIcon>
-            )
-              : (
-                <>
-                  <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                  <span className="fs-3">Like</span>
-                </>
-              )}
-          </Button>
+    <Card.Footer className="p-0">
+      <Row className="justify-content-start py-3">
+        <Col xs={4} md={3} lg={4} xl={3}>
+          <div className="d-flex align-items-center">
+            <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
+              {likeIcon ? (
+                <LinearIcon uniqueId="like-button-footer">
+                  <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
+                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
+                </LinearIcon>
+              )
+                : (
+                  <>
+                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                    <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
+                  </>
+                )}
+            </Button>
+            <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
+            <Button
+              className="bg-transparent border-0 btn btn-primary p-0 text-white"
+              onClick={() => handleLikeModal!('like')}
+            >
+              <span className="fs-3">{likeCount}</span>
+            </Button>
+          </div>
         </Col>
-        <Col className="text-center">
+        <Col xs={4} md={3} lg={4} xl={3} className="text-xl-start text-lg-center text-md-start text-center">
           <HashLink
+            onClick={() => onSelect!(rssfeedProviderId || postId)}
             to={rssfeedProviderId
-              ? `/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
+              ? `/app/news/partner/${rssfeedProviderId}/posts/${postId}#comments`
               : `/${userName}/posts/${postId}#comments`}
             className="text-decoration-none"
             scroll={scrollWithOffset}
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-3">Comment</span>
+            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
+            <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
+            <span className="fs-3">{commentCount}</span>
           </HashLink>
         </Col>
-        <Col className="text-end">
-          <CustomDropDown>
-            <Dropdown.Toggle onClick={handleShowShareLinks} className="cursor-pointer bg-transparent p-0 text-white">
-              <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-              <span className="fs-3">Share</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="bg-black">
-              <Dropdown.Item eventKey="Share as a post" className="text-light">Unavailable in Beta.</Dropdown.Item>
-              {/*
-                <Dropdown.Item eventKey="Share as a post" className="text-light">
-                Share as a post
-                </Dropdown.Item>
-                <Dropdown.Item eventKey="Share in a message" className="text-light">
-                Share in a message
-                </Dropdown.Item>
-                <Dropdown.Item eventKey="More options" className="text-light">
-                More options
-                </Dropdown.Item>
-              */}
-            </Dropdown.Menu>
-          </CustomDropDown>
+        {showRepost && (
+          <Col xs={4} className="text-xl-center text-lg-end text-md-center text-end">
+            <FontAwesomeIcon icon={solid('repeat')} size="lg" className="me-2" />
+            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Repost</span>
+            <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
+            <span className="fs-3">999k</span>
+          </Col>
+        )}
+        <Col xs={showRepost ? 2 : 3} className="text-end d-none d-md-inline d-lg-none d-xl-inline">
+          <ShareLinkButton text />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -94,9 +99,17 @@ function PostFooter({
           </linearGradient>
         </svg>
       </Row>
-      {showShareLinks && <ShareLinksModal show={showShareLinks} setShow={setShowShareLinks} /> }
-    </CardFooter>
+
+    </Card.Footer>
   );
 }
+
+PostFooter.defaultProps = {
+  rssfeedProviderId: '',
+  onSelect: undefined,
+  likeCount: '',
+  commentCount: '',
+  handleLikeModal: undefined,
+};
 
 export default PostFooter;

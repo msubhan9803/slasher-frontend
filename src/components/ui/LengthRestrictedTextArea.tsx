@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
+import CharactersCounter from './CharactersCounter';
 
 interface Props {
   contentDetail: string;
@@ -27,9 +28,11 @@ function LengthRestrictedTextArea({
         onChange={handleMessageChange}
         placeholder={placeholder}
       />
-      <Form.Text className="float-end">
-        {`${charCount}/${maxLength} characters`}
-      </Form.Text>
+      <CharactersCounter
+        counterClass="float-end"
+        charCount={charCount}
+        totalChar={maxLength}
+      />
       <div className="clearfix" />
     </>
   );

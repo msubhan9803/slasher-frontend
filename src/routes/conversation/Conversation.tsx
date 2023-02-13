@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import React, {
   ChangeEvent,
+  useCallback,
   useEffect, useRef, useState,
 } from 'react';
 import Cookies from 'js-cookie';
@@ -46,15 +47,15 @@ function Conversation() {
           navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
         }).catch((e) => { throw e; });
       } else {
-        navigate('/messages', { replace: true });
+        navigate('/app/messages', { replace: true });
       }
     }
-  }, []);
+  }, [location.pathname, navigate, searchParams]);
 
-  const onChatMessageReceivedHandler = (payload: any) => {
+  const onChatMessageReceivedHandler = useCallback((payload: any) => {
     const chatreceivedObj = {
       // eslint-disable-next-line no-underscore-dangle
-      id: payload.user._id,
+      id: payload.message.fromId,
       message: payload.message.message,
       time: DateTime.now().toISO().toString(),
       participant: 'other',
@@ -69,7 +70,7 @@ function Conversation() {
         chatreceivedObj,
       ]);
     }
-  };
+  }, [conversationId, socket]);
 
   useEffect(() => {
     if (socket) {
@@ -79,12 +80,12 @@ function Conversation() {
       };
     }
     return () => { };
-  }, []);
+  }, [onChatMessageReceivedHandler, socket]);
 
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {
       const isSameConversation = lastConversationIdRef.current === conversationId;
-      if (isSameConversation) return;
+      if (isSameConversation) { return; }
 
       lastConversationIdRef.current = conversationId;
 
@@ -105,13 +106,13 @@ function Conversation() {
         // 2. Consider page load event, so at that time `loadingMessages` is already
         // false so if we set it to false again then it would set messages twice
         // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
-        if (loadingMessages) setLoadingMessages(false);
+        if (loadingMessages) { setLoadingMessages(false); }
       }).catch(() => {
         setIsLoading(false);
         setPageDoesNotExist(true);
       });
     }
-  }, [conversationId]);
+  }, [conversationId, loadingMessages, location.pathname, userId]);
 
   const sendMessageClick = () => {
     if (imageArray.length > 0) {
@@ -171,7 +172,7 @@ function Conversation() {
           (Why? Ans. If we don't check for this we end up setting `messageList`
           for a previous conversation in a newer conversation when we rapidly switch
           between two conversations. (TESTED) */
-          if (lastConversationIdRef.current !== conversationId) return;
+          if (lastConversationIdRef.current !== conversationId) { return; }
 
           const newMessages = getMessagesResponse.map((newMessage: any) => {
             const finalData: any = {
@@ -200,9 +201,9 @@ function Conversation() {
         });
       }
     }
-  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages]);
+  }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
-  if (isLoading || !socketConnected) return null;
+  if (isLoading || !socketConnected) { return null; }
 
   if (showPageDoesNotExist) {
     return (
@@ -258,7 +259,7 @@ function Conversation() {
           />
         </InfiniteScroll>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -1,8 +1,8 @@
 import React, {
-  useContext, useEffect, useState,
+  useCallback, useContext, useEffect, useState,
 } from 'react';
 import { Offcanvas } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { ScrollRestoration, useLocation, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import styled from 'styled-components';
 import { useMediaQuery } from 'react-responsive';
@@ -12,10 +12,11 @@ import MobileOnlySidebarContent from '../../sidebar-nav/MobileOnlySidebarContent
 import { userInitialData } from '../../../../api/users';
 import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnreadMessageCount } from '../../../../redux/slices/userSlice';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { clearSignInCookies } from '../../../../utils/session-utils';
+import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
-import { LG_MEDIA_BREAKPOINT } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
+import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 
 interface Props {
   children: React.ReactNode;
@@ -30,13 +31,21 @@ const StyledOffcanvas = styled(Offcanvas)`
 
 const LeftSidebarWrapper = styled.div`
   width: 142px;
-  height: calc(100vh - 125px);
-  overflow-y: hidden;
+  height: calc(100vh - 93.75px);
+  padding-bottom: 50px;
   position: sticky;
-  top: 125px;
+  top: 93.75px;
+  overflow-y: overlay;
   padding-right: 1rem;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style { display: none; }
+  scrollbar-width { display: none; }
   &:hover {
-    overflow-y: overlay;
+    ::-webkit-scrollbar { display: block; }
+    -ms-overflow-style { display: block; }
+    scrollbar-width { display: block; }
   }
 `;
 
@@ -50,11 +59,20 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const userData = useAppSelector((state) => state.user);
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
+  const token = Cookies.get('sessionToken');
+  useGoogleAnalytics(analyticsId);
+
+  const [show, setShow] = useState(false);
+  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
+
+  const showOffcanvasSidebar = () => setShow(true);
+  const toggleOffCanvas = () => {
+    setShow(!show);
+  };
 
   useEffect(() => {
-    const token = Cookies.get('sessionToken');
     if (!token) {
-      navigate(`/sign-in?path=${pathname}`);
+      navigate(`/app/sign-in?path=${pathname}`);
       return;
     }
 
@@ -63,30 +81,23 @@ function AuthenticatedPageWrapper({ children }: Props) {
         dispatch(setUserInitialData(res.data));
       }).catch((err) => {
         if (err.response.status === 401) {
-          clearSignInCookies();
-          navigate('/sign-in');
+          signOut();
         }
       });
     }
-  }, []);
+  }, [dispatch, navigate, pathname, userData.user.userName, token]);
 
-  const [show, setShow] = useState(false);
-  const isDesktopResponsiveSize = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` });
-
-  const hideOffcanvasSidebar = () => setShow(false);
-  const showOffcanvasSidebar = () => setShow(true);
-
-  useEffect(() => {
+  useCallback(() => {
     dispatch(setUserInitialData(userData));
-  }, []);
+  }, [dispatch, userData]);
 
-  const onNotificationReceivedHandler = () => {
+  const onNotificationReceivedHandler = useCallback(() => {
     dispatch(incrementUnreadNotificationCount());
-  };
+  }, [dispatch]);
 
-  const onUnreadMessageCountUpdate = (count: any) => {
+  const onUnreadMessageCountUpdate = useCallback((count: any) => {
     dispatch(handleUpdatedUnreadMessageCount(count.unreadMessageCount));
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (socket) {
@@ -98,9 +109,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
       };
     }
     return () => { };
-  }, []);
+  }, [onNotificationReceivedHandler, onUnreadMessageCountUpdate, socket]);
 
-  if (!userData.user) {
+  if (!token || !userData.user) {
     return <LoadingIndicator />;
   }
   return (
@@ -123,6 +134,9 @@ function AuthenticatedPageWrapper({ children }: Props) {
             )}
           <main className="px-lg-2 flex-grow-1 min-width-0">
             {children}
+            <ScrollRestoration
+              getKey={(location: any) => location.pathname}
+            />
           </main>
         </div>
       </div>
@@ -130,14 +144,14 @@ function AuthenticatedPageWrapper({ children }: Props) {
         <StyledOffcanvas
           id={offcanvasId}
           show={show && !isDesktopResponsiveSize}
-          onHide={hideOffcanvasSidebar}
+          onHide={toggleOffCanvas}
         >
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>Menu</Offcanvas.Title>
           </Offcanvas.Header>
           <Offcanvas.Body>
-            <MobileOnlySidebarContent className="mb-3" />
-            <SidebarNavContent />
+            <MobileOnlySidebarContent className="mb-3" onToggleCanvas={toggleOffCanvas} />
+            <SidebarNavContent onToggleCanvas={toggleOffCanvas} />
           </Offcanvas.Body>
         </StyledOffcanvas>
       )}

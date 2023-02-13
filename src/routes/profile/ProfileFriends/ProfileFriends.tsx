@@ -1,11 +1,12 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
 import { userProfileFriends } from '../../../api/users';
 import CustomSearchInput from '../../../components/ui/CustomSearchInput';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import ReportModal from '../../../components/ui/ReportModal';
 import TabLinks from '../../../components/ui/Tabs/TabLinks';
 import { User } from '../../../types';
@@ -16,6 +17,7 @@ import { useAppSelector } from '../../../redux/hooks';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { reportData } from '../../../api/report';
 import { createBlockUser } from '../../../api/blocks';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 
 interface FriendProps {
   _id?: string;
@@ -63,10 +65,10 @@ function ProfileFriends({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  const fetchMoreFriendList = () => {
-    setLoadingFriends(true);
+  const fetchMoreFriendList = useCallback(() => {
     userProfileFriends(user._id, page, search)
       .then((res) => {
+        setLoadingFriends(false);
         setFriendsList((prev: any) => [
           ...prev,
           ...res.data.friends,
@@ -81,12 +83,12 @@ function ProfileFriends({ user }: Props) {
       .finally(
         () => { setAdditionalFriend(false); setLoadingFriends(false); },
       );
-  };
+  }, [search, user._id, page]);
   useEffect(() => {
     if ((additionalFriend && !loadingFriends) || search) {
       fetchMoreFriendList();
     }
-  }, [additionalFriend, loadingFriends, search]);
+  }, [additionalFriend, loadingFriends, search, fetchMoreFriendList]);
   const getYPosition = () => {
     const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
@@ -102,7 +104,7 @@ function ProfileFriends({ user }: Props) {
         fetchMoreFriendList();
       }
     }
-  }, [yPositionOfLastFriendElement]);
+  }, [yPositionOfLastFriendElement, fetchMoreFriendList, page, search.length, noMoreData]);
 
   const renderNoMoreDataMessage = () => {
     const message = friendsList.length === 0 && search
@@ -165,19 +167,19 @@ function ProfileFriends({ user }: Props) {
           <div>
             <CustomSearchInput label="Search friends..." setSearch={handleSearch} search={search} />
           </div>
-          <div className="d-flex align-self-center mt-3 mt-md-0">
-            {
-              friendCount
-                ? (
-                  <p className="fs-3 text-primary me-3 my-auto">
-                    {friendCount}
-                    {' '}
-                    friends
-                  </p>
-                )
-                : ''
-            }
-          </div>
+          {/* <div className="d-flex align-self-center mt-3 mt-md-0">
+      {
+        friendCount
+          ? (
+            <p className="fs-3 text-primary me-3 my-auto">
+              {friendCount}
+              {' '}
+              friends
+            </p>
+          )
+          : ''
+      } */}
+          {/* </div> */}
         </div>
         <div className="bg-mobile-transparent border-0 rounded-3 bg-dark mb-0 p-md-3 pb-md-1 my-3">
           {loginUserData.userName === user.userName
@@ -203,11 +205,7 @@ function ProfileFriends({ user }: Props) {
           </InfiniteScroll>
           {loadingFriends && <LoadingIndicator />}
           {noMoreData && renderNoMoreDataMessage()}
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
         </div>
       </div>
       <ReportModal

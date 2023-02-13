@@ -1,32 +1,16 @@
 import React, { useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import styled from 'styled-components';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import RoundButton from '../../../components/ui/RoundButton';
+import { StyleButton } from '../../../components/ui/StyleButton';
 import MoviesModal from '../components/MoviesModal';
 
-const StyleButton = styled.div`
-  .deactivate-btn {
-    border: 1px solid #3A3B46;
-  &:hover {
-    border: 1px solid #3A3B46;
-    }
-  }
-
-  @media (max-width: 767px) {
-    .update-btn{
-      width: 100%;
-    }
-    .deactivate-btn{
-      width: 100%;
-    }
-  }
-`;
 function MovieEdit() {
   // TODO: If user does not own this movie listing, redirect to details view instead of edit view
 
   const [show, setShow] = useState(false);
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [message, setMessage] = useState('');
   const [charCount, setCharCount] = useState(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,9 +54,13 @@ function MovieEdit() {
           className="fs-5"
           style={{ resize: 'none' }}
         />
-        <Form.Text className="float-end fs-6" style={{ marginTop: '-25px', marginRight: '10px' }}>
-          {`${charCount}/1000 characters`}
-        </Form.Text>
+        <CharactersCounter
+          counterClass="float-end fs-6"
+          charCount={charCount}
+          totalChar={1000}
+          marginTop="-25px"
+          marginRight="10px"
+        />
         <Row className="mt-4">
           <Col lg={6}>
             <Form.Control type="text" placeholder="Release year" className="fs-5 mb-4" />

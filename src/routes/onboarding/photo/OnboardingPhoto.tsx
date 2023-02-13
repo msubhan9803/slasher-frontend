@@ -11,7 +11,7 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 
 function OnboardingPhoto() {
   const navigate = useNavigate();
-  const [imageUpload, setImageUpload] = useState<File>();
+  const [imageUpload, setImageUpload] = useState<File | null | undefined>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   const handleSubmit = (e: React.MouseEvent<HTMLElement>) => {
@@ -21,7 +21,7 @@ function OnboardingPhoto() {
     setErrorMessage([]);
 
     onboardingPhoto(imageUpload).then(() => {
-      navigate('/onboarding/about-me');
+      navigate('/app/onboarding/about-me');
     }).catch((error) => {
       setErrorMessage(error.response.data.message);
     });
@@ -41,14 +41,10 @@ function OnboardingPhoto() {
         </div>
         <Row className="justify-content-center">
           <Col xs={9} sm={7} md={5} lg={4} xxl={3}>
-            {errorMessage && errorMessage.length > 0 && (
-              <div className="mt-4">
-                <ErrorMessageList errorMessages={errorMessage} />
-              </div>
-            )}
+            <ErrorMessageList errorMessages={errorMessage} divClass="mt-4" />
             <Row>
               <Col xs={6}>
-                <RoundButtonLink to="/onboarding/about-me" className="w-100" variant="dark">
+                <RoundButtonLink to="/app/onboarding/about-me" className="w-100" variant="dark">
                   Skip
                 </RoundButtonLink>
               </Col>

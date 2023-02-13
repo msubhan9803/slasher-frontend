@@ -8,15 +8,18 @@ declare global {
   }
 }
 
-const useGoogleAnalytics = (analyticsId: string) => {
+const useGoogleAnalytics = (analyticsId?: string) => {
   const location = useLocation();
-  const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`);
+  const isLoaded = useScript(`https://www.googletagmanager.com/gtag/js?id=${analyticsId}`, Boolean(!analyticsId));
   const previousPathRef = useRef<string>();
 
   const { pathname, search, hash } = location;
 
+  const DISABLE_HOOK = typeof analyticsId === 'undefined';
+
   useEffect(() => {
-    if (!isLoaded) return;
+    if (DISABLE_HOOK) { return; }
+    if (!isLoaded) { return; }
 
     window.dataLayer = window.dataLayer || [];
     function gtag(...args: any): any;
@@ -26,7 +29,7 @@ const useGoogleAnalytics = (analyticsId: string) => {
     }
 
     const path = pathname + search + hash;
-    if (previousPathRef.current === path) return;
+    if (previousPathRef.current === path) { return; }
     previousPathRef.current = path;
 
     gtag('js', new Date()); // necessary
@@ -36,7 +39,7 @@ const useGoogleAnalytics = (analyticsId: string) => {
       page_location: path,
       page_title: document.title,
     });
-  }, [location, isLoaded]);
+  }, [location, isLoaded, analyticsId, hash, pathname, search, DISABLE_HOOK]);
 };
 
 export default useGoogleAnalytics;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
@@ -11,7 +11,7 @@ function ReadBooks() {
   const [showKeys, setShowKeys] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [filteredBooks, setFilteredBooks] = useState<BooksProps[]>(readBooks);
-  const searchData = () => {
+  const searchData = useCallback(() => {
     let searchResult;
     const newFilter = readBooks;
     if (search) {
@@ -22,10 +22,10 @@ function ReadBooks() {
     } else {
       setFilteredBooks(readBooks);
     }
-  };
+  }, [search]);
   useEffect(() => {
     searchData();
-  }, [search]);
+  }, [search, searchData]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -42,7 +42,7 @@ function ReadBooks() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <BooksRigthSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

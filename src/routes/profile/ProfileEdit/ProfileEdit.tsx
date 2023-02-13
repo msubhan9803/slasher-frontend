@@ -7,15 +7,22 @@ import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { AxiosResponse } from 'axios';
 import {
-  uploadUserCoverImage, uploadUserProfileImage, updateUser,
+  uploadUserCoverImage,
+  uploadUserProfileImage,
+  updateUser,
+  removeUserCoverImage,
+  reomoveUserProfileImage as removeUserProfileImage,
 } from '../../../api/users';
-import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
-import RoundButton from '../../../components/ui/RoundButton';
 import { ProfileVisibility, User } from '../../../types';
 import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import useProgressButton from '../../../components/ui/ProgressButton';
+import { useAppDispatch } from '../../../redux/hooks';
+import { updateUserProfilePic } from '../../../redux/slices/userSlice';
 
 interface Props {
   user: User
@@ -26,7 +33,7 @@ function ProfileEdit({ user }: Props) {
   const params = useParams();
   const [locallyStoredUserData, setLocallyStoredUserData] = useState<User>(user);
   const [errorMessage, setErrorMessages] = useState<string[]>();
-  const [profilePhoto, setProfilePhoto] = useState<any>();
+  const [profilePhoto, setProfilePhoto] = useState<File | null | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
   const [publicStatus, setPublic] = useState<boolean>(
     user.profile_status === ProfileVisibility.Public,
@@ -35,25 +42,55 @@ function ProfileEdit({ user }: Props) {
     user.profile_status === ProfileVisibility.Private,
   );
   const { userName } = useParams<string>();
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
+
+  const dispatch = useAppDispatch();
+
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
-    if (profilePhoto) {
+    let profileImageUpdatePromise: null | Promise<AxiosResponse<any, any>> = null;
+    switch (profilePhoto) {
+      case undefined:
+        break;
+      case null:
+        profileImageUpdatePromise = removeUserProfileImage();
+        break;
+      default:
+        profileImageUpdatePromise = uploadUserProfileImage(profilePhoto);
+        break;
+    }
+    if (profileImageUpdatePromise) {
       try {
-        await uploadUserProfileImage(profilePhoto);
+        const response = await profileImageUpdatePromise;
+        dispatch(
+          updateUserProfilePic(response.data.profilePic),
+        );
       } catch (requestError: any) {
         errorList = errorList.concat(requestError.response.data.message);
       }
     }
 
-    if (coverPhoto) {
+    let coverImageUpdatePromise: null | Promise<AxiosResponse<any, any>> = null;
+    switch (coverPhoto) {
+      case undefined:
+        break;
+      case null:
+        coverImageUpdatePromise = removeUserCoverImage();
+        break;
+      default:
+        coverImageUpdatePromise = uploadUserCoverImage(coverPhoto);
+        break;
+    }
+    if (coverImageUpdatePromise) {
       try {
-        await uploadUserCoverImage(coverPhoto);
+        await coverImageUpdatePromise;
       } catch (requestError: any) {
-        errorList = errorList.concat(requestError.response.data.message);
+        errorList = errorList.concat([requestError.response.data.message]);
       }
     }
 
@@ -62,13 +99,13 @@ function ProfileEdit({ user }: Props) {
         locallyStoredUserData.userName,
         locallyStoredUserData.firstName,
         locallyStoredUserData.email,
-        /* eslint no-underscore-dangle: 0 */
         locallyStoredUserData._id,
         locallyStoredUserData.profile_status,
       );
     } catch (requestError: any) {
-      errorList = errorList.concat(requestError.response.data.message);
+      errorList = errorList.concat([requestError.response.data.message]);
     }
+
     setErrorMessages(errorList);
 
     if (errorList.length === 0) {
@@ -79,6 +116,9 @@ function ProfileEdit({ user }: Props) {
         location.pathname.replace(params.userName!, locallyStoredUserData.userName),
         { replace: true },
       );
+      setProgressButtonStatus('success');
+    } else {
+      setProgressButtonStatus('failure');
     }
   };
 
@@ -112,8 +152,8 @@ function ProfileEdit({ user }: Props) {
   };
   return (
     <div>
-      {locallyStoredUserData.profilePic.includes('default_user_icon')
-        && <Alert variant="info">Hey! It looks like you don’t have a profile image yet!   Adding one will make people more likely to friend you!</Alert>}
+      {locallyStoredUserData.profilePic.includes('default_user_icon') && !profilePhoto
+        && <Alert variant="info">Hey! It looks like you don’t have a profile image!   Adding one will make people more likely to friend you!</Alert>}
       <Form>
         <div className="bg-dark p-4 rounded bg-mobile-transparent">
           <Row>
@@ -123,7 +163,11 @@ function ProfileEdit({ user }: Props) {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={locallyStoredUserData.profilePic}
+                  defaultPhotoUrl={
+                    locallyStoredUserData.profilePic.includes('default_user_icon')
+                      ? undefined
+                      : locallyStoredUserData.profilePic
+                  }
                   onChange={(file) => { setProfilePhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -145,7 +189,7 @@ function ProfileEdit({ user }: Props) {
                   className="mx-auto mx-md-0 me-md-3"
                   height="10rem"
                   variant="outline"
-                  imagePreview={locallyStoredUserData.coverPhoto}
+                  defaultPhotoUrl={locallyStoredUserData.coverPhoto}
                   onChange={(file) => { setCoverPhoto(file); }}
                 />
                 <div className="text-center text-md-start mt-4 mt-md-0">
@@ -236,7 +280,7 @@ function ProfileEdit({ user }: Props) {
               <Form.Group className="mb-4">
                 <Form.Label className="h3">Profile visibility</Form.Label>
                 <Form.Check
-                  key="profileVisibility"
+                  key="profileVisibilityPublic"
                   type="radio"
                   id="report-public"
                   checked={publicStatus}
@@ -245,7 +289,7 @@ function ProfileEdit({ user }: Props) {
                   onChange={publicChangeHandler}
                 />
                 <Form.Check
-                  key="profileVisibility"
+                  key="profileVisibilityPrivate"
                   type="radio"
                   id="report-private"
                   checked={privateStatus}
@@ -256,16 +300,10 @@ function ProfileEdit({ user }: Props) {
               </Form.Group>
             </Col>
           </Row>
-          {errorMessage && errorMessage.length > 0 && (
-            <div className="mt-3 text-start">
-              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-            </div>
-          )}
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
           <Row className="mt-2">
-            <Col md={3} lg={4} xl={3}>
-              <RoundButton type="submit" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile}>
-                Update profile
-              </RoundButton>
+            <Col xs={12} md={3} lg={4} xl={3}>
+              <ProgressButton label="Update profile" className="py-2 w-100  fs-3 fw-bold" onClick={updateProfile} />
             </Col>
           </Row>
         </div>

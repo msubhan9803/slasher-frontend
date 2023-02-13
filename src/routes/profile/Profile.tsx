@@ -29,7 +29,6 @@ function Profile() {
   const location = useLocation();
   /* eslint no-underscore-dangle: 0 */
   const isSelfProfile = loginUserData.id === user?._id;
-
   useEffect(() => {
     if (userNameOrId) {
       getUser(userNameOrId)
@@ -46,7 +45,7 @@ function Profile() {
           setUser(res.data);
         }).catch(() => setUserNotFound(true));
     }
-  }, [userNameOrId]);
+  }, [userNameOrId, location.pathname, location.search, navigate]);
 
   if (userNotFound) {
     return (
@@ -63,7 +62,7 @@ function Profile() {
       <ContentPageWrapper>
         <Routes>
           <Route path="/" element={<Navigate to="posts" replace />} />
-          <Route path="/posts" element={<ProfilePosts />} />
+          <Route path="/posts" element={<ProfilePosts user={user} />} />
           <Route path="/posts/:postId" element={<ProfilePostDetail user={user} />} />
           <Route path="/friends" element={<ProfileFriends user={user} />} />
           <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
@@ -75,7 +74,7 @@ function Profile() {
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         {isSelfProfile ? <RightSidebarSelf /> : <RightSidebarViewer user={user} />}
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

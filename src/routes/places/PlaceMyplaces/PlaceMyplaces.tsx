@@ -15,7 +15,7 @@ function PlaceMyplaces() {
           <PlacePosterCardList dataList={myPlaces} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <PlaceRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

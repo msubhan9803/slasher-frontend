@@ -20,19 +20,11 @@ import ShoppingDetailSmallScreen from './ShoppingDetailSmallScreen';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import ShoppingRightSidebar from '../ShoppingRightSidebar';
+import BorderButton from '../../../components/ui/BorderButton';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
 
 const ImageContainer = styled.div`
   acpect-ratio: '1.78'
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
-`;
-const FollowStyledButton = styled(RoundButton)`
-width: 21.125rem;
-border: 1px solid #3A3B46;
-  &: hover, &:focus{
-  border: 1px solid #3A3B46;
-}
 `;
 const tabsForSelf = [
   { value: 'posts', label: 'Posts' },
@@ -58,7 +50,7 @@ function ShoppingDetails() {
     if ((params.summary === 'edit' || params.summary === 'shopping-offer') && queryParam !== 'self') {
       navigate(`/shopping/${params.id}/posts`);
     }
-  }, [params, queryParam]);
+  }, [params, queryParam, navigate]);
 
   const handleToggle = () => {
     setFavorite(!isFavorite);
@@ -110,9 +102,13 @@ function ShoppingDetails() {
                 <Row className="mt-3 mb-2 text-center d-lg-none">
                   <Col xs={12}>
                     <p className="text-center fw-bold">Get updates for this book</p>
-                    <FollowStyledButton onClick={() => setBgColor(!bgColor)} className={`rounded-pill  shadow-none ${bgColor ? 'bg-primary border-primary' : 'bg-black text-white'} `}>
-                      {bgColor ? 'Follow' : 'Unfollow'}
-                    </FollowStyledButton>
+                    <BorderButton
+                      customButtonCss="width: 21.125rem !important;"
+                      buttonClass="shadow-none"
+                      toggleBgColor={bgColor}
+                      handleClick={setBgColor}
+                      toggleButton
+                    />
                   </Col>
                 </Row>
               </>
@@ -139,7 +135,7 @@ function ShoppingDetails() {
         {params.summary === 'edit' && <ShoppingEdit />}
         {params.summary === 'shopping-offer' && <ShoppingSpecialOffer />}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

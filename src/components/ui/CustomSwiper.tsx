@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper';
+import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -20,6 +20,7 @@ interface SliderImage {
 interface Props {
   images: SliderImage[];
   initialSlide?: number;
+  onSelect?: (value: string) => void;
 }
 const StyledYouTubeButton = styled(Button)`
   position: absolute;
@@ -38,7 +39,12 @@ const StyledSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
   z-index: 0 !important;
-
+.swiper-button-prev {
+  color: var(--bs-primary);
+}
+.swiper-button-next {
+  color: var(--bs-primary);
+}
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
@@ -71,7 +77,7 @@ const PostImage = styled.div`
     object-fit: contain;
   }
 `;
-function CustomSwiper({ images, initialSlide }: Props) {
+function CustomSwiper({ images, initialSlide, onSelect }: Props) {
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
 
   const displayVideoAndImage = (imageAndVideo: SliderImage) => {
@@ -94,7 +100,11 @@ function CustomSwiper({ images, initialSlide }: Props) {
     }
     if (imageAndVideo.linkUrl) {
       return (
-        <Link to={imageAndVideo.linkUrl} className="h-100">
+        <Link
+          to={imageAndVideo.linkUrl}
+          onClick={() => onSelect!(imageAndVideo.postId)}
+          className="h-100"
+        >
           <PostImage>
             <img src={imageAndVideo.imageUrl} className="w-100 h-100" alt="user uploaded content" />
           </PostImage>
@@ -142,7 +152,8 @@ function CustomSwiper({ images, initialSlide }: Props) {
       <StyledSwiper
         pagination={{ type: 'fraction' }}
         initialSlide={initialSlide}
-        modules={[Pagination]}
+        navigation
+        modules={[Pagination, Navigation]}
       >
         {
           images.map((image: SliderImage) => (
@@ -158,5 +169,6 @@ function CustomSwiper({ images, initialSlide }: Props) {
 }
 CustomSwiper.defaultProps = {
   initialSlide: 0,
+  onSelect: undefined,
 };
 export default CustomSwiper;

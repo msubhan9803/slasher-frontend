@@ -20,7 +20,7 @@ export async function suggestEvent(
   city: string,
   event_info: string,
   url: string,
-  file: File | undefined,
+  file: File | null | undefined,
   startDate: Date | null,
   endDate: Date | null,
   address: string,

@@ -229,6 +229,17 @@ export enum ProfileVisibility {
   Private = 1,
 }
 
+export type RegisterUser = Partial<
+{
+  firstName: string,
+  userName: string,
+  email: string,
+  password: string,
+  passwordConfirmation: string,
+  securityQuestion: string,
+  securityAnswer: string,
+  dob: string,
+}>;
 export interface CommentValue {
   commentMessage: string,
   imageArray?: string[],

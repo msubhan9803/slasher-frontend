@@ -1,45 +1,40 @@
 /* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
+import { useLocation } from 'react-router-dom';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
-import { findFirstYouTubeLinkVideoId } from '../../../utils/text-utils';
 import { createBlockUser } from '../../../api/blocks';
 import { reportData } from '../../../api/report';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-import { useAppSelector } from '../../../redux/hooks';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import FormatImageVideoList from '../../../utils/vido-utils';
+import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
 
-function ProfilePosts() {
-  const { userName } = useParams<string>();
-  const [user, setUser] = useState<User>();
-  useEffect(() => {
-    if (userName) {
-      getUser(userName)
-        .then((res) => {
-          setUser(res.data);
-        });
-    }
-  }, [userName]);
+interface Props {
+  user: User
+}
+
+function ProfilePosts({ user }: Props) {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [posts, setPosts] = useState<Post[]>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
@@ -47,17 +42,14 @@ function ProfilePosts() {
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
   const loginUserId = Cookies.get('userId');
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const [posts, setPosts] = useState<Post[]>(
+    scrollPosition.pathname === location.pathname
+      ? scrollPosition?.data : [],
+  );
 
-  // TODO: Make this a shared function becuase it also exists in other places
-  const formatImageVideoList = (postImageList: any, postMessage: string) => {
-    const youTubeVideoId = findFirstYouTubeLinkVideoId(postMessage);
-    if (youTubeVideoId) {
-      postImageList.splice(0, 0, {
-        videoKey: youTubeVideoId,
-      });
-    }
-    return postImageList;
-  };
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -73,44 +65,63 @@ function ProfilePosts() {
   };
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts && user) {
-      setLoadingPosts(true);
-      /* eslint no-underscore-dangle: 0 */
-      getProfilePosts(
-        user._id,
-        posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-      ).then((res) => {
-        const newPosts = res.data.map((data: any) => (
-          {
-            /* eslint no-underscore-dangle: 0 */
-            _id: data._id,
-            id: data._id,
-            postDate: data.createdAt,
-            content: data.message,
-            images: formatImageVideoList(data.images, data.message),
-            userName: data.userId.userName,
-            profileImage: data.userId.profilePic,
-            userId: data.userId._id,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
-            likeCount: data.likeCount,
-            commentCount: data.commentCount,
+      if (scrollPosition === null
+        || scrollPosition?.position === 0
+        || posts.length >= scrollPosition?.data?.length
+        || posts.length === 0
+      ) {
+        setLoadingPosts(true);
+        /* eslint no-underscore-dangle: 0 */
+        getProfilePosts(
+          user._id,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              _id: data._id,
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              images: FormatImageVideoList(data.images, data.message),
+              userName: data.userId.userName,
+              profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
+            }
+          ));
+          setPosts((prev: Post[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          if (scrollPosition?.pathname === location.pathname
+            && scrollPosition?.position >= window.pageYOffset) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
           }
-        ));
-        setPosts((prev: Post[]) => [
-          ...prev,
-          ...newPosts,
-        ]);
-        if (res.data.length === 0) { setNoMoreData(true); }
-      }).catch(
-        (error) => {
-          setNoMoreData(true);
-          setErrorMessage(error.response.data.message);
-        },
-      ).finally(
-        () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-      );
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
+      }
     }
-  }, [requestAdditionalPosts, loadingPosts, user]);
+  }, [
+    requestAdditionalPosts, loadingPosts, user, loginUserId,
+    posts, scrollPosition, location, dispatch,
+  ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -136,7 +147,7 @@ function ProfilePosts() {
           id: data._id,
           postDate: data.createdAt,
           content: data.message,
-          images: formatImageVideoList(data.images, data.message),
+          images: FormatImageVideoList(data.images, data.message),
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
@@ -228,26 +239,32 @@ function ProfilePosts() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedPost();
+      if (res.status === 200) { callLatestFeedPost(); }
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
 
+  const persistScrollPosition = (id: string) => {
+    const positionData = {
+      pathname: location.pathname,
+      position: window.pageYOffset,
+      data: posts,
+      positionElementId: id,
+    };
+    dispatch(setScrollPosition(positionData));
+  };
+
   return (
     <div>
       <ProfileHeader tabKey="posts" user={user} />
-      {loginUserData.userName === userName
+      {loginUserData.userName === user.userName
         && (
           <div className="my-4">
             <CustomCreatePost />
           </div>
         )}
-      {errorMessage && errorMessage.length > 0 && (
-        <div className="mt-3 text-start">
-          {errorMessage}
-        </div>
-      )}
+      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
       <InfiniteScroll
         pageStart={0}
         initialLoad
@@ -264,6 +281,7 @@ function ProfilePosts() {
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               onLikeClick={onLikeClick}
+              onSelect={persistScrollPosition}
             />
           )
         }

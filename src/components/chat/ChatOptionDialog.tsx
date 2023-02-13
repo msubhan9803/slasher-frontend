@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import styled from 'styled-components';
+import { useNavigate, useParams } from 'react-router-dom';
+import { deleteConversationMessages } from '../../api/messages';
 import ModalContainer from '../ui/CustomModal';
 import RoundButton from '../ui/RoundButton';
+import { StyledTextarea } from '../ui/StyledTextarea';
 
 interface Props {
   show: boolean;
@@ -11,20 +13,17 @@ interface Props {
   handleReport?: (value: string) => void;
   onBlockYesClick?: () => void | undefined;
 }
-const StyledTextarea = styled(Form)`
-  .form-control {
-    resize: none;
-  }
-`;
 function ChatOptionDialog({
   show, setShow, slectedDropdownValue, handleReport, onBlockYesClick,
 }: Props) {
+  const { conversationId } = useParams();
   const closeModal = () => {
     setShow(false);
   };
   const blockOptions = ['It’s inappropriate for Slasher', 'It’s fake or spam', 'Other'];
   const [reports, setReports] = useState<string>('');
   const [otherReport, setOtherReport] = useState('');
+  const navigate = useNavigate();
 
   const reportChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -33,13 +32,17 @@ function ChatOptionDialog({
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
-      if (handleReport) handleReport(reason);
+      if (handleReport) { handleReport(reason); }
       closeModal();
     }
   };
   const handleClickModal = () => {
-    if (onBlockYesClick) onBlockYesClick();
+    if (onBlockYesClick) { onBlockYesClick(); }
     closeModal();
+  };
+  const handleDeleteConversationMessages = () => {
+    if (!conversationId) { return; }
+    deleteConversationMessages(conversationId).then(() => { setShow(false); navigate('/app/messages'); });
   };
   return (
     <ModalContainer
@@ -53,7 +56,7 @@ function ChatOptionDialog({
         <Modal.Body className="d-flex flex-column align-items-center text-center pt-0">
           <h1 className="h3 mb-0 text-primary">Delete</h1>
           <p className="px-3">Are you sure you want to delete this conversation?</p>
-          <RoundButton className="mb-3 w-100">Yes</RoundButton>
+          <RoundButton className="mb-3 w-100" onClick={handleDeleteConversationMessages}>Yes</RoundButton>
           <RoundButton className="mb-3 w-100 bg-dark border-dark shadow-none text-white" onClick={closeModal}>Cancel</RoundButton>
         </Modal.Body>
       )}

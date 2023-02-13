@@ -2,6 +2,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
+import { RegisterUser } from '../types';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
@@ -43,16 +44,37 @@ export async function register(
   );
 }
 
+export async function validateRegistrationFields(
+  {
+    firstName,
+    userName,
+    email,
+    password,
+    passwordConfirmation,
+    securityQuestion,
+    securityAnswer,
+    dob,
+  }: RegisterUser,
+) {
+  return axios.get(
+    `${apiUrl}/users/validate-registration-fields`,
+    {
+      params: {
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dob,
+      },
+    },
+  );
+}
+
 export async function forgotPassword(email: string) {
   return axios.post(`${apiUrl}/users/forgot-password`, { email });
-}
-
-export async function checkUserName(userName: string) {
-  return axios.get(`${apiUrl}/users/check-user-name?userName=${userName}`);
-}
-
-export async function checkUserEmail(email: string) {
-  return axios.get(`${apiUrl}/users/check-email?email=${email}`);
 }
 
 export async function userInitialData() {
@@ -139,7 +161,7 @@ export async function uploadUserProfileImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-profile-image`, formData, { headers });
+  return axios.post(`${apiUrl}/users/profile-image`, formData, { headers });
 }
 
 export async function uploadUserCoverImage(file: File) {
@@ -150,7 +172,23 @@ export async function uploadUserCoverImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
+  return axios.post(`${apiUrl}/users/cover-image`, formData, { headers });
+}
+
+export async function removeUserCoverImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/cover-image`, { headers });
+}
+
+export async function reomoveUserProfileImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/profile-image`, { headers });
 }
 
 export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {

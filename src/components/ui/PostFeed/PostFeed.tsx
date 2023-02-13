@@ -1,12 +1,9 @@
 /* eslint-disable max-lines */
 import React, { useState, useEffect } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { HashLink } from 'react-router-hash-link';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -21,7 +18,6 @@ import CustomSwiper from '../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../CustomPopover';
 import PubWiseAd from '../PubWiseAd';
-import { scrollWithOffset } from '../../../utils/scrollFunctions';
 import {
   decryptMessage,
   cleanExternalHtmlContent,
@@ -29,13 +25,10 @@ import {
   newLineToBr,
 } from '../../../utils/text-utils';
 import LoadingIndicator from '../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_DETAILS_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
+import { useAppSelector } from '../../../redux/hooks';
 
 const READ_MORE_TEXT_LIMIT = 300;
-
-interface LinearIconProps {
-  uniqueId?: string
-}
 
 interface Props {
   popoverOptions: string[];
@@ -65,15 +58,8 @@ interface Props {
   addUpdateComment?: (addUpdateComment: CommentValue) => void;
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
+  onSelect?: (value: string) => void;
 }
-const LinearIcon = styled.div<LinearIconProps>`
-  svg * {
-    fill: url(#${(props) => props.uniqueId});
-  }
-`;
-const StyledBorder = styled.div`
-  border-top: 1px solid #3A3B46
-`;
 const StyledPostFeed = styled.div`
   @media(max-width: 767px) {
     .post {
@@ -91,7 +77,7 @@ function PostFeed({
   commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
-  addUpdateComment, updateState, setUpdateState, isSinglePagePost,
+  addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -100,10 +86,10 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-
+  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
-      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
+      return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
     }
     return `/${post.userName}/posts/${post.id}`;
   };
@@ -128,7 +114,7 @@ function PostFeed({
 
   const imageLinkUrl = (post: any, imageId: string) => {
     if (post.rssfeedProviderId) {
-      return `/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
+      return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
     }
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
   };
@@ -190,27 +176,30 @@ function PostFeed({
   };
 
   let pubWiseAdDivId: string = '';
-  if (location.pathname === '/home' || location.pathname.endsWith('/posts')) {
+  if (location.pathname === '/app/home' || location.pathname.endsWith('/posts')) {
     pubWiseAdDivId = HOME_WEB_DIV_ID;
   }
-  if (location.pathname.includes('/news/partner/')) {
+  if (location.pathname.includes('/app/news/partner/')) {
     pubWiseAdDivId = NEWS_PARTNER_POSTS_DIV_ID;
   }
 
-  let singlePagePostPubWiseAdDivId: string;
-  if (location.pathname.includes('/news/partner/')) {
-    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
-  }
-  if (location.pathname.includes('/posts/')) {
-    singlePagePostPubWiseAdDivId = NEWS_PARTNER_DETAILS_DIV_ID;
-  }
+  useEffect(() => {
+    if (postData.length > 1
+      && scrollPosition.position > 0
+      && scrollPosition?.pathname === location.pathname) {
+      window.scrollTo({
+        top: scrollPosition?.position,
+        behavior: 'auto',
+      });
+    }
+  }, [postData, scrollPosition, location.pathname]);
 
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
         <div key={post.id}>
           <div className="post">
-            <Card className="bg-mobile-transparent border-0 rounded-3 mb-md-4 bg-dark mb-0 pt-md-3 px-sm-0 px-md-4">
+            <Card className="bg-transparent border-0 rounded-3 mb-md-4 mb-0 pt-md-3 px-sm-0 px-md-4">
               <Card.Header className="border-0 px-0 bg-transparent">
                 <PostHeader
                   detailPage={detailPage}
@@ -223,76 +212,54 @@ function PostFeed({
                   content={post.content}
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
+                  onSelect={onSelect}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
                 {renderPostContent(post)}
                 {post?.images && (
-                <CustomSwiper
-                  images={
-                    post.images.map((imageData: any) => ({
-                      videoKey: imageData.videoKey,
-                      imageUrl: imageData.image_path,
-                      linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
-                      postId: post.id,
-                      imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
-                    }))
-                  }
-                  /* eslint no-underscore-dangle: 0 */
-                  initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
-                />
+                  <CustomSwiper
+                    images={
+                      post.images.map((imageData: any) => ({
+                        videoKey: imageData.videoKey,
+                        imageUrl: imageData.image_path,
+                        linkUrl: detailPage ? undefined : imageLinkUrl(post, imageData._id),
+                        postId: post.id,
+                        imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
+                      }))
+                    }
+                    /* eslint no-underscore-dangle: 0 */
+                    initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
+                    onSelect={onSelect}
+                  />
                 )}
-                { /* Below ad is to be shown in the end of post content when the post is a
-              single pgae post */ }
-                {isSinglePagePost && singlePagePostPubWiseAdDivId && <PubWiseAd className="text-center mt-3" id={singlePagePostPubWiseAdDivId} autoSequencer />}
-                <Row className="pt-3 px-md-3">
+                <Row>
                   <Col>
-                    <LinearIcon uniqueId="like-button" role="button" onClick={() => openDialogue('like')}>
-                      <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                      <span className="fs-3">{post.likeCount}</span>
-                    </LinearIcon>
+                    <PostFooter
+                      likeIcon={post.likeIcon}
+                      postId={post.id}
+                      userName={post.userName}
+                      rssfeedProviderId={post.rssfeedProviderId}
+                      onLikeClick={() => { if (onLikeClick) { onLikeClick(post.id); } }}
+                      onSelect={onSelect}
+                      likeCount={post.likeCount}
+                      commentCount={post.commentCount}
+                      handleLikeModal={openDialogue}
+                    />
                   </Col>
-                  <Col className="text-center" role="button">
-                    <HashLink
-                      to={post.rssfeedProviderId
-                        ? `/news/partner/${post.rssfeedProviderId}/posts/${post.id}#comments`
-                        : `/${post.userName}/posts/${post.id}#comments`}
-                      className="text-decoration-none"
-                      scroll={scrollWithOffset}
-                    >
-                      <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-                      <span className="fs-3">{post.commentCount}</span>
-                    </HashLink>
-                  </Col>
-                  <Col className="text-end" role="button" onClick={() => openDialogue('share')}>
-                    <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
-                    <span className="fs-3">{post.sharedList}</span>
-                  </Col>
-                  <svg width="0" height="0">
-                    <linearGradient id="like-button" x1="00%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#FF1800', stopOpacity: '1' }} />
-                      <stop offset="100%" style={{ stopColor: '#FB6363', stopOpacity: '1' }} />
-                    </linearGradient>
-                  </svg>
                 </Row>
               </Card.Body>
-              <PostFooter
-                likeIcon={post.likeIcon}
-                postId={post.id}
-                userName={post.userName}
-                rssfeedProviderId={post.rssfeedProviderId}
-                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
-              />
-              {
+            </Card>
+            {
               isCommentSection
               && (
                 <>
-                  <StyledBorder className="d-md-block d-none mb-4" />
+                  {/* <StyledBorder className="d-md-block d-none mb-4" /> */}
                   <InfiniteScroll
                     pageStart={0}
                     initialLoad
                     loadMore={() => {
-                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                      if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
                   >
@@ -322,12 +289,11 @@ function PostFeed({
                 </>
               )
             }
-            </Card>
           </div>
-          { (i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
+          {(i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
         </div>
       ))}
-      { !isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer /> }
+      {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
       {
         openLikeShareModal
         && (
@@ -366,5 +332,6 @@ PostFeed.defaultProps = {
   addUpdateComment: undefined,
   updateState: false,
   setUpdateState: undefined,
+  onSelect: undefined,
 };
 export default PostFeed;

@@ -9,7 +9,7 @@ const useLoadScriptsInOrder = (URLs: string[], disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (disableHook) return;
+    if (disableHook) { return; }
     async function main() {
       try {
         // SEQUENTIAL LOADING OF SCRIPTS

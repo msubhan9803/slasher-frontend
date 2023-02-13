@@ -1,16 +1,15 @@
 import React from 'react';
 import {
-  Card, Col, Image,
+  Card, Col,
 } from 'react-bootstrap';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import ChatInput from './ChatInput';
 import { ChatProps } from './ChatProps';
 import ChatMessage from './ChatMessage';
 import ChatOptions from './ChatOptions';
 import ChatUserStatus from './ChatUserStatus';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
+import ImagesContainer from '../ui/ImagesContainer';
 
 interface Props {
   height: number;
@@ -57,12 +56,6 @@ const StyledChatContainer = styled.div<Props>`
   }
 `;
 
-const PostImageContainer = styled.div`
-  width: 7.25rem;
-  height: 7.25rem;
-  border: 0.125rem solid #3A3B46
-`;
-
 function Chat({
   messages, userData, sendMessageClick, setMessage, message, handleFileChange, handleRemoveFile,
   imageArray, messageLoading,
@@ -87,25 +80,20 @@ function Chat({
           <div className="d-flex px-3 gap-3">
             {imageArray!.map((post: File) => (
               <Col xs="auto" key={post.name} className="mb-1">
-                <PostImageContainer className="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0">
-                  <Image
-                    src={URL.createObjectURL(post)}
-                    alt="Dating profile photograph"
-                    className="w-100 h-100 img-fluid rounded"
-                  />
-                  <FontAwesomeIcon
-                    icon={solid('times')}
-                    size="xs"
-                    role="button"
-                    className="position-absolute bg-white text-primary rounded-circle"
-                    style={{
-                      padding: '0.313rem 0.438rem',
-                      top: '6.313rem',
-                      left: '6.313rem',
-                    }}
-                    onClick={() => handleRemoveFile!(post)}
-                  />
-                </PostImageContainer>
+                <ImagesContainer
+                  containerWidth="7.25rem"
+                  containerHeight="7.25rem"
+                  containerBorder="0.125rem solid #3A3B46"
+                  image={post}
+                  alt="post image"
+                  handleRemoveImage={() => handleRemoveFile!(post)}
+                  containerClass="mt-4 position-relative d-flex justify-content-center align-items-center rounded border-0"
+                  removeIconStyle={{
+                    padding: '0.313rem 0.438rem',
+                    top: '6.313rem',
+                    left: '6.313rem',
+                  }}
+                />
               </Col>
             ))}
           </div>

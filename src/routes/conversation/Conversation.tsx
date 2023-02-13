@@ -85,7 +85,7 @@ function Conversation() {
   useEffect(() => {
     if (conversationId && !location.pathname.includes('new')) {
       const isSameConversation = lastConversationIdRef.current === conversationId;
-      if (isSameConversation) return;
+      if (isSameConversation) { return; }
 
       lastConversationIdRef.current = conversationId;
 
@@ -106,7 +106,7 @@ function Conversation() {
         // 2. Consider page load event, so at that time `loadingMessages` is already
         // false so if we set it to false again then it would set messages twice
         // unnecessarily becoz the ```other useEffect``` depends on `loadingMessages` state.
-        if (loadingMessages) setLoadingMessages(false);
+        if (loadingMessages) { setLoadingMessages(false); }
       }).catch(() => {
         setIsLoading(false);
         setPageDoesNotExist(true);
@@ -172,7 +172,7 @@ function Conversation() {
           (Why? Ans. If we don't check for this we end up setting `messageList`
           for a previous conversation in a newer conversation when we rapidly switch
           between two conversations. (TESTED) */
-          if (lastConversationIdRef.current !== conversationId) return;
+          if (lastConversationIdRef.current !== conversationId) { return; }
 
           const newMessages = getMessagesResponse.map((newMessage: any) => {
             const finalData: any = {
@@ -203,7 +203,7 @@ function Conversation() {
     }
   }, [conversationId, requestAdditionalPosts, messageList, loadingMessages, socket, userId]);
 
-  if (isLoading || !socketConnected) return null;
+  if (isLoading || !socketConnected) { return null; }
 
   if (showPageDoesNotExist) {
     return (
@@ -259,7 +259,7 @@ function Conversation() {
           />
         </InfiniteScroll>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

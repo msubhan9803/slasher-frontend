@@ -18,8 +18,8 @@ const useGoogleAnalytics = (analyticsId?: string) => {
   const DISABLE_HOOK = typeof analyticsId === 'undefined';
 
   useEffect(() => {
-    if (DISABLE_HOOK) return;
-    if (!isLoaded) return;
+    if (DISABLE_HOOK) { return; }
+    if (!isLoaded) { return; }
 
     window.dataLayer = window.dataLayer || [];
     function gtag(...args: any): any;
@@ -29,7 +29,7 @@ const useGoogleAnalytics = (analyticsId?: string) => {
     }
 
     const path = pathname + search + hash;
-    if (previousPathRef.current === path) return;
+    if (previousPathRef.current === path) { return; }
     previousPathRef.current = path;
 
     gtag('js', new Date()); // necessary

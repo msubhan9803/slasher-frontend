@@ -189,7 +189,7 @@ function PostCommentSection({
         });
         setCommentData(comments);
         setUpdatedReply(false);
-        if (setUpdateState) setUpdateState(false);
+        if (setUpdateState) { setUpdateState(false); }
       };
       feedCommentData();
     }

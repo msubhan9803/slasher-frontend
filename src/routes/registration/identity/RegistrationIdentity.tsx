@@ -35,7 +35,7 @@ function RegistrationIdentity({ activeStep }: Props) {
 
     try {
       const res = await validateRegistrationFields({ firstName, userName, email });
-      if (res.data) errorList = res.data;
+      if (res.data) { errorList = res.data; }
     } catch (requestError: any) {
       errorList = requestError.response.data.message;
     }

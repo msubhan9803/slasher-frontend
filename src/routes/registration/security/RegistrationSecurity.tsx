@@ -57,8 +57,11 @@ function RegistrationSecurity({ activeStep }: Props) {
         dob: dobIsoString,
       },
     ).then((res) => {
-      if (res.data.length > 0) setErrorMessages(res.data);
-      else navigate('/app/registration/terms');
+      if (res.data.length > 0) {
+        setErrorMessages(res.data);
+      } else {
+        navigate('/app/registration/terms');
+      }
     }).catch((error) => {
       setErrorMessages(error.response.data.message);
     });

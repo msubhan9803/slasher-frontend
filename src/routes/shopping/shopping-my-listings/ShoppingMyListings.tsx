@@ -31,7 +31,7 @@ function ShoppingMyListings() {
           <ShoppingCardList shoppingList={myListings} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

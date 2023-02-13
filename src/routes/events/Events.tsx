@@ -24,7 +24,7 @@ function Events() {
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <EventRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

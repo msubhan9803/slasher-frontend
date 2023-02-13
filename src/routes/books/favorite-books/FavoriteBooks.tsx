@@ -42,7 +42,7 @@ function FavoriteBooks() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <BooksRigthSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

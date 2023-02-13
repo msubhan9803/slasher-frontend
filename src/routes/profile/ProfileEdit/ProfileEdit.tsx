@@ -7,8 +7,13 @@ import {
   useNavigate, useLocation, useParams,
 } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { AxiosResponse } from 'axios';
 import {
-  uploadUserCoverImage, uploadUserProfileImage, updateUser,
+  uploadUserCoverImage,
+  uploadUserProfileImage,
+  updateUser,
+  removeUserCoverImage,
+  reomoveUserProfileImage as removeUserProfileImage,
 } from '../../../api/users';
 import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 import { ProfileVisibility, User } from '../../../types';
@@ -16,6 +21,8 @@ import { updateUserName } from '../../../utils/session-utils';
 import NotFound from '../../../components/NotFound';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import { useAppDispatch } from '../../../redux/hooks';
+import { updateUserProfilePic } from '../../../redux/slices/userSlice';
 
 interface Props {
   user: User
@@ -26,7 +33,7 @@ function ProfileEdit({ user }: Props) {
   const params = useParams();
   const [locallyStoredUserData, setLocallyStoredUserData] = useState<User>(user);
   const [errorMessage, setErrorMessages] = useState<string[]>();
-  const [profilePhoto, setProfilePhoto] = useState<any>();
+  const [profilePhoto, setProfilePhoto] = useState<File | null | undefined>();
   const [coverPhoto, setCoverPhoto] = useState<any>();
   const [publicStatus, setPublic] = useState<boolean>(
     user.profile_status === ProfileVisibility.Public,
@@ -37,6 +44,8 @@ function ProfileEdit({ user }: Props) {
   const { userName } = useParams<string>();
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
+  const dispatch = useAppDispatch();
+
   const userNameCookies = Cookies.get('userName');
   const isUnAuthorizedUser = userName !== userNameCookies;
   const updateProfile = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,19 +53,44 @@ function ProfileEdit({ user }: Props) {
     setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
-    if (profilePhoto) {
+    let profileImageUpdatePromise: null | Promise<AxiosResponse<any, any>> = null;
+    switch (profilePhoto) {
+      case undefined:
+        break;
+      case null:
+        profileImageUpdatePromise = removeUserProfileImage();
+        break;
+      default:
+        profileImageUpdatePromise = uploadUserProfileImage(profilePhoto);
+        break;
+    }
+    if (profileImageUpdatePromise) {
       try {
-        await uploadUserProfileImage(profilePhoto);
+        const response = await profileImageUpdatePromise;
+        dispatch(
+          updateUserProfilePic(response.data.profilePic),
+        );
       } catch (requestError: any) {
         errorList = errorList.concat(requestError.response.data.message);
       }
     }
 
-    if (coverPhoto) {
+    let coverImageUpdatePromise: null | Promise<AxiosResponse<any, any>> = null;
+    switch (coverPhoto) {
+      case undefined:
+        break;
+      case null:
+        coverImageUpdatePromise = removeUserCoverImage();
+        break;
+      default:
+        coverImageUpdatePromise = uploadUserCoverImage(coverPhoto);
+        break;
+    }
+    if (coverImageUpdatePromise) {
       try {
-        await uploadUserCoverImage(coverPhoto);
+        await coverImageUpdatePromise;
       } catch (requestError: any) {
-        errorList = errorList.concat(requestError.response.data.message);
+        errorList = errorList.concat([requestError.response.data.message]);
       }
     }
 
@@ -65,13 +99,13 @@ function ProfileEdit({ user }: Props) {
         locallyStoredUserData.userName,
         locallyStoredUserData.firstName,
         locallyStoredUserData.email,
-        /* eslint no-underscore-dangle: 0 */
         locallyStoredUserData._id,
         locallyStoredUserData.profile_status,
       );
     } catch (requestError: any) {
-      errorList = errorList.concat(requestError.response.data.message);
+      errorList = errorList.concat([requestError.response.data.message]);
     }
+
     setErrorMessages(errorList);
 
     if (errorList.length === 0) {
@@ -118,8 +152,8 @@ function ProfileEdit({ user }: Props) {
   };
   return (
     <div>
-      {locallyStoredUserData.profilePic.includes('default_user_icon')
-        && <Alert variant="info">Hey! It looks like you don’t have a profile image yet!   Adding one will make people more likely to friend you!</Alert>}
+      {locallyStoredUserData.profilePic.includes('default_user_icon') && !profilePhoto
+        && <Alert variant="info">Hey! It looks like you don’t have a profile image!   Adding one will make people more likely to friend you!</Alert>}
       <Form>
         <div className="bg-dark p-4 rounded bg-mobile-transparent">
           <Row>

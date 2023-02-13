@@ -16,7 +16,7 @@ const CustomForm = styled(Form)`
 function BookEdit() {
   const [show, setShow] = useState(false);
   const [message, setMessage] = useState('');
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [charCount, setCharCount] = useState(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);

@@ -240,7 +240,7 @@ function PostFeed({
                       postId={post.id}
                       userName={post.userName}
                       rssfeedProviderId={post.rssfeedProviderId}
-                      onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
+                      onLikeClick={() => { if (onLikeClick) { onLikeClick(post.id); } }}
                       onSelect={onSelect}
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
@@ -259,7 +259,7 @@ function PostFeed({
                     pageStart={0}
                     initialLoad
                     loadMore={() => {
-                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                      if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
                   >

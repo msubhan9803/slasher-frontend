@@ -121,7 +121,7 @@ function NewsPartnerPost() {
           ...comments,
         ];
       });
-      if (res.data.length === 0) setNoMoreData(true);
+      if (res.data.length === 0) { setNoMoreData(true); }
       if (res.data.length < 20 && sortBy) {
         setPreviousCommentsAvailable(false);
       }
@@ -448,7 +448,7 @@ function NewsPartnerPost() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedComments();
+      if (res.status === 200) { callLatestFeedComments(); }
       setShow(false);
     })
       /* eslint-disable no-console */

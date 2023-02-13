@@ -48,7 +48,7 @@ function CommentInput({
                 as="textarea"
                 ref={inputRef}
                 value={message}
-                onFocus={() => setIsReply(false)}
+                onFocus={() => setIsReply && setIsReply(false)}
                 onChange={(e) => onChangeHandler(e, dataId)}
               />
               <InputGroup.Text>
@@ -74,7 +74,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={() => sendComment()} variant="link" className="ms-2 p-0">
+            <Button onClick={() => sendComment(dataId && dataId)} variant="link" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

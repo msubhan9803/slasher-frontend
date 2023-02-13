@@ -189,13 +189,14 @@ function PostCommentSection({
         });
         setCommentData(comments);
         setUpdatedReply(false);
-        if (setUpdateState) setUpdateState(false);
+        if (setUpdateState) { setUpdateState(false); }
       };
       feedCommentData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId,
-    commentReplyID, setUpdateState, commentData,
+    commentReplyID, setUpdateState,
   ]);
 
   useEffect(() => {
@@ -542,6 +543,7 @@ function PostCommentSection({
                               sendComment={sendComment}
                               imageArray={replyImageArray}
                               handleRemoveFile={handleRemoveFile}
+                              dataId={data.id}
                             />
                           </div>
                         )

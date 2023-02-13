@@ -15,7 +15,7 @@ function PlaceFavorites() {
           <PlacePosterCardList dataList={favorites} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <PlaceRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

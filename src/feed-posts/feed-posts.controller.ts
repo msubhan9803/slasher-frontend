@@ -113,7 +113,7 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
+    if (user.id !== (feedPost.userId as any)._id.toString() && (feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
       throw new HttpException('You are not friends with this user.', HttpStatus.FORBIDDEN);
     }
     const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);

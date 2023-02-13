@@ -41,7 +41,10 @@ export class FeedLikesController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    if ((post.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+    if (
+      user.id !== (post.userId as unknown as User)._id.toString()
+      && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
@@ -103,7 +106,10 @@ export class FeedLikesController {
     if (blockData) {
       throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+    if (
+      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);

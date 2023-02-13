@@ -564,7 +564,7 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
@@ -595,7 +595,7 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
@@ -652,7 +652,8 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);

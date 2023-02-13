@@ -38,16 +38,22 @@ function PostFooter({
   onSelect, likeCount, commentCount, handleLikeModal,
 }: PostFooterProps) {
   const showRepost = !!enableDevFeatures;
+  // const showRepost = false;
   return (
     <Card.Footer className="p-0">
       <Row className="justify-content-start py-3">
-        <Col xs={4} md={3} lg={4} xl={3}>
+        <Col
+          xs={showRepost ? 4 : 6}
+          md={showRepost ? 3 : 4}
+          lg={showRepost ? 4 : 6}
+          xl={showRepost ? 3 : 4}
+        >
           <div className="d-flex align-items-center">
             <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
               {likeIcon ? (
                 <LinearIcon uniqueId="like-button-footer">
                   <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
+                  <span className={`fs-3 d-none d-md-inline ${showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Like</span>
                 </LinearIcon>
               )
                 : (
@@ -66,7 +72,13 @@ function PostFooter({
             </Button>
           </div>
         </Col>
-        <Col xs={4} md={3} lg={4} xl={3} className="text-xl-start text-lg-center text-md-start text-center">
+        <Col
+          xs={showRepost ? 4 : 6}
+          md={showRepost ? 3 : 4}
+          lg={showRepost ? 4 : 6}
+          xl={showRepost ? 3 : 4}
+          className={showRepost ? 'text-xl-start text-lg-center text-md-start text-center ' : 'text-xl-center text-lg-end text-md-center text-end'}
+        >
           <HashLink
             onClick={() => onSelect!(rssfeedProviderId || postId)}
             to={rssfeedProviderId
@@ -76,7 +88,7 @@ function PostFooter({
             scroll={scrollWithOffset}
           >
             <FontAwesomeIcon icon={regular('comment-dots')} size="lg" className="me-2" />
-            <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Comment</span>
+            <span className={`fs-3 d-none d-md-inline ${showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Comment</span>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <span className="fs-3">{commentCount}</span>
           </HashLink>
@@ -89,7 +101,7 @@ function PostFooter({
             <span className="fs-3">999k</span>
           </Col>
         )}
-        <Col xs={showRepost ? 2 : 3} className="text-end d-none d-md-inline d-lg-none d-xl-inline">
+        <Col xs={showRepost ? 2 : 4} className="text-end d-none d-md-inline d-lg-none d-xl-inline">
           <ShareLinkButton text />
         </Col>
         <svg width="0" height="0">

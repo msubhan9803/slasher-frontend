@@ -1,4 +1,3 @@
-// import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsEmail,
@@ -42,7 +41,6 @@ export class UserRegisterDto {
 
   @IsNotEmpty()
   @MinYearsBeforeToday(17, { message: 'You must be at least 17 to register' })
-  // @Type((typeOptions) => (typeOptions.object[typeOptions.property] === '' ? null : Date))
   @Matches(/^\d{4}(-)(((0)[0-9])|((1)[0-2]))(-)([0-2][0-9]|(3)[0-1])$/i, {
     message: 'Invalid date of birth',
   })

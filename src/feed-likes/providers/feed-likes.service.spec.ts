@@ -12,6 +12,7 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
+import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -72,10 +73,13 @@ feedReply;
     await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
     feedComments = await feedCommentsService
     .createFeedComment(
-      feedPost.id,
-      activeUser.id,
-      feedCommentsAndReplyObject.message,
-      feedCommentsAndReplyObject.images,
+      feedCommentsFactory.build(
+        {
+          userId: activeUser._id,
+          feedPostId: feedPost.id,
+          message: 'Hello Test Message',
+        },
+      ),
     );
     feedReply = await feedCommentsService
     .createFeedReply(

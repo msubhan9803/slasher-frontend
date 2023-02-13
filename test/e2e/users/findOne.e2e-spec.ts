@@ -216,5 +216,28 @@ describe('GET /users/:id (e2e)', () => {
         statusCode: 404,
       });
     });
+
+    it(
+      'returns the expected response (omitting email field) when a logged in user requests a different users PRIVATE profile',
+      async () => {
+        const user0 = await usersService.create(userFactory.build({
+          profile_status: 1,
+        }));
+        const response = await request(app.getHttpServer())
+          .get(`/users/${user0.id}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          firstName: 'First name 21',
+          userName: 'Username21',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 1,
+        });
+      },
+    );
   });
 });

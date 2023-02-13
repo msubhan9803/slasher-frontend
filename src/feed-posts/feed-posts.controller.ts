@@ -36,7 +36,6 @@ export class FeedPostsController {
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
-
   ) { }
 
   @Post()

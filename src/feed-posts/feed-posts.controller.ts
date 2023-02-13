@@ -14,7 +14,7 @@ import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
@@ -40,7 +40,7 @@ export class FeedPostsController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -58,9 +58,9 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (files.length > 4) {
+    if (files.length > 10) {
       throw new HttpException(
-        'Only allow a maximum of 4 images',
+        'Only allow a maximum of 10 images',
         HttpStatus.BAD_REQUEST,
       );
     }

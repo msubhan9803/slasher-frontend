@@ -63,29 +63,29 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
           .expect(HttpStatus.CREATED);
-          expect(response.body).toEqual({
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            message: 'hello test user',
-            userId: activeUser._id.toString(),
-            images: [
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-              {
-                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
-                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              },
-            ],
-          });
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -158,7 +158,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
 
-    it('only allows a maximum of four images', async () => {
+    it('only allows a maximum of 10 images', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-posts')
@@ -171,9 +171,27 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[2])
           .attach('files', tempPaths[3])
           .attach('files', tempPaths[4])
+          .attach('files', tempPaths[5])
+          .attach('files', tempPaths[6])
+          .attach('files', tempPaths[7])
+          .attach('files', tempPaths[8])
+          .attach('files', tempPaths[9])
+          .attach('files', tempPaths[10])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 4 images');
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+        expect(response.body.message).toBe('Only allow a maximum of 10 images');
+      }, [
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'gif' },
+        { extension: 'gif' },
+        { extension: 'gif' },
+      ]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

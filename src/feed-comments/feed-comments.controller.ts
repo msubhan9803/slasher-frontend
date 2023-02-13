@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
@@ -51,7 +51,7 @@ export class FeedCommentsController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('images', 5, {
+    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -160,7 +160,7 @@ export class FeedCommentsController {
 
   @Post('replies')
   @UseInterceptors(
-    FilesInterceptor('images', 5, {
+    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,

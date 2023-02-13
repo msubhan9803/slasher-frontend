@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Route, Navigate, RouterProvider, createBrowserRouter, createRoutesFromElements,
 } from 'react-router-dom';
@@ -8,7 +7,8 @@ import Home from './routes/home/Home';
 import Registration from './routes/registration/Registration';
 import SignIn from './routes/sign-in/SignIn';
 import Dating from './routes/dating/Dating';
-import UnauthenticatedPageWrapper from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
+import UnauthenticatedPageWrapper
+  from './components/layout/main-site-wrapper/unauthenticated/UnauthenticatedPageWrapper';
 import AuthenticatedPageWrapper from './components/layout/main-site-wrapper/authenticated/AuthenticatedPageWrapper';
 import NotFound from './components/NotFound';
 import Conversation from './routes/conversation/Conversation';
@@ -67,7 +67,10 @@ const routes: Record<string, TopLevelRoute> = {
   'app/art/*': { wrapper: AuthenticatedPageWrapper, component: Artists },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
-  'app/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
+  'app/verification-email-not-received': {
+    wrapper: UnauthenticatedPageWrapper,
+    component: VerificationEmailNotReceived,
+  },
   'app/registration/*': { wrapper: UnauthenticatedPageWrapper, component: Registration },
   'app/onboarding/*': { wrapper: UnauthenticatedPageWrapper, component: Onboarding, wrapperProps: { hideFooter: true } },
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
@@ -82,20 +85,20 @@ function App() {
       <Route>
         <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
         {
-          Object.entries(routes).map(
-            ([routePath, opts]) => (
-              <Route
-                key={routePath}
-                path={routePath}
-                element={(
-                  <opts.wrapper {...(opts.wrapperProps)}>
-                    <opts.component />
-                  </opts.wrapper>
-                  )}
-              />
-            ),
-          )
-        }
+                    Object.entries(routes).map(
+                      ([routePath, opts]) => (
+                        <Route
+                          key={routePath}
+                          path={routePath}
+                          element={(
+                            <opts.wrapper {...(opts.wrapperProps)}>
+                              <opts.component />
+                            </opts.wrapper>
+                                )}
+                        />
+                      ),
+                    )
+                }
         <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
       </Route>,
     ),
@@ -105,4 +108,5 @@ function App() {
     <RouterProvider router={router} />
   );
 }
+
 export default App;

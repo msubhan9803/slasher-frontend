@@ -33,7 +33,7 @@ function BasicPodcastsIndex() {
         setLoadingPosts(false);
       },
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <ContentSidbarWrapper>
@@ -55,7 +55,7 @@ function BasicPodcastsIndex() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <PodcastsSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -9,8 +9,8 @@
         "plugin:import/errors",
         "plugin:import/warnings",
         "plugin:import/typescript",
-        "plugin:storybook/recommended"
-        // "plugin:react-hooks/recommended" // TODO: Uncomment later
+        "plugin:storybook/recommended",
+        "plugin:react-hooks/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -26,8 +26,11 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "linebreak-style": ["error", "windows"],
         "import/extensions": "off",
         "react/prop-types": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-uses-react": "off",
         "import/prefer-default-export": "off",
         "@typescript-eslint/no-unused-vars": "warn",
         "react/jsx-props-no-spreading": "off",

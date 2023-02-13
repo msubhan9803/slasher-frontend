@@ -32,7 +32,7 @@ function BasicArtistsIndex() {
         setLoadingPosts(false);
       },
     );
-  }, []);
+  }, [dispatch]);
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
@@ -52,7 +52,7 @@ function BasicArtistsIndex() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ArtsRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

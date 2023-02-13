@@ -36,6 +36,7 @@ function BasicBooksIndex() {
         setLoadingPosts(false);
       },
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -57,7 +58,7 @@ function BasicBooksIndex() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <BooksRigthSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

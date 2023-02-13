@@ -32,7 +32,7 @@ function BasicMusicIndex() {
         setLoadingPosts(false);
       },
     );
-  }, []);
+  }, [dispatch]);
 
   return (
     <ContentSidbarWrapper>
@@ -53,7 +53,7 @@ function BasicMusicIndex() {
           </div>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <MusicRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

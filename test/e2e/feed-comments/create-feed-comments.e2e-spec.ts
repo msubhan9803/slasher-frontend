@@ -152,23 +152,14 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       });
     });
 
-    it('allows the creation of a comments with only files, but no message', async () => {
-      await createTempFiles(async (tempPaths) => {
-        const response = await request(app.getHttpServer())
-          .post('/feed-comments')
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .set('Content-Type', 'multipart/form-data')
-
-          .field('feedPostId', feedPost._id.toString())
-          .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message should not be empty');
-      }, [{ extension: 'png' }, { extension: 'jpg' }]);
-
-      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
-      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
-      expect(allFilesNames).toEqual(['.keep']);
+    it('responds expected response when neither message nor file are present in request', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '')
+        .field('feedPostId', feedPost._id.toString())
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
 
     it('only allows a maximum of four images', async () => {

@@ -20,14 +20,9 @@ export class FeedCommentsService {
     private feedPostService: FeedPostsService,
   ) { }
 
-  async createFeedComment(parentFeedPostId: string, userId: string, message: string, images: Image[]): Promise<FeedComment> {
-    const insertFeedComments = await this.feedCommentModel.create({
-      feedPostId: parentFeedPostId,
-      userId,
-      message,
-      images,
-    });
-    await this.feedPostService.incrementCommentCount(parentFeedPostId);
+  async createFeedComment(feedCommentData: Partial<FeedComment>): Promise<FeedCommentDocument> {
+    const insertFeedComments = await this.feedCommentModel.create(feedCommentData);
+    await this.feedPostService.incrementCommentCount(insertFeedComments.feedPostId.toString());
 
     return insertFeedComments;
   }

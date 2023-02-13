@@ -49,6 +49,7 @@ export class FeedCommentsController {
     private readonly friendsService: FriendsService,
   ) { }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
     FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
@@ -63,7 +64,14 @@ export class FeedCommentsController {
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId, true);
+    if (!files.length && createFeedCommentsDto.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId.toString(), true);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -86,6 +94,7 @@ export class FeedCommentsController {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
+
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -97,12 +106,10 @@ export class FeedCommentsController {
       images.push({ image_path: storageLocation });
     }
 
-    const comment = await this.feedCommentsService.createFeedComment(
-      createFeedCommentsDto.feedPostId,
-      user.id,
-      createFeedCommentsDto.message,
-      images,
-    );
+    const feedComment = new FeedComment(createFeedCommentsDto);
+    feedComment.images = images;
+    feedComment.userId = user._id;
+    const comment = await this.feedCommentsService.createFeedComment(feedComment);
 
     await this.sendFeedCommentCreationNotifications(user, comment, post);
 

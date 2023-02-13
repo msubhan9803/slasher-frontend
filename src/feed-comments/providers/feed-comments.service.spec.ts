@@ -16,6 +16,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentDeletionState } from '../../schemas/feedComment/feedComment.enums';
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
+import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -80,13 +81,14 @@ describe('FeedCommentsService', () => {
         },
       ),
     );
-    feedComments = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        activeUser.id,
-        sampleFeedCommentsObject.message,
-        sampleFeedCommentsObject.images,
-      );
+    feedComments = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: activeUser._id,
+          feedPostId: feedPost.id,
+        },
+      ),
+    );
     feedReply = await feedCommentsService
       .createFeedReply(
         feedComments.id,
@@ -102,13 +104,15 @@ describe('FeedCommentsService', () => {
 
   describe('#createFeedComment', () => {
     it('successfully creates a feed comments.', async () => {
-      const feedCommentData = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedCommentData = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: 'Hello Test Message',
+          },
+        ),
+      );
       expect(feedCommentData.message).toBe('Hello Test Message');
       const feedPostsData = await feedPostsService.findById(feedPost.id, false);
       expect(feedPostsData.commentCount).toBe(2);
@@ -176,20 +180,22 @@ describe('FeedCommentsService', () => {
   describe('#findFeedCommentsWithReplies', () => {
     it('finds the expected comments and delete the details', async () => {
       const messages = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
-      const feedComments2 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+          },
+        ),
+      );
+      const feedComments2 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+          },
+        ),
+      );
       for (let i = 0; i < 3; i += 1) {
         await feedCommentsService
           .createFeedReply(
@@ -307,27 +313,33 @@ describe('FeedCommentsService', () => {
 
     describe('when `before` argument is supplied', () => {
       it('get expected first and second sets of paginated results', async () => {
-        const feedComments1 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 1',
-            sampleFeedCommentsObject.images,
-          );
-        const feedComments2 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 2',
-            sampleFeedCommentsObject.images,
-          );
-        const feedComments3 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 3',
-            sampleFeedCommentsObject.images,
-          );
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id.toString(),
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 1',
+            },
+          ),
+        );
+        const feedComments2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id.toString(),
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 2',
+            },
+          ),
+        );
+        const feedComments3 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id.toString(),
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 3',
+            },
+          ),
+        );
         await feedCommentsService
           .createFeedReply(
             feedComments1._id.toString(),
@@ -373,13 +385,15 @@ describe('FeedCommentsService', () => {
 
   describe('#findFeedComment', () => {
     it('successfully find single feed comment.', async () => {
-      const feedCommentData = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedCommentData = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id.toString(),
+            feedPostId: feedPost.id,
+            message: 'Hello Test Message 3',
+          },
+        ),
+      );
       const feedCommentDetails = await feedCommentsService.findFeedComment(feedCommentData._id.toString());
       expect(feedCommentDetails.id).toEqual(feedCommentData._id.toString());
     });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper';
+import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -39,7 +39,12 @@ const StyledSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
   z-index: 0 !important;
-
+.swiper-button-prev {
+  color: var(--bs-primary);
+}
+.swiper-button-next {
+  color: var(--bs-primary);
+}
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
@@ -147,7 +152,8 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
       <StyledSwiper
         pagination={{ type: 'fraction' }}
         initialSlide={initialSlide}
-        modules={[Pagination]}
+        navigation
+        modules={[Pagination, Navigation]}
       >
         {
           images.map((image: SliderImage) => (

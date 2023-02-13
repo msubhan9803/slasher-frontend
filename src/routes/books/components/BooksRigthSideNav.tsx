@@ -4,11 +4,13 @@ import FriendRequests from '../../../components/layout/right-sidebar-wrapper/com
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
 function BooksRigthSideNav() {
   const params = useParams();
   return (
     <>
+      <RoundButtonLink to="/app/books/add" variant="primary" className="w-100 mb-3">Add your book</RoundButtonLink>
       {params.id && params.summary && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

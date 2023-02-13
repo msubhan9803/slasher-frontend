@@ -55,6 +55,10 @@
                     "_id"
                 ]
             }
+        ],
+        "curly": [
+            "error",
+            "all"
         ]
     },
     "overrides": [

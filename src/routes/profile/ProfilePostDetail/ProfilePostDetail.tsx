@@ -88,7 +88,7 @@ function ProfilePostDetail({ user }: Props) {
           ...comments,
         ];
       });
-      if (res.data.length === 0) setNoMoreData(true);
+      if (res.data.length === 0) { setNoMoreData(true); }
       if (res.data.length < 20 && sortBy) {
         setPreviousCommentsAvailable(false);
       }
@@ -519,7 +519,7 @@ function ProfilePostDetail({ user }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) getFeedPostDetail(postId!);
+      if (res.status === 200) { getFeedPostDetail(postId!); }
       setShow(false);
     })
       /* eslint-disable no-console */

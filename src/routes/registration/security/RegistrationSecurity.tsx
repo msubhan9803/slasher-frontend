@@ -40,30 +40,42 @@ function RegistrationSecurity({ activeStep }: Props) {
   };
 
   const validateAndGoToRegistrationTerms = async () => {
+    setProgressButtonStatus('loading');
     const {
       firstName, userName, email, password,
       passwordConfirmation, securityQuestion,
       securityAnswer, day, month, year,
     } = securityInfo;
-    const dobIsoString = `${year}-${month}-${day}`;
-    validateRegistrationFields(
-      {
-        firstName,
-        userName,
-        email,
-        password,
-        passwordConfirmation,
-        securityQuestion,
-        securityAnswer,
-        dob: dobIsoString,
-      },
-    ).then((res) => {
-      setProgressButtonStatus('loading');
-      if (res.data.length > 0) setErrorMessages(res.data);
-      else navigate('/app/registration/terms');
-    }).catch((error) => {
-      setErrorMessages(error.response.data.message);
-    });
+    const dobIsoString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    let errorList: string[] = [];
+
+    try {
+      const response = await validateRegistrationFields(
+        {
+          firstName,
+          userName,
+          email,
+          password,
+          passwordConfirmation,
+          securityQuestion,
+          securityAnswer,
+          dob: dobIsoString,
+        },
+      );
+      if (response.data.length > 0) {
+        errorList = errorList.concat(response.data);
+      }
+    } catch (error: any) {
+      errorList.push(error.response.data.message);
+    }
+
+    if (errorList.length > 0) {
+      setProgressButtonStatus('failure');
+      setErrorMessages(errorList);
+    } else {
+      setProgressButtonStatus('success');
+      navigate('/app/registration/terms');
+    }
   };
 
   return (

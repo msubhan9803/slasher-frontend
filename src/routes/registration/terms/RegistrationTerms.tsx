@@ -28,34 +28,40 @@ function RegistrationTerms({ activeStep }: Props) {
   const [showAgreeToTermsError, setShowAgreeToTermsError] = useState(false);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
-  const submitRegister = () => {
+  const submitRegister = async () => {
     if (!isAgreedToTerms) {
       setShowAgreeToTermsError(true);
-      setProgressButtonStatus('loading');
       return;
     }
+
+    setProgressButtonStatus('loading');
 
     const {
       firstName, userName, email, password,
       passwordConfirmation, securityQuestion,
       securityAnswer, day, month, year,
     } = registrationInfo;
-    const dobIsoString = `${year}-${month}-${day}`;
-    register(
-      firstName,
-      userName,
-      email,
-      password,
-      passwordConfirmation,
-      securityQuestion,
-      securityAnswer,
-      dobIsoString,
-    ).then(() => {
+    const dobIsoString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    try {
+      await register(
+        firstName,
+        userName,
+        email,
+        password,
+        passwordConfirmation,
+        securityQuestion,
+        securityAnswer,
+        dobIsoString,
+      );
+
+      setProgressButtonStatus('success');
       setErrorMessages([]);
       navigate('/app/registration/final');
-    }).catch((error) => {
+    } catch (error: any) {
+      setProgressButtonStatus('failure');
       setErrorMessages(error.response.data.message);
-    });
+    }
   };
 
   const handleCheckbox = () => {

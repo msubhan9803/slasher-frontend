@@ -37,7 +37,9 @@ function RegistrationIdentity({ activeStep }: Props) {
 
     try {
       const res = await validateRegistrationFields({ firstName, userName, email });
-      if (res.data) errorList = res.data;
+      if (res.data) {
+        errorList = res.data;
+      }
     } catch (requestError: any) {
       errorList = requestError.response.data.message;
     }
@@ -45,9 +47,11 @@ function RegistrationIdentity({ activeStep }: Props) {
     setErrors(errorList);
 
     if (errorList.length > 0) {
+      setProgressButtonStatus('failure');
       return;
     }
 
+    setProgressButtonStatus('success');
     navigate('/app/registration/security');
   };
   return (

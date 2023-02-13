@@ -54,7 +54,7 @@ export class ChatGateway {
     const { toUserId } = data;
     const areFriends = await this.friendsService.areFriends(user._id, toUserId);
     if (!areFriends) {
-      return { success: false, errorMessage: 'You are not friends with this user.' };
+      return { success: false, errorMessage: 'You must be friends with this user to perform this action.' };
     }
 
     const messageObject = await this.chatService.sendPrivateDirectMessage(fromUserId, toUserId, data.message);

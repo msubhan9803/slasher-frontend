@@ -161,7 +161,7 @@ describe('All Feed Post (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.FORBIDDEN);
-      expect(response.body.message).toContain('You must be friends with this user to see this content.');
+      expect(response.body.message).toContain('You must be friends with this user to perform this action.');
     });
 
     describe('Validation', () => {

@@ -567,7 +567,7 @@ export class UsersController {
     if (user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to see this content.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
@@ -601,7 +601,7 @@ export class UsersController {
     if (user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to see this content.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
@@ -661,7 +661,7 @@ export class UsersController {
     if (user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to see this content.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);

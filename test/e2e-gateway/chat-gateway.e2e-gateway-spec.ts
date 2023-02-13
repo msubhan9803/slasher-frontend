@@ -236,7 +236,7 @@ describe('Chat Gateway (e2e)', () => {
         client.emit('chatMessage', payload, (data) => {
           expect(data).toEqual({
             success: false,
-            errorMessage: 'You are not friends with this user.',
+            errorMessage: 'You must be friends with this user to perform this action.',
           });
           resolve();
         });

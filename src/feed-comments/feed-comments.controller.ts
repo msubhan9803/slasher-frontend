@@ -83,7 +83,7 @@ export class FeedCommentsController {
     if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     const images = [];
@@ -198,7 +198,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     const images = [];
@@ -296,7 +296,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
@@ -360,7 +360,7 @@ export class FeedCommentsController {
     if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));

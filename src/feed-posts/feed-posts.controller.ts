@@ -116,9 +116,9 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any).profile_status._id.toString());
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to see this content.', HttpStatus.FORBIDDEN);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
     const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);

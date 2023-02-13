@@ -150,7 +150,7 @@ describe('UserId Posts With Images (e2e)', () => {
         .get(`/users/${user._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
-        .expect(HttpStatus.UNAUTHORIZED);
+        .expect(HttpStatus.FORBIDDEN);
       expect(response.body.message).toContain('You must be friends with this user to see this content.');
     });
 

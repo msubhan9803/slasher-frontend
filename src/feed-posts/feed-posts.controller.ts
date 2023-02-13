@@ -25,6 +25,7 @@ import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -36,6 +37,7 @@ export class FeedPostsController {
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @Post()
@@ -114,7 +116,10 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('You are not friends with this user.', HttpStatus.FORBIDDEN);
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any).profile_status._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to see this content.', HttpStatus.FORBIDDEN);
+      }
     }
     const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
     if (block) {

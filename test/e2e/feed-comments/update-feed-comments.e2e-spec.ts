@@ -1,9 +1,9 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -13,7 +13,8 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
-import { FeedComment, FeedCommentDocument } from '../../../src/schemas/feedComment/feedComment.schema';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 
 describe('Feed-Comments / Comments Update (e2e)', () => {
   let app: INestApplication;
@@ -26,7 +27,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
-  let feedCommentsModel: Model<FeedCommentDocument>;
+  let notificationsService: NotificationsService;
 
   const sampleFeedCommentsObject = {
     message: 'hello all test user upload your feed comments',
@@ -50,7 +51,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
-    feedCommentsModel = moduleRef.get<Model<FeedCommentDocument>>(getModelToken(FeedComment.name));
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -65,8 +66,10 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
   });
 
   describe('PATCH /feed-comments/:feedCommentId', () => {
-    let feedComments;
+    let feedComment;
     beforeEach(async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -79,7 +82,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
+      feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
           activeUser._id.toString(),
@@ -90,12 +93,78 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
     it('successfully update feed comments messages', async () => {
       const response = await request(app.getHttpServer())
-        .patch(`/feed-comments/${feedComments._id}`)
+        .patch(`/feed-comments/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedCommentsObject);
-      const feedCommentsDetails = await feedCommentsModel.findById(response.body._id);
       expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body.message).toContain(feedCommentsDetails.message);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'hello all test user upload your feed comments',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+    });
+
+    describe('notifications', () => {
+      let postCreatorUser;
+      let commentCreatorUser;
+      let commentCreatorUserAuthToken;
+      let otherUser1;
+      let otherUser2;
+      let otherUser3;
+      beforeEach(async () => {
+        postCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUserAuthToken = commentCreatorUser.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser2 = await usersService.create(userFactory.build());
+        otherUser3 = await usersService.create(userFactory.build());
+      });
+
+      it('sends notifications to newly-added users in the message', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const comment = await feedCommentsService
+          .createFeedComment(
+            post.id,
+            commentCreatorUser.id,
+            `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+            [],
+          );
+        await request(app.getHttpServer())
+          .patch(`/feed-comments/${comment._id}`)
+          .auth(commentCreatorUserAuthToken, { type: 'bearer' })
+          .send({
+            message: `##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1` // do not notify
+              + `##LINK_ID##${postCreatorUser._id.toString()}@PostCreatorUser##LINK_END## post creator user` // do not notify
+              + `##LINK_ID##${commentCreatorUser._id.toString()}@PostCreatorUser##LINK_END## comment creator user` // notify
+              + `##LINK_ID##${otherUser2._id.toString()}@OtherUser3##LINK_END## other user 2` // notify
+              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`, // notify
+          })
+          .expect(HttpStatus.OK);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(3);
+
+        // TODO: Uncomment and fix lines below
+
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: response.body._id,
+        //   senderId: otherUser1._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'mentioned you in a comment',
+        // });
+      });
     });
 
     it('when feed comment id is not exists than expected response', async () => {
@@ -103,7 +172,9 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/${feedComments1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedCommentsObject);
+        .send(sampleFeedCommentsObject)
+        .expect(HttpStatus.NOT_FOUND);
+
       expect(response.body.message).toContain('Not found.');
     });
 
@@ -126,7 +197,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       it('check message length validation', async () => {
         sampleFeedCommentsObject.message = new Array(8002).join('z');
         const response = await request(app.getHttpServer())
-          .patch(`/feed-comments/${feedComments._id}`)
+          .patch(`/feed-comments/${feedComment._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFeedCommentsObject);
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
@@ -134,7 +205,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
       it('message should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/feed-comments/${feedComments._id}`)
+          .patch(`/feed-comments/${feedComment._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('message should not be empty');

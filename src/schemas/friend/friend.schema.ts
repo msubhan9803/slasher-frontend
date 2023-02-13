@@ -55,5 +55,29 @@ export class Friend extends FriendUnusedFields {
 }
 
 export const FriendSchema = SchemaFactory.createForClass(Friend);
-
+FriendSchema.index(
+  {
+    from: 1, reaction: 1,
+  },
+);
+FriendSchema.index(
+  {
+    to: 1, reaction: 1,
+  },
+);
+FriendSchema.index(
+  {
+    from: 1, to: 1,
+  },
+);
+FriendSchema.index(
+  {
+    reaction: 1,
+  },
+);
+FriendSchema.index(
+  {
+    from: 1, to: 1, reaction: 1,
+  },
+);
 export type FriendDocument = Friend & Document;

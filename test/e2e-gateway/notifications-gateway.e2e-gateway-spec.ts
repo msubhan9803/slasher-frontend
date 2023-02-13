@@ -85,16 +85,20 @@ describe('Notifications Gateway (e2e)', () => {
 
     const notification = await notificationsService.create(notificationObj);
 
+    let receivedPayload;
     const socketListenPromise = new Promise<void>((resolve) => {
       client.on('notificationReceived', (...args) => {
-        // Watch out: If this expect check doesn't pass, the test will hang
-        expect(args[0].notification._id).toEqual(notification._id.toString());
+        // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
+        // if expect() comparison fails.
+        [receivedPayload] = args;
         resolve();
       });
     });
 
     // Await socket response to receive emitted event
     await socketListenPromise;
+
+    expect(receivedPayload.notification._id).toEqual(notification._id.toString());
 
     client.close();
 

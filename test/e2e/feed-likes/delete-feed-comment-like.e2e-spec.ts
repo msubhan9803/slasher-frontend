@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -80,23 +80,25 @@ describe('Delete Feed Comment Like (e2e)', () => {
         ),
       );
       feedComments = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        activeUser._id.toString(),
-        feedCommentsAndReplyObject.message,
-        feedCommentsAndReplyObject.images,
-      );
+        .createFeedComment(
+          feedPost.id,
+          activeUser._id.toString(),
+          feedCommentsAndReplyObject.message,
+          feedCommentsAndReplyObject.images,
+        );
       await feedLikesService.createFeedCommentLike(feedComments.id, activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments.id, user0._id.toString());
     });
 
     it('delete feed comment likes.', async () => {
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .delete(`/feed-likes/comment/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
-        const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
-        expect(feedCommentsData.likes).toHaveLength(1);
+        .send()
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
+      const feedCommentsData = await feedCommentsService.findFeedComment(feedComments.id);
+      expect(feedCommentsData.likes).toHaveLength(1);
     });
 
     it('when feed comment id is not exist than expected response', async () => {
@@ -104,7 +106,8 @@ describe('Delete Feed Comment Like (e2e)', () => {
       const response = await request(app.getHttpServer())
         .delete(`/feed-likes/comment/${feedCommentId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Comment not found');
     });
 

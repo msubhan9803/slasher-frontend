@@ -13,6 +13,10 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { FeedComment } from '../schemas/feedComment/feedComment.schema';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { NotificationType } from '../schemas/notification/notification.enums';
+import { BlocksService } from '../blocks/providers/blocks.service';
+import { User } from '../schemas/user/user.schema';
+import { ProfileVisibility } from '../schemas/user/user.enums';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('feed-likes')
 export class FeedLikesController {
@@ -21,6 +25,9 @@ export class FeedLikesController {
     private readonly feedPostsService: FeedPostsService,
     private readonly feedCommentsService: FeedCommentsService,
     private readonly notificationsService: NotificationsService,
+    private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
+
   ) { }
 
   @Post('post/:feedPostId')
@@ -30,15 +37,40 @@ export class FeedLikesController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+    }
+    if ((post.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: post._id } as unknown as FeedPost,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourPost,
-      notificationMsg: 'liked your post',
-    });
+    // Create notification for post creator, informing them that a like was added to their post.
+    const postUserId = (post.userId as any)._id.toString();
+    const skipPostCreatorNotification = (
+      // Don't send a "liked your post" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === postUserId
+      || post.rssfeedProviderId
+    );
+    if (!skipPostCreatorNotification) {
+      await this.notificationsService.create({
+        userId: ({
+          _id: postUserId,
+          profilePic: (post.userId as any).profilePic,
+          userName: (post.userId as any).userName,
+        } as any),
+        feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
+        senderId: user._id.toString(),
+        notifyType: NotificationType.UserLikedYourPost,
+        notificationMsg: 'liked your post',
+      });
+    }
+    return { success: true };
   }
 
   @Delete('post/:feedPostId')
@@ -49,6 +81,7 @@ export class FeedLikesController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    return { success: true };
   }
 
   @Post('comment/:feedCommentId')
@@ -58,16 +91,43 @@ export class FeedLikesController {
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
+    const feedPost = await this.feedPostsService.findById(comment.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+    }
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
+    }
+    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
 
-    await this.notificationsService.create({
-      userId: comment.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserLikedYourComment,
-      notificationMsg: 'liked your comment',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a "liked your comment" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === comment.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: comment.userId as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: user._id,
+        notifyType: NotificationType.UserLikedYourComment,
+        notificationMsg: 'liked your comment',
+      });
+    }
+    return { success: true };
   }
 
   @Delete('comment/:feedCommentId')
@@ -78,6 +138,7 @@ export class FeedLikesController {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    return { success: true };
   }
 
   @Post('reply/:feedReplyId')
@@ -89,15 +150,25 @@ export class FeedLikesController {
     }
     await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
 
-    await this.notificationsService.create({
-      userId: reply.userId as any,
-      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-      feedReplyId: reply._id,
-      senderId: user._id,
-      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-      notificationMsg: 'liked your reply',
-    });
+    // Create notification for comment creator, informing them that a like was added to their comment.
+    const skipCommentCreatorNotification = (
+      // Don't send a "liked your reply" notification to the post creator if any of
+      // the following conditions apply:
+      user.id === reply.userId.toString()
+    );
+    if (!skipCommentCreatorNotification) {
+      await this.notificationsService.create({
+        userId: reply.userId as any,
+        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
+        feedReplyId: reply._id,
+        senderId: user._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'liked your reply',
+      });
+    }
+
+    return { success: true };
   }
 
   @Delete('reply/:feedReplyId')
@@ -108,5 +179,6 @@ export class FeedLikesController {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
     await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    return { success: true };
   }
 }

@@ -11,7 +11,6 @@ import { LocalStorageService } from '../local-storage/providers/local-storage.se
 import { FeedCommentsService } from './providers/feed-comments.service';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
 import { UpdateFeedReplyDto } from './dto/update-feed-reply.dto';
@@ -25,9 +24,16 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { NotificationsService } from '../notifications/providers/notifications.service';
-import { FeedPost } from '../schemas/feedPost/feedPost.schema';
+import { FeedPost, FeedPostDocument } from '../schemas/feedPost/feedPost.schema';
 import { FeedComment } from '../schemas/feedComment/feedComment.schema';
 import { FeedPostsService } from '../feed-posts/providers/feed-posts.service';
+import { BlocksService } from '../blocks/providers/blocks.service';
+import { pick } from '../utils/object-utils';
+import { ProfileVisibility } from '../schemas/user/user.enums';
+import { FriendsService } from '../friends/providers/friends.service';
+import { User, UserDocument } from '../schemas/user/user.schema';
+import { FeedReply } from '../schemas/feedReply/feedReply.schema';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-comments')
 export class FeedCommentsController {
@@ -39,23 +45,14 @@ export class FeedCommentsController {
     private readonly storageLocationService: StorageLocationService,
     private readonly config: ConfigService,
     private readonly s3StorageService: S3StorageService,
+    private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @Post()
   @UseInterceptors(
     FilesInterceptor('images', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -77,7 +74,18 @@ export class FeedCommentsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const user = getUserFromRequest(request);
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+    }
+    if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -96,30 +104,8 @@ export class FeedCommentsController {
       images,
     );
 
-    // Create notification for post creator, informing them that a comment was added to their post
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: comment._id } as unknown as FeedComment,
-      senderId: user._id,
-      notifyType: NotificationType.UserCommentedOnYourPost,
-      notificationMsg: 'commented on your post',
-    });
+    await this.sendFeedCommentCreationNotifications(user, comment, post);
 
-    // Create notifications if any users were mentioned
-    const mentionedUserIds = extractUserMentionIdsFromMessage(comment?.message);
-    for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: comment._id } as unknown as FeedComment,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment',
-      });
-    }
-
-    asyncDeleteMulterFiles(files);
     return {
       _id: comment._id,
       feedPostId: comment.feedPostId,
@@ -149,20 +135,9 @@ export class FeedCommentsController {
     const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
 
-    // Create notifications if any NEW users were mentioned after the edit
-    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
-    for (const mentionedUserId of newMentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: updatedComment.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: updatedComment._id } as unknown as FeedComment,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment',
-      });
-    }
+    await this.sendFeedCommentUpdateNotifications(user, updatedComment, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
 
-    return updatedComment;
+    return pick(updatedComment, ['_id', 'feedPostId', 'message', 'userId', 'images']);
   }
 
   @Delete(':feedCommentId')
@@ -186,18 +161,7 @@ export class FeedCommentsController {
   @Post('replies')
   @UseInterceptors(
     FilesInterceptor('images', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -215,6 +179,28 @@ export class FeedCommentsController {
       );
     }
     const user = getUserFromRequest(request);
+    const comment = await this.feedCommentsService.findFeedComment(createFeedReplyDto.feedCommentId);
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
+    const feedPost = await this.feedPostsService.findById(comment.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+    }
+    const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
+    if (blockData) {
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
+    }
+    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -232,33 +218,8 @@ export class FeedCommentsController {
       images,
     );
 
-    // Create notification for post creator, informing them that a reply was added to their post
-    const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
-    await this.notificationsService.create({
-      userId: post.userId as any,
-      feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-      feedCommentId: { _id: reply.feedCommentId } as unknown as FeedComment,
-      feedReplyId: reply._id,
-      senderId: user._id,
-      notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-      notificationMsg: 'replied on your post',
-    });
+    await this.sendFeedReplyCreationNotifications(user, reply);
 
-    // Create notifications if any users were mentioned
-    const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
-    for (const mentionedUserId of mentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: reply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: reply._id } as unknown as FeedComment,
-        feedReplyId: reply._id,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment reply',
-      });
-    }
-
-    asyncDeleteMulterFiles(files);
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,
@@ -289,21 +250,9 @@ export class FeedCommentsController {
     const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);
 
-    // Create notifications if any NEW users were mentioned after the edit
-    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
-    for (const mentionedUserId of newMentionedUserIds) {
-      await this.notificationsService.create({
-        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: { _id: updatedReply.feedPostId } as unknown as FeedPost,
-        feedCommentId: { _id: updatedReply.feedCommentId } as unknown as FeedComment,
-        feedReplyId: updatedReply._id,
-        senderId: user._id,
-        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
-        notificationMsg: 'mentioned you in a comment reply',
-      });
-    }
+    await this.sendFeedReplyUpdateNotifications(user, updatedReply, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
 
-    return updatedReply;
+    return pick(updatedReply, ['_id', 'feedPostId', 'message', 'images', 'feedCommentId', 'userId']);
   }
 
   @Delete('replies/:feedReplyId')
@@ -336,6 +285,20 @@ export class FeedCommentsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFeedCommentsDto,
   ) {
     const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(query.feedPostId, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+    }
+    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
@@ -350,11 +313,11 @@ export class FeedCommentsController {
         .map((reply) => {
           // eslint-disable-next-line no-param-reassign
           reply.likeCount = reply.likes.length;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.likes;
-          // eslint-disable-next-line no-param-reassign
-          delete reply.__v;
-          return reply;
+          const {
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+          } = reply;
+          return expectedReplyValues;
         });
       comments.replies = filterReply;
       comments.likeCount = comments.likes.length;
@@ -362,7 +325,12 @@ export class FeedCommentsController {
       delete comments.__v;
       commentReplies.push(comments);
     }
-    return commentReplies;
+    return commentReplies.map(
+      (comments) => pick(
+        comments,
+        ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+      ),
+    );
   }
 
   @TransformImageUrls(
@@ -381,21 +349,189 @@ export class FeedCommentsController {
     if (!feedCommentWithReplies) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
+    const feedPost = await this.feedPostsService.findById(feedCommentWithReplies.feedPostId.toString(), true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+    }
+    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      }
+    }
     const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));
     const filterReply = commentAndReplies.replies
       .map((reply) => {
         // eslint-disable-next-line no-param-reassign
         reply.likeCount = reply.likes.length;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.likes;
-        // eslint-disable-next-line no-param-reassign
-        delete reply.__v;
-        return reply;
+        const {
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          likes, __v, hideUsers, type, status, reportUsers, deleted, updatedAt, ...expectedReplyValues
+        } = reply;
+        return expectedReplyValues;
       });
     commentAndReplies.replies = filterReply;
     commentAndReplies.likeCount = commentAndReplies.likes.length;
     delete commentAndReplies.likes;
     delete commentAndReplies.__v;
-    return commentAndReplies;
+    return pick(
+      commentAndReplies,
+      ['_id', 'createdAt', 'message', 'images', 'feedPostId', 'userId', 'likedByUser', 'likeCount', 'commentCount', 'replies'],
+    );
+  }
+
+  async sendFeedCommentCreationNotifications(commentCreatorUser: UserDocument, comment: FeedComment, post: FeedPostDocument) {
+    // keep track of notifications that are sent, so we don't send more than one to the same user
+    const userIdsToSkip: string[] = [commentCreatorUser.id];
+
+    // First send notification for post creator, informing them that a comment was added to their post
+    const postCreatorUserId: string = (post.userId as any)._id.toString();
+    const skipPostCreatorNotification = (
+      // Don't send a "commented on your post" notification to the post creator if any of
+      // the following conditions apply:
+      post.rssfeedProviderId // rss feed posts are not created by a real user
+      || userIdsToSkip.includes(postCreatorUserId)
+    );
+    if (!skipPostCreatorNotification) {
+      userIdsToSkip.push(postCreatorUserId);
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: comment.feedPostId as any,
+        feedCommentId: comment._id as any,
+        senderId: commentCreatorUser._id,
+        notifyType: NotificationType.UserCommentedOnYourPost,
+        notificationMsg: 'commented on your post',
+      });
+    }
+
+    // Then create notifications if any users were mentioned
+    const mentionedUserIds = extractUserMentionIdsFromMessage(comment?.message);
+    for (const mentionedUserId of mentionedUserIds) {
+      if (!userIdsToSkip.includes(mentionedUserId)) {
+        await this.notificationsService.create({
+          userId: mentionedUserId as any,
+          feedPostId: { _id: comment.feedPostId.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
+          senderId: commentCreatorUser._id.toString(),
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment',
+        });
+      }
+    }
+  }
+
+  async sendFeedCommentUpdateNotifications(
+    commentUpdateUser: UserDocument,
+    comment: FeedComment,
+    mentionedUserIdsBeforeUpdate: string[],
+    mentionedUserIdsAfterUpdate: string[],
+  ) {
+    // Create notifications if any NEW users were mentioned after the edit.
+    // Always ignore the comment update user's user id.
+    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter(
+      (x) => !mentionedUserIdsBeforeUpdate.includes(x) && x !== commentUpdateUser.id,
+    );
+    for (const mentionedUserId of newMentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: { _id: comment.feedPostId } as unknown as FeedPost,
+        feedCommentId: { _id: comment._id } as unknown as FeedComment,
+        senderId: commentUpdateUser._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment',
+      });
+    }
+  }
+
+  async sendFeedReplyCreationNotifications(replyCreatorUser: UserDocument, reply: FeedReply) {
+    // keep track of notifications that are sent, so we don't send more than one to the same user
+    const userIdsToSkip: string[] = [replyCreatorUser.id];
+
+    // Create notification for post creator, informing them that a reply was added to their post
+    const post = await this.feedPostsService.findById(reply.feedPostId.toString(), true);
+    const postCreatorUserId: string = (post.userId as any)._id.toString();
+    const skipPostCreatorNotification = (
+      // Don't send a "replied on your post" notification to the post creator if any of
+      // the following conditions apply:
+      post.rssfeedProviderId // rss feed posts are not created by a real user
+      || userIdsToSkip.includes(postCreatorUserId)
+    );
+    if (!skipPostCreatorNotification) {
+      userIdsToSkip.push(postCreatorUserId);
+      await this.notificationsService.create({
+        userId: post.userId as any,
+        feedPostId: reply.feedPostId as any,
+        feedCommentId: reply.feedCommentId as any,
+        feedReplyId: reply._id,
+        senderId: replyCreatorUser._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'replied to a comment on your post',
+      });
+    }
+
+    // Create notification for comment creator, informing them that a reply was added to their comment
+    const comment = await this.feedCommentsService.findFeedComment(reply.feedCommentId.toString());
+    const commentUserId = comment.userId.toString();
+    const skipCommentCreatorNotification = (
+      // Don't send a "replied to your comment" notification to the post creator if any of
+      // the following conditions apply:
+      userIdsToSkip.includes(commentUserId)
+    );
+    if (!skipCommentCreatorNotification) {
+      userIdsToSkip.push(commentUserId);
+      await this.notificationsService.create({
+        userId: comment.userId.toString() as any,
+        feedPostId: { _id: reply.feedPostId.toString() } as unknown as FeedPost,
+        feedCommentId: { _id: reply.feedCommentId.toString() } as unknown as FeedComment,
+        feedReplyId: reply._id.toString() as any,
+        senderId: replyCreatorUser.id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'replied to your comment',
+      });
+    }
+
+    // Create notifications if any users were mentioned
+    const mentionedUserIds = extractUserMentionIdsFromMessage(reply?.message);
+    for (const mentionedUserId of mentionedUserIds) {
+      if (!userIdsToSkip.includes(mentionedUserId)) {
+        await this.notificationsService.create({
+          userId: mentionedUserId as any,
+          feedPostId: { _id: reply.feedPostId.toString() } as unknown as FeedPost,
+          feedCommentId: { _id: reply.feedCommentId.toString() } as unknown as FeedComment,
+          feedReplyId: reply._id.toString() as any,
+          senderId: replyCreatorUser.id,
+          notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          notificationMsg: 'mentioned you in a comment reply',
+        });
+      }
+    }
+  }
+
+  async sendFeedReplyUpdateNotifications(
+    replyUpdateUser: User,
+    feedReply: FeedReply,
+    mentionedUserIdsBeforeUpdate: string[],
+    mentionedUserIdsAfterUpdate: string[],
+  ) {
+    // Create notifications if any NEW users were mentioned after the edit.
+    // Always ignore the reply update user's user id.
+    const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter(
+      (x) => !mentionedUserIdsBeforeUpdate.includes(x) && x !== replyUpdateUser._id.toString(),
+    );
+    for (const mentionedUserId of newMentionedUserIds) {
+      await this.notificationsService.create({
+        userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
+        feedPostId: feedReply.feedPostId as any,
+        feedCommentId: feedReply.feedCommentId as any,
+        feedReplyId: feedReply._id,
+        senderId: replyUpdateUser._id,
+        notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        notificationMsg: 'mentioned you in a comment reply',
+      });
+    }
   }
 }

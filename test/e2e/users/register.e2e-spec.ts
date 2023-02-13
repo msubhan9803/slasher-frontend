@@ -1,6 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
@@ -8,6 +9,9 @@ import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { MailService } from '../../../src/providers/mail.service';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { DisallowedUsernameService } from '../../../src/disallowedUsername/providers/disallowed-username.service';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { UserSettingsService } from '../../../src/settings/providers/user-settings.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users / Register (e2e)', () => {
@@ -15,6 +19,8 @@ describe('Users / Register (e2e)', () => {
   let connection: Connection;
   let usersService: UsersService;
   let mailService: MailService;
+  let disallowedUsernameService: DisallowedUsernameService;
+  let userSettingsService: UserSettingsService;
 
   const sampleUserRegisterObject = {
     firstName: 'user',
@@ -35,6 +41,8 @@ describe('Users / Register (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     mailService = moduleRef.get<MailService>(MailService);
+    disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
+    userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -62,7 +70,31 @@ describe('Users / Register (e2e)', () => {
           .post('/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-        expect(response.body.id).toEqual(expect.stringMatching(SIMPLE_MONGODB_ID_REGEX)); // test for presence of IP value
+
+        expect(response.body).toEqual({
+          id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        });
+
+        // Verify that the correct fields were set on the created user object
+        const registeredUser = await usersService.findById(response.body.id);
+        expect(await userSettingsService.findByUserId(response.body.id)).not.toBeNull();
+        expect(postBody.firstName).toEqual(registeredUser.firstName);
+        expect(postBody.userName).toEqual(registeredUser.userName);
+        expect(postBody.email).toEqual(registeredUser.email);
+        expect(postBody.securityQuestion).toEqual(
+          registeredUser.securityQuestion,
+        );
+        expect(postBody.securityAnswer).toEqual(registeredUser.securityAnswer);
+        expect(
+          bcrypt.compareSync(postBody.password, registeredUser.password),
+        ).toBe(true);
+        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
+        expect(DateTime.fromISO(postBody.dob, { zone: 'utc' }).toJSDate()).toEqual(registeredUser.dob);
+        expect(registeredUser.verification_token).toMatch(validUuidV4Regex);
+        expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(
+          registeredUser.email,
+          registeredUser.verification_token,
+        );
       });
 
       it('sets the registrationIp', async () => {
@@ -266,6 +298,17 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('You must be at least 17 to register');
       });
+
+      // TODO: Uncomment this test and update UserRegisterDto to make the test pass
+      // eslint-disable-next-line jest/no-commented-out-tests
+      // it('dob must be a valid-format iso date', async () => {
+      //   postBody.dob = '1970-1';
+      //   const response = await request(app.getHttpServer())
+      //     .post('/users/register')
+      //     .send(postBody);
+      //   expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      //   expect(response.body.message).toContain('Invalid date of birth');
+      // });
     });
 
     describe('Existing username or email check', () => {
@@ -298,6 +341,29 @@ describe('Users / Register (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
         expect(response.body.message).toContain(
           'Email address is already associated with an existing user.',
+        );
+      });
+
+      it('returns an error when user submits a database-backed disallowed username', async () => {
+        await disallowedUsernameService.create({
+          username: 'TeStUsEr',
+        });
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is not available',
+        );
+      });
+
+      it('returns an error when user submits a hard-coded disallowed username', async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send({ ...postBody, userName: 'pages' });
+        expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
+        expect(response.body.message).toContain(
+          'Username is not available',
         );
       });
     });

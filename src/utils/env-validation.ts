@@ -1,6 +1,6 @@
 import { plainToInstance, Transform } from 'class-transformer';
 import {
-  IsBoolean, IsOptional, validateSync,
+  IsBoolean, IsOptional, IsString, validateSync,
 } from 'class-validator';
 
 class EnvironmentVariables {
@@ -10,6 +10,9 @@ class EnvironmentVariables {
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
   CRON_ENABLED: boolean;
+
+  @IsString()
+  UPLOAD_DIR: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

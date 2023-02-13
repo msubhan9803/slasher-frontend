@@ -6,16 +6,24 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
 import { ForgotPasswordDto } from '../../../src/users/dto/forgot-password.dto';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { MailService } from '../../../src/providers/mail.service';
+import { UsersService } from '../../../src/users/providers/users.service';
+import { validUuidV4Regex } from '../../helpers/regular-expressions';
+import { userFactory } from '../../factories/user.factory';
 
 describe('Users / Forgot Password (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
+  let usersService: UsersService;
+  let mailService: MailService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
+    usersService = moduleRef.get<UsersService>(UsersService);
+    mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -33,9 +41,12 @@ describe('Users / Forgot Password (e2e)', () => {
   describe('POST /users/forgot-password', () => {
     let email: string;
     let postBody: ForgotPasswordDto;
-    beforeEach(() => {
+    beforeEach(async () => {
       email = 'someone@example.com';
       postBody = { email };
+      await usersService.create(
+        userFactory.build({ email }),
+      );
     });
 
     it('responds with error message when an invalid-format email supplied', async () => {
@@ -53,6 +64,8 @@ describe('Users / Forgot Password (e2e)', () => {
 
     describe('When a valid-format email address is supplied', () => {
       it('returns { success: true } and sends an email when the email address IS associated with a registered user', async () => {
+        jest.spyOn(mailService, 'sendForgotPasswordEmail').mockImplementation();
+
         const response = await request(app.getHttpServer())
           .post('/users/forgot-password')
           .send(postBody)
@@ -60,6 +73,13 @@ describe('Users / Forgot Password (e2e)', () => {
         expect(response.body).toEqual({
           success: true,
         });
+
+        const foundUser = await usersService.findByEmail(email);
+        expect(foundUser.resetPasswordToken).toMatch(validUuidV4Regex);
+        expect(mailService.sendForgotPasswordEmail).toHaveBeenCalledWith(
+          email,
+          foundUser.resetPasswordToken,
+        );
       });
 
       // Test below makes sure we avoid revealing whether email address exists when user submits

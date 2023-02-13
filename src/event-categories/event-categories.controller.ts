@@ -14,7 +14,7 @@ export class EventCategoriesController {
   async index() {
     const eventCategoryList = await this.eventCategoriesService.findAll(true);
     return eventCategoryList.map(
-      (eventCategory) => pick(eventCategory, ['_id', 'event_name', 'status', 'is_deleted', 'createdAt', 'updatedAt']),
+      (eventCategory) => pick(eventCategory, ['_id', 'event_name']),
     );
   }
 }

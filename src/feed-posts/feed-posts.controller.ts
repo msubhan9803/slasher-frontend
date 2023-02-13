@@ -13,18 +13,18 @@ import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
-import { asyncDeleteMulterFiles } from '../utils/file-upload-validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
 import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
-import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
+import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { BlocksService } from '../blocks/providers/blocks.service';
+import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -35,25 +35,13 @@ export class FeedPostsController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
-    private readonly notificationsGateway: NotificationsGateway,
     private readonly blocksService: BlocksService,
   ) { }
 
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 5, {
-      fileFilter: (req, file, cb) => {
-        if (
-          !file.mimetype.includes('image/png')
-          && !file.mimetype.includes('image/jpeg')
-        ) {
-          return cb(new HttpException(
-            'Invalid file type',
-            HttpStatus.BAD_REQUEST,
-          ), false);
-        }
-        return cb(null, true);
-      },
+      fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
@@ -105,9 +93,8 @@ export class FeedPostsController {
       });
     }
 
-    asyncDeleteMulterFiles(files);
     return {
-      id: createFeedPost.id,
+      _id: createFeedPost.id,
       message: createFeedPost.message,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
@@ -127,13 +114,17 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('You are not friends with this user.', HttpStatus.FORBIDDEN);
     }
     const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
     if (block) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    return feedPost;
+    return pick(
+      feedPost,
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+        'message'],
+    );
   }
 
   @Patch(':id')
@@ -180,7 +171,7 @@ export class FeedPostsController {
     }
 
     return {
-      id: updatedFeedPost.id,
+      _id: updatedFeedPost.id,
       message: updatedFeedPost.message,
     };
   }
@@ -201,7 +192,12 @@ export class FeedPostsController {
       mainFeedPostQueryDto.limit,
       mainFeedPostQueryDto.before ? new mongoose.Types.ObjectId(mainFeedPostQueryDto.before) : undefined,
     );
-    return feedPosts;
+    return feedPosts.map(
+      (feedPost) => pick(
+        feedPost,
+        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+      ),
+    );
   }
 
   @Delete(':id')
@@ -225,5 +221,31 @@ export class FeedPostsController {
     return {
       success: true,
     };
+  }
+
+  @Post(':id/hide')
+  async hidePost(
+    @Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostsDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException(
+        'Post not found.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const postCreatedByDifferentUser = feedPost.rssfeedProviderId || (feedPost.userId as any)._id.toString() !== user._id.toString();
+
+    if (!postCreatedByDifferentUser) {
+      throw new HttpException(
+        'You cannot hide your own post.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    await this.feedPostsService.hidePost(param.id, user._id);
+    return { success: true };
   }
 }

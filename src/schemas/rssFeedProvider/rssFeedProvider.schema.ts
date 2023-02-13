@@ -60,5 +60,19 @@ export class RssFeedProvider extends RssFeedProviderUnusedFields {
 }
 
 export const RssFeedProviderSchema = SchemaFactory.createForClass(RssFeedProvider);
-
+RssFeedProviderSchema.index(
+  {
+    _id: 1, is_deleted: 1, status: 1,
+  },
+);
+RssFeedProviderSchema.index(
+  {
+    sortTitle: 1, is_deleted: 1, status: 1,
+  },
+);
+RssFeedProviderSchema.index(
+  {
+    auto_follow: 1, deleted: 1, status: 1,
+  },
+);
 export type RssFeedProviderDocument = RssFeedProvider & Document;

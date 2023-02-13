@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { io } from 'socket.io-client';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { waitForAuthSuccessMessage, waitForSocketUserCleanup } from '../helpers/gateway-test-helpers';
@@ -14,7 +15,10 @@ import { UserDocument } from '../../src/schemas/user/user.schema';
 import { UsersService } from '../../src/users/providers/users.service';
 import { userFactory } from '../factories/user.factory';
 import { clearDatabase } from '../helpers/mongo-helpers';
+import { Message, MessageDocument } from '../../src/schemas/message/message.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
+import { FriendsService } from '../../src/friends/providers/friends.service';
+import { ChatGateway } from '../../src/chat/providers/chat.gateway';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +33,10 @@ describe('Chat Gateway (e2e)', () => {
   let user2: UserDocument;
   let activeUserAuthToken: string;
   let matchListModel: Model<MatchListDocument>;
+  let messageModel: Model<MessageDocument>;
   let chatModel: Model<ChatDocument>;
+  let friendsService: FriendsService;
+  let chatGateway: ChatGateway;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,8 +44,11 @@ describe('Chat Gateway (e2e)', () => {
     }).compile();
     connection = await moduleRef.get<Connection>(getConnectionToken());
     chatService = moduleRef.get<ChatService>(ChatService);
+    chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
     usersService = moduleRef.get<UsersService>(UsersService);
+    friendsService = moduleRef.get<FriendsService>(FriendsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     matchListModel = moduleRef.get<Model<MatchListDocument>>(getModelToken(MatchList.name));
     chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
@@ -94,76 +104,140 @@ describe('Chat Gateway (e2e)', () => {
     await waitForSocketUserCleanup(client, usersService);
   });
 
-  describe('#sendPrivateDirectMessage', () => {
-    beforeEach(async () => {
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-    });
+  describe('#chatMessage', () => {
+    describe('when target user is a friend', () => {
+      beforeEach(async () => {
+        await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+      });
 
-    it('should send chatMessage', async () => {
-      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
-      await waitForAuthSuccessMessage(client);
+      it('should send chatMessage and return the expected socket response', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
+        const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
 
-      const data = await new Promise<any>((resolve) => {
-        client.emit('chatMessage', payload, (receivedData: any) => {
-          resolve(receivedData);
+        const chatMessageResponse = await new Promise<any>((resolve) => {
+          client.emit('chatMessage', payload, (receivedData: any) => {
+            resolve(receivedData);
+          });
+        });
+
+        const matchList = await matchListModel.findById(chatMessageResponse.message.matchId);
+        const chat = await chatModel.findOne({ matchId: chatMessageResponse.message.matchId });
+
+        expect(chatMessageResponse.success).toBe(true);
+        expect(chatMessageResponse.message.message).toBe(payload.message);
+
+        const messageCreated = Number(chatMessageResponse.message.created);
+        [
+          new Date(chatMessageResponse.message.createdAt).getTime(),
+          new Date(matchList.updatedAt).getTime(),
+          new Date(matchList.lastMessageSentAt).getTime(),
+          new Date(chat.updatedAt).getTime(),
+        ].forEach((time) => {
+          expect(time).toBe(messageCreated);
+        });
+
+        expect(chatMessageResponse).toEqual(
+          {
+            success: true,
+            message: {
+              message: 'Hi, test message via socket.',
+              isRead: false,
+              status: 1,
+              deleted: false,
+              created: expect.any(String),
+              deletefor: [],
+              createdAt: expect.any(String),
+              matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              fromId: activeUser._id.toString(),
+              senderId: user1._id.toString(),
+              messageType: 0,
+              image: null,
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              urls: [],
+              __v: 0,
+            },
+          },
+        );
+
+        client.close();
+
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('should emit the expected chatMessageReceived event for the message receiver', async () => {
+        const senderClient = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(senderClient);
+
+        const user1AuthToken = user1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        const receiverClient = io(baseAddress, { auth: { token: user1AuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(receiverClient);
+
+        const payload = { toUserId: user1._id, message: 'Hi, test message via socket.' };
+
+        const chatMessageReceivedPayload = await new Promise<any>((resolve) => {
+          receiverClient.on('chatMessageReceived', (...args) => {
+            // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
+            // if expect() comparison fails.
+            resolve(args[0]);
+          });
+
+          senderClient.emit('chatMessage', payload);
+        });
+
+        senderClient.close();
+        receiverClient.close();
+
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(senderClient, usersService);
+        await waitForSocketUserCleanup(receiverClient, usersService);
+
+        expect(chatMessageReceivedPayload).toEqual({
+          message: {
+            _id: expect.any(String),
+            createdAt: expect.any(String),
+            fromId: activeUser.id,
+            image: null,
+            matchId: expect.any(String),
+            message: 'Hi, test message via socket.',
+            senderId: user1.id,
+          },
         });
       });
 
-      const matchList = await matchListModel.findById(data.message.matchId);
-      const chat = await chatModel.findOne({ matchId: data.message.matchId });
+      it('should NOT send chatMessage when payload message is null', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
 
-      expect(data.success).toBe(true);
-      expect(data.message.message).toBe(payload.message);
-
-      const messageCreated = Number(data.message.created);
-      [
-        new Date(data.message.createdAt).getTime(),
-        new Date(matchList.updatedAt).getTime(),
-        new Date(matchList.lastMessageSentAt).getTime(),
-        new Date(chat.updatedAt).getTime(),
-      ].forEach((time) => {
-        expect(time).toBe(messageCreated);
+        const payload = { toUserId: user1._id, message: null };
+        await new Promise<void>((resolve) => {
+          client.emit('chatMessage', payload, (data) => {
+            expect(data.success).toBe(false);
+            expect(data.message).toBeNull();
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
       });
-
-      expect(data).toEqual(
-        {
-          success: true,
-          message: {
-            message: 'Hi, test message via socket.',
-            isRead: false,
-            status: 1,
-            deleted: false,
-            created: expect.any(String),
-            deletefor: [],
-            createdAt: expect.any(String),
-            matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            fromId: activeUser._id.toString(),
-            senderId: user1._id.toString(),
-            messageType: 0,
-            image: null,
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            urls: [],
-            __v: 0,
-          },
-        },
-      );
-
-      client.close();
-      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
-      await waitForSocketUserCleanup(client, usersService);
     });
-    it('should NOT send chatMessage', async () => {
+
+    it('should NOT send chatMessage when target user is not a friend', async () => {
       const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
       await waitForAuthSuccessMessage(client);
 
-      const payload = { toUserId: user1._id, message: null };
+      const payload = { toUserId: user2._id, message: 'Hi, test message via socket.' };
       await new Promise<void>((resolve) => {
         client.emit('chatMessage', payload, (data) => {
-          expect(data.success).toBe(false);
-          expect(data.message).toBeNull();
+          expect(data).toEqual({
+            success: false,
+            errorMessage: 'You are not friends with this user.',
+          });
           resolve();
         });
       });
@@ -174,16 +248,24 @@ describe('Chat Gateway (e2e)', () => {
   });
 
   describe('#getMessages', () => {
+    let message0;
     let message1;
+    let message2;
+    let message3;
     let matchList;
 
     beforeEach(async () => {
-      await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+      // user1 messages
+      message0 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
       message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
-      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
       matchList = await matchListModel.findOne({
         participants: activeUser._id,
       });
+
+      // user2 messages
+      message2 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test2!');
+      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test3!');
     });
 
     describe('successful responses', () => {
@@ -194,6 +276,10 @@ describe('Chat Gateway (e2e)', () => {
         const payload = {
           matchListId: matchList._id,
         };
+        message1.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message1.save();
+        message0.image = '//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg';
+        message0.save();
 
         const response = await new Promise<any>((resolve) => {
           client.emit('getMessages', payload, (data) => {
@@ -202,8 +288,46 @@ describe('Chat Gateway (e2e)', () => {
         });
         client.close();
 
-        expect(response).toHaveLength(2);
-
+        expect(response).toEqual([
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'Hi, there!',
+            isRead: true,
+            status: 1,
+            deleted: false,
+            createdAt: expect.any(String),
+            matchId: matchList.id,
+            relationId: '5c9cb7138a874f1dcd0d8dcc',
+            fromId: user1.id,
+            senderId: activeUser.id,
+            deletefor: [],
+            messageType: 0,
+            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            created: expect.any(String),
+            urls: [],
+            __v: 0,
+            updatedAt: expect.any(String),
+          },
+          {
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            message: 'Hi, test message.',
+            isRead: false,
+            status: 1,
+            deleted: false,
+            createdAt: expect.any(String),
+            matchId: matchList.id,
+            relationId: '5c9cb7138a874f1dcd0d8dcc',
+            fromId: activeUser.id,
+            senderId: user1.id,
+            deletefor: [],
+            messageType: 0,
+            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            created: expect.any(String),
+            urls: [],
+            __v: 0,
+            updatedAt: expect.any(String),
+          },
+        ]);
         // All messages NOT from the activeUser should be marked as read when they are returned
         // by the socket response.
         // Note: message.senderId actually means "message.toId" (bad naming in old API app)
@@ -219,6 +343,7 @@ describe('Chat Gateway (e2e)', () => {
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
+        // Below `matchList` belongs to chat with `user1`
         const payload = {
           matchListId: matchList._id, before: message1._id.toString(),
         };
@@ -229,6 +354,34 @@ describe('Chat Gateway (e2e)', () => {
           });
         });
         client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('should not return the deleted message for current user via `deletedfor` field', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        // Set 2 messages of `user2` be deleted for `activeUser`
+        await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [activeUser._id] } });
+        await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [activeUser._id] } });
+
+        // message2 belongs to chat with `user2`
+        const payload = {
+          matchListId: new mongoose.Types.ObjectId(message2.matchId),
+        };
+
+        const response = await new Promise<any>((resolve) => {
+          client.emit('getMessages', payload, (data) => {
+            resolve(data);
+          });
+        });
+        client.close();
+
+        // Since 2 out of 3 messgaes of `user2` are marked deleted via `deletefor` field, we expect only 1 message
+        expect(response).toHaveLength(1);
+        expect(response[0].message).toBe('Hi, Test3!');
+
         // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
         await waitForSocketUserCleanup(client, usersService);
       });
@@ -290,6 +443,151 @@ describe('Chat Gateway (e2e)', () => {
         client.close();
         // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
         await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+  });
+
+  describe('#markMessageAsRead', () => {
+    let message;
+    beforeEach(async () => {
+      message = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, test message.');
+    });
+
+    describe('successful responses', () => {
+      it('should return the expected response, and should mark the message as read', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: message._id,
+        };
+
+        const response = await new Promise<any>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            resolve(data);
+          });
+        });
+        client.close();
+        expect(response).toEqual({ success: true });
+
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+
+    describe('error responses', () => {
+      it('returns the expected {success: false} response when messageId is null', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: null,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.success).toBe(false);
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('should return a message not found error when the messageId cannot be found', async () => {
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: '639041536cf487d9419d3425',
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.error).toBe('Message not found');
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+
+      it('returns the expected error message when user tries to mark message as read but message was not sent TO that user', async () => {
+        const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+        const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+        await waitForAuthSuccessMessage(client);
+
+        const payload = {
+          messageId: message1.id,
+        };
+        await new Promise<void>((resolve) => {
+          client.emit('messageRead', payload, (data) => {
+            expect(data.success).toBe(false);
+            expect(data.error).toBe('Unauthorized');
+            resolve();
+          });
+        });
+        client.close();
+        // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+        await waitForSocketUserCleanup(client, usersService);
+      });
+    });
+  });
+
+  describe('#emitMessageForConversation', () => {
+    let message0;
+    let matchList;
+
+    beforeEach(async () => {
+      message0 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
+      matchList = await matchListModel.findOne({
+        participants: activeUser._id,
+      });
+    });
+
+    it('ChatController#sendMessageInConversation calls emitMessageForConversation, which emits the expected socket message', async () => {
+      const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(client);
+
+      const user1AuthToken = user1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+      const receiverClient = io(baseAddress, { auth: { token: user1AuthToken }, transports: ['websocket'] });
+      await waitForAuthSuccessMessage(receiverClient);
+
+      const message = [message0];
+      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser.id);
+
+      await chatGateway.emitMessageForConversation(message, toUserId);
+
+      let receivedPayload;
+      const socketListenPromise = new Promise<void>((resolve) => {
+        receiverClient.on('chatMessageReceived', (...args) => {
+          // NOTE: Avoid calling expect() method inside of the on() method, or the test will hang
+          // if expect() comparison fails.
+          [receivedPayload] = args;
+          resolve();
+        });
+      });
+
+      // Await socket response to receive emitted event
+      await socketListenPromise;
+
+      client.close();
+      receiverClient.close();
+
+      // Need to wait for SocketUser cleanup after any socket test, before the 'it' block ends.
+      await waitForSocketUserCleanup(client, usersService);
+      await waitForSocketUserCleanup(receiverClient, usersService);
+
+      expect(receivedPayload).toEqual({
+        message: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          createdAt: expect.any(String),
+          fromId: toUserId.toString(),
+          image: null,
+          matchId: matchList.id,
+          message: 'Hi, there!',
+          senderId: activeUser.id,
+        },
       });
     });
   });

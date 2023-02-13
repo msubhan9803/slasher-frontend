@@ -1,25 +1,25 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
 import { UpdateUserDto } from '../../../src/users/dto/update-user-data.dto';
-import { User } from '../../../src/schemas/user/user.schema';
+import { User, UserDocument } from '../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
+  let usersModel: Model<UserDocument>;
 
   const sampleUserUpdateObject = {
     firstName: 'user',
@@ -34,7 +34,7 @@ describe('Users / :id (e2e)', () => {
       imports: [AppModule],
     }).compile();
     connection = moduleRef.get<Connection>(getConnectionToken());
-
+    usersModel = moduleRef.get<Model<UserDocument>>(getModelToken(User.name));
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
@@ -69,16 +69,16 @@ describe('Users / :id (e2e)', () => {
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
           email: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
       });
 
-      it('when the email field is not provided, updated to other fields are still successful '
+      it('when the email field is not provided, updates to other fields are still successful '
         + 'and it returns the expected response', async () => {
           const { email, ...restPostBody } = postBody;
           const response = await request(app.getHttpServer())
@@ -87,13 +87,12 @@ describe('Users / :id (e2e)', () => {
             .send(restPostBody);
           expect(response.status).toEqual(HttpStatus.OK);
           expect(response.body).toEqual({
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            _id: activeUser.id,
             firstName: 'user',
             userName: 'TestUser',
             aboutMe: 'I am a human being',
-            profile_status: 1,
+            profile_status: ProfileVisibility.Private,
           });
-          expect(response.body.email).toBeUndefined();
         });
 
       it('update the userName successful, it returns the expected response', async () => {
@@ -104,16 +103,16 @@ describe('Users / :id (e2e)', () => {
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           userName: 'TestUser',
           aboutMe: 'I am a human being',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
         expect(response.body.firstName).toBeUndefined();
         expect(response.body.email).toBeUndefined();
       });
 
-      it('when the profile_status is not provided, updated to other fields are still successful', async () => {
+      it('when the profile_status is not provided, updates to other fields are still successful', async () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { profile_status, ...restPostBody } = postBody;
         const response = await request(app.getHttpServer())
@@ -122,12 +121,17 @@ describe('Users / :id (e2e)', () => {
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'user',
           userName: 'TestUser',
           email: 'testuser@gmail.com',
           aboutMe: 'I am a human being',
         });
+
+        const user = await usersService.findById(response.body._id);
+        expect(user.userName).toEqual(postBody.userName);
+        expect(user.email).toEqual(postBody.email);
+        expect(user.firstName).toEqual(postBody.firstName);
       });
     });
 
@@ -286,6 +290,62 @@ describe('Users / :id (e2e)', () => {
         expect(response.body.message).toContain(
           'profile_status must be one of the following values: 0, 1',
         );
+      });
+
+      it("succeeds, and doesn't call usersService.emailExists() internally when email field is not in the request body", async () => {
+        jest.spyOn(usersService, 'emailExists').mockImplementation(() => Promise.resolve(undefined));
+        const body = {
+          aboutMe: 'I am a human being',
+        };
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(body);
+        expect(usersService.emailExists).toHaveBeenCalledTimes(0);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          aboutMe: 'I am a human being',
+        });
+      });
+
+      // This test is for ensuring compatibility with the old API, since the old API allowed older
+      // users to create accounts with no email address (because they used Facebook for login instead).
+      // TODO: When we get to a point where 100% of users in the production database have email
+      // address values, we can delete this test.
+      it('succeeds, and does not return an error when email is not provided in the request body and '
+        + 'at least one user in the database has an undefined email address value', async () => {
+          const user = await usersService.create(userFactory.build({ email: 'hello@gmail.com' }));
+          await usersModel.findOneAndUpdate({ _id: user._id }, { $unset: { email: 1 } }, { new: true });
+          const body = {
+            aboutMe: 'I am a human being',
+          };
+          const response = await request(app.getHttpServer())
+            .patch(`/users/${activeUser._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send(body);
+          expect(response.status).toEqual(HttpStatus.OK);
+          expect(response.body).toEqual({
+            _id: activeUser.id,
+            aboutMe: 'I am a human being',
+          });
+        });
+
+      it("succeeds, and doesn't call usersService.userNameExists() internally when userName field is not in the request body", async () => {
+        jest.spyOn(usersService, 'userNameExists').mockImplementation(() => Promise.resolve(undefined));
+        const body = {
+          aboutMe: 'I am a human being',
+        };
+        const response = await request(app.getHttpServer())
+          .patch(`/users/${activeUser._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send(body);
+        expect(usersService.userNameExists).toHaveBeenCalledTimes(0);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          aboutMe: 'I am a human being',
+        });
       });
     });
   });

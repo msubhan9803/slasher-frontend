@@ -69,17 +69,21 @@ describe('UserId Posts With Images (e2e)', () => {
     }
   });
 
-  describe('UserId Posts With Images Details', () => {
+  describe('when `before` argument is not supplied', () => {
     it('when earlier than post id is not exist then expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
         .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      for (const body of response.body) {
-        expect(body).toEqual(
+      expect(response.body).toHaveLength(10);
+      for (let i = 1; i < response.body.length; i += 1) {
+        expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
+        const postFromResponse = response.body[i];
+        expect(postFromResponse).toEqual(
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            createdAt: expect.any(String),
             images: [
               {
                 image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',

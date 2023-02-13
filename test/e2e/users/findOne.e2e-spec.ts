@@ -70,7 +70,7 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'First name 1',
           userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -81,27 +81,24 @@ describe('GET /users/:id (e2e)', () => {
         });
       });
 
-      it(
-        'returns the expected response (omitting email field) when a logged in user requests a different users public profile',
-        async () => {
-          const response = await request(app.getHttpServer())
-            .get(`/users/${activeUser.id}`)
-            .auth(otherUserAuthToken, { type: 'bearer' })
-            .send();
-          expect(response.status).toEqual(HttpStatus.OK);
-          // Hide email for users other than active user
-          expect(response.body.email).toBeUndefined();
-          expect(response.body).toEqual({
-            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            firstName: 'First name 3',
-            userName: 'Username3',
-            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            coverPhoto: null,
-            aboutMe: 'Hello. This is me.',
-            profile_status: 0,
-          });
-        },
-      );
+      it('returns the expected response (omitting email field) when logged in users requests different user data', async () => {
+        const response = await request(app.getHttpServer())
+          .get(`/users/${activeUser.id}`)
+          .auth(otherUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        // Hide email for users other than active user
+        expect(response.body.email).toBeUndefined();
+        expect(response.body).toEqual({
+          _id: activeUser.id,
+          firstName: 'First name 3',
+          userName: 'Username3',
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          coverPhoto: null,
+          aboutMe: 'Hello. This is me.',
+          profile_status: 0,
+        });
+      });
 
       it('returns the expected response when the user is not found', async () => {
         const nonExistentUserId = '5d1df8ebe9a186319c225cd6';
@@ -123,13 +120,13 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: otherUser.id,
           firstName: 'First name 8',
           userName: 'Username8',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
           email: 'User8@Example.com',
         });
       });
@@ -142,7 +139,7 @@ describe('GET /users/:id (e2e)', () => {
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: activeUser.id,
           firstName: 'First name 9',
           userName: 'Username9',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -198,7 +195,7 @@ describe('GET /users/:id (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
-          profile_status: 1,
+          profile_status: ProfileVisibility.Private,
         });
       });
     });

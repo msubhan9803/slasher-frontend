@@ -51,13 +51,19 @@ export class BlockAndUnblock extends BlockAndUnblockUnusedFields {
 
 export const BlockAndUnblockSchema = SchemaFactory.createForClass(BlockAndUnblock);
 
-// TODO: When relationId is removed, remove it from the index here too.
-// TODO: When requestFrom is removed, remove it from the index here too.
-// TODO: When reasonOfReport is removed, remove it from the index here too.
-// TODO: When created is removed, remove it from the index here too.
 BlockAndUnblockSchema.index(
   {
-    to: 1, from: 1, reaction: 1, relationId: 1, requestFrom: 1, reasonOfReport: 1, created: 1,
+    to: 1, from: 1, reaction: 1,
+  },
+);
+BlockAndUnblockSchema.index(
+  {
+    to: 1, from: 1,
+  },
+);
+BlockAndUnblockSchema.index(
+  {
+    from: 1, reaction: 1,
   },
 );
 

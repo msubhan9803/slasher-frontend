@@ -12,7 +12,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../src/schemas/user/user.enums';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { relativeToFullImagePath } from '../../../src/utils/image-utils';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
@@ -98,16 +98,27 @@ describe('Suggested user name (e2e)', () => {
           reaction: BlockAndUnblockReaction.Block,
         });
       });
-      it('when query does exists than expected suggested user name', async () => {
+      it('returns suggestions when there are results that match the query', async () => {
         const limit = 20;
         const query = 'test';
         const response = await request(app.getHttpServer())
           .get(`/users/suggest-user-name?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
+
+        const test1User = await usersService.findByUsername('test1');//, ['userName', 'id', 'profilePic']
+        const test2User = await usersService.findByUsername('test2');//, ['userName', 'id', 'profilePic']
         expect(response.body).toEqual([
-          { userName: 'test1', id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX) },
-          { userName: 'test2', id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX) },
+          {
+            userName: test1User.userName,
+            id: test1User.id,
+            profilePic: relativeToFullImagePath(configService, test1User.profilePic),
+          },
+          {
+            userName: test2User.userName,
+            id: test2User.id,
+            profilePic: relativeToFullImagePath(configService, test2User.profilePic),
+          },
         ]);
       });
 

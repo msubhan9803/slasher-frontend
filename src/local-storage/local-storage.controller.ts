@@ -19,7 +19,7 @@ export class LocalStorageController {
     @Res() res: Response,
   ) {
     const filePath = await this.localStorageService.getLocalFilePath(`/${params.location}`);
-    if (!filePath) throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+    if (!filePath) { throw new HttpException('File not found', HttpStatus.NOT_FOUND); }
     res.setHeader('Content-Type', fileNameToMimeType(filePath));
     const file = createReadStream(filePath);
     file.pipe(res);

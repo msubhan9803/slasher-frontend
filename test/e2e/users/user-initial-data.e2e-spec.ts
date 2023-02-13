@@ -1,8 +1,8 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { Connection, Model } from 'mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
@@ -16,7 +16,7 @@ import { pick } from '../../../src/utils/object-utils';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { notificationFactory } from '../../factories/notification.factory';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../src/schemas/notification/notification.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { Message, MessageDocument } from '../../../src/schemas/message/message.schema';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -28,6 +28,7 @@ describe('Users suggested friends (e2e)', () => {
   let friendsService: FriendsService;
   let chatService: ChatService;
   let notificationsService: NotificationsService;
+  let messageModel: Model<MessageDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -40,6 +41,8 @@ describe('Users suggested friends (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     chatService = moduleRef.get<ChatService>(ChatService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
+
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -60,6 +63,8 @@ describe('Users suggested friends (e2e)', () => {
       let user3: UserDocument;
       let user4: UserDocument;
       let conversations;
+      let unreadLatestUser3;
+      let unreadLatestUser1;
 
       beforeEach(async () => {
         activeUser = await usersService.create(userFactory.build({
@@ -80,10 +85,11 @@ describe('Users suggested friends (e2e)', () => {
 
         await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message 1.');
         await chatService.sendPrivateDirectMessage(activeUser.id, user2.id, 'Hi, test message 2.');
-        await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
+        unreadLatestUser3 = await chatService.sendPrivateDirectMessage(activeUser.id, user3.id, 'Hi, test message 3.');
 
-        await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
+        unreadLatestUser1 = await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
         await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 2.');
+        await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 3.');
         conversations = await chatService.getConversations(activeUser._id.toString(), 3);
 
         for (let index = 0; index < 5; index += 1) {
@@ -104,6 +110,11 @@ describe('Users suggested friends (e2e)', () => {
         );
       });
       it('returns the expected user initial data', async () => {
+        expect(conversations).toHaveLength(3);
+        expect(conversations[0].latestMessage).toBe('Hi, test reply 3.'); // user2
+        expect(conversations[1].latestMessage).toBe('Hi, test reply 1.'); // user1
+        expect(conversations[2].latestMessage).toBe('Hi, test message 3.'); // user3
+
         const recentMessages = [];
         for (const chat of conversations) {
           chat._id = chat._id.toString();
@@ -123,28 +134,98 @@ describe('Users suggested friends (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           user: pick(activeUser, ['id', 'userName', 'profilePic']),
+          unreadMessageCount: 3,
+          unreadNotificationCount: 5,
+          recentMessages,
+          friendRequestCount: 4,
+          recentFriendRequests: [
+            {
+              _id: user2.id,
+              userName: 'Friend2',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user2.firstName,
+              createdAt: expect.any(String),
+            },
+            {
+              _id: user1.id,
+              userName: 'Friend1',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user1.firstName,
+              createdAt: expect.any(String),
+            },
+            {
+              _id: user3.id,
+              userName: 'Friend3',
+              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+              firstName: user3.firstName,
+              createdAt: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      it('1.`unreadMessageCount` excludes the deleted messags for user, 2. getConversations return non-deleted latest messg', async () => {
+        // deleting `unread1` message, belongs to user1
+        await messageModel.updateOne({ _id: unreadLatestUser1._id }, { $set: { deletefor: [activeUser._id] } });
+
+        // deleting `unread0` message, belongs to user3
+        await messageModel.updateOne({ _id: unreadLatestUser3._id }, { $set: { deletefor: [activeUser._id] } });
+        // We need to refetch conversations as there was only one message for conversation two which is deleted
+        // and thus that converstaion is not returned at all.
+        conversations = await chatService.getConversations(activeUser._id.toString(), 3);
+
+        // conversation for user3 is not returned because the only message is set to `deletefor` for the `activeUser`
+        expect(conversations).toHaveLength(2);
+        expect(conversations[0].latestMessage).toBe('Hi, test reply 3.'); // user2
+        expect(conversations[1].latestMessage).toBe('Hi, test message 1.'); // user1
+
+        const recentMessages = [];
+        for (const chat of conversations) {
+          chat._id = chat._id.toString();
+          chat.updatedAt = chat.updatedAt.toISOString();
+          // eslint-disable-next-line @typescript-eslint/no-loop-func
+          chat.participants = chat.participants.map((participant) => ({
+            ...participant,
+            _id: participant._id.toString(),
+            profilePic: relativeToFullImagePath(configService, participant.profilePic),
+          }));
+          recentMessages.push(chat);
+        }
+        const response = await request(app.getHttpServer())
+          .get('/users/initial-data')
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.status).toEqual(HttpStatus.OK);
+        // Value of `unreadMessageCount` is 2 (instead of 3) as we have set one message set to deleted
+        //  for current user by adding activeUser's id in `deletefor` field of `unread1` message
+        expect(response.body.unreadMessageCount).toBe(2);
+        expect(response.body).toEqual({
+          user: pick(activeUser, ['id', 'userName', 'profilePic']),
           unreadMessageCount: 2,
           unreadNotificationCount: 5,
           recentMessages,
           friendRequestCount: 4,
           recentFriendRequests: [
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user2.id,
               userName: 'Friend2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 3',
+              firstName: 'First name 8',
+              createdAt: expect.any(String),
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user1.id,
               userName: 'Friend1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 2',
+              firstName: 'First name 7',
+              createdAt: expect.any(String),
             },
             {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              _id: user3.id,
               userName: 'Friend3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 4',
+              firstName: 'First name 9',
+              createdAt: expect.any(String),
             },
           ],
         });

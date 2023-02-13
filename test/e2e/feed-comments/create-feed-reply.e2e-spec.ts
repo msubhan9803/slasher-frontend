@@ -1,9 +1,11 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { readdirSync } from 'fs';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -14,6 +16,12 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -22,9 +30,12 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let configService: ConfigService;
-  let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
   let feedCommentsService: FeedCommentsService;
+  let notificationsService: NotificationsService;
+  let blocksModel: Model<BlockAndUnblockDocument>;
+  let feedPost: FeedPostDocument;
+  let feedComment: FeedComment;
 
   const sampleFeedReplyObject = {
     images: [
@@ -48,6 +59,8 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
+    notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -63,20 +76,15 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   });
 
   describe('POST /feed-comments/replies', () => {
-    let feedComments;
     beforeEach(async () => {
+      jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
-      feedPost = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: activeUser._id,
-          },
-        ),
-      );
-      feedComments = await feedCommentsService
+      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
+      feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
           activeUser._id.toString(),
@@ -85,21 +93,50 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         );
     });
 
-    it('successfully creates feed reply with a message and files', async () => {
+    it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/feed-comments/replies')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .expect(HttpStatus.CREATED);
-        expect(response.body.message).toBe('hello test user');
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          feedCommentId: feedComment._id.toString(),
+          message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response when one or more uploads files user an unallowed extension', async () => {
@@ -109,7 +146,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .attach('images', tempPaths[2])
@@ -117,6 +154,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Invalid file type');
       }, [{ extension: 'png' }, { extension: 'tjpg' }, { extension: 'tjpg' }, { extension: 'zpng' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('allows the creation of a reply with only a message, but no files', async () => {
@@ -126,10 +167,17 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
-        .field('userId', activeUser._id.toString())
-        .field('feedCommentId', feedComments._id.toString())
+        .field('feedCommentId', feedComment._id.toString())
         .expect(HttpStatus.CREATED);
-      expect(response.body.message).toBe(message);
+
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'This is a test message',
+        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        images: [],
+      });
     });
 
     it('allows the creation of a reply with only files, but no message', async () => {
@@ -138,11 +186,15 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .post('/feed-comments/replies')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1]);
         expect(response.body.message).toContain('message should not be empty');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('only allows a maximum of four images', async () => {
@@ -152,7 +204,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .attach('images', tempPaths[2])
@@ -161,6 +213,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Only allow a maximum of 4 images');
       }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('responds expected response if file size should not larger than 20MB', async () => {
@@ -170,12 +226,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
       }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
     });
 
     it('check message length validation', async () => {
@@ -185,12 +245,274 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', new Array(8002).join('z'))
-          .field('feedCommentId', feedComments._id.toString())
+          .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when a block exists between the comment creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: postCreatorUser._id,
+          },
+        ),
+      );
+      const feedComment1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          commentCreatorUser._id.toString(),
+          sampleFeedReplyObject.message,
+          sampleFeedReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: commentCreatorUser._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComment1._id.toString());
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (comment owner).',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    });
+
+    it('when a block exists between the post creator and the reply creator, it returns the expected response', async () => {
+      const postCreatorUser = await usersService.create(userFactory.build({}));
+      const commentCreatorUser = await usersService.create(userFactory.build({}));
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: postCreatorUser._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService
+        .createFeedComment(
+          feedPost1.id,
+          commentCreatorUser._id.toString(),
+          sampleFeedReplyObject.message,
+          sampleFeedReplyObject.images,
+        );
+      await blocksModel.create({
+        from: activeUser._id,
+        to: postCreatorUser._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'hello test user')
+        .field('feedCommentId', feedComments1._id.toString());
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block (post owner).',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    });
+
+    it('returns the expected error response if the comment cannot be found', async () => {
+      const nonExistentCommentId = '239ae2550dae24b30c70f6c7';
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments/replies')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', 'Hello')
+        .field('feedCommentId', nonExistentCommentId)
+        .expect(HttpStatus.NOT_FOUND);
+      expect(response.body.message).toContain('Comment not found');
+    });
+
+    describe('when the feed post was created by a user with a non-public profile', () => {
+      let user1;
+      let feedPost1;
+      let feedComment1;
+      beforeEach(async () => {
+        user1 = await usersService.create(userFactory.build({
+          profile_status: ProfileVisibility.Private,
+        }));
+        feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user1._id,
+            },
+          ),
+        );
+        feedComment1 = await feedCommentsService
+          .createFeedComment(
+            feedPost1.id,
+            user1._id.toString(),
+            sampleFeedReplyObject.message,
+            sampleFeedReplyObject.images,
+          );
+      });
+
+      it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments/replies')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedCommentId', feedComment1._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+    });
+
+    describe('notifications', () => {
+      let postCreatorUser;
+      let commentCreatorUser;
+      let otherUser1;
+      let otherUser1AuthToken;
+      let otherUser2;
+      let otherUser3;
+      beforeEach(async () => {
+        postCreatorUser = await usersService.create(userFactory.build());
+        commentCreatorUser = await usersService.create(userFactory.build());
+        otherUser1 = await usersService.create(userFactory.build());
+        otherUser1AuthToken = otherUser1.generateNewJwtToken(configService.get<string>('JWT_SECRET_KEY'));
+        otherUser2 = await usersService.create(userFactory.build());
+        otherUser3 = await usersService.create(userFactory.build());
+      });
+
+      it('sends the expected notifications when the reply user IS NOT the post creator user', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        await request(app.getHttpServer())
+          .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedCommentId', comment._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(2);
+
+        // TODO: Uncomment and fix lines below
+
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: comment._id.toString(),
+        //   feedReplyId: response.body._id,
+        //   senderId: replyCreatorUser._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'replied to a comment on your post',
+        // });
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: comment._id.toString(),
+        //   feedReplyId: response.body._id,
+        //   senderId: replyCreatorUser._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'replied to your comment',
+        // });
+      });
+
+      it('sends the expected notifications when the reply user IS the post creator user', async () => {
+        const post = await feedPostsService.create(feedPostFactory.build({ userId: otherUser1._id }));
+        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        await request(app.getHttpServer())
+          .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('feedCommentId', comment._id.toString())
+          .field('message', 'hello test user')
+          .expect(HttpStatus.CREATED);
+
+        expect(notificationsService.create).toHaveBeenCalledTimes(1);
+
+        // TODO: Uncomment and fix lines below
+
+        // expect(notificationsService.create).toHaveBeenCalledWith({
+        //   userId: postCreatorUser._id.toString(),
+        //   feedPostId: post._id.toString(),
+        //   feedCommentId: comment._id.toString(),
+        //   feedReplyId: response.body._id,
+        //   senderId: replyCreatorUser._id.toString(),
+        //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+        //   notificationMsg: 'replied to a comment on your post',
+        // });
+      });
+
+      it('sends the expected notifications when the reply user is not the post creator user, '
+        + 'AND there are three users mentioned in the message and one is the post creator', async () => {
+          const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
+          const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+          await request(app.getHttpServer())
+            .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('feedCommentId', comment._id.toString())
+            .field(
+              'message',
+              `##LINK_ID##${postCreatorUser._id.toString()}@PostCreatorUser##LINK_END## post creator user`
+              + `##LINK_ID##${otherUser2._id.toString()}@OtherUser2##LINK_END## other user 2`
+              + `##LINK_ID##${otherUser3._id.toString()}@OtherUser3##LINK_END## other user 3`,
+            )
+            .expect(HttpStatus.CREATED);
+
+          expect(notificationsService.create).toHaveBeenCalledTimes(4);
+
+          // TODO: Uncomment and fix lines below
+
+          // expect(notificationsService.create).toHaveBeenCalledWith({
+          //   userId: postCreatorUser._id.toString(),
+          //   feedPostId: post._id.toString(),
+          //   feedCommentId: comment._id.toString(),
+          //   feedReplyId: response.body._id,
+          //   senderId: replyCreatorUser._id.toString(),
+          //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          //   notificationMsg: 'replied to a comment on your post',
+          // });
+          // expect(notificationsService.create).toHaveBeenCalledWith({
+          //   userId: postCreatorUser._id.toString(),
+          //   feedPostId: post._id.toString(),
+          //   feedCommentId: comment._id.toString(),
+          //   feedReplyId: response.body._id,
+          //   senderId: replyCreatorUser._id.toString(),
+          //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          //   notificationMsg: 'replied to your comment',
+          // });
+
+          // expect(notificationsService.create).toHaveBeenCalledWith({
+          //   userId: otherUser2._id.toString(),
+          //   feedPostId: post._id.toString(),
+          //   feedCommentId: comment._id.toString(),
+          //   feedReplyId: response.body._id,
+          //   senderId: replyCreatorUser._id.toString(),
+          //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          //   notificationMsg: 'mentioned you in a comment reply',
+          // });
+
+          // expect(notificationsService.create).toHaveBeenCalledWith({
+          //   userId: otherUser3._id.toString(),
+          //   feedPostId: post._id.toString(),
+          //   feedCommentId: comment._id.toString(),
+          //   feedReplyId: response.body._id,
+          //   senderId: replyCreatorUser._id.toString(),
+          //   notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
+          //   notificationMsg: 'mentioned you in a comment reply',
+          // });
+        });
     });
   });
 });

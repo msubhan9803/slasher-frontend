@@ -84,12 +84,13 @@ export class FeedPostsService {
               { rssfeedProviderId: { $in: rssFeedProviderIds } },
             ],
           },
+          { hideUsers: { $ne: new mongoose.Types.ObjectId(userId) } },
           beforeQuery,
         ],
       })
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
-      .sort({ updatedAt: -1 })
+      .sort({ lastUpdateAt: -1 })
       .limit(limit);
 
     return query.exec();
@@ -177,5 +178,14 @@ export class FeedPostsService {
   // TODO: Add a test for this method
   async findAllByRssFeedId(rssFeedIds: string[]) {
     return this.feedPostModel.find({ rssFeedId: { $in: rssFeedIds } });
+  }
+
+  async hidePost(id: string, userId: string) {
+    const updatedPost = await this.feedPostModel.updateOne(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { $addToSet: { hideUsers: new mongoose.Types.ObjectId(userId) } },
+    );
+
+    return updatedPost;
   }
 }

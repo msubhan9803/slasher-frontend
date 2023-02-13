@@ -7,10 +7,10 @@ interface Props {
 
 const StyledRightSidebarWrapper = styled.div`
   width: 319px;
-  height: calc(100vh - 125px);
+  height: calc(100vh - 93.75px);
   padding-bottom: 75px;
   position: sticky;
-  top: 125px;
+  top: 93.75px;
   padding-right: 1rem;
   overflow-y: overlay;
   overscroll-behavior: contain;

@@ -55,7 +55,7 @@ body {
 
   &.full {
     @media (min-width: 980px) {
-      padding-top: 125px; // To account for fixed top navbar on desktop views
+      padding-top: 93.75px; // To account for fixed top navbar on desktop views
     }
   }
 }

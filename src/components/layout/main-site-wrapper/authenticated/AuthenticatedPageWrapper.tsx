@@ -31,10 +31,10 @@ const StyledOffcanvas = styled(Offcanvas)`
 
 const LeftSidebarWrapper = styled.div`
   width: 142px;
-  height: calc(100vh - 125px);
+  height: calc(100vh - 93.75px);
   padding-bottom: 50px;
   position: sticky;
-  top: 125px;
+  top: 93.75px;
   overflow-y: overlay;
   padding-right: 1rem;
   overscroll-behavior: contain;

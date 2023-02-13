@@ -12,7 +12,6 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 

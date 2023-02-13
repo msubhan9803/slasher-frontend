@@ -15,6 +15,7 @@ import { clearDatabase } from '../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -135,25 +136,25 @@ describe('UserId Posts With Images (e2e)', () => {
       expect(secondResponse.body).toHaveLength(4);
     });
 
-    describe('Validation', () => {
-      it('check user profile status', async () => {
-        const user = await usersService.create(userFactory.build({
-          profile_status: 1,
-        }));
-        await feedPostsService.create(
-          feedPostFactory.build({
-            userId: user._id,
-          }),
-        );
-        const limit = 10;
-        const response = await request(app.getHttpServer())
-          .get(`/users/${user._id}/posts?limit=${limit}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toContain('Profile status not found');
-      });
+    it('denies access when requesting posts with images for a non-friend user with a non-public profile', async () => {
+      const user = await usersService.create(userFactory.build({
+        profile_status: ProfileVisibility.Private,
+      }));
+      await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user._id,
+        }),
+      );
+      const limit = 10;
+      const response = await request(app.getHttpServer())
+        .get(`/users/${user._id}/posts?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.UNAUTHORIZED);
+      expect(response.body.message).toContain('You must be friends with this user to see this content.');
+    });
 
+    describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/users/${activeUser._id}/posts-with-images`)

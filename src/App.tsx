@@ -26,6 +26,7 @@ import ResetPassword from './routes/reset-password/ResetPassword';
 import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
+import SocialGroups from './routes/social-group/SocialGroups';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -57,6 +58,7 @@ const routes: Record<string, TopLevelRoute> = {
   'app/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
   'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
+  'app/groups/*': { wrapper: AuthenticatedPageWrapper, component: SocialGroups },
   // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
   // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
   // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },

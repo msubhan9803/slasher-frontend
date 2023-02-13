@@ -18,40 +18,43 @@ const sidebarMenuList: MenuType[] = [
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1,
   },
   {
-    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
+    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 2,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 3,
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 3,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 4,
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 4,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5,
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 5,
   },
   {
-    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 6,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 6,
   },
   {
-    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 7,
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 7,
   },
   {
-    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 8,
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 8,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 9,
+    label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 9,
   },
   {
-    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 10, to: '/app/music',
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 10,
   },
   {
-    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 11, to: '/app/art',
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 11, to: '/app/music',
   },
   {
-    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/app/help', desktopOnly: true,
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 12, to: '/app/art',
   },
   {
-    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/app/account/settings', desktopOnly: true,
+    label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 13, to: '/app/help', desktopOnly: true,
+  },
+  {
+    label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 14, to: '/app/account/settings', desktopOnly: true,
   },
 ];
 const customSidebarMenuList = enableDevFeatures

@@ -37,8 +37,7 @@ function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
   onSelect, likeCount, commentCount, handleLikeModal,
 }: PostFooterProps) {
-  const showRepost = !!enableDevFeatures;
-  // const showRepost = false;
+  const showRepost = enableDevFeatures;
   return (
     <Card.Footer className="p-0">
       <Row className="justify-content-start py-3">

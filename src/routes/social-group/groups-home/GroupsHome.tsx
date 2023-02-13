@@ -20,11 +20,10 @@ function GroupsHome() {
   const [postsType, setPostsType] = useState('all-groups');
   const posts = homePost;
   const handleResponsivePopoverOptions = () => {
-    const smallScreen = useMediaQuery({ query: `(max-width: ${MD_MEDIA_BREAKPOINT})` });
     /* eslint-disable react-hooks/rules-of-hooks */
+    const smallScreen = useMediaQuery({ query: `(max-width: ${MD_MEDIA_BREAKPOINT})` });
     const mediumScreen = useMediaQuery({ query: `(min-width: ${MD_MEDIA_BREAKPOINT})` })
       && useMediaQuery({ query: `(max-width: ${LG_MEDIA_BREAKPOINT})` });
-    /* eslint-disable react-hooks/rules-of-hooks */
     const largeScreen = useMediaQuery({ query: `(min-width: ${LG_MEDIA_BREAKPOINT})` })
       && useMediaQuery({ query: `(max-width: ${XL_MEDIA_BREAKPOINT})` });
     const xLargeScreen = useMediaQuery({ query: `(min-width: ${XL_MEDIA_BREAKPOINT})` });

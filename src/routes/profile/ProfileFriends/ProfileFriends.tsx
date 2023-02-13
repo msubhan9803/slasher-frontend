@@ -45,6 +45,7 @@ function ProfileFriends({ user }: Props) {
   const [yPositionOfLastFriendElement, setYPositionOfLastFriendElement] = useState<number>(0);
   const loginUserData = useAppSelector((state) => state.user.user);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
+  const [additionalFriend, setAdditionalFriend] = useState<boolean>(false);
 
   const friendsTabs = [
     { value: '', label: 'All friends' },
@@ -62,48 +63,30 @@ function ProfileFriends({ user }: Props) {
     setPopoverClick(popoverClickProps);
   };
 
-  useEffect(() => {
-    setNoMoreData(false);
-    if (page === 0) setFriendsList([]);
+  const fetchMoreFriendList = () => {
     setLoadingFriends(true);
-    /* eslint no-underscore-dangle: 0 */
-    userProfileFriends(user._id, search ? 0 : page, search)
+    userProfileFriends(user._id, page, search)
       .then((res) => {
-        setFriendsList(res.data.friends);
-        setFriendCount(res.data.allFriendCount);
+        setFriendsList((prev: any) => [
+          ...prev,
+          ...res.data.friends,
+        ]);
         setPage(page + 1);
-        setLoadingFriends(false);
-        if (search) {
-          setPage(0);
-        } else {
-          setPage(page + 1);
-        }
         if (res.data.friends.length === 0) {
           setNoMoreData(true);
         }
+        setLoadingFriends(false);
       })
-      .catch((error) => {
-        setErrorMessage(error.response.data.message); setLoadingFriends(false);
-      });
-  }, [search, user]);
-
-  const fetchMoreFriendList = () => {
-    if (page > 0) {
-      setLoadingFriends(true);
-      userProfileFriends(user._id, page, search)
-        .then((res) => {
-          setLoadingFriends(false);
-          setFriendsList((prev: any) => [
-            ...prev,
-            ...res.data.friends,
-          ]);
-          setPage(page + 1);
-          if (res.data.friends.length === 0) {
-            setNoMoreData(true);
-          }
-        });
-    }
+      .catch((error) => setErrorMessage(error.response.data.message))
+      .finally(
+        () => { setAdditionalFriend(false); setLoadingFriends(false); },
+      );
   };
+  useEffect(() => {
+    if ((additionalFriend && !loadingFriends) || search) {
+      fetchMoreFriendList();
+    }
+  }, [additionalFriend, loadingFriends, search]);
   const getYPosition = () => {
     const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
@@ -115,8 +98,7 @@ function ProfileFriends({ user }: Props) {
   useEffect(() => {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
-      if (bottomLine) {
-        if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
+      if (bottomLine && noMoreData && page > 0) {
         fetchMoreFriendList();
       }
     }
@@ -202,8 +184,8 @@ function ProfileFriends({ user }: Props) {
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
             pageStart={0}
-            initialLoad={false}
-            loadMore={fetchMoreFriendList}
+            initialLoad
+            loadMore={() => { setAdditionalFriend(true); }}
             hasMore={!noMoreData}
           >
             <Row className="mt-4" ref={friendContainerElementRef}>

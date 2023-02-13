@@ -161,7 +161,7 @@ export async function uploadUserProfileImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-profile-image`, formData, { headers });
+  return axios.post(`${apiUrl}/users/profile-image`, formData, { headers });
 }
 
 export async function uploadUserCoverImage(file: File) {
@@ -172,7 +172,23 @@ export async function uploadUserCoverImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
+  return axios.post(`${apiUrl}/users/cover-image`, formData, { headers });
+}
+
+export async function removeUserCoverImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/cover-image`, { headers });
+}
+
+export async function reomoveUserProfileImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/users/profile-image`, { headers });
 }
 
 export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {

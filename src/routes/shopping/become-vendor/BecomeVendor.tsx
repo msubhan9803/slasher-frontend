@@ -16,7 +16,7 @@ const noteList = [
   'People on Slasher can follow your shop and get notifIed of new posts.',
 ];
 function BecomeVendor() {
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

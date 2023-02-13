@@ -7,9 +7,9 @@ import {
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setIdentityFields } from '../../../redux/slices/registrationSlice';
-import RoundButton from '../../../components/ui/RoundButton';
 import { validateRegistrationFields } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 interface Props {
   activeStep: number;
@@ -20,6 +20,7 @@ function RegistrationIdentity({ activeStep }: Props) {
   const dispatch = useAppDispatch();
   const identityInfo = useAppSelector((state) => state.registration);
   const [errors, setErrors] = useState<string[]>([]);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const handleChange = (value: string, key: string) => {
     const registerInfoTemp = { ...identityInfo };
@@ -29,13 +30,14 @@ function RegistrationIdentity({ activeStep }: Props) {
 
   const validateAndGoToNextStep = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    setProgressButtonStatus('loading');
     let errorList: string[] = [];
 
     const { firstName, userName, email } = identityInfo;
 
     try {
       const res = await validateRegistrationFields({ firstName, userName, email });
-      if (res.data) errorList = res.data;
+      if (res.data) { errorList = res.data; }
     } catch (requestError: any) {
       errorList = requestError.response.data.message;
     }
@@ -43,9 +45,11 @@ function RegistrationIdentity({ activeStep }: Props) {
     setErrors(errorList);
 
     if (errorList.length > 0) {
+      setProgressButtonStatus('failure');
       return;
     }
 
+    setProgressButtonStatus('success');
     navigate('/app/registration/security');
   };
   return (
@@ -98,14 +102,7 @@ function RegistrationIdentity({ activeStep }: Props) {
           </Form.Group>
           <ErrorMessageList errorMessages={errors} className="m-0" />
           <div className="col-md-4 my-5">
-            <RoundButton
-              variant="primary"
-              className="w-100"
-              type="submit"
-              onClick={validateAndGoToNextStep}
-            >
-              Next step
-            </RoundButton>
+            <ProgressButton label="Next step" className="py-2 w-100  fs-3 fw-bold" onClick={validateAndGoToNextStep} />
           </div>
           <div className="text-center fs-5">
             Already have an account?

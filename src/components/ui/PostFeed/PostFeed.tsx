@@ -283,7 +283,7 @@ function PostFeed({
                 postId={post.id}
                 userName={post.userName}
                 rssfeedProviderId={post.rssfeedProviderId}
-                onLikeClick={() => { if (onLikeClick) onLikeClick(post.id); }}
+                onLikeClick={() => { if (onLikeClick) { onLikeClick(post.id); } }}
                 onSelect={onSelect}
               />
             </Card>
@@ -296,7 +296,7 @@ function PostFeed({
                     pageStart={0}
                     initialLoad
                     loadMore={() => {
-                      if (setRequestAdditionalPosts) setRequestAdditionalPosts(true);
+                      if (setRequestAdditionalPosts) { setRequestAdditionalPosts(true); }
                     }}
                     hasMore={!noMoreData}
                   >

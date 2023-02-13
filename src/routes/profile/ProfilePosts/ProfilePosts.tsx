@@ -7,7 +7,7 @@ import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName, getUser } from '../../../api/users';
+import { getProfilePosts, getSuggestUserName } from '../../../api/users';
 import { User, Post } from '../../../types';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import { MentionProps } from '../../posts/create-post/CreatePost';
@@ -64,7 +64,7 @@ function ProfilePosts({ user }: Props) {
     setDropDownValue(value);
   };
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts && userNameOrId) {
+    if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
       if (scrollPosition === null
         || scrollPosition?.position === 0
         || posts.length >= scrollPosition?.data?.length
@@ -72,58 +72,55 @@ function ProfilePosts({ user }: Props) {
       ) {
         setLoadingPosts(true);
         /* eslint no-underscore-dangle: 0 */
-        getUser(userNameOrId)
-          .then((response: any) => {
-            getProfilePosts(
-              response.data._id,
-              posts.length > 0 ? posts[posts.length - 1]._id : undefined,
-            ).then((res) => {
-              const newPosts = res.data.map((data: any) => (
-                {
-                  /* eslint no-underscore-dangle: 0 */
-                  _id: data._id,
-                  id: data._id,
-                  postDate: data.createdAt,
-                  content: data.message,
-                  images: FormatImageVideoList(data.images, data.message),
-                  userName: data.userId.userName,
-                  profileImage: data.userId.profilePic,
-                  userId: data.userId._id,
-                  likes: data.likes,
-                  likeIcon: data.likes.includes(loginUserId),
-                  likeCount: data.likeCount,
-                  commentCount: data.commentCount,
-                }
-              ));
-              setPosts((prev: Post[]) => [
-                ...prev,
-                ...newPosts,
-              ]);
-              if (res.data.length === 0) { setNoMoreData(true); }
-              if (scrollPosition?.pathname === location.pathname
-                && scrollPosition?.position >= window.pageYOffset) {
-                const positionData = {
-                  pathname: '',
-                  position: 0,
-                  data: [],
-                  positionElementId: '',
-                };
-                dispatch(setScrollPosition(positionData));
-              }
-            }).catch(
-              (error) => {
-                setNoMoreData(true);
-                setErrorMessage(error.response.data.message);
-              },
-            ).finally(
-              () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
-            );
-          });
+        getProfilePosts(
+          user._id,
+          posts.length > 0 ? posts[posts.length - 1]._id : undefined,
+        ).then((res) => {
+          const newPosts = res.data.map((data: any) => (
+            {
+              /* eslint no-underscore-dangle: 0 */
+              _id: data._id,
+              id: data._id,
+              postDate: data.createdAt,
+              content: data.message,
+              images: FormatImageVideoList(data.images, data.message),
+              userName: data.userId.userName,
+              profileImage: data.userId.profilePic,
+              userId: data.userId._id,
+              likes: data.likes,
+              likeIcon: data.likes.includes(loginUserId),
+              likeCount: data.likeCount,
+              commentCount: data.commentCount,
+            }
+          ));
+          setPosts((prev: Post[]) => [
+            ...prev,
+            ...newPosts,
+          ]);
+          if (res.data.length === 0) { setNoMoreData(true); }
+          if (scrollPosition?.pathname === location.pathname
+            && scrollPosition?.position >= window.pageYOffset) {
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              positionElementId: '',
+            };
+            dispatch(setScrollPosition(positionData));
+          }
+        }).catch(
+          (error) => {
+            setNoMoreData(true);
+            setErrorMessage(error.response.data.message);
+          },
+        ).finally(
+          () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+        );
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, loginUserId,
-    posts, scrollPosition, location, dispatch, userNameOrId,
+    requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id, user.userName,
+    posts, scrollPosition, location, dispatch,
   ]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">

@@ -564,7 +564,7 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
@@ -598,7 +598,7 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
@@ -658,7 +658,8 @@ export class UsersController {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    if (user.profile_status !== ProfileVisibility.Public) {
+
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);

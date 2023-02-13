@@ -115,7 +115,7 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    if ((feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
+    if (user.id !== (feedPost.userId as any)._id.toString() && (feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);

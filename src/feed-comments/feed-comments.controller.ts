@@ -80,7 +80,11 @@ export class FeedCommentsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
+
+    if (
+      user.id !== (post.userId as unknown as User)._id.toString()
+      && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
@@ -195,7 +199,10 @@ export class FeedCommentsController {
     if (blockData) {
       throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+    if (
+      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
@@ -293,7 +300,10 @@ export class FeedCommentsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+    if (
+      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
@@ -357,7 +367,10 @@ export class FeedCommentsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
+    if (
+      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);

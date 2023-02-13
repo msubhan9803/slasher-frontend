@@ -242,7 +242,7 @@ function ProfilePosts({ user }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedPost();
+      if (res.status === 200) { callLatestFeedPost(); }
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

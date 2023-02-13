@@ -19,7 +19,7 @@ function News() {
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

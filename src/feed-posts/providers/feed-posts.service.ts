@@ -1,18 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
+import { ConfigService } from '@nestjs/config';
 import { FriendsService } from '../../friends/providers/friends.service';
 import { RssFeedProviderFollowsService } from '../../rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { FeedPostDeletionState, FeedPostStatus } from '../../schemas/feedPost/feedPost.enums';
 import { FeedPost, FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
+import { User, UserDocument } from '../../schemas/user/user.schema';
+import { FriendRequestReaction } from '../../schemas/friend/friend.enums';
+import { relativeToFullImagePath } from '../../utils/image-utils';
+import { FeedPostLike, FeedPostLikeDocument } from '../../schemas/feedPostLike/feedPostLike.schema';
+import { BlocksService } from '../../blocks/providers/blocks.service';
+import { pick } from '../../utils/object-utils';
 
 @Injectable()
 export class FeedPostsService {
   constructor(
     @InjectModel(FeedPost.name) private feedPostModel: Model<FeedPostDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(FeedPostLike.name) private feedLikesModel: Model<FeedPostLikeDocument>,
     private readonly rssFeedProviderFollowsService: RssFeedProviderFollowsService,
     private readonly friendsService: FriendsService,
-  ) { }
+    private readonly blocksService: BlocksService,
+    private configService: ConfigService,
+    ) { }
 
   async create(feedPostData: Partial<FeedPost>): Promise<FeedPostDocument> {
     return this.feedPostModel.create(feedPostData);
@@ -187,5 +198,58 @@ export class FeedPostsService {
     );
 
     return updatedPost;
+  }
+
+  // TODO: SAHIL-FRONTEND: FROM ERIC: And that will also make it easier to reuse the "add friend" button from the profile page, and have it be a shared component that accepts that friendStatus enum
+  async getLikeUsersForPost(postId: string, limit: number, offset = 0, requestingContextUserId?: string) {
+    type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
+    type LikeUserForPost = {
+      _id: mongoose.Schema.Types.ObjectId;
+      userName: string;
+      profilePic: string;
+      firstName: string;
+      friendship?: FriendShip;
+    };
+
+    const filter: any = [{ feedPostId: postId }];
+
+    if (requestingContextUserId) {
+      const blockUserIds = await this.blocksService.getBlockedUserIdsBySender(requestingContextUserId);
+      filter.push({ userId: { $nin: blockUserIds } });
+    }
+    const feedPostLikes = await this.feedLikesModel
+      .find({ $and: filter })
+      .populate('userId', 'userName firstName profilePic _id')
+      .skip(offset)
+      .limit(limit);
+
+    // Return empty array if no feedPostLikes documents found in database
+    if (feedPostLikes.length === 0) {
+      return [];
+    }
+
+    const likeUsersForPost: LikeUserForPost[] = [];
+    let userIdToFriendRecord;
+    if (requestingContextUserId) {
+      userIdToFriendRecord = await this.friendsService
+      .findFriendshipBulk(requestingContextUserId, feedPostLikes.map((feedPostLike) => feedPostLike.userId._id.toString()));
+    }
+    feedPostLikes.forEach((feedPostLike) => {
+      const feedPostLikeUser = feedPostLike.userId;
+      const likeUserForPost: LikeUserForPost = {
+        _id: feedPostLikeUser._id,
+        userName: feedPostLikeUser.userName,
+        profilePic: relativeToFullImagePath(this.configService, feedPostLikeUser.profilePic),
+        firstName: feedPostLikeUser.firstName,
+      };
+      if (requestingContextUserId) {
+        const friend = userIdToFriendRecord[feedPostLikeUser._id.toString()];
+        const friendship: FriendShip = friend ? pick(friend, ['reaction', 'from', 'to']) : null;
+        likeUserForPost.friendship = friendship;
+      }
+      likeUsersForPost.push(likeUserForPost);
+    });
+
+    return likeUsersForPost;
   }
 }

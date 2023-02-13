@@ -105,6 +105,35 @@ describe('FriendsService', () => {
     });
   });
 
+  describe('#findFriendshipBulk', () => {
+    beforeEach(async () => {
+      // create a pending friend request for `user1`
+      await friendsService.createFriendRequest(user0.id, user1.id);
+      // accept friend request for `user2`
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.acceptFriendRequest(user2.id, user0.id);
+    });
+
+    it('returns the expected friend records for `requestingContextUserId` associated with given array of `userIds`', async () => {
+      const requestingContextUserId = user0.id;
+      const users = [user1._id, user2.id, user3.id];
+      const bulkFriendRecords = await friendsService.findFriendshipBulk(requestingContextUserId, users);
+      // NOTE: There is no friend request record for `user3` and thus not record should be returned
+      expect(bulkFriendRecords).toMatchObject({
+        [user1.id]: {
+          reaction: FriendRequestReaction.Pending,
+          from: user0._id,
+          to: user1._id,
+        },
+        [user2.id]: {
+          reaction: FriendRequestReaction.Accepted,
+          from: user2._id,
+          to: user0._id,
+        },
+      });
+    });
+  });
+
   describe('#areFriends', () => {
     let newUser1;
     let newUser2;

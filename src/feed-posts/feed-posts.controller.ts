@@ -24,6 +24,7 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -237,5 +238,26 @@ export class FeedPostsController {
     }
     await this.feedPostsService.hidePost(param.id, user._id);
     return { success: true };
+  }
+
+  @Get(':id/likes')
+  async getLikeUsersForPost(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+    const feedLikeUsers = await this.feedPostsService.getLikeUsersForPost(
+      param.id,
+      query.limit,
+      query.offset,
+      user._id.toString(),
+    );
+    return feedLikeUsers;
   }
 }

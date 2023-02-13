@@ -113,9 +113,10 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: user1._id });
+        expect(response.status).toEqual(HttpStatus.FORBIDDEN);
         expect(response.body).toEqual({
           message: 'Request failed due to user block.',
-          statusCode: 400,
+          statusCode: HttpStatus.FORBIDDEN,
         });
       });
     });
@@ -136,7 +137,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
         const matchListCount = await matchListModel.count();
         expect(matchListCount).toBe(0);
       });

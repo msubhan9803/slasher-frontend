@@ -266,10 +266,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
         .field('feedPostId', feedPost1._id.toString());
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 
@@ -300,7 +300,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
           expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+          expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
       });
     });

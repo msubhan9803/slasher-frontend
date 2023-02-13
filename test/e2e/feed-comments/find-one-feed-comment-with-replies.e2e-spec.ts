@@ -173,10 +173,10 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
         .get(`/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block.',
-        statusCode: 400,
+        statusCode: HttpStatus.FORBIDDEN,
       });
     });
 
@@ -210,7 +210,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You are not friends with this user.' });
+        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
       });
     });
 

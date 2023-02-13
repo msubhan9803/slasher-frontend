@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -12,6 +12,9 @@ import { FriendsService } from '../../../src/friends/providers/friends.service';
 import { Friend, FriendDocument } from '../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums';
 import { clearDatabase } from '../../helpers/mongo-helpers';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;
@@ -27,6 +30,7 @@ describe('Get All Friends (e2e)', () => {
   let configService: ConfigService;
   let friendsService: FriendsService;
   let friendsModel: Model<FriendDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -37,6 +41,7 @@ describe('Get All Friends (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -193,6 +198,35 @@ describe('Get All Friends (e2e)', () => {
           ],
         });
       });
+      it('when user is block than expected response.', async () => {
+        await blocksModel.create({
+          from: activeUser._id,
+          to: user1._id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+        const limit = 3;
+        const response = await request(app.getHttpServer())
+          .get(`/users/${user1._id}/friends?limit=${limit}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual({
+          message: 'User not found',
+          statusCode: 404,
+        });
+      });
+    });
+
+    it('denies access when requesting friends for a non-friend user with a non-public profile', async () => {
+      const user6 = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Private }));
+      const user7 = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Private }));
+      await friendsService.createFriendRequest(user6.id, user7.id);
+      const limit = 10;
+      const response = await request(app.getHttpServer())
+        .get(`/users/${user6._id}/friends?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toContain('You must be friends with this user to perform this action.');
     });
 
     describe('Validation', () => {

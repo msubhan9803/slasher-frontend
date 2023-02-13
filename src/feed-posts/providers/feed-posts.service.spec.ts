@@ -133,6 +133,11 @@ describe('FeedPostsService', () => {
       const feedPostDetails = await feedPostsService.findById(feedPostData._id, true);
       expect(feedPostDetails.message).toEqual(feedPostData.message);
     });
+
+    it("populates the profile_status field on the post's returned userId object", async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost._id, false);
+      expect((feedPostDetails.userId as unknown as User).profile_status).toEqual(activeUser.profile_status);
+    });
   });
 
   describe('#findAllByUser', () => {

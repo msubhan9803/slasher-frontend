@@ -183,7 +183,7 @@ function NewsPartnerPost() {
         .catch((error) => {
           setErrorMessage(error.response?.data.message);
         });
-    } else {
+    } else if (comment.commentMessage || comment.imageArray?.length) {
       addFeedComments(
         postId!,
         comment.commentMessage,

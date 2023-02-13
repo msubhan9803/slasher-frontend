@@ -228,14 +228,14 @@ export class UsersController {
 
     if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
       const exists = await this.usersService.userNameExists(query.userName);
-      if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+      if (exists) { requestedErrorsList.unshift('Username is already associated with an existing user.'); }
 
       const disallowedUsername = await this.disallowedUsernameService.findUserName(query.userName);
-      if (disallowedUsername) requestedErrorsList.unshift('Username is not available.');
+      if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
       const exists = await this.usersService.emailExists(query.email);
-      if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
+      if (exists) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }
 
     return requestedErrorsList;
@@ -460,7 +460,7 @@ export class UsersController {
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
-    if (loggedInUser.id === user.id) pickFields.push('email');
+    if (loggedInUser.id === user.id) { pickFields.push('email'); }
 
     return pick(user, pickFields);
   }

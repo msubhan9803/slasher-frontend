@@ -247,7 +247,7 @@ export class ChatService {
    */
   async markAllReceivedMessagesReadForChat(receiverUserId: string, matchListId: string) {
     const matchListDoc = await this.matchListModel.findById(matchListId);
-    if (!matchListDoc) throw new Error('matchList document not found for given `matchListId`');
+    if (!matchListDoc) { throw new Error('matchList document not found for given `matchListId`'); }
 
     const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
     if (!participants.find((p) => p === receiverUserId)) {
@@ -317,7 +317,7 @@ export class ChatService {
 
   async deleteConversationMessages(userId: string, matchListId: string) {
     const matchListDoc = await this.matchListModel.findById(matchListId);
-    if (!matchListDoc) throw new Error(`matchList document not found for given ${matchListId}`);
+    if (!matchListDoc) { throw new Error(`matchList document not found for given ${matchListId}`); }
 
     const participants = matchListDoc.participants.map((userObjectId) => userObjectId.toString());
     if (!participants.find((p) => p === userId)) {

@@ -41,6 +41,7 @@ module.exports = {
     "no-restricted-syntax": "off", // might re-enable later, but disabling for now
     'jest/expect-expect': ['error', { 'assertFunctionNames': ['expect', 'request.**.expect'] }],
     "spaced-comment": "off",
+    "curly": ["error", "all"]
   },
   overrides: [
     {

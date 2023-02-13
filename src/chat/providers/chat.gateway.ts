@@ -47,7 +47,7 @@ export class ChatGateway {
     const inValidMessage = typeof data.message === 'undefined' || data.message === null || data.message === '';
     const inValidUserId = typeof data.toUserId === 'undefined' || data.toUserId === null;
 
-    if (inValidMessage || inValidUserId) return { success: false, message: null };
+    if (inValidMessage || inValidUserId) { return { success: false, message: null }; }
 
     const user = await this.usersService.findBySocketId(client.id);
     const fromUserId = user._id.toString();
@@ -75,7 +75,7 @@ export class ChatGateway {
   @SubscribeMessage('getMessages')
   async getMessages(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.matchListId === 'undefined' || data.matchListId === null;
-    if (inValidData) return { success: false };
+    if (inValidData) { return { success: false }; }
 
     const user = await this.usersService.findBySocketId(client.id);
     const userId = user._id.toString();
@@ -83,12 +83,12 @@ export class ChatGateway {
     const { matchListId, before } = data;
 
     const matchList = await this.chatService.findMatchList(matchListId, true);
-    if (!matchList) return { error: 'Permission denied' };
+    if (!matchList) { return { error: 'Permission denied' }; }
 
     const matchUserIds = matchList.participants.find(
       (participant) => (participant as any)._id.toString() === userId,
     );
-    if (!matchUserIds) return { error: 'Permission denied' };
+    if (!matchUserIds) { return { error: 'Permission denied' }; }
 
     // If `before` param is undefined, mark all of this conversation's messages TO this user as read,
     // since the user is requesting the LATEST messages in the chat and will then be caught up.
@@ -100,7 +100,7 @@ export class ChatGateway {
     const messages = await this.chatService.getMessages(matchListId, userId, RECENT_MESSAGES_LIMIT, before);
     messages.forEach((messageObject) => {
       if (messageObject.image) {
-          // eslint-disable-next-line no-param-reassign
+        // eslint-disable-next-line no-param-reassign
         messageObject.image = relativeToFullImagePath(this.config, messageObject.image);
       }
     });
@@ -110,13 +110,13 @@ export class ChatGateway {
   @SubscribeMessage('messageRead')
   async markMessageAsRead(@MessageBody() data: any, @ConnectedSocket() client: Socket): Promise<any> {
     const inValidData = typeof data.messageId === 'undefined' || data.messageId === null;
-    if (inValidData) return { success: false };
+    if (inValidData) { return { success: false }; }
 
     const user = await this.usersService.findBySocketId(client.id);
     const { messageId } = data;
 
     const message = await this.chatService.findByMessageId(messageId);
-    if (!message) return { error: 'Message not found' };
+    if (!message) { return { error: 'Message not found' }; }
 
     // Reminder: mesage.senderId is who the message was sent TO
     if (message.senderId.toString() === user.id) {

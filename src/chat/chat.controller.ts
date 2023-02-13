@@ -103,7 +103,7 @@ export class ChatController {
   ) {
     const user = getUserFromRequest(request);
     const matchList = await this.chatService.findMatchList(param.matchListId, true);
-    if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    if (!matchList) { throw new HttpException('Not found', HttpStatus.NOT_FOUND); }
 
     const matchUserIds = (matchList.participants as unknown as User[]).filter(
       (participantUser) => participantUser._id.toString() === user.id,

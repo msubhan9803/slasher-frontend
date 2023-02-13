@@ -163,7 +163,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ statusCode: 403, message: 'You are not friends with this user.' });
+      expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
     });
   });
 });

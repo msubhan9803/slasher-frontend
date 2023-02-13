@@ -565,7 +565,10 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
     if (block) {
@@ -596,7 +599,10 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
     if (block) {
@@ -654,7 +660,10 @@ export class UsersController {
     }
 
     if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('Profile status not found', HttpStatus.UNAUTHORIZED);
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
     }
     const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
     if (block) {

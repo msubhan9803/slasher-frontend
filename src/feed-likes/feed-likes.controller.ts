@@ -47,7 +47,7 @@ export class FeedLikesController {
     ) {
       const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
@@ -112,7 +112,7 @@ export class FeedLikesController {
     ) {
       const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
     }
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);

@@ -19,7 +19,7 @@ import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -85,7 +85,7 @@ export class ChatController {
     }
     const areFriends = await this.friendsService.areFriends(user._id, createOrFindConversationQueryDto.userId);
     if (!areFriends) {
-      throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
       user._id,
@@ -120,7 +120,7 @@ export class ChatController {
   @TransformImageUrls('$.messages[*].image')
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
-    FilesInterceptor('files', 11, {
+    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,

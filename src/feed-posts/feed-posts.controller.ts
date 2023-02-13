@@ -14,7 +14,7 @@ import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
@@ -25,6 +25,7 @@ import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { FriendsService } from '../friends/providers/friends.service';
 
 @Controller('feed-posts')
 export class FeedPostsController {
@@ -36,11 +37,12 @@ export class FeedPostsController {
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
   ) { }
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -58,9 +60,9 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (files.length > 4) {
+    if (files.length > 10) {
       throw new HttpException(
-        'Only allow a maximum of 4 images',
+        'Only allow a maximum of 10 images',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -114,7 +116,10 @@ export class FeedPostsController {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
     if (user.id !== (feedPost.userId as any)._id.toString() && (feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
-      throw new HttpException('You are not friends with this user.', HttpStatus.FORBIDDEN);
+      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
     }
     const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
     if (block) {

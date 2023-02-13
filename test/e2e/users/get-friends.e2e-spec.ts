@@ -14,6 +14,7 @@ import { FriendRequestReaction } from '../../../src/schemas/friend/friend.enums'
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;
@@ -215,20 +216,20 @@ describe('Get All Friends (e2e)', () => {
       });
     });
 
-    describe('Validation', () => {
-      it('check user profile status', async () => {
-        const user6 = await usersService.create(userFactory.build({ profile_status: 1 }));
-        const user7 = await usersService.create(userFactory.build({ profile_status: 1 }));
-        await friendsService.createFriendRequest(user6.id, user7.id);
-        const limit = 10;
-        const response = await request(app.getHttpServer())
-          .get(`/users/${user6._id}/friends?limit=${limit}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.UNAUTHORIZED);
-        expect(response.body.message).toContain('Profile status not found');
-      });
+    it('denies access when requesting friends for a non-friend user with a non-public profile', async () => {
+      const user6 = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Private }));
+      const user7 = await usersService.create(userFactory.build({ profile_status: ProfileVisibility.Private }));
+      await friendsService.createFriendRequest(user6.id, user7.id);
+      const limit = 10;
+      const response = await request(app.getHttpServer())
+        .get(`/users/${user6._id}/friends?limit=${limit}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toContain('You must be friends with this user to perform this action.');
+    });
 
+    describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
           .get(`/users/${activeUser.id}/friends`)

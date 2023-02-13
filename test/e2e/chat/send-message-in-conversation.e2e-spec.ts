@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -173,7 +173,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpeg' }, { extension: 'gif' }]);
       });
 
-      it('if files more than 10 then it will give expected response', async () => {
+      it('only allows a maximum of 10 images', async () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = message1.matchId._id;
           const response = await request(app.getHttpServer())
@@ -191,15 +191,20 @@ describe('Send Message In Conversation / (e2e)', () => {
             .attach('files', tempPath[8])
             .attach('files', tempPath[9])
             .attach('files', tempPath[10])
-            .attach('files', tempPath[11]);
+            .expect(HttpStatus.BAD_REQUEST);
           expect(response.body).toEqual({ statusCode: 400, message: 'Only allow a maximum of 10 images' });
         }, [
-          { extension: 'png' }, { extension: 'png' },
-          { extension: 'jpg' }, { extension: 'png' },
-          { extension: 'jpeg' }, { extension: 'gif' },
-          { extension: 'png' }, { extension: 'png' },
-          { extension: 'png' }, { extension: 'png' },
           { extension: 'png' },
+          { extension: 'png' },
+          { extension: 'png' },
+          { extension: 'png' },
+          { extension: 'jpg' },
+          { extension: 'jpg' },
+          { extension: 'jpg' },
+          { extension: 'jpg' },
+          { extension: 'gif' },
+          { extension: 'gif' },
+          { extension: 'gif' },
         ]);
       });
     });

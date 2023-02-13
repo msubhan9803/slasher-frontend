@@ -200,7 +200,6 @@ export class FeedPostsService {
     return updatedPost;
   }
 
-  // TODO: SAHIL-FRONTEND: FROM ERIC: And that will also make it easier to reuse the "add friend" button from the profile page, and have it be a shared component that accepts that friendStatus enum
   async getLikeUsersForPost(postId: string, limit: number, offset = 0, requestingContextUserId?: string) {
     type FriendShip = { from?: User, to?: User, friendship?: FriendRequestReaction } | null;
     type LikeUserForPost = {

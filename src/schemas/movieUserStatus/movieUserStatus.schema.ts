@@ -43,7 +43,7 @@ export class MovieUserStatus {
 
   @Prop({
     default: MovieUserStatusWatched.NotWatched,
-    enum: [MovieUserStatusWatch.NotWatch, MovieUserStatusWatch.Watch],
+    enum: [MovieUserStatusWatched.NotWatched, MovieUserStatusWatched.Watched],
   })
   watched: MovieUserStatusWatched;
 

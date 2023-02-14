@@ -159,7 +159,7 @@ function NewsPartnerPost() {
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: comment.imageArr,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -183,18 +183,18 @@ function NewsPartnerPost() {
         .catch((error) => {
           setErrorMessage(error.response?.data.message);
         });
-    } else if (comment.commentMessage || comment.imageArray?.length) {
+    } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
         postId!,
         comment.commentMessage,
-        comment.imageArray,
+        comment.imageArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: comment.imageArr,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -249,18 +249,18 @@ function NewsPartnerPost() {
           }).catch((error) => {
             setErrorMessage(error.response.data.message);
           });
-      } else {
+      } else if (reply.replyMessage || reply?.imageArr?.length) {
         addFeedReplyComments(
           postId!,
           reply.replyMessage,
-          reply?.imageArray,
+          reply?.imageArr,
           reply.commentId!,
         ).then((res) => {
           const newReplyArray: any = commentData;
           replyValueData = {
             feedPostId: postId,
             feedCommentId: res.data.feedCommentId,
-            images: reply.imageArray,
+            images: reply.imageArr,
             message: reply.replyMessage,
             userId: userData.user,
             createdAt: new Date().toISOString(),

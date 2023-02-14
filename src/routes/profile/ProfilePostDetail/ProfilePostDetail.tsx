@@ -13,7 +13,7 @@ import { getSuggestUserName } from '../../../api/users';
 import EditPostModal from '../../../components/ui/EditPostModal';
 import ReportModal from '../../../components/ui/ReportModal';
 import {
-  CommentValue, FeedComments, Post, User, ReplyValue,
+  CommentValue, FeedComments, Post, User,
 } from '../../../types';
 import { MentionProps } from '../../posts/create-post/CreatePost';
 import { decryptMessage } from '../../../utils/text-utils';
@@ -168,7 +168,7 @@ function ProfilePostDetail({ user }: Props) {
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: comment.imageArr,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -192,18 +192,18 @@ function ProfilePostDetail({ user }: Props) {
         .catch((error) => {
           setErrorMessage(error.response?.data.message);
         });
-    } else if (comment.commentMessage || comment.imageArray?.length) {
+    } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
         postId!,
         comment.commentMessage,
-        comment.imageArray,
+        comment.imageArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: comment.imageArr,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -220,7 +220,7 @@ function ProfilePostDetail({ user }: Props) {
     }
   };
 
-  const addUpdateReply = (reply: ReplyValue) => {
+  const addUpdateReply = (reply: any) => {
     let replyValueData: any = {
       feedPostId: '',
       feedCommentId: '',
@@ -229,67 +229,66 @@ function ProfilePostDetail({ user }: Props) {
       userId: userData.user,
       createdAt: new Date().toISOString(),
     };
-    if (reply.replyMessage) {
-      if (reply.replyId) {
-        updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
-          .then((res) => {
-            const updateReplyArray: any = commentData;
-            replyValueData = {
-              message: res.data.message,
-              userId: userData.user,
-            };
-            updateReplyArray.map((comment: any) => {
-              const staticReplies = comment.replies;
-              if (comment._id === res.data.feedCommentId) {
-                const index = staticReplies.findIndex(
-                  (replyId: any) => replyId._id === res.data._id,
-                );
-                if (staticReplies[index]._id === res.data._id) {
-                  staticReplies[index] = { ...res.data, ...replyValueData };
-                }
-                return null;
+
+    if (reply.replyId) {
+      updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
+        .then((res) => {
+          const updateReplyArray: any = commentData;
+          replyValueData = {
+            message: res.data.message,
+            userId: userData.user,
+          };
+          updateReplyArray.map((comment: any) => {
+            const staticReplies = comment.replies;
+            if (comment._id === res.data.feedCommentId) {
+              const index = staticReplies.findIndex(
+                (replyId: any) => replyId._id === res.data._id,
+              );
+              if (staticReplies[index]._id === res.data._id) {
+                staticReplies[index] = { ...res.data, ...replyValueData };
               }
               return null;
-            });
-            setCommentData(updateReplyArray);
-            setUpdateState(true);
-            setErrorMessage([]);
-            setIsEdit(false);
-          }).catch((error) => {
-            setErrorMessage(error.response.data.message);
-          });
-      } else {
-        addFeedReplyComments(
-          postId!,
-          reply.replyMessage,
-          reply?.imageArray,
-          reply.commentId!,
-        ).then((res) => {
-          const newReplyArray: any = commentData;
-          replyValueData = {
-            feedPostId: postId,
-            feedCommentId: res.data.feedCommentId,
-            images: reply.imageArray,
-            message: reply.replyMessage,
-            userId: userData.user,
-            createdAt: new Date().toISOString(),
-            new: true,
-          };
-          newReplyArray.map((comment: any) => {
-            const staticReplies = comment.replies;
-            if (comment._id === reply.commentId) {
-              staticReplies.push({ ...replyValueData, _id: res.data._id });
             }
             return null;
           });
-          setCommentData(newReplyArray);
+          setCommentData(updateReplyArray);
           setUpdateState(true);
           setErrorMessage([]);
-          setCommentID('');
+          setIsEdit(false);
         }).catch((error) => {
           setErrorMessage(error.response.data.message);
         });
-      }
+    } else if (reply.replyMessage || reply?.imageArr?.length) {
+      addFeedReplyComments(
+        postId!,
+        reply.replyMessage,
+        reply?.imageArr,
+        reply.commentId!,
+      ).then((res) => {
+        const newReplyArray: any = commentData;
+        replyValueData = {
+          feedPostId: postId,
+          feedCommentId: res.data.feedCommentId,
+          images: reply.imageArr,
+          message: reply.replyMessage,
+          userId: userData.user,
+          createdAt: new Date().toISOString(),
+          new: true,
+        };
+        newReplyArray.map((comment: any) => {
+          const staticReplies = comment.replies;
+          if (comment._id === reply.commentId) {
+            staticReplies.push({ ...replyValueData, _id: res.data._id });
+          }
+          return null;
+        });
+        setCommentData(newReplyArray);
+        setUpdateState(true);
+        setErrorMessage([]);
+        setCommentID('');
+      }).catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
     }
   };
 

@@ -13,6 +13,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -82,13 +83,17 @@ feedReply;
         },
       ),
     );
-    feedReply = await feedCommentsService
-    .createFeedReply(
-      feedComments.id,
-      activeUser.id,
-      feedCommentsAndReplyObject.message,
-      feedCommentsAndReplyObject.images,
+    feedReply = await feedCommentsService.createFeedReply(
+      feedRepliesFactory.build(
+        {
+          userId: activeUser._id,
+          feedCommentId: feedComments.id,
+          message: feedCommentsAndReplyObject.message,
+          images: feedCommentsAndReplyObject.images,
+        },
+      ),
     );
+
     await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
     await feedLikesService.createFeedCommentLike(feedComments.id, user0.id);
     await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);

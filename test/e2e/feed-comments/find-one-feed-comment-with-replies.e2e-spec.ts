@@ -19,6 +19,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/b
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -115,23 +116,30 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user2._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user3._id.toString());
 
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 1',
-          commentImages,
+        const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Comment 1 Test Reply Message 1',
+              images: commentImages,
+            },
+          ),
         );
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), user0._id.toString());
 
-      const feedReply2 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 2',
-          commentImages,
+      const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Comment 1 Test Reply Message 2',
+              images: commentImages,
+            },
+          ),
         );
+
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user1._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());
 

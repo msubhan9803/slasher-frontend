@@ -16,6 +16,7 @@ import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-c
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -94,13 +95,16 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           },
         ),
       );
-      feedReply = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser._id.toString(),
-          'Hello Reply Test Message 1',
-          sampleFeedCommentsObject.images,
-        );
+      feedReply = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully update feed reply messages', async () => {
@@ -155,12 +159,15 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
             },
           ),
         );
-        const reply = await feedCommentsService
-          .createFeedReply(
-            comment._id.toString(),
-            commentCreatorUser.id,
-            `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
-            [],
+        const reply = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: commentCreatorUser._id,
+                feedCommentId: comment.id,
+                message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+                images: [],
+              },
+            ),
           );
         await request(app.getHttpServer())
           .patch(`/feed-comments/replies/${reply._id}`)
@@ -201,13 +208,17 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     });
 
     it('when feed reply id and login user id is not match than expected response', async () => {
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          user0._id.toString(),
-          'Hello Reply Test Message 2',
-          sampleFeedCommentsObject.images,
+      const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user0._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
         );
+
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/replies/${feedReply1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

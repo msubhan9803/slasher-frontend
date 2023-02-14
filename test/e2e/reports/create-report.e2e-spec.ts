@@ -17,6 +17,7 @@ import { ReportAndUnreportService } from '../../../src/reports/providers/report-
 import { ReportAndUnreport, ReportAndUnreportDocument } from '../../../src/schemas/reportAndUnreport/reportAndUnreport.schema';
 import { MailService } from '../../../src/providers/mail.service';
 import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Report And Unreport (e2e)', () => {
   let app: INestApplication;
@@ -99,14 +100,16 @@ describe('Report And Unreport (e2e)', () => {
         },
       ),
     );
-
-    feedReply = await feedCommentsService
-      .createFeedReply(
-        feedComments.id,
-        activeUser.id,
-        feedCommentsAndReplyObject.message,
-        feedCommentsAndReplyObject.images,
-      );
+    feedReply = await feedCommentsService.createFeedReply(
+      feedRepliesFactory.build(
+        {
+          userId: activeUser._id,
+          feedCommentId: feedComments.id,
+          message: feedCommentsAndReplyObject.message,
+          images: feedCommentsAndReplyObject.images,
+        },
+      ),
+    );
   });
 
   it('should be defined', () => {

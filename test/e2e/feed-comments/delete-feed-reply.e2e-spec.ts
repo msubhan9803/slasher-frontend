@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let app: INestApplication;
@@ -88,13 +89,16 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
           },
         ),
       );
-      feedReply = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser._id.toString(),
-          'Hello Reply Test Message 1',
-          sampleFeedCommentsObject.images,
-        );
+      feedReply = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully delete feed reply', async () => {
@@ -117,13 +121,17 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     });
 
     it('when feed reply id and login user id is not match than expected response', async () => {
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          user0._id.toString(),
-          'Hello Reply Test Message 2',
-          sampleFeedCommentsObject.images,
+      const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user0._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
         );
+
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/replies/${feedReply1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

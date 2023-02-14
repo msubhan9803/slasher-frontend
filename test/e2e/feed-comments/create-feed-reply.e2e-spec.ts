@@ -176,10 +176,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
+        feedCommentId: feedComment._id.toString(),
         message: 'This is a test message',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        userId: activeUser._id.toString(),
         images: [],
       });
     });
@@ -193,7 +193,23 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1]);
-        expect(response.body.message).toContain('message should not be empty');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedCommentId: feedComment._id.toString(),
+          feedPostId: feedPost._id.toString(),
+          message: null,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

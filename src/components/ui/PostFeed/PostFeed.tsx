@@ -165,33 +165,33 @@ function PostFeed({
           <div>
             {/* eslint-disable-next-line react/no-danger */}
             <div dangerouslySetInnerHTML={
-            {
-              __html: escapeHtml
-                ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-                : cleanExternalHtmlContent(content),
+              {
+                __html: escapeHtml
+                  ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                  : cleanExternalHtmlContent(content),
+              }
             }
-          }
             />
             {
-            post.hashTag?.map((hashtag: string) => (
-              <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-                #
-                {hashtag}
-              </span>
-            ))
-          }
+              post.hashTag?.map((hashtag: string) => (
+                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                  #
+                  {hashtag}
+                </span>
+              ))
+            }
             {
-            !detailPage
-            && showReadMoreLink
-            && (
-              <>
-                {' '}
-                <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
-                  ...read more
-                </Link>
-              </>
-            )
-          }
+              !detailPage
+              && showReadMoreLink
+              && (
+                <>
+                  {' '}
+                  <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                    ...read more
+                  </Link>
+                </>
+              )
+            }
           </div>
         )
 
@@ -286,7 +286,6 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
-                    // groupHomePosts={groupHomePosts}
                     />
                   </Col>
                 </Row>

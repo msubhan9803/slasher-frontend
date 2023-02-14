@@ -88,7 +88,14 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
     const certificationData = releaseDateForUS?.release_dates?.find(
       (movieCertificate: ReleaseDate) => movieCertificate.certification.length > 0,
     );
-
+    if (!certificationData) {
+      const certificate = aboutMovieDetail?.mainData?.release_dates?.results?.find(
+        (release: MovieReleaseResults) => release.release_dates.find(
+          (movieCertificate: ReleaseDate) => movieCertificate.certification,
+        ),
+      );
+      return certificate?.release_dates[0]?.certification;
+    }
     return certificationData ? certificationData.certification : '';
   };
   const handleBorderButton = () => {
@@ -141,7 +148,7 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
           <StyledBorder className="d-md-none" />
         </Row>
 
-        { enableDevFeatures
+        {enableDevFeatures
           && (
             <Row className="justify-content-between mt-4">
               <Col xs={12} md={3} className="px-0">

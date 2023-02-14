@@ -42,6 +42,9 @@ function GroupsHome() {
   const options = handleResponsivePopoverOptions();
   const applyFilter = () => sortVal && key;
   const handlePopoverOption = () => null;
+  const clearKeyHandler = () => {
+    setKey('');
+  };
   return (
     <div>
       <SocialGroupsHeader
@@ -54,15 +57,28 @@ function GroupsHome() {
         selectedKey={(keyValue: string) => setKey(keyValue)}
         applyFilter={applyFilter}
         groupHomePosts
+        key={key}
+        clearKeyHandler={clearKeyHandler}
       />
-      <div className="w-100 d-none d-md-flex justify-content-center mb-4">
+      {/* <div className="w-100 d-none d-md-flex justify-content-center mb-4">
         <RoundButton size="sm" variant="filter" className="px-3">
           {' '}
           Opinions wanted
           {' '}
           <FontAwesomeIcon icon={solid('x')} size="sm" />
         </RoundButton>
-      </div>
+      </div> */}
+      {key !== ''
+        && (
+          <div className="w-100 d-flex justify-content-center mb-3">
+            <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
+              {' '}
+              {key}
+              {' '}
+              <FontAwesomeIcon icon={solid('x')} size="sm" />
+            </RoundButton>
+          </div>
+        )}
       <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center px-3">
         <p className="m-0 text-center">Select where you want to see posts from:</p>
         <div className="d-flex align-items-center justify-content-center mt-3 mt-md-0 mt-lg-3 mt-xl-0">

@@ -19,6 +19,8 @@ interface GroupsHeaderProps {
   selectedKey?(e: string): void;
   applyFilter?(): void;
   groupHomePosts?: boolean;
+  key?: string;
+  clearKeyHandler?(): void;
 }
 const tabs = [
   { value: 'home', label: 'Groups home' },
@@ -35,7 +37,7 @@ const sortoptions = [
 
 function SocialGroupsHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort,
-  selectedKey, applyFilter, groupHomePosts,
+  selectedKey, applyFilter, groupHomePosts, key, clearKeyHandler,
 }: GroupsHeaderProps) {
   return (
     <>
@@ -54,14 +56,26 @@ function SocialGroupsHeader({
           <Col className="text-center d-md-none my-3">
             <span className="d-flex align-items-center justify-content-center">
               <FilterOptions buttonClass="d-flex align-items-center" setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
-              <span className="d-flex justify-content-start">
+              {/* <span className="d-flex justify-content-start">
                 <RoundButton size="sm" variant="filter" className="px-3">
                   {' '}
                   Opinions wanted
                   {' '}
                   <FontAwesomeIcon icon={solid('x')} size="sm" />
                 </RoundButton>
-              </span>
+              </span> */}
+              {key !== ''
+                && (
+                  <div className="w-100 d-flex justify-content-center mb-3">
+                    <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
+                      Starts with
+                      {' '}
+                      {key}
+                      {' '}
+                      <FontAwesomeIcon icon={solid('x')} size="sm" />
+                    </RoundButton>
+                  </div>
+                )}
             </span>
 
           </Col>
@@ -77,6 +91,7 @@ function SocialGroupsHeader({
             applyFilter={applyFilter}
             sortoptions={sortoptions}
             onSelectSort={sort}
+            groupHomePosts={groupHomePosts}
           />
         )
       }
@@ -89,6 +104,8 @@ SocialGroupsHeader.defaultProps = {
   selectedKey: null,
   applyFilter: null,
   groupHomePosts: false,
+  key: '',
+  clearKeyHandler: undefined,
 };
 
 export default SocialGroupsHeader;

@@ -18,6 +18,7 @@ import findOneFeedCommentsResponse from '../../fixtures/comments/find-one-feed-c
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -98,13 +99,16 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
 
   describe('GET /feed-comments/:feedCommentId', () => {
     it('get single feed comments with reply', async () => {
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          'Comment 1',
-          commentImages,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: 'Comment 1',
+            images: commentImages,
+          },
+        ),
+      );
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user0._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user1._id.toString());
@@ -157,13 +161,16 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          user4._id.toString(),
-          'hello test user',
-          commentImages,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user4._id,
+            feedPostId: feedPost1.id,
+            message: 'hello test user',
+            images: commentImages,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: user4._id,
@@ -195,13 +202,16 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
             },
           ),
         );
-        feedComment1 = await feedCommentsService
-          .createFeedComment(
-            feedPost1.id,
-            user5._id.toString(),
-            'hello test user',
-            commentImages,
-          );
+        feedComment1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user5._id,
+              feedPostId: feedPost1.id,
+              message: 'hello test user',
+              images: commentImages,
+            },
+          ),
+        );
       });
 
       it('should not return the comment when the requesting user is not a friend of the post creator', async () => {

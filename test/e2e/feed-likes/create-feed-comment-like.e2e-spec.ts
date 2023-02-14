@@ -19,6 +19,7 @@ import { NotificationsService } from '../../../src/notifications/providers/notif
 import { NotificationType } from '../../../src/schemas/notification/notification.enums';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Create Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -87,13 +88,16 @@ describe('Create Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      feedComment = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          user0._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      feedComment = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user0._id,
+            feedPostId: feedPost.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully creates a feed comment like, and sends the expected notification', async () => {
@@ -138,13 +142,16 @@ describe('Create Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          user1._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user1._id,
+            feedPostId: feedPost1.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: user1._id,
@@ -170,13 +177,16 @@ describe('Create Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          user1._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user1._id,
+            feedPostId: feedPost1.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: user1._id,
@@ -208,13 +218,16 @@ describe('Create Feed Comment Like (e2e)', () => {
             },
           ),
         );
-        feedComments1 = await feedCommentsService
-          .createFeedComment(
-            feedPost1.id,
-            user1._id.toString(),
-            feedCommentsAndReplyObject.message,
-            feedCommentsAndReplyObject.images,
-          );
+        feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id,
+              feedPostId: feedPost1.id,
+              message: feedCommentsAndReplyObject.message,
+              images: feedCommentsAndReplyObject.images,
+            },
+          ),
+        );
       });
 
       it('should not allow the creation of a comment like when liking user is not a friend of the post creator', async () => {

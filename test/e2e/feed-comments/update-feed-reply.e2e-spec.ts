@@ -15,6 +15,7 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -83,13 +84,16 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
       feedReply = await feedCommentsService
         .createFeedReply(
           feedComments.id,
@@ -141,7 +145,16 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
 
       it('sends notifications to newly-added users in the message, but ignores the comment creator', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, otherUser1.id, 'This is a comment', []);
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: otherUser1._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
         const reply = await feedCommentsService
           .createFeedReply(
             comment._id.toString(),

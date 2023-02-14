@@ -13,6 +13,7 @@ import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema'
 import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -76,13 +77,16 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsDeleteObject.message,
-          sampleFeedCommentsDeleteObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully delete feed comments', async () => {
@@ -105,13 +109,16 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     });
 
     it('when feed comment id and login user id is not match than expected response', async () => {
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          user0._id.toString(),
-          sampleFeedCommentsDeleteObject.message,
-          sampleFeedCommentsDeleteObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user0._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
       const response = await request(app.getHttpServer())
         .delete(`/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

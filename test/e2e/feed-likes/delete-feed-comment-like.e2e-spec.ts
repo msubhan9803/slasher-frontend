@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Delete Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -79,13 +80,17 @@ describe('Delete Feed Comment Like (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
+
       await feedLikesService.createFeedCommentLike(feedComments.id, activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments.id, user0._id.toString());
     });

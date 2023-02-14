@@ -16,6 +16,7 @@ import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-c
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../src/schemas/notification/notification.enums';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -82,13 +83,16 @@ describe('Create Feed Reply Like (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       feedReply = await feedCommentsService
         .createFeedReply(
           feedComments.id,

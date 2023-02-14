@@ -22,6 +22,7 @@ import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/bl
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -84,13 +85,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
       feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
-      feedComment = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      feedComment = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
     });
 
     it('returns the expected response upon successful request', async () => {
@@ -267,13 +271,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           },
         ),
       );
-      const feedComment1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          commentCreatorUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      const feedComment1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: commentCreatorUser._id.toString(),
+            feedPostId: feedPost1.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: commentCreatorUser._id,
@@ -302,13 +309,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          commentCreatorUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: commentCreatorUser._id.toString(),
+            feedPostId: feedPost1.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: postCreatorUser._id,
@@ -354,12 +364,15 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             },
           ),
         );
-        feedComment1 = await feedCommentsService
-          .createFeedComment(
-            feedPost1.id,
-            user1._id.toString(),
-            sampleFeedReplyObject.message,
-            sampleFeedReplyObject.images,
+        feedComment1 = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: user1._id.toString(),
+                feedPostId: feedPost1.id,
+                message: sampleFeedReplyObject.message,
+                images: sampleFeedReplyObject.images,
+              },
+            ),
           );
       });
 
@@ -397,7 +410,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       it('sends the expected notifications when the reply user IS NOT the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
         await request(app.getHttpServer())
           .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -431,7 +453,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       it('sends the expected notifications when the reply user IS the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: otherUser1._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
         await request(app.getHttpServer())
           .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -457,7 +488,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       it('sends the expected notifications when the reply user is not the post creator user, '
         + 'AND there are three users mentioned in the message and one is the post creator', async () => {
           const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-          const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+          const comment = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: commentCreatorUser.id,
+                feedPostId: post.id,
+                message: 'This is a comment',
+                images: [],
+              },
+            ),
+          );
           await request(app.getHttpServer())
             .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')

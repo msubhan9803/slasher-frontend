@@ -22,19 +22,19 @@ function FilterOptions({
     <>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`${buttonClass} fs-3 bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`${buttonClass} fs-3 bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} shadow-none`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />
       </Button>
       {!showSort && (
-      <Button
-        onClick={() => setShowKeys(!showKeys)}
-        className={`py-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
-      >
-        <span className="fs-3">Sort/Filter</span>
-        <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
-      </Button>
+        <Button
+          onClick={() => setShowKeys(!showKeys)}
+          className={`py-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        >
+          <span className="fs-3">Sort/Filter</span>
+          <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
+        </Button>
       )}
     </>
   );

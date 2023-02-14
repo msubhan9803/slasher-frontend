@@ -78,10 +78,10 @@ function FilterModal({
       </Modal.Header>
       <Modal.Body className="pb-5">
         {!groupHomePosts && (
-        <div className="d-lg-none mb-4">
-          <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-          <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
-        </div>
+          <div className="d-lg-none mb-4">
+            <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
+            <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
+          </div>
         )}
         <h2 className={`fs-3 mb-3 ${groupHomePosts ? 'text-primary' : ''} text-center `}>{groupHomePosts ? 'Filters' : 'Title starts with:'}</h2>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
@@ -90,7 +90,7 @@ function FilterModal({
               ? (
                 <Button
                   key={keys}
-                  onClick={() => setKey(keys)}
+                  onClick={() => { selectedKey!(keys); handleCloseKeys(); }}
                   className={`py-2 px-3 text-white fs-3 border shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}
@@ -107,6 +107,7 @@ function FilterModal({
               )
           ))}
         </div>
+        {!groupHomePosts && (
         <RoundButton
           variant="primary"
           type="submit"
@@ -115,6 +116,7 @@ function FilterModal({
         >
           Apply filter
         </RoundButton>
+        )}
       </Modal.Body>
     </CustomModal>
   );

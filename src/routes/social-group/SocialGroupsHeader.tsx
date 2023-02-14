@@ -1,6 +1,6 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
@@ -51,6 +51,7 @@ function SocialGroupsHeader({
         {!noFilter && (
           <Col md={4} className="text-center d-none d-md-inline">
             <FilterOptions
+              buttonClass={`${key !== '' ? 'text-primary' : 'text-white'}`}
               setShowKeys={setShowKeys!}
               showKeys={showKeys!}
               showSort={groupHomePosts}
@@ -63,10 +64,10 @@ function SocialGroupsHeader({
         {!noFilter && groupHomePosts && (
           <Col className="text-center d-md-none my-3">
             <span className="d-flex align-items-center justify-content-center">
-              <FilterOptions buttonClass="d-flex align-items-center" setShowKeys={setShowKeys!} showKeys={showKeys!} showSort={groupHomePosts} />
+              <FilterOptions buttonClass={`${key !== '' ? 'text-primary' : 'text-white'} d-flex align-items-center`} setShowKeys={setShowKeys!} showKeys={showKeys!} showSort={groupHomePosts} />
               {key !== ''
                 && (
-                  <div className="w-100 d-flex justify-content-center mb-3">
+                  <div className="d-flex justify-content-center">
                     <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
                       {' '}
                       {key}

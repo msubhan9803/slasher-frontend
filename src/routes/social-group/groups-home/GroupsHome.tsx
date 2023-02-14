@@ -62,7 +62,7 @@ function GroupsHome() {
       />
       {key !== ''
         && (
-          <div className="w-100 d-flex justify-content-center mb-3">
+          <div className="w-100 d-none d-md-flex d-lg-none d-xl-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               {' '}
               {key}

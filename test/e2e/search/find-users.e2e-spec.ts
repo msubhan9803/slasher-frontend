@@ -64,7 +64,7 @@ describe('Find Users(e2e)', () => {
       configService.get<string>('JWT_SECRET_KEY'),
     );
     await blocksModel.create({
-      from: activeUser._id,
+      from: activeUser.id,
       to: user1._id,
       reaction: BlockAndUnblockReaction.Block,
     });

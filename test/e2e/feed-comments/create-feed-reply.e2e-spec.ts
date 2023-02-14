@@ -83,11 +83,11 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
-      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
+      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser.id }));
       feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser._id.toString(),
+          activeUser.id,
           sampleFeedReplyObject.message,
           sampleFeedReplyObject.images,
         );
@@ -112,7 +112,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           feedPostId: feedPost._id.toString(),
           feedCommentId: feedComment._id.toString(),
           message: 'hello test user',
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -275,7 +275,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           sampleFeedReplyObject.images,
         );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: commentCreatorUser._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -310,7 +310,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           sampleFeedReplyObject.images,
         );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: postCreatorUser._id,
         reaction: BlockAndUnblockReaction.Block,
       });

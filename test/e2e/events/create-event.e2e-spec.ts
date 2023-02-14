@@ -72,7 +72,7 @@ describe('Events create / (e2e)', () => {
     let postBody: any;
     beforeEach(() => {
       postBody = { ...sampleEventCreateObject };
-      postBody.userId = activeUser._id.toString();
+      postBody.userId = activeUser.id;
       postBody.event_type = activeEventCategory._id.toString();
     });
     describe('Successful create', () => {
@@ -104,7 +104,7 @@ describe('Events create / (e2e)', () => {
           expect(response.body).toEqual({
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: 'Event name test',
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
             images: expectedImageValues,
             startDate: `${postBody.startDate}T00:00:00.000Z`,
             endDate: `${postBody.endDate}T00:00:00.000Z`,

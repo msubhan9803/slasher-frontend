@@ -57,7 +57,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .attach('files', tempPaths[2])
@@ -66,7 +66,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -100,7 +100,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .attach('files', tempPaths[2])
@@ -121,12 +121,12 @@ describe('Feed-Post / Post File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
-        .field('userId', activeUser._id.toString())
+        .field('userId', activeUser.id)
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'This is a test message',
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         images: [],
       });
     });
@@ -137,7 +137,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .post('/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.CREATED);
@@ -165,7 +165,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .attach('files', tempPaths[2])
@@ -205,7 +205,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
@@ -224,7 +224,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', new Array(20_002).join('z'))
-          .field('userId', activeUser._id.toString())
+          .field('userId', activeUser.id)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.BAD_REQUEST);

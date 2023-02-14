@@ -65,7 +65,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
-      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
+      feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser.id }));
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
     });
 
@@ -86,7 +86,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           feedPostId: feedPost._id.toString(),
           message: 'hello test user',
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           images: [
             {
               image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
@@ -256,7 +256,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

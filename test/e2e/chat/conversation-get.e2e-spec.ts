@@ -51,7 +51,7 @@ describe('Conversation / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Hi, test message 1.');
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /chat/conversation/:matchListId', () => {
@@ -73,7 +73,7 @@ describe('Conversation / (e2e)', () => {
                 profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
               },
               {
-                _id: activeUser._id.toString(),
+                _id: activeUser.id,
                 userName: 'Username1',
                 firstName: 'First name 1',
                 profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',

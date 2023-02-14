@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
 
@@ -132,4 +132,5 @@ MovieSchema.index(
 //     releaseDate: 1, type: 1, status: 1, deleted: 1, sort_name: 1, sortReleaseDate: 1, sortRating: 1, name: 1,
 //   },
 // );
-export type MovieDocument = Movie & Document;
+export type MovieDocument =  HydratedDocument<Movie>;
+

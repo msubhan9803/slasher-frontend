@@ -85,7 +85,7 @@ export class FeedCommentsController {
       user.id !== (post.userId as unknown as User)._id.toString()
       && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
@@ -203,7 +203,7 @@ export class FeedCommentsController {
       user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
@@ -304,7 +304,7 @@ export class FeedCommentsController {
       user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
@@ -371,7 +371,7 @@ export class FeedCommentsController {
       user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
       }
@@ -429,7 +429,7 @@ export class FeedCommentsController {
           userId: mentionedUserId as any,
           feedPostId: { _id: comment.feedPostId.toString() } as unknown as FeedPost,
           feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
-          senderId: commentCreatorUser._id.toString(),
+          senderId: commentCreatorUser.id,
           notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
           notificationMsg: 'mentioned you in a comment',
         });

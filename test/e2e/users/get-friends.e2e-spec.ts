@@ -169,7 +169,7 @@ describe('Get All Friends (e2e)', () => {
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               userName: 'Star Wars Fan',
               firstName: 'First name 13',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -200,7 +200,7 @@ describe('Get All Friends (e2e)', () => {
       });
       it('when user is block than expected response.', async () => {
         await blocksModel.create({
-          from: activeUser._id,
+          from: activeUser.id,
           to: user1._id,
           reaction: BlockAndUnblockReaction.Block,
         });

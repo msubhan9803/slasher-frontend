@@ -53,7 +53,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
       await notificationsService.create(
         notificationFactory.build({
           is_deleted: NotificationDeletionStatus.NotDeleted,
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
         }),
       );
     }

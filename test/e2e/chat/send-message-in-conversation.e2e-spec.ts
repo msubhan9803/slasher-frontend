@@ -57,10 +57,10 @@ describe('Send Message In Conversation / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
+    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Hi, test message 1.');
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.acceptFriendRequest(activeUser.id, user1._id.toString());
   });
   describe('POST /chat/conversation/:matchListId/message', () => {
     describe('Successfully send message', () => {
@@ -83,7 +83,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
                   message: 'Image',
-                  fromId: activeUser._id.toString(),
+                  fromId: activeUser.id,
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
@@ -96,7 +96,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
                   message: 'Image',
-                  fromId: activeUser._id.toString(),
+                  fromId: activeUser.id,
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
@@ -109,7 +109,7 @@ describe('Send Message In Conversation / (e2e)', () => {
                   _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
                   image: expectedImageValueMatcher,
                   message: 'Image',
-                  fromId: activeUser._id.toString(),
+                  fromId: activeUser.id,
                   senderId: user1._id.toString(),
                   matchId: message1.matchId._id.toString(),
                   createdAt: expect.any(String),
@@ -157,10 +157,10 @@ describe('Send Message In Conversation / (e2e)', () => {
           const user3 = await usersService.create(userFactory.build());
           const message3 = await chatService.sendPrivateDirectMessage(
             user3._id.toString(),
-            activeUser._id.toString(),
+            activeUser.id,
             'Hi, test message 1.',
           );
-          await friendsService.createFriendRequest(activeUser._id.toString(), user3._id.toString());
+          await friendsService.createFriendRequest(activeUser.id, user3._id.toString());
           const matchListId = message3.matchId._id;
           const response = await request(app.getHttpServer())
             .post(`/chat/conversation/${matchListId}/message`)

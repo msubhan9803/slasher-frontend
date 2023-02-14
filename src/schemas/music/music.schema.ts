@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { MusicUnusedFields } from './music.unused-fields';
 
 @Schema({ timestamps: true })
@@ -36,4 +36,4 @@ export class Music extends MusicUnusedFields {
 
 export const MusicSchema = SchemaFactory.createForClass(Music);
 
-export type MusicDocument = Music & Document;
+export type MusicDocument =  HydratedDocument<Music>;

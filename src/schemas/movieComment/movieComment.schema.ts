@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { MovieCommentUnusedFields } from './movieComment.unused-fields';
 
 @Schema({ timestamps: true })
@@ -33,4 +33,5 @@ export class MovieComment extends MovieCommentUnusedFields {
 
 export const MovieCommentSchema = SchemaFactory.createForClass(MovieComment);
 
-export type MovieCommentDocument = MovieComment & Document;
+export type MovieCommentDocument =  HydratedDocument<MovieComment>;
+

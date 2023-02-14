@@ -70,30 +70,30 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     await friendsModel.create({
-      from: activeUser._id.toString(),
+      from: activeUser.id,
       to: user1._id.toString(),
       reaction: FriendRequestReaction.Accepted,
     });
     await friendsModel.create({
       from: user2._id.toString(),
-      to: activeUser._id.toString(),
+      to: activeUser.id,
       reaction: FriendRequestReaction.Accepted,
     });
     await rssFeedProviderFollowsService.create(
       {
-        userId: activeUser._id,
+        userId: activeUser.id,
         rssfeedProviderId: rssFeedProviderData._id,
       },
     );
     await rssFeedProviderFollowsService.create(
       {
-        userId: activeUser._id,
+        userId: activeUser.id,
         rssfeedProviderId: rssFeedProviderData2._id,
       },
     );
     await feedPostsService.create(
       feedPostFactory.build({
-        userId: activeUser._id,
+        userId: activeUser.id,
         rssfeedProviderId: rssFeedProviderData._id,
         createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
         updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),

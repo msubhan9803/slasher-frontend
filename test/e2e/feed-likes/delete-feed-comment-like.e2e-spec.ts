@@ -75,18 +75,18 @@ describe('Delete Feed Comment Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser._id.toString(),
+          activeUser.id,
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
-      await feedLikesService.createFeedCommentLike(feedComments.id, activeUser._id.toString());
+      await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
       await feedLikesService.createFeedCommentLike(feedComments.id, user0._id.toString());
     });
 

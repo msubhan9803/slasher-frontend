@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable max-lines */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { UserUnusedFields } from './user.unused-fields';
@@ -235,4 +235,5 @@ UserSchema.methods.generateNewJwtToken = User.prototype.generateNewJwtToken;
 UserSchema.methods.addOrUpdateDeviceEntry = User.prototype.addOrUpdateDeviceEntry;
 UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;
 
-export type UserDocument = User & Document;
+export type UserDocument = HydratedDocument<User>;
+

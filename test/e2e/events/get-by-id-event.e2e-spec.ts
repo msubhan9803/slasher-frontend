@@ -57,7 +57,7 @@ describe('Events / :id (e2e)', () => {
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
-      userId: activeUser._id,
+      userId: activeUser.id,
       event_type: activeEventCategory,
       status: EventActiveStatus.Active,
       startDate: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
@@ -99,7 +99,7 @@ describe('Events / :id (e2e)', () => {
 
       it('returns the expected response (with placeholder image) when the event has no images', async () => {
         activeEvent1 = await eventService.create(eventsFactory.build({
-          userId: activeUser._id,
+          userId: activeUser.id,
           event_type: activeEventCategory,
           status: EventActiveStatus.Active,
           images: [],

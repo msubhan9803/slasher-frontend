@@ -90,7 +90,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser._id,
+          userId: activeUser.id,
         },
       ),
     );
@@ -101,11 +101,11 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       const feedComments1 = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser._id.toString(),
+          activeUser.id,
           'Comment 1',
           commentImages,
         );
-      await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), activeUser._id.toString());
+      await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), activeUser.id);
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user0._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user1._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user2._id.toString());
@@ -114,17 +114,17 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       const feedReply1 = await feedCommentsService
         .createFeedReply(
           feedComments1._id.toString(),
-          activeUser._id.toString(),
+          activeUser.id,
           'Hello Comment 1 Test Reply Message 1',
           commentImages,
         );
-      await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser._id.toString());
+      await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser.id);
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), user0._id.toString());
 
       const feedReply2 = await feedCommentsService
         .createFeedReply(
           feedComments1._id.toString(),
-          activeUser._id.toString(),
+          activeUser.id,
           'Hello Comment 1 Test Reply Message 2',
           commentImages,
         );
@@ -165,7 +165,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
           commentImages,
         );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user4._id,
         reaction: BlockAndUnblockReaction.Block,
       });

@@ -78,14 +78,14 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
       feedComment = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser._id.toString(),
+          activeUser.id,
           sampleFeedCommentsObject.message,
           sampleFeedCommentsObject.images,
         );

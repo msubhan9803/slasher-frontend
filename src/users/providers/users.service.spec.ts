@@ -58,7 +58,7 @@ describe('UsersService', () => {
       );
       userData.verification_token = uuidv4();
       const user = await usersService.create(userData);
-      expect(await usersService.findById(user._id)).toBeTruthy();
+      expect(await usersService.findById(user.id)).toBeTruthy();
     });
   });
 
@@ -278,7 +278,7 @@ describe('UsersService', () => {
         userName: 'test1_user',
       };
       const updatedUser = await usersService.update(user._id, userData);
-      const reloadedUser = await usersService.findById(updatedUser._id);
+      const reloadedUser = await usersService.findById(updatedUser.id);
       expect(reloadedUser.firstName).toEqual(userData.firstName);
       expect(reloadedUser.userName).toEqual(userData.userName);
       expect(reloadedUser.email).toEqual(user.email);

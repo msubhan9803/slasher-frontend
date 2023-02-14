@@ -61,8 +61,8 @@ describe('Conversations all / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
-    await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message 2.');
+    await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Hi, test message 1.');
+    await chatService.sendPrivateDirectMessage(activeUser.id, user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /chat/conversations', () => {
     describe('Successful get all conversations', () => {
@@ -84,7 +84,7 @@ describe('Conversations all / (e2e)', () => {
                   profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
                 },
                 {
-                  _id: activeUser._id.toString(),
+                  _id: activeUser.id,
                   userName: 'Username1',
                   profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
                 },
@@ -101,10 +101,10 @@ describe('Conversations all / (e2e)', () => {
 
     describe('when `before` argument is supplied', () => {
       beforeEach(async () => {
-        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user0._id.toString(), 'Hi, test message 1.');
-        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user2._id.toString(), 'Hi, test message 3.');
-        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user3._id.toString(), 'Hi, test message 4.');
-        await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user4._id.toString(), 'Hi, test message 5.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user0._id.toString(), 'Hi, test message 1.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user2._id.toString(), 'Hi, test message 3.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user3._id.toString(), 'Hi, test message 4.');
+        await chatService.sendPrivateDirectMessage(activeUser.id, user4._id.toString(), 'Hi, test message 5.');
       });
       it('get expected first and second sets of paginated results', async () => {
         const limit = 3;
@@ -172,14 +172,14 @@ describe('Conversations all / (e2e)', () => {
     let m3;
     let m4;
     beforeEach(async () => {
-      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
-      m2 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 2');
-      m3 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Send 3');
-      m4 = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Reply 1');
+      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Send 1');
+      m2 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Send 2');
+      m3 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser.id, 'Send 3');
+      m4 = await chatService.sendPrivateDirectMessage(activeUser.id, user1._id.toString(), 'Reply 1');
     });
 
     it('Mark all received messages as `Read` for a given chat (matchListId)', async () => {
-      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
+      m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Send 1');
       const matchId = m1.matchId._id;
       const response = await request(app.getHttpServer())
         .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
@@ -201,7 +201,7 @@ describe('Conversations all / (e2e)', () => {
 
     describe('validation', () => {
       it('when param `matchListId` is not a valid mongo id', async () => {
-        m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
+        m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Send 1');
         const matchId = 'BAD_MONGO_OBJECT_ID';
         const response = await request(app.getHttpServer())
           .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)

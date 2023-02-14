@@ -55,8 +55,8 @@ describe('Conversation / (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
-    message2 = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Reply, test message 2.');
+    message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser.id, 'Hi, test message 1.');
+    message2 = await chatService.sendPrivateDirectMessage(activeUser.id, user1._id.toString(), 'Reply, test message 2.');
     message3 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('DELETE /chat/conversation/:matchListId', () => {
@@ -69,10 +69,10 @@ describe('Conversation / (e2e)', () => {
           .send();
           expect(response.body).toEqual({ success: true });
         const messageData1 = await messageModel.findById(message1._id.toString());
-        expect(messageData1.deletefor.map((u) => u.toString())).toContain(activeUser._id.toString());
+        expect(messageData1.deletefor.map((u) => u.toString())).toContain(activeUser.id);
 
         const messageData2 = await messageModel.findById(message2._id.toString());
-        expect(messageData2.deletefor.map((u) => u.toString())).toContain(activeUser._id.toString());
+        expect(messageData2.deletefor.map((u) => u.toString())).toContain(activeUser.id);
       });
 
       it('when active user is not a participant it returns the expected error response', async () => {

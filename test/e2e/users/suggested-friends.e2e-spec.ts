@@ -52,12 +52,12 @@ describe('Users suggested friends (e2e)', () => {
     user2 = await usersService.create(userFactory.build({ userName: 'Freddy' }));
     user3 = await usersService.create(userFactory.build({ userName: 'Count Orlok' }));
 
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.createFriendRequest(user2._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(user3._id.toString(), activeUser._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.createFriendRequest(user2._id.toString(), activeUser.id);
+    await friendsService.createFriendRequest(user3._id.toString(), activeUser.id);
 
-    await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.acceptFriendRequest(user2._id.toString(), activeUser._id.toString());
+    await friendsService.acceptFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.acceptFriendRequest(user2._id.toString(), activeUser.id);
   });
 
   describe('GET /users/suggested-friends', () => {

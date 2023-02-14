@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { RssFeedProviderActiveStatus, RssFeedProviderDeletionStatus } from './rssFeedProvider.enums';
 import { RssFeedProviderUnusedFields } from './rssFeedProvider.unused-fields';
 
@@ -75,4 +75,5 @@ RssFeedProviderSchema.index(
     auto_follow: 1, deleted: 1, status: 1,
   },
 );
-export type RssFeedProviderDocument = RssFeedProvider & Document;
+
+export type RssFeedProviderDocument = HydratedDocument<RssFeedProvider>;

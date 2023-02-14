@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { MovieReplyUnusedFields } from './movieReply.unused-fields';
 
 // Note: {collection: 'moviereplays'} below is deliberate.  Unfortunately, the old API app had a typo
@@ -35,4 +35,4 @@ export class MovieReply extends MovieReplyUnusedFields {
 
 export const MovieReplySchema = SchemaFactory.createForClass(MovieReply);
 
-export type MovieReplyDocument = MovieReply & Document;
+export type MovieReplyDocument =  HydratedDocument<MovieReply>;

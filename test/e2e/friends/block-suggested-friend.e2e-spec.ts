@@ -60,7 +60,7 @@ describe('Block suggested friend (e2e)', () => {
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
-      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user1._id });
+      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser.id, to: user1._id });
       expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });
 
@@ -78,7 +78,7 @@ describe('Block suggested friend (e2e)', () => {
         .send({ userId: user2._id })
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
-      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser._id, to: user2._id });
+      const suggestBlockData = await suggestBlockModel.findOne({ from: activeUser.id, to: user2._id });
       expect(suggestBlockData.reaction).toBe(SuggestBlockReaction.Block);
     });
 

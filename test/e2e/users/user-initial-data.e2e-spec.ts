@@ -90,7 +90,7 @@ describe('Users suggested friends (e2e)', () => {
         unreadLatestUser1 = await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test reply 1.');
         await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 2.');
         await chatService.sendPrivateDirectMessage(user2.id, activeUser.id, 'Hi, test reply 3.');
-        conversations = await chatService.getConversations(activeUser._id.toString(), 3);
+        conversations = await chatService.getConversations(activeUser.id, 3);
 
         for (let index = 0; index < 5; index += 1) {
           await notificationsService.create(
@@ -166,13 +166,13 @@ describe('Users suggested friends (e2e)', () => {
 
       it('1.`unreadMessageCount` excludes the deleted messags for user, 2. getConversations return non-deleted latest messg', async () => {
         // deleting `unread1` message, belongs to user1
-        await messageModel.updateOne({ _id: unreadLatestUser1._id }, { $set: { deletefor: [activeUser._id] } });
+        await messageModel.updateOne({ _id: unreadLatestUser1._id }, { $set: { deletefor: [activeUser.id] } });
 
         // deleting `unread0` message, belongs to user3
-        await messageModel.updateOne({ _id: unreadLatestUser3._id }, { $set: { deletefor: [activeUser._id] } });
+        await messageModel.updateOne({ _id: unreadLatestUser3._id }, { $set: { deletefor: [activeUser.id] } });
         // We need to refetch conversations as there was only one message for conversation two which is deleted
         // and thus that converstaion is not returned at all.
-        conversations = await chatService.getConversations(activeUser._id.toString(), 3);
+        conversations = await chatService.getConversations(activeUser.id, 3);
 
         // conversation for user3 is not returned because the only message is set to `deletefor` for the `activeUser`
         expect(conversations).toHaveLength(2);

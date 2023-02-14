@@ -58,12 +58,12 @@ describe('All Feed Post (e2e)', () => {
     for (let i = 0; i < 5; i += 1) {
       await feedPostsService.create(
         feedPostFactory.build({
-          userId: activeUser._id,
+          userId: activeUser.id,
         }),
       );
       await feedPostsService.create(
         feedPostFactory.build({
-          userId: activeUser._id,
+          userId: activeUser.id,
           is_deleted: FeedPostDeletionState.Deleted,
           status: FeedPostStatus.Inactive,
         }),
@@ -75,7 +75,7 @@ describe('All Feed Post (e2e)', () => {
     it('when earlier than post id is not exist than expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts?limit=${limit}`)
+        .get(`/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -112,7 +112,7 @@ describe('All Feed Post (e2e)', () => {
     it('when user is block than expected response.', async () => {
       const user1 = await usersService.create(userFactory.build());
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -132,14 +132,14 @@ describe('All Feed Post (e2e)', () => {
     it('get expected first and second sets of paginated results', async () => {
       const limit = 3;
       const firstResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts?limit=${limit}`)
+        .get(`/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(firstResponse.status).toEqual(HttpStatus.OK);
       expect(firstResponse.body).toHaveLength(3);
 
       const secondResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+        .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -167,7 +167,7 @@ describe('All Feed Post (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts`)
+          .get(`/users/${activeUser.id}/posts`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -177,13 +177,13 @@ describe('All Feed Post (e2e)', () => {
         feedPost = await feedPostsService.create(
           feedPostFactory.build(
             {
-              userId: activeUser._id,
+              userId: activeUser.id,
             },
           ),
         );
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${feedPost._id}`)
+          .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -193,13 +193,13 @@ describe('All Feed Post (e2e)', () => {
         feedPost = await feedPostsService.create(
           feedPostFactory.build(
             {
-              userId: activeUser._id,
+              userId: activeUser.id,
             },
           ),
         );
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts?limit=${limit}&before=${feedPost._id}`)
+          .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 30');

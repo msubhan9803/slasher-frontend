@@ -50,10 +50,10 @@ describe('Get Friends (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user3._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.createFriendRequest(user1._id.toString(), activeUser.id);
+    await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user3._id.toString());
   });
 
   describe('Get /friends/requests/sent', () => {

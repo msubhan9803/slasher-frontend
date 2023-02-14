@@ -83,7 +83,7 @@ describe('Create Feed Comment Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -107,13 +107,13 @@ describe('Create Feed Comment Like (e2e)', () => {
       expect(response.body).toEqual({ success: true });
 
       const reloadedFeedComment = await feedCommentsService.findFeedComment(feedComment.id);
-      expect(reloadedFeedComment.likes).toContainEqual(activeUser._id);
+      expect(reloadedFeedComment.likes).toContainEqual(activeUser.id);
 
       expect(notificationsService.create).toHaveBeenCalledWith({
         userId: reloadedFeedComment.userId as any,
         feedPostId: { _id: reloadedFeedComment.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedComment._id } as unknown as FeedComment,
-        senderId: activeUser._id,
+        senderId: activeUser.id,
         notifyType: NotificationType.UserLikedYourComment,
         notificationMsg: 'liked your comment',
       });
@@ -146,7 +146,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           feedCommentsAndReplyObject.images,
         );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -166,7 +166,7 @@ describe('Create Feed Comment Like (e2e)', () => {
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -178,7 +178,7 @@ describe('Create Feed Comment Like (e2e)', () => {
           feedCommentsAndReplyObject.images,
         );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

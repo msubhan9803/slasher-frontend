@@ -69,7 +69,7 @@ describe('Events update / :id (e2e)', () => {
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
     activeEvent = await eventService.create(eventsFactory.build({
-      userId: activeUser._id,
+      userId: activeUser.id,
       event_type: activeEventCategory,
     }));
     activeUserAuthToken = activeUser.generateNewJwtToken(

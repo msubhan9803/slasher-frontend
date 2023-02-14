@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { BlockAndUnblockReaction } from './blockAndUnblock.enums';
 import { BlockAndUnblockUnusedFields } from './blockAndUnblock.unused-fields';
@@ -67,4 +67,4 @@ BlockAndUnblockSchema.index(
   },
 );
 
-export type BlockAndUnblockDocument = BlockAndUnblock & Document;
+export type BlockAndUnblockDocument = HydratedDocument<BlockAndUnblock>;

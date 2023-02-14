@@ -64,7 +64,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     );
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     await friendsModel.create({
-      from: activeUser._id.toString(),
+      from: activeUser.id,
       to: user1._id.toString(),
       reaction: FriendRequestReaction.Accepted,
     });

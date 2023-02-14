@@ -2,14 +2,10 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { apiUrl } from '../constants';
 
-export async function getMusic(search = '', sortValue = '') {
+export async function getMusic() {
   const token = Cookies.get('sessionToken');
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  let queryParameter = `?limit=20&sortBy=${sortValue}`;
-  if (search) {
-    queryParameter += `&nameContains=${search}`;
-  }
-  return axios.get(`${apiUrl}/music${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/music`, { headers });
 }

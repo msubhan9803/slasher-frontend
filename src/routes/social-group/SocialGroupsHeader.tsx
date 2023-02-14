@@ -1,6 +1,6 @@
+import React from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 import FilterModal from '../../components/filter-sort/FilterModal';
 import FilterOptions from '../../components/filter-sort/FilterOptions';
@@ -47,7 +47,7 @@ function SocialGroupsHeader({
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
         </Col>
         <Col md={4} className="text-center d-none d-md-inline">
-          <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
+          <FilterOptions buttonClass={`${key !== '' ? 'text-primary' : 'text-white'}`} setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
         </Col>
         <Col xs={groupHomePosts ? 6 : 12} md={4} className={`${groupHomePosts ? 'mt-3 mt-md-0 d-block order-second order-md-third' : 'd-none d-lg-block'}`}>
           <SortData onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
@@ -55,20 +55,11 @@ function SocialGroupsHeader({
         {groupHomePosts && (
           <Col className="text-center d-md-none my-3">
             <span className="d-flex align-items-center justify-content-center">
-              <FilterOptions buttonClass="d-flex align-items-center" setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
-              {/* <span className="d-flex justify-content-start">
-                <RoundButton size="sm" variant="filter" className="px-3">
-                  {' '}
-                  Opinions wanted
-                  {' '}
-                  <FontAwesomeIcon icon={solid('x')} size="sm" />
-                </RoundButton>
-              </span> */}
+              <FilterOptions buttonClass={`${key !== '' ? 'text-primary' : 'text-white'} d-flex align-items-center`} setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
               {key !== ''
                 && (
-                  <div className="w-100 d-flex justify-content-center mb-3">
+                  <div className="d-flex justify-content-center">
                     <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
-                      Starts with
                       {' '}
                       {key}
                       {' '}

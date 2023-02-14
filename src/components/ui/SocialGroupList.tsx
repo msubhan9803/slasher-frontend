@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from 'react-bootstrap';
 import RoundButton from './RoundButton';
 
-function SocialGroupListItem({ listItems }: any) {
+function SocialGroupList({ listItems }: any) {
   return (
     listItems.map((item: any) => (
       <div className="mb-3 p-3 rounded-3" key={item._id} style={{ backgroundColor: '#1b1b1b' }}>
@@ -44,4 +44,4 @@ function SocialGroupListItem({ listItems }: any) {
   );
 }
 
-export default SocialGroupListItem;
+export default SocialGroupList;

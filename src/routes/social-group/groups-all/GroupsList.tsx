@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import SocialGroupListItem from '../../../components/ui/SocialGroupListItem';
-import { listAll } from '../GroupsData';
+import SocialGroupList from '../../../components/ui/SocialGroupList';
+import { listAll } from '../SocialGroupListItem';
 import SocialGroupsHeader from '../SocialGroupsHeader';
 
 function GroupsList() {
@@ -18,7 +18,7 @@ function GroupsList() {
         noFilter
       />
       <div className="mt-3">
-        <SocialGroupListItem listItems={listAll} />
+        <SocialGroupList listItems={listAll} />
       </div>
     </div>
   );

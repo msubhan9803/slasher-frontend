@@ -5,7 +5,7 @@ import { useMediaQuery } from 'react-responsive';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import RoundButton from '../../../components/ui/RoundButton';
 import SocialGroupsHeader from '../SocialGroupsHeader';
-import { homePost } from '../GroupsData';
+import { homePost } from '../SocialGroupListItem';
 import {
   LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT,
 } from '../../../constants';

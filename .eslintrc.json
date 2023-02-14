@@ -26,7 +26,6 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "linebreak-style": ["error", "windows"],
         "import/extensions": "off",
         "react/prop-types": "off",
         "react/react-in-jsx-scope": "off",

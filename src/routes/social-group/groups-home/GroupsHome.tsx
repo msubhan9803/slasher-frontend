@@ -60,14 +60,6 @@ function GroupsHome() {
         key={key}
         clearKeyHandler={clearKeyHandler}
       />
-      {/* <div className="w-100 d-none d-md-flex justify-content-center mb-4">
-        <RoundButton size="sm" variant="filter" className="px-3">
-          {' '}
-          Opinions wanted
-          {' '}
-          <FontAwesomeIcon icon={solid('x')} size="sm" />
-        </RoundButton>
-      </div> */}
       {key !== ''
         && (
           <div className="w-100 d-flex justify-content-center mb-3">

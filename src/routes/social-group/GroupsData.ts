@@ -51,3 +51,48 @@ export const homePost = [
     type: 'Movie review',
   },
 ];
+
+export const listAll = [
+  {
+    _id: 'list01',
+    contentHeading: 'Slasher feedback & feature requests',
+    content: 'How can we make Slasher better for you?',
+    ljGroup: false,
+    pinned: true,
+  },
+  {
+    _id: 'list02',
+    contentHeading: 'Slasher frequently asked questions',
+    content: 'Get answers to common questions here',
+    ljGroup: false,
+    pinned: true,
+  },
+  {
+    _id: 'list03',
+    contentHeading: 'Slasher news & updates',
+    content: 'The latest on new features and app updates',
+    ljGroup: true,
+    pinned: true,
+  },
+  {
+    _id: 'list04',
+    contentHeading: 'Art',
+    content: 'Horror art & artists',
+    ljGroup: true,
+    pinned: false,
+  },
+  {
+    _id: 'list05',
+    contentHeading: 'Black Horror World',
+    content: 'Horror in the world of black cinema',
+    ljGroup: false,
+    pinned: false,
+  },
+  {
+    _id: 'list06',
+    contentHeading: 'Blogs & Vlogs',
+    content: 'Share your favorite horror blogs &  vlogs',
+    ljGroup: true,
+    pinned: false,
+  },
+];

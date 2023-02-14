@@ -129,11 +129,11 @@ function PostHeader({
               </div>
             </div>
           )}
-          {!groupHomePosts && (
+          {/* {!groupHomePosts && ( */}
           <div className="d-md-none d-lg-block d-xl-none me-2">
             <ShareLinkButton />
           </div>
-          )}
+          {/* )} */}
           <CustomPopover
             popoverOptions={popoverOptions!}
             onPopoverClick={onPopoverClick!}

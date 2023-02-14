@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ContentSidbarWrapper, ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
+import GroupsDetail from './groups-detail/GroupsDetail';
 import GroupsHome from './groups-home/GroupsHome';
 
 function SocialGroups() {
@@ -11,6 +12,7 @@ function SocialGroups() {
       <ContentPageWrapper>
         <Routes>
           <Route path="home" element={<GroupsHome />} />
+          <Route path=":groupId" element={<GroupsDetail />} />
           <Route path="*" element={<Navigate to="home" replace />} />
         </Routes>
       </ContentPageWrapper>

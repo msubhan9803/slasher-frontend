@@ -8,6 +8,7 @@ import SortData from '../../components/filter-sort/SortData';
 import CustomSearchInput from '../../components/ui/CustomSearchInput';
 import RoundButton from '../../components/ui/RoundButton';
 import TabLinks from '../../components/ui/Tabs/TabLinks';
+import SocialGroupListCard from '../../components/ui/SocialGroupListCard';
 
 interface GroupsHeaderProps {
   tabKey: string;
@@ -21,6 +22,7 @@ interface GroupsHeaderProps {
   groupHomePosts?: boolean;
   key?: string;
   clearKeyHandler?(): void;
+  data?: any;
 }
 const tabs = [
   { value: 'home', label: 'Groups home' },
@@ -38,10 +40,12 @@ const sortoptions = [
 function SocialGroupsHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort,
   selectedKey, applyFilter, groupHomePosts, key, clearKeyHandler,
+  data,
 }: GroupsHeaderProps) {
   return (
     <>
       <TabLinks tabLink={tabs} toLink="/app/groups" selectedTab={tabKey} />
+      {data && <SocialGroupListCard item={data} classname="mt-3" />}
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col xs={groupHomePosts ? 6 : 12} md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
@@ -97,6 +101,7 @@ SocialGroupsHeader.defaultProps = {
   groupHomePosts: false,
   key: '',
   clearKeyHandler: undefined,
+  data: undefined,
 };
 
 export default SocialGroupsHeader;

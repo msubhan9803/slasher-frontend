@@ -2,23 +2,28 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
+import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import RoundButton from '../../../components/ui/RoundButton';
+import { MD_MEDIA_BREAKPOINT, LG_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT } from '../../../constants';
+import { groupDetailPost } from '../SocialGroupListItem';
 import SocialGroupsHeader from '../SocialGroupsHeader';
-import { homePost } from '../SocialGroupListItem';
-import {
-  LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT,
-} from '../../../constants';
 
 const popoverOptions = ['Hide post', 'Report post'];
 const smallScreenGroupHomPopoverOptions = ['Follow post', 'Unsaved post', 'Hide post', 'Report post'];
-function GroupsHome() {
+function GroupsDetail() {
   const [search, setSearch] = useState<string>('');
   const [showKeys, setShowKeys] = useState(false);
   const [sortVal, setSortVal] = useState<string>('recent-activity');
   const [key, setKey] = useState<string>('');
-  const [postsType, setPostsType] = useState('all-groups');
-  const posts = homePost;
+  const posts = groupDetailPost;
+  const groupData = {
+    _id: 'list01',
+    contentHeading: 'Black Horror World',
+    content: 'Horror in the world of black cinema',
+    ljGroup: false,
+    pinned: false,
+  };
   const handleResponsivePopoverOptions = () => {
     /* eslint-disable react-hooks/rules-of-hooks */
     const smallScreen = useMediaQuery({ query: `(max-width: ${MD_MEDIA_BREAKPOINT})` });
@@ -48,7 +53,7 @@ function GroupsHome() {
   return (
     <div>
       <SocialGroupsHeader
-        tabKey="home"
+        tabKey=""
         showKeys={showKeys}
         setShowKeys={setShowKeys}
         setSearch={setSearch}
@@ -59,6 +64,7 @@ function GroupsHome() {
         groupHomePosts
         key={key}
         clearKeyHandler={clearKeyHandler}
+        data={groupData}
       />
       {key !== ''
         && (
@@ -71,31 +77,7 @@ function GroupsHome() {
             </RoundButton>
           </div>
         )}
-      <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center px-3">
-        <p className="m-0 text-center">Select where you want to see posts from:</p>
-        <div className="d-flex align-items-center justify-content-center mt-3 mt-md-0 mt-lg-3 mt-xl-0">
-          <RoundButton
-            size="sm"
-            variant="form"
-            name="all-groups"
-            className={`${postsType === 'all-groups' ? 'text-black' : 'text-white'} py-2 px-4 mx-2`}
-            active={postsType === 'all-groups'}
-            onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
-          >
-            All groups
-          </RoundButton>
-          <RoundButton
-            variant="form"
-            size="sm"
-            name="your-groups"
-            className={`${postsType === 'your-groups' ? 'text-black' : 'text-white'} py-2 px-4`}
-            active={postsType === 'your-groups'}
-            onClick={(e: any) => setPostsType((e.target as HTMLButtonElement).name)}
-          >
-            Your groups
-          </RoundButton>
-        </div>
-      </div>
+      <CustomCreatePost linkParams={`?type=group-post&groupId=${groupData._id}`} />
       <div className="mt-3">
         <PostFeed
           postFeedData={posts}
@@ -109,4 +91,4 @@ function GroupsHome() {
   );
 }
 
-export default GroupsHome;
+export default GroupsDetail;

@@ -23,7 +23,6 @@ interface PostFooterProps {
   likeCount?: string;
   commentCount?: string;
   handleLikeModal?: (value: string) => void;
-  groupHomePosts?: boolean;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -36,7 +35,7 @@ const LinearIcon = styled.span<LinearIconProps>`
 `;
 function PostFooter({
   likeIcon, postId, userName, rssfeedProviderId, onLikeClick,
-  onSelect, likeCount, commentCount, handleLikeModal, groupHomePosts,
+  onSelect, likeCount, commentCount, handleLikeModal,
 }: PostFooterProps) {
   const showRepost = enableDevFeatures;
   return (
@@ -44,16 +43,16 @@ function PostFooter({
       <Row className="justify-content-start py-3">
         <Col
           xs={showRepost ? 4 : 6}
-          md={!groupHomePosts && showRepost ? 3 : 4}
+          md={showRepost ? 3 : 4}
           lg={showRepost ? 4 : 6}
-          xl={!groupHomePosts && showRepost ? 3 : 4}
+          xl={showRepost ? 3 : 4}
         >
           <div className="d-flex align-items-center">
             <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
               {likeIcon ? (
                 <LinearIcon uniqueId="like-button-footer">
                   <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                  <span className={`fs-3 d-none d-md-inline ${!groupHomePosts && showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Like</span>
+                  <span className={`fs-3 d-none d-md-inline ${showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Like</span>
                 </LinearIcon>
               ) : (
                 <>
@@ -73,11 +72,10 @@ function PostFooter({
         </Col>
         <Col
           xs={showRepost ? 4 : 6}
-          md={!groupHomePosts && showRepost ? 3 : 4}
+          md={showRepost ? 3 : 4}
           lg={showRepost ? 4 : 6}
-          xl={!groupHomePosts && showRepost ? 3 : 4}
-          /* eslint-disable no-nested-ternary */
-          className={(!groupHomePosts && showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : groupHomePosts ? 'text-center' : 'text-xl-center text-lg-end text-md-center text-end'}
+          xl={showRepost ? 3 : 4}
+          className={(showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : 'text-xl-center text-lg-end text-md-center text-end'}
         >
           <HashLink
             onClick={() => onSelect!(rssfeedProviderId || postId)}
@@ -93,7 +91,7 @@ function PostFooter({
             <span className="fs-3">{commentCount}</span>
           </HashLink>
         </Col>
-        {!groupHomePosts && showRepost && (
+        {showRepost && (
           <Col xs={4} className="text-xl-center text-lg-end text-md-center text-end">
             <FontAwesomeIcon icon={solid('repeat')} size="lg" className="me-2" />
             <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Repost</span>
@@ -101,8 +99,8 @@ function PostFooter({
             <span className="fs-3">999k</span>
           </Col>
         )}
-        <Col xs={!groupHomePosts && showRepost ? 2 : 4} className={`text-end ${!groupHomePosts ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-inline'}`}>
-          <ShareLinkButton text textClass={groupHomePosts ? 'd-none d-md-inline d-lg-none d-xl-inline' : ''} />
+        <Col xs={showRepost ? 2 : 4} className="text-end d-none d-md-inline d-lg-none d-xl-inline">
+          <ShareLinkButton text />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">
@@ -122,7 +120,6 @@ PostFooter.defaultProps = {
   likeCount: '',
   commentCount: '',
   handleLikeModal: undefined,
-  groupHomePosts: false,
 };
 
 export default PostFooter;

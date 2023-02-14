@@ -59,3 +59,13 @@ export async function hideFeedPost(postId: string) {
   };
   return axios.post(`${apiUrl}/feed-posts/${postId}/hide`, {}, { headers });
 }
+
+export async function getLikeUsersForPost(postId: string, page: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  const limit = 20;
+  const queryParameter = `?limit=${limit}&offset=${page * limit}`;
+  return axios.get(`${apiUrl}/feed-posts/${postId}/likes${queryParameter}`, { headers });
+}

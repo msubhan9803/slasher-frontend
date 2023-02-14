@@ -1,56 +1,45 @@
-import React from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import styled from 'styled-components';
+import InfiniteScroll from 'react-infinite-scroller';
 import RoundButton from './RoundButton';
 import UserCircleImage from './UserCircleImage';
+import { FriendRequestReaction } from '../../types';
+import { getLikeUsersForPost } from '../../api/feed-posts';
 
-interface Props {
-  id: number;
-  profile: string;
-  name: string;
-  email: string;
-  sendMessage: boolean;
-}
 const SmallText = styled.p`
     font-size: .75rem;
   `;
-const modalData = [
-  {
-    id: 1, profile: 'https://i.pravatar.cc/300?img=12', name: 'John Noakes', email: '@username', sendMessage: false,
-  },
-  {
-    id: 2, profile: 'https://i.pravatar.cc/300?img=11', name: 'Bernadette Audrey', email: '@username', sendMessage: false,
-  },
-  {
-    id: 3, profile: 'https://i.pravatar.cc/300?img=14', name: 'Carol Ava', email: '@username', sendMessage: false,
-  },
-  {
-    id: 4, profile: 'https://i.pravatar.cc/300?img=13', name: 'Michelle Ruth', email: '@username', sendMessage: false,
-  },
-  {
-    id: 5, profile: 'https://i.pravatar.cc/300?img=16', name: 'Stephanie Sue', email: '@username', sendMessage: true,
-  },
-  {
-    id: 6, profile: 'https://i.pravatar.cc/300?img=15', name: 'Christopher', email: '@username', sendMessage: true,
-  },
-  {
-    id: 7, profile: 'https://i.pravatar.cc/300?img=18', name: 'Wendy Zoe', email: '@username', sendMessage: false,
-  },
-];
-function LikeShareModalContent() {
+
+type PostLike = {
+  _id: string,
+  userName: string,
+  profilePic: string,
+  firstName: string,
+  friendship?: {
+    reaction: FriendRequestReaction,
+    from: string,
+    to: string,
+  } | null,
+};
+
+type PostLikesProp = { postLikesList: PostLike[] };
+function PostLikes({ postLikesList } : PostLikesProp) {
   return (
-    <>
-      {modalData.map((data: Props) => (
-        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={data.id}>
+    <div>
+      {postLikesList?.map((data: PostLike) => (
+        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={data._id}>
           <div>
-            <UserCircleImage src={data.profile} />
+            <UserCircleImage src={data.profilePic} />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
             <p className="mb-0">
-              {data.name}
+              {data.firstName}
             </p>
-            <SmallText className="text-light mb-0">{data.email}</SmallText>
+            <SmallText className="text-light mb-0">{data.userName}</SmallText>
           </div>
-          {data.sendMessage
+          {data.friendship
             ? (
               <RoundButton
                 className="bg-black fw-bold text-white"
@@ -67,7 +56,77 @@ function LikeShareModalContent() {
             )}
         </div>
       ))}
+    </div>
+  );
+}
+
+type Props = { feedPostId: string };
+function LikeShareModalContent({ feedPostId }: Props) {
+  const [noMoreData, setNoMoreData] = useState<Boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [postLikes, setPostLikes] = useState<PostLike[]>([]);
+  const [page, setPage] = useState<number>(0);
+  const parentRef = useRef<HTMLInputElement>(null);
+
+  const getPostLikesList = useCallback((postLikesPage: number) => {
+    getLikeUsersForPost(feedPostId, postLikesPage)
+      .then((res) => {
+        setPostLikes(res.data);
+        setPage(postLikesPage + 1);
+        if (res.data.length === 0) {
+          setNoMoreData(true);
+        }
+      })
+      .catch((error) => setErrorMessage(error.response.data.message));
+  }, [feedPostId]);
+
+  useEffect(() => {
+    getPostLikesList(0);
+  }, [getPostLikesList]);
+
+  const fetchMorePostLikesList = () => {
+    if (page > 0) {
+      getLikeUsersForPost(feedPostId, page)
+        .then((res) => {
+          setPostLikes((prev: any) => [...prev, ...res.data]);
+          setPage(page + 1);
+          if (res.data.length === 0) {
+            setNoMoreData(true);
+          }
+        })
+        .catch((error) => setErrorMessage(error.response.data.message));
+    }
+  };
+
+  return (
+    <>
+      {errorMessage && errorMessage.length > 0 && (
+        <div className="mt-3 text-start">
+          {errorMessage}
+        </div>
+      )}
+      <div
+        ref={parentRef}
+        style={{
+          height: 700,
+          overflow: 'auto',
+        }}
+      >
+        <InfiniteScroll
+          threshold={250}
+          pageStart={0}
+          initialLoad
+          loadMore={fetchMorePostLikesList}
+          hasMore={!noMoreData}
+            /* Using a custom parentNode element to base the scroll calulations on. */
+          useWindow={false}
+          getScrollParent={() => parentRef.current}
+        >
+          <PostLikes postLikesList={postLikes} />
+        </InfiniteScroll>
+      </div>
     </>
+
   );
 }
 

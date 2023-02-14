@@ -87,6 +87,7 @@ function PostFeed({
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const [clickedPostId, setClickedPostId] = useState('');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`;
@@ -98,7 +99,8 @@ function PostFeed({
     setPostData(postFeedData);
   }, [postFeedData]);
 
-  const openDialogue = (click: string) => {
+  const openDialogue = (click: string, postId: string) => {
+    setClickedPostId(postId);
     setOpenLikeShareModal(true);
     setButtonClck(click);
   };
@@ -301,6 +303,7 @@ function PostFeed({
             show={openLikeShareModal}
             setShow={setOpenLikeShareModal}
             click={buttonClick}
+            clickedPostId={clickedPostId}
           />
         )
       }

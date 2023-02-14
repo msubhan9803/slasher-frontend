@@ -22,7 +22,7 @@ interface PostFooterProps {
   onSelect?: (value: string) => void
   likeCount?: string;
   commentCount?: string;
-  handleLikeModal?: (value: string) => void;
+  handleLikeModal?: (value: string, postId: string) => void;
 }
 const StyleDot = styled(FontAwesomeIcon)`
   width: 0.267rem;
@@ -65,7 +65,7 @@ function PostFooter({
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <Button
               className="bg-transparent border-0 btn btn-primary p-0 text-white"
-              onClick={() => handleLikeModal!('like')}
+              onClick={() => handleLikeModal!('like', postId)}
             >
               <span className="fs-3">{likeCount}</span>
             </Button>

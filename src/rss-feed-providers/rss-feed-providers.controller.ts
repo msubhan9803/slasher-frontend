@@ -75,7 +75,7 @@ export class RssFeedProvidersController {
     }
 
     const feedPosts = await this.feedPostsService.findAllByRssFeedProvider(
-      rssFeedProvider._id,
+      rssFeedProvider.id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,

@@ -52,7 +52,7 @@ describe('ReportAndUnreportService', () => {
         to: user0._id,
         reaction: ReportReaction.Reported,
         reasonOfReport: 'this is test reason',
-      };
+      } as unknown;
       const report = await reportAndUnreportService.create(reportAndUnreportObj);
       expect(report).toMatchObject(reportAndUnreportObj);
     });

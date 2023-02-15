@@ -56,7 +56,7 @@ describe('GET settings (e2e)', () => {
       it('returns the expected user', async () => {
         await userSettingsService.create(
           userSettingFactory.build({
-            userId: activeUser._id,
+            userId: activeUser.id,
           }),
         );
         const response = await request(app.getHttpServer())
@@ -88,7 +88,7 @@ describe('GET settings (e2e)', () => {
           rss_feed_mention_on_post_comment_reply: 1,
           rss_feed_post_like: 1,
         });
-        expect(await userSettingsService.findByUserId(activeUser._id)).toBeTruthy();
+        expect(await userSettingsService.findByUserId(activeUser.id)).toBeTruthy();
       });
 
       it('returns the expected response when the user setting is not found', async () => {

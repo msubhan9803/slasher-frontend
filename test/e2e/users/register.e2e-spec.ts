@@ -70,7 +70,6 @@ describe('Users / Register (e2e)', () => {
           .post('/users/register')
           .send(postBody)
           .expect(HttpStatus.CREATED);
-
         expect(response.body).toEqual({
           id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         });
@@ -299,16 +298,14 @@ describe('Users / Register (e2e)', () => {
         expect(response.body.message).toContain('You must be at least 17 to register');
       });
 
-      // TODO: Uncomment this test and update UserRegisterDto to make the test pass
-      // eslint-disable-next-line jest/no-commented-out-tests
-      // it('dob must be a valid-format iso date', async () => {
-      //   postBody.dob = '1970-1';
-      //   const response = await request(app.getHttpServer())
-      //     .post('/users/register')
-      //     .send(postBody);
-      //   expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
-      //   expect(response.body.message).toContain('Invalid date of birth');
-      // });
+      it('dob must be a valid-format iso date', async () => {
+        postBody.dob = '1970-1';
+        const response = await request(app.getHttpServer())
+          .post('/users/register')
+          .send(postBody);
+        expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toContain('Invalid date of birth');
+      });
     });
 
     describe('Existing username or email check', () => {

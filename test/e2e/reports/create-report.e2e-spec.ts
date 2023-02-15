@@ -86,7 +86,7 @@ describe('Report And Unreport (e2e)', () => {
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser._id,
+          userId: activeUser.id,
         },
       ),
     );

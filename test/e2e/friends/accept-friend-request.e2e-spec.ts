@@ -52,8 +52,8 @@ describe('Accept Friend Request (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    await friendsService.createFriendRequest(user1._id.toString(), activeUser.id);
+    await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
   });
 
   describe('Post /friends/requests/accept', () => {
@@ -63,7 +63,7 @@ describe('Accept Friend Request (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1.id })
         .expect(HttpStatus.CREATED);
-        const friends = await friendsModel.findOne({ from: user1._id, to: activeUser._id });
+        const friends = await friendsModel.findOne({ from: user1._id, to: activeUser.id });
         expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
         expect(response.body).toEqual({ success: true });
     });

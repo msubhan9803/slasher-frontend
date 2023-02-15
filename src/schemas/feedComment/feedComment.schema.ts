@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { FeedPost } from '../feedPost/feedPost.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
@@ -76,4 +76,5 @@ FeedCommentSchema.index(
     status: 1, is_deleted: 1,
   },
 );
-export type FeedCommentDocument = FeedComment & Document;
+
+export type FeedCommentDocument = HydratedDocument<FeedComment>;

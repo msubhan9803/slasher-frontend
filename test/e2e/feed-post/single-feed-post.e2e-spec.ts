@@ -135,7 +135,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

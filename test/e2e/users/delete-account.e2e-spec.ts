@@ -60,32 +60,32 @@ describe('Users / delete account (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.createFriendRequest(user1._id.toString(), activeUser.id);
+    await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
     await blocksModel.create({
-      from: activeUser._id,
+      from: activeUser.id,
       to: user1._id,
       reaction: BlockAndUnblockReaction.Block,
     });
     await blocksModel.create({
-      from: activeUser._id,
+      from: activeUser.id,
       to: user2._id,
       reaction: BlockAndUnblockReaction.Block,
     });
     await blocksModel.create({
       from: user1._id,
-      to: activeUser._id,
+      to: activeUser.id,
       reaction: BlockAndUnblockReaction.Block,
     });
     await suggestBlocksModel.create({
-      from: activeUser._id,
+      from: activeUser.id,
       to: user1._id,
       reaction: SuggestBlockReaction.Block,
     });
     await suggestBlocksModel.create({
       from: user1._id,
-      to: activeUser._id,
+      to: activeUser.id,
       reaction: SuggestBlockReaction.Block,
     });
   });
@@ -93,7 +93,7 @@ describe('Users / delete account (e2e)', () => {
   describe('DELETE /users/delete-account', () => {
     describe('delete account request', () => {
       it('if activeUser delete account then it returns expected response', async () => {
-        const userId = activeUser._id;
+        const userId = activeUser.id;
         const oldHashedPassword = activeUser.password;
 
         const response = await request(app.getHttpServer())
@@ -109,15 +109,15 @@ describe('Users / delete account (e2e)', () => {
 
         const fromOrToQuery = {
           $or: [
-            { from: activeUser._id },
-            { to: activeUser._id },
+            { from: activeUser.id },
+            { to: activeUser.id },
           ],
         };
         const friends = await friendsModel.find(fromOrToQuery);
         const blocks = await blocksModel.find(fromOrToQuery);
         const suggestBlocks = await suggestBlocksModel.find(fromOrToQuery);
 
-        const fromQuery = { from: activeUser._id };
+        const fromQuery = { from: activeUser.id };
         const deleteFriendData = await friendsModel.find(fromQuery);
 
         expect(deleteFriendData).toHaveLength(0);

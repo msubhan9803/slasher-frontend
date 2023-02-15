@@ -153,7 +153,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -188,7 +188,7 @@ describe('Create Feed Comment Like (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

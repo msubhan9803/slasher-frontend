@@ -32,8 +32,8 @@ export class SearchController {
       return [];
     }
     const user = getUserFromRequest(request);
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
-    excludedUserIds.push(user._id);
+    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    excludedUserIds.push(user.id);
     const findUsersData = await this.searchService.findUsers(query.query, adjustedLimit, query.offset, excludedUserIds);
     return findUsersData;
   }

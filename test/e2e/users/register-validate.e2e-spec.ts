@@ -261,7 +261,7 @@ describe('Users / Register (e2e)', () => {
           .get('/users/validate-registration-fields')
           .query(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual(['You must be at least 17 to register', 'dob should not be empty']);
+        expect(response.body).toEqual(['Invalid date of birth', 'You must be at least 17 to register', 'dob should not be empty']);
       });
 
       it('dob is under age', async () => {
@@ -273,16 +273,14 @@ describe('Users / Register (e2e)', () => {
         expect(response.body).toEqual(['You must be at least 17 to register']);
       });
 
-      // TODO: Uncomment this test and update UserRegisterDto to make the test pass
-      // eslint-disable-next-line jest/no-commented-out-tests
-      // it('dob must be a valid-format iso date', async () => {
-      //   postBody.dob = '1970-1';
-      //   const response = await request(app.getHttpServer())
-      //     .get('/users/validate-registration-fields')
-      //     .query(postBody);
-      //   expect(response.status).toEqual(HttpStatus.OK);
-      //   expect(response.body).toEqual(['Invalid date of birth']);
-      // });
+      it('dob must be a valid-format iso date', async () => {
+        postBody.dob = '1970-1';
+        const response = await request(app.getHttpServer())
+          .get('/users/validate-registration-fields')
+          .query(postBody);
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual(['Invalid date of birth']);
+      });
     });
 
     describe('Existing username or email check, or disallowed username', () => {

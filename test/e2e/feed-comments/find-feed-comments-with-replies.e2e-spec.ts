@@ -104,7 +104,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         feedCommentsFactory.build(
           {
             userId: activeUser._id,
-            feedPostId: feedPost.id,
+            feedPostId: feedPost._id,
             message: 'Comment 1',
             images: commentImages,
           },
@@ -120,7 +120,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         feedCommentsFactory.build(
           {
             userId: activeUser._id,
-            feedPostId: feedPost.id,
+            feedPostId: feedPost._id,
             message: 'Comment 2',
             images: commentImages,
           },
@@ -197,7 +197,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           feedCommentsFactory.build(
             {
               userId: activeUser._id,
-              feedPostId: feedPost.id,
+              feedPostId: feedPost._id,
               message: 'Hello Test Message 1',
               images: commentImages,
             },
@@ -208,7 +208,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           feedCommentsFactory.build(
             {
               userId: activeUser._id,
-              feedPostId: feedPost.id,
+              feedPostId: feedPost._id,
               message: 'Hello Test Message 2',
               images: commentImages,
             },
@@ -219,7 +219,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           feedCommentsFactory.build(
             {
               userId: activeUser._id,
-              feedPostId: feedPost.id,
+              feedPostId: feedPost._id,
               message: 'Hello Test Message 3',
               images: commentImages,
             },
@@ -230,7 +230,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           feedCommentsFactory.build(
             {
               userId: activeUser._id,
-              feedPostId: feedPost.id,
+              feedPostId: feedPost._id,
               message: 'Hello Test Message 4',
               images: commentImages,
             },
@@ -241,7 +241,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           feedCommentsFactory.build(
             {
               userId: activeUser._id,
-              feedPostId: feedPost.id,
+              feedPostId: feedPost._id,
               message: 'Hello Test Message 5',
               images: commentImages,
             },
@@ -252,7 +252,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments1.id,
+                feedCommentId: feedComments1._id,
                 message: 'Hello Test Reply Message 1',
                 images: commentImages,
               },
@@ -262,7 +262,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments2.id,
+                feedCommentId: feedComments2._id,
                 message: 'Hello Test Reply Message 2',
                 images: commentImages,
               },
@@ -272,7 +272,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments3.id,
+                feedCommentId: feedComments3._id,
                 message: 'Hello Test Reply Message 3',
                 images: commentImages,
               },
@@ -282,7 +282,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments3.id,
+                feedCommentId: feedComments3._id,
                 message: 'Hello Test Reply Message 4',
                 images: commentImages,
               },
@@ -292,7 +292,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments4.id,
+                feedCommentId: feedComments4._id,
                 message: 'Hello Test Reply Message 5',
                 images: commentImages,
               },
@@ -302,7 +302,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
             feedRepliesFactory.build(
               {
                 userId: activeUser._id,
-                feedCommentId: feedComments5.id,
+                feedCommentId: feedComments5._id,
                 message: 'Hello Test Reply Message 6',
                 images: commentImages,
               },
@@ -361,7 +361,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user4._id,
         reaction: BlockAndUnblockReaction.Block,
       });

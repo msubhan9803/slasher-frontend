@@ -48,7 +48,7 @@ describe('RssFeedProvidersService', () => {
     it('successfully creates a rss feed provider', async () => {
       const rssFeedProviderData = rssFeedProviderFactory.build();
       const rssFeedProvidersDetails = await rssFeedProvidersService.create(rssFeedProviderData);
-      expect(await rssFeedProvidersService.findById(rssFeedProvidersDetails._id, false)).toBeTruthy();
+      expect(await rssFeedProvidersService.findById(rssFeedProvidersDetails.id, false)).toBeTruthy();
     });
   });
 
@@ -57,8 +57,8 @@ describe('RssFeedProvidersService', () => {
       const rssFeedProviderJson = {
         title: 'title test 20',
       };
-      const updatedRssFeedProvider = await rssFeedProvidersService.update(rssFeedProvider._id, rssFeedProviderJson);
-      const reloadedRssFeedProvider = await rssFeedProvidersService.findById(updatedRssFeedProvider._id, false);
+      const updatedRssFeedProvider = await rssFeedProvidersService.update(rssFeedProvider.id, rssFeedProviderJson);
+      const reloadedRssFeedProvider = await rssFeedProvidersService.findById(updatedRssFeedProvider.id, false);
       expect(reloadedRssFeedProvider.title).toEqual(rssFeedProviderJson.title);
       expect(reloadedRssFeedProvider.sortTitle).toEqual(rssFeedProvider.sortTitle);
     });
@@ -66,7 +66,7 @@ describe('RssFeedProvidersService', () => {
 
   describe('#findById', () => {
     it('finds the expected rss feed provider details', async () => {
-      const rssFeedProvidersDetails = await rssFeedProvidersService.findById(rssFeedProvider._id, false);
+      const rssFeedProvidersDetails = await rssFeedProvidersService.findById(rssFeedProvider.id, false);
       expect(rssFeedProvidersDetails.title).toEqual(rssFeedProvider.title);
     });
 
@@ -76,7 +76,7 @@ describe('RssFeedProvidersService', () => {
           status: RssFeedProviderActiveStatus.Active,
         }),
       );
-      const rssFeedProvidersDetails = await rssFeedProvidersService.findById(activeRssFeedProvider._id, true);
+      const rssFeedProvidersDetails = await rssFeedProvidersService.findById(activeRssFeedProvider.id, true);
       expect(rssFeedProvidersDetails.title).toEqual(activeRssFeedProvider.title);
     });
   });

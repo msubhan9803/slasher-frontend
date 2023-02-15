@@ -3,10 +3,11 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
-import RoundButton from './RoundButton';
 import UserCircleImage from './UserCircleImage';
-import { FriendRequestReaction } from '../../types';
+import { FriendRequestReaction, User } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
+import FriendActionButtons from './Friend/FriendActionButtons';
+import { friendship } from '../../api/friends';
 
 const SmallText = styled.p`
     font-size: .75rem;
@@ -24,6 +25,38 @@ type PostLike = {
   } | null,
 };
 
+type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
+
+function FriendAction({ postLike, user }: { postLike: PostLike, user: User }) {
+  const [friendshipStatus, setFriendshipStatus] = useState<any>();
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(
+    postLike.friendship
+      ? postLike.friendship.reaction
+      : FriendRequestReaction.DeclinedOrCancelled,
+  );
+  const [friendData, setFriendData] = useState<FriendType>(
+    postLike.friendship ?? ({ reaction: FriendRequestReaction.DeclinedOrCancelled } as any),
+  );
+
+  useEffect(() => {
+    /* eslint no-underscore-dangle: 0 */
+    friendship(user._id).then((res) => {
+      setFriendData(res.data);
+      setFriendStatus(res.data.reaction);
+    });
+  }, [user, friendshipStatus]);
+
+  return (
+    <FriendActionButtons
+      friendStatus={friendStatus}
+      user={user}
+      friendData={friendData}
+      setFriendshipStatus={setFriendshipStatus}
+      showOnlyAddAndSend
+    />
+  );
+}
+
 type PostLikesProp = { postLikesList: PostLike[] };
 function PostLikes({ postLikesList } : PostLikesProp) {
   return (
@@ -39,21 +72,7 @@ function PostLikes({ postLikesList } : PostLikesProp) {
             </p>
             <SmallText className="text-light mb-0">{postLike.userName}</SmallText>
           </div>
-          {postLike.friendship
-            ? (
-              <RoundButton
-                className="bg-black fw-bold text-white"
-              >
-                <p className="mb-0">Send message</p>
-              </RoundButton>
-            )
-            : (
-              <RoundButton
-                className="fw-bold"
-              >
-                <p className="mb-0">Add friend</p>
-              </RoundButton>
-            )}
+          <FriendAction postLike={postLike} user={({ _id: postLike._id } as any)} />
         </div>
       ))}
     </div>

@@ -158,9 +158,9 @@ function ProfileHeader({ tabKey, user }: Props) {
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <FriendActionButtons
-                        friendStatus={friendStatus}
                         user={user}
                         friendData={friendData}
+                        friendStatus={friendStatus}
                         setFriendshipStatus={setFriendshipStatus}
                       />
                       <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">

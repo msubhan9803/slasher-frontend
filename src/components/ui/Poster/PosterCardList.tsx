@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { DateTime } from 'luxon';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import PosterCard from './PosterCard';
 import checkAdsPosterCardList from './checkAdsPosterCardList';
 import useBootstrapBreakpointName from '../../../hooks/useBootstrapBreakpoint';
 import PubWiseAd from '../PubWiseAd';
+import { useAppSelector } from '../../../redux/hooks';
 
 interface PosterCardProps {
   dataList: CardListProps[] | [];
   pubWiseAdUnitDivId?: string;
-  onSelect?: () => void;
+  onSelect?: (value?: string) => void;
 }
 interface CardListProps {
   id: number;
@@ -26,7 +27,17 @@ interface CardListProps {
 
 function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardProps) {
   const bp = useBootstrapBreakpointName();
-
+  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const location = useLocation();
+  useEffect(() => {
+    setTimeout(() => {
+      if (dataList.length > 1
+        && scrollPosition.position > 0
+        && scrollPosition?.pathname === location.pathname) {
+        window.scrollTo(0, scrollPosition?.position);
+      }
+    }, 0);
+  }, [dataList, scrollPosition, location.pathname]);
   return (
     <Row className="mt-0">
       {dataList && dataList.length > 0 && dataList.map((listDetail: CardListProps, i, arr) => {
@@ -36,7 +47,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
           <React.Fragment key={listDetail._id}>
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
-                onClick={() => onSelect!()}
+                onClick={() => onSelect!(listDetail._id!)}
                 to={`/app/movies/${listDetail._id}`}
               >
                 <PosterCard

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
@@ -13,15 +13,14 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import RouteURL from '../RouteURL';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [key, setKey] = useState<string>('');
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
@@ -29,13 +28,20 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
-  const [search, setSearch] = useState<string>(scrollPosition.searchValue);
-
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState<string>(searchParams.get('q') || '');
+  const [key, setKey] = useState<string>(searchParams.get('startsWith') || '');
+  const [sortVal, setSortVal] = useState<string>(searchParams.get('sort') || 'name');
+  const navigate = useNavigate();
+  useEffect(() => {
+    RouteURL('all', search, key, sortVal, navigate);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [search, key, sortVal]);
   useEffect(() => {
     if (scrollPosition.searchValue !== search) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
-    } else if (!scrollPosition.data.length && !search) {
+    } else if (!scrollPosition.data.length && search.length === 0) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
     }
@@ -67,7 +73,7 @@ function AllMovies() {
               pathname: '',
               position: 0,
               data: [],
-              id: '',
+              positionElementId: '',
               searchValue: '',
             };
             dispatch(setScrollPosition(positionData));
@@ -115,16 +121,17 @@ function AllMovies() {
       });
   };
 
-  const persistScrollPosition = () => {
+  const persistScrollPosition = (id?: string) => {
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,
       data: filteredMovies,
-      id: '',
+      positionElementId: id,
       searchValue: search,
     };
     dispatch(setScrollPosition(positionData));
   };
+
   return (
     <div>
       <MoviesHeader

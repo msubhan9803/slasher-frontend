@@ -28,18 +28,18 @@ type PostLikesProp = { postLikesList: PostLike[] };
 function PostLikes({ postLikesList } : PostLikesProp) {
   return (
     <div>
-      {postLikesList?.map((data: PostLike) => (
-        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={data._id}>
+      {postLikesList?.map((postLike: PostLike) => (
+        <div className="pb-4 pt-0 py-3 d-flex align-items-center" key={postLike._id}>
           <div>
-            <UserCircleImage src={data.profilePic} />
+            <UserCircleImage src={postLike.profilePic} />
           </div>
           <div className="px-3 flex-grow-1 min-width-0">
             <p className="mb-0">
-              {data.firstName}
+              {postLike.firstName}
             </p>
-            <SmallText className="text-light mb-0">{data.userName}</SmallText>
+            <SmallText className="text-light mb-0">{postLike.userName}</SmallText>
           </div>
-          {data.friendship
+          {postLike.friendship
             ? (
               <RoundButton
                 className="bg-black fw-bold text-white"
@@ -118,7 +118,7 @@ function LikeShareModalContent({ feedPostId }: Props) {
           initialLoad
           loadMore={fetchMorePostLikesList}
           hasMore={!noMoreData}
-            /* Using a custom parentNode element to base the scroll calulations on. */
+          /* Using a custom parentNode element to base the scroll calulations on. */
           useWindow={false}
           getScrollParent={() => parentRef.current}
         >

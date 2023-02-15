@@ -15,6 +15,8 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -83,20 +85,26 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
-      feedReply = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser._id.toString(),
-          'Hello Reply Test Message 1',
-          sampleFeedCommentsObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      feedReply = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully update feed reply messages', async () => {
@@ -141,13 +149,25 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
 
       it('sends notifications to newly-added users in the message, but ignores the comment creator', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, otherUser1.id, 'This is a comment', []);
-        const reply = await feedCommentsService
-          .createFeedReply(
-            comment._id.toString(),
-            commentCreatorUser.id,
-            `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
-            [],
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: otherUser1._id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
+        const reply = await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: commentCreatorUser._id,
+                feedCommentId: comment.id,
+                message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+                images: [],
+              },
+            ),
           );
         await request(app.getHttpServer())
           .patch(`/feed-comments/replies/${reply._id}`)
@@ -188,13 +208,17 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     });
 
     it('when feed reply id and login user id is not match than expected response', async () => {
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          user0._id.toString(),
-          'Hello Reply Test Message 2',
-          sampleFeedCommentsObject.images,
+      const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user0._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
         );
+
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/replies/${feedReply1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

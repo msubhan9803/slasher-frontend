@@ -20,7 +20,7 @@ export class FeedComment extends FeedCommentUnusedFields {
   @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, required: true })
+  @Prop({ default: null })
   message: string;
 
   @Prop({ type: [ImageSchema] })

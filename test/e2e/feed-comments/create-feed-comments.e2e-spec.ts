@@ -145,11 +145,21 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
         message: 'This is a test message',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        userId: activeUser._id.toString(),
         images: [],
       });
+    });
+
+    it('responds expected response when neither message nor file are present in request', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '')
+        .field('feedPostId', feedPost._id.toString())
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
 
     it('allows the creation of a comments with only files, but no message', async () => {
@@ -161,9 +171,24 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message should not be empty');
+          .attach('images', tempPaths[1]);
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          message: null,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)

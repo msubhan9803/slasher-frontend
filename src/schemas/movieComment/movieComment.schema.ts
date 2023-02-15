@@ -33,5 +33,4 @@ export class MovieComment extends MovieCommentUnusedFields {
 
 export const MovieCommentSchema = SchemaFactory.createForClass(MovieComment);
 
-export type MovieCommentDocument =  HydratedDocument<MovieComment>;
-
+export type MovieCommentDocument = HydratedDocument<MovieComment>;

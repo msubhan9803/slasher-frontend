@@ -78,14 +78,14 @@ describe('Create Feed Reply Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser.id,
+          activeUser._id.toString(),
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
@@ -107,14 +107,14 @@ describe('Create Feed Reply Like (e2e)', () => {
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({ success: true });
       const reloadedFeedReply = await feedCommentsService.findFeedReply(feedReply.id);
-      expect(reloadedFeedReply.likes).toContainEqual(activeUser.id);
+      expect(reloadedFeedReply.likes).toContainEqual(activeUser._id);
 
       expect(notificationsService.create).toHaveBeenCalledWith({
         userId: reloadedFeedReply.userId as any,
         feedPostId: { _id: reloadedFeedReply.feedPostId } as unknown as FeedPost,
         feedCommentId: { _id: reloadedFeedReply.feedCommentId } as unknown as FeedComment,
         feedReplyId: reloadedFeedReply._id,
-        senderId: activeUser.id,
+        senderId: activeUser._id,
         notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
         notificationMsg: 'liked your reply',
       });

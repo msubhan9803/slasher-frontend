@@ -57,7 +57,7 @@ describe('settings update / :id (e2e)', () => {
     );
 
     await userSettingsService.create(userSettingFactory.build({
-      userId: activeUser.id,
+      userId: activeUser._id,
     }));
   });
 
@@ -68,8 +68,8 @@ describe('settings update / :id (e2e)', () => {
           .patch('/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleUserSettingUpdateObject);
-        await userSettingsService.update(activeUser.id, sampleUserSettingUpdateObject);
-        const reloadedUserSetting = await userSettingsService.findByUserId(activeUser.id);
+        await userSettingsService.update(activeUser._id.toString(), sampleUserSettingUpdateObject);
+        const reloadedUserSetting = await userSettingsService.findByUserId(activeUser._id.toString());
         expect(reloadedUserSetting.friends_got_a_match).toEqual(sampleUserSettingUpdateObject.friends_got_a_match);
         expect(reloadedUserSetting.friends_message_received).toEqual(sampleUserSettingUpdateObject.friends_message_received);
         expect(reloadedUserSetting.message_board_like_your_post).toEqual(sampleUserSettingUpdateObject.message_board_like_your_post);

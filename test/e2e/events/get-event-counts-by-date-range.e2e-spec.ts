@@ -77,7 +77,7 @@ describe('Event counts by date range / (e2e)', () => {
       await eventService.create(
         eventsFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             event_type: eventCategory,
             startDate: eventDateRange.start,
             endDate: eventDateRange.end,
@@ -90,7 +90,7 @@ describe('Event counts by date range / (e2e)', () => {
       await eventService.create(
         eventsFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             event_type: eventCategory,
             startDate: eventDateRange.start,
             endDate: eventDateRange.end,
@@ -103,7 +103,7 @@ describe('Event counts by date range / (e2e)', () => {
       await eventService.create(
         eventsFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             event_type: eventCategory,
             startDate: eventDateRange.start,
             endDate: eventDateRange.end,

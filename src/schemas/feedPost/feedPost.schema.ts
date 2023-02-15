@@ -108,4 +108,3 @@ FeedPostSchema.index(
 export type FeedPostDocument = HydratedDocument<FeedPost>;
 
 // export type FeedPostDocument = FeedPost & Document;
-

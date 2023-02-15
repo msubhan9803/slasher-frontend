@@ -56,7 +56,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
@@ -65,7 +65,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ success: true });
-      expect(activeUser.id).toEqual((feedPost.userId as any)._id.toString());
+      expect(activeUser._id.toString()).toEqual((feedPost.userId as any)._id.toString());
     });
 
     it('when userId is not match than expected feed post response', async () => {

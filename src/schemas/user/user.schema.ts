@@ -236,4 +236,3 @@ UserSchema.methods.addOrUpdateDeviceEntry = User.prototype.addOrUpdateDeviceEntr
 UserSchema.methods.setUnhashedPassword = User.prototype.setUnhashedPassword;
 
 export type UserDocument = HydratedDocument<User>;
-

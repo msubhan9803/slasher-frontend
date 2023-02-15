@@ -59,11 +59,11 @@ describe('Delete Feed Post Likes (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
-      await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, activeUser._id.toString());
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 

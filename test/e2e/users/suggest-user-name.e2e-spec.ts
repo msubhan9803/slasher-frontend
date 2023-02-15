@@ -88,12 +88,12 @@ describe('Suggested user name (e2e)', () => {
           ),
         );
         await blocksModel.create({
-          from: activeUser.id,
+          from: activeUser._id,
           to: user1._id,
           reaction: BlockAndUnblockReaction.Block,
         });
         await blocksModel.create({
-          from: activeUser.id,
+          from: activeUser._id,
           to: user2._id,
           reaction: BlockAndUnblockReaction.Block,
         });

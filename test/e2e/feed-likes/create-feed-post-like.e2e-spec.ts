@@ -92,7 +92,7 @@ describe('Create Feed Post Like (e2e)', () => {
       const feedPostDataObject = (reloadedFeedPost as any).toObject();
       expect(notificationsService.create).toHaveBeenCalledWith({
         feedPostId: { _id: reloadedFeedPost._id.toString() },
-        senderId: activeUser.id,
+        senderId: activeUser._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
         userId: {
@@ -123,7 +123,7 @@ describe('Create Feed Post Like (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser.id,
+        from: activeUser._id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

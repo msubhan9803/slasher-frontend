@@ -82,4 +82,3 @@ FriendSchema.index(
 );
 
 export type FriendDocument = HydratedDocument<Friend>;
-

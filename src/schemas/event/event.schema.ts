@@ -108,4 +108,3 @@ EventSchema.index(
 );
 
 export type EventDocument = HydratedDocument<Event>;
-

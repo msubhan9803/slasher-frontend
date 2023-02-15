@@ -57,7 +57,7 @@ describe('Find Follow (e2e)', () => {
     );
     await rssFeedProviderFollowsService.create(
       {
-        userId: activeUser.id,
+        userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
       },
     );
@@ -66,7 +66,7 @@ describe('Find Follow (e2e)', () => {
   describe('GET /rss-feed-providers/:id/follows/:userId', () => {
     it('get the rss feed providers follows successful if parameter rssFeedProviderId and userId is exists', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser.id}`)
+        .get(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ notification: 0 });
@@ -75,7 +75,7 @@ describe('Find Follow (e2e)', () => {
     it('returns the expected response when the rss feed provider id is not found', async () => {
       const rssFeedProviderId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser.id}`)
+        .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -102,7 +102,7 @@ describe('Find Follow (e2e)', () => {
       it('id must be a mongodb id', async () => {
         const rssFeedProviderId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser.id}`)
+          .get(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['id must be a mongodb id']);

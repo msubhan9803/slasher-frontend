@@ -36,4 +36,4 @@ export class Music extends MusicUnusedFields {
 
 export const MusicSchema = SchemaFactory.createForClass(Music);
 
-export type MusicDocument =  HydratedDocument<Music>;
+export type MusicDocument = HydratedDocument<Music>;

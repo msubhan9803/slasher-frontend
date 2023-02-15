@@ -72,14 +72,14 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser.id,
+          activeUser._id.toString(),
           sampleFeedCommentsDeleteObject.message,
           sampleFeedCommentsDeleteObject.images,
         );

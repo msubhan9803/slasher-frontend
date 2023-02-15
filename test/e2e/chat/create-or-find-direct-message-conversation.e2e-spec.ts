@@ -70,22 +70,22 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           userFactory.build(),
         ].map((userData) => usersService.create(userData)));
 
-        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser.id]);
+        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id.toString()]);
       });
       it('finds an existing conversation by searching for the participants of that conversation', async () => {
-        await friendsService.createFriendRequest(activeUser.id, users[0]._id.toString());
-        await friendsService.acceptFriendRequest(activeUser.id, users[0]._id.toString());
+        await friendsService.createFriendRequest(activeUser._id.toString(), users[0]._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), users[0]._id.toString());
         const response = await request(app.getHttpServer())
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[0]._id });
-        expect(response.body._id).toEqual(matchList.id);
+        expect(response.body._id).toEqual(matchList._id.toString());
       });
 
       it('creates a conversation if one does not exist with the given participants', async () => {
         const matchListCount = await matchListModel.count();
-        await friendsService.createFriendRequest(activeUser.id, users[1]._id.toString());
-        await friendsService.acceptFriendRequest(activeUser.id, users[1]._id.toString());
+        await friendsService.createFriendRequest(activeUser._id.toString(), users[1]._id.toString());
+        await friendsService.acceptFriendRequest(activeUser._id.toString(), users[1]._id.toString());
 
         const response = await request(app.getHttpServer())
           .post('/chat/conversations/create-or-find-direct-message-conversation')
@@ -105,7 +105,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
       it('when user is block than expected response.', async () => {
         const user1 = await usersService.create(userFactory.build());
         await blocksModel.create({
-          from: activeUser.id,
+          from: activeUser._id,
           to: user1._id,
           reaction: BlockAndUnblockReaction.Block,
         });

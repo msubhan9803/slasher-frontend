@@ -35,4 +35,4 @@ export class MovieReply extends MovieReplyUnusedFields {
 
 export const MovieReplySchema = SchemaFactory.createForClass(MovieReply);
 
-export type MovieReplyDocument =  HydratedDocument<MovieReply>;
+export type MovieReplyDocument = HydratedDocument<MovieReply>;

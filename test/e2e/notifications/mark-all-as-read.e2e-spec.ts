@@ -53,7 +53,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
       await notificationsService.create(
         notificationFactory.build({
           is_deleted: NotificationDeletionStatus.NotDeleted,
-          userId: activeUser.id,
+          userId: activeUser._id,
         }),
       );
     }
@@ -66,7 +66,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
           .patch('/notifications/mark-all-as-read')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        const getAllReadNotifications = await notificationsService.findAllByUser(activeUser.id, 15);
+        const getAllReadNotifications = await notificationsService.findAllByUser(activeUser._id.toString(), 15);
         for (const read of getAllReadNotifications) {
           expect(read.isRead).toEqual(NotificationReadStatus.Read);
         }

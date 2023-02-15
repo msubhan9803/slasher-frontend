@@ -57,7 +57,7 @@ describe('Update Feed Post (e2e)', () => {
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser.id,
+          userId: activeUser._id,
         },
       ),
     );

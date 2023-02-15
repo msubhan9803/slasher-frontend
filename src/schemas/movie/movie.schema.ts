@@ -132,5 +132,4 @@ MovieSchema.index(
 //     releaseDate: 1, type: 1, status: 1, deleted: 1, sort_name: 1, sortReleaseDate: 1, sortRating: 1, name: 1,
 //   },
 // );
-export type MovieDocument =  HydratedDocument<Movie>;
-
+export type MovieDocument = HydratedDocument<Movie>;

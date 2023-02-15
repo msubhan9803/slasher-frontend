@@ -86,7 +86,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
 
     await feedPostsService.create(
       feedPostFactory.build({
-        userId: activeUser.id,
+        userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
         createdAt: firstFeedPostsDates.createdAt,
         lastUpdateAt: firstFeedPostsDates.lastUpdateAt,
@@ -130,7 +130,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             logo: null,
             title: 'RssFeedProvider 1',
           },
-          userId: activeUser.id,
+          userId: activeUser._id.toString(),
         },
       ]);
     });
@@ -150,7 +150,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         for (let index = 0; index < 3; index += 1) {
           await feedPostsService.create(
             feedPostFactory.build({
-              userId: activeUser.id,
+              userId: activeUser._id,
               rssfeedProviderId: rssFeedProviderData._id,
               createdAt: feedPostsDates[index].createdAt,
               lastUpdateAt: feedPostsDates[index].lastUpdateAt,
@@ -194,7 +194,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            userId: activeUser.id,
+            userId: activeUser._id.toString(),
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -221,7 +221,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            userId: activeUser.id,
+            userId: activeUser._id.toString(),
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -248,7 +248,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               logo: null,
               title: 'RssFeedProvider 5',
             },
-            userId: activeUser.id,
+            userId: activeUser._id.toString(),
           },
         ]);
 

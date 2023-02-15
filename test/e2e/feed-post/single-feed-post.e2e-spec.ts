@@ -79,7 +79,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             rssfeedProviderId: rssFeedProviderData._id,
             rssFeedId: rssFeed._id,
             createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
@@ -113,7 +113,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           },
         ],
         userId: {
-          _id: activeUser.id,
+          _id: activeUser._id.toString(),
           profile_status: ProfileVisibility.Public,
           userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
@@ -135,7 +135,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser.id,
+        from: activeUser._id.toString(),
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

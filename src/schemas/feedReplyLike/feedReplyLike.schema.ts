@@ -42,4 +42,3 @@ export class FeedReplyLike extends FeedReplyLikeUnusedFields {
 export const FeedReplyLikeSchema = SchemaFactory.createForClass(FeedReplyLike);
 
 export type FeedReplyLikeDocument = HydratedDocument<FeedReplyLike>;
-

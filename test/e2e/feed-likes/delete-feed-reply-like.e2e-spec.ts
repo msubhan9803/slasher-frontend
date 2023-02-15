@@ -76,25 +76,25 @@ describe('Delete Feed Reply Like (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser.id,
+          activeUser._id.toString(),
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
       feedReply = await feedCommentsService
         .createFeedReply(
           feedComments.id,
-          activeUser.id,
+          activeUser._id.toString(),
           feedCommentsAndReplyObject.message,
           feedCommentsAndReplyObject.images,
         );
-      await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);
+      await feedLikesService.createFeedReplyLike(feedReply.id, activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply.id, user0._id.toString());
     });
 

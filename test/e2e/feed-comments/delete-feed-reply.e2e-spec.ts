@@ -73,21 +73,21 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
           },
         ),
       );
       feedComments = await feedCommentsService
         .createFeedComment(
           feedPost.id,
-          activeUser.id,
+          activeUser._id.toString(),
           sampleFeedCommentsObject.message,
           sampleFeedCommentsObject.images,
         );
       feedReply = await feedCommentsService
         .createFeedReply(
           feedComments.id,
-          activeUser.id,
+          activeUser._id.toString(),
           'Hello Reply Test Message 1',
           sampleFeedCommentsObject.images,
         );

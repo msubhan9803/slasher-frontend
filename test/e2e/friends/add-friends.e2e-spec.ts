@@ -75,7 +75,7 @@ describe('Add Friends (e2e)', () => {
 
       expect(notificationsService.create).toHaveBeenCalledWith({
         userId: user1.id,
-        senderId: activeUser.id,
+        senderId: activeUser._id,
         notifyType: NotificationType.UserSentYouAFriendRequest,
         notificationMsg: 'sent you a friend request',
       });

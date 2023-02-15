@@ -74,7 +74,7 @@ describe('Events all / (e2e)', () => {
       await eventService.create(
         eventsFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             event_type: activeEventCategory,
             startDate: eventDateRange.start,
             endDate: eventDateRange.end,
@@ -87,7 +87,7 @@ describe('Events all / (e2e)', () => {
       await eventService.create(
         eventsFactory.build(
           {
-            userId: activeUser.id,
+            userId: activeUser._id,
             event_type: activeEventCategory,
             startDate: eventDateRange.start,
             endDate: eventDateRange.end,
@@ -153,7 +153,7 @@ describe('Events all / (e2e)', () => {
           await eventService.create(
             eventsFactory.build(
               {
-                userId: activeUser.id,
+                userId: activeUser._id,
                 event_type: activeEventCategory,
                 startDate: eventDateRange.start,
                 endDate: eventDateRange.end,

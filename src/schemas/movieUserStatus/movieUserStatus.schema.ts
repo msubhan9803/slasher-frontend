@@ -90,7 +90,7 @@ export class MovieUserStatus {
 
 export const MovieUserStatusSchema = SchemaFactory.createForClass(MovieUserStatus);
 
-export type MovieUserStatusDocument =  HydratedDocument<MovieUserStatus>;
+export type MovieUserStatusDocument = HydratedDocument<MovieUserStatus>;
 
 MovieUserStatusSchema.index({ movieId: 1, userId: 1 });
 MovieUserStatusSchema.index({ favourite: 1, userId: 1 });

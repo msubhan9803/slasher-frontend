@@ -48,11 +48,11 @@ describe('ReportAndUnreportService', () => {
   describe('#create', () => {
     it('creates the expected report', async () => {
       const reportAndUnreportObj = {
-        from: activeUser.id,
-        to: user0.id,
+        from: activeUser._id,
+        to: user0._id,
         reaction: ReportReaction.Reported,
         reasonOfReport: 'this is test reason',
-      };
+      } as unknown;
       const report = await reportAndUnreportService.create(reportAndUnreportObj);
       expect(report).toMatchObject(reportAndUnreportObj);
     });

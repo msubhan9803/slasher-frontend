@@ -48,7 +48,9 @@ export class NotificationsController {
     return notifications.map((notification) => {
       const notificationAsObject = notification.toObject();
       if (notificationAsObject.rssFeedId && !notificationAsObject.feedPostId) {
-        notificationAsObject.feedPostId = { _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id } as unknown as FeedPost
+        notificationAsObject.feedPostId = {
+          _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id,
+        } as unknown as FeedPost;
       }
       return notificationAsObject;
     }).map((notification) => pick(notification, [

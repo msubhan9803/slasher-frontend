@@ -58,7 +58,7 @@ describe('Delete Follow (e2e)', () => {
     );
     rssFeedProvideFollows = await rssFeedProviderFollowsService.create(
       {
-        userId: activeUser.id,
+        userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
       },
     );
@@ -67,7 +67,7 @@ describe('Delete Follow (e2e)', () => {
   describe('DELETE /rss-feed-providers/:id/follows/:userId', () => {
     it('successfully deletes the rss feed providers follow record', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser.id}`)
+        .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProvideFollows._id);
@@ -78,7 +78,7 @@ describe('Delete Follow (e2e)', () => {
     it('returns the expected response when the rss feed provider id is not found', async () => {
       const rssFeedProviderId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser.id}`)
+        .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -99,7 +99,7 @@ describe('Delete Follow (e2e)', () => {
       it('id must be a mongodb id', async () => {
         const rssFeedProviderId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser.id}`)
+          .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

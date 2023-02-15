@@ -3,7 +3,7 @@ import { acceptFriendsRequest, rejectFriendsRequest } from '../../../../api/frie
 import { userInitialData } from '../../../../api/users';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { forceReloadSuggestedFriends } from '../../../../redux/slices/suggestedFriendsSlice';
-import { setUserInitialData } from '../../../../redux/slices/userSlice';
+import { setFriendListReload, setUserInitialData } from '../../../../redux/slices/userSlice';
 import FriendRequestItem from './FriendRequestItem';
 import SidebarHeaderWithLink from './SidebarHeaderWithLink';
 
@@ -23,6 +23,7 @@ function FriendRequests() {
       .then(() => userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
         dispatch(forceReloadSuggestedFriends());
+        dispatch(setFriendListReload(true));
       }));
   };
   const handleRejectRequest = (userId: string) => {
@@ -30,6 +31,7 @@ function FriendRequests() {
       .then(() => userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
         dispatch(forceReloadSuggestedFriends());
+        dispatch(setFriendListReload(true));
       }));
   };
   return (

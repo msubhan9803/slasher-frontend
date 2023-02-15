@@ -13,6 +13,7 @@ export const userSlice = createSlice({
       id: '',
       profilePic: '',
     },
+    forceFriendListReload: false,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -35,6 +36,12 @@ export const userSlice = createSlice({
     handleUpdatedUnreadMessageCount: (state, payload) => {
       state.unreadMessageCount = payload.payload;
     },
+    setUserRecentFriendRequests: (state, payload) => {
+      state.recentFriendRequests = payload.payload;
+    },
+    setFriendListReload: (state, payload) => {
+      state.forceFriendListReload = payload.payload;
+    },
   },
 });
 
@@ -43,6 +50,8 @@ export const {
   incrementUnreadNotificationCount,
   handleUpdatedUnreadMessageCount,
   updateUserProfilePic,
+  setUserRecentFriendRequests,
+  setFriendListReload,
 } = userSlice.actions;
 
 export default userSlice.reducer;

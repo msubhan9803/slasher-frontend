@@ -76,7 +76,7 @@ feedReply;
     feedComments = await feedCommentsService.createFeedComment(
       feedCommentsFactory.build(
         {
-          userId: activeUser._id.toString(),
+          userId: activeUser._id,
           feedPostId: feedPost.id,
           message: feedCommentsAndReplyObject.message,
           images: feedCommentsAndReplyObject.images,

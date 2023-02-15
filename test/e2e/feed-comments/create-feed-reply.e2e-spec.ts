@@ -290,7 +290,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       const feedComment1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
-            userId: commentCreatorUser._id.toString(),
+            userId: commentCreatorUser._id,
             feedPostId: feedPost1.id,
             message: sampleFeedReplyObject.message,
             images: sampleFeedReplyObject.images,
@@ -328,7 +328,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
-            userId: commentCreatorUser._id.toString(),
+            userId: commentCreatorUser._id,
             feedPostId: feedPost1.id,
             message: sampleFeedReplyObject.message,
             images: sampleFeedReplyObject.images,

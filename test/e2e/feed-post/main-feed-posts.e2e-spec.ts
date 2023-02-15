@@ -70,13 +70,13 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     await friendsModel.create({
-      from: activeUser._id.toString(),
+      from: activeUser._id,
       to: user1._id.toString(),
       reaction: FriendRequestReaction.Accepted,
     });
     await friendsModel.create({
       from: user2._id.toString(),
-      to: activeUser._id.toString(),
+      to: activeUser._id,
       reaction: FriendRequestReaction.Accepted,
     });
     await rssFeedProviderFollowsService.create(

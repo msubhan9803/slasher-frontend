@@ -70,7 +70,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           userFactory.build(),
         ].map((userData) => usersService.create(userData)));
 
-        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id]);
+        matchList = await chatService.createPrivateDirectMessageConversation([users[0]._id, activeUser._id.toString()]);
       });
       it('finds an existing conversation by searching for the participants of that conversation', async () => {
         await friendsService.createFriendRequest(activeUser._id.toString(), users[0]._id.toString());
@@ -79,7 +79,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           .post('/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[0]._id });
-        expect(response.body._id).toEqual(matchList.id);
+        expect(response.body._id).toEqual(matchList._id.toString());
       });
 
       it('creates a conversation if one does not exist with the given participants', async () => {

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class DisallowedUsername {
@@ -21,7 +21,7 @@ export class DisallowedUsername {
 
 export const DisallowedUsernameSchema = SchemaFactory.createForClass(DisallowedUsername);
 
-export type DisallowedUsernameDocument = DisallowedUsername & Document;
+export type DisallowedUsernameDocument = HydratedDocument<DisallowedUsername>;
 
 DisallowedUsernameSchema.index(
   { username: 1 },

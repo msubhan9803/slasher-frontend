@@ -23,9 +23,9 @@ export class BlocksController {
   @Post()
   async createBlock(@Req() request: Request, @Body() createBlockDto: CreateBlockDto) {
     const user = getUserFromRequest(request);
-    await this.blocksService.createBlock(user._id, createBlockDto.userId);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, createBlockDto.userId);
-    await this.chatService.deletePrivateDirectMessageConversations(user._id, createBlockDto.userId);
+    await this.blocksService.createBlock(user.id, createBlockDto.userId);
+    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, createBlockDto.userId);
+    await this.chatService.deletePrivateDirectMessageConversations(user.id, createBlockDto.userId);
     return { success: true };
   }
 
@@ -35,7 +35,7 @@ export class BlocksController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) deleteBlockQueryDto: DeleteBlockQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    await this.blocksService.deleteBlock(user._id, deleteBlockQueryDto.userId);
+    await this.blocksService.deleteBlock(user.id, deleteBlockQueryDto.userId);
     return { success: true };
   }
 
@@ -46,6 +46,6 @@ export class BlocksController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: BlocksLimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    return this.blocksService.getBlockedUsersBySender(user._id, query.limit, query.offset);
+    return this.blocksService.getBlockedUsersBySender(user.id, query.limit, query.offset);
   }
 }

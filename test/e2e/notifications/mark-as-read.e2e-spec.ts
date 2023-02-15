@@ -57,7 +57,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     notification = await notificationsService.create(
       notificationFactory.build({
         is_deleted: NotificationDeletionStatus.NotDeleted,
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
       }),
     );
 

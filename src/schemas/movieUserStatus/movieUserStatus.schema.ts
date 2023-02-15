@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
@@ -90,7 +90,7 @@ export class MovieUserStatus {
 
 export const MovieUserStatusSchema = SchemaFactory.createForClass(MovieUserStatus);
 
-export type MovieUserStatusDocument = MovieUserStatus & Document;
+export type MovieUserStatusDocument = HydratedDocument<MovieUserStatus>;
 
 MovieUserStatusSchema.index({ movieId: 1, userId: 1 });
 MovieUserStatusSchema.index({ favourite: 1, userId: 1 });

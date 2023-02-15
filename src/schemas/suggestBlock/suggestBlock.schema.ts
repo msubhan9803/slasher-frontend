@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { SuggestBlockReaction } from './suggestBlock.enums';
 import { SuggestBlockUnusedFields } from './suggestBlock.unused-fields';
@@ -63,4 +63,4 @@ SuggestBlockSchema.index(
   },
 );
 
-export type SuggestBlockDocument = SuggestBlock & Document;
+export type SuggestBlockDocument = HydratedDocument<SuggestBlock>;

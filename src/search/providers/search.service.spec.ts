@@ -73,15 +73,15 @@ describe('SearchService', () => {
 
   describe('#findUsers', () => {
     it('returns the expected users', async () => {
-      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      excludedUserIds.push(user0._id);
+      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0.id);
+      excludedUserIds.push(user0.id);
       const users = await searchService.findUsers('Count', 5, 0, excludedUserIds);
       expect(users).toHaveLength(2);
     });
 
     it('returns the expected response for applied limit and offset', async () => {
-      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      excludedUserIds.push(user0._id);
+      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0.id);
+      excludedUserIds.push(user0.id);
       const users = await searchService.findUsers('Count', 1, 1, excludedUserIds);
       expect(users).toHaveLength(1);
     });

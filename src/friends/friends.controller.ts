@@ -36,11 +36,11 @@ export class FriendsController {
     if (block) {
       throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    await this.friendsService.createFriendRequest(user._id, createFriendRequestDto.userId);
+    await this.friendsService.createFriendRequest(user.id, createFriendRequestDto.userId);
 
     const recentNotificationExists = await this.notificationsService.similarRecentNotificationExists(
       createFriendRequestDto.userId,
-      user._id,
+      user.id,
       NotificationType.UserSentYouAFriendRequest,
     );
     // Do not send another notification about this if a similar notification was recently sent.
@@ -65,7 +65,7 @@ export class FriendsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    const friends = await this.friendsService.getSentFriendRequests(user._id, query.limit, query.offset);
+    const friends = await this.friendsService.getSentFriendRequests(user.id, query.limit, query.offset);
     return friends;
   }
 
@@ -76,7 +76,7 @@ export class FriendsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LimitOffSetDto,
   ) {
     const user = getUserFromRequest(request);
-    const friends = await this.friendsService.getReceivedFriendRequests(user._id, query.limit, query.offset);
+    const friends = await this.friendsService.getReceivedFriendRequests(user.id, query.limit, query.offset);
     return friends;
   }
 
@@ -87,7 +87,7 @@ export class FriendsController {
     cancelFriendshipOrDeclineRequestDto: CancelFriendshipOrDeclineRequestDto,
   ) {
     const user = getUserFromRequest(request);
-    await this.friendsService.cancelFriendshipOrDeclineRequest(user._id, cancelFriendshipOrDeclineRequestDto.userId);
+    await this.friendsService.cancelFriendshipOrDeclineRequest(user.id, cancelFriendshipOrDeclineRequestDto.userId);
     return { success: true };
   }
 
@@ -98,7 +98,7 @@ export class FriendsController {
   ) {
     try {
       const user = getUserFromRequest(request);
-      await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user._id);
+      await this.friendsService.acceptFriendRequest(acceptFriendRequestDto.userId, user.id);
       return { success: true };
     } catch (error) {
       throw new HttpException('Unable to accept friend request', HttpStatus.BAD_REQUEST);
@@ -111,7 +111,7 @@ export class FriendsController {
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendshipDto,
   ) {
     const user = getUserFromRequest(request);
-    const friend = await this.friendsService.findFriendship(user._id, query.userId);
+    const friend = await this.friendsService.findFriendship(user.id, query.userId);
     if (!friend) {
       return {
         reaction: null,
@@ -128,7 +128,7 @@ export class FriendsController {
     @Body() blockSuggestedFriendDto: BlockSuggestedFriendDto,
   ) {
     const user = getUserFromRequest(request);
-    await this.friendsService.createSuggestBlock(user._id, blockSuggestedFriendDto.userId);
+    await this.friendsService.createSuggestBlock(user.id, blockSuggestedFriendDto.userId);
     return { success: true };
   }
 }

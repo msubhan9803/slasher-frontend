@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { PodcastUnusedFields } from './podcast.unused-fields';
 
 @Schema({ timestamps: true })
@@ -36,4 +36,4 @@ export class Podcast extends PodcastUnusedFields {
 
 export const PodcastSchema = SchemaFactory.createForClass(Podcast);
 
-export type PodcastDocument = Podcast & Document;
+export type PodcastDocument = HydratedDocument<Podcast>;

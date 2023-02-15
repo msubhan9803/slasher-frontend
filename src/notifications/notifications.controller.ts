@@ -13,6 +13,7 @@ import { ParamNotificationIdDto } from './dto/param-notificationId.dto';
 import { NotificationsGateway } from './providers/notifications.gateway';
 import { NotificationsService } from './providers/notifications.service';
 import { pick } from '../utils/object-utils';
+import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -47,7 +48,9 @@ export class NotificationsController {
     return notifications.map((notification) => {
       const notificationAsObject = notification.toObject();
       if (notificationAsObject.rssFeedId && !notificationAsObject.feedPostId) {
-        notificationAsObject.feedPostId = { _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id };
+        notificationAsObject.feedPostId = {
+          _id: rssFeedIdsToFeedPostIds[notificationAsObject.rssFeedId.toString()]._id,
+        } as unknown as FeedPost;
       }
       return notificationAsObject;
     }).map((notification) => pick(notification, [

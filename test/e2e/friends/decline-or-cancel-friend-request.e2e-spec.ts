@@ -52,9 +52,9 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
-    await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-    await friendsService.createFriendRequest(user1._id.toString(), activeUser._id.toString());
-    await friendsService.createFriendRequest(activeUser._id.toString(), user2._id.toString());
+    await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+    await friendsService.createFriendRequest(user1._id.toString(), activeUser.id);
+    await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
   });
 
   describe('Delete /friends', () => {
@@ -69,8 +69,8 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
         expect(response.body).toEqual({ success: true });
         const query = {
           $or: [
-            { from: activeUser._id, to: user1._id },
-            { from: user1._id, to: activeUser._id },
+            { from: activeUser.id, to: user1._id },
+            { from: user1._id, to: activeUser.id },
           ],
         };
         const friends = await friendsModel.findOne(query);

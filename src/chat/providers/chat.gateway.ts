@@ -52,7 +52,7 @@ export class ChatGateway {
     const user = await this.usersService.findBySocketId(client.id);
     const fromUserId = user._id.toString();
     const { toUserId } = data;
-    const areFriends = await this.friendsService.areFriends(user._id, toUserId);
+    const areFriends = await this.friendsService.areFriends(user.id, toUserId);
     if (!areFriends) {
       return { success: false, errorMessage: 'You must be friends with this user to perform this action.' };
     }

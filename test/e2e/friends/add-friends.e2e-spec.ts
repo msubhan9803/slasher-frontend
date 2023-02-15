@@ -69,7 +69,7 @@ describe('Add Friends (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
-      const friends = await friendsModel.findOne({ from: activeUser._id, to: user1._id });
+      const friends = await friendsModel.findOne({ from: activeUser.id, to: user1._id });
       expect(friends.to.toString()).toEqual(user1.id);
       expect(response.body).toEqual({ success: true });
 
@@ -99,7 +99,7 @@ describe('Add Friends (e2e)', () => {
 
       // Expect new pending entry to be created
       expect(
-        (await friendsModel.findOne({ from: activeUser._id, to: user1._id })).reaction,
+        (await friendsModel.findOne({ from: activeUser.id, to: user1._id })).reaction,
       ).toEqual(FriendRequestReaction.Pending);
     });
 
@@ -118,7 +118,7 @@ describe('Add Friends (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send({ userId: activeUser._id });
+        .send({ userId: activeUser.id });
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
         message: 'You cannot send a friend request to yourself',
@@ -128,7 +128,7 @@ describe('Add Friends (e2e)', () => {
 
     it('when user is block than expected response.', async () => {
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });

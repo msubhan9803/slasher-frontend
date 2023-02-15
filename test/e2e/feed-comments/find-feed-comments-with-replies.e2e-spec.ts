@@ -100,7 +100,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     it('get all feed comments with reply', async () => {
       const feedComments1 = await feedCommentsService
         .createFeedComment(
-          feedPost.id,
+          feedPost._id.toString(),
           activeUser._id.toString(),
           'Comment 1',
           commentImages,
@@ -112,7 +112,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user3._id.toString());
       const feedComments2 = await feedCommentsService
         .createFeedComment(
-          feedPost.id,
+          feedPost._id.toString(),
           activeUser._id.toString(),
           'Comment 2',
           commentImages,
@@ -174,35 +174,35 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       beforeEach(async () => {
         const feedComments1 = await feedCommentsService
           .createFeedComment(
-            feedPost.id,
+            feedPost._id.toString(),
             activeUser._id.toString(),
             'Hello Test Message 1',
             commentImages,
           );
         const feedComments2 = await feedCommentsService
           .createFeedComment(
-            feedPost.id,
+            feedPost._id.toString(),
             activeUser._id.toString(),
             'Hello Test Message 2',
             commentImages,
           );
         const feedComments3 = await feedCommentsService
           .createFeedComment(
-            feedPost.id,
+            feedPost._id.toString(),
             activeUser._id.toString(),
             'Hello Test Message 3',
             commentImages,
           );
         const feedComments4 = await feedCommentsService
           .createFeedComment(
-            feedPost.id,
+            feedPost._id.toString(),
             activeUser._id.toString(),
             'Hello Test Message 4',
             commentImages,
           );
         const feedComments5 = await feedCommentsService
           .createFeedComment(
-            feedPost.id,
+            feedPost._id.toString(),
             activeUser._id.toString(),
             'Hello Test Message 5',
             commentImages,
@@ -302,7 +302,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user4._id,
         reaction: BlockAndUnblockReaction.Block,
       });

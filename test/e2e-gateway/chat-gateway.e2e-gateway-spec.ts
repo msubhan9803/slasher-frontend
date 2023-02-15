@@ -256,16 +256,16 @@ describe('Chat Gateway (e2e)', () => {
 
     beforeEach(async () => {
       // user1 messages
-      message0 = await chatService.sendPrivateDirectMessage(activeUser.id, user1._id, 'Hi, test message.');
-      message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser.id, 'Hi, there!');
+      message0 = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message.');
+      message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, there!');
       matchList = await matchListModel.findOne({
-        participants: activeUser.id,
+        participants: activeUser._id,
       });
 
       // user2 messages
-      message2 = await chatService.sendPrivateDirectMessage(user2._id, activeUser.id, 'Hi, Test!');
-      message3 = await chatService.sendPrivateDirectMessage(user2._id, activeUser.id, 'Hi, Test2!');
-      await chatService.sendPrivateDirectMessage(user2._id, activeUser.id, 'Hi, Test3!');
+      message2 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test2!');
+      await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test3!');
     });
 
     describe('successful responses', () => {
@@ -363,8 +363,8 @@ describe('Chat Gateway (e2e)', () => {
         await waitForAuthSuccessMessage(client);
 
         // Set 2 messages of `user2` be deleted for `activeUser`
-        await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [activeUser.id] } });
-        await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [activeUser.id] } });
+        await messageModel.updateOne({ _id: message2._id }, { $set: { deletefor: [activeUser._id] } });
+        await messageModel.updateOne({ _id: message3._id }, { $set: { deletefor: [activeUser._id] } });
 
         // message2 belongs to chat with `user2`
         const payload = {
@@ -450,7 +450,7 @@ describe('Chat Gateway (e2e)', () => {
   describe('#markMessageAsRead', () => {
     let message;
     beforeEach(async () => {
-      message = await chatService.sendPrivateDirectMessage(user1._id, activeUser.id, 'Hi, test message.');
+      message = await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test message.');
     });
 
     describe('successful responses', () => {
@@ -513,7 +513,7 @@ describe('Chat Gateway (e2e)', () => {
       });
 
       it('returns the expected error message when user tries to mark message as read but message was not sent TO that user', async () => {
-        const message1 = await chatService.sendPrivateDirectMessage(activeUser.id, user1._id, 'Hi, test message.');
+        const message1 = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message.');
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
@@ -539,9 +539,9 @@ describe('Chat Gateway (e2e)', () => {
     let matchList;
 
     beforeEach(async () => {
-      message0 = await chatService.sendPrivateDirectMessage(user1._id, activeUser.id, 'Hi, there!');
+      message0 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, there!');
       matchList = await matchListModel.findOne({
-        participants: activeUser.id,
+        participants: activeUser._id,
       });
     });
 
@@ -554,7 +554,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(receiverClient);
 
       const message = [message0];
-      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser.id);
+      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser._id.toString());
 
       await chatGateway.emitMessageForConversation(message, toUserId);
 

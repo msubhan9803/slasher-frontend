@@ -56,14 +56,15 @@ function CommentInput({
                   role="button"
                   onClick={() => {
                     inputFile.current?.click();
-                    setIsReply(false);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                    setIsReply && setIsReply(false);
                   }}
                   icon={solid('camera')}
                   size="lg"
                 />
                 <input
                   type="file"
-                  name="post"
+                  name={dataId ? 'reply' : 'post'}
                   className="d-none"
                   accept="image/*"
                   onChange={(post) => {

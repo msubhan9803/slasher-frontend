@@ -15,8 +15,8 @@ interface CustomSpanProps {
   marginRight: string;
 }
 const CustomSpan = styled(Form.Text) <CustomSpanProps>`
-  margin-top: -1.43rem;
-  margin-right: .5rem;
+  margin-top: ${(props) => props.marginTop};
+  margin-right: ${(props) => props.marginRight};
 `;
 
 function CharactersCounter({

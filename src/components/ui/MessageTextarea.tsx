@@ -67,6 +67,7 @@ function MessageTextarea({
       onSelect={handleSelect}
       defaultValue={defaultValue || ''}
       notFoundContent="Type to search for a username"
+      aria-label="message"
     >
       {mentionLists.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>

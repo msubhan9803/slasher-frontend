@@ -165,5 +165,22 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .send();
       expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
     });
+
+    it('when rssfeedproviderid is same as userid than expected response', async () => {
+      const user = await usersService.create(userFactory.build({
+        profile_status: 1,
+      }));
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user._id,
+          rssfeedProviderId: user._id,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+    });
   });
 });

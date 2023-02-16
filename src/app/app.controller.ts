@@ -6,7 +6,7 @@ export class AppController {
   @Get()
   index(): object {
     return {
-      appVersion: process.env.npm_package_version,
+      version: process.env.npm_package_version,
     };
   }
 }

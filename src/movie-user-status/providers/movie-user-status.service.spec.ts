@@ -5,7 +5,9 @@ import { Connection, Model } from 'mongoose';
 import { AppModule } from '../../app.module';
 import { MovieUserStatusService } from './movie-user-status.service';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
-import { MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched } from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import {
+ MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched,
+} from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { MoviesService } from '../../movies/providers/movies.service';
 import { UsersService } from '../../users/providers/users.service';
@@ -55,13 +57,13 @@ describe('MovieUserStatusService', () => {
       userFactory.build(),
     );
     movieUserStatus1 = await movieUserStatusModel.create({
-      name: "movie user status1",
+      name: 'movie user status1',
       userId: activeUser._id,
       movieId: movie._id,
-      favorite: 0,
+      favourite: 0,
       watched: 0,
       watch: 0,
-      buy: 0
+      buy: 0,
     });
   });
 
@@ -72,7 +74,7 @@ describe('MovieUserStatusService', () => {
   describe('#addMovieUserStatusFavorite', () => {
     it('successfully creates a add movie user status favorite', async () => {
       await movieUserStatusService.addMovieUserStatusFavorite(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.favourite).toBe(MovieUserStatusFavorites.Favorite);
     });
   });
@@ -80,7 +82,7 @@ describe('MovieUserStatusService', () => {
   describe('#deleteMovieUserStatusFavorite', () => {
     it('successfully delete a add movie user status favorite', async () => {
       await movieUserStatusService.deleteMovieUserStatusFavorite(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.favourite).toBe(MovieUserStatusFavorites.NotFavorite);
     });
   });
@@ -88,7 +90,7 @@ describe('MovieUserStatusService', () => {
   describe('#addMovieUserStatusWatch', () => {
     it('successfully creates a add movie user status watch', async () => {
       await movieUserStatusService.addMovieUserStatusWatch(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.watch).toBe(MovieUserStatusWatch.Watch);
     });
   });
@@ -96,7 +98,7 @@ describe('MovieUserStatusService', () => {
   describe('#deleteMovieUserStatusWatch', () => {
     it('successfully delete a add movie user status watch', async () => {
       await movieUserStatusService.deleteMovieUserStatusWatch(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.watch).toBe(MovieUserStatusWatch.NotWatch);
     });
   });
@@ -104,7 +106,7 @@ describe('MovieUserStatusService', () => {
   describe('#addMovieUserStatusWatched', () => {
     it('successfully creates a add movie user status watched', async () => {
       await movieUserStatusService.addMovieUserStatusWatched(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.watched).toBe(MovieUserStatusWatched.Watched);
     });
   });
@@ -112,7 +114,7 @@ describe('MovieUserStatusService', () => {
   describe('#deleteMovieUserStatusWatched', () => {
     it('successfully delete a add movie user status watched', async () => {
       await movieUserStatusService.deleteMovieUserStatusWatched(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.watched).toBe(MovieUserStatusWatched.NotWatched);
     });
   });
@@ -120,7 +122,7 @@ describe('MovieUserStatusService', () => {
   describe('#addMovieUserStatusBuy', () => {
     it('successfully creates a add movie user status buy', async () => {
       await movieUserStatusService.addMovieUserStatusBuy(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.buy).toBe(MovieUserStatusBuy.Buy);
     });
   });
@@ -128,14 +130,14 @@ describe('MovieUserStatusService', () => {
   describe('#deleteMovieUserStatusBuy', () => {
     it('successfully delete a add movie user status buy', async () => {
       await movieUserStatusService.deleteMovieUserStatusBuy(activeUser._id.toString(), movie._id.toString());
-      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatus.buy).toBe(MovieUserStatusBuy.NotBuy);
     });
   });
 
   describe('#findMovieUserStatus', () => {
     it('successfully find a add movie user status', async () => {
-      const movieUserStatusData = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      const movieUserStatusData = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
       expect(movieUserStatusData.name).toBe(movieUserStatus1.name);
     });
   });

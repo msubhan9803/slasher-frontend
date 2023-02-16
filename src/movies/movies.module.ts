@@ -5,7 +5,7 @@ import { Movie, MovieSchema } from '../schemas/movie/movie.schema';
 import { addPrePostHooks } from '../schemas/movie/movie.pre-post-hooks';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './providers/movies.service';
-import { MovieUserStatusModule } from '../movieUserStatus/movie.user.status.module';
+import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
 
 @Module({
   imports: [

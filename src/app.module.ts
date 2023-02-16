@@ -32,7 +32,7 @@ import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
 import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
-import { MovieUserStatusModule } from './movieUserStatus/movie.user.status.module';
+import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 
 @Module({
   imports: [

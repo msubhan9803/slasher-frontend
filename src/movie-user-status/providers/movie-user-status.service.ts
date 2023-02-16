@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { MovieUserStatus, MovieUserStatusDocument  } from '../../schemas/movieUserStatus/movieUserStatus.schema';
+import {
+ MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusWatch, MovieUserStatusWatched,
+} from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 
 @Injectable()
 export class MovieUserStatusService {
@@ -46,7 +48,7 @@ export class MovieUserStatusService {
         userId: new mongoose.Types.ObjectId(userId),
         movieId: new mongoose.Types.ObjectId(movieId),
       },
-      { $set: { watch: MovieUserStatusWatch.NotWatch} },
+      { $set: { watch: MovieUserStatusWatch.NotWatch } },
     );
   }
 
@@ -67,7 +69,7 @@ export class MovieUserStatusService {
         userId: new mongoose.Types.ObjectId(userId),
         movieId: new mongoose.Types.ObjectId(movieId),
       },
-      { $set: { watched: MovieUserStatusWatched.NotWatched} },
+      { $set: { watched: MovieUserStatusWatched.NotWatched } },
     );
   }
 
@@ -88,14 +90,14 @@ export class MovieUserStatusService {
         userId: new mongoose.Types.ObjectId(userId),
         movieId: new mongoose.Types.ObjectId(movieId),
       },
-      { $set: { buy: MovieUserStatusBuy.NotBuy} },
+      { $set: { buy: MovieUserStatusBuy.NotBuy } },
     );
   }
 
   async findMovieUserStatus(userId: string, movieId: string): Promise<MovieUserStatus> {
     const movieUserStatus = await this.movieUserStatusModel
       .findOne({
-        $and: [{ userId: new mongoose.Types.ObjectId(userId) }, { movieId: new mongoose.Types.ObjectId(movieId)  }],
+        $and: [{ userId: new mongoose.Types.ObjectId(userId) }, { movieId: new mongoose.Types.ObjectId(movieId) }],
       })
       .exec();
     return movieUserStatus;

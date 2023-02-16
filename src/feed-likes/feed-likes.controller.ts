@@ -58,8 +58,8 @@ export class FeedLikesController {
 
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user.id);
 
-    let postUserId
-    if(!post.rssfeedProviderId){
+    let postUserId;
+    if (!post.rssfeedProviderId) {
       // Create notification for post creator, informing them that a like was added to their post.
       postUserId = (post.userId as any)._id.toString();
     }

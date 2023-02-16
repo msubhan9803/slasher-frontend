@@ -92,12 +92,12 @@ export class MoviesController {
   }
 
   @Get(':movieId/lists')
-  async findAllMovieUserStatus(
+  async findMovieUserStatus(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(user.id, params.movieId);
+    const movieUserStatusData = await this.movieUserStatusService.findMovieUserStatus(user.id, params.movieId);
     if (!movieUserStatusData) {
       return {
         favorite: 0,
@@ -120,8 +120,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.addMovieUserStatusFavorite(user.id, params.movieId);
@@ -134,8 +134,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.deleteMovieUserStatusFavorite(user.id, params.movieId);
@@ -148,8 +148,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.addMovieUserStatusWatch(user.id, params.movieId);
@@ -162,8 +162,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.deleteMovieUserStatusWatch(user.id, params.movieId);
@@ -176,8 +176,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.addMovieUserStatusWatched(user.id, params.movieId);
@@ -190,8 +190,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.deleteMovieUserStatusWatched(user.id, params.movieId);
@@ -204,8 +204,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.addMovieUserStatusBuy(user.id, params.movieId);
@@ -218,8 +218,8 @@ export class MoviesController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
   ) {
     const user = getUserFromRequest(request);
-    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
-    if (!movieUserStatusData) {
+    const movieData = await this.moviesService.findById(params.movieId, true);
+    if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     await this.movieUserStatusService.deleteMovieUserStatusBuy(user.id, params.movieId);

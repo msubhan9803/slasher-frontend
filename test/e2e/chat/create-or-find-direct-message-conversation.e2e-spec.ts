@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -42,6 +42,10 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
 
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -76,7 +80,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
         await friendsService.createFriendRequest(activeUser._id.toString(), users[0]._id.toString());
         await friendsService.acceptFriendRequest(activeUser._id.toString(), users[0]._id.toString());
         const response = await request(app.getHttpServer())
-          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[0]._id });
         expect(response.body._id).toEqual(matchList._id.toString());
@@ -88,7 +92,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
         await friendsService.acceptFriendRequest(activeUser._id.toString(), users[1]._id.toString());
 
         const response = await request(app.getHttpServer())
-          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
         expect(response.body).toEqual({
@@ -110,7 +114,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
           reaction: BlockAndUnblockReaction.Block,
         });
         const response = await request(app.getHttpServer())
-          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: user1._id });
         expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -133,7 +137,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
 
       it('returns the expected response status and error message, and does not create a new conversation', async () => {
         const response = await request(app.getHttpServer())
-          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: users[1]._id });
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -147,7 +151,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .post('/chat/conversations/create-or-find-direct-message-conversation')
+          .post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

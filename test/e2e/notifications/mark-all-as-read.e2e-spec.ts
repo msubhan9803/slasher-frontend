@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +34,10 @@ describe('All Mark As Read Notifications (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -63,7 +67,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
     describe('All Mark As Read Notifications', () => {
       it('finds all the expected isRead mark as read notifications details', async () => {
         const response = await request(app.getHttpServer())
-          .patch('/notifications/mark-all-as-read')
+          .patch('/api/v1/notifications/mark-all-as-read')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const getAllReadNotifications = await notificationsService.findAllByUser(activeUser._id.toString(), 15);

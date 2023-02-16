@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -28,6 +28,10 @@ describe('Users / Upload Cover image (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -50,7 +54,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     it('responds with cover photo url if file upload successful', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/cover-image')
+          .post('/api/v1/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -61,7 +65,7 @@ describe('Users / Upload Cover image (e2e)', () => {
 
     it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users/cover-image')
+        .post('/api/v1/users/cover-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -71,7 +75,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     it('responds expected response when file is not jpg, jpeg, png, or gif', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/cover-image')
+          .post('/api/v1/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -83,7 +87,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/cover-image')
+          .post('/api/v1/users/cover-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)

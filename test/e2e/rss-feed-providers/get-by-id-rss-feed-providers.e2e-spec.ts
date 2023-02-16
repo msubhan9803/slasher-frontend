@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -35,6 +35,10 @@ describe('rssFeedProviders / :id (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -59,7 +63,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
     describe('Successful get rss feed providers data', () => {
       it('get the rss feed providers successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${activeRssFeedProvider._id}`)
+          .get(`/api/v1/rss-feed-providers/${activeRssFeedProvider._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -74,7 +78,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
       it('rss feed providers not found if parameter id value does not exists', async () => {
         const tempRssFeedProviderObjectId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${tempRssFeedProviderObjectId}`)
+          .get(`/api/v1/rss-feed-providers/${tempRssFeedProviderObjectId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);

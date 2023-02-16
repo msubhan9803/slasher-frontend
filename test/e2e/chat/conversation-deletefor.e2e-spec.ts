@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -35,6 +35,10 @@ describe('Conversation / (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -64,7 +68,7 @@ describe('Conversation / (e2e)', () => {
       it('success response on delete converstaion messages call', async () => {
         const matchListId = message1.matchId.toString();
         const response = await request(app.getHttpServer())
-          .delete(`/chat/conversation/${matchListId}`)
+          .delete(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toEqual({ success: true });
@@ -78,7 +82,7 @@ describe('Conversation / (e2e)', () => {
       it('when active user is not a participant it returns the expected error response', async () => {
         const matchListId = message3.matchId.toString();
         const response = await request(app.getHttpServer())
-          .delete(`/chat/conversation/${matchListId}`)
+          .delete(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ statusCode: 401, message: 'You are not a member of this conversation' });
@@ -87,7 +91,7 @@ describe('Conversation / (e2e)', () => {
       it('returns a 404 when when the conversation is not found', async () => {
       const matchListId = new mongoose.Types.ObjectId().toString();
         const response = await request(app.getHttpServer())
-          .delete(`/chat/conversation/${matchListId}`)
+          .delete(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.NOT_FOUND);
@@ -99,7 +103,7 @@ describe('Conversation / (e2e)', () => {
       it('matchListId must be a mongodb id', async () => {
         const badMatchListId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/chat/conversation/${badMatchListId}`)
+          .delete(`/api/v1/chat/conversation/${badMatchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

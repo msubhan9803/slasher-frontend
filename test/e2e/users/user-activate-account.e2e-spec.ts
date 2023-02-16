@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -38,6 +38,10 @@ describe('Users activate account (e2e)', () => {
     rssFeedProvidersFollowModel = moduleRef.get<Model<RssFeedProviderFollowDocument>>(getModelToken(RssFeedProviderFollow.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -79,7 +83,7 @@ describe('Users activate account (e2e)', () => {
       it('when email and verification_token both exist, it successfully activates, creates '
         + 'the expected RssFeedProviderFollow records, and returns the expected response', async () => {
           const response = await request(app.getHttpServer())
-            .post('/users/activate-account')
+            .post('/api/v1/users/activate-account')
             .send(postBody)
             .expect(HttpStatus.CREATED);
           expect(response.body).toEqual({ success: true });
@@ -97,7 +101,7 @@ describe('Users activate account (e2e)', () => {
       it('when email does not exist, but verification_token does exist, it returns the expected response', async () => {
         postBody.email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Token is not valid');
@@ -106,7 +110,7 @@ describe('Users activate account (e2e)', () => {
       it('when email does exist, but verification_token does not exist, it returns the expected response', async () => {
         postBody.verification_token = uuidv4();
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Token is not valid');
@@ -116,7 +120,7 @@ describe('Users activate account (e2e)', () => {
         postBody.email = 'postBodytestuser@gmail.com';
         postBody.verification_token = uuidv4();
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Token is not valid');
@@ -127,7 +131,7 @@ describe('Users activate account (e2e)', () => {
       it('verification_token should not be empty', async () => {
         postBody.verification_token = '';
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -138,7 +142,7 @@ describe('Users activate account (e2e)', () => {
       it('email should not be empty', async () => {
         postBody.email = '';
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email should not be empty');
@@ -147,7 +151,7 @@ describe('Users activate account (e2e)', () => {
       it('email is a proper-form email', async () => {
         postBody.email = 'testuserpostbodygmail.com';
         const response = await request(app.getHttpServer())
-          .post('/users/activate-account')
+          .post('/api/v1/users/activate-account')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(

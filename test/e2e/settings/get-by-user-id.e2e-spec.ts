@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -32,6 +32,10 @@ describe('GET settings (e2e)', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -60,7 +64,7 @@ describe('GET settings (e2e)', () => {
           }),
         );
         const response = await request(app.getHttpServer())
-          .get('/settings/notifications')
+          .get('/api/v1/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -93,7 +97,7 @@ describe('GET settings (e2e)', () => {
 
       it('returns the expected response when the user setting is not found', async () => {
         const response = await request(app.getHttpServer())
-          .get('/settings/notifications')
+          .get('/api/v1/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);

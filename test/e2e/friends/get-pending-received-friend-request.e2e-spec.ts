@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -33,6 +33,10 @@ describe('Get Friends (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -62,7 +66,7 @@ describe('Get Friends (e2e)', () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())
-          .get(`/friends/requests/received?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/friends/requests/received?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -87,7 +91,7 @@ describe('Get Friends (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/friends/requests/received')
+          .get('/api/v1/friends/requests/received')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -96,7 +100,7 @@ describe('Get Friends (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/friends/requests/received?limit=${limit}`)
+          .get(`/api/v1/friends/requests/received?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -105,7 +109,7 @@ describe('Get Friends (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/friends/requests/received?limit=${limit}`)
+          .get(`/api/v1/friends/requests/received?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -115,7 +119,7 @@ describe('Get Friends (e2e)', () => {
         const limit = 10;
         const offset = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/friends/requests/received?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/friends/requests/received?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');

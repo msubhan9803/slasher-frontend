@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -44,6 +44,10 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -98,7 +102,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
+        .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -138,7 +142,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     it('returns the expected response when rss feed provider not found', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/rss-feed-providers/${nonActiveRssFeedProviderData._id}/posts?limit=${limit}`)
+        .get(`/api/v1/rss-feed-providers/${nonActiveRssFeedProviderData._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -161,7 +165,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
       it('get expected first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < firstResponse.body.length; index += 1) {
@@ -253,7 +257,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         ]);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < secondResponse.body.length; index += 1) {
@@ -268,14 +272,14 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         const limit = 3;
         const rssFeedProviderId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderId}/posts?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderId}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['id must be a mongodb id']);
       });
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         // eslint-disable-next-line max-len
@@ -285,7 +289,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         // eslint-disable-next-line max-len
@@ -295,7 +299,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
       it('limit should not be grater than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['limit must not be greater than 30']);
@@ -305,7 +309,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         const limit = 3;
         const before = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${before}`)
+          .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/posts?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toEqual(['before must be a mongodb id']);

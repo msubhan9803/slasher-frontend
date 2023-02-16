@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +34,10 @@ describe('Users suggested friends (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -69,7 +73,7 @@ describe('Users suggested friends (e2e)', () => {
       });
       it('returns the expected number of suggested friends', async () => {
         const response = await request(app.getHttpServer())
-          .get('/users/suggested-friends')
+          .get('/api/v1/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -120,7 +124,7 @@ describe('Users suggested friends (e2e)', () => {
       });
       it('returns the number equal to the limit', async () => {
         const response = await request(app.getHttpServer())
-          .get('/users/suggested-friends')
+          .get('/api/v1/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(5);
@@ -135,7 +139,7 @@ describe('Users suggested friends (e2e)', () => {
       });
       it('returns the number of suggested friends that are available', async () => {
         const response = await request(app.getHttpServer())
-          .get('/users/suggested-friends')
+          .get('/api/v1/users/suggested-friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(7);

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +27,10 @@ describe('Authentication middleware tests', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -55,7 +59,7 @@ describe('Authentication middleware tests', () => {
         // Make request
         const userBeforeRequest = await usersService.findById(activeUser.id);
         await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}`)
+          .get(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -70,7 +74,7 @@ describe('Authentication middleware tests', () => {
 
         // Make second request right after
         await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}`)
+          .get(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 

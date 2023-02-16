@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -47,6 +47,10 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
     httpService = moduleRef.get<HttpService>(HttpService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -120,7 +124,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
         jest.spyOn(httpService, 'get').mockImplementation(createTmdbHttpServiceMockFunction(false));
         const movieDBId = 2907;
         const response = await request(app.getHttpServer())
-          .get(`/movies/movieDbData/${movieDBId}`)
+          .get(`/api/v1/movies/movieDbData/${movieDBId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
@@ -130,7 +134,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
         jest.spyOn(httpService, 'get').mockImplementation(createTmdbHttpServiceMockFunction(true));
         const movieDBId = 2907;
         const response = await request(app.getHttpServer())
-          .get(`/movies/movieDbData/${movieDBId}`)
+          .get(`/api/v1/movies/movieDbData/${movieDBId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -148,7 +152,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
     it('movieDBId should be a number', async () => {
       const movieDBId = 'a';
       const response = await request(app.getHttpServer())
-        .get(`/movies/movieDbData/${movieDBId}`)
+        .get(`/api/v1/movies/movieDbData/${movieDBId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('movieDBId must be a number conforming to the specified constraints');

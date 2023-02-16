@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -40,6 +40,10 @@ describe('settings update / :id (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -65,7 +69,7 @@ describe('settings update / :id (e2e)', () => {
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
-          .patch('/settings/notifications')
+          .patch('/api/v1/settings/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleUserSettingUpdateObject);
         await userSettingsService.update(activeUser._id.toString(), sampleUserSettingUpdateObject);

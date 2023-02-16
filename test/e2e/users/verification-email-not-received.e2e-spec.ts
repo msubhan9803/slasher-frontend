@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +26,10 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     mailService = moduleRef.get<MailService>(MailService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -49,7 +53,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     it('responds with error message when an invalid-format email supplied', async () => {
       postBody.email = 'invalidemailaddress.com';
       const response = await request(app.getHttpServer())
-        .post('/users/verification-email-not-received')
+        .post('/api/v1/users/verification-email-not-received')
         .send(postBody)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body).toEqual({
@@ -70,7 +74,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
         jest.spyOn(mailService, 'sendVerificationEmail').mockImplementation();
 
         const response = await request(app.getHttpServer())
-          .post('/users/verification-email-not-received')
+          .post('/api/v1/users/verification-email-not-received')
           .send(postBody)
           .expect(HttpStatus.OK);
         expect(response.body).toEqual({
@@ -88,7 +92,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
       it('returns { success: true } even when the email address is NOT associated with a registered user, '
         + 'but does not send an email', async () => {
           const response = await request(app.getHttpServer())
-            .post('/users/verification-email-not-received')
+            .post('/api/v1/users/verification-email-not-received')
             .send(postBody)
             .expect(HttpStatus.OK);
           expect(response.body).toEqual({

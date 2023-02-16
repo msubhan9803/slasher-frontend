@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -24,6 +24,10 @@ describe('Users reset password (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -54,7 +58,7 @@ describe('Users reset password (e2e)', () => {
     describe('Reset Password', () => {
       it('Password reset successfully, and new password is stored in the db', async () => {
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
         expect(
@@ -69,7 +73,7 @@ describe('Users reset password (e2e)', () => {
       it('User does not exists', async () => {
         postBody.email = 'user10@example.com';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
       });
@@ -79,7 +83,7 @@ describe('Users reset password (e2e)', () => {
       it('resetPasswordToken should not be empty', async () => {
         postBody.resetPasswordToken = '';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -90,7 +94,7 @@ describe('Users reset password (e2e)', () => {
       it('email should not be empty', async () => {
         postBody.email = '';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email should not be empty');
@@ -99,7 +103,7 @@ describe('Users reset password (e2e)', () => {
       it('email is a proper-form email', async () => {
         postBody.email = 'testusergmail.com';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('email must be an email');
@@ -108,7 +112,7 @@ describe('Users reset password (e2e)', () => {
       it('newPassword should not be empty', async () => {
         postBody.newPassword = '';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -119,7 +123,7 @@ describe('Users reset password (e2e)', () => {
       it('newPassword should match pattern', async () => {
         postBody.newPassword = 'testuser123';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -131,7 +135,7 @@ describe('Users reset password (e2e)', () => {
       it('newPasswordConfirmation should not be empty', async () => {
         postBody.newPasswordConfirmation = '';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -142,7 +146,7 @@ describe('Users reset password (e2e)', () => {
       it('newPassword and newPasswordConfirmation match', async () => {
         postBody.newPasswordConfirmation = 'TestUser@1234';
         const response = await request(app.getHttpServer())
-          .post('/users/reset-password')
+          .post('/api/v1/users/reset-password')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message[0]).toContain(

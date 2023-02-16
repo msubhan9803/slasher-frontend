@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../../src/app.module';
 
@@ -12,6 +12,10 @@ describe('App (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -21,7 +25,7 @@ describe('App (e2e)', () => {
 
   describe('GET /api', () => {
     it('returns the expected result', () => request(app.getHttpServer())
-      .get('/')
+      .get('/api')
       .expect(200)
       .expect({ version: process.env.npm_package_version }));
   });

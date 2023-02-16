@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -44,6 +44,10 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -85,7 +89,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     it("should successfully mark a different user's post as hidden", async () => {
       // Hide post for activeUser
       const response = await request(app.getHttpServer())
-        .post(`/feed-posts/${feedPost._id.toString()}/hide`)
+        .post(`/api/v1/feed-posts/${feedPost._id.toString()}/hide`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toBe(201);
@@ -95,7 +99,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     it('should successfully mark an rss feed post as hidden', async () => {
       // Hide post for activeUser
       const response = await request(app.getHttpServer())
-        .post(`/feed-posts/${rssFeedPost._id.toString()}/hide`)
+        .post(`/api/v1/feed-posts/${rssFeedPost._id.toString()}/hide`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toBe(201);
@@ -105,7 +109,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     describe('validations', () => {
       it('should *not* be able to mark post hidden which is created by user', async () => {
         const response = await request(app.getHttpServer())
-          .post(`/feed-posts/${feedPost._id.toString()}/hide`)
+          .post(`/api/v1/feed-posts/${feedPost._id.toString()}/hide`)
           .auth(user1AuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(403);
@@ -118,7 +122,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       it('should return appropriate error when post is not found', async () => {
         const unknownFeedPost = new mongoose.Types.ObjectId();
         const response = await request(app.getHttpServer())
-          .post(`/feed-posts/${unknownFeedPost._id.toString()}/hide`)
+          .post(`/api/v1/feed-posts/${unknownFeedPost._id.toString()}/hide`)
           .auth(user1AuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(404);

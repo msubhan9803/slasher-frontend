@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, HttpStatus } from '@nestjs/common';
+import { INestApplication, HttpStatus, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -39,6 +39,10 @@ describe('Update Feed Post (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -67,7 +71,7 @@ describe('Update Feed Post (e2e)', () => {
     it('successfully update feed post details, and updates the lastUpdateAt time', async () => {
       const postBeforeUpdate = await feedPostsService.findById(feedPost.id, true);
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPost._id}`)
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
       const feedPostDetails = await feedPostsService.findById(response.body._id, true);
@@ -88,7 +92,7 @@ describe('Update Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPostDetails._id}`)
+        .patch(`/api/v1/feed-posts/${feedPostDetails._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -98,7 +102,7 @@ describe('Update Feed Post (e2e)', () => {
     it('when feed post is not found, returns the expected feed post response', async () => {
       const feedPostDetails = '634fc8d86a5897b88a2d9753';
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPostDetails}`)
+        .patch(`/api/v1/feed-posts/${feedPostDetails}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -110,7 +114,7 @@ describe('Update Feed Post (e2e)', () => {
     it('check message length validation', async () => {
       sampleFeedPostObject.message = new Array(20_002).join('z');
       const response = await request(app.getHttpServer())
-        .patch(`/feed-posts/${feedPost._id}`)
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedPostObject);
       expect(response.body.message).toContain('message cannot be longer than 20,000 characters');

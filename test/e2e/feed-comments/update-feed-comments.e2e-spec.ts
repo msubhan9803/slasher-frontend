@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -54,6 +54,10 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -98,7 +102,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
     it('successfully update feed comments messages', async () => {
       const response = await request(app.getHttpServer())
-        .patch(`/feed-comments/${feedComment._id}`)
+        .patch(`/api/v1/feed-comments/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedCommentsObject);
       expect(response.status).toEqual(HttpStatus.OK);
@@ -149,7 +153,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           ),
         );
         await request(app.getHttpServer())
-          .patch(`/feed-comments/${comment._id}`)
+          .patch(`/api/v1/feed-comments/${comment._id}`)
           .auth(commentCreatorUserAuthToken, { type: 'bearer' })
           .send({
             message: `##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1` // do not notify
@@ -178,7 +182,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     it('when feed comment id is not exists than expected response', async () => {
       const feedComments1 = '6386f95401218469e30dbd25';
       const response = await request(app.getHttpServer())
-        .patch(`/feed-comments/${feedComments1}`)
+        .patch(`/api/v1/feed-comments/${feedComments1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedCommentsObject)
         .expect(HttpStatus.NOT_FOUND);
@@ -198,7 +202,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           ),
         );
       const response = await request(app.getHttpServer())
-        .patch(`/feed-comments/${feedComments1._id}`)
+        .patch(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(sampleFeedCommentsObject);
       expect(response.body.message).toContain('Permission denied.');
@@ -208,7 +212,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       it('check message length validation', async () => {
         sampleFeedCommentsObject.message = new Array(8002).join('z');
         const response = await request(app.getHttpServer())
-          .patch(`/feed-comments/${feedComment._id}`)
+          .patch(`/api/v1/feed-comments/${feedComment._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleFeedCommentsObject);
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
@@ -216,7 +220,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
       it('message should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/feed-comments/${feedComment._id}`)
+          .patch(`/api/v1/feed-comments/${feedComment._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('message should not be empty');

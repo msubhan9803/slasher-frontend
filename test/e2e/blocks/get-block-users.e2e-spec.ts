@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -34,6 +34,10 @@ describe('Get Blocked Users (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -69,7 +73,7 @@ describe('Get Blocked Users (e2e)', () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())
-          .get(`/blocks?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/blocks?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK);
@@ -93,7 +97,7 @@ describe('Get Blocked Users (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/blocks')
+          .get('/api/v1/blocks')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -102,7 +106,7 @@ describe('Get Blocked Users (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/blocks?limit=${limit}`)
+          .get(`/api/v1/blocks?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -111,7 +115,7 @@ describe('Get Blocked Users (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/blocks?limit=${limit}`)
+          .get(`/api/v1/blocks?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -121,7 +125,7 @@ describe('Get Blocked Users (e2e)', () => {
         const limit = 10;
         const offset = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/blocks?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/blocks?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');

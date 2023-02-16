@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -30,6 +30,10 @@ describe('Feed-Post / Post File (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -53,7 +57,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('successfully creates feed posts with a message and files', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -96,7 +100,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('responds expected response when one or more uploads files user an unallowed extension', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -117,7 +121,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('allows the creation of a post with only a message, but no files', async () => {
       const message = 'This is a test message';
       const response = await request(app.getHttpServer())
-        .post('/feed-posts')
+        .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
@@ -134,7 +138,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('allows the creation of a post with only files, but no message', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('userId', activeUser._id.toString())
@@ -151,7 +155,7 @@ describe('Feed-Post / Post File (e2e)', () => {
 
     it('responds expected response when neither message nor file are present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/feed-posts')
+        .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('message', '')
         .expect(HttpStatus.BAD_REQUEST);
@@ -161,7 +165,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('only allows a maximum of 10 images', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -201,7 +205,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -220,7 +224,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     it('check message length validation', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-posts')
+          .post('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', new Array(20_002).join('z'))

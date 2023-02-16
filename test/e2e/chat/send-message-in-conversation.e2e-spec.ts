@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -38,6 +38,10 @@ describe('Send Message In Conversation / (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -68,7 +72,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = message1.matchId._id;
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
@@ -128,7 +132,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = message2.matchId._id;
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
@@ -142,7 +146,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = '638bf8215e0682526453ecb8';
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
@@ -163,7 +167,7 @@ describe('Send Message In Conversation / (e2e)', () => {
           await friendsService.createFriendRequest(activeUser._id.toString(), user3._id.toString());
           const matchListId = message3.matchId._id;
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
@@ -177,7 +181,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = message1.matchId._id;
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])
@@ -214,7 +218,7 @@ describe('Send Message In Conversation / (e2e)', () => {
         await createTempFiles(async (tempPath) => {
           const matchListId = '634912b2!2c2f4f5e@0e62289';
           const response = await request(app.getHttpServer())
-            .post(`/chat/conversation/${matchListId}/message`)
+            .post(`/api/v1/chat/conversation/${matchListId}/message`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .attach('files', tempPath[0])

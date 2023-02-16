@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -27,6 +27,10 @@ describe('Users / Delete Profile image (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -48,7 +52,7 @@ describe('Users / Delete Profile image (e2e)', () => {
     });
     it('when file delete successful than expected response', async () => {
       const response = await request(app.getHttpServer())
-        .delete('/users/profile-image')
+        .delete('/api/v1/users/profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ profilePic: 'http://localhost:4444/placeholders/default_user_icon.png' });

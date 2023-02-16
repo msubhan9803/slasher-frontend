@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { ConfigService } from '@nestjs/config';
@@ -35,6 +35,10 @@ describe('All Movies (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -62,7 +66,7 @@ describe('All Movies (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .get('/movies?limit=1&sortBy=name')
+        .get('/api/v1/movies?limit=1&sortBy=name')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body[0].logo).toBe('https://image.tmdb.org/t/p/w220_and_h330_face/dtRbVsUb5O12WWO54SRpiMtHKC0.jpg');
@@ -77,7 +81,7 @@ describe('All Movies (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .get('/movies?limit=1&sortBy=name')
+        .get('/api/v1/movies?limit=1&sortBy=name')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body[0].logo).toBe('http://localhost:4444/placeholders/movie_poster.png');
@@ -131,7 +135,7 @@ describe('All Movies (e2e)', () => {
       );
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/movies?limit=${limit}&sortBy=${'name'}`)
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -226,7 +230,7 @@ describe('All Movies (e2e)', () => {
       );
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}`)
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'releaseDate'}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 0; i < response.body.length - 1; i += 1) {
@@ -325,7 +329,7 @@ describe('All Movies (e2e)', () => {
       );
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/movies?limit=${limit}&sortBy=${'rating'}`)
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'rating'}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -399,7 +403,7 @@ describe('All Movies (e2e)', () => {
       const limit = 5;
       const nameContains = 'c';
       const response = await request(app.getHttpServer())
-        .get(`/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(1);
@@ -422,14 +426,14 @@ describe('All Movies (e2e)', () => {
       it('sort by name returns the first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'name'}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.status).toEqual(HttpStatus.OK);
         expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'name'}&after=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&after=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -439,14 +443,14 @@ describe('All Movies (e2e)', () => {
       it('sort by releaseDate returns the first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'releaseDate'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.status).toEqual(HttpStatus.OK);
         expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'releaseDate'}&after=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'releaseDate'}&after=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -457,14 +461,14 @@ describe('All Movies (e2e)', () => {
         const limit = 3;
         const rating = 'rating';
         const firstResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${rating}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${rating}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.status).toEqual(HttpStatus.OK);
         expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${rating}&after=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${rating}&after=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -475,7 +479,7 @@ describe('All Movies (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/movies?&sortBy=${'name'}`)
+          .get(`/api/v1/movies?&sortBy=${'name'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -484,7 +488,7 @@ describe('All Movies (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'name'}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -493,7 +497,7 @@ describe('All Movies (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'releasedate'}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'releasedate'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -502,7 +506,7 @@ describe('All Movies (e2e)', () => {
       it('sortBy should not be empty', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}`)
+          .get(`/api/v1/movies?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy should not be empty');
@@ -511,7 +515,7 @@ describe('All Movies (e2e)', () => {
       it('sortBy must be one of the following values: name, releaseDate, rating', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/movies?limit=${limit}&sortBy=${'tests'}`)
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'tests'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate, rating');

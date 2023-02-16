@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +22,10 @@ describe('Local-Storage / Get File (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     localStorageService = moduleRef.get<LocalStorageService>(LocalStorageService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -50,7 +54,7 @@ describe('Local-Storage / Get File (e2e)', () => {
       }, { extension: fileExtension });
 
       await request(app.getHttpServer())
-        .get(`/local-storage${location}`)
+        .get(`/api/v1/local-storage${location}`)
         .send()
         .expect(HttpStatus.OK)
         .expect(fileContent);
@@ -60,7 +64,7 @@ describe('Local-Storage / Get File (e2e)', () => {
       const storagePath = 'profile_test/profile_test_1.jpg';
 
       const response = await request(app.getHttpServer())
-        .get(`/local-storage/${storagePath}`)
+        .get(`/api/v1/local-storage/${storagePath}`)
         .send()
         .expect(HttpStatus.NOT_FOUND);
 

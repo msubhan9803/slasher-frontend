@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -33,6 +33,10 @@ describe('Block suggested friend (e2e)', () => {
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -55,7 +59,7 @@ describe('Block suggested friend (e2e)', () => {
   describe('Post /friends/suggested/block', () => {
     it('when successful, returns the expected response', async () => {
       const response = await request(app.getHttpServer())
-        .post('/friends/suggested/block')
+        .post('/api/v1/friends/suggested/block')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
@@ -73,7 +77,7 @@ describe('Block suggested friend (e2e)', () => {
       expect(newSuggestBlockData.reaction).toBe(SuggestBlockReaction.Unblock);
 
       const response = await request(app.getHttpServer())
-        .post('/friends/suggested/block')
+        .post('/api/v1/friends/suggested/block')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user2._id })
         .expect(HttpStatus.CREATED);
@@ -85,7 +89,7 @@ describe('Block suggested friend (e2e)', () => {
     describe('Validation', () => {
       it('userId should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .post('/friends/suggested/block')
+          .post('/api/v1/friends/suggested/block')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: '' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -96,7 +100,7 @@ describe('Block suggested friend (e2e)', () => {
 
       it('userId must match regular expression', async () => {
         const response = await request(app.getHttpServer())
-          .post('/friends/suggested/block')
+          .post('/api/v1/friends/suggested/block')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: 'aaa' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

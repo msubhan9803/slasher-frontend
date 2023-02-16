@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -47,6 +47,10 @@ describe('Create Feed Post Like (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -79,7 +83,7 @@ describe('Create Feed Post Like (e2e)', () => {
     it('successfully creates a feed post like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/post/${feedPost._id}`)
+        .post(`/api/v1/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
@@ -106,7 +110,7 @@ describe('Create Feed Post Like (e2e)', () => {
     it('when feed post id is not exist than expected response', async () => {
       const feedPostId = '638ee75d59bf0f63dfb00d31';
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/post/${feedPostId}`)
+        .post(`/api/v1/feed-likes/post/${feedPostId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -128,7 +132,7 @@ describe('Create Feed Post Like (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/post/${feedPost1._id}`)
+        .post(`/api/v1/feed-likes/post/${feedPost1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -156,7 +160,7 @@ describe('Create Feed Post Like (e2e)', () => {
 
       it('should not allow the creation of a post like when liking user is not a friend of the post creator', async () => {
         const response = await request(app.getHttpServer())
-          .post(`/feed-likes/post/${feedPost1._id}`)
+          .post(`/api/v1/feed-likes/post/${feedPost1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -168,7 +172,7 @@ describe('Create Feed Post Like (e2e)', () => {
       it('feedPostId must be a mongodb id', async () => {
         const feedPostId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .post(`/feed-likes/post/${feedPostId}`)
+          .post(`/api/v1/feed-likes/post/${feedPostId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('feedPostId must be a mongodb id');

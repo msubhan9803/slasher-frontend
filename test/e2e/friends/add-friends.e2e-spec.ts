@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -43,6 +43,10 @@ describe('Add Friends (e2e)', () => {
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -65,7 +69,7 @@ describe('Add Friends (e2e)', () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
       const response = await request(app.getHttpServer())
-        .post('/friends')
+        .post('/api/v1/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
@@ -88,7 +92,7 @@ describe('Add Friends (e2e)', () => {
         reaction: FriendRequestReaction.DeclinedOrCancelled,
       });
       const response = await request(app.getHttpServer())
-        .post('/friends')
+        .post('/api/v1/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id })
         .expect(HttpStatus.CREATED);
@@ -106,7 +110,7 @@ describe('Add Friends (e2e)', () => {
     it('when another user already sent a friend request to the active user, it accepts the friend request', async () => {
       await friendsService.createFriendRequest(user1.id, activeUser.id);
       const response = await request(app.getHttpServer())
-        .post('/friends')
+        .post('/api/v1/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
       expect(response.body).toEqual({ success: true });
@@ -116,7 +120,7 @@ describe('Add Friends (e2e)', () => {
 
     it('user cannot send a friend request to yourself', async () => {
       const response = await request(app.getHttpServer())
-        .post('/friends')
+        .post('/api/v1/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: activeUser.id });
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -133,7 +137,7 @@ describe('Add Friends (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .post('/friends')
+        .post('/api/v1/friends')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1._id });
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -146,7 +150,7 @@ describe('Add Friends (e2e)', () => {
     describe('Validation', () => {
       it('userId should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .post('/friends')
+          .post('/api/v1/friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: '' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -157,7 +161,7 @@ describe('Add Friends (e2e)', () => {
 
       it('userId must be a mongodb id', async () => {
         const response = await request(app.getHttpServer())
-          .post('/friends')
+          .post('/api/v1/friends')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send({ userId: 'aaa' });
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

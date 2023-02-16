@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -32,6 +32,10 @@ describe('Conversation / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -59,7 +63,7 @@ describe('Conversation / (e2e)', () => {
       it('gets the expected match list details', async () => {
         const matchListId = message1.matchId._id;
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversation/${matchListId}`)
+          .get(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual(
@@ -86,7 +90,7 @@ describe('Conversation / (e2e)', () => {
       it('when active user is not a participant it returns the expected error response', async () => {
         const matchListId = message2.matchId._id;
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversation/${matchListId}`)
+          .get(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ statusCode: 401, message: 'You are not a member of this conversation' });
@@ -95,7 +99,7 @@ describe('Conversation / (e2e)', () => {
       it('returns a 404 when when the conversation is not found', async () => {
         const matchListId = '638bf8215e0682526453ecb8';
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversation/${matchListId}`)
+          .get(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.NOT_FOUND);
@@ -107,7 +111,7 @@ describe('Conversation / (e2e)', () => {
       it('matchListId must be a mongodb id', async () => {
         const matchListId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversation/${matchListId}`)
+          .get(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

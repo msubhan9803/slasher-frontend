@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -33,6 +33,10 @@ describe('rssFeedProviders all (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -67,7 +71,7 @@ describe('rssFeedProviders all (e2e)', () => {
       it('get all rss feed providers details', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -99,7 +103,7 @@ describe('rssFeedProviders all (e2e)', () => {
         it('get expected first and second sets of paginated results', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/rss-feed-providers?limit=${limit}`)
+            .get(`/api/v1/rss-feed-providers?limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -127,7 +131,7 @@ describe('rssFeedProviders all (e2e)', () => {
           ]);
 
           const secondResponse = await request(app.getHttpServer())
-            .get(`/rss-feed-providers?limit=${limit}&after=${firstResponse.body[2]._id}`)
+            .get(`/api/v1/rss-feed-providers?limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -140,7 +144,7 @@ describe('rssFeedProviders all (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/rss-feed-providers')
+          .get('/api/v1/rss-feed-providers')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -157,7 +161,7 @@ describe('rssFeedProviders all (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -173,7 +177,7 @@ describe('rssFeedProviders all (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/rss-feed-providers?limit=${limit}`)
+          .get(`/api/v1/rss-feed-providers?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

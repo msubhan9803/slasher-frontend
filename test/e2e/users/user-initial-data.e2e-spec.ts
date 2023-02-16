@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -44,6 +44,10 @@ describe('Users suggested friends (e2e)', () => {
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -128,7 +132,7 @@ describe('Users suggested friends (e2e)', () => {
           recentMessages.push(chat);
         }
         const response = await request(app.getHttpServer())
-          .get('/users/initial-data')
+          .get('/api/v1/users/initial-data')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -192,7 +196,7 @@ describe('Users suggested friends (e2e)', () => {
           recentMessages.push(chat);
         }
         const response = await request(app.getHttpServer())
-          .get('/users/initial-data')
+          .get('/api/v1/users/initial-data')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);

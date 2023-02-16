@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -50,6 +50,10 @@ describe('Events update / :id (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -81,7 +85,7 @@ describe('Events update / :id (e2e)', () => {
     describe('Non-admin users are not allowed to update event', () => {
       it('should fail to update the and returns the expected response', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
@@ -95,7 +99,7 @@ describe('Events update / :id (e2e)', () => {
     describe('Successful update', () => {
       it('update the event data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         const eventDetails = await eventService.findById(response.body._id, false);
@@ -108,7 +112,7 @@ describe('Events update / :id (e2e)', () => {
         + 'and it returns the expected response', async () => {
           const { author, ...restPostBody } = sampleEventUpdateObject;
           const response = await request(app.getHttpServer())
-            .patch(`/events/${activeEvent._id}`)
+            .patch(`/api/v1/events/${activeEvent._id}`)
             .auth(adminUserAuthToken, { type: 'bearer' })
             .send(restPostBody);
           const eventDetails = await eventService.findById(response.body._id, false);
@@ -123,7 +127,7 @@ describe('Events update / :id (e2e)', () => {
           author, name, url, ...restPostBody
         } = sampleEventUpdateObject;
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -138,7 +142,7 @@ describe('Events update / :id (e2e)', () => {
       it('name must be shorter than or equal to 150 characters', async () => {
         sampleEventUpdateObject.name = new Array(155).join('b');
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);
@@ -150,7 +154,7 @@ describe('Events update / :id (e2e)', () => {
         sampleEventUpdateObject.event_info = new Array(1002).join('a');
 
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject);
         expect(response.body.message).toContain(
@@ -162,7 +166,7 @@ describe('Events update / :id (e2e)', () => {
         sampleEventUpdateObject.url = new Array(302).join('a');
 
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);
@@ -172,7 +176,7 @@ describe('Events update / :id (e2e)', () => {
 
       it('event_type must be a valid mongodb id', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send({ ...sampleEventUpdateObject, event_type: 'not-valid' })
           .expect(HttpStatus.BAD_REQUEST);
@@ -184,7 +188,7 @@ describe('Events update / :id (e2e)', () => {
         sampleEventUpdateObject.author = new Array(102).join('a');
 
         const response = await request(app.getHttpServer())
-          .patch(`/events/${activeEvent._id}`)
+          .patch(`/api/v1/events/${activeEvent._id}`)
           .auth(adminUserAuthToken, { type: 'bearer' })
           .send(sampleEventUpdateObject)
           .expect(HttpStatus.BAD_REQUEST);

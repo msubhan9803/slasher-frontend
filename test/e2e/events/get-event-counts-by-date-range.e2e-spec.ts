@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -56,6 +56,10 @@ describe('Event counts by date range / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -118,7 +122,7 @@ describe('Event counts by date range / (e2e)', () => {
     describe('Returns the expected results', () => {
       it('get expected event counts data based on startDate through endDate range', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/events/by-date-range/counts?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
+          .get(`/api/v1/events/by-date-range/counts?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -158,7 +162,7 @@ describe('Event counts by date range / (e2e)', () => {
         const date23DaysAgo = DateTime.now().minus({ days: 23 }).toJSDate();
         const date23DaysInFuture = DateTime.now().plus({ days: 23 }).toJSDate();
         const response = await request(app.getHttpServer())
-          .get(`/events/by-date-range/counts?startDate=${date23DaysAgo.toISOString()}&endDate=${date23DaysInFuture.toISOString()}`)
+          .get(`/api/v1/events/by-date-range/counts?startDate=${date23DaysAgo.toISOString()}&endDate=${date23DaysInFuture.toISOString()}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -172,7 +176,7 @@ describe('Event counts by date range / (e2e)', () => {
       it('startDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('startDate should not be empty');
@@ -181,7 +185,7 @@ describe('Event counts by date range / (e2e)', () => {
       it('endDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('endDate should not be empty');

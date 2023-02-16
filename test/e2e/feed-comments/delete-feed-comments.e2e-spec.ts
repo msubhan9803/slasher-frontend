@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -50,6 +50,10 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -91,7 +95,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
 
     it('successfully delete feed comments', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/feed-comments/${feedComments._id}`)
+        .delete(`/api/v1/feed-comments/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
@@ -101,7 +105,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     it('when feed comment id is not exists than expected response', async () => {
       const feedComments1 = '6386f95401218469e30dbd25';
       const response = await request(app.getHttpServer())
-        .delete(`/feed-comments/${feedComments1}`)
+        .delete(`/api/v1/feed-comments/${feedComments1}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -120,7 +124,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .delete(`/feed-comments/${feedComments1._id}`)
+        .delete(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.FORBIDDEN);

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -34,6 +34,10 @@ describe('Find Users(e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -76,7 +80,7 @@ describe('Find Users(e2e)', () => {
         const query = 'Count';
         const limit = 20;
         const response = await request(app.getHttpServer())
-          .get(`/search/users?query=${query}&limit=${limit}`)
+          .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(2);
@@ -101,7 +105,7 @@ describe('Find Users(e2e)', () => {
         const limit = 20;
         const offset = 1;
         const response = await request(app.getHttpServer())
-          .get(`/search/users?query=${query}&limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/search/users?query=${query}&limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(1);
@@ -121,7 +125,7 @@ describe('Find Users(e2e)', () => {
     it('limit should not be empty', async () => {
       const query = 'test';
       const response = await request(app.getHttpServer())
-        .get(`/search/users?query=${query}`)
+        .get(`/api/v1/search/users?query=${query}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('limit should not be empty');
@@ -131,7 +135,7 @@ describe('Find Users(e2e)', () => {
       const limit = 'a';
       const query = 'test';
       const response = await request(app.getHttpServer())
-        .get(`/search/users?query=${query}&limit=${limit}`)
+        .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -141,7 +145,7 @@ describe('Find Users(e2e)', () => {
       const limit = 31;
       const query = 'test';
       const response = await request(app.getHttpServer())
-        .get(`/search/users?query=${query}&limit=${limit}`)
+        .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('limit must not be greater than 30');
@@ -151,7 +155,7 @@ describe('Find Users(e2e)', () => {
       const limit = 31;
       const query = 'testtesttesttesttesttesttesttest';
       const response = await request(app.getHttpServer())
-        .get(`/search/users?query=${query}&limit=${limit}`)
+        .get(`/api/v1/search/users?query=${query}&limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('query must be shorter than or equal to 30 characters');
@@ -160,7 +164,7 @@ describe('Find Users(e2e)', () => {
     it('query should not be empty', async () => {
       const limit = 31;
       const response = await request(app.getHttpServer())
-        .get(`/search/users?limit=${limit}`)
+        .get(`/api/v1/search/users?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('query should not be empty');
@@ -171,7 +175,7 @@ describe('Find Users(e2e)', () => {
       const limit = 5;
       const query = 'test';
       const response = await request(app.getHttpServer())
-        .get(`/search/users?query=${query}&limit=${limit}&offset=${offset}`)
+        .get(`/api/v1/search/users?query=${query}&limit=${limit}&offset=${offset}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');

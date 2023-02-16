@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -36,6 +36,10 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -62,7 +66,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
       it('when friend request is decline or cancel than expected response', async () => {
         const userId = user1._id;
         const response = await request(app.getHttpServer())
-          .delete(`/friends?userId=${userId}`)
+          .delete(`/api/v1/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK);
@@ -82,7 +86,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
       it('userId should not be empty', async () => {
         const userId = '';
         const response = await request(app.getHttpServer())
-          .delete(`/friends?userId=${userId}`)
+          .delete(`/api/v1/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -94,7 +98,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/friends?userId=${userId}`)
+          .delete(`/api/v1/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

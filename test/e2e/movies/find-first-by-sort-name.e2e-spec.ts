@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -33,6 +33,10 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -53,7 +57,7 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
     it('responds with error message when an invalid startsWith supplied', async () => {
       const startsWith = '@qw$re';
       const response = await request(app.getHttpServer())
-        .get(`/movies/firstBySortName?startsWith=${startsWith}`)
+        .get(`/api/v1/movies/firstBySortName?startsWith=${startsWith}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
@@ -73,7 +77,7 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
         );
         const sortNameStartsWith = 'great';
         const response = await request(app.getHttpServer())
-          .get(`/movies/firstBySortName?startsWith=${sortNameStartsWith}`)
+          .get(`/api/v1/movies/firstBySortName?startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

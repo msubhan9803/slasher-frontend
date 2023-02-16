@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -34,6 +34,10 @@ describe('Suggested user name (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -102,7 +106,7 @@ describe('Suggested user name (e2e)', () => {
         const limit = 20;
         const query = 'test';
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?query=${query}&limit=${limit}`)
+          .get(`/api/v1/users/suggest-user-name?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -126,7 +130,7 @@ describe('Suggested user name (e2e)', () => {
         const limit = 5;
         const query = 'yy';
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?query=${query}&limit=${limit}`)
+          .get(`/api/v1/users/suggest-user-name?query=${query}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -137,7 +141,7 @@ describe('Suggested user name (e2e)', () => {
       it('limit should not be empty', async () => {
         const query = 'yy';
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?query=${query}`)
+          .get(`/api/v1/users/suggest-user-name?query=${query}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -146,7 +150,7 @@ describe('Suggested user name (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?query=yy&limit=${limit}`)
+          .get(`/api/v1/users/suggest-user-name?query=yy&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -155,7 +159,7 @@ describe('Suggested user name (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?query=yy&limit=${limit}`)
+          .get(`/api/v1/users/suggest-user-name?query=yy&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -164,7 +168,7 @@ describe('Suggested user name (e2e)', () => {
       it('when query does not exists than expected suggested user name', async () => {
         const limit = 5;
         const response = await request(app.getHttpServer())
-          .get(`/users/suggest-user-name?limit=${limit}`)
+          .get(`/api/v1/users/suggest-user-name?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('query should not be empty');

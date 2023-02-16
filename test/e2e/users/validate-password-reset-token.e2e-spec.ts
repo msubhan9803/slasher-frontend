@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +22,10 @@ describe('Users validate password reset token (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -45,7 +49,7 @@ describe('Users validate password reset token (e2e)', () => {
       it('when email or resetpasswordtoken does exists, it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body).toEqual({ valid: true });
@@ -55,7 +59,7 @@ describe('Users validate password reset token (e2e)', () => {
         user.email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body).toEqual({
@@ -67,7 +71,7 @@ describe('Users validate password reset token (e2e)', () => {
         user.resetPasswordToken = uuidv4();
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body).toEqual({
@@ -80,7 +84,7 @@ describe('Users validate password reset token (e2e)', () => {
         user.resetPasswordToken = uuidv4();
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body).toEqual({
@@ -94,7 +98,7 @@ describe('Users validate password reset token (e2e)', () => {
         const email = 'usertestgmail.com';
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body.message).toEqual([
@@ -106,7 +110,7 @@ describe('Users validate password reset token (e2e)', () => {
         user.email = '';
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body.message).toContain('email should not be empty');
@@ -116,7 +120,7 @@ describe('Users validate password reset token (e2e)', () => {
         user.resetPasswordToken = '';
         const response = await request(app.getHttpServer())
           .get(
-            `/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
+            `/api/v1/users/validate-password-reset-token?email=${user.email}&resetPasswordToken=${user.resetPasswordToken}`,
           )
           .send();
         expect(response.body.message).toContain(

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -37,6 +37,10 @@ describe('Delete Feed Post Likes (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -69,7 +73,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
 
     it('delete feed post likes.', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/feed-likes/post/${feedPost._id}`)
+        .delete(`/api/v1/feed-likes/post/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
@@ -82,7 +86,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
     it('when feed post id is not exist than expected response', async () => {
       const feedPostId = '638ee75d59bf0f63dfb00d31';
       const response = await request(app.getHttpServer())
-        .delete(`/feed-likes/post/${feedPostId}`)
+        .delete(`/api/v1/feed-likes/post/${feedPostId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -93,7 +97,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
       it('feedPostId must be a mongodb id', async () => {
         const feedPostId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/feed-likes/post/${feedPostId}`)
+          .delete(`/api/v1/feed-likes/post/${feedPostId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('feedPostId must be a mongodb id');

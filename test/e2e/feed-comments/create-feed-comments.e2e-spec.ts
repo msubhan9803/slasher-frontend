@@ -2,7 +2,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -47,6 +47,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -72,7 +76,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -116,7 +120,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('responds expected response when one or more uploads files user an unallowed extension', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -137,7 +141,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('allows the creation of a comments with only a message, but no files', async () => {
       const message = 'This is a test message';
       const response = await request(app.getHttpServer())
-        .post('/feed-comments')
+        .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
@@ -154,7 +158,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
     it('responds expected response when neither message nor file are present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/feed-comments')
+        .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('message', '')
         .field('feedPostId', feedPost._id.toString())
@@ -165,7 +169,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('allows the creation of a comments with only files, but no message', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
 
@@ -199,7 +203,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('only allows a maximum of four images', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -222,7 +226,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
@@ -242,7 +246,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('check message length validation', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
-          .post('/feed-comments')
+          .post('/api/v1/feed-comments')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', new Array(8002).join('z'))
@@ -262,7 +266,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     it('returns the expected error response if the post cannot be found', async () => {
       const nonExistentPostId = '239ae2550dae24b30c70f6c7';
       const response = await request(app.getHttpServer())
-        .post('/feed-comments')
+        .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'Hello')
@@ -286,7 +290,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .post('/feed-comments')
+        .post('/api/v1/feed-comments')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', 'hello test user')
@@ -317,7 +321,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       it('should not allow the creation of a feed comments when commenter is not a friend of the post creator', async () => {
         await createTempFiles(async (tempPaths) => {
           const response = await request(app.getHttpServer())
-            .post('/feed-comments')
+            .post('/api/v1/feed-comments')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('message', 'hello test user')
@@ -349,7 +353,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       it('sends the expected notifications when the commenter user is not the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
         await request(app.getHttpServer())
-          .post('/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+          .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('feedPostId', post._id.toString())
           .field('message', 'hello test user')
@@ -372,7 +376,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       it('does not send any notifications when the commenter user is the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
         await request(app.getHttpServer())
-          .post('/feed-comments').auth(postCreatorAuthToken, { type: 'bearer' })
+          .post('/api/v1/feed-comments').auth(postCreatorAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('feedPostId', post._id.toString())
           .field('message', 'hello test user')
@@ -386,7 +390,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         + 'AND there are three users mentioned in the message and one is the post creator', async () => {
           const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
           await request(app.getHttpServer())
-            .post('/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
+            .post('/api/v1/feed-comments').auth(otherUser1AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('feedPostId', post._id.toString())
             .field(

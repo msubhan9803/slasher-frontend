@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -32,6 +32,10 @@ describe('GET Movie (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -61,7 +65,7 @@ describe('GET Movie (e2e)', () => {
           }),
         );
         const response = await request(app.getHttpServer())
-          .get(`/movies/${movie._id}`)
+          .get(`/api/v1/movies/${movie._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -71,7 +75,7 @@ describe('GET Movie (e2e)', () => {
       it('returns the expected response when the user is not found', async () => {
         const nonExistentMovieId = '5d1df8ebe9a186319c225cd6';
         const response = await request(app.getHttpServer())
-          .get(`/movies/${nonExistentMovieId}`)
+          .get(`/api/v1/movies/${nonExistentMovieId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);

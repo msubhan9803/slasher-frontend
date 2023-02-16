@@ -62,7 +62,7 @@ describe('Users sign-in (e2e)', () => {
 
   describe('POST /users/sign-in', () => {
     describe('An active user', () => {
-      it.only('can successfully sign in with a username and password OR email and password', async () => {
+      it('can successfully sign in with a username and password OR email and password', async () => {
         const postBodyScenarios: UserSignInDto[] = [
           {
             emailOrUsername: activeUser.userName,
@@ -93,7 +93,7 @@ describe('Users sign-in (e2e)', () => {
       it('updates the lastSignInIp when the user signs in', async () => {
         const userBeforeSignIn = await usersService.findByEmail(activeUser.email);
         await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send({
             emailOrUsername: activeUser.email,
             password: activeUserUnhashedPassword,
@@ -122,7 +122,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         return request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody)
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({
@@ -148,7 +148,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         return request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody)
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({
@@ -175,7 +175,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         return request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody)
           .expect(HttpStatus.UNAUTHORIZED)
           .expect({
@@ -192,7 +192,7 @@ describe('Users sign-in (e2e)', () => {
           device_id: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -206,7 +206,7 @@ describe('Users sign-in (e2e)', () => {
           device_token: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('device_token should not be empty');
@@ -218,7 +218,7 @@ describe('Users sign-in (e2e)', () => {
           device_type: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('device_type should not be empty');
@@ -230,7 +230,7 @@ describe('Users sign-in (e2e)', () => {
           device_version: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -244,7 +244,7 @@ describe('Users sign-in (e2e)', () => {
           app_version: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain(
@@ -258,7 +258,7 @@ describe('Users sign-in (e2e)', () => {
           emailOrUsername: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('emailOrUsername should not be empty');
@@ -270,7 +270,7 @@ describe('Users sign-in (e2e)', () => {
           password: '',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toContain('password should not be empty');
@@ -292,7 +292,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
@@ -316,7 +316,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
@@ -340,7 +340,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
@@ -364,7 +364,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
@@ -388,7 +388,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
         expect(response.body.message).toContain(
@@ -410,7 +410,7 @@ describe('Users sign-in (e2e)', () => {
             ...deviceAndAppVersionPlaceholderSignInFields,
           };
           const response = await request(app.getHttpServer())
-            .post('/users/sign-in')
+            .post('/api/v1/users/sign-in')
             .send(postBody);
           expect(response.status).toEqual(HttpStatus.CREATED);
 
@@ -454,7 +454,7 @@ describe('Users sign-in (e2e)', () => {
           ...deviceAndAppVersionPlaceholderSignInFields,
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
         const userAfter = await usersService.findByEmail(
@@ -495,7 +495,7 @@ describe('Users sign-in (e2e)', () => {
           device_id: '4',
         };
         const response = await request(app.getHttpServer())
-          .post('/users/sign-in')
+          .post('/api/v1/users/sign-in')
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.CREATED);
         const userAfter = await usersService.findByEmail(

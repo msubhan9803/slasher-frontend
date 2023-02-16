@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -55,6 +55,10 @@ describe('Create Feed Reply Like (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -109,7 +113,7 @@ describe('Create Feed Reply Like (e2e)', () => {
     it('successfully creates a feed reply like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/reply/${feedReply._id}`)
+        .post(`/api/v1/feed-likes/reply/${feedReply._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.CREATED);
@@ -131,7 +135,7 @@ describe('Create Feed Reply Like (e2e)', () => {
     it('when feed reply id is not exist than expected response', async () => {
       const feedReplyId = '638ee75d59bf0f63dfb00d31';
       const response = await request(app.getHttpServer())
-        .post(`/feed-likes/reply/${feedReplyId}`)
+        .post(`/api/v1/feed-likes/reply/${feedReplyId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -142,7 +146,7 @@ describe('Create Feed Reply Like (e2e)', () => {
       it('feedReplyId must be a mongodb id', async () => {
         const feedReplyId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .post(`/feed-likes/reply/${feedReplyId}`)
+          .post(`/api/v1/feed-likes/reply/${feedReplyId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('feedReplyId must be a mongodb id');

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -35,6 +35,10 @@ describe('GET /users/:id (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -65,7 +69,7 @@ describe('GET /users/:id (e2e)', () => {
     describe('Find a user by id', () => {
       it('returns the expected response when logged in users requests their own user data', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}`)
+          .get(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -83,7 +87,7 @@ describe('GET /users/:id (e2e)', () => {
 
       it('returns the expected response (omitting email field) when logged in users requests different user data', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}`)
+          .get(`/api/v1/users/${activeUser.id}`)
           .auth(otherUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -103,7 +107,7 @@ describe('GET /users/:id (e2e)', () => {
       it('returns the expected response when the user is not found', async () => {
         const nonExistentUserId = '5d1df8ebe9a186319c225cd6';
         const response = await request(app.getHttpServer())
-          .get(`/users/${nonExistentUserId}`)
+          .get(`/api/v1/users/${nonExistentUserId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -115,7 +119,7 @@ describe('GET /users/:id (e2e)', () => {
 
       it('returns the expected response when logged in users requests their own user data with private profile status', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${otherUser.id}`)
+          .get(`/api/v1/users/${otherUser.id}`)
           .auth(otherUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -134,7 +138,7 @@ describe('GET /users/:id (e2e)', () => {
     describe('Find a user by userName', () => {
       it('returns the expected user', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.userName}`)
+          .get(`/api/v1/users/${activeUser.userName}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -153,7 +157,7 @@ describe('GET /users/:id (e2e)', () => {
       it('returns the expected response when the user is not found', async () => {
         const nonExistentUserName = `No${activeUser.userName}`;
         const response = await request(app.getHttpServer())
-          .get(`/users/${nonExistentUserName}`)
+          .get(`/api/v1/users/${nonExistentUserName}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -165,7 +169,7 @@ describe('GET /users/:id (e2e)', () => {
 
       it('returns the expected user and omit email field for other user', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.userName}`)
+          .get(`/api/v1/users/${activeUser.userName}`)
           .auth(otherUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -184,7 +188,7 @@ describe('GET /users/:id (e2e)', () => {
 
       it('returns the expected user with private profile status', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${otherUser.userName}`)
+          .get(`/api/v1/users/${otherUser.userName}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -207,7 +211,7 @@ describe('GET /users/:id (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .get(`/users/${otherUser._id}`)
+        .get(`/api/v1/users/${otherUser._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -224,7 +228,7 @@ describe('GET /users/:id (e2e)', () => {
           profile_status: 1,
         }));
         const response = await request(app.getHttpServer())
-          .get(`/users/${user0.id}`)
+          .get(`/api/v1/users/${user0.id}`)
           .auth(otherUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);

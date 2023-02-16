@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection, Model } from 'mongoose';
@@ -66,6 +66,10 @@ describe('Report And Unreport (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -122,7 +126,7 @@ describe('Report And Unreport (e2e)', () => {
       reportAndUnreportObject.targetId = user1.id;
       reportAndUnreportObject.reportType = 'profile';
       const reponse = await request(app.getHttpServer())
-        .post('/reports')
+        .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
       const report = await reportsModel.findOne({ to: user1.id });
@@ -140,7 +144,7 @@ describe('Report And Unreport (e2e)', () => {
       reportAndUnreportObject.targetId = feedPost.id;
       reportAndUnreportObject.reportType = 'post';
       const response = await request(app.getHttpServer())
-        .post('/reports')
+        .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
@@ -158,7 +162,7 @@ describe('Report And Unreport (e2e)', () => {
       reportAndUnreportObject.targetId = feedComments.id;
       reportAndUnreportObject.reportType = 'comment';
       const response = await request(app.getHttpServer())
-        .post('/reports')
+        .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
       const feedCommentData = await feedCommentsService.findFeedComment(feedComments.id);
@@ -176,7 +180,7 @@ describe('Report And Unreport (e2e)', () => {
       reportAndUnreportObject.targetId = feedReply.id;
       reportAndUnreportObject.reportType = 'reply';
       const response = await request(app.getHttpServer())
-        .post('/reports')
+        .post('/api/v1/reports')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
       const feedReplyData = await feedCommentsService.findFeedReply(feedReply.id);
@@ -193,7 +197,7 @@ describe('Report And Unreport (e2e)', () => {
       it('when profile is not found than expected response', async () => {
         reportAndUnreportObject.reportType = 'profile';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -203,7 +207,7 @@ describe('Report And Unreport (e2e)', () => {
       it('when post is not found than expected response', async () => {
         reportAndUnreportObject.reportType = 'post';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -213,7 +217,7 @@ describe('Report And Unreport (e2e)', () => {
       it('when comment is not found than expected response', async () => {
         reportAndUnreportObject.reportType = 'comment';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -223,7 +227,7 @@ describe('Report And Unreport (e2e)', () => {
       it('when reply is not found than expected response', async () => {
         reportAndUnreportObject.reportType = 'reply';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -233,7 +237,7 @@ describe('Report And Unreport (e2e)', () => {
       it('targetId must be a mongodb id', async () => {
         reportAndUnreportObject.targetId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -247,7 +251,7 @@ describe('Report And Unreport (e2e)', () => {
       it('check reportType must be one of the following values: profile, post, comment, reply', async () => {
         reportAndUnreportObject.reportType = 'test';
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.body).toEqual({
@@ -263,7 +267,7 @@ describe('Report And Unreport (e2e)', () => {
       it('reason is not longer than 1000 characters', async () => {
         reportAndUnreportObject.reason = new Array(1002).join('z');
         const response = await request(app.getHttpServer())
-          .post('/reports')
+          .post('/api/v1/reports')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(reportAndUnreportObject);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

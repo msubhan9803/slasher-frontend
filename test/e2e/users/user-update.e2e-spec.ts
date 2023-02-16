@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -38,6 +38,10 @@ describe('Users / :id (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -64,7 +68,7 @@ describe('Users / :id (e2e)', () => {
     describe('Successful update', () => {
       it('update the data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -82,7 +86,7 @@ describe('Users / :id (e2e)', () => {
         + 'and it returns the expected response', async () => {
           const { email, ...restPostBody } = postBody;
           const response = await request(app.getHttpServer())
-            .patch(`/users/${activeUser.id}`)
+            .patch(`/api/v1/users/${activeUser.id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send(restPostBody);
           expect(response.status).toEqual(HttpStatus.OK);
@@ -98,7 +102,7 @@ describe('Users / :id (e2e)', () => {
       it('update the userName successful, it returns the expected response', async () => {
         const { firstName, email, ...restPostBody } = postBody;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -116,7 +120,7 @@ describe('Users / :id (e2e)', () => {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         const { profile_status, ...restPostBody } = postBody;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(restPostBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -139,7 +143,7 @@ describe('Users / :id (e2e)', () => {
       it('when id is different than token id, it returns the expected response', async () => {
         const userId = '632b3b1e977e7f453003bf61';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${userId}`)
+          .patch(`/api/v1/users/${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toBe(HttpStatus.FORBIDDEN);
@@ -149,7 +153,7 @@ describe('Users / :id (e2e)', () => {
       it('firstName is not empty', async () => {
         postBody.firstName = '';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.body.message).toContain(
@@ -160,7 +164,7 @@ describe('Users / :id (e2e)', () => {
       it('firstName is not longer than 30 characters', async () => {
         postBody.firstName = 'long first name > 30 characters';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.body.message).toContain(
@@ -171,7 +175,7 @@ describe('Users / :id (e2e)', () => {
       it('userName is minimum 3 characters long', async () => {
         postBody.userName = 'Te';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.body.message).toContain(
@@ -183,7 +187,7 @@ describe('Users / :id (e2e)', () => {
       it('userName is not longer than 30 characters', async () => {
         postBody.userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -196,7 +200,7 @@ describe('Users / :id (e2e)', () => {
       it('userName should match pattern', async () => {
         postBody.userName = '_testuser';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -209,7 +213,7 @@ describe('Users / :id (e2e)', () => {
       it('email is a proper-form email', async () => {
         postBody.email = 'testusergmail.com';
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -229,7 +233,7 @@ describe('Users / :id (e2e)', () => {
       it('returns an error when supplied userName is different from current and already exists', async () => {
         postBody.userName = otherUser.userName;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -241,7 +245,7 @@ describe('Users / :id (e2e)', () => {
       it("does not return an error when supplied userName is same as user's current userName", async () => {
         postBody.userName = activeUser.userName;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -250,7 +254,7 @@ describe('Users / :id (e2e)', () => {
       it('returns an error when supplied email is different from current and already exists', async () => {
         postBody.email = otherUser.email;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -262,7 +266,7 @@ describe('Users / :id (e2e)', () => {
       it("does not return an error when supplied email is same as user's current email", async () => {
         postBody.email = activeUser.email;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -271,7 +275,7 @@ describe('Users / :id (e2e)', () => {
       it('aboutMe is not longer than 1000 characters', async () => {
         postBody.aboutMe = new Array(1002).join('z');
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -283,7 +287,7 @@ describe('Users / :id (e2e)', () => {
       it('profile_status must be one of the allowed values', async () => {
         postBody.profile_status = 2;
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -298,7 +302,7 @@ describe('Users / :id (e2e)', () => {
           aboutMe: 'I am a human being',
         };
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(body);
         expect(usersService.emailExists).toHaveBeenCalledTimes(0);
@@ -321,7 +325,7 @@ describe('Users / :id (e2e)', () => {
             aboutMe: 'I am a human being',
           };
           const response = await request(app.getHttpServer())
-            .patch(`/users/${activeUser.id}`)
+            .patch(`/api/v1/users/${activeUser.id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send(body);
           expect(response.status).toEqual(HttpStatus.OK);
@@ -337,7 +341,7 @@ describe('Users / :id (e2e)', () => {
           aboutMe: 'I am a human being',
         };
         const response = await request(app.getHttpServer())
-          .patch(`/users/${activeUser.id}`)
+          .patch(`/api/v1/users/${activeUser.id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(body);
         expect(usersService.userNameExists).toHaveBeenCalledTimes(0);

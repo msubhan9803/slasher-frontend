@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -50,6 +50,10 @@ describe('Events create / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -79,7 +83,7 @@ describe('Events create / (e2e)', () => {
       it('create the event data successful', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -129,7 +133,7 @@ describe('Events create / (e2e)', () => {
         postBody.name = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -162,7 +166,7 @@ describe('Events create / (e2e)', () => {
         postBody.name = new Array(155).join('b');
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -195,7 +199,7 @@ describe('Events create / (e2e)', () => {
         postBody.event_type = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -228,7 +232,7 @@ describe('Events create / (e2e)', () => {
         postBody.event_type = 'adsafasag';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -261,7 +265,7 @@ describe('Events create / (e2e)', () => {
         postBody.startDate = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -294,7 +298,7 @@ describe('Events create / (e2e)', () => {
         postBody.endDate = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -323,7 +327,7 @@ describe('Events create / (e2e)', () => {
         postBody.country = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -356,7 +360,7 @@ describe('Events create / (e2e)', () => {
         postBody.country = new Array(102).join('c');
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -389,7 +393,7 @@ describe('Events create / (e2e)', () => {
         postBody.state = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -422,7 +426,7 @@ describe('Events create / (e2e)', () => {
         postBody.state = new Array(102).join('c');
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -455,7 +459,7 @@ describe('Events create / (e2e)', () => {
         postBody.city = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -488,7 +492,7 @@ describe('Events create / (e2e)', () => {
         postBody.city = new Array(102).join('c');
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -521,7 +525,7 @@ describe('Events create / (e2e)', () => {
         postBody.address = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -554,7 +558,7 @@ describe('Events create / (e2e)', () => {
         postBody.address = new Array(155).join('b');
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -587,7 +591,7 @@ describe('Events create / (e2e)', () => {
         postBody.event_info = '';
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -621,7 +625,7 @@ describe('Events create / (e2e)', () => {
 
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -655,7 +659,7 @@ describe('Events create / (e2e)', () => {
 
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -689,7 +693,7 @@ describe('Events create / (e2e)', () => {
 
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -721,7 +725,7 @@ describe('Events create / (e2e)', () => {
       it('when one of the files is not jpg, jpeg, png, or gif then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -753,7 +757,7 @@ describe('Events create / (e2e)', () => {
       it('if file size should not larger than 20MB then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)
@@ -785,7 +789,7 @@ describe('Events create / (e2e)', () => {
       it('if files more than 4 then it will give expected response', async () => {
         await createTempFiles(async (tempPath) => {
           const response = await request(app.getHttpServer())
-            .post('/events')
+            .post('/api/v1/events')
             .auth(activeUserAuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')
             .field('name', postBody.name)

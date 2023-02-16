@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -48,6 +48,10 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -87,7 +91,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts/${feedPost._id}`)
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
@@ -140,7 +144,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts/${feedPost._id}`)
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -160,7 +164,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         }),
       );
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts/${feedPost._id}`)
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });

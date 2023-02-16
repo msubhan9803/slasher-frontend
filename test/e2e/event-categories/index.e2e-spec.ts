@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -30,6 +30,10 @@ describe('Event categories index (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -54,7 +58,7 @@ describe('Event categories index (e2e)', () => {
       const eventCategory1 = await eventCategoriesService.create(eventCategoryFactory.build());
       const eventCategory2 = await eventCategoriesService.create(eventCategoryFactory.build());
       const response = await request(app.getHttpServer())
-        .get('/event-categories')
+        .get('/api/v1/event-categories')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.OK);
       expect(response.body)

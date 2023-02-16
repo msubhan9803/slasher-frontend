@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -61,6 +61,10 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -184,7 +188,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
       const limit = 20;
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
+        .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(2);
@@ -313,7 +317,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         it('when sort is newestFirst', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
+            .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let index = 1; index < firstResponse.body.length; index += 1) {
@@ -321,7 +325,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           }
           expect(firstResponse.body).toHaveLength(3);
           const secondResponse = await request(app.getHttpServer())
-            .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst&after=${firstResponse.body[limit - 1]._id}`)
+            .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst&after=${firstResponse.body[limit - 1]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let index = 1; index < secondResponse.body.length; index += 1) {
@@ -332,7 +336,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         it('when sort is oldestFirst', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=oldestFirst`)
+            .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=oldestFirst`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let index = 1; index < firstResponse.body.length; index += 1) {
@@ -340,7 +344,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           }
           expect(firstResponse.body).toHaveLength(3);
           const secondResponse = await request(app.getHttpServer())
-            .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=oldestFirst&after=${firstResponse.body[limit - 1]._id}`)
+            .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=oldestFirst&after=${firstResponse.body[limit - 1]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let index = 1; index < secondResponse.body.length; index += 1) {
@@ -367,7 +371,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       });
       const limit = 3;
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
+        .get(`/api/v1/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -396,7 +400,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       it('should not return comments when the requesting user is not a friend of the post creator', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -407,7 +411,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&sortBy=newestFirst`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -416,7 +420,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -425,7 +429,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
       it('limit should not be grater than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -433,7 +437,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
       it('sortBy should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy should not be empty');
@@ -441,7 +445,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
       it('sortBy must be an allowed value', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&sortBy=banana`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&sortBy=banana`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy must be one of the following values: newestFirst, oldestFirst');
@@ -451,7 +455,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         const limit = 3;
         const after = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&after=${after}&sortBy=newestFirst`)
+          .get(`/api/v1/feed-comments?feedPostId=${feedPost._id}&limit=${limit}&after=${after}&sortBy=newestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain(

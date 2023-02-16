@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -32,6 +32,10 @@ describe('Delete Block (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -60,7 +64,7 @@ describe('Delete Block (e2e)', () => {
       it('delete block successfully.', async () => {
         const userId = user1._id;
         await request(app.getHttpServer())
-          .delete(`/blocks?userId=${userId}`)
+          .delete(`/api/v1/blocks?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK)
@@ -74,7 +78,7 @@ describe('Delete Block (e2e)', () => {
     it('userId should not be empty', async () => {
       const userId = '';
       const response = await request(app.getHttpServer())
-        .delete(`/blocks?userId=${userId}`)
+        .delete(`/api/v1/blocks?userId=${userId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -84,7 +88,7 @@ describe('Delete Block (e2e)', () => {
     it('userId must match regular expression', async () => {
       const userId = 'aaa';
       const response = await request(app.getHttpServer())
-        .delete(`/blocks?userId=${userId}`)
+        .delete(`/api/v1/blocks?userId=${userId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

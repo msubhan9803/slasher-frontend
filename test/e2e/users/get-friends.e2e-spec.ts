@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -44,6 +44,10 @@ describe('Get All Friends (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -86,7 +90,7 @@ describe('Get All Friends (e2e)', () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -125,7 +129,7 @@ describe('Get All Friends (e2e)', () => {
         const offset = 1;
         const userNameContains = 'darth';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -150,7 +154,7 @@ describe('Get All Friends (e2e)', () => {
         const limit = 5;
         const offset = 0;
         const response = await request(app.getHttpServer())
-          .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/users/${user3.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -183,7 +187,7 @@ describe('Get All Friends (e2e)', () => {
         const offset = 0;
         const userNameContains = 'abe';
         const response = await request(app.getHttpServer())
-          .get(`/users/${user3.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .get(`/api/v1/users/${user3.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -206,7 +210,7 @@ describe('Get All Friends (e2e)', () => {
         });
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/users/${user1._id}/friends?limit=${limit}`)
+          .get(`/api/v1/users/${user1._id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -222,7 +226,7 @@ describe('Get All Friends (e2e)', () => {
       await friendsService.createFriendRequest(user6.id, user7.id);
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/users/${user6._id}/friends?limit=${limit}`)
+        .get(`/api/v1/users/${user6._id}/friends?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.FORBIDDEN);
@@ -232,7 +236,7 @@ describe('Get All Friends (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends`)
+          .get(`/api/v1/users/${activeUser.id}/friends`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -241,7 +245,7 @@ describe('Get All Friends (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -250,7 +254,7 @@ describe('Get All Friends (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -260,7 +264,7 @@ describe('Get All Friends (e2e)', () => {
         const limit = 10;
         const offset = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('offset must be a number conforming to the specified constraints');
@@ -271,7 +275,7 @@ describe('Get All Friends (e2e)', () => {
         const offset = 1;
         const userNameContains = new Array(35).join('z');
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
+          .get(`/api/v1/users/${activeUser.id}/friends?limit=${limit}&offset=${offset}&userNameContains=${userNameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('userNameContains must be shorter than or equal to 30 characters');

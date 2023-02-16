@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -39,6 +39,10 @@ describe('Conversations all / (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -69,7 +73,7 @@ describe('Conversations all / (e2e)', () => {
       it('get expected conversations that a user is part of', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -109,14 +113,14 @@ describe('Conversations all / (e2e)', () => {
       it('get expected first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.status).toEqual(HttpStatus.OK);
         expect(firstResponse.body).toHaveLength(3);
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -127,7 +131,7 @@ describe('Conversations all / (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/chat/conversations')
+          .get('/api/v1/chat/conversations')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -136,7 +140,7 @@ describe('Conversations all / (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -145,7 +149,7 @@ describe('Conversations all / (e2e)', () => {
       it('limit should be less than or equal to 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -155,7 +159,7 @@ describe('Conversations all / (e2e)', () => {
         const limit = 5;
         const before = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/chat/conversations?limit=${limit}&before=${before}`)
+          .get(`/api/v1/chat/conversations?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -182,7 +186,7 @@ describe('Conversations all / (e2e)', () => {
       m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
       const matchId = m1.matchId._id;
       const response = await request(app.getHttpServer())
-        .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
+        .patch(`/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.OK);
@@ -204,7 +208,7 @@ describe('Conversations all / (e2e)', () => {
         m1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Send 1');
         const matchId = 'BAD_MONGO_OBJECT_ID';
         const response = await request(app.getHttpServer())
-          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
+          .patch(`/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -221,7 +225,7 @@ describe('Conversations all / (e2e)', () => {
         m1 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Send 1');
         const matchId = m1.matchId._id;
         const response = await request(app.getHttpServer())
-          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
+          .patch(`/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
@@ -232,7 +236,7 @@ describe('Conversations all / (e2e)', () => {
         m1 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Send 1');
         const nonExistingMatchId = new mongoose.Types.ObjectId();
         const response = await request(app.getHttpServer())
-          .patch(`/chat/conversations/mark-all-received-messages-read-for-chat/${nonExistingMatchId}`)
+          .patch(`/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${nonExistingMatchId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);

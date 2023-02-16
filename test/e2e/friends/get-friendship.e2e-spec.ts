@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -34,6 +34,10 @@ describe('Get Friendship (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -62,7 +66,7 @@ describe('Get Friendship (e2e)', () => {
       it('returns the expected friend info for two users with a pending friend record', async () => {
         const userId = user1.id;
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toEqual({
@@ -75,7 +79,7 @@ describe('Get Friendship (e2e)', () => {
       it('returns the expected friend info for pending friend that to field has active user id', async () => {
         const userId = user3.id;
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toEqual({
@@ -89,7 +93,7 @@ describe('Get Friendship (e2e)', () => {
         await friendsService.acceptFriendRequest(activeUser.id, user1.id);
         const userId = user1.id;
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -103,7 +107,7 @@ describe('Get Friendship (e2e)', () => {
         await friendsService.cancelFriendshipOrDeclineRequest(activeUser.id, user1.id);
         const userId = user1.id;
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
           expect(response.body).toEqual({
@@ -116,7 +120,7 @@ describe('Get Friendship (e2e)', () => {
       it('for two users with NO friend record, then return response with null value', async () => {
         const userId = user2.id;
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -131,7 +135,7 @@ describe('Get Friendship (e2e)', () => {
     describe('Validation', () => {
       it('userId should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/friends/friendship')
+          .get('/api/v1/friends/friendship')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('userId should not be empty');
@@ -140,7 +144,7 @@ describe('Get Friendship (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const userId = 'aaa';
         const response = await request(app.getHttpServer())
-          .get(`/friends/friendship?userId=${userId}`)
+          .get(`/api/v1/friends/friendship?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('userId must be a mongodb id');

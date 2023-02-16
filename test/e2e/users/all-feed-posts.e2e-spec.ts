@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, HttpStatus } from '@nestjs/common';
+import { INestApplication, HttpStatus, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -40,6 +40,10 @@ describe('All Feed Post (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -75,7 +79,7 @@ describe('All Feed Post (e2e)', () => {
     it('when earlier than post id is not exist than expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/users/${activeUser.id}/posts?limit=${limit}`)
+        .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -118,7 +122,7 @@ describe('All Feed Post (e2e)', () => {
       });
       const limit = 3;
       const response = await request(app.getHttpServer())
-        .get(`/users/${user1._id}/posts?limit=${limit}`)
+        .get(`/api/v1/users/${user1._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
@@ -132,14 +136,14 @@ describe('All Feed Post (e2e)', () => {
     it('get expected first and second sets of paginated results', async () => {
       const limit = 3;
       const firstResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser.id}/posts?limit=${limit}`)
+        .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(firstResponse.status).toEqual(HttpStatus.OK);
       expect(firstResponse.body).toHaveLength(3);
 
       const secondResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+        .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -157,7 +161,7 @@ describe('All Feed Post (e2e)', () => {
       );
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/users/${user._id}/posts?limit=${limit}`)
+        .get(`/api/v1/users/${user._id}/posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.FORBIDDEN);
@@ -167,7 +171,7 @@ describe('All Feed Post (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/posts`)
+          .get(`/api/v1/users/${activeUser.id}/posts`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -183,7 +187,7 @@ describe('All Feed Post (e2e)', () => {
         );
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
+          .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -199,7 +203,7 @@ describe('All Feed Post (e2e)', () => {
         );
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
+          .get(`/api/v1/users/${activeUser.id}/posts?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 30');

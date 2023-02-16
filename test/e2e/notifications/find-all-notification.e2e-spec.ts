@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -47,6 +47,10 @@ describe('All Notifications (e2e)', () => {
     feedPostModel = moduleRef.get<Model<FeedPostDocument>>(getModelToken(FeedPost.name));
     rssFeedProviderModel = moduleRef.get<Model<RssFeedProviderDocument>>(getModelToken(RssFeedProvider.name));
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -114,7 +118,7 @@ describe('All Notifications (e2e)', () => {
       it('finds all the expected notifications details', async () => {
         const limit = 5;
         const response = await request(app.getHttpServer())
-          .get(`/notifications?limit=${limit}`)
+          .get(`/api/v1/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let index = 1; index < response.body.length; index += 1) {
@@ -251,7 +255,7 @@ describe('All Notifications (e2e)', () => {
         it('get expected first and second sets of paginated results', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/notifications?limit=${limit}`)
+            .get(`/api/v1/notifications?limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -262,7 +266,7 @@ describe('All Notifications (e2e)', () => {
           expect(firstResponse.body).toHaveLength(3);
 
           const secondResponse = await request(app.getHttpServer())
-            .get(`/notifications?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+            .get(`/api/v1/notifications?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
 
@@ -278,7 +282,7 @@ describe('All Notifications (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/notifications')
+          .get('/api/v1/notifications')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -295,7 +299,7 @@ describe('All Notifications (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/notifications?limit=${limit}`)
+          .get(`/api/v1/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -311,7 +315,7 @@ describe('All Notifications (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/notifications?limit=${limit}`)
+          .get(`/api/v1/notifications?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -327,7 +331,7 @@ describe('All Notifications (e2e)', () => {
         const limit = 3;
         const before = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/notifications?limit=${limit}&before=${before}`)
+          .get(`/api/v1/notifications?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -33,6 +33,10 @@ describe('Movie / Find First By Release Year (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -53,7 +57,7 @@ describe('Movie / Find First By Release Year (e2e)', () => {
     it('responds with error message when an invalid year supplied', async () => {
       const year = '1111';
       const response = await request(app.getHttpServer())
-        .get(`/movies/firstByReleaseYear?year=${year}`)
+        .get(`/api/v1/movies/firstByReleaseYear?year=${year}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
@@ -72,7 +76,7 @@ describe('Movie / Find First By Release Year (e2e)', () => {
         );
         const year = Number(movie.sortReleaseDate.slice(0, 4));
         const response = await request(app.getHttpServer())
-          .get(`/movies/firstByReleaseYear?year=${year}`)
+          .get(`/api/v1/movies/firstByReleaseYear?year=${year}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

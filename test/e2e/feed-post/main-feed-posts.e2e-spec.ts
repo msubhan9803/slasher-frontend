@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -51,6 +51,10 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -115,7 +119,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())
-        .get(`/feed-posts?limit=${limit}`)
+        .get(`/api/v1/feed-posts?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       for (let i = 1; i < response.body.length; i += 1) {
@@ -138,7 +142,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       it('get expected first and second sets of paginated results', async () => {
         const limit = 3;
         const firstResponse = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}`)
+          .get(`/api/v1/feed-posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(firstResponse.body).toHaveLength(3);
@@ -147,7 +151,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         }
 
         const secondResponse = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+          .get(`/api/v1/feed-posts?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(secondResponse.body).toHaveLength(2);
@@ -177,7 +181,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
 
         // Verify that hidden post is not included in the response
         const response2 = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}`)
+          .get(`/api/v1/feed-posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const ids: string[] = response2.body.map((post) => post._id);
@@ -190,7 +194,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get('/feed-posts')
+          .get('/api/v1/feed-posts')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -199,7 +203,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}`)
+          .get(`/api/v1/feed-posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -208,7 +212,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
       it('limit should not be grater than 30', async () => {
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}`)
+          .get(`/api/v1/feed-posts?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 30');
@@ -218,7 +222,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         const limit = 3;
         const before = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/feed-posts?limit=${limit}&before=${before}`)
+          .get(`/api/v1/feed-posts?limit=${limit}&before=${before}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain(

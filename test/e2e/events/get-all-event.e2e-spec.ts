@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -53,6 +53,10 @@ describe('Events all / (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -103,7 +107,7 @@ describe('Events all / (e2e)', () => {
       it('get expected events data based on startDate and endDate within of that span', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         for (let i = 1; i < response.body.length; i += 1) {
@@ -135,7 +139,7 @@ describe('Events all / (e2e)', () => {
         const startDate = DateTime.now().minus({ days: 50 }).toJSDate();
         const endDate = DateTime.now().minus({ days: 40 }).toJSDate();
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -165,7 +169,7 @@ describe('Events all / (e2e)', () => {
         }
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDate}&endDate=${endDate}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([
@@ -202,7 +206,7 @@ describe('Events all / (e2e)', () => {
         it('get expected first and second sets of paginated results', async () => {
           const limit = 3;
           const firstResponse = await request(app.getHttpServer())
-            .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+            .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
           for (let i = 1; i < firstResponse.body.length; i += 1) {
@@ -212,7 +216,7 @@ describe('Events all / (e2e)', () => {
           expect(firstResponse.body).toHaveLength(3);
 
           const secondResponse = await request(app.getHttpServer())
-            .get('/events?'
+            .get('/api/v1/events?'
               + `startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}&after=${firstResponse.body[2]._id}`)
             .auth(activeUserAuthToken, { type: 'bearer' })
             .send();
@@ -232,7 +236,7 @@ describe('Events all / (e2e)', () => {
       it('startDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('startDate should not be empty');
@@ -241,7 +245,7 @@ describe('Events all / (e2e)', () => {
       it('endDate should not be empty', async () => {
         const limit = 10;
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('endDate should not be empty');
@@ -249,7 +253,7 @@ describe('Events all / (e2e)', () => {
 
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -258,7 +262,7 @@ describe('Events all / (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -267,7 +271,7 @@ describe('Events all / (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
+          .get(`/api/v1/events?startDate=${startDateForSearch}&endDate=${endDateForSearch}&limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');

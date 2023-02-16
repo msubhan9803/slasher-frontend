@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -43,6 +43,10 @@ describe('Events / :id (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -72,7 +76,7 @@ describe('Events / :id (e2e)', () => {
     describe('Successful get event data', () => {
       it('get the event data successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/events/${activeEvent._id}`)
+          .get(`/api/v1/events/${activeEvent._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -107,7 +111,7 @@ describe('Events / :id (e2e)', () => {
           endDate: DateTime.fromISO('2022-10-19T00:00:00Z').toJSDate(),
         }));
         const response = await request(app.getHttpServer())
-          .get(`/events/${activeEvent1._id}`)
+          .get(`/api/v1/events/${activeEvent1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
@@ -134,7 +138,7 @@ describe('Events / :id (e2e)', () => {
       it('event not found if parameter id value does not exists', async () => {
         const tempEventObjectId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .get(`/events/${tempEventObjectId}`)
+          .get(`/api/v1/events/${tempEventObjectId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);

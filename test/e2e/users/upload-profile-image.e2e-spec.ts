@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { readdirSync } from 'fs';
@@ -29,6 +29,10 @@ describe('Users / Upload Profile image (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -56,7 +60,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds with profile pic url if file upload successful and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/profile-image')
+          .post('/api/v1/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -71,7 +75,7 @@ describe('Users / Upload Profile image (e2e)', () => {
 
     it('responds expected response when file is not present in request', async () => {
       const response = await request(app.getHttpServer())
-        .post('/users/profile-image')
+        .post('/api/v1/users/profile-image')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -81,7 +85,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds with expected response when file is not jpg, jpeg, png, or gif and ensures that temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/profile-image')
+          .post('/api/v1/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)
@@ -97,7 +101,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     it('responds expected response if file size should not larger than 20MB and ensure temp file is removed', async () => {
       await createTempFile(async (tempPath) => {
         const response = await request(app.getHttpServer())
-          .post('/users/profile-image')
+          .post('/api/v1/users/profile-image')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .attach('file', tempPath)

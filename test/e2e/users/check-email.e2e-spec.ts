@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
@@ -21,6 +21,10 @@ describe('Users / Check Email (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -37,7 +41,7 @@ describe('Users / Check Email (e2e)', () => {
     it('responds with error message when an invalid-format email supplied', async () => {
       const email = 'usertestgmail.com';
       const response = await request(app.getHttpServer())
-        .get(`/users/check-email?email=${email}`)
+        .get(`/api/v1/users/check-email?email=${email}`)
         .send();
       expect(response.body).toEqual({
         error: 'Bad Request',
@@ -50,7 +54,7 @@ describe('Users / Check Email (e2e)', () => {
       it('returns { exists: false } when the email address is NOT associated with a registered user', async () => {
         const email = 'usertestuser@gmail.com';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-email?email=${email}`)
+          .get(`/api/v1/users/check-email?email=${email}`)
           .send();
         expect(response.body).toEqual({
           exists: false,
@@ -63,7 +67,7 @@ describe('Users / Check Email (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-          .get(`/users/check-email?email=${user.email}`)
+          .get(`/api/v1/users/check-email?email=${user.email}`)
           .send();
         expect(response.body).toEqual({
           exists: true,

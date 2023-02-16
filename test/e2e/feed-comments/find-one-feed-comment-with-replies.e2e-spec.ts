@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -61,6 +61,10 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -144,7 +148,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());
 
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments/${feedComments1._id}`)
+        .get(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual(findOneFeedCommentsResponse);
@@ -153,7 +157,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     it('when feed comment id is not exists than expected response.', async () => {
       const feedCommentsId = '63940f0016e1db19bf32e72a';
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments/${feedCommentsId}`)
+        .get(`/api/v1/feed-comments/${feedCommentsId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -185,7 +189,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
         reaction: BlockAndUnblockReaction.Block,
       });
       const response = await request(app.getHttpServer())
-        .get(`/feed-comments/${feedComments1._id}`)
+        .get(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -224,7 +228,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
 
       it('should not return the comment when the requesting user is not a friend of the post creator', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments/${feedComment1._id}`)
+          .get(`/api/v1/feed-comments/${feedComment1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
@@ -236,7 +240,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       it('feedCommentId must be a mongodb id', async () => {
         const feedCommentId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .get(`/feed-comments/${feedCommentId}`)
+          .get(`/api/v1/feed-comments/${feedCommentId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

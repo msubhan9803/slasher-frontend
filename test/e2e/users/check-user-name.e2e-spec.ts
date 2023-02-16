@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../src/app.module';
@@ -21,6 +21,10 @@ describe('Users / Check User Name (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -38,7 +42,7 @@ describe('Users / Check User Name (e2e)', () => {
       it('when username is valid and does not exist, it returns the expected response', async () => {
         const userName = 'usertestuser';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body).toEqual({
           exists: false,
@@ -51,7 +55,7 @@ describe('Users / Check User Name (e2e)', () => {
         );
 
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${user.userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${user.userName}`)
           .send();
         expect(response.body).toEqual({
           exists: true,
@@ -63,7 +67,7 @@ describe('Users / Check User Name (e2e)', () => {
       it('userName should not be empty', async () => {
         const userName = '';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain('userName should not be empty');
       });
@@ -71,7 +75,7 @@ describe('Users / Check User Name (e2e)', () => {
       it('userName is minimum 3 characters long', async () => {
         const userName = 'Te';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
           'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
@@ -82,7 +86,7 @@ describe('Users / Check User Name (e2e)', () => {
       it('userName is not longer than 30 characters', async () => {
         const userName = 'TestUserTestUserTestUserTestUser';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
           'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '
@@ -93,7 +97,7 @@ describe('Users / Check User Name (e2e)', () => {
       it('userName should match pattern', async () => {
         const userName = '_testuser';
         const response = await request(app.getHttpServer())
-          .get(`/users/check-user-name?userName=${userName}`)
+          .get(`/api/v1/users/check-user-name?userName=${userName}`)
           .send();
         expect(response.body.message).toContain(
           'Username must be between 3 and 30 characters, can only include letters/numbers/special characters, '

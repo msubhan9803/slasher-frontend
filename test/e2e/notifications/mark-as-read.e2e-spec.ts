@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -37,6 +37,10 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -73,7 +77,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     describe('mark as read notification', () => {
       it('successfully marks the notification as read and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/notifications/${notification._id}/mark-as-read`)
+          .patch(`/api/v1/notifications/${notification._id}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         const notificationsDetails = await notificationsService.findById(notification._id);
@@ -84,7 +88,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
       it('returns the expected response when the notification id does not exist.', async () => {
         const notificationId = '5c9c60ca59bf9617c18f6cec';
         const response = await request(app.getHttpServer())
-          .patch(`/notifications/${notificationId}/mark-as-read`)
+          .patch(`/api/v1/notifications/${notificationId}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ message: 'Notification not found', statusCode: 404 });
@@ -92,7 +96,7 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
 
       it('returns the expected response when the notification is owned by a different user.', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/notifications/${notification1._id}/mark-as-read`)
+          .patch(`/api/v1/notifications/${notification1._id}/mark-as-read`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ message: 'Permission denied.', statusCode: 401 });

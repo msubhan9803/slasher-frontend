@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -32,6 +32,10 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -61,7 +65,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .delete(`/feed-posts/${feedPost._id}`)
+        .delete(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ success: true });
@@ -77,7 +81,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         ),
       );
       const response = await request(app.getHttpServer())
-        .delete(`/feed-posts/${feedPost._id}`)
+        .delete(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
@@ -87,7 +91,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
     it('when feed post is not found than expected feed post response', async () => {
       const feedPost = '634fc8d86a5897b88a2d9753';
       const response = await request(app.getHttpServer())
-        .delete(`/feed-posts/${feedPost}`)
+        .delete(`/api/v1/feed-posts/${feedPost}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);

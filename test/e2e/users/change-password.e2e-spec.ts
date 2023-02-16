@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -28,6 +28,10 @@ describe('Users change password (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -58,7 +62,7 @@ describe('Users change password (e2e)', () => {
     describe('Change Password', () => {
       it('Password change successfully, and new password is stored in the db', async () => {
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.OK);
@@ -75,7 +79,7 @@ describe('Users change password (e2e)', () => {
       it('currentPassword should not be empty', async () => {
         postBody.currentPassword = '';
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -87,7 +91,7 @@ describe('Users change password (e2e)', () => {
       it('newPassword should not be empty', async () => {
         postBody.newPassword = '';
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -97,7 +101,7 @@ describe('Users change password (e2e)', () => {
       it('newPasswordConfirmation should not be empty', async () => {
         postBody.newPasswordConfirmation = '';
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -109,7 +113,7 @@ describe('Users change password (e2e)', () => {
       it('newPassword should match pattern', async () => {
         postBody.newPassword = 'testuser123';
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -122,7 +126,7 @@ describe('Users change password (e2e)', () => {
       it('newPassword and newPasswordConfirmation match', async () => {
         postBody.newPasswordConfirmation = 'TestUser@1234';
         const response = await request(app.getHttpServer())
-          .patch('/users/change-password')
+          .patch('/api/v1/users/change-password')
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send(postBody);
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

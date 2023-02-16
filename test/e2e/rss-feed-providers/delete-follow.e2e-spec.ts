@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -37,6 +37,10 @@ describe('Delete Follow (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -67,7 +71,7 @@ describe('Delete Follow (e2e)', () => {
   describe('DELETE /rss-feed-providers/:id/follows/:userId', () => {
     it('successfully deletes the rss feed providers follow record', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)
+        .delete(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProvideFollows._id);
@@ -78,7 +82,7 @@ describe('Delete Follow (e2e)', () => {
     it('returns the expected response when the rss feed provider id is not found', async () => {
       const rssFeedProviderId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
+        .delete(`/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -88,7 +92,7 @@ describe('Delete Follow (e2e)', () => {
     it("returns the expected error response when a user tries to update another user's follow status", async () => {
       const differentUserId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${differentUserId}`)
+        .delete(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${differentUserId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.status).toEqual(HttpStatus.UNAUTHORIZED);
@@ -99,7 +103,7 @@ describe('Delete Follow (e2e)', () => {
       it('id must be a mongodb id', async () => {
         const rssFeedProviderId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .delete(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
+          .delete(`/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({
@@ -114,7 +118,7 @@ describe('Delete Follow (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const activeUserId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}`)
+          .delete(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUserId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

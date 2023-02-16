@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -43,6 +43,10 @@ describe('Users / delete account (e2e)', () => {
     suggestBlocksModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -97,7 +101,7 @@ describe('Users / delete account (e2e)', () => {
         const oldHashedPassword = activeUser.password;
 
         const response = await request(app.getHttpServer())
-          .delete(`/users/delete-account?userId=${userId}`)
+          .delete(`/api/v1/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send()
           .expect(HttpStatus.OK);
@@ -129,7 +133,7 @@ describe('Users / delete account (e2e)', () => {
       it('if query parameter userId different than activeUser then it returns expected response', async () => {
         const userId = user1._id;
         const response = await request(app.getHttpServer())
-          .delete(`/users/delete-account?userId=${userId}`)
+          .delete(`/api/v1/users/delete-account?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -141,7 +145,7 @@ describe('Users / delete account (e2e)', () => {
       it('userId should not be empty', async () => {
         const userId = '';
         const response = await request(app.getHttpServer())
-          .delete(`/friends?userId=${userId}`)
+          .delete(`/api/v1/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
@@ -153,7 +157,7 @@ describe('Users / delete account (e2e)', () => {
       it('userId must be a mongodb id', async () => {
         const userId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/friends?userId=${userId}`)
+          .delete(`/api/v1/friends?userId=${userId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.BAD_REQUEST);

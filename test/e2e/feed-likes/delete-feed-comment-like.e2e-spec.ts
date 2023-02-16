@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -53,6 +53,10 @@ describe('Delete Feed Comment Like (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -97,7 +101,7 @@ describe('Delete Feed Comment Like (e2e)', () => {
 
     it('delete feed comment likes.', async () => {
       const response = await request(app.getHttpServer())
-        .delete(`/feed-likes/comment/${feedComments._id}`)
+        .delete(`/api/v1/feed-likes/comment/${feedComments._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
@@ -109,7 +113,7 @@ describe('Delete Feed Comment Like (e2e)', () => {
     it('when feed comment id is not exist than expected response', async () => {
       const feedCommentId = '638ee75d59bf0f63dfb00d31';
       const response = await request(app.getHttpServer())
-        .delete(`/feed-likes/comment/${feedCommentId}`)
+        .delete(`/api/v1/feed-likes/comment/${feedCommentId}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.NOT_FOUND);
@@ -120,7 +124,7 @@ describe('Delete Feed Comment Like (e2e)', () => {
       it('feedCommentId must be a mongodb id', async () => {
         const feedCommentId = '634912b2@2c2f4f5e0e6228#';
         const response = await request(app.getHttpServer())
-          .delete(`/feed-likes/comment/${feedCommentId}`)
+          .delete(`/api/v1/feed-likes/comment/${feedCommentId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('feedCommentId must be a mongodb id');

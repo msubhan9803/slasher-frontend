@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';

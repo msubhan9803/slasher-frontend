@@ -13,9 +13,9 @@ import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
-import { MovieUserStatusService } from '../movieUserStatus/providers/movie-user-status.service';
+import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { getUserFromRequest } from '../utils/request-utils';
-import { MovieUserStatusIdDto } from '../movieUserStatus/dto/movie-user-status-id.dto';
+import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
 
 @Controller('movies')
 export class MoviesController {

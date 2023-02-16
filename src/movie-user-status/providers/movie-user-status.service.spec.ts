@@ -40,6 +40,7 @@ describe('MovieUserStatusService', () => {
 
   let activeUser;
   let movie;
+  let movieUserStatus1;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
@@ -53,7 +54,7 @@ describe('MovieUserStatusService', () => {
     activeUser = await usersService.create(
       userFactory.build(),
     );
-    await movieUserStatusModel.create({
+    movieUserStatus1 = await movieUserStatusModel.create({
       name: "movie user status1",
       userId: activeUser._id,
       movieId: movie._id,
@@ -132,5 +133,10 @@ describe('MovieUserStatusService', () => {
     });
   });
 
-
+  describe('#findMovieUserStatus', () => {
+    it('successfully find a add movie user status', async () => {
+      const movieUserStatusData = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString())
+      expect(movieUserStatusData.name).toBe(movieUserStatus1.name);
+    });
+  });
 });

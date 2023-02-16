@@ -166,7 +166,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
     });
 
-    it('when rssfeedproviderid is same as userid than expected response', async () => {
+    it('when post has an rssfeedProviderId, it returns a successful response', async () => {
       const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
 
       const feedPost = await feedPostsService.create(

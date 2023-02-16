@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Movie } from '../movie/movie.schema';
+import { User } from '../user/user.schema';
 import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
@@ -23,10 +25,10 @@ export class MovieUserStatus {
   @Prop({ default: null, trim: true })
   name: string;
 
-  @Prop({ default: null, ref: 'movies' })
+  @Prop({ default: null, ref: Movie.name, required: true })
   movieId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'users' })
+  @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
   @Prop({

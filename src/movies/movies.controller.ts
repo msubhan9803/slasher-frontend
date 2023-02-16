@@ -1,8 +1,9 @@
 import {
-  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query,
+  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Req, Post, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
+import { Request } from 'express';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -12,11 +13,15 @@ import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
+import { MovieUserStatusService } from '../movieUserStatus/providers/movie-user-status.service';
+import { getUserFromRequest } from '../utils/request-utils';
+import { MovieUserStatusIdDto } from '../movieUserStatus/dto/movie-user-status-id.dto';
 
 @Controller('movies')
 export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,
+    private readonly movieUserStatusService: MovieUserStatusService,
     private configService: ConfigService,
   ) { }
 
@@ -85,4 +90,140 @@ export class MoviesController {
     }
     return movieDbData;
   }
+
+  @Get(':movieId/lists')
+  async findAllMovieUserStatus(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findAllMovieUserStatus(user.id, params.movieId);
+    if (!movieUserStatusData) {
+      return {
+        favorite: 0,
+        watch: 0,
+        watched: 0,
+        buy: 0
+      }
+    }
+    return {
+      favorite: movieUserStatusData.favourite,
+      watch: movieUserStatusData.watch,
+      watched: movieUserStatusData.watched,
+      buy: movieUserStatusData.buy
+    }
+  }
+
+  @Post(':movieId/lists/favorite')
+  async addMovieUserStatusFavorite(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.addMovieUserStatusFavorite(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Delete(':movieId/lists/favorite')
+  async deleteMovieUserStatusFavorite(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.deleteMovieUserStatusFavorite(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Post(':movieId/lists/watch')
+  async addMovieUserStatusWatch(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.addMovieUserStatusWatch(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Delete(':movieId/lists/watch')
+  async deleteMovieUserStatusWatch(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.deleteMovieUserStatusWatch(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Post(':movieId/lists/watched')
+  async addMovieUserStatusWatched(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.addMovieUserStatusWatched(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Delete(':movieId/lists/watched')
+  async deleteMovieUserStatusWatched(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.deleteMovieUserStatusWatched(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Post(':movieId/lists/buy')
+  async addMovieUserStatusBuy(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.addMovieUserStatusBuy(user.id, params.movieId);
+    return { success: true }
+  }
+
+  @Delete(':movieId/lists/buy')
+  async deleteMovieUserStatusBuy(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: MovieUserStatusIdDto
+  ) {
+    const user = getUserFromRequest(request);
+    const movieUserStatusData = await this.movieUserStatusService.findByMovieId(params.movieId);
+    if (!movieUserStatusData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+    await this.movieUserStatusService.deleteMovieUserStatusBuy(user.id, params.movieId);
+    return { success: true }
+  }
+
 }

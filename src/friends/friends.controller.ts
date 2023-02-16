@@ -18,7 +18,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
 
-@Controller('friends')
+@Controller({ path: 'friends', version: ['1'] })
 export class FriendsController {
   constructor(
     private readonly friendsService: FriendsService,

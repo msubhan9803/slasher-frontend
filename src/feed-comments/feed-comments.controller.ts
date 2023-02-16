@@ -35,7 +35,7 @@ import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('feed-comments')
+@Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
   constructor(
     private readonly feedPostsService: FeedPostsService,

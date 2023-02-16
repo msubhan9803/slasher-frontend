@@ -13,7 +13,7 @@ import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
 
-@Controller('movies')
+@Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,

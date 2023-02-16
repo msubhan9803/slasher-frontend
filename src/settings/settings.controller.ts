@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Get, HttpException, HttpStatus, Patch, Req, Version,
+  Controller, Get, HttpException, HttpStatus, Patch, Req,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { pick } from '../utils/object-utils';

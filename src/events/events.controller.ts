@@ -25,7 +25,7 @@ import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('events')
+@Controller({ path: 'events', version: ['1'] })
 export class EventsController {
   constructor(
     private readonly eventService: EventService,

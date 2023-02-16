@@ -19,7 +19,7 @@ describe('App (e2e)', () => {
     await app.close();
   });
 
-  describe('GET /', () => {
+  describe('GET /api', () => {
     it('returns the expected result', () => request(app.getHttpServer())
       .get('/')
       .expect(200)

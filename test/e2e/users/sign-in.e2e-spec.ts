@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
@@ -36,6 +36,10 @@ describe('Users sign-in (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+    });
     await app.init();
   });
 
@@ -58,7 +62,7 @@ describe('Users sign-in (e2e)', () => {
 
   describe('POST /users/sign-in', () => {
     describe('An active user', () => {
-      it('can successfully sign in with a username and password OR email and password', async () => {
+      it.only('can successfully sign in with a username and password OR email and password', async () => {
         const postBodyScenarios: UserSignInDto[] = [
           {
             emailOrUsername: activeUser.userName,
@@ -73,7 +77,7 @@ describe('Users sign-in (e2e)', () => {
         ];
         for (const postBody of postBodyScenarios) {
           const response = await request(app.getHttpServer())
-            .post('/users/sign-in')
+            .post('/api/v1/users/sign-in')
             .send(postBody);
           expect(response.status).toEqual(HttpStatus.CREATED); // 201 because a new sign-in session was created
           expect(response.body).toEqual({

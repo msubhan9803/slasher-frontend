@@ -19,7 +19,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { RssFeedProviderFollowNotificationsEnabled } from '../schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 import { pick } from '../utils/object-utils';
 
-@Controller('rss-feed-providers')
+@Controller({ path: 'rss-feed-providers', version: ['1'] })
 export class RssFeedProvidersController {
   constructor(
     private readonly rssFeedProvidersService: RssFeedProvidersService,

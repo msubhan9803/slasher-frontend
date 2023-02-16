@@ -15,7 +15,7 @@ import { NotificationsService } from './providers/notifications.service';
 import { pick } from '../utils/object-utils';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 
-@Controller('notifications')
+@Controller({ path: 'notifications', version: ['1'] })
 export class NotificationsController {
   constructor(
     private readonly notificationsService: NotificationsService,

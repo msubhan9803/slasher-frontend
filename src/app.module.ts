@@ -33,6 +33,18 @@ import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
 import { AppController } from './app/app.controller';
 
+console.log('got process env?', process.env.NODE_ENV);
+// const exclusionPathsTest = [];
+// const exclusionPathsDevAndProd = [];
+
+const exclusionPaths = [];
+
+if (process.env.NODE_ENV === 'test') {
+  exclusionPaths.push('/');
+} else {
+  exclusionPaths.push('/api');
+}
+
 @Module({
   imports: [
     ConfigModule.forRoot({

@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
 
-@Controller()
+// We are using `VERSION_NEUTRAL` to makes it accessible over `/api` path i.e., without any version.
+@Controller({ version: VERSION_NEUTRAL })
 export class AppController {
   // eslint-disable-next-line class-methods-use-this
   @Get()

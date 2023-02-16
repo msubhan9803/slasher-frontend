@@ -80,7 +80,6 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         feedPostFactory.build(
           {
             userId: activeUser._id,
-            rssfeedProviderId: rssFeedProviderData._id,
             rssFeedId: rssFeed._id,
             createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -93,11 +92,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       expect(response.body).toEqual({
         _id: feedPost.id,
         createdAt: '2022-10-17T00:00:00.000Z',
-        rssfeedProviderId: {
-          _id: rssFeedProviderData.id,
-          logo: null,
-          title: 'RssFeedProvider 1',
-        },
+        rssfeedProviderId: null,
         rssFeedId: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',

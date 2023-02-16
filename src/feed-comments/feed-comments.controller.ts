@@ -249,9 +249,9 @@ export class FeedCommentsController {
     feedReply.userId = user._id;
     feedReply.feedPostId = comment.feedPostId;
     const reply = await this.feedCommentsService.createFeedReply(feedReply);
-
-    await this.sendFeedReplyCreationNotifications(user, reply);
-
+    if (!feedPost.rssfeedProviderId) {
+      await this.sendFeedReplyCreationNotifications(user, reply);
+    }
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,

@@ -53,7 +53,7 @@ describe('Event categories index (e2e)', () => {
     );
   });
 
-  describe('GET /event-categories', () => {
+  describe('GET /api/v1/event-categories', () => {
     it('returns the expected response', async () => {
       const eventCategory1 = await eventCategoriesService.create(eventCategoryFactory.build());
       const eventCategory2 = await eventCategoriesService.create(eventCategoryFactory.build());

@@ -62,7 +62,7 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
-  describe('POST /chat/conversations/create-or-find-direct-message-conversation', () => {
+  describe('POST /api/v1/chat/conversations/create-or-find-direct-message-conversation', () => {
     describe('create or find direct message conversation', () => {
       let users;
       let matchList;

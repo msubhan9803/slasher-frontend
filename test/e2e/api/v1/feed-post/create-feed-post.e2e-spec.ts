@@ -46,7 +46,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-posts', () => {
+  describe('POST /api/v1/feed-posts', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

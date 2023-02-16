@@ -63,7 +63,7 @@ describe('All Mark As Read Notifications (e2e)', () => {
     }
   });
 
-  describe('Patch /notifications/mark-all-as-read', () => {
+  describe('PATCH /api/v1/notifications/mark-all-as-read', () => {
     describe('All Mark As Read Notifications', () => {
       it('finds all the expected isRead mark as read notifications details', async () => {
         const response = await request(app.getHttpServer())

@@ -67,7 +67,7 @@ describe('Get Blocked Users (e2e)', () => {
     });
   });
 
-  describe('GET /blocks', () => {
+  describe('GET /api/v1/blocks', () => {
     describe('Get Blocked Users Request', () => {
       it('returns the expected response with the expected data structure', async () => {
         const limit = 5;

@@ -65,7 +65,7 @@ describe('settings update / :id (e2e)', () => {
     }));
   });
 
-  describe('PATCH /settings/notifications', () => {
+  describe('PATCH /api/v1/settings/notifications', () => {
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())

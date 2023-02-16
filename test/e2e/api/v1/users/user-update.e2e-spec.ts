@@ -59,7 +59,7 @@ describe('Users / :id (e2e)', () => {
     );
   });
 
-  describe('PATCH /users/:id', () => {
+  describe('PATCH /api/v1/users/:id', () => {
     let postBody: UpdateUserDto;
     beforeEach(() => {
       postBody = { ...sampleUserUpdateObject };

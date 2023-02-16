@@ -42,7 +42,7 @@ describe('Users / Forgot Password (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/forgot-password', () => {
+  describe('POST /api/v1/users/forgot-password', () => {
     let email: string;
     let postBody: ForgotPasswordDto;
     beforeEach(async () => {

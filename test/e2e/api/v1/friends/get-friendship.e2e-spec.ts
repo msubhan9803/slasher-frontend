@@ -61,7 +61,7 @@ describe('Get Friendship (e2e)', () => {
     await friendsService.createFriendRequest(user3.id, activeUser.id);
   });
 
-  describe('Get /friends/friendship', () => {
+  describe('GET /api/v1/friends/friendship', () => {
     describe('Get friendship data', () => {
       it('returns the expected friend info for two users with a pending friend record', async () => {
         const userId = user1.id;

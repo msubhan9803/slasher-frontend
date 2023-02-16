@@ -53,7 +53,7 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
     );
   });
 
-  describe('GET /movies/firstBySortName', () => {
+  describe('GET /api/v1/movies/firstBySortName', () => {
     it('responds with error message when an invalid startsWith supplied', async () => {
       const startsWith = '@qw$re';
       const response = await request(app.getHttpServer())

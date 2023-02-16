@@ -51,7 +51,7 @@ describe('GET /users/:id (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /users/:idOrUserName', () => {
+  describe('GET /api/v1/users/:idOrUserName', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

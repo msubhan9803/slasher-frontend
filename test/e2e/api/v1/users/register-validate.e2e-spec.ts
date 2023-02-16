@@ -48,7 +48,7 @@ describe('Users / Register (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/register', () => {
+  describe('POST /api/v1/users/register', () => {
     let postBody: any;
     beforeEach(() => {
       postBody = { ...sampleUserRegisterObject };

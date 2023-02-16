@@ -73,7 +73,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
     );
   });
 
-  describe('GET /movies/movieDbData/:movieDBId', () => {
+  describe('GET /api/v1/movies/movieDbData/:movieDBId', () => {
     // eslint-disable-next-line arrow-body-style
     const createTmdbHttpServiceMockFunction = (setNullMoviePosterPath: boolean) => {
       return (url: any) => {

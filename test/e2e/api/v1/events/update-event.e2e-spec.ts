@@ -81,7 +81,7 @@ describe('Events update / :id (e2e)', () => {
     );
   });
 
-  describe('PATCH /events/:id', () => {
+  describe('PATCH /api/v1/events/:id', () => {
     describe('Non-admin users are not allowed to update event', () => {
       it('should fail to update the and returns the expected response', async () => {
         const response = await request(app.getHttpServer())

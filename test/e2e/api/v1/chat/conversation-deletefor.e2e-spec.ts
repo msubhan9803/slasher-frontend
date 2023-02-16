@@ -63,7 +63,7 @@ describe('Conversation / (e2e)', () => {
     message2 = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Reply, test message 2.');
     message3 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
-  describe('DELETE /chat/conversation/:matchListId', () => {
+  describe('DELETE /api/v1/chat/conversation/:matchListId', () => {
     describe('Successfully add userId to deletefor field of all messages of the conversation (matchListId)', () => {
       it('success response on delete converstaion messages call', async () => {
         const matchListId = message1.matchId.toString();

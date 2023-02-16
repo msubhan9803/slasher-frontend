@@ -71,7 +71,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('PATCH /feed-comments/replies/:feedCommentId', () => {
+  describe('PATCH /api/v1/feed-comments/replies/:feedCommentId', () => {
     let feedComments;
     let feedReply;
     beforeEach(async () => {

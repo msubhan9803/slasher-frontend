@@ -60,7 +60,7 @@ describe('Accept Friend Request (e2e)', () => {
     await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
   });
 
-  describe('Post /friends/requests/accept', () => {
+  describe('POST /api/v1/friends/requests/accept', () => {
     it('when successful, returns the expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/friends/requests/accept')

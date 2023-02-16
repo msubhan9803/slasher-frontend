@@ -67,7 +67,7 @@ describe('Update Feed Post (e2e)', () => {
     );
   });
 
-  describe('Update Feed Post Details', () => {
+  describe('PATCH /api/v1/feed-posts/:id', () => {
     it('successfully update feed post details, and updates the lastUpdateAt time', async () => {
       const postBeforeUpdate = await feedPostsService.findById(feedPost.id, true);
       const response = await request(app.getHttpServer())

@@ -64,7 +64,7 @@ describe('Add Friends (e2e)', () => {
     );
   });
 
-  describe('Post /friends', () => {
+  describe('POST /api/v1/friends', () => {
     it('when friend request is successfully created, returns the expected response', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 

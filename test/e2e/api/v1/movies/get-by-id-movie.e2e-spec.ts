@@ -48,7 +48,7 @@ describe('GET Movie (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /movies/:id', () => {
+  describe('GET /api/v1/movies/:id', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

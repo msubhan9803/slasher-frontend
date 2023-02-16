@@ -48,7 +48,7 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('Delete Feed Post', () => {
+  describe('DELETE /api/v1/feed-posts/:id', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user1 = await usersService.create(userFactory.build());

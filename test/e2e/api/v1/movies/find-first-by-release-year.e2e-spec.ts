@@ -53,7 +53,7 @@ describe('Movie / Find First By Release Year (e2e)', () => {
     );
   });
 
-  describe('GET /movies/firstByReleaseYear', () => {
+  describe('GET /api/v1/movies/firstByReleaseYear', () => {
     it('responds with error message when an invalid year supplied', async () => {
       const year = '1111';
       const response = await request(app.getHttpServer())

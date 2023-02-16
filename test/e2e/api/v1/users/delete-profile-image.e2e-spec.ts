@@ -43,7 +43,7 @@ describe('Users / Delete Profile image (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('DELETE /users/profile-image', () => {
+  describe('DELETE /api/v1/users/profile-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

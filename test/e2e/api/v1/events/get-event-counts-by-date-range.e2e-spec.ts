@@ -118,7 +118,7 @@ describe('Event counts by date range / (e2e)', () => {
     }
   });
 
-  describe('GET /events/by-date-range/counts', () => {
+  describe('GET /api/v1/events/by-date-range/counts', () => {
     describe('Returns the expected results', () => {
       it('get expected event counts data based on startDate through endDate range', async () => {
         const response = await request(app.getHttpServer())

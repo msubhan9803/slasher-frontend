@@ -64,7 +64,7 @@ describe('Users suggested friends (e2e)', () => {
     await friendsService.acceptFriendRequest(user2._id.toString(), activeUser._id.toString());
   });
 
-  describe('GET /users/suggested-friends', () => {
+  describe('GET /api/v1/users/suggested-friends', () => {
     describe('When the endpoint limit is equal to the number of available suggested friends in the database', () => {
       beforeEach(async () => {
         for (let i = 0; i < 7; i += 1) {

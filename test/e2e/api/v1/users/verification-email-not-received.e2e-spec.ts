@@ -42,7 +42,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/verification-email-not-received', () => {
+  describe('POST /api/v1/users/verification-email-not-received', () => {
     let email: string;
     let postBody: VerificationEmailNotReceivedDto;
     beforeEach(() => {

@@ -94,7 +94,7 @@ describe('Users / delete account (e2e)', () => {
     });
   });
 
-  describe('DELETE /users/delete-account', () => {
+  describe('DELETE /api/v1/users/delete-account', () => {
     describe('delete account request', () => {
       it('if activeUser delete account then it returns expected response', async () => {
         const userId = activeUser.id;

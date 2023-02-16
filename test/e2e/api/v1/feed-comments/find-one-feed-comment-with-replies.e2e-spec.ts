@@ -102,7 +102,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     );
   });
 
-  describe('GET /feed-comments/:feedCommentId', () => {
+  describe('GET /api/v1/feed-comments/:feedCommentId', () => {
     it('get single feed comments with reply', async () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(

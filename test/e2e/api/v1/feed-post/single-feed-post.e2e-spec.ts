@@ -64,7 +64,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('Single Feed Post Details', () => {
+  describe('GET /api/v1/feed-posts/:id', () => {
     let rssFeed;
     let user1;
     beforeEach(async () => {

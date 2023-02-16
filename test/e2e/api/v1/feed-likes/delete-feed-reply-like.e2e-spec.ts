@@ -70,7 +70,7 @@ describe('Delete Feed Reply Like (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('DELETE /feed-likes/reply/:feedReplyId', () => {
+  describe('DELETE /api/v1/feed-likes/reply/:feedReplyId', () => {
     let feedComments; let
       feedReply;
     beforeEach(async () => {

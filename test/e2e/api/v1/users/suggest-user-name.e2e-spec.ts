@@ -56,7 +56,7 @@ describe('Suggested user name (e2e)', () => {
     );
   });
 
-  describe('GET /users/suggest-user-name', () => {
+  describe('GET /api/v1/users/suggest-user-name', () => {
     describe('Get all suggest user name', () => {
       let user1;
       let user2;

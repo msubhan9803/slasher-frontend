@@ -67,7 +67,7 @@ describe('Find Follow (e2e)', () => {
     );
   });
 
-  describe('GET /rss-feed-providers/:id/follows/:userId', () => {
+  describe('GET /api/v1/rss-feed-providers/:id/follows/:userId', () => {
     it('get the rss feed providers follows successful if parameter rssFeedProviderId and userId is exists', async () => {
       const response = await request(app.getHttpServer())
         .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)

@@ -103,7 +103,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
     );
   });
 
-  describe('GET /feed-comments', () => {
+  describe('GET /api/v1/feed-comments', () => {
     it('get all feed comments with reply', async () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(

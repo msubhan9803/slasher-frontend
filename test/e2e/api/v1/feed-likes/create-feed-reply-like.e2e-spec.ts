@@ -71,7 +71,7 @@ describe('Create Feed Reply Like (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-likes/reply/:feedReplyId', () => {
+  describe('POST /api/v1/feed-likes/reply/:feedReplyId', () => {
     let feedComments;
     let feedReply;
     let user0;

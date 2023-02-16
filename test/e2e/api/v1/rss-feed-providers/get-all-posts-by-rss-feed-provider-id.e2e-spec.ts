@@ -98,7 +98,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     );
   });
 
-  describe('Find Feed Posts For rss feed provider', () => {
+  // Find Feed Posts For rss feed provider
+  describe('GET /api/v1/rss-feed-providers/:id/posts?limit=', () => {
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

@@ -61,7 +61,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
     await friendsService.createFriendRequest(activeUser.id, user2._id.toString());
   });
 
-  describe('Delete /friends', () => {
+  describe('DELETE /api/v1/friends', () => {
     describe('Decline or cancel friend request', () => {
       it('when friend request is decline or cancel than expected response', async () => {
         const userId = user1._id;

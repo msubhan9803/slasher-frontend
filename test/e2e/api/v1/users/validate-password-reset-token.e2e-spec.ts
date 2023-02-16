@@ -38,7 +38,7 @@ describe('Users validate password reset token (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /users/validate-password-reset-token', () => {
+  describe('GET /api/v1/users/validate-password-reset-token', () => {
     let user;
     beforeEach(async () => {
       const userData = userFactory.build();

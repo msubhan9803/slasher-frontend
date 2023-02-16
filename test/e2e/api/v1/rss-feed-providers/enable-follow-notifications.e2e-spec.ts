@@ -67,7 +67,7 @@ describe('Enable Follow Notifications (e2e)', () => {
     );
   });
 
-  describe('PATCH /rss-feed-providers/:id/follows/:userId/enable-notifications', () => {
+  describe('PATCH /api/v1/rss-feed-providers/:id/follows/:userId/enable-notifications', () => {
     describe('enable notifications in rss feed providers follows details', () => {
       it('returns the expected response when notifications are enabled', async () => {
         const response = await request(app.getHttpServer())

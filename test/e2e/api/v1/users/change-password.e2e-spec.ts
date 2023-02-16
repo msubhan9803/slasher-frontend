@@ -44,7 +44,7 @@ describe('Users change password (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('PATCH /users/change-password', () => {
+  describe('PATCH /api/v1/users/change-password', () => {
     let user: User;
     let postBody: ChangePasswordDto;
     beforeEach(async () => {

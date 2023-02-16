@@ -66,7 +66,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('DELETE /feed-comments/:feedCommentId', () => {
+  describe('DELETE /api/v1/feed-comments/:feedCommentId', () => {
     let feedComments;
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());

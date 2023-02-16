@@ -45,7 +45,7 @@ describe('Users / Upload Profile image (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/profile-image', () => {
+  describe('POST /api/v1/users/profile-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

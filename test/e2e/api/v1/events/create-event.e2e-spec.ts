@@ -72,7 +72,7 @@ describe('Events create / (e2e)', () => {
     );
   });
 
-  describe('POST /events', () => {
+  describe('POST /api/v1/events', () => {
     let postBody: any;
     beforeEach(() => {
       postBody = { ...sampleEventCreateObject };

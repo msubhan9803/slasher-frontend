@@ -76,7 +76,7 @@ describe('Create Feed Comment Like (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-likes/comment/:feedCommentId', () => {
+  describe('POST /api/v1/feed-likes/comment/:feedCommentId', () => {
     let feedComment;
     let user0;
     beforeEach(async () => {

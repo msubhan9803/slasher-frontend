@@ -44,7 +44,7 @@ describe('Users / Upload Cover image (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/cover-image', () => {
+  describe('POST /api/v1/users/cover-image', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

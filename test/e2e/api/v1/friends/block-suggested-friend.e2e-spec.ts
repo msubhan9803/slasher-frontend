@@ -56,7 +56,7 @@ describe('Block suggested friend (e2e)', () => {
     );
   });
 
-  describe('Post /friends/suggested/block', () => {
+  describe('POST /api/v1/friends/suggested/block', () => {
     it('when successful, returns the expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/friends/suggested/block')

@@ -74,7 +74,7 @@ describe('Find Users(e2e)', () => {
     });
   });
 
-  describe('GET /search/users', () => {
+  describe('GET /api/v1/search/users', () => {
     describe('Find Users Details', () => {
       it('retrn the expected users', async () => {
         const query = 'Count';

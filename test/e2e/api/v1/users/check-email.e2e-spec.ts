@@ -37,7 +37,7 @@ describe('Users / Check Email (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /users/check-email', () => {
+  describe('GET /api/v1/users/check-email', () => {
     it('responds with error message when an invalid-format email supplied', async () => {
       const email = 'usertestgmail.com';
       const response = await request(app.getHttpServer())

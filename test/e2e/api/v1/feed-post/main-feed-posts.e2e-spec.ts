@@ -115,7 +115,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     );
   });
 
-  describe('Find Main Feed Posts For User', () => {
+  describe('GET /api/v1/feed-posts', () => {
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

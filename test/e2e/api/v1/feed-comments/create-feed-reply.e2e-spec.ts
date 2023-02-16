@@ -80,7 +80,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-comments/replies', () => {
+  describe('POST /api/v1/feed-comments/replies', () => {
     beforeEach(async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 

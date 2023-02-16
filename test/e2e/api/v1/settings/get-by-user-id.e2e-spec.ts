@@ -48,7 +48,7 @@ describe('GET settings (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /settings/notifications', () => {
+  describe('GET /api/v1/settings/notifications', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

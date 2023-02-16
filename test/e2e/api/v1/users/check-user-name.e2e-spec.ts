@@ -37,7 +37,7 @@ describe('Users / Check User Name (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /users/check-user-name', () => {
+  describe('GET /api/v1/users/check-user-name', () => {
     describe('Check if userName exists and is valid', () => {
       it('when username is valid and does not exist, it returns the expected response', async () => {
         const userName = 'usertestuser';

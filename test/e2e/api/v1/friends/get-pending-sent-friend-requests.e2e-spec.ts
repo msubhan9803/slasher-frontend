@@ -60,7 +60,7 @@ describe('Get Friends (e2e)', () => {
     await friendsService.createFriendRequest(activeUser.id, user3._id.toString());
   });
 
-  describe('Get /friends/requests/sent', () => {
+  describe('GET /api/v1/friends/requests/sent', () => {
     describe('Get Pending Sent Friends Request', () => {
       it('find all pending request', async () => {
         const limit = 5;

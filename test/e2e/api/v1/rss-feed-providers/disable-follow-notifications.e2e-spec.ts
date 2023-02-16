@@ -69,7 +69,7 @@ describe('Disable Follow Notifications (e2e)', () => {
     );
   });
 
-  describe('PATCH /rss-feed-providers/:id/follows/:userId/disable-notifications', () => {
+  describe('PATCH /api/v1/rss-feed-providers/:id/follows/:userId/disable-notifications', () => {
     describe('disable notifications in rss feed providers follows details', () => {
       it('returns the expected response when notifications are disabled', async () => {
         const response = await request(app.getHttpServer())

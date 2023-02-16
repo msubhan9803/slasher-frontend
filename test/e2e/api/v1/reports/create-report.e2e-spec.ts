@@ -120,7 +120,7 @@ describe('Report And Unreport (e2e)', () => {
     expect(reportAndUnreportService).toBeDefined();
   });
 
-  describe('Post /reports', () => {
+  describe('POST /api/v1/reports', () => {
     it('when report type is profile than expected reports response', async () => {
       jest.spyOn(mailService, 'sendReportNotificationEmail').mockImplementation();
       reportAndUnreportObject.targetId = user1.id;

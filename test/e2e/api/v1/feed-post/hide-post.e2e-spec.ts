@@ -74,7 +74,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     });
   });
 
-  describe('making post hidden for a user', () => {
+  describe('POST /api/v1/feed-posts/:id/hide', () => {
     let feedPost;
     let rssFeedPost;
     beforeEach(async () => {

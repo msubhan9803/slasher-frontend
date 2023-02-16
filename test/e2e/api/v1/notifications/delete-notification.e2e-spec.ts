@@ -70,7 +70,7 @@ describe('Delete Notifications (e2e)', () => {
     );
   });
 
-  describe('Delete /notifications/:id', () => {
+  describe('DELETE /api/v1/notifications/:id', () => {
     describe('delete notifications', () => {
       it('successfully deletes the notification and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())

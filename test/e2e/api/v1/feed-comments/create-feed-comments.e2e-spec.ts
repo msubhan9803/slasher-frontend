@@ -63,7 +63,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-comments', () => {
+  describe('POST /api/v1/feed-comments', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

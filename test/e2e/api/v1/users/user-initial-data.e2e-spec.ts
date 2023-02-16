@@ -60,7 +60,7 @@ describe('Users suggested friends (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /users/initial-data', () => {
+  describe('GET /api/v1/users/initial-data', () => {
     describe('Available user initial data in the database', () => {
       let user1: UserDocument;
       let user2: UserDocument;

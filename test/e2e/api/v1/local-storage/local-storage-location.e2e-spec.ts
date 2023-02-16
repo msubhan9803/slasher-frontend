@@ -38,7 +38,7 @@ describe('Local-Storage / Get File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /local-storage/:location', () => {
+  describe('GET /api/v1/local-storage/:location', () => {
     it('does not require authentication, and responds with file if give file path exists', async () => {
       const fileContent = 'This is a test file.';
       const fileExtension = 'txt';

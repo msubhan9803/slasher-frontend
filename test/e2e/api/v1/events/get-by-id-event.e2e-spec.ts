@@ -72,7 +72,7 @@ describe('Events / :id (e2e)', () => {
     );
   });
 
-  describe('GET /events/:id', () => {
+  describe('GET /api/v1/events/:id', () => {
     describe('Successful get event data', () => {
       it('get the event data successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())

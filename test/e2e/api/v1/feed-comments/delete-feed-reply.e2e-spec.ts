@@ -67,7 +67,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('DELETE /feed-comments/replies/:feedReplyId', () => {
+  describe('DELETE /api/v1/feed-comments/replies/:feedReplyId', () => {
     let feedComments;
     let feedReply;
     beforeEach(async () => {

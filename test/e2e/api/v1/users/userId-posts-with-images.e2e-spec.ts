@@ -74,7 +74,8 @@ describe('UserId Posts With Images (e2e)', () => {
     }
   });
 
-  describe('when `before` argument is not supplied', () => {
+  // When `before` argument is not supplied
+  describe('GET /api/v1/users/:userId/posts-with-images?limit=', () => {
     it('when earlier than post id is not exist then expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())

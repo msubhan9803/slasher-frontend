@@ -54,7 +54,7 @@ describe('Users activate account (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/activate-account', () => {
+  describe('POST /api/v1/users/activate-account', () => {
     let user;
     let postBody: ActivateAccountDto;
     beforeEach(async () => {

@@ -70,7 +70,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('PATCH /feed-comments/:feedCommentId', () => {
+  describe('PATCH /api/v1/feed-comments/:feedCommentId', () => {
     let feedComment;
     beforeEach(async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));

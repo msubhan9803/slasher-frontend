@@ -59,7 +59,7 @@ describe('rssFeedProviders / :id (e2e)', () => {
     );
   });
 
-  describe('GET /rss-feed-providers/:id', () => {
+  describe('GET /api/v1/rss-feed-providers/:id', () => {
     describe('Successful get rss feed providers data', () => {
       it('get the rss feed providers successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())

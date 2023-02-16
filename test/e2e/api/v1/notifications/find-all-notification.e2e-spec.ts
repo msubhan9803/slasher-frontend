@@ -113,7 +113,7 @@ describe('All Notifications (e2e)', () => {
     }
   });
 
-  describe('GET /notifications', () => {
+  describe('GET /api/v1/notifications', () => {
     describe('Get All Notifications', () => {
       it('finds all the expected notifications details', async () => {
         const limit = 5;

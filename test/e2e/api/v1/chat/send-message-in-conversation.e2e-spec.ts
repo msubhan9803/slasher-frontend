@@ -66,7 +66,7 @@ describe('Send Message In Conversation / (e2e)', () => {
     await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
     await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
   });
-  describe('POST /chat/conversation/:matchListId/message', () => {
+  describe('POST /api/v1/chat/conversation/:matchListId/message', () => {
     describe('Successfully send message', () => {
       it('gets the expected send image in conversations', async () => {
         await createTempFiles(async (tempPath) => {

@@ -75,7 +75,8 @@ describe('All Feed Post (e2e)', () => {
     }
   });
 
-  describe('All Feed Post Details', () => {
+  // All Feed Post Details
+  describe('GET /api/v1/users/:userId/posts?limit=', () => {
     it('when earlier than post id is not exist than expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())

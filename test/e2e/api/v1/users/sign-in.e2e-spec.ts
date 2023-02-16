@@ -60,7 +60,7 @@ describe('Users sign-in (e2e)', () => {
     );
   });
 
-  describe('POST /users/sign-in', () => {
+  describe('POST /api/v1/users/sign-in', () => {
     describe('An active user', () => {
       it('can successfully sign in with a username and password OR email and password', async () => {
         const postBodyScenarios: UserSignInDto[] = [

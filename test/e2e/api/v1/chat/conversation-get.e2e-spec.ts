@@ -58,7 +58,7 @@ describe('Conversation / (e2e)', () => {
     message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, test message 1.');
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
-  describe('GET /chat/conversation/:matchListId', () => {
+  describe('GET /api/v1/chat/conversation/:matchListId', () => {
     describe('Successfully gets the match list data', () => {
       it('gets the expected match list details', async () => {
         const matchListId = message1.matchId._id;

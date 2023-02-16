@@ -40,7 +40,7 @@ describe('Users reset password (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /users/reset-password', () => {
+  describe('POST /api/v1/users/reset-password', () => {
     let user;
     let postBody: ResetPasswordDto;
     beforeEach(async () => {

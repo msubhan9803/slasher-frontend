@@ -81,7 +81,7 @@ describe('Get All Friends (e2e)', () => {
     }
   });
 
-  describe('Get /users/:userId/friends', () => {
+  describe('Get /api/v1/users/:userId/friends', () => {
     describe('Get all friends for the given currently active user, ordered by username', () => {
       beforeEach(async () => {
         await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });

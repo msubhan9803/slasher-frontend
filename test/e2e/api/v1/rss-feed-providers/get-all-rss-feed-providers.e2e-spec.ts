@@ -66,7 +66,7 @@ describe('rssFeedProviders all (e2e)', () => {
     }
   });
 
-  describe('GET /rss-feed-providers', () => {
+  describe('GET /api/v1/rss-feed-providers', () => {
     describe('Successful get all rss feed providers data', () => {
       it('get all rss feed providers details', async () => {
         const limit = 3;

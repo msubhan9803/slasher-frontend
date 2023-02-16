@@ -56,7 +56,7 @@ describe('All Movies (e2e)', () => {
     );
   });
 
-  describe('All Movies Details', () => {
+  describe('GET /api/v1/movies?limit=&sortBy=', () => {
     it('transforms the logo field into a full Movie DB URL', async () => {
       await moviesService.create(
         moviesFactory.build(

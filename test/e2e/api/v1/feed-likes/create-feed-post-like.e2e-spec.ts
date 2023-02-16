@@ -63,7 +63,7 @@ describe('Create Feed Post Like (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /feed-Likes', () => {
+  describe('POST /api/v1/feed-Likes', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());

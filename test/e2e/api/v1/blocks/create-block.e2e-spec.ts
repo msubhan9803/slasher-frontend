@@ -66,7 +66,7 @@ describe('Create Block (e2e)', () => {
     });
   });
 
-  describe('POST /blocks', () => {
+  describe('POST /api/v1/blocks', () => {
     describe('Create Block Request', () => {
       it('successfully create block.', async () => {
         await request(app.getHttpServer())

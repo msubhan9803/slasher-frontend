@@ -68,7 +68,7 @@ describe('Delete Follow (e2e)', () => {
     );
   });
 
-  describe('DELETE /rss-feed-providers/:id/follows/:userId', () => {
+  describe('DELETE /api/v1/rss-feed-providers/:id/follows/:userId', () => {
     it('successfully deletes the rss feed providers follow record', async () => {
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)

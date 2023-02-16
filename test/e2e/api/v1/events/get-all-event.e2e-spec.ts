@@ -102,7 +102,7 @@ describe('Events all / (e2e)', () => {
     }
   });
 
-  describe('GET /events', () => {
+  describe('GET /api/v1/events', () => {
     describe('Successful get all events data', () => {
       it('get expected events data based on startDate and endDate within of that span', async () => {
         const limit = 10;

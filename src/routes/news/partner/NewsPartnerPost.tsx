@@ -159,7 +159,7 @@ function NewsPartnerPost() {
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArr,
+            images: res.data.images,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -194,7 +194,7 @@ function NewsPartnerPost() {
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArr,
+            images: res.data.images,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -260,7 +260,7 @@ function NewsPartnerPost() {
           replyValueData = {
             feedPostId: postId,
             feedCommentId: res.data.feedCommentId,
-            images: reply.imageArr,
+            images: res.data.images,
             message: reply.replyMessage,
             userId: userData.user,
             createdAt: new Date().toISOString(),

@@ -183,7 +183,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         createdAt: expect.any(String),
         rssfeedProviderId: {
-          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          _id: rssFeedProvider._id.toString(),
           logo: null,
           title: 'RssFeedProvider 5',
         },

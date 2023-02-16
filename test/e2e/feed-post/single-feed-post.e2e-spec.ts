@@ -167,20 +167,44 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     });
 
     it('when rssfeedproviderid is same as userid than expected response', async () => {
-      const user = await usersService.create(userFactory.build({
-        profile_status: 1,
-      }));
+      const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
       const feedPost = await feedPostsService.create(
         feedPostFactory.build({
-          userId: user._id,
-          rssfeedProviderId: user._id,
+          userId: rssFeedProvider._id,
+          rssfeedProviderId: rssFeedProvider._id,
         }),
       );
       const response = await request(app.getHttpServer())
         .get(`/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-      expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        createdAt: expect.any(String),
+        rssfeedProviderId: {
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          logo: null,
+          title: 'RssFeedProvider 5',
+        },
+        rssFeedId: null,
+        images: [
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: null,
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likes: [],
+        message: 'Message 4',
+      });
     });
   });
 });

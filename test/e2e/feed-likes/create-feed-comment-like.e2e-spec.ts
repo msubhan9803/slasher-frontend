@@ -135,20 +135,11 @@ describe('Create Feed Comment Like (e2e)', () => {
 
     it('when a block exists between the post creator and the liker, it returns the expected response', async () => {
       const user1 = await usersService.create(userFactory.build({}));
+      const user2 = await usersService.create(userFactory.build({}));
       const feedPost1 = await feedPostsService.create(
         feedPostFactory.build(
           {
             userId: user1._id,
-          },
-        ),
-      );
-      const feedComments1 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: user1._id,
-            feedPostId: feedPost1.id,
-            message: feedCommentsAndReplyObject.message,
-            images: feedCommentsAndReplyObject.images,
           },
         ),
       );
@@ -157,10 +148,21 @@ describe('Create Feed Comment Like (e2e)', () => {
         to: user1._id,
         reaction: BlockAndUnblockReaction.Block,
       });
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user2._id,
+            feedPostId: feedPost1.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       const response = await request(app.getHttpServer())
         .post(`/feed-likes/comment/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
+
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body).toEqual({
         message: 'Request failed due to user block (post owner).',
@@ -235,8 +237,8 @@ describe('Create Feed Comment Like (e2e)', () => {
           .post(`/feed-likes/comment/${feedComments1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
       });
     });
 

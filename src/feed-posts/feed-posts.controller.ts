@@ -276,6 +276,26 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+
+    const feedPostUser = feedPost.rssfeedProviderId ? null : (feedPost.userId as any)._id.toString();
+    if (
+      feedPostUser
+      && user.id !== feedPostUser
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, feedPostUser);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (feedPostUser) {
+      const block = await this.blocksService.blockExistsBetweenUsers(feedPostUser, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     const feedLikeUsers = await this.feedPostsService.getLikeUsersForPost(
       param.id,
       query.limit,

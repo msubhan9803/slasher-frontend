@@ -1,10 +1,10 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
-import { DateTime } from 'luxon';
 import { AppModule } from '../../../src/app.module';
 import { UsersService } from '../../../src/users/providers/users.service';
 import { userFactory } from '../../factories/user.factory';
@@ -20,6 +20,8 @@ import { RssFeedProviderFollowsService } from '../../../src/rss-feed-provider-fo
 import { clearDatabase } from '../../helpers/mongo-helpers';
 import { FeedPostDocument } from '../../../src/schemas/feedPost/feedPost.schema';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
+import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 
 describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let app: INestApplication;
@@ -34,6 +36,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let user3: UserDocument;
   let rssFeedProviderData: RssFeedProvider;
   let friendsModel: Model<FriendDocument>;
+  let blocksModel: Model<BlockAndUnblockDocument>;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
   let rssFeedProvidersService: RssFeedProvidersService;
   let feedPost: FeedPostDocument;
@@ -51,6 +54,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     rssFeedProviderFollowsService = moduleRef.get<RssFeedProviderFollowsService>(RssFeedProviderFollowsService);
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
 
     app = moduleRef.createNestApplication();
@@ -64,6 +68,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -72,12 +77,14 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     user2 = await usersService.create(userFactory.build());
     user3 = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
     // Friend Document for `activeUser` and `user1`
     await friendsModel.create({
       from: activeUser._id.toString(),
       to: user1._id.toString(),
       reaction: FriendRequestReaction.Accepted,
     });
+
     // Friend Document for `activeUser` and `user2`
     await friendsModel.create({
       from: user2._id.toString(),
@@ -93,10 +100,6 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     feedPost = await feedPostsService.create(
       feedPostFactory.build({
         userId: activeUser._id,
-        rssfeedProviderId: rssFeedProviderData._id,
-        createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
-        updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),
-        lastUpdateAt: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(),
       }),
     );
 
@@ -214,9 +217,6 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
           feedPostFactory.build({
             userId: activeUser._id,
             rssfeedProviderId: rssFeedProviderData._id,
-            createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
-            updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),
-            lastUpdateAt: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(),
           }),
         );
       });
@@ -229,6 +229,98 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
           .send();
         expect(response.body).toEqual([]);
       });
+    });
+
+    it('when user is block than expected response.', async () => {
+      const post = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user1._id,
+          },
+        ),
+      );
+      await blocksModel.create({
+        from: activeUser._id.toString(),
+        to: user1._id,
+        reaction: BlockAndUnblockReaction.Block,
+      });
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${post.id}/likes?limit=5`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.status).toEqual(HttpStatus.FORBIDDEN);
+      expect(response.body).toEqual({
+        message: 'Request failed due to user block.',
+        statusCode: HttpStatus.FORBIDDEN,
+      });
+    });
+
+    it('returns the expected response when profile status is not public and requesting user is not a friend of post creator', async () => {
+      const user = await usersService.create(userFactory.build({
+        profile_status: 1,
+      }));
+      const post = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: user._id,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${post.id}/likes?limit=5`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+    });
+
+    it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+      const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+      const post = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: rssFeedProvider._id,
+          rssfeedProviderId: rssFeedProvider._id,
+        }),
+      );
+
+      // Create 3 feedPostLike by the user itself, user1, user2
+      await feedLikesService.createFeedPostLike(post.id, activeUser.id);
+      await feedLikesService.createFeedPostLike(post.id, user1.id);
+      await feedLikesService.createFeedPostLike(post.id, user2.id);
+
+      const response = await request(app.getHttpServer())
+        .get(`/feed-posts/${post.id}/likes?limit=5`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual([
+        {
+          _id: activeUser.id,
+          userName: activeUser.userName,
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          firstName: activeUser.firstName,
+          friendship: null,
+        },
+        {
+          _id: user1.id,
+          userName: user1.userName,
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          firstName: user1.firstName,
+          friendship: {
+            reaction: 3,
+            from: activeUser.id,
+            to: user1.id,
+          },
+        },
+        {
+          _id: user2.id,
+          userName: user2.userName,
+          profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          firstName: user2.firstName,
+          friendship: {
+            reaction: 3,
+            from: user2.id,
+            to: activeUser.id,
+          },
+        },
+      ]);
     });
 
     describe('Validation', () => {

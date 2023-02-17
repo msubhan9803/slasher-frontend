@@ -19,11 +19,15 @@ import { FriendsService } from '../../friends/providers/friends.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { RssFeedService } from '../../rss-feed/providers/rss-feed.service';
 import { rssFeedFactory } from '../../../test/factories/rss-feed.factory';
+import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let feedPostsService: FeedPostsService;
+  let feedLikesService: FeedLikesService;
   let feedPostModel: Model<FeedPostDocument>;
   let usersService: UsersService;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
@@ -33,6 +37,7 @@ describe('FeedPostsService', () => {
   let rssFeedProvider: RssFeedProvider;
   let rssFeedService: RssFeedService;
   let user0: UserDocument;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,6 +51,8 @@ describe('FeedPostsService', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
+    feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
     await app.init();
@@ -550,6 +557,73 @@ describe('FeedPostsService', () => {
 
       const updatedFeedPost = await feedPostsService.findById(feedPost.id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
+    });
+  });
+
+  describe('#getLikeUsersForPost', () => {
+    let feedPost: FeedPostDocument;
+    let user1;
+    let user2;
+
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({ userId: activeUser._id }),
+      );
+    user1 = await usersService.create(userFactory.build({ userName: 'Covey' }));
+    user2 = await usersService.create(userFactory.build({ userName: 'Harry' }));
+
+    await friendsService.createFriendRequest(activeUser.id, user0.id);
+    await friendsService.acceptFriendRequest(activeUser.id, user0.id);
+
+    await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+    await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
+    await feedLikesService.createFeedPostLike(feedPost.id, user1.id);
+    await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
+    });
+
+    it('successfully return list of like users', async () => {
+      const limit = 2;
+      const offset = 0;
+      const likeUsers1 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset);
+      expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+
+      // Pagination
+      const newOffset = offset + limit;
+      const likeUsers2 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, newOffset);
+      expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
+    });
+
+    it('successfully return list of like users along with friendStatus', async () => {
+      const limit = 2;
+      const offset = 0;
+      const requestingContextUserId = user0.id;
+      const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+      expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+      expect(likeUsers[0].friendship).toEqual({
+        reaction: 3,
+        from: new mongoose.Types.ObjectId(activeUser.id),
+        to: new mongoose.Types.ObjectId(user0.id),
+      });
+      expect(likeUsers[1].friendship).toBeNull();
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        // limit=10 so that all like users are returned
+        const limit = 10;
+        const offset = 0;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
     });
   });
 });

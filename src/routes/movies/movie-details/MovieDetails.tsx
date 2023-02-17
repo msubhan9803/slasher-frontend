@@ -6,6 +6,7 @@ import RoundButton from '../../../components/ui/RoundButton';
 import AboutMovie from './AboutMovie';
 import { getMoviesById, getMoviesDataById } from '../../../api/movies';
 import { AdditionalMovieData } from '../../../types';
+import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 
 interface MovieData {
   movieDBId: number;
@@ -27,6 +28,11 @@ function MovieDetails() {
         .then((res) => setAdditionalMovieData(res.data));
     }
   }, [movieData]);
+
+  if (!additionalMovieData && !additionalMovieData) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <div>
       <Container fluid className="mb-5">

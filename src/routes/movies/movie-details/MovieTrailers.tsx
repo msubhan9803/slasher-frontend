@@ -19,7 +19,7 @@ const StyledMovieTrailer = styled(Row)`
   }
   &::-webkit-scrollbar {
     display: none;
-  } 
+  }
   -ms-overflow-style: none;
   scrollbar-width: none;
 
@@ -29,8 +29,8 @@ const StyledYouTubeButton = styled(Button)`
   top: 50%;
   left: 50%;
   border-radius: 10px;
-  margin-left: -2em;
-  margin-top: -2em;
+  margin-left: -2.75em;
+  margin-top: -2.5em;
 `;
 function MovieTrailers({ trailerList }: MovieTrailerList) {
   const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
@@ -68,11 +68,13 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
 
             <Col sm={5} md={4} lg={6} xl={4} key={trailer.key}>
               <div className="trailer-image position-relative">
-                <img
-                  src={`https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg`}
-                  className="w-100 h-100"
-                  alt="user uploaded content"
-                />
+                <div>
+                  <img
+                    src={`https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg`}
+                    className="w-100 h-100"
+                    alt="user uploaded content"
+                  />
+                </div>
                 <StyledYouTubeButton
                   variant="link"
                   onClick={(e: React.MouseEvent) => {

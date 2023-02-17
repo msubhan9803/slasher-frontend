@@ -77,6 +77,11 @@ describe('Events create / (e2e)', () => {
       postBody.userId = activeUser._id.toString();
       postBody.event_type = activeEventCategory._id.toString();
     });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/events').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful create', () => {
       it('create the event data successful', async () => {
         await createTempFiles(async (tempPath) => {

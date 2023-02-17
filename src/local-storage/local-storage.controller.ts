@@ -3,6 +3,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
+import { InvalidPathError } from '../errors';
 import { fileNameToMimeType } from '../utils/mime-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { GetFileDto } from './dto/getFile.dto';
@@ -18,7 +19,15 @@ export class LocalStorageController {
     params: GetFileDto,
     @Res() res: Response,
   ) {
-    const filePath = await this.localStorageService.getLocalFilePath(`/${params.location}`);
+    let filePath;
+    try {
+      filePath = await this.localStorageService.getLocalFilePath(`/${params.location}`);
+    } catch (e) {
+      if (e instanceof InvalidPathError) {
+        throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+      }
+      throw e;
+    }
     if (!filePath) { throw new HttpException('File not found', HttpStatus.NOT_FOUND); }
     res.setHeader('Content-Type', fileNameToMimeType(filePath));
     const file = createReadStream(filePath);

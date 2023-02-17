@@ -60,6 +60,15 @@ describe('Local-Storage / Get File (e2e)', () => {
         .expect(fileContent);
     });
 
+    it('does not serve files outside of the local storage directory', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/local-storage/../package.json')
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(response.body.message).toContain('File not found');
+    });
+
     it('responds expected response when file path is not present at requested path', async () => {
       const storagePath = 'profile_test/profile_test_1.jpg';
 

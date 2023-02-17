@@ -194,7 +194,7 @@ function PostCommentSection({
 
   const sendComment = (commentId?: string) => {
     const imageArr = commentId ? replyImageArray : imageArray;
-    if (commentId === undefined) {
+    if (!commentId) {
       setMessage('');
       setImageArray([]);
     } else {
@@ -206,6 +206,7 @@ function PostCommentSection({
       setReplyImageArray([]);
       setUpdatedReply(true);
     }
+    setUploadPost([]);
     setSelectedReplyId('');
     setReplyUserName('');
   };
@@ -274,8 +275,13 @@ function PostCommentSection({
   const handleRemoveFile = (postImage: File, replyUserId?: string) => {
     const images = replyUserId ? replyImageArray : imageArray;
     const removePostImage = images.filter((image: File) => image !== postImage);
-    setImageArray(removePostImage);
-    setReplyImageArray(removePostImage);
+    const findImageIndex = images.findIndex((image: File) => image === postImage);
+    uploadPost.splice(findImageIndex, 1);
+    if (replyUserId) {
+      setReplyImageArray(removePostImage);
+    } else {
+      setImageArray(removePostImage);
+    }
   };
 
   const handleShowMoreComments = (loadId: string) => {

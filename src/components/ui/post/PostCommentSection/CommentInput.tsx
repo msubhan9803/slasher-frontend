@@ -150,7 +150,7 @@ function CommentInput({
                   onClick={() => {
                     inputFile.current?.click();
                     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-                    setIsReply && setIsReply(false);
+                    setIsReply!(false);
                   }}
                   icon={solid('camera')}
                   size="lg"
@@ -162,6 +162,8 @@ function CommentInput({
                   accept="image/*"
                   onChange={(post) => {
                     handleFileChange(post, dataId);
+                    /* eslint-disable no-param-reassign */
+                    post.target.value = '';
                   }}
                   multiple
                   ref={inputFile}
@@ -183,6 +185,7 @@ function CommentInput({
               containerHeight="4.25rem"
               containerBorder="0.125rem solid #3A3B46"
               image={post}
+              dataId={dataId}
               alt="Post comment image"
               handleRemoveImage={handleRemoveFile}
               containerClass="mt-2 mb-3 position-relative d-flex justify-content-center align-items-center rounded border-0"

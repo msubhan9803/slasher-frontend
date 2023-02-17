@@ -31,21 +31,23 @@ function EditCommentModal({
 }: Props) {
   const [editMessage, setEditMessage] = useState<string>(editContent! || '');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
-
   useEffect(() => {
     if (editContent) {
-      const mentionStringList = editMessage.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
-      const finalFormatMentionList = Array.from(new Set(mentionStringList))
-        .map((mentionString: string) => {
-          const id = mentionString.match(/([a-f\d]{24})/g)![0];
-          const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
-          return {
-            id, value, format: mentionString,
-          };
-        });
-      setFormatMention(finalFormatMentionList);
+      const mentionStringList = editContent.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
+      if (mentionStringList) {
+        const finalFormatMentionList = Array.from(new Set(mentionStringList))
+          .map((mentionString: string) => {
+            const id = mentionString.match(/([a-f\d]{24})/g)![0];
+            const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
+            return {
+              id, value, format: mentionString,
+            };
+          });
+        setFormatMention(formatMention.concat(finalFormatMentionList));
+      }
     }
-  }, [editMessage, editContent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editContent]);
   const onUpdatePost = (msg: string) => {
     let mentionReplyString = '';
     if (isReply) {
@@ -102,7 +104,7 @@ function EditCommentModal({
           setMessageContent={setEditMessage}
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
-          defaultValue={decryptMessage(editMessage)}
+          defaultValue={isReply ? editMessage : decryptMessage(editMessage)}
         />
         <div className="d-flex flex-wrap justify-content-between">
           <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>

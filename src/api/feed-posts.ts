@@ -11,7 +11,7 @@ export async function getHomeFeedPosts(lastRetrievedPostId?: string) {
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
-  return axios.get(`${apiUrl}/feed-posts${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/feed-posts${queryParameter}`, { headers });
 }
 
 export async function feedPostDetail(id: string) {
@@ -19,7 +19,7 @@ export async function feedPostDetail(id: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/feed-posts/${id}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/feed-posts/${id}`, { headers });
 }
 
 export async function createPost(message: string, file: any) {
@@ -33,7 +33,7 @@ export async function createPost(message: string, file: any) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-posts`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-posts`, formData, { headers });
 }
 
 export async function updateFeedPost(postId: string, message: string) {
@@ -41,7 +41,7 @@ export async function updateFeedPost(postId: string, message: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/feed-posts/${postId}`, { message }, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-posts/${postId}`, { message }, { headers });
 }
 
 export async function deleteFeedPost(postId: string) {
@@ -49,7 +49,7 @@ export async function deleteFeedPost(postId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-posts/${postId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-posts/${postId}`, { headers });
 }
 
 export async function hideFeedPost(postId: string) {
@@ -57,7 +57,7 @@ export async function hideFeedPost(postId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-posts/${postId}/hide`, {}, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-posts/${postId}/hide`, {}, { headers });
 }
 
 export async function getLikeUsersForPost(postId: string, page: number) {

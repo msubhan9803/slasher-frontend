@@ -9,7 +9,7 @@ export async function blockedUsers(page: number) {
   };
   const limit = 20;
   const queryParameter = `?limit=${limit}&offset=${page * limit}`;
-  return axios.get(`${apiUrl}/blocks${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/blocks${queryParameter}`, { headers });
 }
 
 export async function removeBlockedUsers(userId: string) {
@@ -18,7 +18,7 @@ export async function removeBlockedUsers(userId: string) {
     Authorization: `Bearer ${token}`,
   };
   const queryParameter = `?userId=${userId}`;
-  return axios.delete(`${apiUrl}/blocks${queryParameter}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/blocks${queryParameter}`, { headers });
 }
 
 export async function createBlockUser(userId: string) {
@@ -26,5 +26,5 @@ export async function createBlockUser(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/blocks`, { userId }, { headers });
+  return axios.post(`${apiUrl}/api/v1/blocks`, { userId }, { headers });
 }

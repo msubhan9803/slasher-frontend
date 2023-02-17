@@ -11,7 +11,7 @@ const getButtonLabelForUser = (
   friend: FriendType,
   loginUserId: string | undefined,
 ) => {
-  if (!friend || !loginUserId) {
+  if (!friend || !loginUserId || loginUserId === user._id) {
     return '';
   }
   if (friend.reaction === FriendRequestReaction.Pending
@@ -43,7 +43,7 @@ type Props = {
 };
 function FriendActionButtons({
   friendStatus, user, friendData, setFriendshipStatus, showOnlyAddAndSend = false,
-} : Props) {
+}: Props) {
   const loginUserId = Cookies.get('userId');
   const friendRequestApi = (status: number | null) => {
     if (!status) {
@@ -57,7 +57,7 @@ function FriendActionButtons({
         acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
       } else if ((
         status === FriendRequestReaction.Accepted
-          || status === FriendRequestReaction.Pending
+        || status === FriendRequestReaction.Pending
       )) {
         rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
       }
@@ -68,17 +68,17 @@ function FriendActionButtons({
   let show = true;
   if (showOnlyAddAndSend) {
     show = friendData?.reaction === FriendRequestReaction.DeclinedOrCancelled
-    || friendData?.reaction === null;
+      || friendData?.reaction === null;
   }
   return (
     <>
       {friendStatus === FriendRequestReaction.Accepted && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
       {show && ButtonLabel
-      && (
-        <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
-          {ButtonLabel}
-        </RoundButton>
-      )}
+        && (
+          <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === FriendRequestReaction.Pending || friendStatus === FriendRequestReaction.Accepted ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
+            {ButtonLabel}
+          </RoundButton>
+        )}
     </>
   );
 }

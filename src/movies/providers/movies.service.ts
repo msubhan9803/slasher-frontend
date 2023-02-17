@@ -437,36 +437,34 @@ export class MoviesService {
   }
 
   async getWatchedListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
-    const movieUserStatus = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId) })
+    const watchedMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
       .exec();
-    const movieUserStatusId = movieUserStatus.filter((movie) => movie.watched === MovieUserStatusWatched.Watched).map((id) => id.movieId);
-    return movieUserStatusId as unknown as MovieUserStatusDocument[];
+    const watchedMovieIdArray = watchedMovieIdByUser.map((movie) => movie.movieId);
+    return watchedMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
   async getWatchListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
-    const movieUserStatus = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId) })
+    const watchMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
       .exec();
-    const movieUserStatusId = movieUserStatus.filter((movie) => movie.watch === MovieUserStatusWatch.Watch).map((id) => id.movieId);
-    return movieUserStatusId as unknown as MovieUserStatusDocument[];
+      const watchMovieIdArray = watchMovieIdByUser.map((movie) => movie.movieId);
+      return watchMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
   async getBuyListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
-    const movieUserStatus = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId) })
+    const buyMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
       .exec();
-    const movieUserStatusId = movieUserStatus.filter((movie) => movie.buy === MovieUserStatusBuy.Buy).map((id) => id.movieId);
-    return movieUserStatusId as unknown as MovieUserStatusDocument[];
+      const buyMovieIdArray = buyMovieIdByUser.map((movie) => movie.movieId);
+    return buyMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
   async getFavoriteListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
-    const movieUserStatus = await this.movieUserStatusModel
-      .find({ userId: new mongoose.Types.ObjectId(userId) })
+    const favoriteMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
       .exec();
-    const movieUserStatusId = movieUserStatus.filter(
-      (movie) => movie.favourite === MovieUserStatusFavorites.Favorite,
-    ).map((id) => id.movieId);
-    return movieUserStatusId as unknown as MovieUserStatusDocument[];
+    const favoriteMovieIdArray = favoriteMovieIdByUser.map((movie) => movie.movieId);
+    return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 }

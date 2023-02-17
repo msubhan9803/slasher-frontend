@@ -40,7 +40,8 @@ function EditPostModal({
         setFormatMention(formatMention.concat(finalFormatMentionList));
       }
     }
-  }, [postContent, formatMention]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postContent]);
   const closeModal = () => {
     setShow(false);
   };

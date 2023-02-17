@@ -46,8 +46,6 @@ function PostCommentSection({
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const commentRef = useRef<any>();
-  const replyRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<any>();
   const replyInputFile = useRef<HTMLInputElement>(null);
@@ -371,10 +369,8 @@ function PostCommentSection({
     <>
       <CommentInput
         userData={userData}
-        inputRef={commentRef}
         message={message}
         setIsReply={setIsReply}
-        // onChangeHandler={onChangeHandler}
         inputFile={inputFile}
         handleFileChange={handleFileChange}
         sendComment={sendComment}
@@ -382,10 +378,9 @@ function PostCommentSection({
         handleRemoveFile={handleRemoveFile}
         handleSearch={handleSearch}
         mentionList={mentionList}
-        // formatMentionList={formatMention}
-        // setFormatMentionList={setFormatMention}
         addUpdateComment={addUpdateComment}
         commentID={selectedReplyCommentId}
+        checkCommnt="comment"
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -516,9 +511,7 @@ function PostCommentSection({
                           <div id={scrollId} ref={tabsRef}>
                             <CommentInput
                               userData={userData}
-                              inputRef={replyRef}
                               message={replyMessage}
-                              // onChangeHandler={onChangeHandler}
                               inputFile={replyInputFile}
                               handleFileChange={handleFileChange}
                               sendComment={sendComment}
@@ -527,15 +520,12 @@ function PostCommentSection({
                               dataId={data.id}
                               handleSearch={handleSearch}
                               mentionList={mentionList}
-                              // formatMentionList={formatMention}
-                              // setFormatMentionList={setFormatMention}
                               isReply
                               replyImageArray={replyImageArray}
                               addUpdateReply={addUpdateReply}
                               commentID={selectedReplyCommentId}
                               commentReplyID={selectedReplyId!}
                             />
-                            {/* {console.log(selectedReplyCommentId, '--', selectedReplyId)} */}
                           </div>
                         )
                       }

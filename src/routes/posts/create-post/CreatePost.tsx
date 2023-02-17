@@ -127,6 +127,7 @@ function CreatePost() {
               setMessageContent={setPostContent}
               formatMentionList={formatMention}
               setFormatMentionList={setFormatMention}
+              defaultValue={postContent}
             />
           </div>
           <input

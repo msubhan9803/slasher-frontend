@@ -180,6 +180,10 @@ function PostDetail({ user, postType }: Props) {
           };
           newCommentArray = [commentValueData].concat(newCommentArray);
           setCommentData(newCommentArray);
+          setPostData([{
+            ...postData[0],
+            commentCount: postData[0].commentCount + 1,
+          }]);
           setUpdateState(true);
           setErrorMessage([]);
         })
@@ -267,6 +271,10 @@ function PostDetail({ user, postType }: Props) {
       removeFeedComments(commentID).then(() => {
         setCommentID('');
         callLatestFeedComments();
+        setPostData([{
+          ...postData[0],
+          commentCount: postData[0].commentCount - 1,
+        }]);
       });
     } else if (commentReplyID) {
       removeFeedCommentReply(commentReplyID).then(() => {
@@ -333,7 +341,7 @@ function PostDetail({ user, postType }: Props) {
           };
         }
         setPostData([post]);
-        setPostContent(decryptMessage(res.data.message));
+        setPostContent(res.data.message);
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);

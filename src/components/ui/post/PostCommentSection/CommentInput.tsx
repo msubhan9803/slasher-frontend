@@ -1,5 +1,7 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, {
+  useEffect, useState, ChangeEvent,
+} from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,10 +19,8 @@ import { FormatMentionProps } from '../../../../routes/posts/create-post/CreateP
 
 interface CommentInputProps {
   userData: any;
-  inputRef: any;
   message: string;
   setIsReply?: (value: boolean) => void;
-  // onChangeHandler: (value: string) => void;
   inputFile: any;
   handleFileChange: (value: ChangeEvent<HTMLInputElement>, replyUserId?: string) => void;
   sendComment: (value: string) => void;
@@ -35,6 +35,7 @@ interface CommentInputProps {
   addUpdateReply?: (value: any) => void;
   commentID: string;
   commentReplyID?: string;
+  checkCommnt?: string;
 }
 const StyledCommentInputGroup = styled(InputGroup)`
   .form-control {
@@ -52,12 +53,12 @@ const StyledCommentInputGroup = styled(InputGroup)`
   }
 `;
 function CommentInput({
-  userData, inputRef, message, setIsReply, inputFile,
+  userData, message, setIsReply, inputFile,
   handleFileChange, sendComment, imageArray, handleRemoveFile, dataId,
   handleSearch, mentionList, addUpdateComment, replyImageArray, isReply,
-  addUpdateReply, commentID, commentReplyID,
+  addUpdateReply, commentID, commentReplyID, checkCommnt,
 }: CommentInputProps) {
-  const [editMessage, setEditMessage] = useState<string>(message! || '');
+  const [editMessage, setEditMessage] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   useEffect(() => {
     if (message) {
@@ -103,6 +104,7 @@ function CommentInput({
       });
     }
     sendComment(dataId! && dataId!);
+    setEditMessage('');
   };
 
   const mentionReplacementMatchFunc = (match: string) => {
@@ -131,9 +133,8 @@ function CommentInput({
             <StyledCommentInputGroup>
               <MessageTextarea
                 rows={1}
-                id="comments"
+                id={checkCommnt}
                 className="fs-5 form-control p-0"
-                ref={inputRef}
                 placeholder="Write a comment"
                 handleSearch={handleSearch}
                 mentionLists={mentionList}
@@ -141,7 +142,7 @@ function CommentInput({
                 formatMentionList={formatMention}
                 setFormatMentionList={setFormatMention}
                 defaultValue={decryptMessage(editMessage)}
-                isCommentinput
+                isCommentinput="true"
               />
               <InputGroup.Text>
                 <FontAwesomeIcon
@@ -206,6 +207,7 @@ CommentInput.defaultProps = {
   commentReplyID: '',
   addUpdateComment: undefined,
   setIsReply: undefined,
+  checkCommnt: '',
 };
 
 export default CommentInput;

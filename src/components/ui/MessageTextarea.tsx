@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import UserCircleImage from './UserCircleImage';
 
 interface SytledMentionProps {
-  iscommentinput: boolean;
+  iscommentinput: string;
 }
 
 const StyledMention = styled(Mentions) <SytledMentionProps>`
@@ -22,7 +22,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     }`
     : '')
-  }
+}
 
 `;
 
@@ -47,8 +47,7 @@ interface MentionProps {
   defaultValue?: string;
   id?: string;
   className?: string;
-  ref?: any;
-  isCommentinput?: boolean;
+  isCommentinput?: string;
 }
 
 function MessageTextarea({
@@ -62,7 +61,6 @@ function MessageTextarea({
   defaultValue,
   id,
   className,
-  ref,
   isCommentinput,
 }: MentionProps) {
   const { Option } = Mentions;
@@ -95,13 +93,12 @@ function MessageTextarea({
       id={id}
       className={isCommentinput ? className : ''}
       autoSize={{ minRows: rows, maxRows: isCommentinput ? 4 : rows }}
-      ref={ref}
       rows={rows}
       onChange={(e) => handleMessage(e)}
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      defaultValue={defaultValue || ''}
+      value={defaultValue || ''}
       notFoundContent="Type to search for a username"
     >
       {mentionLists?.map((mentionList: MentionListProps) => (
@@ -125,7 +122,6 @@ MessageTextarea.defaultProps = {
   defaultValue: '',
   id: '',
   className: '',
-  ref: null,
-  isCommentinput: false,
+  isCommentinput: undefined,
 };
 export default MessageTextarea;

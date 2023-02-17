@@ -23,9 +23,9 @@ describe('App (e2e)', () => {
     await app.close();
   });
 
-  describe('GET /api', () => {
+  describe('GET /api/v1', () => {
     it('returns the expected result', () => request(app.getHttpServer())
-      .get('/api')
+      .get('/api/v1')
       .expect(200)
       .expect({ version: process.env.npm_package_version }));
   });

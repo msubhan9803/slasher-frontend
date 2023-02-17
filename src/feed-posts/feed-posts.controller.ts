@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
   Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query, Delete,
 } from '@nestjs/common';
@@ -25,9 +26,10 @@ import { pick } from '../utils/object-utils';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 
-@Controller('feed-posts')
+@Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
   constructor(
     private readonly feedPostsService: FeedPostsService,
@@ -115,15 +117,23 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    if (user.id !== (feedPost.userId as any)._id.toString() && (feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as any)._id.toString()
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as any)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
-    const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
     }
     return pick(
       feedPost,
@@ -252,5 +262,46 @@ export class FeedPostsController {
     }
     await this.feedPostsService.hidePost(param.id, user.id);
     return { success: true };
+  }
+
+  @Get(':id/likes')
+  async getLikeUsersForPost(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const feedPostUser = feedPost.rssfeedProviderId ? null : (feedPost.userId as any)._id.toString();
+    if (
+      feedPostUser
+      && user.id !== feedPostUser
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, feedPostUser);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (feedPostUser) {
+      const block = await this.blocksService.blockExistsBetweenUsers(feedPostUser, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    const feedLikeUsers = await this.feedPostsService.getLikeUsersForPost(
+      param.id,
+      query.limit,
+      query.offset,
+      user._id.toString(),
+    );
+    return feedLikeUsers;
   }
 }

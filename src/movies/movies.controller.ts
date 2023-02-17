@@ -17,7 +17,7 @@ import { MovieUserStatusService } from '../movie-user-status/providers/movie-use
 import { getUserFromRequest } from '../utils/request-utils';
 import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
 
-@Controller('movies')
+@Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
   constructor(
     private readonly moviesService: MoviesService,

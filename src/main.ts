@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
@@ -22,6 +23,10 @@ async function bootstrap() {
     httpsOptions,
     // TODO: Consider a variable logging policy later on, based on NODE_ENV
     // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
+  });
+  app.setGlobalPrefix('api');
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);

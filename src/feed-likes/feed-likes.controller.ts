@@ -18,7 +18,7 @@ import { User } from '../schemas/user/user.schema';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
 
-@Controller('feed-likes')
+@Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
   constructor(
     private readonly feedLikesService: FeedLikesService,
@@ -37,23 +37,32 @@ export class FeedLikesController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
-    }
+
     if (
-      user.id !== (post.userId as unknown as User)._id.toString()
+      !post.rssfeedProviderId
+      && user.id !== (post.userId as unknown as User)._id.toString()
       && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
+    if (!post.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     await this.feedLikesService.createFeedPostLike(params.feedPostId, user.id);
 
-    // Create notification for post creator, informing them that a like was added to their post.
-    const postUserId = (post.userId as any)._id.toString();
+    let postUserId;
+    if (!post.rssfeedProviderId) {
+      // Create notification for post creator, informing them that a like was added to their post.
+      postUserId = (post.userId as any)._id.toString();
+    }
     const skipPostCreatorNotification = (
       // Don't send a "liked your post" notification to the post creator if any of
       // the following conditions apply:
@@ -98,23 +107,30 @@ export class FeedLikesController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
-    }
+
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
       throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
     if (
-      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
     await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user.id);
 
     // Create notification for comment creator, informing them that a like was added to their comment.

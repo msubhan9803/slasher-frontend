@@ -65,7 +65,7 @@ import { StorageLocationService } from '../global/providers/storage-location.ser
 import { RegisterUser } from '../types';
 import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
 
-@Controller('users')
+@Controller({ path: 'users', version: ['1'] })
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,

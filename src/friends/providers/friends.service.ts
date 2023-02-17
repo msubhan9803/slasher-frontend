@@ -29,6 +29,20 @@ export class FriendsService {
       .exec();
   }
 
+  async findFriendshipBulk(requestingContextUserId: string, toUserIds: string[]): Promise<Record<string, FriendDocument>> {
+    const filer = toUserIds.map((toUserId) => [
+      { from: new mongoose.Types.ObjectId(requestingContextUserId), to: new mongoose.Types.ObjectId(toUserId) },
+      { from: new mongoose.Types.ObjectId(toUserId), to: new mongoose.Types.ObjectId(requestingContextUserId) },
+    ]).flat();
+    const friends = await this.friendsModel.find({ $or: (filer as any) }).exec();
+    const userIdToFriendRecord: Record<string, FriendDocument> = {};
+    friends.forEach((friend) => {
+      const [potentialFriendId] = [friend.to._id.toString(), friend.from.toString()].filter((f) => f !== requestingContextUserId);
+      userIdToFriendRecord[potentialFriendId] = friend;
+    });
+    return userIdToFriendRecord;
+  }
+
   async areFriends(fromUserId: string, toUserId: string): Promise<boolean> {
     const friendship = await this.findFriendship(fromUserId, toUserId);
     return friendship && friendship.reaction === FriendRequestReaction.Accepted;

@@ -8,7 +8,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { UpdateNoticationSettingDto } from './dto/update-notification-setting.dto';
 import { UserSettingsService } from './providers/user-settings.service';
 
-@Controller('settings')
+@Controller({ path: 'settings', version: ['1'] })
 export class SettingsController {
   constructor(
     private readonly userSettingsService: UserSettingsService,

@@ -101,9 +101,9 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     );
 
     // Create 3 feedPostLike by the user itself, user1, user2
-    await feedLikesService.createFeedPostLike(feedPost.id, activeUser._id._id.toString());
-    await feedLikesService.createFeedPostLike(feedPost.id, user1._id.toString());
-    await feedLikesService.createFeedPostLike(feedPost.id, user2._id.toString());
+    await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+    await feedLikesService.createFeedPostLike(feedPost.id, user1.id);
+    await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
   });
 
   describe('Find Feed Post Like Users', () => {

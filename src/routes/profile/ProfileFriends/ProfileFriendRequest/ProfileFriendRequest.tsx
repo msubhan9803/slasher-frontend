@@ -6,13 +6,12 @@ import { Col, Row } from 'react-bootstrap';
 import InfiniteScroll from 'react-infinite-scroller';
 import { useNavigate, useParams } from 'react-router-dom';
 import { acceptFriendsRequest, rejectFriendsRequest, userProfileFriendsRequest } from '../../../../api/friends';
-import { userInitialData } from '../../../../api/users';
 import CustomSearchInput from '../../../../components/ui/CustomSearchInput';
 import ErrorMessageList from '../../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../../components/ui/LoadingIndicator';
 import TabLinks from '../../../../components/ui/Tabs/TabLinks';
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
-import { setUserInitialData } from '../../../../redux/slices/userSlice';
+import { setFriendListReload, setUserRecentFriendRequests } from '../../../../redux/slices/userSlice';
 import { User } from '../../../../types';
 import ProfileHeader from '../../ProfileHeader';
 import FriendsProfileCard from '../FriendsProfileCard';
@@ -33,6 +32,7 @@ function ProfileFriendRequest({ user }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const params = useParams();
+  const isFriendReLoad = useAppSelector((state) => state.user.forceFriendListReload);
   const [search, setSearch] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [friendRequestPage, setFriendRequestPage] = useState<number>(0);
@@ -49,6 +49,26 @@ function ProfileFriendRequest({ user }: Props) {
     { value: '', label: 'All friends' },
     { value: 'request', label: 'Friend requests', badge: friendsReqCount },
   ];
+
+  const initalFriendRequest = () => {
+    userProfileFriendsRequest(0)
+      .then((res) => {
+        setFriendsReqList(res.data);
+      });
+  };
+
+  useEffect(() => {
+    if (isFriendReLoad) {
+      initalFriendRequest();
+      dispatch(setFriendListReload(false));
+      setFriendRequestPage(1);
+      setNoMoreData(false);
+    }
+  }, [isFriendReLoad, dispatch]);
+
+  useEffect(() => {
+    dispatch(setUserRecentFriendRequests(friendsReqList.slice(0, 3)));
+  }, [friendsReqList, dispatch]);
 
   const fetchMoreFriendReqList = useCallback(() => {
     userProfileFriendsRequest(friendRequestPage)
@@ -91,9 +111,6 @@ function ProfileFriendRequest({ user }: Props) {
             setFriendsReqList(res.data);
             dispatch(forceReloadSuggestedFriends());
           });
-        userInitialData().then((res) => {
-          dispatch(setUserInitialData(res.data));
-        });
       });
   };
   const handleRejectRequest = (userId: string) => {
@@ -104,9 +121,6 @@ function ProfileFriendRequest({ user }: Props) {
             setFriendsReqList(res.data);
             dispatch(forceReloadSuggestedFriends());
           });
-        userInitialData().then((res) => {
-          dispatch(setUserInitialData(res.data));
-        });
       });
   };
   const getYPosition = () => {
@@ -145,7 +159,7 @@ function ProfileFriendRequest({ user }: Props) {
           <InfiniteScroll
             pageStart={0}
             initialLoad
-            loadMore={() => { setAdditionalFriendRequest(true); }}
+            loadMore={() => setAdditionalFriendRequest(true)}
             hasMore={!noMoreData}
           >
             <Row className="mt-4" ref={friendRequestContainerElementRef}>

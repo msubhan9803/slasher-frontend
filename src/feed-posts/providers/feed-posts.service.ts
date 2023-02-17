@@ -66,14 +66,14 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
-    const feedPost = await this.feedPostModel
+    const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
 
-    return feedPost.map((post) => {
+    return feedPosts.map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;
@@ -114,12 +114,12 @@ export class FeedPostsService {
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
-    const feedPost = query.map((post) => {
+    const feedPosts = query.map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;
     });
-    return feedPost;
+    return feedPosts;
   }
 
   async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -163,14 +163,14 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
-    const feedPost = await this.feedPostModel
+    const feedPosts = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('rssfeedProviderId', 'title _id logo')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
 
-    return feedPost.map((post) => {
+    return feedPosts.map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;

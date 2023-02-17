@@ -90,11 +90,11 @@ describe('UserId Posts With Images (e2e)', () => {
             createdAt: expect.any(String),
             images: [
               {
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
               {
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               },
             ],

@@ -21,10 +21,31 @@ describe('App (e2e)', () => {
     await app.close();
   });
 
+  describe('GET /', () => {
+    it('returns the expected response', () => request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect({ version: process.env.npm_package_version }));
+  });
+
+  describe('GET /api', () => {
+    it('returns the expected response', () => request(app.getHttpServer())
+      .get('/api')
+      .expect(200)
+      .expect({ version: process.env.npm_package_version }));
+  });
+
   describe('GET /api/v1', () => {
-    it('returns the expected result', () => request(app.getHttpServer())
+    it('returns the expected response', () => request(app.getHttpServer())
       .get('/api/v1')
       .expect(200)
       .expect({ version: process.env.npm_package_version }));
+  });
+
+  describe('GET /health-check', () => {
+    it('returns the expected response', () => request(app.getHttpServer())
+      .get('/health-check')
+      .expect(200)
+      .expect({ status: 'ok' }));
   });
 });

@@ -18,6 +18,8 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
+import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -32,6 +34,7 @@ describe('Create Feed Post Like (e2e)', () => {
   let feedLikesService: FeedLikesService;
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let rssFeedProvidersService: RssFeedProvidersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,6 +47,7 @@ describe('Create Feed Post Like (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -163,8 +167,23 @@ describe('Create Feed Post Like (e2e)', () => {
           .post(`/api/v1/feed-likes/post/${feedPost1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+      });
+
+      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: rssFeedProvider._id,
+            rssfeedProviderId: rssFeedProvider._id,
+          }),
+        );
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/feed-likes/post/${feedPost2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual({ success: true });
       });
     });
 

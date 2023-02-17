@@ -21,6 +21,8 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
+import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -33,6 +35,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let rssFeedProvidersService: RssFeedProvidersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,6 +47,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -328,8 +332,44 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             .field('feedPostId', feedPost1._id.toString())
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: rssFeedProvider._id,
+            rssfeedProviderId: rssFeedProvider._id,
+          }),
+        );
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/api/v1/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost2._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            feedPostId: feedPost2._id.toString(),
+            message: 'hello test user',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
       });
     });

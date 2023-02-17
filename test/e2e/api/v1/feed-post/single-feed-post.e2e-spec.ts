@@ -84,7 +84,6 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         feedPostFactory.build(
           {
             userId: activeUser._id,
-            rssfeedProviderId: rssFeedProviderData._id,
             rssFeedId: rssFeed._id,
             createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
           },
@@ -97,11 +96,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
       expect(response.body).toEqual({
         _id: feedPost.id,
         createdAt: '2022-10-17T00:00:00.000Z',
-        rssfeedProviderId: {
-          _id: rssFeedProviderData.id,
-          logo: null,
-          title: 'RssFeedProvider 1',
-        },
+        rssfeedProviderId: null,
         rssFeedId: {
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
@@ -168,6 +163,47 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+    });
+
+    it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+      const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+
+      const feedPost = await feedPostsService.create(
+        feedPostFactory.build({
+          userId: rssFeedProvider._id,
+          rssfeedProviderId: rssFeedProvider._id,
+        }),
+      );
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        createdAt: expect.any(String),
+        rssfeedProviderId: {
+          _id: rssFeedProvider._id.toString(),
+          logo: null,
+          title: 'RssFeedProvider 5',
+        },
+        rssFeedId: null,
+        images: [
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+        userId: null,
+        commentCount: 0,
+        likeCount: 0,
+        sharedList: 0,
+        likes: [],
+        message: 'Message 4',
+      });
     });
   });
 });

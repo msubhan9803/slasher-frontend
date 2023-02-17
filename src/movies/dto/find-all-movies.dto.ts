@@ -26,4 +26,7 @@ export class FindAllMoviesDto {
   @IsString()
   @MaxLength(30)
   nameContains: string;
+
+  @IsOptional()
+  movieIdsIn: string;
 }

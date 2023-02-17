@@ -6,6 +6,7 @@ import { addPrePostHooks } from '../schemas/movie/movie.pre-post-hooks';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './providers/movies.service';
 import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.module';
+import { MovieUserStatus, MovieUserStatusSchema } from '../schemas/movieUserStatus/movieUserStatus.schema';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { MovieUserStatusModule } from '../movie-user-status/movie.user.status.mo
         },
       },
     ]),
+    MongooseModule.forFeature([{ name: MovieUserStatus.name, schema: MovieUserStatusSchema }]),
     HttpModule,
     MovieUserStatusModule,
   ],

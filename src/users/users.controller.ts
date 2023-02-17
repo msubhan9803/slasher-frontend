@@ -64,6 +64,8 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { RegisterUser } from '../types';
 import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
+import { MoviesService } from '../movies/providers/movies.service';
+import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -83,6 +85,7 @@ export class UsersController {
     private readonly rssFeedProvidersService: RssFeedProvidersService,
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
+    private readonly moviesService: MoviesService,
   ) { }
 
   @Post('sign-in')
@@ -745,5 +748,121 @@ export class UsersController {
     user.coverPhoto = null;
     await user.save();
     return { coverPhoto: user.coverPhoto };
+  }
+
+  @Get(':userId/watched-list')
+  async watchedListMovies(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const watchedMovieIds = await this.moviesService.getWatchedListMovieIdsForUser(param.userId);
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      watchedMovieIds as unknown as mongoose.Types.ObjectId[],
+    );
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/watch-list')
+  async watchListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const watchMovieIds = await this.moviesService.getWatchListMovieIdsForUser(param.userId);
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      watchMovieIds as unknown as mongoose.Types.ObjectId[],
+    );
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/buy-list')
+  async buyListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const buyMovieIds = await this.moviesService.getBuyListMovieIdsForUser(param.userId);
+
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      buyMovieIds as unknown as mongoose.Types.ObjectId[],
+    );
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/favorites')
+  async favoriteListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const favoriteMovieIds = await this.moviesService.getFavoriteListMovieIdsForUser(param.userId);
+
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      favoriteMovieIds as unknown as mongoose.Types.ObjectId[],
+    );
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
   }
 }

@@ -42,3 +42,24 @@ export async function getMoviesDataById(movieDBId: number) {
 
   return axios.get(`${apiUrl}/api/v1/movies/movieDbData/${movieDBId}`, { headers });
 }
+export async function getMoviesIdList(id: any) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.get(`${apiUrl}/api/v1/movies/${id}/lists`, { headers });
+}
+export async function addMovieUserStatus(id: string, category: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.post(`${apiUrl}/api/v1/movies/${id}/lists/${category}`, {}, { headers });
+}
+export async function deleteMovieUserStatus(id: string, category: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/lists/${category}`, { headers });
+}

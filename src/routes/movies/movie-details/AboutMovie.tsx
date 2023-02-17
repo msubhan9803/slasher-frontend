@@ -26,9 +26,11 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
 
 interface MovieIconProps {
   label: string;
+  key: string;
   icon: IconDefinition;
   iconColor: string;
   margin?: string;
@@ -47,16 +49,16 @@ const StyledMoviePoster = styled.div`
 `;
 const MovieIconList = [
   {
-    label: 'Favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,
+    label: 'Favorite', key: 'favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,
   },
   {
-    label: 'Watch', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
+    label: 'Watch', key: 'watch', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
   },
   {
-    label: 'Watchlist', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: true,
+    label: 'Watchlist', key: 'watched', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
   },
   {
-    label: 'Buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
+    label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
   },
 ];
 const tabsForSelf = [
@@ -74,6 +76,7 @@ const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (
 
 function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
+  const [movieIdList, setMovieIdList] = useState();
   const selfView = searchParams.get('view') === 'self';
   const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
@@ -84,17 +87,59 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
   });
   const [bgColor, setBgColor] = useState<boolean>(false);
   const [movieIconListData, setMovieIconListData] = useState(MovieIconList);
-  const handleMovieAddRemove = (labelName: string) => {
-    const tempMovieIconList = [...movieIconListData];
-    tempMovieIconList.map((iconList) => {
-      const tempMovieIcon = iconList;
-      if (tempMovieIcon.label === labelName) {
-        tempMovieIcon.addMovie = !tempMovieIcon.addMovie;
-      }
-      return tempMovieIcon;
-    });
-    setMovieIconListData(tempMovieIconList);
+  const handleMovieAddRemove = (labelName: string, isFavorite: boolean) => {
+    if (params.id && !isFavorite) {
+      addMovieUserStatus(params.id, labelName)
+        .then((res) => {
+          if (res.data.success) {
+            const tempMovieIconList = [...movieIconListData];
+            tempMovieIconList.forEach((movieIcon) => {
+              if (movieIcon.key === labelName) {
+                // eslint-disable-next-line no-param-reassign
+                movieIcon.addMovie = !movieIcon.addMovie;
+              }
+            });
+            setMovieIconListData(tempMovieIconList);
+          }
+        });
+    } else if (params.id && isFavorite) {
+      deleteMovieUserStatus(params.id, labelName)
+        .then((res) => {
+          if (res.data.success) {
+            const tempMovieIconList = [...movieIconListData];
+            tempMovieIconList.forEach((movieIcon) => {
+              if (movieIcon.key === labelName) {
+                // eslint-disable-next-line no-param-reassign
+                movieIcon.addMovie = !movieIcon.addMovie;
+              }
+            });
+            setMovieIconListData(tempMovieIconList);
+          }
+        });
+    }
   };
+  useEffect(() => {
+    if (params) {
+      getMoviesIdList(params.id)
+        .then((res) => setMovieIdList(res.data));
+    }
+  }, [params]);
+
+  useEffect(() => {
+    const updateMovieIconList = () => {
+      if (movieIdList) {
+        MovieIconList.forEach((movieIcon) => {
+          const { key } = movieIcon;
+          if (key in movieIdList) {
+            // eslint-disable-next-line no-param-reassign
+            movieIcon.addMovie = !!movieIdList[key];
+          }
+        });
+        setMovieIconListData(MovieIconList);
+      }
+    };
+    updateMovieIconList();
+  }, [movieIdList]);
   return (
     <div>
       <div className="bg-dark my-3 p-4 pb-0 rounded-2">
@@ -110,55 +155,55 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
         </Row>
         {enableDevFeatures
           && (
-          <Row>
-            <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-              <div className="d-none d-xl-block mt-3">
-                <p className="fs-5">Your lists</p>
-                <div className="mt-2 d-flex justify-content-between">
+            <Row>
+              <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+                <div className="d-none d-xl-block mt-3">
+                  <p className="fs-5">Your lists</p>
+                  <div className="mt-2 d-flex justify-content-between">
+                    {movieIconListData.map((iconList: MovieIconProps) => (
+                      <CustomGroupIcons
+                        key={iconList.key}
+                        label={iconList.label}
+                        icon={iconList.icon}
+                        iconColor={iconList.iconColor}
+                        width={iconList.width}
+                        height={iconList.height}
+                        addData={iconList.addMovie}
+                        onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 d-none d-xl-block">
+                  <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+                </div>
+              </Col>
+            </Row>
+          )}
+        {enableDevFeatures
+          && (
+            <Row className="d-xl-none justify-content-center mt-3">
+              <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+                <span className="fs-5">Your lists</span>
+                <div className="mt-2 d-flex justify-content-around">
                   {movieIconListData.map((iconList: MovieIconProps) => (
                     <CustomGroupIcons
-                      key={iconList.label}
+                      key={iconList.key}
                       label={iconList.label}
                       icon={iconList.icon}
                       iconColor={iconList.iconColor}
                       width={iconList.width}
                       height={iconList.height}
                       addData={iconList.addMovie}
-                      onClickIcon={() => handleMovieAddRemove(iconList.label)}
+                      onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
                     />
                   ))}
                 </div>
-              </div>
-              <div className="p-3 d-none d-xl-block">
-                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-              </div>
-            </Col>
-          </Row>
-          )}
-        {enableDevFeatures
-          && (
-          <Row className="d-xl-none justify-content-center mt-3">
-            <Col xs={12} sm={7} md={5} lg={9} className="text-center">
-              <span className="fs-5">Your lists</span>
-              <div className="mt-2 d-flex justify-content-around">
-                {movieIconListData.map((iconList: MovieIconProps) => (
-                  <CustomGroupIcons
-                    key={iconList.label}
-                    label={iconList.label}
-                    icon={iconList.icon}
-                    iconColor={iconList.iconColor}
-                    width={iconList.width}
-                    height={iconList.height}
-                    addData={iconList.addMovie}
-                    onClickIcon={() => handleMovieAddRemove(iconList.label)}
-                  />
-                ))}
-              </div>
-              <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-              </div>
-            </Col>
-          </Row>
+                <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+                  <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+                </div>
+              </Col>
+            </Row>
           )}
         <Row className="d-lg-none text-center">
           <StyledBorder />

@@ -95,6 +95,7 @@ export class AppModule {
     consumer
       .apply(JwtAuthenticationMiddleware)
       .exclude(
+        // Reminder: Paths below are exact matches (not "starts with")
         '/',
         '/api',
         '/api/v1',

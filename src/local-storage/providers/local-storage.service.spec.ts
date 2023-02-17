@@ -6,6 +6,7 @@ import { existsSync } from 'fs';
 import { AppModule } from '../../app.module';
 import { LocalStorageService } from './local-storage.service';
 import { createTempFile } from '../../../test/helpers/tempfile-helpers';
+import { InvalidPathError } from '../../errors';
 
 describe('LocalStorageService', () => {
   let app: INestApplication;
@@ -68,13 +69,13 @@ describe('LocalStorageService', () => {
 
     it('rejects invalid paths', async () => {
       // reject location that is outside of the local storage directory
-      expect(() => { localStorageService.getLocalFilePath('/../../../something.txt'); }).toThrow('Invalid path');
+      expect(() => { localStorageService.getLocalFilePath('/../../../something.txt'); }).toThrow(InvalidPathError);
 
       // reject location that is inside the local storage directory but contains '/../';
-      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow('Invalid path');
+      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow(InvalidPathError);
 
       // reject location that does not start with slash
-      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow('Invalid path');
+      expect(() => { localStorageService.getLocalFilePath('/path/to/file/../something.txt'); }).toThrow(InvalidPathError);
     });
   });
 });

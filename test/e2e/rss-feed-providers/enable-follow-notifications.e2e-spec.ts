@@ -67,7 +67,7 @@ describe('Enable Follow Notifications (e2e)', () => {
     describe('enable notifications in rss feed providers follows details', () => {
       it('returns the expected response when notifications are enabled', async () => {
         const response = await request(app.getHttpServer())
-          .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id}/enable-notifications`)
+          .patch(`/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({ notification: 1 });
@@ -76,7 +76,7 @@ describe('Enable Follow Notifications (e2e)', () => {
       it('returns the expected response when the rss feed provider id is not found', async () => {
         const rssFeedProviderId = '6337f478980180f44e64487c';
         const response = await request(app.getHttpServer())
-          .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}/enable-notifications`)
+          .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -98,7 +98,7 @@ describe('Enable Follow Notifications (e2e)', () => {
       it('id must be a mongodb id', async () => {
         const rssFeedProviderId = '634912b22c2f4f5edsamkm2m';
         const response = await request(app.getHttpServer())
-          .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id}/enable-notifications`)
+          .patch(`/rss-feed-providers/${rssFeedProviderId}/follows/${activeUser._id.toString()}/enable-notifications`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

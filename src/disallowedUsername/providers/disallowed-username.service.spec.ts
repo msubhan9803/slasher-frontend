@@ -70,7 +70,7 @@ describe('DisallowedUsernameService', () => {
       const disallowedUsername = await disallowedUsernameService.create({
         username: 'testuser',
       });
-      await disallowedUsernameService.delete(disallowedUsername._id);
+      await disallowedUsernameService.delete(disallowedUsername.id);
       const disallowedUsernameDetails = await disallowedUsernameModel.findById(disallowedUsername._id);
       expect(disallowedUsernameDetails).toBeNull();
     });

@@ -37,23 +37,32 @@ export class FeedLikesController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
-    }
+
     if (
-      user.id !== (post.userId as unknown as User)._id.toString()
+      !post.rssfeedProviderId
+      && user.id !== (post.userId as unknown as User)._id.toString()
       && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
-    await this.feedLikesService.createFeedPostLike(params.feedPostId, user._id);
 
-    // Create notification for post creator, informing them that a like was added to their post.
-    const postUserId = (post.userId as any)._id.toString();
+    if (!post.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    await this.feedLikesService.createFeedPostLike(params.feedPostId, user.id);
+
+    let postUserId;
+    if (!post.rssfeedProviderId) {
+      // Create notification for post creator, informing them that a like was added to their post.
+      postUserId = (post.userId as any)._id.toString();
+    }
     const skipPostCreatorNotification = (
       // Don't send a "liked your post" notification to the post creator if any of
       // the following conditions apply:
@@ -68,7 +77,7 @@ export class FeedLikesController {
           userName: (post.userId as any).userName,
         } as any),
         feedPostId: { _id: post._id.toString() } as unknown as FeedPost,
-        senderId: user._id.toString(),
+        senderId: user._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
       });
@@ -83,7 +92,7 @@ export class FeedLikesController {
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user._id);
+    await this.feedLikesService.deleteFeedPostLike(params.feedPostId, user.id);
     return { success: true };
   }
 
@@ -98,24 +107,31 @@ export class FeedLikesController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
-    }
+
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
       throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
-    if (
-      user.id !== (feedPost.userId as unknown as User)._id.toString()
-      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
-    ) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
-    await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user._id);
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    await this.feedLikesService.createFeedCommentLike(params.feedCommentId, user.id);
 
     // Create notification for comment creator, informing them that a like was added to their comment.
     const skipCommentCreatorNotification = (
@@ -143,7 +159,7 @@ export class FeedLikesController {
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
-    await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user._id);
+    await this.feedLikesService.deleteFeedCommentLike(params.feedCommentId, user.id);
     return { success: true };
   }
 
@@ -154,7 +170,7 @@ export class FeedLikesController {
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
-    await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user._id);
+    await this.feedLikesService.createFeedReplyLike(params.feedReplyId, user.id);
 
     // Create notification for comment creator, informing them that a like was added to their comment.
     const skipCommentCreatorNotification = (
@@ -184,7 +200,7 @@ export class FeedLikesController {
     if (!reply) {
       throw new HttpException('Reply not found', HttpStatus.NOT_FOUND);
     }
-    await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user._id);
+    await this.feedLikesService.deleteFeedReplyLike(params.feedReplyId, user.id);
     return { success: true };
   }
 }

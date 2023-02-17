@@ -22,6 +22,9 @@ import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/bl
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -36,6 +39,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let feedPost: FeedPostDocument;
   let feedComment: FeedComment;
+  let rssFeedProvidersService: RssFeedProvidersService;
 
   const sampleFeedReplyObject = {
     images: [
@@ -60,6 +64,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -84,13 +89,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
       feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
-      feedComment = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      feedComment = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
     });
 
     it('returns the expected response upon successful request', async () => {
@@ -172,10 +180,10 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedCommentId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
+        feedCommentId: feedComment._id.toString(),
         message: 'This is a test message',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        userId: activeUser._id.toString(),
         images: [],
       });
     });
@@ -189,7 +197,23 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .field('feedCommentId', feedComment._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1]);
-        expect(response.body.message).toContain('message should not be empty');
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedCommentId: feedComment._id.toString(),
+          feedPostId: feedPost._id.toString(),
+          message: null,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -267,13 +291,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           },
         ),
       );
-      const feedComment1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          commentCreatorUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      const feedComment1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: commentCreatorUser._id,
+            feedPostId: feedPost1.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: commentCreatorUser._id,
@@ -302,13 +329,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          commentCreatorUser._id.toString(),
-          sampleFeedReplyObject.message,
-          sampleFeedReplyObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: commentCreatorUser._id,
+            feedPostId: feedPost1.id,
+            message: sampleFeedReplyObject.message,
+            images: sampleFeedReplyObject.images,
+          },
+        ),
+      );
       await blocksModel.create({
         from: activeUser._id,
         to: postCreatorUser._id,
@@ -354,13 +384,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             },
           ),
         );
-        feedComment1 = await feedCommentsService
-          .createFeedComment(
-            feedPost1.id,
-            user1._id.toString(),
-            sampleFeedReplyObject.message,
-            sampleFeedReplyObject.images,
-          );
+        feedComment1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id.toString(),
+              feedPostId: feedPost1.id,
+              message: sampleFeedReplyObject.message,
+              images: sampleFeedReplyObject.images,
+            },
+          ),
+        );
       });
 
       it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
@@ -373,8 +406,55 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             .field('feedCommentId', feedComment1._id.toString())
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: rssFeedProvider._id,
+            rssfeedProviderId: rssFeedProvider._id,
+          }),
+        );
+        const feedComment2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id.toString(),
+              feedPostId: feedPost2.id,
+              message: sampleFeedReplyObject.message,
+              images: sampleFeedReplyObject.images,
+            },
+          ),
+        );
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments/replies')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedCommentId', feedComment2._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            feedCommentId: feedComment2._id.toString(),
+            feedPostId: feedPost2._id.toString(),
+            message: 'hello test user',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
       });
     });
@@ -397,7 +477,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       it('sends the expected notifications when the reply user IS NOT the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
         await request(app.getHttpServer())
           .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -431,7 +520,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
 
       it('sends the expected notifications when the reply user IS the post creator user', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: otherUser1._id }));
-        const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: 'This is a comment',
+              images: [],
+            },
+          ),
+        );
         await request(app.getHttpServer())
           .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
@@ -457,7 +555,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
       it('sends the expected notifications when the reply user is not the post creator user, '
         + 'AND there are three users mentioned in the message and one is the post creator', async () => {
           const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-          const comment = await feedCommentsService.createFeedComment(post.id, commentCreatorUser.id, 'This is a comment', []);
+          const comment = await feedCommentsService.createFeedComment(
+            feedCommentsFactory.build(
+              {
+                userId: commentCreatorUser.id,
+                feedPostId: post.id,
+                message: 'This is a comment',
+                images: [],
+              },
+            ),
+          );
           await request(app.getHttpServer())
             .post('/feed-comments/replies').auth(otherUser1AuthToken, { type: 'bearer' })
             .set('Content-Type', 'multipart/form-data')

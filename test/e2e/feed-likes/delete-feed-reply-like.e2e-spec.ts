@@ -14,6 +14,8 @@ import { FeedPostsService } from '../../../src/feed-posts/providers/feed-posts.s
 import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Delete Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -80,20 +82,26 @@ describe('Delete Feed Reply Like (e2e)', () => {
           },
         ),
       );
-      feedComments = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
-      feedReply = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser._id.toString(),
-          feedCommentsAndReplyObject.message,
-          feedCommentsAndReplyObject.images,
-        );
+      feedComments = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
+      feedReply = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
       await feedLikesService.createFeedReplyLike(feedReply.id, activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply.id, user0._id.toString());
     });

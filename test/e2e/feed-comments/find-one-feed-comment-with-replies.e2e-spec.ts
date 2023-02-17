@@ -18,6 +18,8 @@ import findOneFeedCommentsResponse from '../../fixtures/comments/find-one-feed-c
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -98,36 +100,46 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
 
   describe('GET /feed-comments/:feedCommentId', () => {
     it('get single feed comments with reply', async () => {
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          'Comment 1',
-          commentImages,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: 'Comment 1',
+            images: commentImages,
+          },
+        ),
+      );
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user0._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user1._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user2._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user3._id.toString());
 
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 1',
-          commentImages,
+        const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Comment 1 Test Reply Message 1',
+              images: commentImages,
+            },
+          ),
         );
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), user0._id.toString());
 
-      const feedReply2 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 2',
-          commentImages,
+      const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Comment 1 Test Reply Message 2',
+              images: commentImages,
+            },
+          ),
         );
+
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user1._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());
 
@@ -157,15 +169,18 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
           },
         ),
       );
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost1.id,
-          user4._id.toString(),
-          'hello test user',
-          commentImages,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user4._id,
+            feedPostId: feedPost1.id,
+            message: 'hello test user',
+            images: commentImages,
+          },
+        ),
+      );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user4._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -195,13 +210,16 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
             },
           ),
         );
-        feedComment1 = await feedCommentsService
-          .createFeedComment(
-            feedPost1.id,
-            user5._id.toString(),
-            'hello test user',
-            commentImages,
-          );
+        feedComment1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user5._id,
+              feedPostId: feedPost1.id,
+              message: 'hello test user',
+              images: commentImages,
+            },
+          ),
+        );
       });
 
       it('should not return the comment when the requesting user is not a friend of the post creator', async () => {
@@ -209,8 +227,8 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
           .get(`/feed-comments/${feedComment1._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
       });
     });
 

@@ -202,7 +202,7 @@ describe('GET /users/:id (e2e)', () => {
 
     it('returns the expected response when block exists between users', async () => {
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser.id,
         to: otherUser._id,
         reaction: BlockAndUnblockReaction.Block,
       });

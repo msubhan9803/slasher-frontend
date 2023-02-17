@@ -410,11 +410,11 @@ export class UsersController {
     // look into caching some initial-data items later on (and then building appropriate
     // cache invalidation mechanisms).
     const user: UserDocument = getUserFromRequest(request);
-    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
-    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
-    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
-    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user._id);
-    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user._id);
+    const recentMessages: any = await this.chatService.getConversations(user.id, 3);
+    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
+    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
+    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
+    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user.id);
     return {
       user: pick(user, ['id', 'userName', 'profilePic']),
       recentMessages,
@@ -433,8 +433,8 @@ export class UsersController {
     query: SuggestUserNameQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
-    excludedUserIds.push(user._id);
+    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    excludedUserIds.push(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
@@ -575,7 +575,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const feedPosts = await this.feedPostsService.findAllByUser(
-      user._id,
+      user.id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
@@ -670,7 +670,7 @@ export class UsersController {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     const feedPosts = await this.feedPostsService.findAllPostsWithImagesByUser(
-      user._id,
+      user.id,
       query.limit,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );

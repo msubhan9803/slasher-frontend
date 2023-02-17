@@ -74,7 +74,7 @@ describe('UserId Posts With Images (e2e)', () => {
     it('when earlier than post id is not exist then expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}`)
+        .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toHaveLength(10);
@@ -122,14 +122,14 @@ describe('UserId Posts With Images (e2e)', () => {
     it('get expected first and second sets of paginated results', async () => {
       const limit = 6;
       const firstResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}`)
+        .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(firstResponse.status).toEqual(HttpStatus.OK);
       expect(firstResponse.body).toHaveLength(6);
 
       const secondResponse = await request(app.getHttpServer())
-        .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
+        .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}&before=${firstResponse.body[limit - 1]._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(secondResponse.status).toEqual(HttpStatus.OK);
@@ -157,7 +157,7 @@ describe('UserId Posts With Images (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts-with-images`)
+          .get(`/users/${activeUser._id.toString()}/posts-with-images`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -173,7 +173,7 @@ describe('UserId Posts With Images (e2e)', () => {
         );
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
+          .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -189,7 +189,7 @@ describe('UserId Posts With Images (e2e)', () => {
         );
         const limit = 31;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
+          .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}&before=${feedPost._id}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 30');
@@ -206,7 +206,7 @@ describe('UserId Posts With Images (e2e)', () => {
         const limit = 6;
         const beforeId = `a_${feedPost._id}`;
         const response = await request(app.getHttpServer())
-          .get(`/users/${activeUser._id}/posts-with-images?limit=${limit}&before=${beforeId}`)
+          .get(`/users/${activeUser._id.toString()}/posts-with-images?limit=${limit}&before=${beforeId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('before must be a mongodb id');

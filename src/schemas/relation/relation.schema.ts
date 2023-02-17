@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { RelationUnusedFields } from './relation.unused-fields';
 
 @Schema({ timestamps: true })
@@ -33,4 +33,4 @@ export class Relation extends RelationUnusedFields {
 
 export const RelationSchema = SchemaFactory.createForClass(Relation);
 
-export type RelationDocument = Relation & Document;
+export type RelationDocument = HydratedDocument<Relation>;

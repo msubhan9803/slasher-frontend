@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { MatchListRoomCategory, MatchListRoomType } from '../matchList/matchList.enums';
 import { ChatUnusedFields } from './chat.unused-fields';
@@ -61,4 +61,4 @@ export class Chat extends ChatUnusedFields {
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
 
-export type ChatDocument = Chat & Document;
+export type ChatDocument = HydratedDocument<Chat>;

@@ -19,6 +19,8 @@ import { FeedLikesService } from '../../../src/feed-likes/providers/feed-likes.s
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../factories/feed-reply.factory';
 
 describe('Find Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -98,65 +100,84 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
   describe('GET /feed-comments', () => {
     it('get all feed comments with reply', async () => {
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          'Comment 1',
-          commentImages,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost._id,
+            message: 'Comment 1',
+            images: commentImages,
+          },
+        ),
+      );
+
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user0._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user1._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user2._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user3._id.toString());
-      const feedComments2 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          'Comment 2',
-          commentImages,
-        );
+      const feedComments2 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost._id,
+            message: 'Comment 2',
+            images: commentImages,
+          },
+        ),
+      );
       await feedLikesService.createFeedCommentLike(feedComments2._id.toString(), user2._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments2._id.toString(), user0._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments2._id.toString(), user1._id.toString());
 
-      const feedReply1 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 1',
-          commentImages,
-        );
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments1.id,
+            message: 'Hello Comment 1 Test Reply Message 1',
+            images: commentImages,
+          },
+        ),
+      );
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), user0._id.toString());
 
-      const feedReply2 = await feedCommentsService
-        .createFeedReply(
-          feedComments2._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 2 Test Reply Message 2',
-          commentImages,
+        const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments2.id,
+              message: 'Hello Comment 2 Test Reply Message 2',
+              images: commentImages,
+            },
+          ),
         );
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user1._id.toString());
 
-      const feedReply3 = await feedCommentsService
-        .createFeedReply(
-          feedComments1._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 1 Test Reply Message 3',
-          commentImages,
+        const feedReply3 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Comment 1 Test Reply Message 3',
+              images: commentImages,
+            },
+          ),
         );
       await feedLikesService.createFeedReplyLike(feedReply3._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply3._id.toString(), user2._id.toString());
 
-      const feedReply4 = await feedCommentsService
-        .createFeedReply(
-          feedComments2._id.toString(),
-          activeUser._id.toString(),
-          'Hello Comment 2 Test Reply Message 4',
-          commentImages,
+        const feedReply4 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments2.id,
+              message: 'Hello Comment 2 Test Reply Message 4',
+              images: commentImages,
+            },
+          ),
         );
       await feedLikesService.createFeedReplyLike(feedReply4._id.toString(), user0._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply4._id.toString(), user3._id.toString());
@@ -172,82 +193,120 @@ describe('Find Feed Comments With Replies (e2e)', () => {
 
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
-        const feedComments1 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 1',
-            commentImages,
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost._id,
+              message: 'Hello Test Message 1',
+              images: commentImages,
+            },
+          ),
+        );
+
+        const feedComments2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost._id,
+              message: 'Hello Test Message 2',
+              images: commentImages,
+            },
+          ),
+        );
+
+        const feedComments3 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost._id,
+              message: 'Hello Test Message 3',
+              images: commentImages,
+            },
+          ),
+        );
+
+        const feedComments4 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost._id,
+              message: 'Hello Test Message 4',
+              images: commentImages,
+            },
+          ),
+        );
+
+        const feedComments5 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost._id,
+              message: 'Hello Test Message 5',
+              images: commentImages,
+            },
+          ),
+        );
+
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments1._id,
+                message: 'Hello Test Reply Message 1',
+                images: commentImages,
+              },
+            ),
           );
-        const feedComments2 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 2',
-            commentImages,
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments2._id,
+                message: 'Hello Test Reply Message 2',
+                images: commentImages,
+              },
+            ),
           );
-        const feedComments3 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 3',
-            commentImages,
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments3._id,
+                message: 'Hello Test Reply Message 3',
+                images: commentImages,
+              },
+            ),
           );
-        const feedComments4 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 4',
-            commentImages,
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments3._id,
+                message: 'Hello Test Reply Message 4',
+                images: commentImages,
+              },
+            ),
           );
-        const feedComments5 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 5',
-            commentImages,
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments4._id,
+                message: 'Hello Test Reply Message 5',
+                images: commentImages,
+              },
+            ),
           );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments1._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 1',
-            commentImages,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments2._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 2',
-            commentImages,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments3._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 3',
-            commentImages,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments3._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 4',
-            commentImages,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments4._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 5',
-            commentImages,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments5._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 6',
-            commentImages,
+          await feedCommentsService.createFeedReply(
+            feedRepliesFactory.build(
+              {
+                userId: activeUser._id,
+                feedCommentId: feedComments5._id,
+                message: 'Hello Test Reply Message 6',
+                images: commentImages,
+              },
+            ),
           );
       });
       describe('get expected first and second sets of paginated results', () => {
@@ -302,7 +361,7 @@ describe('Find Feed Comments With Replies (e2e)', () => {
         ),
       );
       await blocksModel.create({
-        from: activeUser._id,
+        from: activeUser._id.toString(),
         to: user4._id,
         reaction: BlockAndUnblockReaction.Block,
       });
@@ -340,8 +399,8 @@ describe('Find Feed Comments With Replies (e2e)', () => {
           .get(`/feed-comments?feedPostId=${feedPost1._id}&limit=${limit}&sortBy=oldestFirst`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-        expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-        expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+        expect(response.status).toBe(HttpStatus.FORBIDDEN);
+        expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
       });
     });
 

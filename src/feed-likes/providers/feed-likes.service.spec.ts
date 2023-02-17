@@ -12,6 +12,8 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
+import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -64,26 +66,34 @@ feedReply;
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser._id,
+          userId: activeUser.id,
         },
       ),
     );
     await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
     await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
-    feedComments = await feedCommentsService
-    .createFeedComment(
-      feedPost.id,
-      activeUser.id,
-      feedCommentsAndReplyObject.message,
-      feedCommentsAndReplyObject.images,
+
+    feedComments = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: activeUser._id,
+          feedPostId: feedPost.id,
+          message: feedCommentsAndReplyObject.message,
+          images: feedCommentsAndReplyObject.images,
+        },
+      ),
     );
-    feedReply = await feedCommentsService
-    .createFeedReply(
-      feedComments.id,
-      activeUser.id,
-      feedCommentsAndReplyObject.message,
-      feedCommentsAndReplyObject.images,
+    feedReply = await feedCommentsService.createFeedReply(
+      feedRepliesFactory.build(
+        {
+          userId: activeUser._id,
+          feedCommentId: feedComments.id,
+          message: feedCommentsAndReplyObject.message,
+          images: feedCommentsAndReplyObject.images,
+        },
+      ),
     );
+
     await feedLikesService.createFeedCommentLike(feedComments.id, activeUser.id);
     await feedLikesService.createFeedCommentLike(feedComments.id, user0.id);
     await feedLikesService.createFeedReplyLike(feedReply.id, activeUser.id);

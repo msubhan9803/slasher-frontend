@@ -58,7 +58,7 @@ describe('RssFeedProviderFollowsService', () => {
         userId: activeUser._id,
         rssfeedProviderId: rssFeedProviderData._id,
       });
-      expect(await rssFeedProviderFollowsService.findById(rssFeedProviderFollows._id)).toBeTruthy();
+      expect(await rssFeedProviderFollowsService.findById(rssFeedProviderFollows.id)).toBeTruthy();
     });
   });
 
@@ -74,7 +74,7 @@ describe('RssFeedProviderFollowsService', () => {
     });
 
     it('finds the expected rss feed provider follow details', async () => {
-      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollowData._id);
+      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollowData.id);
       expect(rssFeedProviderFollowDetails.rssfeedProviderId).toEqual(rssFeedProviderFollowData.rssfeedProviderId);
       expect(rssFeedProviderFollowDetails.userId).toEqual(rssFeedProviderFollowData.userId);
     });
@@ -95,7 +95,7 @@ describe('RssFeedProviderFollowsService', () => {
         rssfeedProviderId: rssFeedProviderData2._id,
       };
       const updatedRssFeedProviderFollow = await rssFeedProviderFollowsService
-        .update(rssFeedProviderFollowData._id, rssFeedProviderFollowJson);
+        .update(rssFeedProviderFollowData.id, rssFeedProviderFollowJson);
       const reloadedRssFeedProviderFollow = await rssFeedProviderFollowsService.findById(updatedRssFeedProviderFollow._id.toString());
       expect(reloadedRssFeedProviderFollow.rssfeedProviderId).toEqual(updatedRssFeedProviderFollow.rssfeedProviderId);
     });
@@ -147,8 +147,8 @@ describe('RssFeedProviderFollowsService', () => {
           rssfeedProviderId: rssFeedProviderData._id,
         },
       );
-      await rssFeedProviderFollowsService.deleteById(rssFeedProviderFollows._id);
-      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollows._id);
+      await rssFeedProviderFollowsService.deleteById(rssFeedProviderFollows.id);
+      const rssFeedProviderFollowDetails = await rssFeedProviderFollowsService.findById(rssFeedProviderFollows.id);
       expect(rssFeedProviderFollowDetails).toBeNull();
     });
   });

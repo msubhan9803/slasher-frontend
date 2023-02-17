@@ -117,7 +117,7 @@ describe('NotificationsService', () => {
       notification = await notificationsService.create(
         notificationFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -134,7 +134,7 @@ describe('NotificationsService', () => {
       notification = await notificationsService.create(
         notificationFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -144,7 +144,7 @@ describe('NotificationsService', () => {
         notificationMsg: 'notification test message',
       };
       const updatedNotification = await notificationsService.update(notification._id, notificationData);
-      const reloadedNotification = await notificationsService.findById(updatedNotification._id);
+      const reloadedNotification = await notificationsService.findById(updatedNotification.id);
       expect(reloadedNotification.notificationMsg).toEqual(notificationData.notificationMsg);
     });
   });

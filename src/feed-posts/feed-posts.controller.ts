@@ -90,7 +90,7 @@ export class FeedPostsController {
     for (const mentionedUserId of mentionedUserIds) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: createFeedPost._id,
+        feedPostId: createFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
@@ -117,15 +117,23 @@ export class FeedPostsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    if (user.id !== (feedPost.userId as any)._id.toString() && (feedPost.userId as any).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as any)._id.toString());
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as any)._id.toString()
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as any)._id.toString());
       if (!areFriends) {
         throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
-    const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
     }
     return pick(
       feedPost,
@@ -170,7 +178,7 @@ export class FeedPostsController {
     for (const mentionedUserId of newMentionedUserIds) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: updatedFeedPost._id,
+        feedPostId: updatedFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
@@ -252,7 +260,7 @@ export class FeedPostsController {
         HttpStatus.FORBIDDEN,
       );
     }
-    await this.feedPostsService.hidePost(param.id, user._id);
+    await this.feedPostsService.hidePost(param.id, user.id);
     return { success: true };
   }
 

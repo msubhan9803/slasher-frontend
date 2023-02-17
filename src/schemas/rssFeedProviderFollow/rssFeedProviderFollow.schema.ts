@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { User } from '../user/user.schema';
 import {
@@ -66,4 +66,5 @@ RssFeedProviderFollowSchema.index(
     userId: 1, rssfeedProviderId: 1,
   },
 );
-export type RssFeedProviderFollowDocument = RssFeedProviderFollow & Document;
+
+export type RssFeedProviderFollowDocument = HydratedDocument<RssFeedProviderFollow>;

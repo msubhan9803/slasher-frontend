@@ -21,6 +21,8 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../src/schemas/b
 import { BlockAndUnblockReaction } from '../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
+import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -33,6 +35,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   let feedPostsService: FeedPostsService;
   let notificationsService: NotificationsService;
   let blocksModel: Model<BlockAndUnblockDocument>;
+  let rssFeedProvidersService: RssFeedProvidersService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,6 +47,7 @@ describe('Feed-Comments / Comments File (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -145,11 +149,21 @@ describe('Feed-Comments / Comments File (e2e)', () => {
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        feedPostId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        feedPostId: feedPost._id.toString(),
         message: 'This is a test message',
-        userId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        userId: activeUser._id.toString(),
         images: [],
       });
+    });
+
+    it('responds expected response when neither message nor file are present in request', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/feed-comments')
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '')
+        .field('feedPostId', feedPost._id.toString())
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
 
     it('allows the creation of a comments with only files, but no message', async () => {
@@ -161,9 +175,24 @@ describe('Feed-Comments / Comments File (e2e)', () => {
 
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
-          .attach('images', tempPaths[1])
-          .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toContain('message should not be empty');
+          .attach('images', tempPaths[1]);
+
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          feedPostId: feedPost._id.toString(),
+          message: null,
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
       }, [{ extension: 'png' }, { extension: 'jpg' }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
@@ -299,8 +328,44 @@ describe('Feed-Comments / Comments File (e2e)', () => {
             .field('feedPostId', feedPost1._id.toString())
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: rssFeedProvider._id,
+            rssfeedProviderId: rssFeedProvider._id,
+          }),
+        );
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedPostId', feedPost2._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+            expect(response.body).toEqual({
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              feedPostId: feedPost2._id.toString(),
+              message: 'hello test user',
+              userId: activeUser._id.toString(),
+              images: [
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+                {
+                  image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                  _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+                },
+              ],
+            });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
       });
     });

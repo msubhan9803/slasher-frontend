@@ -99,9 +99,9 @@ describe('All Notifications (e2e)', () => {
           feedReplyId: new mongoose.Types.ObjectId() as any,
           feedPostId: feedPostData.id,
           rssFeedProviderId: rssFeedProviderData._id,
-          senderId: activeUser._id.toString(),
+          senderId: activeUser.id,
           is_deleted: NotificationDeletionStatus.NotDeleted,
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           ...notificationDates[index],
         }),
       );
@@ -142,11 +142,11 @@ describe('All Notifications (e2e)', () => {
               title: rssFeedProviderData.title,
             },
             senderId: {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               profilePic: expect.any(String),
               userName: activeUser.userName,
             },
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -166,11 +166,11 @@ describe('All Notifications (e2e)', () => {
               title: rssFeedProviderData.title,
             },
             senderId: {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               profilePic: expect.any(String),
               userName: activeUser.userName,
             },
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -190,11 +190,11 @@ describe('All Notifications (e2e)', () => {
               title: rssFeedProviderData.title,
             },
             senderId: {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               profilePic: expect.any(String),
               userName: activeUser.userName,
             },
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -214,11 +214,11 @@ describe('All Notifications (e2e)', () => {
               title: rssFeedProviderData.title,
             },
             senderId: {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               profilePic: expect.any(String),
               userName: activeUser.userName,
             },
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -238,11 +238,11 @@ describe('All Notifications (e2e)', () => {
               title: rssFeedProviderData.title,
             },
             senderId: {
-              _id: activeUser._id.toString(),
+              _id: activeUser.id,
               profilePic: expect.any(String),
               userName: activeUser.userName,
             },
-            userId: activeUser._id.toString(),
+            userId: activeUser.id,
           },
         ]);
       });

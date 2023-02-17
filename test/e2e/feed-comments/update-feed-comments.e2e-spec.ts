@@ -15,6 +15,7 @@ import { feedPostFactory } from '../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../src/feed-comments/providers/feed-comments.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
 import { NotificationsService } from '../../../src/notifications/providers/notifications.service';
+import { feedCommentsFactory } from '../../factories/feed-comments.factory';
 
 describe('Feed-Comments / Comments Update (e2e)', () => {
   let app: INestApplication;
@@ -82,13 +83,17 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           },
         ),
       );
-      feedComment = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+
+      feedComment = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully update feed comments messages', async () => {
@@ -133,13 +138,16 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
 
       it('sends notifications to newly-added users in the message', async () => {
         const post = await feedPostsService.create(feedPostFactory.build({ userId: postCreatorUser._id }));
-        const comment = await feedCommentsService
-          .createFeedComment(
-            post.id,
-            commentCreatorUser.id,
-            `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
-            [],
-          );
+        const comment = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: commentCreatorUser.id,
+              feedPostId: post.id,
+              message: `Hello ##LINK_ID##${otherUser1._id.toString()}@OtherUser2##LINK_END## other user 1`,
+              images: [],
+            },
+          ),
+        );
         await request(app.getHttpServer())
           .patch(`/feed-comments/${comment._id}`)
           .auth(commentCreatorUserAuthToken, { type: 'bearer' })
@@ -179,12 +187,15 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     });
 
     it('when feed comment id and login user id is not match than expected response', async () => {
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          user0._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user0._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
         );
       const response = await request(app.getHttpServer())
         .patch(`/feed-comments/${feedComments1._id}`)

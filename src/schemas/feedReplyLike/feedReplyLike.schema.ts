@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { FeedReply } from '../feedReply/feedReply.schema';
 import { User } from '../user/user.schema';
 import { FeedReplyLikeUnusedFields } from './feedReplyLike.unused-fields';
@@ -41,4 +41,4 @@ export class FeedReplyLike extends FeedReplyLikeUnusedFields {
 
 export const FeedReplyLikeSchema = SchemaFactory.createForClass(FeedReplyLike);
 
-export type FeedReplyLikeDocument = FeedReplyLike & Document;
+export type FeedReplyLikeDocument = HydratedDocument<FeedReplyLike>;

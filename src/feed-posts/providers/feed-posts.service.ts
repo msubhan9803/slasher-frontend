@@ -23,7 +23,7 @@ export class FeedPostsService {
     private readonly friendsService: FriendsService,
     private readonly blocksService: BlocksService,
     private configService: ConfigService,
-    ) { }
+  ) { }
 
   async create(feedPostData: Partial<FeedPost>): Promise<FeedPostDocument> {
     return this.feedPostModel.create(feedPostData);
@@ -41,12 +41,16 @@ export class FeedPostsService {
       feedPostFindQuery.is_deleted = false;
       feedPostFindQuery.status = FeedPostStatus.Active;
     }
-    return this.feedPostModel
+    const feedPost = await this.feedPostModel
       .findOne(feedPostFindQuery)
       .populate('userId', 'userName _id profilePic profile_status')
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content')
       .exec();
+    if (feedPost) {
+      feedPost.likeCount = feedPost.likes.length || 0;
+    }
+    return feedPost;
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -62,12 +66,18 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
-    return this.feedPostModel
+    const feedPost = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('userId', 'userName _id profilePic')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+
+    return feedPost.map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
   }
 
   async findMainFeedPostsForUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -83,7 +93,7 @@ export class FeedPostsService {
       beforeQuery.updatedAt = { $lt: feedPost.updatedAt };
     }
 
-    const query = this.feedPostModel
+    const query = await this.feedPostModel
       .find({
         $and: [
           { status: 1 },
@@ -102,9 +112,14 @@ export class FeedPostsService {
       .populate('userId', '_id userName profilePic')
       .populate('rssfeedProviderId', '_id title logo')
       .sort({ lastUpdateAt: -1 })
-      .limit(limit);
-
-    return query.exec();
+      .limit(limit)
+      .exec();
+    const feedPost = query.map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
+    return feedPost;
   }
 
   async findAllPostsWithImagesByUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
@@ -148,12 +163,18 @@ export class FeedPostsService {
       feedPostFindAllQuery.status = FeedPostStatus.Active;
       feedPostQuery.push(feedPostFindAllQuery);
     }
-    return this.feedPostModel
+    const feedPost = await this.feedPostModel
       .find({ $and: feedPostQuery })
       .populate('rssfeedProviderId', 'title _id logo')
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();
+
+    return feedPost.map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likeCount = post.likes.length || 0;
+      return post;
+    });
   }
 
   // TODO: Add a test for this method
@@ -231,7 +252,7 @@ export class FeedPostsService {
     let userIdToFriendRecord;
     if (requestingContextUserId) {
       userIdToFriendRecord = await this.friendsService
-      .findFriendshipBulk(requestingContextUserId, feedPostLikes.map((feedPostLike) => feedPostLike.userId._id.toString()));
+        .findFriendshipBulk(requestingContextUserId, feedPostLikes.map((feedPostLike) => feedPostLike.userId._id.toString()));
     }
     feedPostLikes.forEach((feedPostLike) => {
       const feedPostLikeUser = feedPostLike.userId;

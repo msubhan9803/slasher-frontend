@@ -84,18 +84,21 @@ export class FeedCommentsController {
     }
 
     const user = getUserFromRequest(request);
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
-    }
-
     if (
-      user.id !== (post.userId as unknown as User)._id.toString()
+      !post.rssfeedProviderId
+      && user.id !== (post.userId as unknown as User)._id.toString()
       && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (!post.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
 
@@ -115,8 +118,9 @@ export class FeedCommentsController {
     feedComment.userId = user._id;
     const comment = await this.feedCommentsService.createFeedComment(feedComment);
 
-    await this.sendFeedCommentCreationNotifications(user, comment, post);
-
+    if (!post.rssfeedProviderId) {
+      await this.sendFeedCommentCreationNotifications(user, comment, post);
+    }
     return {
       _id: comment._id,
       feedPostId: comment.feedPostId,
@@ -206,23 +210,29 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
-    }
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
       throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
+      }
+    }
+
     if (
-      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -239,9 +249,9 @@ export class FeedCommentsController {
     feedReply.userId = user._id;
     feedReply.feedPostId = comment.feedPostId;
     const reply = await this.feedCommentsService.createFeedReply(feedReply);
-
-    await this.sendFeedReplyCreationNotifications(user, reply);
-
+    if (!feedPost.rssfeedProviderId) {
+      await this.sendFeedReplyCreationNotifications(user, reply);
+    }
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,
@@ -311,19 +321,25 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
-    }
+
     if (
-      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
@@ -378,17 +394,22 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
-    }
+
     if (
-      user.id !== (feedPost.userId as unknown as User)._id.toString()
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
       && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
     ) {
       const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
     const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));

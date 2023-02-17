@@ -23,6 +23,8 @@ import { NotificationsService } from '../../../src/notifications/providers/notif
 import { FeedComment } from '../../../src/schemas/feedComment/feedComment.schema';
 import { ProfileVisibility } from '../../../src/schemas/user/user.enums';
 import { feedCommentsFactory } from '../../factories/feed-comments.factory';
+import { RssFeedProvidersService } from '../../../src/rss-feed-providers/providers/rss-feed-providers.service';
+import { rssFeedProviderFactory } from '../../factories/rss-feed-providers.factory';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   let blocksModel: Model<BlockAndUnblockDocument>;
   let feedPost: FeedPostDocument;
   let feedComment: FeedComment;
+  let rssFeedProvidersService: RssFeedProvidersService;
 
   const sampleFeedReplyObject = {
     images: [
@@ -61,6 +64,7 @@ describe('Feed-Comments/Replies File (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
+    rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
@@ -381,15 +385,15 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           ),
         );
         feedComment1 = await feedCommentsService.createFeedComment(
-            feedCommentsFactory.build(
-              {
-                userId: user1._id.toString(),
-                feedPostId: feedPost1.id,
-                message: sampleFeedReplyObject.message,
-                images: sampleFeedReplyObject.images,
-              },
-            ),
-          );
+          feedCommentsFactory.build(
+            {
+              userId: user1._id.toString(),
+              feedPostId: feedPost1.id,
+              message: sampleFeedReplyObject.message,
+              images: sampleFeedReplyObject.images,
+            },
+          ),
+        );
       });
 
       it('should not allow the creation of a feed reply when replying user is not a friend of the post creator', async () => {
@@ -402,8 +406,55 @@ describe('Feed-Comments/Replies File (e2e)', () => {
             .field('feedCommentId', feedComment1._id.toString())
             .attach('images', tempPaths[0])
             .attach('images', tempPaths[1]);
-          expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
-          expect(response.body).toEqual({ statusCode: 401, message: 'You must be friends with this user to perform this action.' });
+          expect(response.status).toBe(HttpStatus.FORBIDDEN);
+          expect(response.body).toEqual({ statusCode: 403, message: 'You must be friends with this user to perform this action.' });
+        }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
+      });
+
+      it('when post has an rssfeedProviderId, it returns a successful response', async () => {
+        const rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
+        const feedPost2 = await feedPostsService.create(
+          feedPostFactory.build({
+            userId: rssFeedProvider._id,
+            rssfeedProviderId: rssFeedProvider._id,
+          }),
+        );
+        const feedComment2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: user1._id.toString(),
+              feedPostId: feedPost2.id,
+              message: sampleFeedReplyObject.message,
+              images: sampleFeedReplyObject.images,
+            },
+          ),
+        );
+        await createTempFiles(async (tempPaths) => {
+          const response = await request(app.getHttpServer())
+            .post('/feed-comments/replies')
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .set('Content-Type', 'multipart/form-data')
+            .field('message', 'hello test user')
+            .field('feedCommentId', feedComment2._id.toString())
+            .attach('images', tempPaths[0])
+            .attach('images', tempPaths[1]);
+          expect(response.body).toEqual({
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            feedCommentId: feedComment2._id.toString(),
+            feedPostId: feedPost2._id.toString(),
+            message: 'hello test user',
+            userId: activeUser._id.toString(),
+            images: [
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+              {
+                image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+                _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              },
+            ],
+          });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }]);
       });
     });

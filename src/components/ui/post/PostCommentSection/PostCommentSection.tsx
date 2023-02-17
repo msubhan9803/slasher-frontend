@@ -386,7 +386,7 @@ function PostCommentSection({
         mentionList={mentionList}
         addUpdateComment={addUpdateComment}
         commentID={selectedReplyCommentId}
-        checkCommnt="comment"
+        checkCommnt="comments"
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (

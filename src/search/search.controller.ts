@@ -9,7 +9,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { FindUsersDto } from './dto/find-users-dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
-@Controller('search')
+@Controller({ path: 'search', version: ['1'] })
 export class SearchController {
   constructor(
     private readonly searchService: SearchService,

@@ -28,7 +28,7 @@ import { SendMessageInConversationDto } from './dto/send-message-in-conversation
 import { ChatGateway } from './providers/chat.gateway';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('chat')
+@Controller({ path: 'chat', version: ['1'] })
 export class ChatController {
   constructor(
     @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,

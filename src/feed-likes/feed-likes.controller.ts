@@ -18,7 +18,7 @@ import { User } from '../schemas/user/user.schema';
 import { ProfileVisibility } from '../schemas/user/user.enums';
 import { FriendsService } from '../friends/providers/friends.service';
 
-@Controller('feed-likes')
+@Controller({ path: 'feed-likes', version: ['1'] })
 export class FeedLikesController {
   constructor(
     private readonly feedLikesService: FeedLikesService,

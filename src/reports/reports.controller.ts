@@ -13,7 +13,7 @@ import { UsersService } from '../users/providers/users.service';
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { ChatService } from '../chat/providers/chat.service';
 
-@Controller('reports')
+@Controller({ path: 'reports', version: ['1'] })
 export class ReportsController {
   constructor(
     private readonly reportAndUnreportService: ReportAndUnreportService,

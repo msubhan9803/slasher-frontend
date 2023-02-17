@@ -12,7 +12,7 @@ import { DeleteBlockQueryDto } from './dto/delete.block.query.dto';
 import { BlocksLimitOffSetDto } from './dto/blocks-limit-offset.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
-@Controller('blocks')
+@Controller({ path: 'blocks', version: ['1'] })
 export class BlocksController {
   constructor(
     private readonly blocksService: BlocksService,

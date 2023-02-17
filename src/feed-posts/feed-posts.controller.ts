@@ -29,7 +29,7 @@ import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
 
-@Controller('feed-posts')
+@Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
   constructor(
     private readonly feedPostsService: FeedPostsService,

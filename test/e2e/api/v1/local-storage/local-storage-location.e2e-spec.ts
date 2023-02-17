@@ -5,11 +5,11 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { writeFileSync } from 'fs';
-import { AppModule } from '../../../src/app.module';
-import { createTempFile } from '../../helpers/tempfile-helpers';
-import { LocalStorageService } from '../../../src/local-storage/providers/local-storage.service';
-import { clearDatabase } from '../../helpers/mongo-helpers';
-import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
+import { AppModule } from '../../../../../src/app.module';
+import { createTempFile } from '../../../../helpers/tempfile-helpers';
+import { LocalStorageService } from '../../../../../src/local-storage/providers/local-storage.service';
+import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;
@@ -36,7 +36,7 @@ describe('Local-Storage / Get File (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('GET /local-storage/:location', () => {
+  describe('GET /api/v1/local-storage/:location', () => {
     it('does not require authentication, and responds with file if give file path exists', async () => {
       const fileContent = 'This is a test file.';
       const fileExtension = 'txt';
@@ -52,7 +52,7 @@ describe('Local-Storage / Get File (e2e)', () => {
       }, { extension: fileExtension });
 
       await request(app.getHttpServer())
-        .get(`/local-storage${location}`)
+        .get(`/api/v1/local-storage${location}`)
         .send()
         .expect(HttpStatus.OK)
         .expect(fileContent);
@@ -60,7 +60,7 @@ describe('Local-Storage / Get File (e2e)', () => {
 
     it('does not serve files outside of the local storage directory', async () => {
       const response = await request(app.getHttpServer())
-        .get('/local-storage/../package.json')
+        .get('/api/v1/local-storage/../package.json')
         .send()
         .expect(HttpStatus.NOT_FOUND);
 
@@ -71,7 +71,7 @@ describe('Local-Storage / Get File (e2e)', () => {
       const storagePath = 'profile_test/profile_test_1.jpg';
 
       const response = await request(app.getHttpServer())
-        .get(`/local-storage/${storagePath}`)
+        .get(`/api/v1/local-storage/${storagePath}`)
         .send()
         .expect(HttpStatus.NOT_FOUND);
 

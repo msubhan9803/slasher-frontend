@@ -2,10 +2,10 @@ import React from 'react';
 import { DateTime } from 'luxon';
 import { Col, Row } from 'react-bootstrap';
 import { HashLink } from 'react-router-hash-link';
-import CustomPopover, { PopoverClickProps } from '../CustomPopover';
-import UserCircleImage from '../UserCircleImage';
-import { scrollToTop } from '../../../utils/scrollFunctions';
-import ShareLinkButton from '../ShareLinkButton';
+import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
+import UserCircleImage from '../../UserCircleImage';
+import { scrollToTop } from '../../../../utils/scrollFunctions';
+import ShareLinkButton from '../../ShareLinkButton';
 
 interface PostHeaderProps {
   userName: string;

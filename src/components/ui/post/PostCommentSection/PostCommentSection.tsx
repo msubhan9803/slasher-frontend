@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  SyntheticEvent, useEffect, useRef, useState, ChangeEvent, useCallback,
+  useEffect, useRef, useState, ChangeEvent, useCallback,
 } from 'react';
 import {
   Button, Col, Row,
@@ -9,13 +9,13 @@ import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
-import ReportModal from '../ReportModal';
-import { FeedComments } from '../../../types';
-import EditCommentModal from '../editCommentModal';
-import { PopoverClickProps } from '../CustomPopover';
-import { createBlockUser } from '../../../api/blocks';
-import { reportData } from '../../../api/report';
 import CommentInput from './CommentInput';
+import { FeedComments } from '../../../../types';
+import { PopoverClickProps } from '../../CustomPopover';
+import { createBlockUser } from '../../../../api/blocks';
+import { reportData } from '../../../../api/report';
+import ReportModal from '../../ReportModal';
+import EditCommentModal from '../../editCommentModal';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
@@ -40,6 +40,8 @@ function PostCommentSection({
   addUpdateComment,
   updateState,
   setUpdateState,
+  handleSearch,
+  mentionList,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
@@ -68,20 +70,6 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-  const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
-    const target = e.target as HTMLTextAreaElement;
-    if (inputId) {
-      replyRef.current.style.height = '36px';
-      replyRef.current.style.height = `${target.scrollHeight}px`;
-      replyRef.current.style.maxHeight = '100px';
-      setReplyMessage(target.value);
-    } else {
-      commentRef.current.style.height = '36px';
-      commentRef.current.style.height = `${target.scrollHeight}px`;
-      commentRef.current.style.maxHeight = '100px';
-      setMessage(target.value);
-    }
-  };
 
   const handleSeeCompleteList = useCallback((
     commentReplyId: string,
@@ -209,23 +197,10 @@ function PostCommentSection({
   const sendComment = (commentId?: string) => {
     const imageArr = commentId ? replyImageArray : imageArray;
     if (commentId === undefined) {
-      commentRef.current.style.height = '36px';
-      addUpdateComment({
-        commentMessage: message,
-        commentId,
-        imageArr,
-      });
       setMessage('');
       setImageArray([]);
     } else {
-      replyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${selectedReplyCommentId}@${replyUserName}##LINK_END##`);
-      addUpdateReply({
-        replyMessage: mentionReplyString,
-        commentId,
-        imageArr,
-        commentReplyID,
-      });
       if (mentionReplyString || imageArr.length) {
         setIsReply(false);
       }
@@ -392,7 +367,6 @@ function PostCommentSection({
       />
     </div>
   );
-
   return (
     <>
       <CommentInput
@@ -400,12 +374,18 @@ function PostCommentSection({
         inputRef={commentRef}
         message={message}
         setIsReply={setIsReply}
-        onChangeHandler={onChangeHandler}
+        // onChangeHandler={onChangeHandler}
         inputFile={inputFile}
         handleFileChange={handleFileChange}
         sendComment={sendComment}
         imageArray={imageArray}
         handleRemoveFile={handleRemoveFile}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        // formatMentionList={formatMention}
+        // setFormatMentionList={setFormatMention}
+        addUpdateComment={addUpdateComment}
+        commentID={selectedReplyCommentId}
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -538,14 +518,24 @@ function PostCommentSection({
                               userData={userData}
                               inputRef={replyRef}
                               message={replyMessage}
-                              onChangeHandler={onChangeHandler}
+                              // onChangeHandler={onChangeHandler}
                               inputFile={replyInputFile}
                               handleFileChange={handleFileChange}
                               sendComment={sendComment}
                               imageArray={replyImageArray}
                               handleRemoveFile={handleRemoveFile}
                               dataId={data.id}
+                              handleSearch={handleSearch}
+                              mentionList={mentionList}
+                              // formatMentionList={formatMention}
+                              // setFormatMentionList={setFormatMention}
+                              isReply
+                              replyImageArray={replyImageArray}
+                              addUpdateReply={addUpdateReply}
+                              commentID={selectedReplyCommentId}
+                              commentReplyID={selectedReplyId!}
                             />
+                            {/* {console.log(selectedReplyCommentId, '--', selectedReplyId)} */}
                           </div>
                         )
                       }
@@ -578,6 +568,8 @@ function PostCommentSection({
             isReply={!commentID}
             addUpdateComment={addUpdateComment}
             addUpdateReply={addUpdateReply}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
           />
         )
       }

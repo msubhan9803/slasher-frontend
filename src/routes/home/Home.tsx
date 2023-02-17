@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
 import CustomCreatePost from '../../components/ui/CustomCreatePost';
-import PostFeed from '../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../components/ui/post/PostFeed/PostFeed';
 import SuggestedFriend from './SuggestedFriend';
 import ReportModal from '../../components/ui/ReportModal';
 import {
@@ -13,7 +13,6 @@ import {
 import { Post } from '../../types';
 import { MentionProps } from '../posts/create-post/CreatePost';
 import { getSuggestUserName } from '../../api/users';
-import EditPostModal from '../../components/ui/EditPostModal';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -25,6 +24,7 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layou
 import FormatImageVideoList from '../../utils/vido-utils';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
+import EditPostModal from '../../components/ui/post/EditPostModal';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user', 'Hide'];

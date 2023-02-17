@@ -1,10 +1,12 @@
 import React, {
-  SyntheticEvent, useRef, useState, useEffect,
+  useState, useEffect,
 } from 'react';
-import { Form, Modal } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
+import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
 import { CommentValue, ReplyValue } from '../../types';
 import { decryptMessage } from '../../utils/text-utils';
 import ModalContainer from './CustomModal';
+import MessageTextarea, { MentionListProps } from './MessageTextarea';
 import RoundButton from './RoundButton';
 
 interface Props {
@@ -18,53 +20,70 @@ interface Props {
   addUpdateReply: (value: ReplyValue) => void;
   setCommentID: (value: string) => void;
   setCommentReplyID: (value: string) => void;
+  handleSearch: (val: string) => void;
+  mentionList: MentionListProps[];
 }
 
 function EditCommentModal({
   showEdit, setShowEdit, commentID, commentReplyID, editContent, isReply,
-  setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply,
+  setCommentID, setCommentReplyID, addUpdateComment, addUpdateReply, handleSearch,
+  mentionList,
 }: Props) {
-  const textRef = useRef<any>();
-  const [editMessage, setEditMessage] = useState<any>('');
+  const [editMessage, setEditMessage] = useState<string>(editContent! || '');
+  const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
 
   useEffect(() => {
-    const editComment = decryptMessage(editContent);
-    setEditMessage(editComment);
-  }, [editContent]);
-
-  const onChangeHandler = (e: SyntheticEvent) => {
-    const target = e.target as HTMLTextAreaElement;
-    setEditMessage(target.value);
-  };
-
-  const onUpdatePost = () => {
+    if (editContent) {
+      const mentionStringList = editMessage.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
+      const finalFormatMentionList = Array.from(new Set(mentionStringList))
+        .map((mentionString: string) => {
+          const id = mentionString.match(/([a-f\d]{24})/g)![0];
+          const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
+          return {
+            id, value, format: mentionString,
+          };
+        });
+      setFormatMention(finalFormatMentionList);
+    }
+  }, [editMessage, editContent]);
+  const onUpdatePost = (msg: string) => {
     let mentionReplyString = '';
     if (isReply) {
       /* eslint no-useless-escape: 0 */
-      const getMentionUser = editMessage.match(/\@[a-zA-Z0-9_.-]+/g)[0];
       setCommentReplyID(commentReplyID);
       setCommentID('');
-      mentionReplyString = editMessage.replace(getMentionUser, `##LINK_ID##${commentReplyID}${getMentionUser}##LINK_END##`);
       addUpdateReply({
-        replyMessage: mentionReplyString,
+        replyMessage: msg,
         replyId: commentReplyID,
         commentId: commentID,
       });
     } else {
       setCommentID(commentID);
       setCommentReplyID('');
-      mentionReplyString = editMessage;
+      mentionReplyString = msg;
       addUpdateComment({
         commentMessage: mentionReplyString,
         commentId: commentID,
       });
     }
   };
+  const mentionReplacementMatchFunc = (match: string) => {
+    if (match) {
+      const finalString: any = formatMention.find(
+        (matchMention: FormatMentionProps) => match.includes(matchMention.value),
+      );
+      return finalString.format;
+    }
+    return undefined;
+  };
+  const handleMessage = () => {
+    const postContentWithMentionReplacements = (editMessage!.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    onUpdatePost(postContentWithMentionReplacements);
+  };
 
   const closeModal = () => {
     setShowEdit(false);
   };
-
   return (
     <ModalContainer
       show={showEdit}
@@ -75,20 +94,21 @@ function EditCommentModal({
       <Modal.Header className="bg-dark border-0 shadow-none justify-content-end" closeButton />
       <Modal.Body className="bg-dark d-flex flex-column pt-0">
         <h1 className="h1 mb-0 text-primary text-center pb-2">Edit</h1>
-        <Form.Control
-          placeholder="Write a comments"
-          className="bg-black fs-5"
+        <MessageTextarea
           rows={10}
-          as="textarea"
-          ref={textRef}
-          defaultValue={editMessage}
-          onChange={onChangeHandler}
+          placeholder="Write a comments"
+          handleSearch={handleSearch}
+          mentionLists={mentionList}
+          setMessageContent={setEditMessage}
+          formatMentionList={formatMention}
+          setFormatMentionList={setFormatMention}
+          defaultValue={decryptMessage(editMessage)}
         />
         <div className="d-flex flex-wrap justify-content-between">
           <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>
             <span className="h3">Cancel</span>
           </RoundButton>
-          <RoundButton className="px-4 mt-4" size="md" onClick={onUpdatePost}>
+          <RoundButton className="px-4 mt-4" size="md" onClick={handleMessage}>
             <span className="h3">Update</span>
           </RoundButton>
         </div>

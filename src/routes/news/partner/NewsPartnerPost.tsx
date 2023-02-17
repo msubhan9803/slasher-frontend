@@ -9,7 +9,7 @@ import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import {
   addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
   removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
@@ -482,6 +482,7 @@ function NewsPartnerPost() {
   };
   return (
     <div>
+      <h1>news</h1>
       <Row className="mb-5 px-2">
         <Col className="p-0">
           <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />

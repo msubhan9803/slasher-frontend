@@ -1,40 +1,43 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { createBlockUser } from '../../../api/blocks';
 import {
-  addFeedComments, addFeedReplyComments, getFeedComments, removeFeedCommentReply,
-  removeFeedComments, singleComment, updateFeedCommentReply, updateFeedComments,
+  addFeedComments, addFeedReplyComments, getFeedComments,
+  removeFeedCommentReply, removeFeedComments, singleComment,
+  updateFeedCommentReply, updateFeedComments,
 } from '../../../api/feed-comments';
 import {
   likeFeedComment, likeFeedPost, likeFeedReply, unlikeFeedComment, unlikeFeedPost, unlikeFeedReply,
 } from '../../../api/feed-likes';
-import { feedPostDetail, deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
+import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/feed-posts';
+import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
-import ReportModal from '../../../components/ui/ReportModal';
+import { useAppSelector } from '../../../redux/hooks';
+import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
-import { MentionProps } from '../../posts/create-post/CreatePost';
 import { decryptMessage } from '../../../utils/text-utils';
-import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import { reportData } from '../../../api/report';
-import { useAppSelector } from '../../../redux/hooks';
-import { createBlockUser } from '../../../api/blocks';
 import FormatImageVideoList from '../../../utils/vido-utils';
-import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
-import EditPostModal from '../../../components/ui/post/EditPostModal';
+import { PopoverClickProps } from '../CustomPopover';
+import ErrorMessageList from '../ErrorMessageList';
+import ReportModal from '../ReportModal';
+import EditPostModal from './EditPostModal';
+import PostFeed from './PostFeed/PostFeed';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const newsPostPopoverOptions = ['Report'];
 
 interface Props {
-  user: User
+  user?: User;
+  postType?: string;
 }
 
-function ProfilePostDetail({ user }: Props) {
-  const { userName } = useParams<string>();
+function PostDetail({ user, postType }: Props) {
+  const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
-  const { postId } = useParams<string>();
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [postData, setPostData] = useState<Post[]>([]);
@@ -109,40 +112,6 @@ function ProfilePostDetail({ user }: Props) {
       feedComments();
     }
   }, [requestAdditionalPosts, loadingComments, feedComments]);
-
-  useEffect(() => {
-    if (postId) {
-      feedPostDetail(postId)
-        .then((res) => {
-          if (res.data.userId.userName !== user.userName) {
-            navigate(`/${res.data.userId.userName}/posts/${postId}`, { replace: true });
-            return;
-          }
-          setPostData([
-            {
-              ...res.data,
-              /* eslint no-underscore-dangle: 0 */
-              _id: res.data._id,
-              id: res.data._id,
-              postDate: res.data.createdAt,
-              content: decryptMessage(res.data.message),
-              postUrl: FormatImageVideoList(res.data.images, res.data.message),
-              userName: res.data.userId.userName,
-              profileImage: res.data.userId.profilePic,
-              userId: res.data.userId._id,
-              likes: res.data.likes,
-              likeIcon: res.data.likes.includes(loginUserId!),
-              likeCount: res.data.likeCount,
-              commentCount: res.data.commentCount,
-            },
-          ]);
-          setPostContent(decryptMessage(res.data.message));
-        })
-        .catch((error) => {
-          setErrorMessage(error.response.data.message);
-        });
-    }
-  }, [postId, user, loginUserId, navigate]);
 
   const callLatestFeedComments = () => {
     getFeedComments(postId!).then((res) => {
@@ -235,6 +204,7 @@ function ProfilePostDetail({ user }: Props) {
         .then((res) => {
           const updateReplyArray: any = commentData;
           replyValueData = {
+            ...replyValueData,
             message: res.data.message,
             userId: userData.user,
           };
@@ -317,12 +287,35 @@ function ProfilePostDetail({ user }: Props) {
   const getFeedPostDetail = (feedPostId: string) => {
     feedPostDetail(feedPostId)
       .then((res) => {
-        if (res.data.userId.userName !== user.userName) {
+        if (postType === 'news') {
+          if (partnerId !== res.data.rssfeedProviderId?._id && !queryCommentId) {
+            navigate(`/app/news/partner/${res.data.rssfeedProviderId?._id}/posts/${postId}`);
+          }
+        } else if (res.data.userId.userName !== user?.userName) {
           navigate(`/${res.data.userId.userName}/posts/${feedPostId}`);
           return;
         }
-        setPostData([
-          {
+        let post: any = {};
+        if (postType === 'news') {
+          // RSS feed post
+          post = {
+            _id: res.data._id,
+            id: res.data._id,
+            postDate: res.data.createdAt,
+            title: res.data.rssfeedProviderId?.title,
+            content: res.data.rssFeedId ? res.data.rssFeedId.content : res.data.message,
+            images: res.data.images,
+            rssFeedProviderLogo: res.data.rssfeedProviderId?.logo,
+            commentCount: res.data.commentCount,
+            likeCount: res.data.likeCount,
+            sharedList: res.data.sharedList,
+            likes: res.data.likes,
+            likeIcon: res.data.likes.includes(loginUserId),
+            rssfeedProviderId: res.data.rssfeedProviderId?._id,
+          };
+        } else {
+          // Regular post
+          post = {
             ...res.data,
             /* eslint no-underscore-dangle: 0 */
             _id: res.data._id,
@@ -337,14 +330,23 @@ function ProfilePostDetail({ user }: Props) {
             likeIcon: res.data.likes.includes(loginUserId!),
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
-          },
-        ]);
+          };
+        }
+        setPostData([post]);
         setPostContent(decryptMessage(res.data.message));
       })
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
   };
+
+  useEffect(() => {
+    if (postId) {
+      getFeedPostDetail(postId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postId]);
+
   const onUpdatePost = (message: string) => {
     if (postId) {
       updateFeedPost(postId, message).then(() => {
@@ -375,7 +377,7 @@ function ProfilePostDetail({ user }: Props) {
       unlikeFeedPost(feedPostId).then((res) => {
         if (res.status === 200) {
           const unLikePostData = postData.map(
-            (unLikePost: Post) => {
+            (unLikePost: any) => { // NewsPartnerPostProps || Post type check
               if (unLikePost._id === feedPostId) {
                 const removeUserLike = unLikePost.likes?.filter(
                   (removeId: string) => removeId !== loginUserId!,
@@ -511,7 +513,7 @@ function ProfilePostDetail({ user }: Props) {
     }
   };
 
-  const reportProfilePost = (reason: string) => {
+  const reportPost = (reason: string) => {
     const reportPayload = {
       targetId: popoverClick?.id,
       reason,
@@ -530,15 +532,21 @@ function ProfilePostDetail({ user }: Props) {
       if (postId !== res.data.feedPostId) {
         if (queryReplyId) {
           if (queryCommentId !== res.data._id) {
-            navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${res.data._id}&replyId=${queryReplyId}`);
+            if (postType === 'news') {
+              navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}&replyId=${queryReplyId}`);
+            } else {
+              navigate(`/${user?.userName}/posts/${res.data.feedPostId}?commentId=${res.data._id}&replyId=${queryReplyId}`);
+            }
           }
+        } else if (postType === 'news') {
+          navigate(`/app/news/partner/${partnerId}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         } else {
-          navigate(`/${user.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
+          navigate(`/${user?.userName}/posts/${res.data.feedPostId}?commentId=${queryCommentId}`);
         }
       }
       setCommentData([res.data]);
     });
-  }, [navigate, postId, queryCommentId, queryReplyId, user.userName]);
+  }, [navigate, partnerId, postId, queryCommentId, queryReplyId, user?.userName, postType]);
   useEffect(() => {
     if (queryCommentId) {
       getSingleComment();
@@ -559,12 +567,7 @@ function ProfilePostDetail({ user }: Props) {
   };
   return (
     <div>
-      <h1>prodile</h1>
-      {errorMessage && errorMessage.length > 0 && (
-        <div className="mt-3 text-start">
-          {errorMessage}
-        </div>
-      )}
+      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
       <PostFeed
         detailPage
         postFeedData={postData}
@@ -591,6 +594,10 @@ function ProfilePostDetail({ user }: Props) {
         updateState={updateState}
         setUpdateState={setUpdateState}
         isSinglePagePost
+        newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+        escapeHtml={postType === 'news' ? false : undefined}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
       />
       {dropDownValue !== 'Edit'
         && (
@@ -600,11 +607,11 @@ function ProfilePostDetail({ user }: Props) {
             show={show}
             setShow={setShow}
             slectedDropdownValue={dropDownValue}
-            handleReport={reportProfilePost}
+            handleReport={reportPost}
             onBlockYesClick={onBlockYesClick}
           />
         )}
-      {dropDownValue === 'Edit'
+      {postType !== 'news' && dropDownValue === 'Edit'
         && (
           <EditPostModal
             show={show}
@@ -620,4 +627,9 @@ function ProfilePostDetail({ user }: Props) {
   );
 }
 
-export default ProfilePostDetail;
+PostDetail.defaultProps = {
+  user: null,
+  postType: '',
+};
+
+export default PostDetail;

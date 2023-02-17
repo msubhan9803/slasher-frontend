@@ -7,9 +7,9 @@ import { HashLink } from 'react-router-hash-link';
 import { DateTime } from 'luxon';
 import linkifyHtml from 'linkify-html';
 import styled from 'styled-components';
-import CustomPopover, { PopoverClickProps } from '../CustomPopover';
-import UserCircleImage from '../UserCircleImage';
-import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
+import UserCircleImage from '../../UserCircleImage';
+import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
+import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../../utils/text-utils';
 
 interface LinearIconProps {
   uniqueId?: string

@@ -6,9 +6,9 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { HashLink } from 'react-router-hash-link';
-import { scrollWithOffset } from '../../../utils/scrollFunctions';
-import ShareLinkButton from '../ShareLinkButton';
-import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { scrollWithOffset } from '../../../../utils/scrollFunctions';
+import ShareLinkButton from '../../ShareLinkButton';
+import { enableDevFeatures } from '../../../../utils/configEnvironment';
 
 interface LinearIconProps {
   uniqueId?: string

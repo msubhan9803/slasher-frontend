@@ -29,7 +29,7 @@ function MovieDetails() {
     }
   }, [movieData]);
 
-  if (!additionalMovieData && !additionalMovieData) {
+  if (!movieData || !additionalMovieData) {
     return <LoadingIndicator />;
   }
 

@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { Connection, Model } from 'mongoose';
@@ -18,6 +18,7 @@ import { ReportAndUnreport, ReportAndUnreportDocument } from '../../../../../src
 import { MailService } from '../../../../../src/providers/mail.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Report And Unreport (e2e)', () => {
   let app: INestApplication;
@@ -66,10 +67,7 @@ describe('Report And Unreport (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

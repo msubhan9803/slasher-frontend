@@ -1,12 +1,13 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { userFactory } from '../../../../factories/user.factory';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / Check Email (e2e)', () => {
   let app: INestApplication;
@@ -21,10 +22,7 @@ describe('Users / Check Email (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

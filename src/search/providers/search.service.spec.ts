@@ -12,6 +12,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAnd
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { ActiveStatus } from '../../schemas/user/user.enums';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('SearchService', () => {
   let app: INestApplication;
@@ -34,6 +35,7 @@ describe('SearchService', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

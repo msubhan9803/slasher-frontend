@@ -15,6 +15,7 @@ import { eventCategoryFactory } from '../../../test/factories/event-category.fac
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -49,6 +50,7 @@ describe('EventService', () => {
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

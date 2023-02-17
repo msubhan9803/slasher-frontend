@@ -21,6 +21,7 @@ import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 const mockHttpService = () => ({
 });
@@ -48,6 +49,7 @@ describe('MoviesService', () => {
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
     httpService = await app.get<HttpService>(HttpService);
   });

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -20,6 +20,7 @@ import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provi
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import getMainFeedPostResponse from '../../../../fixtures/feed-post/main-feed-posts-response';
 import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.schema';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Post / Main Feed Posts (e2e)', () => {
   let app: INestApplication;
@@ -51,10 +52,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

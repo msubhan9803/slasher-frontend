@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,6 +10,7 @@ import { userFactory } from '../../../../factories/user.factory';
 import { MailService } from '../../../../../src/providers/mail.service';
 import { VerificationEmailNotReceivedDto } from '../../../../../src/users/dto/verification-email-not-recevied.dto';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
@@ -26,10 +27,7 @@ describe('Users / Verification Email Not Received (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     mailService = moduleRef.get<MailService>(MailService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

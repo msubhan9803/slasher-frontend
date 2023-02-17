@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -15,6 +15,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { RssFeedProviderFollowNotificationsEnabled } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Disable Follow Notifications (e2e)', () => {
   let app: INestApplication;
@@ -38,10 +39,7 @@ describe('Disable Follow Notifications (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

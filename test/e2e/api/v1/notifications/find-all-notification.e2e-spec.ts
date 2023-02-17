@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -19,6 +19,7 @@ import { FeedPost, FeedPostDocument } from '../../../../../src/schemas/feedPost/
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { RssFeedProvider, RssFeedProviderDocument } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('All Notifications (e2e)', () => {
   let app: INestApplication;
@@ -47,10 +48,7 @@ describe('All Notifications (e2e)', () => {
     feedPostModel = moduleRef.get<Model<FeedPostDocument>>(getModelToken(FeedPost.name));
     rssFeedProviderModel = moduleRef.get<Model<RssFeedProviderDocument>>(getModelToken(RssFeedProvider.name));
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

@@ -12,6 +12,7 @@ import {
   RssFeedProviderDeletionStatus,
 } from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('RssFeedProvidersService', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('RssFeedProvidersService', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

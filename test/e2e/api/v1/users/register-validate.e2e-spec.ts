@@ -1,12 +1,13 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
 import { AppModule } from '../../../../../src/app.module';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { DisallowedUsernameService } from '../../../../../src/disallowedUsername/providers/disallowed-username.service';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -32,10 +33,7 @@ describe('Users / Register (e2e)', () => {
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

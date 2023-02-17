@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -15,6 +15,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../../../src/feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let app: INestApplication;
@@ -51,10 +52,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -126,15 +124,15 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
 
     it('when feed reply id and login user id is not match than expected response', async () => {
       const feedReply1 = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
-            {
-              userId: user0._id,
-              feedCommentId: feedComments.id,
-              message: 'Hello Reply Test Message 2',
-              images: sampleFeedCommentsObject.images,
-            },
-          ),
-        );
+        feedRepliesFactory.build(
+          {
+            userId: user0._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 2',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
 
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/feed-comments/replies/${feedReply1._id}`)

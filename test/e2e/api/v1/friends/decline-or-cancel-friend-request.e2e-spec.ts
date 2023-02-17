@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -12,6 +12,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { Friend, FriendDocument } from '../../../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Decline Or Cancel Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -36,10 +37,7 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

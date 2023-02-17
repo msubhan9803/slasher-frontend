@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -20,6 +20,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -61,10 +62,7 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -120,29 +118,29 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user2._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments1._id.toString(), user3._id.toString());
 
-        const feedReply1 = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
-            {
-              userId: activeUser._id,
-              feedCommentId: feedComments1.id,
-              message: 'Hello Comment 1 Test Reply Message 1',
-              images: commentImages,
-            },
-          ),
-        );
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments1.id,
+            message: 'Hello Comment 1 Test Reply Message 1',
+            images: commentImages,
+          },
+        ),
+      );
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), activeUser._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply1._id.toString(), user0._id.toString());
 
       const feedReply2 = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
-            {
-              userId: activeUser._id,
-              feedCommentId: feedComments1.id,
-              message: 'Hello Comment 1 Test Reply Message 2',
-              images: commentImages,
-            },
-          ),
-        );
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments1.id,
+            message: 'Hello Comment 1 Test Reply Message 2',
+            images: commentImages,
+          },
+        ),
+      );
 
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user1._id.toString());
       await feedLikesService.createFeedReplyLike(feedReply2._id.toString(), user0._id.toString());

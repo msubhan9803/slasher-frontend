@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +12,7 @@ import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Conversations all / (e2e)', () => {
   let app: INestApplication;
@@ -39,10 +40,7 @@ describe('Conversations all / (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

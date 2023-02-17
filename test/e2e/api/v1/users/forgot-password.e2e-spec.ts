@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -10,6 +10,7 @@ import { MailService } from '../../../../../src/providers/mail.service';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { validUuidV4Regex } from '../../../../helpers/regular-expressions';
 import { userFactory } from '../../../../factories/user.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / Forgot Password (e2e)', () => {
   let app: INestApplication;
@@ -26,10 +27,7 @@ describe('Users / Forgot Password (e2e)', () => {
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

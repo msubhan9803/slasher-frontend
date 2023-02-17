@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -22,6 +22,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { userFactory } from '../../../../factories/user.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let app: INestApplication;
@@ -58,10 +59,7 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

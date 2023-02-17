@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-p
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../../../src/feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -50,10 +51,7 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

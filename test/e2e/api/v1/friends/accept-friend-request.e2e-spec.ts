@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -12,6 +12,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { Friend, FriendDocument } from '../../../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Accept Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -36,10 +37,7 @@ describe('Accept Friend Request (e2e)', () => {
     friendsModel = moduleRef.get<Model<FriendDocument>>(getModelToken(Friend.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -67,9 +65,9 @@ describe('Accept Friend Request (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send({ userId: user1.id })
         .expect(HttpStatus.CREATED);
-        const friends = await friendsModel.findOne({ from: user1._id, to: activeUser.id });
-        expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
-        expect(response.body).toEqual({ success: true });
+      const friends = await friendsModel.findOne({ from: user1._id, to: activeUser.id });
+      expect(friends.reaction).toEqual(FriendRequestReaction.Accepted);
+      expect(response.body).toEqual({ success: true });
     });
 
     it('when the friend request has been sent BY the active user (not TO the expected user), '

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,7 @@ import { User } from '../../../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -35,10 +36,7 @@ describe('Conversation / (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -71,7 +69,7 @@ describe('Conversation / (e2e)', () => {
           .delete(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toEqual({ success: true });
+        expect(response.body).toEqual({ success: true });
         const messageData1 = await messageModel.findById(message1._id.toString());
         expect(messageData1.deletefor.map((u) => u.toString())).toContain(activeUser._id.toString());
 
@@ -89,7 +87,7 @@ describe('Conversation / (e2e)', () => {
       });
 
       it('returns a 404 when when the conversation is not found', async () => {
-      const matchListId = new mongoose.Types.ObjectId().toString();
+        const matchListId = new mongoose.Types.ObjectId().toString();
         const response = await request(app.getHttpServer())
           .delete(`/api/v1/chat/conversation/${matchListId}`)
           .auth(activeUserAuthToken, { type: 'bearer' })

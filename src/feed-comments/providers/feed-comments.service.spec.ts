@@ -18,6 +18,7 @@ import { FeedCommentDeletionState } from '../../schemas/feedComment/feedComment.
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
 import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -54,6 +55,7 @@ describe('FeedCommentsService', () => {
     feedReplyModel = moduleRef.get<Model<FeedReplyDocument>>(getModelToken(FeedReply.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -442,15 +444,15 @@ describe('FeedCommentsService', () => {
   describe('#findFeedReply', () => {
     it('successfully find single feed replies.', async () => {
       const feedReplyData = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
-            {
-              userId: activeUser._id,
-              feedCommentId: feedComments.id,
-              message: sampleFeedCommentsObject.message,
-              images: sampleFeedCommentsObject.images,
-            },
-          ),
-        );
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
       const feedReplyDetails = await feedCommentsService.findFeedReply(feedReplyData._id.toString());
       expect(feedReplyDetails.id).toEqual(feedReplyData._id.toString());
     });

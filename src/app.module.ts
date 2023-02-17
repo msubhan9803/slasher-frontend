@@ -95,9 +95,9 @@ export class AppModule {
     consumer
       .apply(JwtAuthenticationMiddleware)
       .exclude(
+        '/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments
+        '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1',
-        '/api/v1/placeholders/(.*)', // the placeholders endpoint is only used in development environments
-        '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development environments
         '/api/v1/users/activate-account',
         '/api/v1/users/check-user-name',
         '/api/v1/users/validate-registration-fields',

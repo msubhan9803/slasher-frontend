@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +17,7 @@ import { NotificationsService } from '../../../../../src/notifications/providers
 import { notificationFactory } from '../../../../factories/notification.factory';
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../../../src/schemas/notification/notification.enums';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -44,10 +45,7 @@ describe('Users suggested friends (e2e)', () => {
     messageModel = moduleRef.get<Model<MessageDocument>>(getModelToken(Message.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

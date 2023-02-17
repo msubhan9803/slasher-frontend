@@ -7,6 +7,7 @@ import { AppModule } from '../../app.module';
 import { LocalStorageService } from './local-storage.service';
 import { createTempFile } from '../../../test/helpers/tempfile-helpers';
 import { InvalidPathError } from '../../errors';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('LocalStorageService', () => {
   let app: INestApplication;
@@ -21,6 +22,7 @@ describe('LocalStorageService', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

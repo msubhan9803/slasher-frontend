@@ -9,7 +9,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { GetFileDto } from './dto/getFile.dto';
 import { LocalStorageService } from './providers/local-storage.service';
 
-@Controller({ path: 'local-storage', version: ['1'] })
+@Controller('local-storage')
 export class LocalStorageController {
   constructor(private readonly localStorageService: LocalStorageService) { }
 

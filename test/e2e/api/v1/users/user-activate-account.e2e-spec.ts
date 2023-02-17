@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +19,7 @@ import {
 import {
   RssFeedProviderFollowDocument, RssFeedProviderFollow,
 } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -38,10 +39,7 @@ describe('Users activate account (e2e)', () => {
     rssFeedProvidersFollowModel = moduleRef.get<Model<RssFeedProviderFollowDocument>>(getModelToken(RssFeedProviderFollow.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

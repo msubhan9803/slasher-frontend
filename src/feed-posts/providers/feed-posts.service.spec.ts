@@ -22,6 +22,7 @@ import { rssFeedFactory } from '../../../test/factories/rss-feed.factory';
 import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -55,6 +56,7 @@ describe('FeedPostsService', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

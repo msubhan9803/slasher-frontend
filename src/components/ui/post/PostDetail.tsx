@@ -134,7 +134,11 @@ function PostDetail({ user, postType }: Props) {
       updateFeedComments(postId!, comment.commentMessage, comment?.commentId)
         .then((res) => {
           const updateCommentArray: any = commentData;
+          const index = updateCommentArray.findIndex(
+            (commentId: any) => commentId._id === res.data._id,
+          );
           commentValueData = {
+            ...updateCommentArray[index],
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
             images: res.data.images,
@@ -143,9 +147,6 @@ function PostDetail({ user, postType }: Props) {
             replies: [],
             createdAt: new Date().toISOString(),
           };
-          const index = updateCommentArray.findIndex(
-            (commentId: any) => commentId._id === res.data._id,
-          );
           if (updateCommentArray[index]._id === res.data._id) {
             updateCommentArray[index] = {
               ...res.data,
@@ -207,17 +208,17 @@ function PostDetail({ user, postType }: Props) {
       updateFeedCommentReply(postId!, reply.replyMessage, reply.replyId)
         .then((res) => {
           const updateReplyArray: any = commentData;
-          replyValueData = {
-            ...replyValueData,
-            message: res.data.message,
-            userId: userData.user,
-          };
           updateReplyArray.map((comment: any) => {
             const staticReplies = comment.replies;
             if (comment._id === res.data.feedCommentId) {
               const index = staticReplies.findIndex(
                 (replyId: any) => replyId._id === res.data._id,
               );
+              replyValueData = {
+                ...staticReplies[index],
+                message: res.data.message,
+                userId: userData.user,
+              };
               if (staticReplies[index]._id === res.data._id) {
                 staticReplies[index] = { ...res.data, ...replyValueData };
               }

@@ -63,8 +63,8 @@ function CommentInput({
   useEffect(() => {
     if (message) {
       const regexMessgafe = isReply && commentReplyID
-        ? `##LINK_ID##${commentReplyID}${message}##LINK_END##`
-        : `##LINK_ID##${commentID}${message}##LINK_END##`;
+        ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
+        : `##LINK_ID##${commentID}${message}##LINK_END## `;
       setEditMessage(regexMessgafe);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

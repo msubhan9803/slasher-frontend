@@ -187,7 +187,7 @@ function PostCommentSection({
   useEffect(() => {
     setReplyMessage('');
     if (isReply && replyUserName) {
-      const mentionString = `@${replyUserName} `;
+      const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
   }, [replyUserName, isReply, selectedReplyCommentId]);

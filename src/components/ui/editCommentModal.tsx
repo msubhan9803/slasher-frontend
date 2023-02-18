@@ -33,7 +33,7 @@ function EditCommentModal({
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   useEffect(() => {
     if (editContent) {
-      const mentionStringList = editContent.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
+      const mentionStringList = editContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
       if (mentionStringList) {
         const finalFormatMentionList = Array.from(new Set(mentionStringList))
           .map((mentionString: string) => {

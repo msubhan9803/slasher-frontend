@@ -104,7 +104,7 @@ function EditCommentModal({
           setMessageContent={setEditMessage}
           formatMentionList={formatMention}
           setFormatMentionList={setFormatMention}
-          defaultValue={isReply ? editMessage : decryptMessage(editMessage)}
+          defaultValue={decryptMessage(editMessage)}
         />
         <div className="d-flex flex-wrap justify-content-between">
           <RoundButton variant="black" className="px-4 mt-4" size="md" onClick={closeModal}>

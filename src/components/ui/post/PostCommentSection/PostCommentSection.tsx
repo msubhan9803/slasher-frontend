@@ -208,6 +208,7 @@ function PostCommentSection({
     }
     setUploadPost([]);
     setSelectedReplyId('');
+    setSelectedReplyCommentId('');
     setReplyUserName('');
   };
 

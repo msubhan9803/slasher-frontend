@@ -78,7 +78,7 @@ function AuthenticatedPageHeader(
     <IconWithTextNavLink key="Notifications" label="Notifications" icon={solid('bell')} to="/app/notifications" badge={userData.unreadNotificationCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Messages" label="Messages" icon={solid('message')} to="/app/messages" badge={userData.unreadMessageCount} className="nav-link" iconSize="2x" />,
     <IconWithTextNavLink key="Search" label="Search" icon={solid('magnifying-glass')} to="/app/search" className="nav-link" iconSize="2x" />,
-    <IconWithTextNavLink key="Me" label="Me" userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64} to={`/${userName}`} className="nav-link" userProfileIconSize="2rem" />,
+    <IconWithTextNavLink key="Me" label="Me" userProfileIcon={userData.user.profilePic || SOLID_BLACK_IMAGE_BASE64} to={`/${userName}`} className="nav-link" userProfileIconSize="1.5rem" />,
   ];
 
   return (
@@ -97,7 +97,7 @@ function AuthenticatedPageHeader(
                   return (
                     <div
                       key={uniqueId}
-                      style={{ width: desktopTopNavIconWidth, paddingTop: 3 }}
+                      style={{ width: desktopTopNavIconWidth, paddingTop: 6 }}
                     >
                       {el}
                     </div>

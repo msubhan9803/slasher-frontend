@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
@@ -49,7 +49,7 @@ function ProfilePosts({ user }: Props) {
     scrollPosition.pathname === location.pathname
       ? scrollPosition?.data : [],
   );
-
+  const { userName: userNameOrId } = useParams<string>();
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
@@ -64,7 +64,7 @@ function ProfilePosts({ user }: Props) {
     setDropDownValue(value);
   };
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts && user) {
+    if (requestAdditionalPosts && !loadingPosts && userNameOrId === user.userName) {
       if (scrollPosition === null
         || scrollPosition?.position === 0
         || posts.length >= scrollPosition?.data?.length
@@ -119,7 +119,7 @@ function ProfilePosts({ user }: Props) {
       }
     }
   }, [
-    requestAdditionalPosts, loadingPosts, user, loginUserId,
+    requestAdditionalPosts, loadingPosts, loginUserId, userNameOrId, user._id, user.userName,
     posts, scrollPosition, location, dispatch,
   ]);
   const renderNoMoreDataMessage = () => (
@@ -239,7 +239,7 @@ function ProfilePosts({ user }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedPost();
+      if (res.status === 200) { callLatestFeedPost(); }
     })
       /* eslint-disable no-console */
       .catch((error) => console.error(error));

@@ -5,6 +5,7 @@ import { HashLink } from 'react-router-hash-link';
 import CustomPopover, { PopoverClickProps } from '../CustomPopover';
 import UserCircleImage from '../UserCircleImage';
 import { scrollToTop } from '../../../utils/scrollFunctions';
+import ShareLinkButton from '../ShareLinkButton';
 
 interface PostHeaderProps {
   userName: string;
@@ -86,13 +87,18 @@ function PostHeader({
         </Row>
       </Col>
       <Col xs="auto" className="d-block">
-        <CustomPopover
-          popoverOptions={popoverOptions!}
-          onPopoverClick={onPopoverClick!}
-          content={content}
-          id={id}
-          userId={userId}
-        />
+        <div className="d-flex align-items-center">
+          <div className="d-md-none d-lg-block d-xl-none me-2">
+            <ShareLinkButton />
+          </div>
+          <CustomPopover
+            popoverOptions={popoverOptions!}
+            onPopoverClick={onPopoverClick!}
+            content={content}
+            id={id}
+            userId={userId}
+          />
+        </div>
       </Col>
     </Row>
   );

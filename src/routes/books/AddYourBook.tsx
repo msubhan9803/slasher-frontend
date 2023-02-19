@@ -19,7 +19,7 @@ const noteList = [
   'People on Slasher can follow your book and get notifIed of new posts.',
 ];
 function AddYourBook() {
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
 
@@ -111,7 +111,7 @@ function AddYourBook() {
           </Row>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

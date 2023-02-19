@@ -101,7 +101,7 @@ function UserMessageListItem({
   const sharedYPadding = 'py-3 py-lg-4';
 
   const handleMarkConversationRead = () => {
-    if (!matchListId) return;
+    if (!matchListId) { return; }
     markAllReadForSingleConversation(matchListId);
   };
 

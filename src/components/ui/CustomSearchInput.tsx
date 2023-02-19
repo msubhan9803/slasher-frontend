@@ -17,7 +17,7 @@ const StyledSearchInput = styled(InputGroup)`
     padding-left: 1rem;
   }
   .input-group-text {
-    background-color: rgb(31, 31, 31);
+    background-color: var(--bs-dark);
     border-color: #3a3b46;
     border-radius: 1.875rem;
   }

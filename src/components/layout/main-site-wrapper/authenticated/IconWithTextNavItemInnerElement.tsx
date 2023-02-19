@@ -20,6 +20,9 @@ const BadgeSpan = styled.span`
   padding-top: 5px;
 `;
 
+const StyledMenuIcon = styled(FontAwesomeIcon)`
+  height: 20.99px;
+`;
 function IconWithTextNavItemInnerElement({
   label, userProfileIcon, userProfileIconSize, icon, iconSize, badge, badgeIconClassName, active,
 }: Props) {
@@ -29,7 +32,7 @@ function IconWithTextNavItemInnerElement({
       {
         userProfileIcon
           ? <UserCircleImage size={userProfileIconSize} src={userProfileIcon} alt="user picture" className="mx-auto" />
-          : <FontAwesomeIcon icon={icon!} size={iconSize!} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
+          : <StyledMenuIcon icon={icon!} size={iconSize!} className={`${active ? 'text-primary' : 'text-white'} ${badgeIconClassName}`} />
       }
       {!!badge
         && (
@@ -37,7 +40,7 @@ function IconWithTextNavItemInnerElement({
             {badge}
           </BadgeSpan>
         )}
-      <p className={`mb-0 text-center mt-2 ${active ? 'text-primary' : 'text-white'} text-truncate`}>{label}</p>
+      <p className={`mb-0 text-center mt-1 ${active ? 'text-primary' : 'text-white'} text-truncate`}>{label}</p>
     </div>
   );
 }

@@ -47,6 +47,7 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
           setSearchValue(e.target.value);
         }}
         onKeyUp={handleSearch}
+        aria-label="search"
       />
       <InputGroup.Text id="search" className="ps-0 border-start-0">
         <FontAwesomeIcon

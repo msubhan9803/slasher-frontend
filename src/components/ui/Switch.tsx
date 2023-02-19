@@ -78,9 +78,14 @@ function Switch({
 }: Props) {
   return (
     <SwitchDiv>
-      <SwitchStyledLabel className={`switch ${className}`} htmlFor={id}>
+      <SwitchStyledLabel className={`switch ${className}`} htmlFor={id} role="switch" aria-checked={isChecked}>
         <input type="checkbox" id={id} onChange={onSwitchToggle} checked={isChecked} />
         <div className="slider round" />
+        <span className="visually-hidden">
+          switch state:
+          {' '}
+          {isChecked ? 'on' : 'off'}
+        </span>
       </SwitchStyledLabel>
     </SwitchDiv>
   );

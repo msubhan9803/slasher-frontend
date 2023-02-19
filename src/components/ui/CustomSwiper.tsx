@@ -6,8 +6,8 @@ import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Modal } from 'react-bootstrap';
-import CustomModal from './CustomModal';
+import { Button } from 'react-bootstrap';
+import CustomYoutubeModal from './CustomYoutubeModal';
 
 interface SliderImage {
   postId: string;
@@ -30,11 +30,6 @@ const StyledYouTubeButton = styled(Button)`
   margin-left: -2em;
   margin-top: -2em;
 `;
-const StyledIframe = styled.iframe`
-  max-height: 75vh;
-  aspect-ratio: 1.77777778;
-`;
-
 const StyledSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
@@ -118,35 +113,6 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
     );
   };
 
-  const renderVideoPlayerModal = (
-    show: boolean,
-    youTubeVideoId: string,
-  ) => showVideoPlayerModal && (
-    <CustomModal
-      show={show}
-      size="xl"
-      fullscreen="lg-down"
-      aria-label="YouTube video modal"
-      centered
-      onHide={() => { setShowYouTubeModal(false); }}
-    >
-      <Modal.Header closeButton />
-      <Modal.Body>
-        <div className="d-flex h-100">
-          <StyledIframe
-            width="100%"
-            height="725"
-            src={`https://www.youtube.com/embed/${youTubeVideoId}?autoplay=1`}
-            title="YouTube video player"
-            className="border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      </Modal.Body>
-    </CustomModal>
-  );
-
   return (
     <>
       <StyledSwiper
@@ -163,7 +129,14 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
           ))
         }
       </StyledSwiper>
-      {images?.[0]?.videoKey && renderVideoPlayerModal(showVideoPlayerModal, images?.[0]?.videoKey)}
+      {images?.[0]?.videoKey
+        && (
+        <CustomYoutubeModal
+          show={showVideoPlayerModal}
+          setShow={setShowYouTubeModal}
+          videokey={images?.[0]?.videoKey}
+        />
+        )}
     </>
   );
 }

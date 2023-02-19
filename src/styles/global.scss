@@ -173,15 +173,6 @@ body {
   // background-attachment: fixed;
 }
 
-input:hover {
-  outline: none;
-  box-shadow: none;
-}
-
-.form-control:focus {
-  box-shadow: none;
-}
-
 .rc-mentions {
   display: inline-block;
   position: relative;
@@ -289,6 +280,28 @@ textarea {
   resize: none;
 }
 
-:focus-visible {
-  outline: none !important;
+
+/*****************
+ * Accessibility *
+ *****************/
+
+#skip-to-main-content-link {
+  z-index: 9999;
+  text-align: center;
+  border: 1px solid #aaa;
+  padding: 1em;
+  margin: 1em 2em;
 }
+
+// input:hover {
+  // outline: none;
+  // box-shadow: none;
+// }
+
+// .form-control:focus {
+//   box-shadow: none;
+// }
+
+// :focus-visible {
+//   outline: none !important;
+// }

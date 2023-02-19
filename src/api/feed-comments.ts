@@ -17,7 +17,7 @@ export async function getFeedComments(
     queryParameter += `&after=${lastRetrievedCommentId}`;
   }
 
-  return axios.get(`${apiUrl}/feed-comments${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/feed-comments${queryParameter}`, { headers });
 }
 
 export async function addFeedComments(
@@ -36,7 +36,7 @@ export async function addFeedComments(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-comments`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-comments`, formData, { headers });
 }
 
 export async function addFeedReplyComments(
@@ -57,7 +57,7 @@ export async function addFeedReplyComments(
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-comments/replies`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-comments/replies`, formData, { headers });
 }
 
 export async function removeFeedComments(feedCommentId: string) {
@@ -65,7 +65,7 @@ export async function removeFeedComments(feedCommentId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-comments/${feedCommentId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-comments/${feedCommentId}`, { headers });
 }
 
 export async function removeFeedCommentReply(feedReplyId: string) {
@@ -73,7 +73,7 @@ export async function removeFeedCommentReply(feedReplyId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-comments/replies/${feedReplyId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-comments/replies/${feedReplyId}`, { headers });
 }
 
 export async function updateFeedComments(
@@ -89,7 +89,7 @@ export async function updateFeedComments(
     message,
     feedPostId,
   };
-  return axios.patch(`${apiUrl}/feed-comments/${feedCommentId}`, reqBody, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-comments/${feedCommentId}`, reqBody, { headers });
 }
 
 export async function updateFeedCommentReply(
@@ -105,7 +105,7 @@ export async function updateFeedCommentReply(
     message,
     feedPostId,
   };
-  return axios.patch(`${apiUrl}/feed-comments/replies/${feedReplyId}`, reqBody, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-comments/replies/${feedReplyId}`, reqBody, { headers });
 }
 
 export async function singleComment(commentId: string) {
@@ -114,5 +114,5 @@ export async function singleComment(commentId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.get(`${apiUrl}/feed-comments/${commentId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/feed-comments/${commentId}`, { headers });
 }

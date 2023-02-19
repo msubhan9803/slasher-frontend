@@ -101,7 +101,7 @@ function UserMessageListItem({
   const sharedYPadding = 'py-3 py-lg-4';
 
   const handleMarkConversationRead = () => {
-    if (!matchListId) return;
+    if (!matchListId) { return; }
     markAllReadForSingleConversation(matchListId);
   };
 
@@ -125,7 +125,7 @@ function UserMessageListItem({
               </TrucatedText>
               {
                 count !== 0
-                  ? <div className="badge rounded-pill bg-primary ms-3">{count}</div>
+                  ? <div className="text-black badge rounded-pill bg-primary ms-3">{count}</div>
                   : <div>&nbsp;</div>
               }
             </div>

@@ -81,6 +81,7 @@ function Switch({
       <SwitchStyledLabel className={`switch ${className}`} htmlFor={id}>
         <input type="checkbox" id={id} onChange={onSwitchToggle} checked={isChecked} />
         <div className="slider round" />
+        <h1 className="d-none">switch</h1>
       </SwitchStyledLabel>
     </SwitchDiv>
   );

@@ -7,5 +7,5 @@ export default async function getEventDetails(eventId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/events/${eventId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/events/${eventId}`, { headers });
 }

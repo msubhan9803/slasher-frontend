@@ -12,7 +12,7 @@ interface Props {
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
   defaultPhotoUrl?: string;
-  onChange?: (files: File | undefined) => void
+  onChange?: (files: File | null | undefined) => void;
 }
 
 const StyledImageUploadContainer = styled.div`
@@ -110,7 +110,10 @@ function PhotoUploadInput({
         onClick={
           (photo || imageUrl)
             ? (e: React.MouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation(); setPhoto(undefined); setImageUrl(undefined);
+              e.stopPropagation();
+              setPhoto(undefined);
+              setImageUrl(undefined);
+              if (onChange) { onChange(null); }
             }
             : undefined
         }

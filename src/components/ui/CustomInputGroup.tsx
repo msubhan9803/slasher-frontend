@@ -14,7 +14,7 @@ const StyledInputGroup = styled(InputGroup) <StyleInputProps>`
     border-color: #3a3b46 !important;
   }
   .input-group-text {
-    background-color: rgb(31, 31, 31);
+    background-color: var(--bs-dark);
     border-color: #3a3b46;
     border-radius: 10px;
   }

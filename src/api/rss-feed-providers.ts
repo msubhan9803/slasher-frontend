@@ -7,7 +7,7 @@ export async function rssFeedInitialData() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/rss-feed-providers?limit=20`, { headers });
+  return axios.get(`${apiUrl}/api/v1/rss-feed-providers?limit=20`, { headers });
 }
 
 export async function getRssFeedProviderDetail(rssFeedProviderId: string) {
@@ -15,7 +15,7 @@ export async function getRssFeedProviderDetail(rssFeedProviderId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}`, { headers });
 }
 
 export async function getRssFeedProviderPosts(
@@ -30,7 +30,7 @@ export async function getRssFeedProviderPosts(
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
-  return axios.get(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/posts${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/posts${queryParameter}`, { headers });
 }
 
 export async function getRssFeedProviderFollowUnfollow(
@@ -41,7 +41,7 @@ export async function getRssFeedProviderFollowUnfollow(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, { headers });
 }
 
 export async function followRssFeedProvider(
@@ -52,7 +52,7 @@ export async function followRssFeedProvider(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, {}, { headers });
+  return axios.post(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, {}, { headers });
 }
 
 export async function unfollowRssFeedProvider(
@@ -63,7 +63,7 @@ export async function unfollowRssFeedProvider(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`, { headers });
 }
 
 export async function enableRssFeedProviderNotification(
@@ -74,7 +74,7 @@ export async function enableRssFeedProviderNotification(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/enable-notifications`, {}, { headers });
+  return axios.patch(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/enable-notifications`, {}, { headers });
 }
 
 export async function disableRssFeedProviderNotification(
@@ -85,5 +85,5 @@ export async function disableRssFeedProviderNotification(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/disable-notifications`, {}, { headers });
+  return axios.patch(`${apiUrl}/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/disable-notifications`, {}, { headers });
 }

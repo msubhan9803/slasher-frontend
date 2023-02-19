@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export const userSlice = createSlice({
   name: 'user',
@@ -13,6 +13,7 @@ export const userSlice = createSlice({
       id: '',
       profilePic: '',
     },
+    forceFriendListReload: false,
   },
   reducers: {
     setUserInitialData: (state, action) => ({
@@ -25,11 +26,21 @@ export const userSlice = createSlice({
       user: action.payload.user,
     }),
     /* eslint-disable no-param-reassign */
+    updateUserProfilePic: (state, action: PayloadAction<string>) => {
+      state.user.profilePic = action.payload;
+    },
+    /* eslint-disable no-param-reassign */
     incrementUnreadNotificationCount: (state) => {
       state.unreadNotificationCount += 1;
     },
     handleUpdatedUnreadMessageCount: (state, payload) => {
       state.unreadMessageCount = payload.payload;
+    },
+    setUserRecentFriendRequests: (state, payload) => {
+      state.recentFriendRequests = payload.payload;
+    },
+    setFriendListReload: (state, payload) => {
+      state.forceFriendListReload = payload.payload;
     },
   },
 });
@@ -38,6 +49,9 @@ export const {
   setUserInitialData,
   incrementUnreadNotificationCount,
   handleUpdatedUnreadMessageCount,
+  updateUserProfilePic,
+  setUserRecentFriendRequests,
+  setFriendListReload,
 } = userSlice.actions;
 
 export default userSlice.reducer;

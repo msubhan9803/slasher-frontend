@@ -11,7 +11,7 @@ import PhotoUploadInput from '../../../components/ui/PhotoUploadInput';
 
 function OnboardingPhoto() {
   const navigate = useNavigate();
-  const [imageUpload, setImageUpload] = useState<File>();
+  const [imageUpload, setImageUpload] = useState<File | null | undefined>();
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   const handleSubmit = (e: React.MouseEvent<HTMLElement>) => {

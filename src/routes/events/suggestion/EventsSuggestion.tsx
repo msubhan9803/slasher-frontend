@@ -33,7 +33,7 @@ interface Value {
   eventInfo: string;
   url: string;
   author?: string;
-  file?: File | undefined;
+  file?: File | null | undefined;
   address: string;
 }
 
@@ -47,7 +47,7 @@ const CustomContainer = styled(Container)`
 function EventSuggestion() {
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [optionLoading, setOptionLoading] = useState<boolean>(false);

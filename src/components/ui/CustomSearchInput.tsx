@@ -17,7 +17,7 @@ const StyledSearchInput = styled(InputGroup)`
     padding-left: 1rem;
   }
   .input-group-text {
-    background-color: rgb(31, 31, 31);
+    background-color: var(--bs-dark);
     border-color: #3a3b46;
     border-radius: 1.875rem;
   }
@@ -47,6 +47,7 @@ function CustomSearchInput({ label, setSearch, search }: SearchProps) {
           setSearchValue(e.target.value);
         }}
         onKeyUp={handleSearch}
+        aria-label="search"
       />
       <InputGroup.Text id="search" className="ps-0 border-start-0">
         <FontAwesomeIcon

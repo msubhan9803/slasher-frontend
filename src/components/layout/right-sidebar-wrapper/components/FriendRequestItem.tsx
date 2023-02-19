@@ -28,7 +28,7 @@ function FriendRequestItem({
         icon={solid('check')}
         userId={id}
         onAcceptRejectClick={onAcceptClick}
-        label="check icon"
+        label="check button"
       />
       <CircleButton
         variant="black"
@@ -36,7 +36,7 @@ function FriendRequestItem({
         icon={solid('times')}
         userId={id}
         onAcceptRejectClick={onRejectClick}
-        label="remove icon"
+        label="remove button"
       />
     </div>
   );

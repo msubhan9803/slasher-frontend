@@ -77,11 +77,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-<<<<<<< HEAD
-            <Button onClick={() => sendComment()} aria-label="send" variant="link" className="ms-2 p-0">
-=======
-            <Button onClick={() => sendComment(dataId && dataId)} variant="link" className="ms-2 p-0">
->>>>>>> main
+            <Button onClick={() => sendComment(dataId && dataId)} aria-label="send" variant="link" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

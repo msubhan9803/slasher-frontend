@@ -293,15 +293,12 @@ textarea {
   margin: 1em 2em;
 }
 
-// input:hover {
-  // outline: none;
-  // box-shadow: none;
-// }
+.form-control:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+}
 
-// .form-control:focus {
-//   box-shadow: none;
-// }
-
-// :focus-visible {
-//   outline: none !important;
-// }
+:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba($stroke-and-line-separator-color, .5);
+}

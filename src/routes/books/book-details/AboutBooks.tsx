@@ -59,7 +59,7 @@ function AboutBooks() {
         <Row className="justify-content-center">
           <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
             <StyledBookPoster className="mx-md-4">
-              <Image src={AboutBookPoster} className="rounded-4 w-100 h-100" />
+              <Image src={AboutBookPoster} className="rounded-4 w-100 h-100" alt="Book poster" />
             </StyledBookPoster>
             <div className="d-none d-xl-block mt-3">
               <span className="h3">Your lists</span>

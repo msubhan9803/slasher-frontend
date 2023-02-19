@@ -35,7 +35,7 @@ function UserMessageSidebarListItem({
     <StyledItem className="px-2 py-3 d-flex align-items-center">
       <div>
         <Link to={`/app/messages/conversation/${messageId}`} className="text-decoration-none">
-          <UserCircleImage size="3.625rem" src={image} />
+          <UserCircleImage size="3.625rem" src={image} alt="user message" />
         </Link>
       </div>
       <div className="px-3 flex-grow-1 min-width-0">
@@ -46,7 +46,7 @@ function UserMessageSidebarListItem({
           <MessageSnippet className="mb-0 small text-light">{decodeURIComponent(message)}</MessageSnippet>
         </Link>
       </div>
-      {count !== 0 && <span className="badge rounded-pill bg-primary me-3">{count}</span>}
+      {count !== 0 && <span className="text-black badge rounded-pill bg-primary me-3">{count}</span>}
     </StyledItem>
   );
 }

@@ -144,7 +144,7 @@ function SuggestedFriend() {
       {!suggestedFriends || suggestedFriends.length === 0 ? renderNoSuggestionsAvailable() : (
         <div className="p-md-3 pt-md-1 rounded-2">
           <div className="d-flex align-items-center">
-            <Button className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
+            <Button aria-label="chevron left icon" className="d-block p-0 prev bg-transparent border-0 shadow-none" onClick={slideFriendLeft}>
               <FontAwesomeIcon icon={solid('chevron-left')} size="lg" className="text-white" />
             </Button>
             <StyleFriend
@@ -157,7 +157,7 @@ function SuggestedFriend() {
                   <div className="bg-dark rounded p-2">
                     <Link className="text-decoration-none" to={`/${user.userName}/about`}>
                       <div className=" d-flex justify-content-center position-relative">
-                        <UserCircleImage size="6.25rem" src={user.profilePic} />
+                        <UserCircleImage size="6.25rem" src={user.profilePic} alt="suggested friend" />
                         <div className="position-absolute" style={{ right: '0' }}>
                           <FontAwesomeIcon role="button" onClick={(e: React.MouseEvent<SVGSVGElement, MouseEvent>) => { onCloseClick(e, user._id); }} icon={solid('xmark')} size="lg" />
                         </div>
@@ -179,7 +179,7 @@ function SuggestedFriend() {
                 </Card>
               ))}
             </StyleFriend>
-            <Button className="d-block p-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
+            <Button aria-label="chevron right icon" className="d-block p-0 next bg-transparent border-0 shadow-none" onClick={slideFriendRight}>
               <FontAwesomeIcon icon={solid('chevron-right')} size="lg" className="text-white" />
             </Button>
           </div>

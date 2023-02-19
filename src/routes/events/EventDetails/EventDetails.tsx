@@ -60,7 +60,7 @@ function EventDetails() {
               {' '}
               {DateTime.fromISO(eventDetails?.endDate).toFormat('LLL dd, yyyy')}
             </p>
-            <h2>{eventDetails?.name}</h2>
+            {eventDetails?.name && <h2>{eventDetails?.name}</h2>}
             <span className="text-primary">{eventDetails?.event_type?.event_name}</span>
           </Col>
           <Col md={5} className="d-none d-md-block d-lg-none d-xl-block">

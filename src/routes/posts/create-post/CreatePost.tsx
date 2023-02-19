@@ -180,7 +180,7 @@ function CreatePost() {
           </Row>
         </Form>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

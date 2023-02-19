@@ -48,7 +48,7 @@ function ItemRow({
               <Image src={SlasherQuestionMark} alt="Unsubscribed user profile question mark" />
             </UnsubscribeProfileImage>
           )
-          : <ProfileImage src={item.imageUrl} className="rounded-circle me-2" />}
+          : <ProfileImage src={item.imageUrl} alt="user picture" className="rounded-circle me-2" />}
 
         <div>
           <h3 className="h3 mb-0">{item.name}</h3>
@@ -57,12 +57,12 @@ function ItemRow({
       </Button>
       {
         shouldShowPopover && (
-        <div className="d-flex align-self-center">
-          <CustomPopover
-            popoverOptions={shouldShowPopover ? popoverOptions : []}
-            onPopoverClick={handlePopover!}
-          />
-        </div>
+          <div className="d-flex align-self-center">
+            <CustomPopover
+              popoverOptions={shouldShowPopover ? popoverOptions : []}
+              onPopoverClick={handlePopover!}
+            />
+          </div>
         )
       }
 

@@ -135,7 +135,7 @@ function ShoppingDetails() {
         {params.summary === 'edit' && <ShoppingEdit />}
         {params.summary === 'shopping-offer' && <ShoppingSpecialOffer />}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

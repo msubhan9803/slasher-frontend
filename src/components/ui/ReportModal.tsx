@@ -26,8 +26,8 @@ function ReportModal({
     setShow(false);
   };
   const removeData = () => {
-    if (removeComment) removeComment();
-    if (onConfirmClick) onConfirmClick();
+    if (removeComment) { removeComment(); }
+    if (onConfirmClick) { onConfirmClick(); }
     closeModal();
   };
 
@@ -37,14 +37,14 @@ function ReportModal({
   };
 
   const handleClickModal = () => {
-    if (onBlockYesClick) onBlockYesClick();
+    if (onBlockYesClick) { onBlockYesClick(); }
     closeModal();
   };
 
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
-      if (handleReport) handleReport(reason);
+      if (handleReport) { handleReport(reason); }
       closeModal();
     }
   };

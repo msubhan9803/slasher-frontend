@@ -14,8 +14,8 @@ import {
 import RegistrationPageWrapper from '../components/RegistrationPageWrapper';
 import RegistartionSecurityList from '../components/RegistrationSecurityList';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
-import RoundButton from '../../../components/ui/RoundButton';
 import { validateRegistrationFields } from '../../../api/users';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 const yearOptions = generate18OrOlderYearList();
 const monthOptions = generateMonthOptions();
@@ -30,6 +30,7 @@ function RegistrationSecurity({ activeStep }: Props) {
   const dispatch = useAppDispatch();
   const securityInfo = useAppSelector((state) => state.registration);
   const [errorMessages, setErrorMessages] = useState<string[]>();
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
   const navigate = useNavigate();
 
   const handleChange = (value: string, key: string) => {
@@ -39,29 +40,42 @@ function RegistrationSecurity({ activeStep }: Props) {
   };
 
   const validateAndGoToRegistrationTerms = async () => {
+    setProgressButtonStatus('loading');
     const {
       firstName, userName, email, password,
       passwordConfirmation, securityQuestion,
       securityAnswer, day, month, year,
     } = securityInfo;
-    const dobIsoString = `${year}-${month}-${day}`;
-    validateRegistrationFields(
-      {
-        firstName,
-        userName,
-        email,
-        password,
-        passwordConfirmation,
-        securityQuestion,
-        securityAnswer,
-        dob: dobIsoString,
-      },
-    ).then((res) => {
-      if (res.data.length > 0) setErrorMessages(res.data);
-      else navigate('/app/registration/terms');
-    }).catch((error) => {
-      setErrorMessages(error.response.data.message);
-    });
+    const dobIsoString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    let errorList: string[] = [];
+
+    try {
+      const response = await validateRegistrationFields(
+        {
+          firstName,
+          userName,
+          email,
+          password,
+          passwordConfirmation,
+          securityQuestion,
+          securityAnswer,
+          dob: dobIsoString,
+        },
+      );
+      if (response.data.length > 0) {
+        errorList = errorList.concat(response.data);
+      }
+    } catch (error: any) {
+      errorList.push(error.response.data.message);
+    }
+
+    if (errorList.length > 0) {
+      setProgressButtonStatus('failure');
+      setErrorMessages(errorList);
+    } else {
+      setProgressButtonStatus('success');
+      navigate('/app/registration/terms');
+    }
   };
 
   return (
@@ -72,6 +86,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={6} className="order-first">
               <InputGroup>
                 <Form.Control
+                  aria-label="Password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   className="border-end-0"
@@ -86,6 +101,7 @@ function RegistrationSecurity({ activeStep }: Props) {
             <Col sm={12} md={6} className="order-last">
               <InputGroup>
                 <Form.Control
+                  aria-label="Confirm Password"
                   value={securityInfo.passwordConfirmation}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'passwordConfirmation')}
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -125,6 +141,7 @@ function RegistrationSecurity({ activeStep }: Props) {
         <Col sm={12} md={9} className="mt-4">
           <Form.Group controlId="formBasicAnswer">
             <Form.Control
+              aria-label="Security answer"
               type="text"
               placeholder="Security answer"
               value={securityInfo.securityAnswer}
@@ -199,7 +216,7 @@ function RegistrationSecurity({ activeStep }: Props) {
           </RoundButtonLink>
         </Col>
         <Col sm={4} md={3} className="order-1 mb-3 mb-md-0 order-sm-2">
-          <RoundButton className="w-100" onClick={validateAndGoToRegistrationTerms}>Next step</RoundButton>
+          <ProgressButton label="Next step" className="py-2 w-100  fs-3 fw-bold" onClick={validateAndGoToRegistrationTerms} />
         </Col>
       </Row>
     </RegistrationPageWrapper>

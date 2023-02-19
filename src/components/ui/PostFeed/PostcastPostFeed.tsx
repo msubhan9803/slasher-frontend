@@ -101,7 +101,7 @@ function PostcastPostFeed({ episode }: Props) {
         likeIcon={postData.likeIcon}
         postId={postData.id}
         userName={postData.userName}
-        onLikeClick={() => { if (onLikeClick) onLikeClick(postData.id); }}
+        onLikeClick={() => { if (onLikeClick) { onLikeClick(postData.id); } }}
       />
     </Card>
   );

@@ -11,6 +11,7 @@ import { User } from '../../../types';
 import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
+import useProgressButton from '../../../components/ui/ProgressButton';
 
 const CustomDiv = styled.div`
   white-space: pre;
@@ -23,6 +24,7 @@ function ProfileAbout({ user }: Props) {
   const [message, setMessage] = useState<string>(user?.aboutMe || '');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
+  const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
@@ -31,6 +33,7 @@ function ProfileAbout({ user }: Props) {
   const handleUserAbout = (id: string) => {
     updateUserAbout(id, message).then((res) => {
       setMessage(res.data.aboutMe);
+      setProgressButtonStatus('loading');
       setEdit(!isEdit);
     });
   };
@@ -82,9 +85,7 @@ function ProfileAbout({ user }: Props) {
                       </RoundButton>
                     </Col>
                     <Col xs={6}>
-                      <RoundButton className="w-100" variant="primary" onClick={() => handleUserAbout(user?._id)}>
-                        Save
-                      </RoundButton>
+                      <ProgressButton label="Save" className="py-2 w-100  fs-3 fw-bold" onClick={() => handleUserAbout(user?._id)} />
                     </Col>
                   </Row>
                 </Col>

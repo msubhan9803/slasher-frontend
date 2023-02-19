@@ -68,7 +68,6 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-
   const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
     const target = e.target as HTMLTextAreaElement;
     if (inputId) {
@@ -189,30 +188,32 @@ function PostCommentSection({
         });
         setCommentData(comments);
         setUpdatedReply(false);
-        if (setUpdateState) setUpdateState(false);
+        if (setUpdateState) { setUpdateState(false); }
       };
       feedCommentData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     commentSectionData, updateState, checkLoadMoreId,
-    commentReplyID, setUpdateState, commentData,
+    commentReplyID, setUpdateState,
   ]);
 
   useEffect(() => {
     setReplyMessage('');
-    if (isReply) {
+    if (isReply && replyUserName) {
       const mentionString = `@${replyUserName} `;
       setReplyMessage(mentionString);
     }
   }, [replyUserName, isReply, selectedReplyCommentId]);
 
   const sendComment = (commentId?: string) => {
+    const imageArr = commentId ? replyImageArray : imageArray;
     if (commentId === undefined) {
       commentRef.current.style.height = '36px';
       addUpdateComment({
         commentMessage: message,
         commentId,
-        imageArray,
+        imageArr,
       });
       setMessage('');
       setImageArray([]);
@@ -222,14 +223,16 @@ function PostCommentSection({
       addUpdateReply({
         replyMessage: mentionReplyString,
         commentId,
-        imageArray,
+        imageArr,
         commentReplyID,
       });
+      if (mentionReplyString || imageArr.length) {
+        setIsReply(false);
+      }
       setReplyMessage('');
       setReplyImageArray([]);
       setUpdatedReply(true);
     }
-    setIsReply(false);
     setSelectedReplyId('');
     setReplyUserName('');
   };
@@ -522,7 +525,6 @@ function PostCommentSection({
                           </div>
                         ),
                       )}
-
                       {
                         isReply
                         && (selectedReplyCommentId === data.id
@@ -542,6 +544,7 @@ function PostCommentSection({
                               sendComment={sendComment}
                               imageArray={replyImageArray}
                               handleRemoveFile={handleRemoveFile}
+                              dataId={data.id}
                             />
                           </div>
                         )

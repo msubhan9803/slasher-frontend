@@ -19,7 +19,7 @@ function FriendRequestItem({
   return (
     <div className={`px-2 py-3 d-flex align-items-center rounded-3 bg-dark ${className}`}>
       <Link to={`/${userName}`} className="d-flex align-items-center flex-grow-1 text-decoration-none">
-        <UserCircleImage size="2.5rem" src={image} alt="user picture" className="me-2 bg-secondary position-relative" />
+        <UserCircleImage size="2.5rem" src={image} alt={`friend request from ${userName}`} className="me-2 bg-secondary position-relative" />
         <p className="mb-0">{userName}</p>
       </Link>
       <CircleButton

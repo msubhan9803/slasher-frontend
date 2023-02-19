@@ -18,7 +18,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
     border-top-right-radius: 0rem;
   }
   .input-group-text {
-    background-color: rgb(31, 31, 31);
+    background-color: var(--bs-dark);
     border-color: #3a3b46;
     border-radius: 1.875rem;
   }
@@ -35,7 +35,7 @@ function CommentInput({
       <PubWiseAd className="text-center mb-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />
+          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <div className="d-flex align-items-end mb-4">
@@ -48,22 +48,24 @@ function CommentInput({
                 as="textarea"
                 ref={inputRef}
                 value={message}
-                onFocus={() => setIsReply(false)}
+                onFocus={() => setIsReply && setIsReply(false)}
                 onChange={(e) => onChangeHandler(e, dataId)}
+                aria-label="Comment"
               />
               <InputGroup.Text>
                 <FontAwesomeIcon
                   role="button"
                   onClick={() => {
                     inputFile.current?.click();
-                    setIsReply(false);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                    setIsReply && setIsReply(false);
                   }}
                   icon={solid('camera')}
                   size="lg"
                 />
                 <input
                   type="file"
-                  name="post"
+                  name={dataId ? 'reply' : 'post'}
                   className="d-none"
                   accept="image/*"
                   onChange={(post) => {
@@ -71,10 +73,11 @@ function CommentInput({
                   }}
                   multiple
                   ref={inputFile}
+                  aria-label="image"
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={() => sendComment()} variant="link" className="ms-2 p-0">
+            <Button onClick={() => sendComment(dataId && dataId)} aria-label="send" variant="link" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

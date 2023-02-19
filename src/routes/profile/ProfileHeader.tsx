@@ -13,15 +13,13 @@ import CustomPopover, { PopoverClickProps } from '../../components/ui/CustomPopo
 import UserCircleImage from '../../components/ui/UserCircleImage';
 import ReportModal from '../../components/ui/ReportModal';
 import { User, FriendRequestReaction } from '../../types';
-import {
-  acceptFriendsRequest, addFriend, friendship, rejectFriendsRequest,
-} from '../../api/friends';
-import RoundButtonLink from '../../components/ui/RoundButtonLink';
+import { friendship } from '../../api/friends';
 import { createBlockUser } from '../../api/blocks';
 import { reportData } from '../../api/report';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { StyledBorder } from '../../components/ui/StyledBorder';
 import { enableDevFeatures } from '../../utils/configEnvironment';
+import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 
 interface Props {
   tabKey: string;
@@ -51,10 +49,12 @@ const StyledPopoverContainer = styled.div`
   top: 70px;
   right: 10px;
 `;
+type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
+
 function ProfileHeader({ tabKey, user }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
-  const [friendStatus, setFriendStatus] = useState<any>();
+  const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
   const [dropDownValue, setDropDownValue] = useState<string>('');
   const popoverOption = ['Report', 'Block user'];
   const loginUserName = Cookies.get('userName');
@@ -62,6 +62,7 @@ function ProfileHeader({ tabKey, user }: Props) {
   const { userName } = useParams();
   const navigate = useNavigate();
   const [clickedUserId, setClickedUserId] = useState<string>('');
+  const [friendData, setFriendData] = useState<FriendType>(null);
 
   const isSelfUserProfile = userName === loginUserName;
 
@@ -78,35 +79,11 @@ function ProfileHeader({ tabKey, user }: Props) {
     if (user && !isSelfUserProfile) {
       /* eslint no-underscore-dangle: 0 */
       friendship(user._id).then((res) => {
-        if (res.data.reaction === FriendRequestReaction.Pending
-          && res.data.from === loginUserId
-          && res.data.to === user._id) {
-          setFriendStatus('Cancel pending request');
-        } else if (res.data.reaction === FriendRequestReaction.Pending
-          && res.data.from === user._id
-          && res.data.to === loginUserId) {
-          setFriendStatus('Accept friend request');
-        } else if (res.data.reaction === FriendRequestReaction.Accepted) {
-          setFriendStatus('Remove friend');
-        } else if (res.data.reaction === FriendRequestReaction.DeclinedOrCancelled
-          || res.data.reaction === null) {
-          setFriendStatus('Add friend');
-        }
+        setFriendData(res.data);
+        setFriendStatus(res.data.reaction);
       });
     }
   }, [user, friendshipStatus, isSelfUserProfile, loginUserId]);
-
-  const friendRequestApi = (status: string) => {
-    if (user && user._id) {
-      if (status === 'Add friend') {
-        addFriend(user._id).then(() => setFriendshipStatus(status));
-      } else if (status === 'Accept friend request') {
-        acceptFriendsRequest(user._id).then(() => setFriendshipStatus(status));
-      } else if (status === 'Remove friend' || status === 'Cancel pending request') {
-        rejectFriendsRequest(user._id).then(() => setFriendshipStatus(status));
-      }
-    }
-  };
 
   const onBlockYesClick = () => {
     createBlockUser(clickedUserId)
@@ -130,7 +107,7 @@ function ProfileHeader({ tabKey, user }: Props) {
       .catch((error) => console.error(error));
   };
 
-  if (!user || (!isSelfUserProfile && !friendStatus)) {
+  if (!user || (!isSelfUserProfile && typeof friendStatus === null)) {
     return <LoadingIndicator />;
   }
 
@@ -139,12 +116,12 @@ function ProfileHeader({ tabKey, user }: Props) {
       <Row className="p-md-4">
         <Col>
           <ImageContainer>
-            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover image" className="w-100 rounded" />
+            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="w-100 rounded" />
           </ImageContainer>
         </Col>
         <Row className="d-flex ms-3">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage size="11.25rem" src={user?.profilePic} />
+            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
             {!isSelfUserProfile
               && (
                 <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -173,18 +150,19 @@ function ProfileHeader({ tabKey, user }: Props) {
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
-                        <h3 className="mb-0"> Edit profile</h3>
+                        <h2 className="h3 mb-0"> Edit profile</h2>
                       </RoundButton>
                     </div>
                   )}
                 {!isSelfUserProfile
                   && (
                     <div className="d-flex align-items-center justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
-                      {friendStatus === 'Remove friend' && <RoundButtonLink variant="black" to={`/app/messages/conversation/new?userId=${user?._id}`} className="me-2 px-4 border-1 border-primary">Send message</RoundButtonLink>}
-                      <RoundButton className="px-4 me-2 fs-3" variant={`${friendStatus === 'Cancel pending request' || friendStatus === 'Remove friend' ? 'black' : 'primary'}`} onClick={() => friendRequestApi(friendStatus)}>
-                        {friendStatus}
-                      </RoundButton>
-
+                      <FriendActionButtons
+                        user={user}
+                        friendData={friendData}
+                        friendStatus={friendStatus}
+                        setFriendshipStatus={setFriendshipStatus}
+                      />
                       <StyledPopoverContainer className="d-none d-md-block d-lg-none d-xl-block">
                         <CustomPopover
                           popoverOptions={popoverOption}

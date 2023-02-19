@@ -30,7 +30,7 @@ function Photos({ user }: PhotosProps) {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!user._id) return;
+    if (!user._id) { return; }
     /* eslint no-underscore-dangle: 0 */
     userPhotos(user._id, '', '6')
       .then((res) => {
@@ -52,14 +52,14 @@ function Photos({ user }: PhotosProps) {
       });
   }, [user]);
 
-  if (!user._id) return null;
+  if (!user._id) { return null; }
 
   return (
     <>
       <SidebarHeaderWithLink headerLabel="Photos" linkLabel="See All" linkTo={`/${user?.userName}/photos`} />
       <div className="p-3 bg-dark rounded-3">
         <Row>
-          {!loading && photos.length === 0 && <div>No photos yet.</div> }
+          {!loading && photos.length === 0 && <div>No photos yet.</div>}
           {loading ? <LoadingIndicator />
             : photos.map((photo, photoIndex) => {
               return (

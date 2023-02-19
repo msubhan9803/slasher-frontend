@@ -33,7 +33,7 @@ interface Value {
   eventInfo: string;
   url: string;
   author?: string;
-  file?: File | undefined;
+  file?: File | null | undefined;
   address: string;
 }
 
@@ -47,7 +47,7 @@ const CustomContainer = styled(Container)`
 function EventSuggestion() {
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [optionLoading, setOptionLoading] = useState<boolean>(false);
@@ -128,7 +128,7 @@ function EventSuggestion() {
             </Form.Select>
           </Col>
           <Col md={6} className="mt-3">
-            <Form.Control type="text" placeholder="Event Name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
+            <Form.Control aria-label="Event Name" type="text" placeholder="Event Name" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'name')} />
           </Col>
         </Row>
         <Row className="mt-3">
@@ -143,6 +143,7 @@ function EventSuggestion() {
                 placeholder="Event description"
                 style={{ resize: 'none' }}
                 className="fs-4"
+                aria-label="Event description"
               />
               <CharactersCounter
                 counterClass="float-end fs-4"
@@ -155,7 +156,9 @@ function EventSuggestion() {
           </Col>
         </Row>
         <Row>
-          <Col><Form.Control type="text" placeholder="Event website" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'url')} /></Col>
+          <Col>
+            <Form.Control aria-label="Event website" type="text" placeholder="Event website" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'url')} />
+          </Col>
         </Row>
         <Row>
           <Col md={6} className="mt-3">
@@ -166,9 +169,11 @@ function EventSuggestion() {
           </Col>
         </Row>
         <Row>
-          <Col md={6} className="mt-3"><Form.Control type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} /></Col>
           <Col md={6} className="mt-3">
-            <Form.Control type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
+            <Form.Control aria-label="Street Address" type="text" placeholder="Street Address" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'address')} />
+          </Col>
+          <Col md={6} className="mt-3">
+            <Form.Control aria-label="City" type="text" placeholder="City" className="fs-4" onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.value, 'city')} />
           </Col>
         </Row>
         <Row>

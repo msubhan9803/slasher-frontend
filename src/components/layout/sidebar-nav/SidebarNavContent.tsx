@@ -5,12 +5,20 @@ import { Link } from 'react-router-dom';
 import SidebarNavItem from './SidebarNavItem';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 
+const MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU = 3;
+
 interface Props {
   onToggleCanvas?: () => void;
 }
 
 type MenuType = {
-  label: string, icon: any, iconColor: string, to: string, id: any, desktopOnly?: boolean
+  label: string,
+  icon: any,
+  iconColor: string,
+  to: string,
+  id: any,
+  desktopOnly?: boolean,
+  comingSoon?: boolean
 };
 
 const sidebarMenuList: MenuType[] = [
@@ -21,31 +29,31 @@ const sidebarMenuList: MenuType[] = [
     label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 3,
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 3, comingSoon: true,
   },
   {
-    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 4,
+    label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 4, comingSoon: true,
   },
   {
-    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5,
+    label: 'Podcasts', icon: solid('podcast'), iconColor: '#8F00FF', to: '/app/podcasts', id: 5, comingSoon: true,
   },
   {
-    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 6,
+    label: 'Video Channels', icon: solid('tv'), iconColor: '#00E676', to: '/app/videos', id: 6, comingSoon: true,
   },
   {
-    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 7,
+    label: 'Shopping', icon: solid('store'), iconColor: '#00D2FF', to: '/app/shopping', id: 7, comingSoon: true,
   },
   {
     label: 'Movies', icon: solid('film'), iconColor: '#FF343E', to: '/app/movies', id: 8,
   },
   {
-    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 9,
+    label: 'Books', icon: solid('book-skull'), iconColor: '#D88100', to: '/app/books', id: 9, comingSoon: true,
   },
   {
-    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 10, to: '/app/music',
+    label: 'Music', icon: solid('headphones'), iconColor: '#7C4DFF', id: 10, to: '/app/music', comingSoon: true,
   },
   {
-    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 11, to: '/app/art',
+    label: 'Art', icon: solid('palette'), iconColor: '#799F0C', id: 11, to: '/app/art', comingSoon: true,
   },
   {
     label: 'Help', icon: solid('circle-question'), iconColor: '#9E9E9E', id: 12, to: '/app/help', desktopOnly: true,
@@ -54,19 +62,20 @@ const sidebarMenuList: MenuType[] = [
     label: 'Settings', icon: solid('gear'), iconColor: '#888888', id: 12, to: '/app/account/settings', desktopOnly: true,
   },
 ];
-const customSidebarMenuList = enableDevFeatures
-  ? sidebarMenuList
-  : sidebarMenuList.map((item, idx) => {
-    const { label } = item;
-    if (label === 'Places' || label === 'Dating' || label === 'Podcasts' || label === 'Video Channels' || label === 'Shopping' || label === 'Books' || label === 'Music' || label === 'Art' || label === 'Help') {
-      return {
-        label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${idx}`,
-      };
-    }
-    return item;
-  })
-    // order `Coming Soon` tab items in the end
-    .sort((_, b) => (b.label !== 'Coming Soon' ? 0 : -1));
+
+const customSidebarMenuList = sidebarMenuList.filter(
+  (item) => enableDevFeatures || !item.comingSoon,
+);
+const numberOfComingSoonItemsToShow = Math.min(
+  MAX_ALLOWED_COMING_SOON_ITEMS_IN_MENU,
+  sidebarMenuList.length - customSidebarMenuList.length,
+);
+
+for (let i = 0; i < numberOfComingSoonItemsToShow; i += 1) {
+  customSidebarMenuList.push({
+    label: 'Coming Soon', icon: solid('question'), iconColor: '#FF1700', to: '#', id: `comingSoon-${i}`,
+  });
+}
 
 function SidebarNavContent({ onToggleCanvas }: Props) {
   return (

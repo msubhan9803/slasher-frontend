@@ -16,17 +16,18 @@ interface Props {
   className?: string;
   onAcceptRejectClick: (val: string) => void;
   userId: string;
+  label?: string;
 }
 
 function CircleButton({
-  variant, icon, className, onAcceptRejectClick, userId,
+  variant, icon, className, onAcceptRejectClick, userId, label,
 }: Props) {
   return (
     <CircleStyledButton
       onClick={() => onAcceptRejectClick(userId)}
       variant={variant}
       className={`d-flex flex-row align-items-center justify-content-center rounded-5 ${className}`}
-      aria-label="Icon button"
+      aria-label={label}
     >
       <FontAwesomeIcon icon={icon} />
     </CircleStyledButton>
@@ -35,6 +36,7 @@ function CircleButton({
 
 CircleButton.defaultProps = {
   className: '',
+  label: '',
 };
 
 export default CircleButton;

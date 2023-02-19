@@ -46,7 +46,7 @@ function UserMessageSidebarListItem({
           <MessageSnippet className="mb-0 small text-light">{decodeURIComponent(message)}</MessageSnippet>
         </Link>
       </div>
-      {count !== 0 && <span className="badge rounded-pill bg-primary me-3">{count}</span>}
+      {count !== 0 && <span className="text-black badge rounded-pill bg-primary me-3">{count}</span>}
     </StyledItem>
   );
 }

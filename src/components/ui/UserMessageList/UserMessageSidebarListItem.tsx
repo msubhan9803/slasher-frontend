@@ -35,7 +35,7 @@ function UserMessageSidebarListItem({
     <StyledItem className="px-2 py-3 d-flex align-items-center">
       <div>
         <Link to={`/app/messages/conversation/${messageId}`} className="text-decoration-none">
-          <UserCircleImage size="3.625rem" src={image} alt={`${userName}'s messager request`} />
+          <UserCircleImage size="3.625rem" src={image} alt={`view conversation with ${userName}`} />
         </Link>
       </div>
       <div className="px-3 flex-grow-1 min-width-0">

@@ -32,6 +32,10 @@
   background: #1F1F1F;
 }
 
+#skip-to-main-content-link {
+  z-index: 9999;
+}
+
 html {
   // Ideally, this is the only place where we want to set a pixel font size.
   // Everything else will be in rems (relative to this base size)
@@ -173,15 +177,6 @@ body {
   // background-attachment: fixed;
 }
 
-input:hover {
-  outline: none;
-  box-shadow: none;
-}
-
-.form-control:focus {
-  box-shadow: none;
-}
-
 .rc-mentions {
   display: inline-block;
   position: relative;
@@ -289,6 +284,20 @@ textarea {
   resize: none;
 }
 
-:focus-visible {
-  outline: none !important;
-}
+
+/*****************
+ * Accessibility *
+ *****************/
+
+// input:hover {
+  // outline: none;
+  // box-shadow: none;
+// }
+
+// .form-control:focus {
+//   box-shadow: none;
+// }
+
+// :focus-visible {
+//   outline: none !important;
+// }

@@ -13,5 +13,5 @@ export async function getSearchUser(page: number, query: string) {
   // if (lastRetrievedPostId) {
   //   queryParameter += `&before=${lastRetrievedPostId}`;
   // }
-  return axios.get(`${apiUrl}/search/users${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/search/users${queryParameter}`, { headers });
 }

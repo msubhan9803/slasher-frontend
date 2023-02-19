@@ -31,7 +31,7 @@ function ShoppingFavorites() {
           <ShoppingCardList shoppingList={favorites} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

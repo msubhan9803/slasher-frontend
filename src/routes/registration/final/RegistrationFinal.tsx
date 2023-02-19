@@ -8,8 +8,8 @@ function RegistrationFinal() {
   return (
     <div className="text-center">
       <FontAwesomeIcon icon={regular('paper-plane')} size="6x" className="text-primary" />
-      <h2 className="mt-4">One more step!</h2>
-      <h3 className="mb-4">Verify your email</h3>
+      <h1 className="h2 mt-4">One more step!</h1>
+      <h2 className="h3 mb-4">Verify your email</h2>
       <p>We have sent an email to</p>
       <p className="fs-3 text-primary fw-bold my-3">{emailAddress}</p>
       <p>

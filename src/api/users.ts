@@ -6,7 +6,7 @@ import { RegisterUser } from '../types';
 
 export async function signIn(emailOrUsername: string, password: string) {
   return axios.post(
-    `${apiUrl}/users/sign-in`,
+    `${apiUrl}/api/v1/users/sign-in`,
     {
       emailOrUsername,
       password,
@@ -30,7 +30,7 @@ export async function register(
   dob: string,
 ) {
   return axios.post(
-    `${apiUrl}/users/register`,
+    `${apiUrl}/api/v1/users/register`,
     {
       firstName,
       userName,
@@ -57,7 +57,7 @@ export async function validateRegistrationFields(
   }: RegisterUser,
 ) {
   return axios.get(
-    `${apiUrl}/users/validate-registration-fields`,
+    `${apiUrl}/api/v1/users/validate-registration-fields`,
     {
       params: {
         firstName,
@@ -74,7 +74,7 @@ export async function validateRegistrationFields(
 }
 
 export async function forgotPassword(email: string) {
-  return axios.post(`${apiUrl}/users/forgot-password`, { email });
+  return axios.post(`${apiUrl}/api/v1/users/forgot-password`, { email });
 }
 
 export async function userInitialData() {
@@ -82,7 +82,7 @@ export async function userInitialData() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/users/initial-data`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/initial-data`, { headers });
 }
 
 export async function getSuggestUserName(text: string) {
@@ -90,7 +90,7 @@ export async function getSuggestUserName(text: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/users/suggest-user-name?query=${text}&limit=10`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/suggest-user-name?query=${text}&limit=10`, { headers });
 }
 
 export async function getUser(userName: string) {
@@ -98,7 +98,7 @@ export async function getUser(userName: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/users/${userName}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userName}`, { headers });
 }
 
 export async function getProfilePosts(id: string, lastRetrievedPostId?: string) {
@@ -110,7 +110,7 @@ export async function getProfilePosts(id: string, lastRetrievedPostId?: string) 
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
-  return axios.get(`${apiUrl}/users/${id}/posts${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${id}/posts${queryParameter}`, { headers });
 }
 
 export async function userProfileFriends(userId: string, page: number, search = '') {
@@ -123,7 +123,7 @@ export async function userProfileFriends(userId: string, page: number, search = 
   if (search) {
     queryParameter += `&userNameContains=${search}`;
   }
-  return axios.get(`${apiUrl}/users/${userId}/friends${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends${queryParameter}`, { headers });
 }
 
 // export async function getUserProfileDetail(userName: string) {
@@ -131,7 +131,7 @@ export async function userProfileFriends(userId: string, page: number, search = 
 //   const headers = {
 //     Authorization: `Bearer ${token}`,
 //   };
-//   return axios.get(`${apiUrl}/users/${userName}`, { headers });
+//   return axios.get(`${apiUrl}/api/v1/users/${userName}`, { headers });
 // }
 
 export async function updateUser(
@@ -145,7 +145,7 @@ export async function updateUser(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/users/${id}`, {
+  return axios.patch(`${apiUrl}/api/v1/users/${id}`, {
     userName,
     firstName,
     email,
@@ -161,7 +161,7 @@ export async function uploadUserProfileImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-profile-image`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/users/profile-image`, formData, { headers });
 }
 
 export async function uploadUserCoverImage(file: File) {
@@ -172,7 +172,23 @@ export async function uploadUserCoverImage(file: File) {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/users/upload-cover-image`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/users/cover-image`, formData, { headers });
+}
+
+export async function removeUserCoverImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/api/v1/users/cover-image`, { headers });
+}
+
+export async function reomoveUserProfileImage() {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  return axios.delete(`${apiUrl}/api/v1/users/profile-image`, { headers });
 }
 
 export async function userPhotos(id: string, lastRetrievedPostId?: string, limit?: string) {
@@ -184,7 +200,7 @@ export async function userPhotos(id: string, lastRetrievedPostId?: string, limit
   if (lastRetrievedPostId) {
     queryParameter += `&before=${lastRetrievedPostId}`;
   }
-  return axios.get(`${apiUrl}/users/${id}/posts-with-images${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${id}/posts-with-images${queryParameter}`, { headers });
 }
 
 export async function getSuggestFriends() {
@@ -192,7 +208,7 @@ export async function getSuggestFriends() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/users/suggested-friends`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/suggested-friends`, { headers });
 }
 
 export async function getUsersFriends(userId: string) {
@@ -200,7 +216,7 @@ export async function getUsersFriends(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/users/${userId}/friends?limit=6`, { headers });
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/friends?limit=6`, { headers });
 }
 
 export async function changePassword(
@@ -212,7 +228,7 @@ export async function changePassword(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/users/change-password`, {
+  return axios.patch(`${apiUrl}/api/v1/users/change-password`, {
     currentPassword, newPassword, newPasswordConfirmation,
   }, { headers });
 }
@@ -223,7 +239,7 @@ export async function userAccountDelete() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/users/delete-account?userId=${userId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/users/delete-account?userId=${userId}`, { headers });
 }
 
 export async function updateUserAbout(
@@ -234,5 +250,5 @@ export async function updateUserAbout(
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/users/${id}`, { aboutMe }, { headers });
+  return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
 }

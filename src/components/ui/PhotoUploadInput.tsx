@@ -12,7 +12,7 @@ interface Props {
   style?: React.CSSProperties;
   variant?: 'default' | 'outline';
   defaultPhotoUrl?: string;
-  onChange?: (files: File | undefined) => void
+  onChange?: (files: File | null | undefined) => void;
 }
 
 const StyledImageUploadContainer = styled.div`
@@ -84,7 +84,7 @@ function PhotoUploadInput({
       className={`image-upload d-flex align-items-center justify-content-center rounded ${className} variant-${variant}`}
       style={{ aspectRatio, height, ...style }}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} aria-label="onboarding photo" />
       {(!photo && !imageUrl) && renderUploadPlaceholder(isDragActive)}
 
       {
@@ -110,7 +110,10 @@ function PhotoUploadInput({
         onClick={
           (photo || imageUrl)
             ? (e: React.MouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation(); setPhoto(undefined); setImageUrl(undefined);
+              e.stopPropagation();
+              setPhoto(undefined);
+              setImageUrl(undefined);
+              if (onChange) { onChange(null); }
             }
             : undefined
         }
@@ -118,6 +121,7 @@ function PhotoUploadInput({
         className={
           `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-primary' : 'bg-primary text-white'}`
         }
+        aria-label="photo"
       >
         <FontAwesomeIcon
           icon={(photo || imageUrl) ? solid('times') : solid('plus')}

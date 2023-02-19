@@ -11,6 +11,7 @@ interface Props {
   show: boolean;
   setShow: (value: boolean) => void;
   click: string;
+  clickedPostId: string
 }
 interface LinearIconProps {
   uniqueId?: string
@@ -49,7 +50,9 @@ const CustomModalHeader = styled(Modal.Header)`
 border-bottom: 1px solid #3A3B46;
 `;
 
-function LikeShareModal({ show, setShow, click }: Props) {
+function LikeShareModal({
+  show, setShow, click, clickedPostId,
+}: Props) {
   const [tab, setTab] = useState<string>(click);
   const closeModal = () => {
     setShow(false);
@@ -92,7 +95,7 @@ function LikeShareModal({ show, setShow, click }: Props) {
         <FontAwesomeIcon icon={solid('xmark')} size="lg" className="me-2" onClick={closeModal} />
       </CustomModalHeader>
       <Modal.Body className="d-flex flex-column pt-4 px-4">
-        {(tab === 'like' || tab === 'share') && <LikeShareModalContent />}
+        {(tab === 'like' || tab === 'share') && <LikeShareModalContent feedPostId={clickedPostId} />}
       </Modal.Body>
     </CustomModal>
   );

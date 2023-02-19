@@ -11,7 +11,7 @@ export async function getMessagesList(lastRetrievedMessageId?: string) {
   if (lastRetrievedMessageId) {
     queryParameter += `&before=${lastRetrievedMessageId}`;
   }
-  return axios.get(`${apiUrl}/chat/conversations${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/chat/conversations${queryParameter}`, { headers });
 }
 
 export async function getConversation(matchListId: string) {
@@ -20,7 +20,7 @@ export async function getConversation(matchListId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.get(`${apiUrl}/chat/conversation/${matchListId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/chat/conversation/${matchListId}`, { headers });
 }
 
 export async function createOrFindConversation(userId: string) {
@@ -29,7 +29,7 @@ export async function createOrFindConversation(userId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.post(`${apiUrl}/chat/conversations/create-or-find-direct-message-conversation`, { userId }, { headers });
+  return axios.post(`${apiUrl}/api/v1/chat/conversations/create-or-find-direct-message-conversation`, { userId }, { headers });
 }
 
 export async function markAllReadForSingleConversation(matchListId: string) {
@@ -38,7 +38,7 @@ export async function markAllReadForSingleConversation(matchListId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.patch(`${apiUrl}/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, { headers });
+  return axios.patch(`${apiUrl}/api/v1/chat/conversations/mark-all-received-messages-read-for-chat/${matchListId}`, { headers });
 }
 
 export async function attachFile(message: string, file: any, conversationId: string) {
@@ -52,7 +52,7 @@ export async function attachFile(message: string, file: any, conversationId: str
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/chat/conversation/${conversationId}/message`, formData, { headers });
+  return axios.post(`${apiUrl}/api/v1/chat/conversation/${conversationId}/message`, formData, { headers });
 }
 
 export async function deleteConversationMessages(matchListId: string) {
@@ -61,5 +61,5 @@ export async function deleteConversationMessages(matchListId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.delete(`${apiUrl}/chat/conversation/${matchListId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/chat/conversation/${matchListId}`, { headers });
 }

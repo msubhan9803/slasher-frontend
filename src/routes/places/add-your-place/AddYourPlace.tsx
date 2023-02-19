@@ -18,7 +18,7 @@ const noteList = [
   'People on Slasher can follow your place and get notifIed of new posts.',
 ];
 function AddYourPlace() {
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -82,7 +82,7 @@ function AddYourPlace() {
           </Row>
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

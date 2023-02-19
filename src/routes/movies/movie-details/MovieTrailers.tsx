@@ -1,9 +1,10 @@
-import React from 'react';
-import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import React, { useState } from 'react';
+import { brands, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Col, Row } from 'react-bootstrap';
 import styled from 'styled-components';
 import { Video } from '../../../types';
+import CustomYoutubeModal from '../../../components/ui/CustomYoutubeModal';
 
 interface MovieTrailerList {
   trailerList: Video[]
@@ -18,13 +19,23 @@ const StyledMovieTrailer = styled(Row)`
   }
   &::-webkit-scrollbar {
     display: none;
-  } 
+  }
   -ms-overflow-style: none;
   scrollbar-width: none;
 
 `;
-
+const StyledYouTubeButton = styled(Button)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  margin-left: -2.75em;
+  margin-top: -2.5em;
+`;
 function MovieTrailers({ trailerList }: MovieTrailerList) {
+  const [showVideoPlayerModal, setShowYouTubeModal] = useState(false);
+  const [videoKey, setVideoKey] = useState('');
+
   const slideTrailerLeft = () => {
     const slider = document.getElementById('slideTrailer');
     if (slider !== null) {
@@ -38,6 +49,10 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
       slider.scrollLeft += 300;
     }
   };
+  const handleYoutubeDialog = (key: string) => {
+    setShowYouTubeModal(true);
+    setVideoKey(key);
+  };
   return (
     <div className="bg-dark p-3 pb-4 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Trailers</h1>
@@ -50,16 +65,25 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
           className="d-flex flex-nowrap w-100"
         >
           {trailerList && trailerList.map((trailer: Video) => (
+
             <Col sm={5} md={4} lg={6} xl={4} key={trailer.key}>
               <div className="trailer-image position-relative">
-                <iframe
-                  className="w-100 h-100 rounded-2 position-absolute"
-                  src={`https://www.youtube.com/embed/${trailer.key}`}
-                  title="YouTube video player"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                <div>
+                  <img
+                    src={`https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg`}
+                    className="w-100 h-100"
+                    alt="user uploaded content"
+                  />
+                </div>
+                <StyledYouTubeButton
+                  variant="link"
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    handleYoutubeDialog(trailer.key);
+                  }}
+                >
+                  <FontAwesomeIcon icon={brands('youtube')} size="4x" />
+                </StyledYouTubeButton>
               </div>
             </Col>
           ))}
@@ -68,6 +92,11 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </Button>
       </div>
+      <CustomYoutubeModal
+        show={showVideoPlayerModal}
+        setShow={setShowYouTubeModal}
+        videokey={videoKey}
+      />
     </div>
   );
 }

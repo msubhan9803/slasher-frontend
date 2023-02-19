@@ -11,7 +11,7 @@ export async function getNotifications(lastRetrievedId?: string) {
   if (lastRetrievedId) {
     queryParameter += `&before=${lastRetrievedId}`;
   }
-  return axios.get(`${apiUrl}/notifications${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/notifications${queryParameter}`, { headers });
 }
 
 export async function markAllRead() {
@@ -19,7 +19,7 @@ export async function markAllRead() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/notifications/mark-all-as-read`, {}, { headers });
+  return axios.patch(`${apiUrl}/api/v1/notifications/mark-all-as-read`, {}, { headers });
 }
 
 export async function markRead(notificationId: string) {
@@ -27,5 +27,5 @@ export async function markRead(notificationId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/notifications/${notificationId}/mark-as-read`, {}, { headers });
+  return axios.patch(`${apiUrl}/api/v1/notifications/${notificationId}/mark-as-read`, {}, { headers });
 }

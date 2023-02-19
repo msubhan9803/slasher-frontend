@@ -52,7 +52,7 @@ function Home() {
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (value === 'Hide') {
       const postIdToHide = popoverClickProps.id;
-      if (!postIdToHide) return;
+      if (!postIdToHide) { return; }
       hideFeedPost(postIdToHide).then(() => {
         // Set posts excluding the `focussedPost` so that the focussedPost is hidden immediately
         setPosts((allPosts) => allPosts.filter((post) => post._id !== postIdToHide));
@@ -282,7 +282,7 @@ function Home() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedPost();
+      if (res.status === 200) { callLatestFeedPost(); }
       setShow(false);
     })
       /* eslint-disable no-console */
@@ -366,7 +366,7 @@ function Home() {
           )
         }
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <RightSidebarSelf />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

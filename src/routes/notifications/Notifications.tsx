@@ -197,7 +197,7 @@ function Notifications() {
           {noMoreData && renderNoMoreDataMessage()}
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <NotificationsRIghtSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

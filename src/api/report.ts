@@ -7,5 +7,5 @@ export async function reportData(report: any) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/reports`, report, { headers });
+  return axios.post(`${apiUrl}/api/v1/reports`, report, { headers });
 }

@@ -2,8 +2,8 @@ import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { ContentSidbarWrapper, ContentPageWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
-import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import EventDetails from './EventDetails/EventDetails';
+import EventRightSidebar from './EventRightSidebar';
 import EventsByDate from './EventsByDate/EventsByDate';
 import EventsByLocation from './EventsByLocation/EventsByLocation';
 import Favorites from './Favorites/Favorites';
@@ -24,8 +24,8 @@ function Events() {
       </ContentPageWrapper>
 
       {/* Global right sidebar for all above routes */}
-      <RightSidebarWrapper className="d-none d-lg-block">
-        <RightSidebarSelf />
+      <RightSidebarWrapper>
+        <EventRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

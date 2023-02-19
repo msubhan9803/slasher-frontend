@@ -8,7 +8,7 @@ export async function getEventCategoriesOption() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/event-categories`, { headers });
+  return axios.get(`${apiUrl}/api/v1/event-categories`, { headers });
 }
 
 export async function suggestEvent(
@@ -20,7 +20,7 @@ export async function suggestEvent(
   city: string,
   event_info: string,
   url: string,
-  file: File | undefined,
+  file: File | null | undefined,
   startDate: Date | null,
   endDate: Date | null,
   address: string,
@@ -45,7 +45,7 @@ export async function suggestEvent(
   if (file) { formData.append('files', file); }
 
   return axios.post(
-    `${apiUrl}/events`,
+    `${apiUrl}/api/v1/events`,
     formData,
     { headers },
   );

@@ -12,7 +12,7 @@ const StyledChatInputGroup = styled.div`
       border-top-right-radius: 0rem;
     }
     .input-group-text {
-      background-color: rgb(31, 31, 31);
+      background-color: var(--bs-dark);
       border-color: #3a3b46;
       border-radius: 1.875rem;
       padding: 0.75rem !important;
@@ -25,7 +25,7 @@ const StyledChatInputGroup = styled.div`
         height: 1.5rem;
       }
     }
-  }  
+  }
 `;
 
 interface ChatInputProps {
@@ -54,6 +54,7 @@ function ChatInput({
             }}
             multiple
             ref={inputFile}
+            aria-label="message"
           />
           <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
         </InputGroup.Text>
@@ -64,6 +65,7 @@ function ChatInput({
           onChange={
             (messageInput) => setMessage!(messageInput.target.value)
           }
+          aria-label="message"
         />
         <InputGroup.Text className="border-start-0">
           <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" onClick={sendMessageClick} />

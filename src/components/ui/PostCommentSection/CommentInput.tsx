@@ -18,7 +18,7 @@ const StyledCommentInputGroup = styled(InputGroup)`
     border-top-right-radius: 0rem;
   }
   .input-group-text {
-    background-color: rgb(31, 31, 31);
+    background-color: var(--bs-dark);
     border-color: #3a3b46;
     border-radius: 1.875rem;
   }
@@ -48,7 +48,7 @@ function CommentInput({
                 as="textarea"
                 ref={inputRef}
                 value={message}
-                onFocus={() => setIsReply(false)}
+                onFocus={() => setIsReply && setIsReply(false)}
                 onChange={(e) => onChangeHandler(e, dataId)}
                 aria-label="Comment"
               />
@@ -57,14 +57,15 @@ function CommentInput({
                   role="button"
                   onClick={() => {
                     inputFile.current?.click();
-                    setIsReply(false);
+                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                    setIsReply && setIsReply(false);
                   }}
                   icon={solid('camera')}
                   size="lg"
                 />
                 <input
                   type="file"
-                  name="post"
+                  name={dataId ? 'reply' : 'post'}
                   className="d-none"
                   accept="image/*"
                   onChange={(post) => {
@@ -76,7 +77,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={() => sendComment()} aria-label="send" variant="link" className="ms-2 p-0">
+            <Button onClick={() => sendComment(dataId && dataId)} aria-label="send" variant="link" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

@@ -37,7 +37,7 @@ function PosterCardList({ dataList, pubWiseAdUnitDivId, onSelect }: PosterCardPr
             <Col xs={4} md={3} lg={4} xl={3} key={listDetail._id}>
               <Link
                 onClick={() => onSelect!()}
-                to={`/app/movies/${listDetail._id}/details`}
+                to={`/app/movies/${listDetail._id}`}
               >
                 <PosterCard
                   name={listDetail.name}

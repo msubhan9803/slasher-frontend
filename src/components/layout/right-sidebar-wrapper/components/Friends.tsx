@@ -22,7 +22,7 @@ function Friends({ user }: FriendsProps) {
   const { userName: userNameOrId } = useParams<string>();
 
   useEffect(() => {
-    if (!userNameOrId) return;
+    if (!userNameOrId) { return; }
     /* eslint no-underscore-dangle: 0 */
     getUsersFriends(user._id)
       .then((res) => { setFriendsList(res.data.friends); setLoading(false); });

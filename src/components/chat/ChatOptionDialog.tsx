@@ -32,16 +32,16 @@ function ChatOptionDialog({
   const handleReportData = () => {
     const reason = reports === 'Other' ? otherReport : reports;
     if (reason) {
-      if (handleReport) handleReport(reason);
+      if (handleReport) { handleReport(reason); }
       closeModal();
     }
   };
   const handleClickModal = () => {
-    if (onBlockYesClick) onBlockYesClick();
+    if (onBlockYesClick) { onBlockYesClick(); }
     closeModal();
   };
   const handleDeleteConversationMessages = () => {
-    if (!conversationId) return;
+    if (!conversationId) { return; }
     deleteConversationMessages(conversationId).then(() => { setShow(false); navigate('/app/messages'); });
   };
   return (

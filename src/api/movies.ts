@@ -15,7 +15,7 @@ export async function getMovies(search = '', sortValue = '', lastRetrievedMovieI
   if (search) {
     queryParameter += `&nameContains=${search}`;
   }
-  return axios.get(`${apiUrl}/movies${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/movies${queryParameter}`, { headers });
 }
 
 export async function getMoviesByFirstName(key: string) {
@@ -24,7 +24,7 @@ export async function getMoviesByFirstName(key: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.get(`${apiUrl}/movies/firstBySortName?startsWith=${key}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/movies/firstBySortName?startsWith=${key}`, { headers });
 }
 export async function getMoviesById(id: string) {
   const token = Cookies.get('sessionToken');
@@ -32,7 +32,7 @@ export async function getMoviesById(id: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.get(`${apiUrl}/movies/${id}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/movies/${id}`, { headers });
 }
 export async function getMoviesDataById(movieDBId: number) {
   const token = Cookies.get('sessionToken');
@@ -40,5 +40,5 @@ export async function getMoviesDataById(movieDBId: number) {
     Authorization: `Bearer ${token}`,
   };
 
-  return axios.get(`${apiUrl}/movies/movieDbData/${movieDBId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/movies/movieDbData/${movieDBId}`, { headers });
 }

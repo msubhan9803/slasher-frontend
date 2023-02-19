@@ -27,6 +27,7 @@ function LengthRestrictedTextArea({
         value={contentDetail}
         onChange={handleMessageChange}
         placeholder={placeholder}
+        aria-label="about-me text area"
       />
       <CharactersCounter
         counterClass="float-end"

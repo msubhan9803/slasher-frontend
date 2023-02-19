@@ -25,6 +25,7 @@ import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { MOVIE_INDIE_DIV } from '../../../utils/pubwise-ad-units';
 import PubWiseAd from '../../../components/ui/PubWiseAd';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 interface MovieIconProps {
   label: string;
@@ -68,10 +69,13 @@ const tabsForViewer = [
   { value: 'posts', label: 'Posts' },
 ];
 
+type OptionType = { value: string, label: string };
+const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (t.label !== 'Posts'));
+
 function AboutMovie({ aboutMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const selfView = searchParams.get('view') === 'self';
-  const tabs = selfView ? tabsForSelf : tabsForViewer;
+  const tabs = (selfView ? tabsForSelf : tabsForViewer).filter(filterEnableDevFeatures);
   const navigate = useNavigate();
   const params = useParams();
 
@@ -104,11 +108,39 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
           </Col>
         </Row>
-        <Row>
-          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-            <div className="d-none d-xl-block mt-3">
-              <p className="fs-5">Your lists</p>
-              <div className="mt-2 d-flex justify-content-between">
+        {enableDevFeatures
+          && (
+          <Row>
+            <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+              <div className="d-none d-xl-block mt-3">
+                <p className="fs-5">Your lists</p>
+                <div className="mt-2 d-flex justify-content-between">
+                  {movieIconListData.map((iconList: MovieIconProps) => (
+                    <CustomGroupIcons
+                      key={iconList.label}
+                      label={iconList.label}
+                      icon={iconList.icon}
+                      iconColor={iconList.iconColor}
+                      width={iconList.width}
+                      height={iconList.height}
+                      addData={iconList.addMovie}
+                      onClickIcon={() => handleMovieAddRemove(iconList.label)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="p-3 d-none d-xl-block">
+                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+              </div>
+            </Col>
+          </Row>
+          )}
+        {enableDevFeatures
+          && (
+          <Row className="d-xl-none justify-content-center mt-3">
+            <Col xs={12} sm={7} md={5} lg={9} className="text-center">
+              <span className="fs-5">Your lists</span>
+              <div className="mt-2 d-flex justify-content-around">
                 {movieIconListData.map((iconList: MovieIconProps) => (
                   <CustomGroupIcons
                     key={iconList.label}
@@ -122,34 +154,12 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
                   />
                 ))}
               </div>
-            </div>
-            <div className="p-3 d-none d-xl-block">
-              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-            </div>
-          </Col>
-        </Row>
-        <Row className="d-xl-none justify-content-center mt-3">
-          <Col xs={12} sm={7} md={5} lg={9} className="text-center">
-            <span className="fs-5">Your lists</span>
-            <div className="mt-2 d-flex justify-content-around">
-              {movieIconListData.map((iconList: MovieIconProps) => (
-                <CustomGroupIcons
-                  key={iconList.label}
-                  label={iconList.label}
-                  icon={iconList.icon}
-                  iconColor={iconList.iconColor}
-                  width={iconList.width}
-                  height={iconList.height}
-                  addData={iconList.addMovie}
-                  onClickIcon={() => handleMovieAddRemove(iconList.label)}
-                />
-              ))}
-            </div>
-            <div className="p-3 d-xl-none justify-content-center mt-xl-2">
-              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-            </div>
-          </Col>
-        </Row>
+              <div className="p-3 d-xl-none justify-content-center mt-xl-2">
+                <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+              </div>
+            </Col>
+          </Row>
+          )}
         <Row className="d-lg-none text-center">
           <StyledBorder />
           <Col xs={12}>
@@ -157,7 +167,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
           </Col>
           <Col xs={12} sm={7} md={5} className="m-auto">
             <BorderButton
-              customButtonCss="width: 21.125rem !important;"
+              customButtonCss="width: 100% !important;"
               buttonClass=""
               variant="lg"
               toggleBgColor={bgColor}
@@ -174,9 +184,9 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             </div>
           </Col>
         </Row>
-        <Row className="justify-content-center justify-content-xl-start">
-          <Col xs={12} md={6} lg={selfView ? 10 : 12} xl={9}>
-            <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
+        <Row className="justify-content-center">
+          <Col xs={12}>
+            <TabLinks tabsClass="start" tabsClassSmall="start" tabLink={tabs} toLink={`/app/movies/${params.id}`} selectedTab={params['*']} params={selfView ? '?view=self' : ''} />
           </Col>
         </Row>
       </div>

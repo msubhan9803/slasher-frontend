@@ -85,7 +85,7 @@ function CustomPopover({
         {userProfileIcon ? (
           /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
           <a href={undefined} tabIndex={0} role="button" className="btn bg-transparent text-decoration-none shadow-none border-0 pe-1">
-            <UserCircleImage size="2rem" src={userProfileIcon} alt="usr picture" />
+            <UserCircleImage size="2rem" src={userProfileIcon} alt="user picture" />
             <p className="mb-0 mt-2 fs-6">Me</p>
           </a>
         ) : (

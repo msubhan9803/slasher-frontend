@@ -62,8 +62,8 @@ const usePubWiseAdSlots = (enableADs: boolean) => {
   ], !enableADs);
 
   useEffect(() => {
-    if (!enableADs) return;
-    if (!isScriptsLoaded) return;
+    if (!enableADs) { return; }
+    if (!isScriptsLoaded) { return; }
 
     // Run code after loading all the required pubwise scripts
     window.gptadslots = [];

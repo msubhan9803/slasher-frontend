@@ -88,7 +88,7 @@ const eventCategoryResponse = [
 
 test.describe(pagePath, () => {
   test.beforeEach(({ page }) => {
-    page.route(`${apiUrl}/event-categories`, (route) => {
+    page.route(`${apiUrl}/api/v1/event-categories`, (route) => {
       route.fulfill({
         status: 200,
         body: JSON.stringify(eventCategoryResponse),

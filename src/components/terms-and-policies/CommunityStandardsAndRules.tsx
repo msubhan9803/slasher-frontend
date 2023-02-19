@@ -45,21 +45,29 @@ function CommunityStandardsAndRules({ className }: Props) {
       <p>
         If someone is harassing you, you have options and we are here to help!
       </p>
-      <p>
-        1) Take a screenshot of the message or post in question and send it to
-        help@slasher.tv. That is necessary if you want a moderator from Slasher
-        to help resolve the issue. If you provide no proof of someone breaking a
-        rule, there is no basis to take action for you.
-      </p>
-      <p>
-        2) You can block any users for the most immediate results, but be sure
-        to take screenshots prior to blocking them, if you would like a
-        moderator from Slasher to take action.
-      </p>
-      <p>
-        3) Moderators from Slasher can only take action if rules have been
-        broken on Slasher. We do not moderate other apps, websites, etc.
-      </p>
+      <ul className="list-unstyled">
+        <li>
+          <p>
+            1) Take a screenshot of the message or post in question and send it to
+            help@slasher.tv. That is necessary if you want a moderator from Slasher
+            to help resolve the issue. If you provide no proof of someone breaking a
+            rule, there is no basis to take action for you.
+          </p>
+        </li>
+        <li>
+          <p>
+            2) You can block any users for the most immediate results, but be sure
+            to take screenshots prior to blocking them, if you would like a
+            moderator from Slasher to take action.
+          </p>
+        </li>
+        <li>
+          <p>
+            3) Moderators from Slasher can only take action if rules have been
+            broken on Slasher. We do not moderate other apps, websites, etc.
+          </p>
+        </li>
+      </ul>
       <h3>Trolling</h3>
       <p>
         If we decide you are posting in a way that is determined to provoke

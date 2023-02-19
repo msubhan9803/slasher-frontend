@@ -83,8 +83,8 @@ function PubWiseAd({
     style, className, autoSequencer, id: autoSequencer ? sequencedId : id,
   };
 
-  if (!enableADs) return <PlaceHolderAd className={`${enableADs} mx-auto my-4`} style={style}>Slasher Ad</PlaceHolderAd>;
-  if (!isSlotsDefined) return null;
+  if (!enableADs) { return <PlaceHolderAd className={`${enableADs} mx-auto my-4`} style={style}>Slasher Ad</PlaceHolderAd>; }
+  if (!isSlotsDefined) { return null; }
 
   if (!autoSequencer) {
     return (
@@ -92,7 +92,7 @@ function PubWiseAd({
     );
   }
 
-  if (!sequencedId) return null;
+  if (!sequencedId) { return null; }
   return (
     <PubWiseAdUnit {...props} />
   );

@@ -25,7 +25,7 @@ function DatingPageWrapper({ children }: Props) {
         {children}
         <DatingMenuSmallScreen />
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <DatingSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

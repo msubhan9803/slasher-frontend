@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 import { apiUrl } from '../../src/constants';
 
 function mockSignInResponse(page: Page) {
-  page.route(`${apiUrl}/users/sign-in`, (route) => {
+  page.route(`${apiUrl}/api/v1/users/sign-in`, (route) => {
     route.fulfill({
       status: 200,
       body: JSON.stringify({
@@ -17,7 +17,7 @@ function mockSignInResponse(page: Page) {
 }
 
 function mockInitialDataResponse(page: Page) {
-  page.route(`${apiUrl}/users/initial-data`, (route) => {
+  page.route(`${apiUrl}/api/v1/users/initial-data`, (route) => {
     route.fulfill({
       status: 200,
       body: JSON.stringify({

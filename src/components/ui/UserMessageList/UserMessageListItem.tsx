@@ -101,7 +101,7 @@ function UserMessageListItem({
   const sharedYPadding = 'py-3 py-lg-4';
 
   const handleMarkConversationRead = () => {
-    if (!matchListId) return;
+    if (!matchListId) { return; }
     markAllReadForSingleConversation(matchListId);
   };
 
@@ -110,7 +110,7 @@ function UserMessageListItem({
       <div className="d-flex px-2 px-lg-4 align-items-stretch">
         <StyledLink to={`/app/messages/conversation/${matchListId}`} className={`d-flex flex-grow-1 align-items-center ps-2 pe-1 ps-lg-3 pe-lg-2 ${sharedYPadding} message-bottom-border`}>
           <div>
-            <UserCircleImage src={image} />
+            <UserCircleImage src={image} alt="user picture" />
           </div>
           <div className="flex-grow-1 min-width-0 ps-3">
             <div className="d-flex justify-content-between align-items-center">
@@ -125,7 +125,7 @@ function UserMessageListItem({
               </TrucatedText>
               {
                 count !== 0
-                  ? <div className="badge rounded-pill bg-primary ms-3">{count}</div>
+                  ? <div className="text-black badge rounded-pill bg-primary ms-3">{count}</div>
                   : <div>&nbsp;</div>
               }
             </div>
@@ -133,7 +133,7 @@ function UserMessageListItem({
         </StyledLink>
         <div className={`${sharedYPadding} message-bottom-border`}>
           <CustomDropDown onSelect={handleDropdownOption}>
-            <Dropdown.Toggle className="d-flex justify-content-end bg-transparent px-3 px-lg-3 text-white">
+            <Dropdown.Toggle aria-label="dropdown" className="d-flex justify-content-end bg-transparent px-3 px-lg-3 text-white">
               <FontAwesomeIcon role="button" icon={solid('ellipsis-vertical')} size="lg" />
             </Dropdown.Toggle>
             <Dropdown.Menu className="bg-black">

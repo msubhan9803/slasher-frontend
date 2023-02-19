@@ -83,13 +83,12 @@ function ProfileFriends({ user }: Props) {
       .finally(
         () => { setAdditionalFriend(false); setLoadingFriends(false); },
       );
-  }, [search, page, user._id]);
+  }, [search, user._id, page]);
   useEffect(() => {
-    if (additionalFriend && !loadingFriends) {
-      setLoadingFriends(true);
+    if ((additionalFriend && !loadingFriends) || search) {
       fetchMoreFriendList();
     }
-  }, [additionalFriend, loadingFriends, fetchMoreFriendList]);
+  }, [additionalFriend, loadingFriends, search, fetchMoreFriendList]);
   const getYPosition = () => {
     const yPosition = friendContainerElementRef.current?.lastElementChild?.offsetTop;
     setYPositionOfLastFriendElement(yPosition);
@@ -102,7 +101,6 @@ function ProfileFriends({ user }: Props) {
     if (yPositionOfLastFriendElement) {
       const bottomLine = window.scrollY + window.innerHeight > yPositionOfLastFriendElement;
       if (bottomLine && noMoreData && page > 0) {
-        // if (search.length > 0) setPage(page === 0 ? page + 1 : 0);
         fetchMoreFriendList();
       }
     }
@@ -188,7 +186,7 @@ function ProfileFriends({ user }: Props) {
             && <TabLinks tabsClass="start" tabsClassSmall="center" tabLink={friendsTabs} toLink={`/${params.userName}/friends`} selectedTab="" />}
           <InfiniteScroll
             pageStart={0}
-            initialLoad={false}
+            initialLoad
             loadMore={() => { setAdditionalFriend(true); }}
             hasMore={!noMoreData}
           >

@@ -17,7 +17,6 @@ import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
-  const [search, setSearch] = useState<string>('');
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [key, setKey] = useState<string>('');
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
@@ -30,13 +29,18 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
+  const [search, setSearch] = useState<string>(scrollPosition.searchValue);
 
   useEffect(() => {
-    if (scrollPosition === null) {
+    if (scrollPosition.searchValue !== search) {
+      setFilteredMovies([]);
+      setRequestAdditionalPosts(true);
+    } else if (!scrollPosition.data.length && !search) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
     }
-  }, [search, sortVal, scrollPosition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, sortVal]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -59,6 +63,14 @@ function AllMovies() {
               ...res.data,
             ]);
             if (res.data.length === 0) { setNoMoreData(true); }
+            const positionData = {
+              pathname: '',
+              position: 0,
+              data: [],
+              id: '',
+              searchValue: '',
+            };
+            dispatch(setScrollPosition(positionData));
           }).catch(
             (error) => {
               setNoMoreData(true);
@@ -69,7 +81,10 @@ function AllMovies() {
           );
       }
     }
-  }, [requestAdditionalPosts, loadingPosts, search, sortVal, filteredMovies, scrollPosition]);
+  }, [
+    requestAdditionalPosts, loadingPosts, search, sortVal,
+    filteredMovies, scrollPosition, dispatch,
+  ]);
 
   const applyFilter = () => {
     getMoviesByFirstName(key.toLowerCase())
@@ -106,10 +121,10 @@ function AllMovies() {
       position: window.pageYOffset,
       data: filteredMovies,
       id: '',
+      searchValue: search,
     };
     dispatch(setScrollPosition(positionData));
   };
-
   return (
     <div>
       <MoviesHeader

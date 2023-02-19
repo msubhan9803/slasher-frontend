@@ -54,6 +54,7 @@ function ChatInput({
             }}
             multiple
             ref={inputFile}
+            aria-label="message"
           />
           <FontAwesomeIcon role="button" icon={solid('camera')} className="ps-1 text-white border-end-0" onClick={() => inputFile.current?.click()} />
         </InputGroup.Text>
@@ -64,6 +65,7 @@ function ChatInput({
           onChange={
             (messageInput) => setMessage!(messageInput.target.value)
           }
+          aria-label="message"
         />
         <InputGroup.Text className="border-start-0">
           <FontAwesomeIcon role="button" icon={solid('paper-plane')} className="text-primary pe-1" onClick={sendMessageClick} />

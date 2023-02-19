@@ -32,10 +32,6 @@
   background: #1F1F1F;
 }
 
-#skip-to-main-content-link {
-  z-index: 9999;
-}
-
 html {
   // Ideally, this is the only place where we want to set a pixel font size.
   // Everything else will be in rems (relative to this base size)
@@ -288,6 +284,14 @@ textarea {
 /*****************
  * Accessibility *
  *****************/
+
+#skip-to-main-content-link {
+  z-index: 9999;
+  text-align: center;
+  border: 1px solid #aaa;
+  padding: 1em;
+  margin: 1em 2em;
+}
 
 // input:hover {
   // outline: none;

@@ -8,7 +8,7 @@ const useScript = (URL: string, disableHook?: boolean) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    if (disableHook) return;
+    if (disableHook) { return; }
 
     const tag = document.createElement('script');
     tag.async = true;

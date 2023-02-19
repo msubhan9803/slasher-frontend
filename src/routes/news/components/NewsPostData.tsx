@@ -177,7 +177,7 @@ function NewsPostData({ partnerId }: Props) {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedPost();
+      if (res.status === 200) { callLatestFeedPost(); }
       setShow(false);
     })
       /* eslint-disable no-console */

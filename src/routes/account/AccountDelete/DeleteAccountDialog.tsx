@@ -39,7 +39,7 @@ function DeleteAccountDialog({ show, setShow, onDeleteClick }: Props) {
         <CustomRoundButton className="bg-dark h-3 w-100 text-center text-white px-2 my-3" onClick={closeModal}>
           No, do not delete
         </CustomRoundButton>
-        <CustomRoundButton className="bg-dark h-3 w-100 text-center text-white px-2" onClick={() => { handleConfirmBox(); if (onDeleteClick) onDeleteClick(); }}>Yes, please delete my account</CustomRoundButton>
+        <CustomRoundButton className="bg-dark h-3 w-100 text-center text-white px-2" onClick={() => { handleConfirmBox(); if (onDeleteClick) { onDeleteClick(); } }}>Yes, please delete my account</CustomRoundButton>
       </Modal.Body>
     </ModalContainer>
   );

@@ -242,12 +242,12 @@ export type RegisterUser = Partial<
 }>;
 export interface CommentValue {
   commentMessage: string,
-  imageArray?: string[],
+  imageArr?: string[],
   commentId?: string,
 }
 export interface ReplyValue {
   replyMessage: string,
   commentId?: string,
-  imageArray?: string[],
+  imageArr?: string[],
   replyId?: string,
 }

@@ -121,7 +121,7 @@ function NewsPartnerPost() {
           ...comments,
         ];
       });
-      if (res.data.length === 0) setNoMoreData(true);
+      if (res.data.length === 0) { setNoMoreData(true); }
       if (res.data.length < 20 && sortBy) {
         setPreviousCommentsAvailable(false);
       }
@@ -159,7 +159,7 @@ function NewsPartnerPost() {
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: res.data.images,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -183,18 +183,18 @@ function NewsPartnerPost() {
         .catch((error) => {
           setErrorMessage(error.response?.data.message);
         });
-    } else {
+    } else if (comment.commentMessage || comment.imageArr?.length) {
       addFeedComments(
         postId!,
         comment.commentMessage,
-        comment.imageArray,
+        comment.imageArr,
       )
         .then((res) => {
           let newCommentArray: any = commentData;
           commentValueData = {
             _id: res.data._id,
             feedPostId: res.data.feedPostId,
-            images: comment.imageArray,
+            images: res.data.images,
             message: comment.commentMessage,
             userId: userData.user,
             replies: [],
@@ -249,18 +249,18 @@ function NewsPartnerPost() {
           }).catch((error) => {
             setErrorMessage(error.response.data.message);
           });
-      } else {
+      } else if (reply.replyMessage || reply?.imageArr?.length) {
         addFeedReplyComments(
           postId!,
           reply.replyMessage,
-          reply?.imageArray,
+          reply?.imageArr,
           reply.commentId!,
         ).then((res) => {
           const newReplyArray: any = commentData;
           replyValueData = {
             feedPostId: postId,
             feedCommentId: res.data.feedCommentId,
-            images: reply.imageArray,
+            images: res.data.images,
             message: reply.replyMessage,
             userId: userData.user,
             createdAt: new Date().toISOString(),
@@ -448,7 +448,7 @@ function NewsPartnerPost() {
       reportType: 'post',
     };
     reportData(reportPayload).then((res) => {
-      if (res.status === 200) callLatestFeedComments();
+      if (res.status === 200) { callLatestFeedComments(); }
       setShow(false);
     })
       /* eslint-disable no-console */

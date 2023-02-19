@@ -9,7 +9,7 @@ export async function userProfileFriendsRequest(page: number) {
   };
   const limit = 18;
   const queryParameter = `?limit=${limit}&offset=${page * limit}`;
-  return axios.get(`${apiUrl}/friends/requests/received${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/friends/requests/received${queryParameter}`, { headers });
 }
 
 export async function acceptFriendsRequest(userId: string) {
@@ -17,7 +17,7 @@ export async function acceptFriendsRequest(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/friends/requests/accept`, { userId }, { headers });
+  return axios.post(`${apiUrl}/api/v1/friends/requests/accept`, { userId }, { headers });
 }
 
 export async function addFriend(userId: string) {
@@ -25,7 +25,7 @@ export async function addFriend(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/friends`, { userId }, { headers });
+  return axios.post(`${apiUrl}/api/v1/friends`, { userId }, { headers });
 }
 
 export async function rejectFriendsRequest(userId: string) {
@@ -33,7 +33,7 @@ export async function rejectFriendsRequest(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/friends?userId=${userId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/friends?userId=${userId}`, { headers });
 }
 
 export async function removeSuggestedFriend(userId: string) {
@@ -41,7 +41,7 @@ export async function removeSuggestedFriend(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/friends/suggested/block`, { userId }, { headers });
+  return axios.post(`${apiUrl}/api/v1/friends/suggested/block`, { userId }, { headers });
 }
 
 export async function friendship(userId: string) {
@@ -49,5 +49,5 @@ export async function friendship(userId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/friends/friendship?userId=${userId}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/friends/friendship?userId=${userId}`, { headers });
 }

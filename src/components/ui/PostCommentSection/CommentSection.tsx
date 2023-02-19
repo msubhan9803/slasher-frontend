@@ -99,7 +99,7 @@ function CommentSection({
   }, []);
 
   const handleReply = () => {
-    if (setIsReply) setIsReply(true);
+    if (setIsReply) { setIsReply(true); }
     const scrollId = isReply ? `reply-${id}` : `comment-${id}`;
     if (handleSeeCompleteList) {
       handleSeeCompleteList(feedCommentId || id, name, isReply ? id : '', scrollId, replyCommentIndex);

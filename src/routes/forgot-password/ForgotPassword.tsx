@@ -38,7 +38,7 @@ function ForgotPassword() {
   return (
     <Row className="justify-content-center">
       <div className="col-lg-8 align-self-center text-center">
-        <h2>Forgot your password?</h2>
+        <h1 className="h2">Forgot your password?</h1>
         <p>That’s ok - we’re here to help!</p>
         <p className="mt-4">
           Enter the email address associated with your Slasher account below and

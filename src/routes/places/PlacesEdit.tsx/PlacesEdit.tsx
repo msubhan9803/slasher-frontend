@@ -18,7 +18,7 @@ const CustomCol = styled(Col)`
 function PlacesEdit() {
   const [description, setDescription] = useState<string>('');
   const [charCount, setCharCount] = useState<number>(0);
-  const [, setImageUpload] = useState<File>();
+  const [, setImageUpload] = useState<File | null | undefined>();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {

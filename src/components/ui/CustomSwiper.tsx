@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper';
+import { Pagination, Navigation } from 'swiper';
 import 'swiper/swiper-bundle.css';
 import { Link } from 'react-router-dom';
 import { brands } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Modal } from 'react-bootstrap';
-import CustomModal from './CustomModal';
+import { Button } from 'react-bootstrap';
+import CustomYoutubeModal from './CustomYoutubeModal';
 
 interface SliderImage {
   postId: string;
@@ -30,16 +30,16 @@ const StyledYouTubeButton = styled(Button)`
   margin-left: -2em;
   margin-top: -2em;
 `;
-const StyledIframe = styled.iframe`
-  max-height: 75vh;
-  aspect-ratio: 1.77777778;
-`;
-
 const StyledSwiper = styled(Swiper)`
   width: 100%;
   height: 100%;
   z-index: 0 !important;
-
+.swiper-button-prev {
+  color: var(--bs-primary);
+}
+.swiper-button-next {
+  color: var(--bs-primary);
+}
 .swiper-slide {
   text-align: center;
   font-size: 1.125rem;
@@ -113,41 +113,13 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
     );
   };
 
-  const renderVideoPlayerModal = (
-    show: boolean,
-    youTubeVideoId: string,
-  ) => showVideoPlayerModal && (
-    <CustomModal
-      show={show}
-      size="xl"
-      fullscreen="lg-down"
-      aria-label="YouTube video modal"
-      centered
-      onHide={() => { setShowYouTubeModal(false); }}
-    >
-      <Modal.Header closeButton />
-      <Modal.Body>
-        <div className="d-flex h-100">
-          <StyledIframe
-            width="100%"
-            height="725"
-            src={`https://www.youtube.com/embed/${youTubeVideoId}?autoplay=1`}
-            title="YouTube video player"
-            className="border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      </Modal.Body>
-    </CustomModal>
-  );
-
   return (
     <>
       <StyledSwiper
         pagination={{ type: 'fraction' }}
         initialSlide={initialSlide}
-        modules={[Pagination]}
+        navigation
+        modules={[Pagination, Navigation]}
       >
         {
           images.map((image: SliderImage) => (
@@ -157,7 +129,14 @@ function CustomSwiper({ images, initialSlide, onSelect }: Props) {
           ))
         }
       </StyledSwiper>
-      {images?.[0]?.videoKey && renderVideoPlayerModal(showVideoPlayerModal, images?.[0]?.videoKey)}
+      {images?.[0]?.videoKey
+        && (
+        <CustomYoutubeModal
+          show={showVideoPlayerModal}
+          setShow={setShowYouTubeModal}
+          videokey={images?.[0]?.videoKey}
+        />
+        )}
     </>
   );
 }

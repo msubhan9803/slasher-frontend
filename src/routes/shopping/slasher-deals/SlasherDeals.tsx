@@ -28,7 +28,7 @@ function SlasherDeals() {
           <ShoppingCardList shoppingList={slasherDeals} />
         </div>
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <ShoppingRightSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

@@ -42,6 +42,7 @@ export class FeedPostsController {
     private readonly friendsService: FriendsService,
   ) { }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {

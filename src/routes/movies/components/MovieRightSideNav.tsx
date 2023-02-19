@@ -1,18 +1,20 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import FriendRequests from '../../../components/layout/right-sidebar-wrapper/components/FriendRequests';
 import NotificationSetting from '../../../components/layout/right-sidebar-wrapper/components/NotificationSetting';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
-import RoundButton from '../../../components/ui/RoundButton';
+import RoundButtonLink from '../../../components/ui/RoundButtonLink';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 function MovieRightSideNav() {
   const params = useParams();
   return (
     <>
-      <Link to="/app/movies/add">
-        <RoundButton className="w-100 mb-4 fs-3 fw-bold">Add your movie</RoundButton>
-      </Link>
+      {
+        enableDevFeatures
+        && <RoundButtonLink to="/app/movies/add" variant="primary" className="w-100 mb-3">Add your movie</RoundButtonLink>
+      }
       {params.id && params.summary && <NotificationSetting />}
       <AdvertisementBox />
       <RecentMessages />

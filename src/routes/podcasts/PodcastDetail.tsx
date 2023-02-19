@@ -149,7 +149,7 @@ function PodcastDetail() {
 
         {params.summary === 'episodes' && <PodcastEpisodes episodeData={episodeData} />}
       </ContentPageWrapper>
-      <RightSidebarWrapper className="d-none d-lg-block">
+      <RightSidebarWrapper>
         <PodcastsSidebar />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>

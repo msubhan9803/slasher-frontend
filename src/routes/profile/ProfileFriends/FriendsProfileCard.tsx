@@ -44,7 +44,7 @@ function FriendsProfileCard({
               /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onAcceptClick}
-              label="check icon"
+              label="accept friend request"
             />
             <CircleButton
               variant="black"
@@ -53,7 +53,7 @@ function FriendsProfileCard({
               /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onRejectClick}
-              label="times icon"
+              label="reject friend request"
             />
           </>
         ) : (

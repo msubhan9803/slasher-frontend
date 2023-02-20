@@ -22,7 +22,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     }`
     : '')
-  }
+}
 
 `;
 

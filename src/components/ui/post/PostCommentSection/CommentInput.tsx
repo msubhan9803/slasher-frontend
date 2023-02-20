@@ -142,7 +142,7 @@ function CommentInput({
                 formatMentionList={formatMention}
                 setFormatMentionList={setFormatMention}
                 defaultValue={decryptMessage(editMessage)}
-                isCommentinput="true"
+                isCommentInput="true"
               />
               <InputGroup.Text>
                 <FontAwesomeIcon
@@ -170,7 +170,7 @@ function CommentInput({
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>
-            <Button onClick={handleMessage} variant="link" className="ms-2 p-0">
+            <Button onClick={handleMessage} variant="link" aria-label="submit" className="ms-2 p-0">
               <FontAwesomeIcon icon={solid('paper-plane')} style={{ fontSize: '26px' }} className="text-primary" />
             </Button>
           </div>

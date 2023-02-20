@@ -19,7 +19,7 @@ function FriendsProfileCard({
         <div className="d-flex align-items-center">
           <Link to={`/${friend.userName}`} onClick={() => onSelect(friend.id)} className="text-decoration-none">
             <div>
-              <UserCircleImage src={friend.profilePic} className="me-2" />
+              <UserCircleImage src={friend.profilePic} alt="user picture" className="me-2" />
             </div>
           </Link>
 
@@ -44,6 +44,7 @@ function FriendsProfileCard({
               /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onAcceptClick}
+              label="accept friend request"
             />
             <CircleButton
               variant="black"
@@ -52,6 +53,7 @@ function FriendsProfileCard({
               /* eslint no-underscore-dangle: 0 */
               userId={friend._id}
               onAcceptRejectClick={onRejectClick}
+              label="reject friend request"
             />
           </>
         ) : (

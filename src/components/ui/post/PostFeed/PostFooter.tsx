@@ -110,7 +110,6 @@ function PostFooter({
           </linearGradient>
         </svg>
       </Row>
-
     </Card.Footer>
   );
 }

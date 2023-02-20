@@ -22,7 +22,7 @@ const StyledMention = styled(Mentions) <SytledMentionProps>`
       }
     }`
     : '')
-}
+  }
 
 `;
 
@@ -47,7 +47,7 @@ interface MentionProps {
   defaultValue?: string;
   id?: string;
   className?: string;
-  isCommentinput?: string;
+  isCommentInput?: string;
 }
 
 function MessageTextarea({
@@ -61,7 +61,7 @@ function MessageTextarea({
   defaultValue,
   id,
   className,
-  isCommentinput,
+  isCommentInput,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
@@ -89,10 +89,10 @@ function MessageTextarea({
 
   return (
     <StyledMention
-      iscommentinput={isCommentinput!}
+      iscommentinput={isCommentInput!}
       id={id}
-      className={isCommentinput ? className : ''}
-      autoSize={{ minRows: rows, maxRows: isCommentinput ? 4 : rows }}
+      className={isCommentInput ? className : ''}
+      autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
       rows={rows}
       onChange={(e) => handleMessage(e)}
       placeholder={placeholder}
@@ -100,6 +100,7 @@ function MessageTextarea({
       onSelect={handleSelect}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
+      aria-label="post"
     >
       {mentionLists?.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
@@ -122,6 +123,6 @@ MessageTextarea.defaultProps = {
   defaultValue: '',
   id: '',
   className: '',
-  isCommentinput: undefined,
+  isCommentInput: undefined,
 };
 export default MessageTextarea;

@@ -126,7 +126,7 @@ function CommentInput({
       <PubWiseAd className="text-center mb-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
-          <UserCircleImage src={userData.user.profilePic} className="me-3 bg-secondary" />
+          <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />
         </Col>
         <Col className="ps-0 pe-4">
           <div className="d-flex align-items-end mb-4">

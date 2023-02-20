@@ -47,7 +47,7 @@ interface ImageList {
   image_path: string;
   _id: string;
 }
-const CommentMessage = styled.span`
+const CommentMessage = styled.h2`
   color: #CCCCCC;
 `;
 const LinearIcon = styled.div<LinearIconProps>`
@@ -110,7 +110,7 @@ function CommentSection({
     <div key={id} className="d-flex">
       <div className={`${!commentMention && 'mt-0 mt-md-3'} ${commentMention && 'ms-md-1'}`}>
         <HashLink to={`/${name}#`}>
-          <UserCircleImage size="2.5rem" src={image} className="me-0 me-md-3 bg-secondary" />
+          <UserCircleImage size="2.5rem" src={image} alt="user picture" className="me-0 me-md-3 bg-secondary" />
         </HashLink>
       </div>
       <div className="w-100">
@@ -121,7 +121,7 @@ function CommentSection({
           <div className="d-flex justify-content-between">
             <div className="ps-0 align-self-center mb-2">
               <HashLink to={`/${name}#`} className="text-decoration-none">
-                <h3 className="mb-0 ">{name}</h3>
+                <h1 className="mb-0 h3">{name}</h1>
               </HashLink>
               <p className="fs-6 text-light mb-0">
                 {DateTime.fromISO(time).toFormat('MM/dd/yyyy t')}
@@ -143,7 +143,7 @@ function CommentSection({
           </span>
 
           <CommentMessage
-            className="mb-0 fs-4"
+            className="mb-0 h4"
             dangerouslySetInnerHTML={
               {
                 __html: newLineToBr(
@@ -156,7 +156,7 @@ function CommentSection({
             {images && images.length > 0 && images.map((imageC: ImageList) => (
               /* eslint no-underscore-dangle: 0 */
               <div key={imageC._id} className="me-3">
-                <UserCircleImage size="5.625rem" src={imageC.image_path} className="mt-2 rounded" />
+                <UserCircleImage size="5.625rem" src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-2 rounded" />
               </div>
             ))}
           </div>

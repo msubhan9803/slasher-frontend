@@ -84,7 +84,7 @@ function PhotoUploadInput({
       className={`image-upload d-flex align-items-center justify-content-center rounded ${className} variant-${variant}`}
       style={{ aspectRatio, height, ...style }}
     >
-      <input {...getInputProps()} />
+      <input {...getInputProps()} aria-label="onboarding photo" />
       {(!photo && !imageUrl) && renderUploadPlaceholder(isDragActive)}
 
       {
@@ -121,6 +121,7 @@ function PhotoUploadInput({
         className={
           `p-1 d-flex align-items-center justify-content-center text-center position-absolute rounded-circle ${(photo || imageUrl) ? 'bg-white text-primary' : 'bg-primary text-white'}`
         }
+        aria-label="photo"
       >
         <FontAwesomeIcon
           icon={(photo || imageUrl) ? solid('times') : solid('plus')}

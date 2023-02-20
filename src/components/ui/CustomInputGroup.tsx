@@ -47,7 +47,6 @@ function CustomInputGroup({
       <FormControl
         placeholder={label}
         aria-label={label}
-        aria-describedby="addon-label"
         type={inputType}
         name={name}
         autoComplete={autoComplete}

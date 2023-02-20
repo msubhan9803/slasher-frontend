@@ -17,6 +17,7 @@ interface MovisHeaderProps {
   sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
   selectedKey?(e: string): void;
   applyFilter?(): void;
+  showMovieTab?: boolean;
 }
 
 const tabs = [
@@ -35,11 +36,12 @@ const sortoptions = [
   { value: 'rating', label: 'User Rating' },
 ];
 function MoviesHeader({
-  tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey, applyFilter,
+  tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey, applyFilter, showMovieTab,
 }: MovisHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={allTabs} toLink="/app/movies" selectedTab={tabKey} />
+      {showMovieTab
+        && <TabLinks tabLink={allTabs} toLink="/app/movies" selectedTab={tabKey} />}
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
@@ -73,6 +75,7 @@ MoviesHeader.defaultProps = {
   sort: undefined,
   selectedKey: null,
   applyFilter: null,
+  showMovieTab: true,
 };
 
 export default MoviesHeader;

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -206,10 +207,7 @@ describe('Favorite List Movies (e2e)', () => {
         const sortNameStartsWith = 'b';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -220,10 +218,7 @@ describe('Favorite List Movies (e2e)', () => {
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -234,10 +229,7 @@ describe('Favorite List Movies (e2e)', () => {
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([{

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
@@ -65,7 +66,7 @@ describe('Watch List Movies (e2e)', () => {
         deleted: MovieDeletionStatus.NotDeleted,
         type: MovieType.MovieDb,
         movieDBId: 662728,
-        name: 'alive',
+        name: 'bird-die',
       }),
     );
     movie2 = await moviesService.create(
@@ -74,7 +75,7 @@ describe('Watch List Movies (e2e)', () => {
         deleted: MovieDeletionStatus.NotDeleted,
         type: MovieType.MovieDb,
         movieDBId: 223344,
-        name: 'bird',
+        name: 'alive',
       }),
     );
     movie3 = await moviesService.create(
@@ -178,7 +179,7 @@ describe('Watch List Movies (e2e)', () => {
         const limit = 5;
         const nameContains = 'c';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
+          .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'rating'}&nameContains=${nameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toHaveLength(1);
@@ -188,14 +189,14 @@ describe('Watch List Movies (e2e)', () => {
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}&startsWith=${sortNameStartsWith}`)
+          .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'name'}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: movie4.name,
+          name: movie2.name,
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
-          releaseDate: movie4.releaseDate.toISOString(),
+          releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
         }]);
       });
@@ -205,10 +206,7 @@ describe('Watch List Movies (e2e)', () => {
         const sortNameStartsWith = 'b';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -219,10 +217,7 @@ describe('Watch List Movies (e2e)', () => {
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([]);
@@ -233,17 +228,14 @@ describe('Watch List Movies (e2e)', () => {
         const sortNameStartsWith = 'a';
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(
-            `/api/v1/users/${activeUser.id}/favorite-list?
-            limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`,
-          )
+          .get(`/api/v1/users/${activeUser.id}/watch-list?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual([{
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          name: movie4.name,
+          name: movie2.name,
           logo: 'http://localhost:4444/placeholders/movie_poster.png',
-          releaseDate: movie4.releaseDate.toISOString(),
+          releaseDate: movie2.releaseDate.toISOString(),
           rating: 0,
         }]);
       });

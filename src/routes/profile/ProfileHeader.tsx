@@ -22,8 +22,9 @@ import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 
 interface Props {
-  tabKey: string;
+  tabKey?: string;
   user: User | undefined;
+  showTabs?: boolean;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -51,7 +52,7 @@ const StyledPopoverContainer = styled.div`
 `;
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function ProfileHeader({ tabKey, user }: Props) {
+function ProfileHeader({ tabKey, user, showTabs }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -177,8 +178,14 @@ function ProfileHeader({ tabKey, user }: Props) {
           </Col>
         </Row>
       </Row>
-      <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+      {
+        showTabs && (
+          <>
+            <StyledBorder className="d-md-block d-none" />
+            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+          </>
+        )
+      }
       <ReportModal
         show={show}
         setShow={setShow}
@@ -189,5 +196,10 @@ function ProfileHeader({ tabKey, user }: Props) {
     </div>
   );
 }
+
+ProfileHeader.defaultProps = {
+  showTabs: true,
+  tabKey: tabs[0].value,
+};
 
 export default ProfileHeader;

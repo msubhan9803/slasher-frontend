@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.s
 import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-posts.service';
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedLikesService } from '../../../../../src/feed-likes/providers/feed-likes.service';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Delete Feed Post Likes (e2e)', () => {
   let app: INestApplication;
@@ -37,10 +38,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -77,10 +75,10 @@ describe('Delete Feed Post Likes (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.OK);
-        expect(response.body).toEqual({ success: true });
-        const feedPostData = await feedPostsService.findById(feedPost.id, false);
-        expect(feedPostData.likes).toHaveLength(1);
-        expect(feedPostData.likeCount).toBe(1);
+      expect(response.body).toEqual({ success: true });
+      const feedPostData = await feedPostsService.findById(feedPost.id, false);
+      expect(feedPostData.likes).toHaveLength(1);
+      expect(feedPostData.likeCount).toBe(1);
     });
 
     it('when feed post id is not exist than expected response', async () => {

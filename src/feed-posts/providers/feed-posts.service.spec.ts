@@ -22,6 +22,7 @@ import { rssFeedFactory } from '../../../test/factories/rss-feed.factory';
 import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -55,6 +56,7 @@ describe('FeedPostsService', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -113,6 +115,7 @@ describe('FeedPostsService', () => {
           {
             userId: activeUser.id,
             rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
           },
         ),
       );
@@ -121,6 +124,7 @@ describe('FeedPostsService', () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(feedPostDetails.message).toEqual(feedPost.message);
+      expect(feedPostDetails.likeCount).toBe(2);
     });
 
     it('finds the expected feed post details that has not deleted and active status', async () => {
@@ -146,6 +150,7 @@ describe('FeedPostsService', () => {
         await feedPostsService.create(
           feedPostFactory.build({
             userId: activeUser.id,
+            likes: [activeUser._id, user0._id],
           }),
         );
         await feedPostsService.create(
@@ -168,6 +173,7 @@ describe('FeedPostsService', () => {
       const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, feedPost.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+        expect(feedPostData[i].likeCount).toBe(2);
       }
       expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);
@@ -363,6 +369,18 @@ describe('FeedPostsService', () => {
         }
         expect(secondResults).toHaveLength(4);
       });
+
+      it('returns the expected likeCount', async () => {
+        const userData = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userData.id,
+            likes: [userData._id],
+          }),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
+        expect(feedPosts[0].likeCount).toBe(1);
+      });
     });
 
     describe('should not include posts hidden for current user', () => {
@@ -463,6 +481,7 @@ describe('FeedPostsService', () => {
             feedPostFactory.build({
               rssfeedProviderId: rssFeedProviderToFollow1.id,
               userId: rssFeedProviderToFollow1.id,
+              likes: [activeUser._id, user0._id],
             }),
           ),
           // Inactive post
@@ -531,6 +550,13 @@ describe('FeedPostsService', () => {
       }
       expect(secondResults).toHaveLength(4);
     });
+
+    it('returns the expected likeCount', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true);
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].likeCount).toBe(2);
+      }
+    });
   });
 
   describe('#hidePost', () => {
@@ -569,16 +595,16 @@ describe('FeedPostsService', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build({ userId: activeUser._id }),
       );
-    user1 = await usersService.create(userFactory.build({ userName: 'Covey' }));
-    user2 = await usersService.create(userFactory.build({ userName: 'Harry' }));
+      user1 = await usersService.create(userFactory.build({ userName: 'Covey' }));
+      user2 = await usersService.create(userFactory.build({ userName: 'Harry' }));
 
-    await friendsService.createFriendRequest(activeUser.id, user0.id);
-    await friendsService.acceptFriendRequest(activeUser.id, user0.id);
+      await friendsService.createFriendRequest(activeUser.id, user0.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user0.id);
 
-    await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
-    await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
-    await feedLikesService.createFeedPostLike(feedPost.id, user1.id);
-    await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user1.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
     });
 
     it('successfully return list of like users', async () => {

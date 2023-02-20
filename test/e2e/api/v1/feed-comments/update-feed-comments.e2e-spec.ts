@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -16,6 +16,7 @@ import { FeedCommentsService } from '../../../../../src/feed-comments/providers/
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Comments / Comments Update (e2e)', () => {
   let app: INestApplication;
@@ -54,10 +55,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -191,16 +189,16 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
     });
 
     it('when feed comment id and login user id is not match than expected response', async () => {
-        const feedComments1 = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build(
-            {
-              userId: user0._id,
-              feedPostId: feedPost.id,
-              message: sampleFeedCommentsObject.message,
-              images: sampleFeedCommentsObject.images,
-            },
-          ),
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user0._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-comments/${feedComments1._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })

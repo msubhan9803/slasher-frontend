@@ -14,6 +14,7 @@ import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentsService } from '../../feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -49,6 +50,7 @@ describe('FeedLikesService', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -57,7 +59,7 @@ describe('FeedLikesService', () => {
   });
 
   let feedComments; let
-feedReply;
+    feedReply;
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);

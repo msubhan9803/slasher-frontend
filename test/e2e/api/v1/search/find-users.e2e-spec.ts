@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Find Users(e2e)', () => {
   let app: INestApplication;
@@ -34,10 +35,7 @@ describe('Find Users(e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

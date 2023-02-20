@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, HttpStatus, VersioningType } from '@nestjs/common';
+import { INestApplication, HttpStatus } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -39,10 +40,7 @@ describe('Update Feed Post (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     feedPostsService = moduleRef.get<FeedPostsService>(FeedPostsService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

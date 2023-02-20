@@ -11,6 +11,7 @@ import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-
 import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
 import { RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('RssFeedService', () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe('RssFeedService', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

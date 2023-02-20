@@ -130,6 +130,7 @@ export class FeedCommentsController {
     };
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch(':feedCommentId')
   async updateFeedComment(
     @Req() request: Request,
@@ -262,6 +263,7 @@ export class FeedCommentsController {
     };
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch('replies/:feedReplyId')
   async updateFeedReply(
     @Req() request: Request,

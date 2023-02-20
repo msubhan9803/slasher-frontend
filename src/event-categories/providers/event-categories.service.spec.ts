@@ -8,6 +8,7 @@ import { AppModule } from '../../app.module';
 import { EventCategoriesService } from './event-categories.service';
 import { EventCategoryDeletionState, EventCategoryStatus } from '../../schemas/eventCategory/eventCategory.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('EventCategoriesService', () => {
   let app: INestApplication;
@@ -22,6 +23,7 @@ describe('EventCategoriesService', () => {
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

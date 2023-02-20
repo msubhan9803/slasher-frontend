@@ -14,6 +14,7 @@ import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/s
 import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -40,6 +41,7 @@ describe('FriendsService', () => {
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

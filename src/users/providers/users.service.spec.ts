@@ -15,6 +15,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -35,6 +36,7 @@ describe('UsersService', () => {
     blocksService = moduleRef.get<BlocksService>(BlocksService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -15,6 +15,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { SuggestBlock, SuggestBlockDocument } from '../../../../../src/schemas/suggestBlock/suggestBlock.schema';
 import { SuggestBlockReaction } from '../../../../../src/schemas/suggestBlock/suggestBlock.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / delete account (e2e)', () => {
   let app: INestApplication;
@@ -43,10 +44,7 @@ describe('Users / delete account (e2e)', () => {
     suggestBlocksModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,7 @@ import { NotificationsService } from '../../../../../src/notifications/providers
 import { notificationFactory } from '../../../../factories/notification.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { NotificationDeletionStatus } from '../../../../../src/schemas/notification/notification.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Delete Notifications (e2e)', () => {
   let app: INestApplication;
@@ -34,10 +35,7 @@ describe('Delete Notifications (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

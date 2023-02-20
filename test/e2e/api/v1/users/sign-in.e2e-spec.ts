@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
@@ -12,6 +12,7 @@ import { userFactory } from '../../../../factories/user.factory';
 import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -36,10 +37,7 @@ describe('Users sign-in (e2e)', () => {
 
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +12,7 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { userFactory } from '../../../../factories/user.factory';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('GET settings (e2e)', () => {
   let app: INestApplication;
@@ -32,10 +33,7 @@ describe('GET settings (e2e)', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

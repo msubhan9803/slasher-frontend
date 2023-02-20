@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -12,6 +12,7 @@ import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { User } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -30,10 +31,7 @@ describe('Feed-Post / Post File (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -73,19 +71,19 @@ describe('Feed-Post / Post File (e2e)', () => {
           userId: activeUser._id.toString(),
           images: [
             {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
             {
-              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              image_path: expect.stringMatching(/api\/v1\/local-storage\/\/feed\/feed_.+\.png|jpe?g/),
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             },
           ],

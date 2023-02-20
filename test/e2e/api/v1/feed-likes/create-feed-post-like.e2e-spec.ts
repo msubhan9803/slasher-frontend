@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -20,6 +20,7 @@ import { NotificationType } from '../../../../../src/schemas/notification/notifi
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -51,10 +52,7 @@ describe('Create Feed Post Like (e2e)', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

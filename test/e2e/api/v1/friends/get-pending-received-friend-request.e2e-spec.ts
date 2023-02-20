@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -10,6 +10,7 @@ import { UsersService } from '../../../../../src/users/providers/users.service';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Get Friends (e2e)', () => {
   let app: INestApplication;
@@ -33,10 +34,7 @@ describe('Get Friends (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

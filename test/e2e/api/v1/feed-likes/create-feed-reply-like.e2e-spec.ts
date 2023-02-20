@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -18,6 +18,7 @@ import { NotificationType } from '../../../../../src/schemas/notification/notifi
 import { FeedComment } from '../../../../../src/schemas/feedComment/feedComment.schema';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -55,10 +56,7 @@ describe('Create Feed Reply Like (e2e)', () => {
     feedCommentsService = moduleRef.get<FeedCommentsService>(FeedCommentsService);
     notificationsService = moduleRef.get<NotificationsService>(NotificationsService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -99,15 +97,15 @@ describe('Create Feed Reply Like (e2e)', () => {
         ),
       );
       feedReply = await feedCommentsService.createFeedReply(
-          feedRepliesFactory.build(
-            {
-              userId: user0._id,
-              feedCommentId: feedComments.id,
-              message: feedCommentsAndReplyObject.message,
-              images: feedCommentsAndReplyObject.images,
-            },
-          ),
-        );
+        feedRepliesFactory.build(
+          {
+            userId: user0._id,
+            feedCommentId: feedComments.id,
+            message: feedCommentsAndReplyObject.message,
+            images: feedCommentsAndReplyObject.images,
+          },
+        ),
+      );
     });
 
     it('successfully creates a feed reply like, and sends the expected notification', async () => {

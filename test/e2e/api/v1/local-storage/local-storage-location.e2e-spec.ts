@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,6 +9,7 @@ import { AppModule } from '../../../../../src/app.module';
 import { createTempFile } from '../../../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../../../src/local-storage/providers/local-storage.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;
@@ -22,10 +23,7 @@ describe('Local-Storage / Get File (e2e)', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     localStorageService = moduleRef.get<LocalStorageService>(LocalStorageService);
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -58,6 +56,15 @@ describe('Local-Storage / Get File (e2e)', () => {
         .send()
         .expect(HttpStatus.OK)
         .expect(fileContent);
+    });
+
+    it('does not serve files outside of the local storage directory', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/local-storage/../package.json')
+        .send()
+        .expect(HttpStatus.NOT_FOUND);
+
+      expect(response.body.message).toContain('File not found');
     });
 
     it('responds expected response when file path is not present at requested path', async () => {

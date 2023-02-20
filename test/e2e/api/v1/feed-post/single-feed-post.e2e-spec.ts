@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -21,6 +21,7 @@ import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -48,10 +49,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -103,11 +101,11 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         },
         images: [
           {
-            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
-            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],
@@ -189,11 +187,11 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         rssFeedId: null,
         images: [
           {
-            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
           {
-            image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+            image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           },
         ],

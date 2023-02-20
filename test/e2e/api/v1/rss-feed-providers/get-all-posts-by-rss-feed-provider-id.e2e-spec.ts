@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -17,6 +17,7 @@ import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/p
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
   let app: INestApplication;
@@ -44,10 +45,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -116,11 +114,11 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           images: [
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+              image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
             },
           ],
           createdAt: firstFeedPostsDates.createdAt.toISOString(),
@@ -182,11 +180,11 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
             ],
             likeCount: 0,
@@ -209,11 +207,11 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
             ],
             likeCount: 0,
@@ -236,11 +234,11 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             images: [
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
               {
                 _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-                image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+                image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
             ],
             likeCount: 0,

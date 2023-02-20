@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { MoviesService } from '../../../../../src/movies/providers/movies.servic
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Movie / Find First By Release Year (e2e)', () => {
   let app: INestApplication;
@@ -33,10 +34,7 @@ describe('Movie / Find First By Release Year (e2e)', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

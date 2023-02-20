@@ -18,6 +18,7 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 import { notificationFactory } from '../../../test/factories/notification.factory';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -41,6 +42,7 @@ describe('NotificationsService', () => {
     notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

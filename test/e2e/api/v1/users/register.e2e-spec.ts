@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -13,6 +13,7 @@ import { DisallowedUsernameService } from '../../../../../src/disallowedUsername
 import { validUuidV4Regex } from '../../../../helpers/regular-expressions';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -45,10 +46,7 @@ describe('Users / Register (e2e)', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

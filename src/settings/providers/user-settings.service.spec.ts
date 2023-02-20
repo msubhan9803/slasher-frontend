@@ -10,6 +10,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { UserSettingDocument } from '../../schemas/userSetting/userSetting.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('UserSettingsService', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('UserSettingsService', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

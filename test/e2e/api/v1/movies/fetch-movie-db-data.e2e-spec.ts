@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -19,6 +19,7 @@ import moviedbid2907ApiMainMovieResponse from '../../../../fixtures/movie-db/mov
 import moviedbid2907ApiConfigurationResponse from '../../../../fixtures/movie-db/moviedbid-2907-api-configuration-response';
 import moviedbid2907ApiCreditsResponse from '../../../../fixtures/movie-db/moviedbid-2907-api-credits-response';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 const mockHttpService = () => ({
 });
@@ -47,10 +48,7 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
     httpService = moduleRef.get<HttpService>(HttpService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

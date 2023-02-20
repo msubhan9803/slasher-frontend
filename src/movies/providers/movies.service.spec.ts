@@ -24,6 +24,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 const mockHttpService = () => ({
 });
@@ -55,6 +56,7 @@ describe('MoviesService', () => {
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
     httpService = await app.get<HttpService>(HttpService);
   });

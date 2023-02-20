@@ -12,6 +12,7 @@ import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -40,6 +41,7 @@ describe('ChatService', () => {
     chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

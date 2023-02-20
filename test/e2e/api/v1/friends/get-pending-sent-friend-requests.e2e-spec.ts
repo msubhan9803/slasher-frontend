@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication, VersioningType } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -10,6 +10,7 @@ import { UsersService } from '../../../../../src/users/providers/users.service';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Get Friends (e2e)', () => {
   let app: INestApplication;
@@ -33,10 +34,7 @@ describe('Get Friends (e2e)', () => {
     friendsService = moduleRef.get<FriendsService>(FriendsService);
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -69,18 +67,18 @@ describe('Get Friends (e2e)', () => {
           .get(`/api/v1/friends/requests/sent?limit=${limit}&offset=${offset}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
-          expect(response.body).toEqual([
-            {
-              _id: user3._id.toString(),
-              userName: 'Username4',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            },
-            {
-              _id: user2._id.toString(),
-              userName: 'Username3',
-              profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-            },
-          ]);
+        expect(response.body).toEqual([
+          {
+            _id: user3._id.toString(),
+            userName: 'Username4',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+          {
+            _id: user2._id.toString(),
+            userName: 'Username3',
+            profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
+          },
+        ]);
       });
     });
 

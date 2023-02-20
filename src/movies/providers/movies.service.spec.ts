@@ -339,7 +339,7 @@ describe('MoviesService', () => {
       expect(moviesList).toHaveLength(1);
     });
 
-    it('when sortnamestartswith supplied than expected response', async () => {
+    it('when sort_name startsWith supplied than expected response', async () => {
       await moviesService.create(
         moviesFactory.build(
           {

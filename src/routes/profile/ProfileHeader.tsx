@@ -22,8 +22,9 @@ import { enableDevFeatures } from '../../utils/configEnvironment';
 import FriendActionButtons from '../../components/ui/Friend/FriendActionButtons';
 
 interface Props {
-  tabKey: string;
+  tabKey?: string;
   user: User | undefined;
+  showTabs?: boolean;
 }
 const AboutProfileImage = styled(UserCircleImage)`
   border: 0.25rem solid #1B1B1B;
@@ -51,7 +52,7 @@ const StyledPopoverContainer = styled.div`
 `;
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function ProfileHeader({ tabKey, user }: Props) {
+function ProfileHeader({ tabKey, user, showTabs }: Props) {
   const [show, setShow] = useState<boolean>(false);
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(null);
@@ -116,12 +117,12 @@ function ProfileHeader({ tabKey, user }: Props) {
       <Row className="p-md-4">
         <Col>
           <ImageContainer>
-            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover image" className="w-100 rounded" />
+            <Image src={user.coverPhoto || defaultCoverImage} alt="Cover picture" className="w-100 rounded" />
           </ImageContainer>
         </Col>
         <Row className="d-flex ms-3">
           <CustomCol md={3} lg={12} xl="auto" className="text-center text-lg-center text-xl-start  position-relative">
-            <AboutProfileImage size="11.25rem" src={user?.profilePic} />
+            <AboutProfileImage size="11.25rem" src={user?.profilePic} alt="user picture" />
             {!isSelfUserProfile
               && (
                 <StyledPopoverContainer className="d-block d-md-none d-lg-block d-xl-none position-absolute">
@@ -150,7 +151,7 @@ function ProfileHeader({ tabKey, user }: Props) {
                     <div className="d-flex justify-content-md-end justify-content-lg-center justify-content-xl-end justify-content-center">
                       <RoundButton className="btn btn-form bg-black rounded-5 d-flex px-4 py-2" onClick={() => navigate(`/${userName}/edit`)}>
                         <FontAwesomeIcon icon={solid('pen')} className="me-2 align-self-center" />
-                        <h3 className="mb-0"> Edit profile</h3>
+                        <h2 className="h3 mb-0"> Edit profile</h2>
                       </RoundButton>
                     </div>
                   )}
@@ -177,8 +178,14 @@ function ProfileHeader({ tabKey, user }: Props) {
           </Col>
         </Row>
       </Row>
-      <StyledBorder className="d-md-block d-none" />
-      <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+      {
+        showTabs && (
+          <>
+            <StyledBorder className="d-md-block d-none" />
+            <TabLinks tabLink={allTabs} toLink={`/${user?.userName}`} selectedTab={tabKey} />
+          </>
+        )
+      }
       <ReportModal
         show={show}
         setShow={setShow}
@@ -189,5 +196,10 @@ function ProfileHeader({ tabKey, user }: Props) {
     </div>
   );
 }
+
+ProfileHeader.defaultProps = {
+  showTabs: true,
+  tabKey: tabs[0].value,
+};
 
 export default ProfileHeader;

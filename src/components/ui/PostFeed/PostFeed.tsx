@@ -27,6 +27,7 @@ import {
 import LoadingIndicator from '../LoadingIndicator';
 import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { useAppSelector } from '../../../redux/hooks';
+import { MD_MEDIA_BREAKPOINT } from '../../../constants';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -61,14 +62,16 @@ interface Props {
   onSelect?: (value: string) => void;
 }
 const StyledPostFeed = styled.div`
-  @media(max-width: 767px) {
-    .post {
-      border-bottom: 1px solid #3A3B46;
+    .post-separator {
+      border-top: 1px solid var(--bs-light);
+      margin: 1rem 0;
     }
-    .post:last-of-type {
-      border-bottom: none;
+
+    @media (min-width: ${MD_MEDIA_BREAKPOINT}) {
+      .post-separator {
+        margin: 1rem 1.5rem;
+      }
     }
-  }
 `;
 
 function PostFeed({
@@ -292,7 +295,13 @@ function PostFeed({
               )
             }
           </div>
-          {(i + 1) % 3 === 0 && pubWiseAdDivId && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}
+          <hr className="post-separator" />
+          {(i + 1) % 3 === 0 && pubWiseAdDivId && (
+            <>
+              <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
+              <hr className="post-separator" />
+            </>
+          )}
         </div>
       ))}
       {!isSinglePagePost && pubWiseAdDivId && postData.length < 3 && postData.length !== 0 && <PubWiseAd className="text-center my-3" id={pubWiseAdDivId} autoSequencer />}

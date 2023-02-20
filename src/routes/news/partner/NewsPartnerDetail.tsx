@@ -37,7 +37,7 @@ function NewsPartnerDetail() {
         <Row>
           <Col md="auto">
             <div className="d-flex justify-content-center">
-              <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} className="rounded-4" />
+              <UserCircleImage size="11.25rem" src={rssFeedProviderDetail?.logo} alt="news partner logo" className="rounded-4" />
             </div>
           </Col>
           <Col md={7} lg={6} xl={7} className="pt-md-4 pt-md-2 pt-0 pb-lg-4">

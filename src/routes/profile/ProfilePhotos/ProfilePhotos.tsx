@@ -92,7 +92,7 @@ function ProfilePhotos({ user }: Props) {
                 <Col xs={4} md={3} key={images._id}>
                   <ProfilePhoto className="position-relative">
                     <Link to={`/${user.userName}/posts/${data.id}?imageId=${images._id}`}>
-                      <Image src={images.image_path} className="rounded mt-4 w-100 h-100" key={images._id} />
+                      <Image src={images.image_path} alt={`view photo: id ${images._id}`} className="rounded mt-4 w-100 h-100" key={images._id} />
                     </Link>
                   </ProfilePhoto>
                 </Col>

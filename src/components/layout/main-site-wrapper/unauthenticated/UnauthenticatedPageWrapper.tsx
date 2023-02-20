@@ -5,8 +5,9 @@ import { Link } from 'react-router-dom';
 import UnauthenticatedPageFooter from './UnauthenticatedPageFooter';
 import signInImage from '../../../../images/sign-in-background-desktop.jpg';
 import HeaderLogo from '../../../ui/HeaderLogo';
-import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
+import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 
 interface Props {
   hideTopLogo?: boolean,
@@ -38,6 +39,7 @@ function UnauthenticatedPageWrapper({
 
   return (
     <div className="page-wrapper nonav">
+      <SkipToMainContent />
       <header className="text-center text-md-start">
         <Container fluid="lg" className={`${hideTopLogo ? 'd-none' : ''}`}>
           <Link to="/">
@@ -45,7 +47,7 @@ function UnauthenticatedPageWrapper({
           </Link>
         </Container>
       </header>
-      <StyledMain className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo}>
+      <StyledMain id={MAIN_CONTENT_ID} className={`d-flex align-items-${valign}`} hideTopLogo={hideTopLogo}>
         <Container fluid={`${hideTopLogo ? 'fluid' : 'lg'}`}>
           {children}
         </Container>

@@ -50,7 +50,7 @@ function PosterCard({
   return (
     <PosterCardStyle className="bg-transparent border-0">
       <div className="poster">
-        <Card.Img variant="top" src={poster} className="w-100 h-100 rounded-4" />
+        <Card.Img variant="top" src={poster} alt={`${name} poster`} className="w-100 h-100 rounded-4" />
       </div>
       <RatingDiv className="d-flex justify-content-end me-2">
         <Card.Text className="rating bg-white mb-0 px-2 rounded-5 fs-5 text-black">

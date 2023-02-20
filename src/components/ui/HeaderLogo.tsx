@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
-import slasherLogo from '../../images/slasher-logo-medium.png';
+import slasherLogo from '../../images/slasher-beta-logo-medium.png';
 
 const StyledLogoImage = styled(Image)`
   height: 5rem;

@@ -14,8 +14,8 @@ import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
-import slasherLogo from '../../images/slasher-logo-medium.png';
-import signInImageMobile from '../../images/sign-in-background-mobile.jpg';
+import slasherLogo from '../../images/slasher-beta-logo-medium.png';
+import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 interface UserCredentials {

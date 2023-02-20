@@ -301,7 +301,7 @@ function PostFeed({
               )
             }
           </div>
-          <hr className="post-separator" />
+          {!detailPage && <hr className="post-separator" />}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />

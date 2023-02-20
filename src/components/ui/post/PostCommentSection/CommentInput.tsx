@@ -143,6 +143,7 @@ function CommentInput({
                 setFormatMentionList={setFormatMention}
                 defaultValue={decryptMessage(editMessage)}
                 isCommentInput="true"
+                setIsReply={setIsReply}
               />
               <InputGroup.Text>
                 <FontAwesomeIcon

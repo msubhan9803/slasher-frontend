@@ -48,6 +48,7 @@ interface MentionProps {
   id?: string;
   className?: string;
   isCommentInput?: string;
+  setIsReply?: (value: boolean) => void;
 }
 
 function MessageTextarea({
@@ -62,6 +63,7 @@ function MessageTextarea({
   id,
   className,
   isCommentInput,
+  setIsReply,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
@@ -98,6 +100,7 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
+      onFocus={() => isCommentInput && setIsReply!(false)}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="post"
@@ -124,5 +127,6 @@ MessageTextarea.defaultProps = {
   id: '',
   className: '',
   isCommentInput: undefined,
+  setIsReply: undefined,
 };
 export default MessageTextarea;

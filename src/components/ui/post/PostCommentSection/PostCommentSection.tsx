@@ -192,6 +192,16 @@ function PostCommentSection({
     }
   }, [replyUserName, isReply, selectedReplyCommentId]);
 
+  useEffect(() => {
+    if (!isReply) {
+      setReplyImageArray([]);
+      setSelectedReplyId('');
+      setSelectedReplyCommentId('');
+    }
+    setUploadPost([]);
+    setImageArray([]);
+  }, [isReply]);
+
   const sendComment = (commentId?: string) => {
     const imageArr = commentId ? replyImageArray : imageArray;
     if (!commentId) {

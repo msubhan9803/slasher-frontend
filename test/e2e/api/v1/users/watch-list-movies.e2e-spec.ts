@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../../../.
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Watch List Movies (e2e)', () => {
   let app: INestApplication;
@@ -37,10 +38,7 @@ describe('Watch List Movies (e2e)', () => {
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -144,14 +142,14 @@ describe('Watch List Movies (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: movie2.name,
-            logo: null,
+            logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: movie3.name,
-            logo: null,
+            logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
           },

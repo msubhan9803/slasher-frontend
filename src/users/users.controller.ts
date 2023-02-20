@@ -66,6 +66,7 @@ import { RegisterUser } from '../types';
 import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
 import { MoviesService } from '../movies/providers/movies.service';
 import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
 @Controller({ path: 'users', version: ['1'] })
 export class UsersController {
@@ -86,6 +87,7 @@ export class UsersController {
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
     private readonly moviesService: MoviesService,
+    private configService: ConfigService,
   ) { }
 
   @Post('sign-in')
@@ -783,6 +785,16 @@ export class UsersController {
       query.nameContains,
       watchedMovieIds as unknown as mongoose.Types.ObjectId[],
     );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
@@ -809,6 +821,16 @@ export class UsersController {
       query.nameContains,
       watchMovieIds as unknown as mongoose.Types.ObjectId[],
     );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
@@ -835,12 +857,22 @@ export class UsersController {
       query.nameContains,
       buyMovieIds as unknown as mongoose.Types.ObjectId[],
     );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );
   }
 
-  @Get(':userId/favorites')
+  @Get(':userId/favorite-list')
   async favoriteListMovies(
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
@@ -861,6 +893,16 @@ export class UsersController {
       query.nameContains,
       favoriteMovieIds as unknown as mongoose.Types.ObjectId[],
     );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
     return movies.map(
       (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
     );

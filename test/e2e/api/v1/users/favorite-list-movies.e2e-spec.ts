@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { HttpStatus, INestApplication, VersioningType } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../../../.
 import { MoviesService } from '../../../../../src/movies/providers/movies.service';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 
 describe('Favorite List Movies (e2e)', () => {
   let app: INestApplication;
@@ -37,10 +38,7 @@ describe('Favorite List Movies (e2e)', () => {
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
 
     app = moduleRef.createNestApplication();
-    app.setGlobalPrefix('api');
-    app.enableVersioning({
-      type: VersioningType.URI,
-    });
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -132,12 +130,12 @@ describe('Favorite List Movies (e2e)', () => {
     });
   });
 
-  describe('Get /api/v1/users/:userId/favorites', () => {
+  describe('Get /api/v1/users/:userId/favorite-list', () => {
     describe('User all the favorite movies list', () => {
       it('get all the user favorite movies list', async () => {
         const limit = 5;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}&&sortBy=name`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&&sortBy=name`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
 
@@ -145,14 +143,14 @@ describe('Favorite List Movies (e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: movie2.name,
-            logo: null,
+            logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             name: movie3.name,
-            logo: null,
+            logo: 'http://localhost:4444/placeholders/movie_poster.png',
             releaseDate: expect.any(String),
             rating: 0,
           },
@@ -163,7 +161,7 @@ describe('Favorite List Movies (e2e)', () => {
         const nonExistentUserId = '5d1df8ebe9a186319c225cd6';
         const limit = 2;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${nonExistentUserId}/favorites?limit=${limit}&&sortBy=name`)
+          .get(`/api/v1/users/${nonExistentUserId}/favorite-list?limit=${limit}&&sortBy=name`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.NOT_FOUND);
@@ -177,7 +175,7 @@ describe('Favorite List Movies (e2e)', () => {
     describe('Validation', () => {
       it('limit should not be empty', async () => {
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?&sortBy=${'name'}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?&sortBy=${'name'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit should not be empty');
@@ -186,7 +184,7 @@ describe('Favorite List Movies (e2e)', () => {
       it('limit should be a number', async () => {
         const limit = 'a';
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}&sortBy=${'name'}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'name'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must be a number conforming to the specified constraints');
@@ -195,7 +193,7 @@ describe('Favorite List Movies (e2e)', () => {
       it('limit should not be grater than 20', async () => {
         const limit = 21;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}&sortBy=${'releasedate'}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'releasedate'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('limit must not be greater than 20');
@@ -204,7 +202,7 @@ describe('Favorite List Movies (e2e)', () => {
       it('sortBy should not be empty', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy should not be empty');
@@ -213,7 +211,7 @@ describe('Favorite List Movies (e2e)', () => {
       it('sortBy must be one of the following values: name, releaseDate, rating', async () => {
         const limit = 3;
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}&sortBy=${'tests'}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'tests'}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate, rating');
@@ -223,7 +221,7 @@ describe('Favorite List Movies (e2e)', () => {
         const limit = 10;
         const nameContains = new Array(35).join('z');
         const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/${activeUser.id}/favorites?limit=${limit}&sortBy=${'releasedate'}&nameContains=${nameContains}`)
+          .get(`/api/v1/users/${activeUser.id}/favorite-list?limit=${limit}&sortBy=${'releasedate'}&nameContains=${nameContains}`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('nameContains must be shorter than or equal to 30 characters');

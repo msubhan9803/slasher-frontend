@@ -192,7 +192,7 @@ export class MoviesService {
     after?: mongoose.Types.ObjectId,
     nameContains?: string,
     movieIdsIn?: mongoose.Types.ObjectId[],
-
+    sortNameStartsWith?: string,
   ): Promise<MovieDocument[]> {
     const movieFindAllQuery: any = {
       type: MovieType.MovieDb,
@@ -219,6 +219,10 @@ export class MoviesService {
     if (nameContains) {
       movieFindAllQuery.name = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
+    if (sortNameStartsWith) {
+      movieFindAllQuery.sort_name = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+    }
+
     let sortMoviesByNameAndReleaseDate: any;
     if (sortBy === 'name') {
       sortMoviesByNameAndReleaseDate = { sort_name: 1 };
@@ -448,15 +452,15 @@ export class MoviesService {
     const watchMovieIdByUser = await this.movieUserStatusModel
       .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
       .exec();
-      const watchMovieIdArray = watchMovieIdByUser.map((movie) => movie.movieId);
-      return watchMovieIdArray as unknown as MovieUserStatusDocument[];
+    const watchMovieIdArray = watchMovieIdByUser.map((movie) => movie.movieId);
+    return watchMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 
   async getBuyListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
     const buyMovieIdByUser = await this.movieUserStatusModel
       .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
       .exec();
-      const buyMovieIdArray = buyMovieIdByUser.map((movie) => movie.movieId);
+    const buyMovieIdArray = buyMovieIdByUser.map((movie) => movie.movieId);
     return buyMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 

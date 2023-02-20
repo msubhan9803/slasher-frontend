@@ -784,6 +784,7 @@ export class UsersController {
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       watchedMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
     );
     movies.forEach((movie) => {
       if (movie.logo?.length > 1) {
@@ -820,6 +821,7 @@ export class UsersController {
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       watchMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
     );
     movies.forEach((movie) => {
       if (movie.logo?.length > 1) {
@@ -856,6 +858,7 @@ export class UsersController {
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       buyMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
     );
     movies.forEach((movie) => {
       if (movie.logo?.length > 1) {
@@ -892,6 +895,7 @@ export class UsersController {
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
       favoriteMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
     );
     movies.forEach((movie) => {
       if (movie.logo?.length > 1) {

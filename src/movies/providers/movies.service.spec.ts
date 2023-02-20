@@ -339,6 +339,52 @@ describe('MoviesService', () => {
       expect(moviesList).toHaveLength(1);
     });
 
+    it('when sortnamestartswith supplied than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'alive',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'albeli',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'aquaman',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'blue-whel',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'cat-die',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'name', null, null, null, 'a');
+      expect(moviesList).toHaveLength(3);
+    });
+
     it('when movies is sort by rating than expected response', async () => {
       await moviesService.create(
         moviesFactory.build(

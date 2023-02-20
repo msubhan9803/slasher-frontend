@@ -63,6 +63,8 @@ export class MoviesController {
       query.sortBy,
       query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
       query.nameContains,
+      null,
+      query.startsWith,
     );
     if (!movies) {
       throw new HttpException('No movies found', HttpStatus.NOT_FOUND);

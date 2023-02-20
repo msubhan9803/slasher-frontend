@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsMongoId,
-  IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength,
+  IsNotEmpty, IsNumber, IsOptional, IsString, Matches, Max, MaxLength,
 } from 'class-validator';
 
 export class FindAllMoviesDto {
@@ -29,4 +29,8 @@ export class FindAllMoviesDto {
 
   @IsOptional()
   movieIdsIn: string;
+
+  @IsOptional()
+  @Matches(/^[a-z0-9#]+$/)
+  startsWith: string;
 }

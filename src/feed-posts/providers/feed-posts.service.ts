@@ -52,12 +52,11 @@ export class FeedPostsService {
       .populate('rssFeedId', 'content')
       .exec();
 
-    const post = JSON.parse(JSON.stringify(feedPost));
-    if (post) {
-      post.likeCount = feedPost.likes.length || 0;
-      post.likedByUser = feedPost.likes.includes(identifyLikesForUser);
+    if (feedPost) {
+      feedPost.likeCount = feedPost.likes.length || 0;
+      (feedPost as any).likedByUser = feedPost.likes.includes(identifyLikesForUser);
     }
-    return post;
+    return feedPost;
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {

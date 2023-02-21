@@ -433,7 +433,7 @@ describe('FeedPostsService', () => {
         await feedPostsService.hidePost(feedPost1.id, activeUser.id);
         // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
         const reloadedFeedPost1 = await feedPostsService.findById(feedPost1.id, false);
-        expect(reloadedFeedPost1.hideUsers).toEqual([activeUser.id]);
+        expect(reloadedFeedPost1.hideUsers).toEqual([activeUser._id]);
 
         // Verify that the post is not returned after hiding, but that other posts still are
         const afterResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
@@ -612,7 +612,7 @@ describe('FeedPostsService', () => {
       await feedPostsService.hidePost(feedPost._id, user0.id);
       const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
 
-      expect(updatedFeedPost.hideUsers).toEqual([user0.id]);
+      expect(updatedFeedPost.hideUsers).toEqual([user0._id]);
     });
 
     it('should not add user id to `hideUsers` field a second time if id *already* exists in the `hideUsers` array', async () => {
@@ -620,7 +620,7 @@ describe('FeedPostsService', () => {
       await feedPostsService.hidePost(feedPost._id, user0.id);
 
       const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
-      expect(updatedFeedPost.hideUsers).toEqual([user0.id]);
+      expect(updatedFeedPost.hideUsers).toEqual([user0._id]);
     });
   });
 

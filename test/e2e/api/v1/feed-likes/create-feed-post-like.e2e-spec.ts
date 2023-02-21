@@ -95,16 +95,16 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(reloadedFeedPost.likes).toHaveLength(2);
       expect(reloadedFeedPost.likeCount).toBe(2);
 
-      const feedPostDataObject = (reloadedFeedPost as any).toObject();
+      const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
       expect(notificationsService.create).toHaveBeenCalledWith({
         feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
         userId: {
-          _id: feedPostDataObject.userId._id.toString(),
-          profilePic: feedPostDataObject.userId.profilePic,
-          userName: feedPostDataObject.userId.userName,
+          _id: feedPostDataObject._id.toString(),
+          profilePic: feedPostDataObject.profilePic,
+          userName: feedPostDataObject.userName,
         },
       });
     });

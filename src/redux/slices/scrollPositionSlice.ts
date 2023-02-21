@@ -8,6 +8,8 @@ export const scrollPositionSlice = createSlice({
     data: [],
     positionElementId: '',
     searchValue: '',
+    sortValue: 'name',
+    selectedKey: '',
   },
   reducers: {
     setScrollPosition: (state, action) => ({
@@ -17,6 +19,8 @@ export const scrollPositionSlice = createSlice({
       data: action.payload.data,
       positionElementId: action.payload.positionElementId,
       searchValue: action.payload.searchValue ? action.payload.searchValue : '',
+      sortValue: action.payload.sortValue ? action.payload.sortValue : 'name',
+      selectedKey: action.payload.selectedKey ? action.payload.selectedKey : '',
     }),
   },
 });

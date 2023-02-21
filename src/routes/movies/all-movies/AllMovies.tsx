@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,7 +14,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
-import RouteURL from '../RouteURL';
+import { RouteURL, UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -28,17 +29,31 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
-  const [searchParams] = useSearchParams();
-  const [search, setSearch] = useState<string>(searchParams.get('q') || '');
-  const [key, setKey] = useState<string>(searchParams.get('startsWith') || '');
-  const [sortVal, setSortVal] = useState<string>(searchParams.get('sort') || 'name');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(scrollPosition.searchValue);
+  const [key, setKey] = useState(scrollPosition.selectedKey);
+  const [sortVal, setSortVal] = useState(scrollPosition.sortValue);
+  const [callNavigate, setCallNavigate] = useState<boolean>(false);
+
   useEffect(() => {
-    RouteURL('all', search, key, sortVal, navigate);
+    setSearch(searchParams.get('q') || '');
+    setKey(searchParams.get('startsWith')?.toLowerCase() || '');
+    setSortVal(searchParams.get('sort') || 'name');
+  }, [searchParams]);
+
+  useEffect(() => {
+    RouteURL('all', search, key, sortVal, navigate, searchParams);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key, sortVal]);
+  }, [search, key]);
+
   useEffect(() => {
-    if (scrollPosition.searchValue !== search) {
+    UIRouteURL('all', search, key, sortVal, navigate, callNavigate);
+    setCallNavigate(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [callNavigate]);
+  useEffect(() => {
+    if (scrollPosition.searchValue !== search || scrollPosition.sortValue !== sortVal) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
     } else if (!scrollPosition.data.length && search.length === 0) {
@@ -92,16 +107,24 @@ function AllMovies() {
     filteredMovies, scrollPosition, dispatch,
   ]);
 
-  const applyFilter = () => {
-    getMoviesByFirstName(key.toLowerCase())
-      .then((res) => {
-        getMovies(search, sortVal, res.data._id)
-          .then((result) => {
-            setFilteredMovies(result.data);
-            setKeyMoviesReady(true);
-          });
-      });
+  const applyFilter = (keyValue: string, sortValue?: string) => {
+    setCallNavigate(true);
+    setKey(keyValue.toLowerCase());
+    if (sortValue) { setSortVal(sortValue); }
   };
+  useEffect(() => {
+    if (key && key.length > 0 && scrollPosition.selectedKey !== key) {
+      getMoviesByFirstName(key.toLowerCase())
+        .then((res) => {
+          getMovies(search, sortVal, res.data._id)
+            .then((result) => {
+              setFilteredMovies(result.data);
+              setKeyMoviesReady(true);
+            });
+        });
+    }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [key]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -114,6 +137,7 @@ function AllMovies() {
 
   const clearKeyHandler = () => {
     setKey('');
+    setCallNavigate(true);
     setKeyMoviesReady(false);
     getMovies(search, sortVal)
       .then((result: any) => {
@@ -128,6 +152,8 @@ function AllMovies() {
       data: filteredMovies,
       positionElementId: id,
       searchValue: search,
+      sortValue: sortVal,
+      selectedKey: key,
     };
     dispatch(setScrollPosition(positionData));
   };
@@ -138,13 +164,17 @@ function AllMovies() {
         tabKey="all"
         showKeys={showKeys}
         setShowKeys={setShowKeys}
-        setSearch={setSearch}
+        setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          setSortVal(e.target.value);
+          setCallNavigate(true);
+        }}
+        selectedKey={key}
         applyFilter={applyFilter}
+        sortVal={sortVal}
       />
-      {key !== '' && isKeyMoviesReady
+      {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
         && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>

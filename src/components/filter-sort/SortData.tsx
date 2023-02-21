@@ -7,6 +7,7 @@ interface SortDataProps {
   sortoptions?: OptionsProps[];
   type?: string;
   onSelectSort?(e: React.ChangeEvent<HTMLSelectElement>): void | null;
+  sortVal?: string
 }
 interface OptionsProps {
   value: string;
@@ -14,11 +15,11 @@ interface OptionsProps {
 }
 
 function SortData({
-  title, className, sortoptions, type, onSelectSort,
+  title, className, sortoptions, type, onSelectSort, sortVal,
 }: SortDataProps) {
   return (
     <Form>
-      <Form.Select aria-label="Default select example" onChange={onSelectSort} className={`fs-5 shadow-none px-4 ${className}`}>
+      <Form.Select value={sortVal!} aria-label="Default select example" onChange={onSelectSort} className={`fs-5 shadow-none px-4 ${className}`}>
         {sortoptions && sortoptions.length > 0 && sortoptions.map(({ value, label }) => (
           type === 'sort' && (
             <option key={value} value={value}>
@@ -43,6 +44,7 @@ SortData.defaultProps = {
   sortoptions: [],
   type: '',
   onSelectSort: null,
+  sortVal: 'name',
 };
 
 export default SortData;

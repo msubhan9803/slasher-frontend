@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
@@ -18,7 +18,6 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
-import mongoose from 'mongoose';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
   let app: INestApplication;

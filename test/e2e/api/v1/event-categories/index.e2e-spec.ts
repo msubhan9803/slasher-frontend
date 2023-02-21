@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import mongoose, { Connection } from 'mongoose';
+import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';

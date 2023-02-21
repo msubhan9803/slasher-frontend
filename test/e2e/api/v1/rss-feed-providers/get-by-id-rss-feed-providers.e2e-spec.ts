@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -58,6 +58,13 @@ describe('rssFeedProviders / :id (e2e)', () => {
   });
 
   describe('GET /api/v1/rss-feed-providers/:id', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get rss feed providers data', () => {
       it('get the rss feed providers successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())

@@ -61,6 +61,11 @@ describe('Create Or Find Direct Message Conversation / (e2e)', () => {
     );
   });
   describe('POST /api/v1/chat/conversations/create-or-find-direct-message-conversation', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/chat/conversations/create-or-find-direct-message-conversation')
+      .expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('create or find direct message conversation', () => {
       let users;
       let matchList;

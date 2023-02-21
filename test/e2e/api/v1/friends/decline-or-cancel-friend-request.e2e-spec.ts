@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { userFactory } from '../../../../factories/user.factory';
@@ -60,6 +60,11 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
   });
 
   describe('DELETE /api/v1/friends', () => {
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/friends?userId=${userId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Decline or cancel friend request', () => {
       it('when friend request is decline or cancel than expected response', async () => {
         const userId = user1._id;

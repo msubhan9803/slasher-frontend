@@ -18,6 +18,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import mongoose from 'mongoose';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
   let app: INestApplication;
@@ -98,6 +99,13 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
 
   // Find Feed Posts For rss feed provider
   describe('GET /api/v1/rss-feed-providers/:id/posts?limit=', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}/posts`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

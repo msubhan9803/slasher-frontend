@@ -117,6 +117,10 @@ describe('Event counts by date range / (e2e)', () => {
   });
 
   describe('GET /api/v1/events/by-date-range/counts', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/events/by-date-range/counts').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Returns the expected results', () => {
       it('get expected event counts data based on startDate through endDate range', async () => {
         const response = await request(app.getHttpServer())

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -82,6 +82,11 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         userId: rssFeedProviderData._id,
         rssfeedProviderId: rssFeedProviderData._id,
       }));
+    });
+
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/feed-posts/${feedPostId}/hide`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it("should successfully mark a different user's post as hidden", async () => {

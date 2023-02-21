@@ -66,6 +66,10 @@ describe('Get Blocked Users (e2e)', () => {
   });
 
   describe('GET /api/v1/blocks', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/blocks').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get Blocked Users Request', () => {
       it('returns the expected response with the expected data structure', async () => {
         const limit = 5;

@@ -63,6 +63,10 @@ describe('Add Friends (e2e)', () => {
   });
 
   describe('POST /api/v1/friends', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/friends').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when friend request is successfully created, returns the expected response', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 

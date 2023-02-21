@@ -59,6 +59,10 @@ describe('Accept Friend Request (e2e)', () => {
   });
 
   describe('POST /api/v1/friends/requests/accept', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/friends/requests/accept').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when successful, returns the expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/friends/requests/accept')

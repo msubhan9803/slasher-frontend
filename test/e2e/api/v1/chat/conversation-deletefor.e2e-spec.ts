@@ -62,6 +62,11 @@ describe('Conversation / (e2e)', () => {
     message3 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('DELETE /api/v1/chat/conversation/:matchListId', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/chat/conversation/${matchId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully add userId to deletefor field of all messages of the conversation (matchListId)', () => {
       it('success response on delete converstaion messages call', async () => {
         const matchListId = message1.matchId.toString();

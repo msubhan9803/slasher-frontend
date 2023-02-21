@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -42,6 +42,10 @@ describe('Users / Delete Cover image (e2e)', () => {
   });
 
   describe('DELETE /api/v1/users/cover-image', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/users/cover-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

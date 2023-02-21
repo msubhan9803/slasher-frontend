@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -52,6 +52,10 @@ describe('Event categories index (e2e)', () => {
   });
 
   describe('GET /api/v1/event-categories', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/event-categories').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected response', async () => {
       const eventCategory1 = await eventCategoriesService.create(eventCategoryFactory.build());
       const eventCategory2 = await eventCategoriesService.create(eventCategoryFactory.build());

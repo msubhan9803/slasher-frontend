@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -51,7 +51,7 @@ describe('Delete Feed Post Likes (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('DELETE /api/v1/feed-Likes', () => {
+  describe('DELETE /api/v1/feed-likes/post/:feedPostId', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
@@ -67,6 +67,10 @@ describe('Delete Feed Post Likes (e2e)', () => {
       );
       await feedLikesService.createFeedPostLike(feedPost.id, activeUser._id.toString());
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
+    });
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/feed-Likes/post/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('delete feed post likes.', async () => {

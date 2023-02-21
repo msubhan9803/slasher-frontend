@@ -93,6 +93,10 @@ describe('Users / delete account (e2e)', () => {
   });
 
   describe('DELETE /api/v1/users/delete-account', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/users/delete-account').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('delete account request', () => {
       it('if activeUser delete account then it returns expected response', async () => {
         const userId = activeUser.id;

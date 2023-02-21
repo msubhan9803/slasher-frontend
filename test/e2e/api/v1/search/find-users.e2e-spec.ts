@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -73,6 +73,10 @@ describe('Find Users(e2e)', () => {
   });
 
   describe('GET /api/v1/search/users', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/search/users').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Find Users Details', () => {
       it('retrn the expected users', async () => {
         const query = 'Count';

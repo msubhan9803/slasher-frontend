@@ -59,6 +59,10 @@ describe('Users suggested friends (e2e)', () => {
   });
 
   describe('GET /api/v1/users/initial-data', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/users/initial-data').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Available user initial data in the database', () => {
       let user1: UserDocument;
       let user2: UserDocument;

@@ -65,6 +65,12 @@ describe('rssFeedProviders all (e2e)', () => {
   });
 
   describe('GET /api/v1/rss-feed-providers', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get(
+        '/api/v1/rss-feed-providers',
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get all rss feed providers data', () => {
       it('get all rss feed providers details', async () => {
         const limit = 3;

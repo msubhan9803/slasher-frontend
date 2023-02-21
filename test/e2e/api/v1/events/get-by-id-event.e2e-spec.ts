@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { DateTime } from 'luxon';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -71,6 +71,11 @@ describe('Events / :id (e2e)', () => {
   });
 
   describe('GET /api/v1/events/:id', () => {
+    it('requires authentication', async () => {
+      const eventId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/events/${eventId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get event data', () => {
       it('get the event data successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())

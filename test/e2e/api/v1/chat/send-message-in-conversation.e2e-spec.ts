@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -65,6 +65,11 @@ describe('Send Message In Conversation / (e2e)', () => {
     await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
   });
   describe('POST /api/v1/chat/conversation/:matchListId/message', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/chat/conversation/${matchId}/message`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully send message', () => {
       it('gets the expected send image in conversations', async () => {
         await createTempFiles(async (tempPath) => {

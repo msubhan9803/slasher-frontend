@@ -43,6 +43,10 @@ describe('Users / Upload Cover image (e2e)', () => {
   });
 
   describe('POST /api/v1/users/cover-image', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/users/cover-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(

@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -69,6 +69,11 @@ describe('Delete Notifications (e2e)', () => {
   });
 
   describe('DELETE /api/v1/notifications/:id', () => {
+    it('requires authentication', async () => {
+      const notificationId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/notifications/${notificationId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('delete notifications', () => {
       it('successfully deletes the notification and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())

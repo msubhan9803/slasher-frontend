@@ -111,7 +111,13 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
   });
 
-  describe('Find Feed Post Like Users', () => {
+  // Find Feed Post Like Users
+  describe('GET /api/v1/feed-posts/:feedPostId/likes', () => {
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/feed-posts/${feedPostId}/likes`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

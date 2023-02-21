@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -55,6 +55,10 @@ describe('Suggested user name (e2e)', () => {
   });
 
   describe('GET /api/v1/users/suggest-user-name', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/users/suggest-user-name').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get all suggest user name', () => {
       let user1;
       let user2;

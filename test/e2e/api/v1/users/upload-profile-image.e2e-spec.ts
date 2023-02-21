@@ -50,6 +50,11 @@ describe('Users / Upload Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/users/profile-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('there should be no files in `UPLOAD_DIR` (other than one .keep file)', async () => {
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);

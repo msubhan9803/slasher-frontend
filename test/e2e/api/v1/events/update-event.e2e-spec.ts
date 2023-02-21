@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -80,6 +80,11 @@ describe('Events update / :id (e2e)', () => {
   });
 
   describe('PATCH /api/v1/events/:id', () => {
+    it('requires authentication', async () => {
+      const eventId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/events/${eventId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Non-admin users are not allowed to update event', () => {
       it('should fail to update the and returns the expected response', async () => {
         const response = await request(app.getHttpServer())

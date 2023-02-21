@@ -112,6 +112,10 @@ describe('All Notifications (e2e)', () => {
   });
 
   describe('GET /api/v1/notifications', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/notifications').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get All Notifications', () => {
       it('finds all the expected notifications details', async () => {
         const limit = 5;

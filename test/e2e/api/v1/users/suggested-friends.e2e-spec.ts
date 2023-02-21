@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -63,6 +63,10 @@ describe('Users suggested friends (e2e)', () => {
   });
 
   describe('GET /api/v1/users/suggested-friends', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/users/suggested-friends').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('When the endpoint limit is equal to the number of available suggested friends in the database', () => {
       beforeEach(async () => {
         for (let i = 0; i < 7; i += 1) {

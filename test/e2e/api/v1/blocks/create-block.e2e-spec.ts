@@ -65,6 +65,10 @@ describe('Create Block (e2e)', () => {
   });
 
   describe('POST /api/v1/blocks', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/blocks').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Create Block Request', () => {
       it('successfully create block.', async () => {
         await request(app.getHttpServer())

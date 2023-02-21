@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -72,6 +72,11 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
   });
 
   describe('PATCH /api/v1/notifications/:id/mark-as-read', () => {
+    it('requires authentication', async () => {
+      const notificationId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/notifications/${notificationId}/mark-as-read`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('mark as read notification', () => {
       it('successfully marks the notification as read and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())

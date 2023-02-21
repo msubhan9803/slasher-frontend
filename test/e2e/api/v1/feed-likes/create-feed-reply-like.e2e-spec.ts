@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -106,6 +106,11 @@ describe('Create Feed Reply Like (e2e)', () => {
           },
         ),
       );
+    });
+
+    it('requires authentication', async () => {
+      const feedReplyId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/feed-likes/reply/${feedReplyId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully creates a feed reply like, and sends the expected notification', async () => {

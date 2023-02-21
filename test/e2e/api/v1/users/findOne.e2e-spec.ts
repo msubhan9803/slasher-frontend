@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -62,6 +62,11 @@ describe('GET /users/:id (e2e)', () => {
       otherUserAuthToken = otherUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+    });
+
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/users/${userId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Find a user by id', () => {

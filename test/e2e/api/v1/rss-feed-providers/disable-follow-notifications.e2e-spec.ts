@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -68,6 +68,14 @@ describe('Disable Follow Notifications (e2e)', () => {
   });
 
   describe('PATCH /api/v1/rss-feed-providers/:id/follows/:userId/disable-notifications', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/disable-notifications`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('disable notifications in rss feed providers follows details', () => {
       it('returns the expected response when notifications are disabled', async () => {
         const response = await request(app.getHttpServer())

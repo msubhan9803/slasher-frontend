@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -54,6 +54,12 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/feed-posts/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response if feed post is deleted', async () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(

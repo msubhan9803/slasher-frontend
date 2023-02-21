@@ -58,6 +58,10 @@ describe('Delete Block (e2e)', () => {
   });
 
   describe('DELETE /api/v1/blocks', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/blocks').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Delete Block Request', () => {
       it('delete block successfully.', async () => {
         const userId = user1._id;

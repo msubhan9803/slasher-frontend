@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -60,6 +60,14 @@ describe('Create Follow (e2e)', () => {
   });
 
   describe('POST /api/v1/rss-feed-providers/:id/follows/:userId', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('successfully create the rss feed providers follow record', async () => {
       const response = await request(app.getHttpServer())
         .post(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)

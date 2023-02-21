@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -72,6 +72,11 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
   });
 
   describe('GET /api/v1/movies/movieDbData/:movieDBId', () => {
+    it('requires authentication', async () => {
+      const movieDBId = 2907;
+      await request(app.getHttpServer()).get(`/api/v1/movies/movieDbData/${movieDBId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     // eslint-disable-next-line arrow-body-style
     const createTmdbHttpServiceMockFunction = (setNullMoviePosterPath: boolean) => {
       return (url: any) => {

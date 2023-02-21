@@ -55,6 +55,10 @@ describe('All Movies (e2e)', () => {
   });
 
   describe('GET /api/v1/movies?limit=&sortBy=', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/movies').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('transforms the logo field into a full Movie DB URL', async () => {
       await moviesService.create(
         moviesFactory.build(

@@ -67,6 +67,10 @@ describe('Conversations all / (e2e)', () => {
     await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /api/v1/chat/conversations', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/chat/conversations').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get all conversations', () => {
       it('get expected conversations that a user is part of', async () => {
         const limit = 10;

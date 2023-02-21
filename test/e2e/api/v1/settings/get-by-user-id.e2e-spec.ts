@@ -54,6 +54,10 @@ describe('GET settings (e2e)', () => {
       );
     });
 
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/settings/notifications').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Find a user setting by id', () => {
       it('returns the expected user', async () => {
         await userSettingsService.create(

@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -74,6 +74,11 @@ describe('UserId Posts With Images (e2e)', () => {
 
   // When `before` argument is not supplied
   describe('GET /api/v1/users/:userId/posts-with-images?limit=', () => {
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/users/${userId}/posts-with-images`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when earlier than post id is not exist then expected feed post response', async () => {
       const limit = 10;
       const response = await request(app.getHttpServer())

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -59,6 +59,10 @@ describe('Get Friends (e2e)', () => {
   });
 
   describe('GET /api/v1/friends/requests/sent', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/friends/requests/sent').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get Pending Sent Friends Request', () => {
       it('find all pending request', async () => {
         const limit = 5;

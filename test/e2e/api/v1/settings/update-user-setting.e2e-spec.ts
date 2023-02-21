@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -64,6 +64,10 @@ describe('settings update / :id (e2e)', () => {
   });
 
   describe('PATCH /api/v1/settings/notifications', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).patch('/api/v1/settings/notifications').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())

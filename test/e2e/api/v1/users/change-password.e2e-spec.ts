@@ -57,6 +57,10 @@ describe('Users change password (e2e)', () => {
       };
     });
 
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).patch('/api/v1/users/change-password').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Change Password', () => {
       it('Password change successfully, and new password is stored in the db', async () => {
         const response = await request(app.getHttpServer())

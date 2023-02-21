@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -95,6 +95,11 @@ describe('Delete Feed Comment Like (e2e)', () => {
 
       await feedLikesService.createFeedCommentLike(feedComments.id, activeUser._id.toString());
       await feedLikesService.createFeedCommentLike(feedComments.id, user0._id.toString());
+    });
+
+    it('requires authentication', async () => {
+      const feedCommentId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/feed-likes/comment/${feedCommentId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('delete feed comment likes.', async () => {

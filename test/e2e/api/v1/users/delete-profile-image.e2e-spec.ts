@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -48,6 +48,11 @@ describe('Users / Delete Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/users/profile-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when file delete successful than expected response', async () => {
       const response = await request(app.getHttpServer())
         .delete('/api/v1/users/profile-image')

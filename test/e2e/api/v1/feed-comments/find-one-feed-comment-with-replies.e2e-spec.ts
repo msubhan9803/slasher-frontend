@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -101,6 +101,11 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
   });
 
   describe('GET /api/v1/feed-comments/:feedCommentId', () => {
+    it('requires authentication', async () => {
+      const feedCommentId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/feed-comments/${feedCommentId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('get single feed comments with reply', async () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(

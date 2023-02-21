@@ -75,6 +75,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
     });
 
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/feed-comments').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected response upon successful request', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())

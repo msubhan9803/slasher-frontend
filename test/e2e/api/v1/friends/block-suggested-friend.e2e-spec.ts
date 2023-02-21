@@ -55,6 +55,10 @@ describe('Block suggested friend (e2e)', () => {
   });
 
   describe('POST /api/v1/friends/suggested/block', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/friends/suggested/block').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when successful, returns the expected response', async () => {
       const response = await request(app.getHttpServer())
         .post('/api/v1/friends/suggested/block')

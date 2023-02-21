@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -57,6 +57,11 @@ describe('Conversation / (e2e)', () => {
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /api/v1/chat/conversation/:matchListId', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/chat/conversation/${matchId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully gets the match list data', () => {
       it('gets the expected match list details', async () => {
         const matchListId = message1.matchId._id;

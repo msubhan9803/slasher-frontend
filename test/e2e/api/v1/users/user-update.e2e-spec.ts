@@ -63,6 +63,11 @@ describe('Users / :id (e2e)', () => {
       postBody = { ...sampleUserUpdateObject };
     });
 
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/users/${userId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful update', () => {
       it('update the data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())

@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -65,7 +65,7 @@ describe('Create Feed Post Like (e2e)', () => {
     await clearDatabase(connection);
   });
 
-  describe('POST /api/v1/feed-Likes', () => {
+  describe('POST /api/v1/feed-likes/post/:feedPostId', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
@@ -80,6 +80,11 @@ describe('Create Feed Post Like (e2e)', () => {
         ),
       );
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
+    });
+
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/feed-likes/post/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully creates a feed post like, and sends the expected notification', async () => {

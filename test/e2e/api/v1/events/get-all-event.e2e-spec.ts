@@ -101,6 +101,10 @@ describe('Events all / (e2e)', () => {
   });
 
   describe('GET /api/v1/events', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/events').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get all events data', () => {
       it('get expected events data based on startDate and endDate within of that span', async () => {
         const limit = 10;

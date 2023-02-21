@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -52,6 +52,10 @@ describe('Movie / Find First By Release Year (e2e)', () => {
   });
 
   describe('GET /api/v1/movies/firstByReleaseYear', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/movies/firstByReleaseYear').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('responds with error message when an invalid year supplied', async () => {
       const year = '1111';
       const response = await request(app.getHttpServer())

@@ -52,6 +52,10 @@ describe('Feed-Post / Post File (e2e)', () => {
       );
     });
 
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/feed-posts').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('successfully creates feed posts with a message and files', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())

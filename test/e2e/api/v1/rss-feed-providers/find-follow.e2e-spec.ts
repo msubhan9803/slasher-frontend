@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -66,6 +66,14 @@ describe('Find Follow (e2e)', () => {
   });
 
   describe('GET /api/v1/rss-feed-providers/:id/follows/:userId', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('get the rss feed providers follows successful if parameter rssFeedProviderId and userId is exists', async () => {
       const response = await request(app.getHttpServer())
         .get(`/api/v1/rss-feed-providers/${rssFeedProviderData._id}/follows/${activeUser._id.toString()}`)

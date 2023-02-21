@@ -2,7 +2,7 @@ import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { userFactory } from '../../../../factories/user.factory';
@@ -79,7 +79,12 @@ describe('Get All Friends (e2e)', () => {
     }
   });
 
-  describe('Get /api/v1/users/:userId/friends', () => {
+  describe('GET /api/v1/users/:userId/friends', () => {
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/users/${userId}/friends`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get all friends for the given currently active user, ordered by username', () => {
       beforeEach(async () => {
         await friendsModel.updateMany({}, { $set: { reaction: FriendRequestReaction.Accepted } }, { multi: true });

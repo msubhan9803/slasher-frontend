@@ -62,6 +62,10 @@ describe('All Mark As Read Notifications (e2e)', () => {
   });
 
   describe('PATCH /api/v1/notifications/mark-all-as-read', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).patch('/api/v1/notifications/mark-all-as-read').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('All Mark As Read Notifications', () => {
       it('finds all the expected isRead mark as read notifications details', async () => {
         const response = await request(app.getHttpServer())

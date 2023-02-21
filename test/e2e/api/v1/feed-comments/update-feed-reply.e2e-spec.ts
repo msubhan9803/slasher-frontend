@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -107,6 +107,11 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           },
         ),
       );
+    });
+
+    it('requires authentication', async () => {
+      const feedReplyId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/feed-comments/replies/${feedReplyId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully update feed reply messages', async () => {

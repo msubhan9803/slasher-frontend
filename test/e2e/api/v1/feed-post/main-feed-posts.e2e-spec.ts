@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -114,6 +114,10 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
   });
 
   describe('GET /api/v1/feed-posts', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/feed-posts').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

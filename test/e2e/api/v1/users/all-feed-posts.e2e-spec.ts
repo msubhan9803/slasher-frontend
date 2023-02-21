@@ -25,6 +25,7 @@ describe('All Feed Post (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: UserDocument;
+  let user0: UserDocument;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let feedPost: FeedPost;
@@ -54,6 +55,7 @@ describe('All Feed Post (e2e)', () => {
     await clearDatabase(connection);
 
     activeUser = await usersService.create(userFactory.build());
+    user0 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -61,6 +63,7 @@ describe('All Feed Post (e2e)', () => {
       await feedPostsService.create(
         feedPostFactory.build({
           userId: activeUser.id,
+        likes: [activeUser.id, user0.id],
         }),
       );
       await feedPostsService.create(
@@ -84,7 +87,6 @@ describe('All Feed Post (e2e)', () => {
       for (let i = 1; i < response.body.length; i += 1) {
         expect(response.body[i].createdAt < response.body[i - 1].createdAt).toBe(true);
         const postFromResponse = response.body[i];
-
         expect(postFromResponse).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           images: [
@@ -103,9 +105,9 @@ describe('All Feed Post (e2e)', () => {
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
           createdAt: expect.any(String),
-          likes: [],
+          likedByUser: true,
           message: expect.any(String),
-          likeCount: 0,
+          likeCount: 2,
           commentCount: 0,
         });
       }

@@ -35,7 +35,11 @@ export class FeedPostsService {
       .exec();
   }
 
-  async findById(id: string, activeOnly: boolean): Promise<FeedPostDocument> {
+  async findById(
+    id: string,
+    activeOnly: boolean,
+    identifyLikesForUser?: mongoose.Schema.Types.ObjectId,
+  ): Promise<FeedPostDocument> {
     const feedPostFindQuery: any = { _id: id };
     if (activeOnly) {
       feedPostFindQuery.is_deleted = false;
@@ -47,16 +51,19 @@ export class FeedPostsService {
       .populate('rssfeedProviderId', 'title _id logo')
       .populate('rssFeedId', 'content')
       .exec();
-    if (feedPost) {
-      feedPost.likeCount = feedPost.likes.length || 0;
+
+    const post = JSON.parse(JSON.stringify(feedPost));
+    if (post) {
+      post.likeCount = feedPost.likes.length || 0;
+      post.likedByUser = feedPost.likes.includes(identifyLikesForUser);
     }
-    return feedPost;
+    return post;
   }
 
   async findAllByUser(userId: string, limit: number, activeOnly: boolean, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
-    feedPostQuery.push({ userId });
+    feedPostQuery.push({ userId: new mongoose.Types.ObjectId(userId) });
     if (before) {
       const feedPost = await this.feedPostModel.findById(before).exec();
       feedPostQuery.push({ createdAt: { $lt: feedPost.createdAt } });
@@ -73,14 +80,20 @@ export class FeedPostsService {
       .limit(limit)
       .exec();
 
-    return feedPosts.map((post) => {
+    return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(userId);
       return post;
     });
   }
 
-  async findMainFeedPostsForUser(userId: string, limit: number, before?: mongoose.Types.ObjectId): Promise<FeedPostDocument[]> {
+  async findMainFeedPostsForUser(
+    userId: string,
+    limit: number,
+    before?: mongoose.Types.ObjectId,
+  ): Promise<FeedPostDocument[]> {
     // Get the list of rss feed providers that the user is following
     const rssFeedProviderIds = (await this.rssFeedProviderFollowsService.findAllByUserId(userId)).map((follow) => follow.rssfeedProviderId);
     // Get the list of friend ids
@@ -114,7 +127,9 @@ export class FeedPostsService {
       .sort({ lastUpdateAt: -1 })
       .limit(limit)
       .exec();
-    const feedPosts = query.map((post) => {
+    const feedPosts = JSON.parse(JSON.stringify(query)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(userId);
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;
@@ -150,6 +165,7 @@ export class FeedPostsService {
     limit: number,
     activeOnly: boolean,
     before?: mongoose.Types.ObjectId,
+    identifyLikesForUser?: mongoose.Types.ObjectId,
   ): Promise<FeedPostDocument[]> {
     const feedPostFindAllQuery: any = {};
     const feedPostQuery = [];
@@ -170,7 +186,9 @@ export class FeedPostsService {
       .limit(limit)
       .exec();
 
-    return feedPosts.map((post) => {
+    return JSON.parse(JSON.stringify(feedPosts)).map((post) => {
+      // eslint-disable-next-line no-param-reassign
+      post.likedByUser = post.likes.includes(identifyLikesForUser);
       // eslint-disable-next-line no-param-reassign
       post.likeCount = post.likes.length || 0;
       return post;

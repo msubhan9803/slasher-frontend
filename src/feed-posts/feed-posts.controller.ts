@@ -114,7 +114,7 @@ export class FeedPostsController {
     param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const feedPost = await this.feedPostsService.findById(param.id, true, user.id);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -138,7 +138,7 @@ export class FeedPostsController {
     }
     return pick(
       feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
         'message'],
     );
   }
@@ -211,7 +211,9 @@ export class FeedPostsController {
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
-        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser'],
       ),
     );
   }

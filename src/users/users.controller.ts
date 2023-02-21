@@ -581,7 +581,7 @@ export class UsersController {
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likes', 'likeCount', 'commentCount']),
+      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likedByUser', 'likeCount', 'commentCount']),
     );
   }
 

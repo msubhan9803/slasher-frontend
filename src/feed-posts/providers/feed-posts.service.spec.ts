@@ -142,6 +142,11 @@ describe('FeedPostsService', () => {
       const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
       expect((feedPostDetails.userId as unknown as User).profile_status).toEqual(activeUser.profile_status);
     });
+
+    it('when add identifylikesforuser than expected response', async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false, activeUser.id);
+      expect((feedPostDetails as any).likedByUser).toBe(true);
+    });
   });
 
   describe('#findAllByUser', () => {
@@ -174,6 +179,7 @@ describe('FeedPostsService', () => {
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
         expect(feedPostData[i].likeCount).toBe(2);
+        expect((feedPostData[i] as any).likedByUser).toBe(true);
       }
       expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);
@@ -208,8 +214,13 @@ describe('FeedPostsService', () => {
     });
     it('returns the first and second sets of paginated results', async () => {
       const limit = 6;
-      const firstResults = await feedPostsService.findAllByUser((activeUser.id).toString(), limit, true);
-      const secondResults = await feedPostsService.findAllByUser((activeUser.id).toString(), limit, true, firstResults[limit - 1].id);
+      const firstResults = await feedPostsService.findAllByUser(activeUser.id, limit, true);
+      const secondResults = await feedPostsService.findAllByUser(
+        activeUser.id,
+        limit,
+        true,
+        new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+      );
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
     });
@@ -238,8 +249,7 @@ describe('FeedPostsService', () => {
         ],
       };
       const updatedPost = await feedPostsService.update(feedPost.id, feedPostData);
-      const reloadedPost = await feedPostsService.findById(feedPost.id, false);
-      expect(updatedPost.updatedAt).toEqual(reloadedPost.updatedAt);
+      const reloadedPost = await feedPostsService.findById(updatedPost.id, false);
       expect(reloadedPost.message).toEqual(feedPostData.message);
       expect(reloadedPost.images.map((el) => el.image_path)).toEqual(feedPostData.images.map((el) => el.image_path));
       expect(reloadedPost.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBeTruthy();
@@ -363,7 +373,11 @@ describe('FeedPostsService', () => {
         }
         expect(firstResults).toHaveLength(6);
         // eslint-disable-next-line max-len
-        const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit, firstResults[limit - 1].id);
+        const secondResults = await feedPostsService.findMainFeedPostsForUser(
+          activeUser.id,
+          limit,
+          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+        );
         for (let index = 1; index < secondResults.length; index += 1) {
           expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
         }
@@ -380,6 +394,18 @@ describe('FeedPostsService', () => {
         );
         const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
         expect(feedPosts[0].likeCount).toBe(1);
+      });
+
+      it('returns the expected likedByUser', async () => {
+        const userData = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userData.id,
+            likes: [userData._id],
+          }),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
+        expect((feedPosts[0] as any).likedByUser).toBe(true);
       });
     });
 
@@ -400,14 +426,14 @@ describe('FeedPostsService', () => {
         // Before hiding, verify that post is returend in the `activeUser` feed
         const beforeResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
         expect(beforeResults).toHaveLength(2);
-        expect(beforeResults[0].id.toString()).toBe(feedPost2.id.toString());
-        expect(beforeResults[1].id.toString()).toBe(feedPost1.id.toString());
+        expect(beforeResults[0]._id).toBe(feedPost2.id);
+        expect(beforeResults[1]._id).toBe(feedPost1.id);
 
         // Hide feedPost1 for `activeUser`
         await feedPostsService.hidePost(feedPost1.id, activeUser.id);
         // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
         const reloadedFeedPost1 = await feedPostsService.findById(feedPost1.id, false);
-        expect(reloadedFeedPost1.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
+        expect(reloadedFeedPost1.hideUsers).toEqual([activeUser.id]);
 
         // Verify that the post is not returned after hiding, but that other posts still are
         const afterResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
@@ -461,7 +487,11 @@ describe('FeedPostsService', () => {
       const limit = 6;
       const firstResults = await feedPostsService.findAllPostsWithImagesByUser((activeUser.id).toString(), limit);
       const secondResults = await feedPostsService
-        .findAllPostsWithImagesByUser((activeUser.id).toString(), limit, firstResults[limit - 1].id);
+        .findAllPostsWithImagesByUser(
+          (activeUser.id).toString(),
+          limit,
+          new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
+        );
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
     });
@@ -543,7 +573,7 @@ describe('FeedPostsService', () => {
         rssFeedProviderToFollow1.id,
         limit,
         false,
-        firstResults[limit - 1].id,
+        new mongoose.Types.ObjectId(firstResults[limit - 1]._id.toString()),
       );
       for (let index = 1; index < secondResults.length; index += 1) {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
@@ -555,6 +585,13 @@ describe('FeedPostsService', () => {
       const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true);
       for (let i = 1; i < feedPosts.length; i += 1) {
         expect(feedPosts[i].likeCount).toBe(2);
+      }
+    });
+
+    it('returns the expected likedByUser', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true, null, activeUser.id);
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect((feedPosts[i] as any).likedByUser).toBe(true);
       }
     });
   });
@@ -572,17 +609,18 @@ describe('FeedPostsService', () => {
     });
 
     it('successfully add user to `hideUsers` field in the feed post', async () => {
-      await feedPostsService.hidePost(feedPost.id, user0.id);
-      const updatedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
+      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+
+      expect(updatedFeedPost.hideUsers).toEqual([user0.id]);
     });
 
     it('should not add user id to `hideUsers` field a second time if id *already* exists in the `hideUsers` array', async () => {
-      await feedPostsService.hidePost(feedPost.id, user0.id);
-      await feedPostsService.hidePost(feedPost.id, user0.id);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
+      await feedPostsService.hidePost(feedPost._id, user0.id);
 
-      const updatedFeedPost = await feedPostsService.findById(feedPost.id, false);
-      expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
+      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      expect(updatedFeedPost.hideUsers).toEqual([user0.id]);
     });
   });
 

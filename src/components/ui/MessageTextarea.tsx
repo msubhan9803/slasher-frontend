@@ -100,7 +100,7 @@ function MessageTextarea({
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      onFocus={() => isCommentInput && setIsReply!(false)}
+      onFocus={() => isCommentInput && setIsReply && setIsReply!(false)}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="post"

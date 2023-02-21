@@ -253,7 +253,7 @@ export async function updateUserAbout(
   return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
 }
 
-export async function getUserWatchedList(
+export async function getUserMoviesList(
   name: string,
   search: string,
   userId: string,

@@ -8,7 +8,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import { MoviesProps } from '../components/MovieProps';
 import MoviesHeader from '../MoviesHeader';
 import { MOVIE_BUY_LIST_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { getUserWatchedList } from '../../../api/users';
+import { getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -31,7 +31,7 @@ function BuyMovieList() {
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
   const [search, setSearch] = useState<string>(scrollPosition.searchValue);
-  const [isKeyFilter, setkeyFilter] = useState<boolean>(false);
+  // const [isKeyFilter, setkeyFilter] = useState<boolean>(false);
   const [lastMovieId, setLastMovieId] = useState('');
   const userId = Cookies.get('userId');
 
@@ -56,7 +56,7 @@ function BuyMovieList() {
         /* eslint no-underscore-dangle: 0 */
         setNoMoreData(false);
         setLoadingMovies(true);
-        getUserWatchedList(
+        getUserMoviesList(
           'buy-list',
           search,
           userId,
@@ -102,11 +102,12 @@ function BuyMovieList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyFilter,
+    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady,
   ]);
 
   const applyFilter = () => {
-    setkeyFilter(true);
+    setLastMovieId('');
+    setKeyMoviesReady(true);
     setRequestAdditionalMovies(true);
     setLoadingMovies(false);
   };
@@ -123,8 +124,9 @@ function BuyMovieList() {
   const clearKeyHandler = () => {
     setKey('');
     setKeyMoviesReady(false);
+    setFilteredMovies([]);
     if (userId) {
-      getUserWatchedList('buy-list', search, userId, sortVal, key)
+      getUserMoviesList('buy-list', search, userId, sortVal, '')
         .then((result: any) => {
           setFilteredMovies(result.data);
         });

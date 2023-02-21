@@ -12,7 +12,7 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { getUserWatchedList } from '../../../api/users';
+import { getUserMoviesList } from '../../../api/users';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 
 function FavoriteMovies() {
@@ -31,7 +31,7 @@ function FavoriteMovies() {
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
   const [search, setSearch] = useState<string>(scrollPosition.searchValue);
-  const [isKeyFilter, setkeyFilter] = useState<boolean>(false);
+  // const [isKeyFilter, setkeyFilter] = useState<boolean>(false);
   const [lastMovieId, setLastMovieId] = useState('');
   const userId = Cookies.get('userId');
 
@@ -56,7 +56,7 @@ function FavoriteMovies() {
         /* eslint no-underscore-dangle: 0 */
         setNoMoreData(false);
         setLoadingMovies(true);
-        getUserWatchedList(
+        getUserMoviesList(
           'favorite-list',
           search,
           userId,
@@ -102,11 +102,12 @@ function FavoriteMovies() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
-    filteredMovies, scrollPosition, dispatch, userId, isKeyFilter,
+    filteredMovies, scrollPosition, dispatch, userId, isKeyMoviesReady,
   ]);
 
   const applyFilter = () => {
-    setkeyFilter(true);
+    setLastMovieId('');
+    setKeyMoviesReady(true);
     setRequestAdditionalMovies(true);
     setLoadingMovies(false);
   };
@@ -123,8 +124,9 @@ function FavoriteMovies() {
   const clearKeyHandler = () => {
     setKey('');
     setKeyMoviesReady(false);
+    setFilteredMovies([]);
     if (userId) {
-      getUserWatchedList('watched-list', search, userId, sortVal, key)
+      getUserMoviesList('favorite-list', search, userId, sortVal, '')
         .then((result: any) => {
           setFilteredMovies(result.data);
         });

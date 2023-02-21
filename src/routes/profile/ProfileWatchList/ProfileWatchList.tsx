@@ -8,7 +8,7 @@ import ProfileHeader from '../ProfileHeader';
 import { User } from '../../../types';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
 import MoviesHeader from '../../movies/MoviesHeader';
-import { getUserWatchedList } from '../../../api/users';
+import { getUserMoviesList } from '../../../api/users';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import RoundButton from '../../../components/ui/RoundButton';
@@ -35,14 +35,16 @@ function ProfileWatchList({ user }: Props) {
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
   const [search, setSearch] = useState<string>(scrollPosition.searchValue);
-  const [isKeyFilter, setkeyFilter] = useState<boolean>(false);
+  const [lastMovieId, setLastMovieId] = useState('');
 
   useEffect(() => {
     if (scrollPosition.searchValue !== search) {
       setFilteredMovies([]);
+      setLastMovieId('');
       setRequestAdditionalMovies(true);
     } else if (!scrollPosition.data.length && !search) {
       setFilteredMovies([]);
+      setLastMovieId('');
       setRequestAdditionalMovies(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,20 +60,27 @@ function ProfileWatchList({ user }: Props) {
         /* eslint no-underscore-dangle: 0 */
         setNoMoreData(false);
         setLoadingMovies(true);
-        getUserWatchedList(
+        getUserMoviesList(
           'watched-list',
           search,
           user._id,
           sortVal,
           key.toLowerCase(),
-          filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
+          lastMovieId.length > 0 ? lastMovieId : undefined,
         )
           .then((res) => {
-            setFilteredMovies((prev: MoviesProps[]) => [
-              ...prev,
-              ...res.data,
-            ]);
-            if (res.data.length === 0) { setNoMoreData(true); }
+            if (lastMovieId) {
+              setFilteredMovies((prev: MoviesProps[]) => [
+                ...prev,
+                ...res.data,
+              ]);
+            } else { setFilteredMovies(res.data); }
+            if (res.data.length === 0) {
+              setNoMoreData(true);
+              setLastMovieId('');
+            } else {
+              setLastMovieId(res.data[res.data.length - 1]._id);
+            }
             const positionData = {
               pathname: '',
               position: 0,
@@ -92,12 +101,13 @@ function ProfileWatchList({ user }: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    requestAdditionalMovies, loadingMovies, search, sortVal,
-    filteredMovies, scrollPosition, dispatch, user._id, isKeyFilter,
+    requestAdditionalMovies, loadingMovies, search, sortVal, lastMovieId,
+    filteredMovies, scrollPosition, dispatch, user._id, isKeyMoviesReady,
   ]);
 
   const applyFilter = () => {
-    setkeyFilter(true);
+    setLastMovieId('');
+    setKeyMoviesReady(true);
     setRequestAdditionalMovies(true);
     setLoadingMovies(false);
   };
@@ -114,8 +124,9 @@ function ProfileWatchList({ user }: Props) {
   const clearKeyHandler = () => {
     setKey('');
     setKeyMoviesReady(false);
+    setFilteredMovies([]);
     if (user && user._id) {
-      getUserWatchedList('watched-list', search, user._id, sortVal, key)
+      getUserMoviesList('watched-list', search, user._id, sortVal, '')
         .then((result: any) => {
           setFilteredMovies(result.data);
         });

@@ -18,6 +18,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('rssFeedProviders /:id/posts (e2e)', () => {
   let app: INestApplication;
@@ -56,6 +57,10 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -196,13 +201,13 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             ],
             likeCount: 0,
             likes: [],
-            message: 'Message 3',
+            message: 'Message 1',
             movieId: null,
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
-              title: 'RssFeedProvider 5',
+              title: 'RssFeedProvider 1',
             },
             userId: activeUser._id.toString(),
           },
@@ -223,13 +228,13 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             ],
             likeCount: 0,
             likes: [],
-            message: 'Message 4',
+            message: 'Message 2',
             movieId: null,
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
-              title: 'RssFeedProvider 5',
+              title: 'RssFeedProvider 1',
             },
             userId: activeUser._id.toString(),
           },
@@ -250,13 +255,13 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
             ],
             likeCount: 0,
             likes: [],
-            message: 'Message 5',
+            message: 'Message 3',
             movieId: null,
             rssFeedId: null,
             rssfeedProviderId: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               logo: null,
-              title: 'RssFeedProvider 5',
+              title: 'RssFeedProvider 1',
             },
             userId: activeUser._id.toString(),
           },

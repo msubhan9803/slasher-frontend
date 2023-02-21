@@ -13,6 +13,7 @@ import { RssFeedProvider } from '../../schemas/rssFeedProvider/rssFeedProvider.s
 import { RssFeedProviderFollowDocument } from '../../schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('RssFeedProviderFollowsService', () => {
   let app: INestApplication;
@@ -45,6 +46,9 @@ describe('RssFeedProviderFollowsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeedProviderData2 = await rssFeedProvidersService.create(rssFeedProviderFactory.build());

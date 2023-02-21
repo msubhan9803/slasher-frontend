@@ -14,6 +14,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('rssFeedProviders all (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,9 @@ describe('rssFeedProviders all (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -118,19 +122,19 @@ describe('rssFeedProviders all (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 12',
+              title: 'RssFeedProvider 10',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 14',
+              title: 'RssFeedProvider 2',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 16',
+              title: 'RssFeedProvider 4',
             },
           ]);
 

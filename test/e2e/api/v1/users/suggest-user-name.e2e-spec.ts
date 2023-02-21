@@ -14,6 +14,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { relativeToFullImagePath } from '../../../../../src/utils/image-utils';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
@@ -46,6 +47,10 @@ describe('Suggested user name (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build(
       { userName: 'test-user1' },
     ));

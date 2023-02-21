@@ -12,6 +12,7 @@ import { EventCategoriesService } from '../../../../../src/event-categories/prov
 import { eventCategoryFactory } from '../../../../factories/event-category.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Event categories index (e2e)', () => {
   let app: INestApplication;
@@ -42,6 +43,9 @@ describe('Event categories index (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(
       userFactory.build(),

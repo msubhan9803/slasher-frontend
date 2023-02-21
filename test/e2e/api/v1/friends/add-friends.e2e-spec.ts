@@ -17,6 +17,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { NotificationsService } from '../../../../../src/notifications/providers/notifications.service';
 import { NotificationType } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Add Friends (e2e)', () => {
   let app: INestApplication;
@@ -55,6 +56,9 @@ describe('Add Friends (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

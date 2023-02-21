@@ -23,6 +23,7 @@ import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers
 import { userFactory } from '../../../../factories/user.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let app: INestApplication;
@@ -70,6 +71,9 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

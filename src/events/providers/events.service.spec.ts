@@ -16,6 +16,7 @@ import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -61,6 +62,9 @@ describe('EventService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     userData = await usersService.create(userFactory.build());
     eventCategoryData = await eventCategoriesService.create(eventCategoryFactory.build());

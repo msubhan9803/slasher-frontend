@@ -23,6 +23,7 @@ import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service'
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
@@ -67,6 +68,9 @@ describe('FeedPostsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
     rssFeed = await rssFeedService.create(rssFeedFactory.build({

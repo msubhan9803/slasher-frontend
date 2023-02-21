@@ -15,6 +15,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Enable Follow Notifications (e2e)', () => {
   let app: INestApplication;
@@ -49,6 +50,9 @@ describe('Enable Follow Notifications (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build({

@@ -21,6 +21,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Find Single Feed Comments With Replies (e2e)', () => {
   let app: INestApplication;
@@ -73,6 +74,10 @@ describe('Find Single Feed Comments With Replies (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build({
       profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     }));

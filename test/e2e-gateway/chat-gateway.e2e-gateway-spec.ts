@@ -19,6 +19,7 @@ import { Message, MessageDocument } from '../../src/schemas/message/message.sche
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
 import { FriendsService } from '../../src/friends/providers/friends.service';
 import { ChatGateway } from '../../src/chat/providers/chat.gateway';
+import { rewindAllFactories } from '../helpers/factory-helpers.ts';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -71,6 +72,9 @@ describe('Chat Gateway (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

@@ -12,6 +12,7 @@ import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-p
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Delete Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +45,9 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/feed-posts/:id', () => {

@@ -18,6 +18,7 @@ import { notificationFactory } from '../../../../factories/notification.factory'
 import { NotificationDeletionStatus, NotificationReadStatus } from '../../../../../src/schemas/notification/notification.enums';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users suggested friends (e2e)', () => {
   let app: INestApplication;
@@ -56,6 +57,9 @@ describe('Users suggested friends (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/users/initial-data', () => {
@@ -216,21 +220,21 @@ describe('Users suggested friends (e2e)', () => {
               _id: user2.id,
               userName: 'Friend2',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 8',
+              firstName: 'First name 3',
               createdAt: expect.any(String),
             },
             {
               _id: user1.id,
               userName: 'Friend1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 7',
+              firstName: 'First name 2',
               createdAt: expect.any(String),
             },
             {
               _id: user3.id,
               userName: 'Friend3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
-              firstName: 'First name 9',
+              firstName: 'First name 4',
               createdAt: expect.any(String),
             },
           ],

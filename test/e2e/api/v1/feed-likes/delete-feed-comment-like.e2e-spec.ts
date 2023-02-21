@@ -16,6 +16,7 @@ import { FeedCommentsService } from '../../../../../src/feed-comments/providers/
 import { FeedLikesService } from '../../../../../src/feed-likes/providers/feed-likes.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Delete Feed Comment Like (e2e)', () => {
   let app: INestApplication;
@@ -65,6 +66,9 @@ describe('Delete Feed Comment Like (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('Delete /api/v1/feed-likes/comment/:feedCommentId', () => {

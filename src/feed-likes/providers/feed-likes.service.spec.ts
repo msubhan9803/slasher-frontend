@@ -15,6 +15,7 @@ import { FeedCommentsService } from '../../feed-comments/providers/feed-comments
 import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('FeedLikesService', () => {
   let app: INestApplication;
@@ -63,6 +64,9 @@ describe('FeedLikesService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     feedPost = await feedPostsService.create(

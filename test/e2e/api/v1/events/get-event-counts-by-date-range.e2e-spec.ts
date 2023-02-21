@@ -17,6 +17,7 @@ import { EventCategory } from '../../../../../src/schemas/eventCategory/eventCat
 import { EventActiveStatus } from '../../../../../src/schemas/event/event.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Event counts by date range / (e2e)', () => {
   let app: INestApplication;
@@ -68,6 +69,9 @@ describe('Event counts by date range / (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     eventCategory = await eventCategoriesService.create(eventCategoryFactory.build());

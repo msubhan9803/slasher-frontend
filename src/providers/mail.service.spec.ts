@@ -7,6 +7,7 @@ import { AppModule } from '../app.module';
 import { ReportType } from '../types';
 import { configureAppPrefixAndVersioning } from '../utils/app-setup-utils';
 import { MailService } from './mail.service';
+import { rewindAllFactories } from '../../test/helpers/factory-helpers.ts';
 
 describe('MailService', () => {
   let app: INestApplication;
@@ -32,6 +33,9 @@ describe('MailService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {

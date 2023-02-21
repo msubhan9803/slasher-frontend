@@ -15,6 +15,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../../../src/feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -62,6 +63,9 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/feed-comments/:feedCommentId', () => {

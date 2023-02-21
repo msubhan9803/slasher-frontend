@@ -20,6 +20,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { RssFeedProvider, RssFeedProviderDocument } from '../../../../../src/schemas/rssFeedProvider/rssFeedProvider.schema';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('All Notifications (e2e)', () => {
   let app: INestApplication;
@@ -59,6 +60,9 @@ describe('All Notifications (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     notificationDates = [
       {

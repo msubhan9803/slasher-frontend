@@ -15,6 +15,7 @@ import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.en
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -52,6 +53,9 @@ describe('FriendsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));

@@ -19,6 +19,7 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 import { notificationFactory } from '../../../test/factories/notification.factory';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -53,6 +54,9 @@ describe('NotificationsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());

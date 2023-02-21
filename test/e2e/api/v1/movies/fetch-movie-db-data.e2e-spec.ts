@@ -20,6 +20,7 @@ import moviedbid2907ApiConfigurationResponse from '../../../../fixtures/movie-db
 import moviedbid2907ApiCreditsResponse from '../../../../fixtures/movie-db/moviedbid-2907-api-credits-response';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({
 });
@@ -59,6 +60,9 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

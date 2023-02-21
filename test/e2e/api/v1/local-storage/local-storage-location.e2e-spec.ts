@@ -10,6 +10,7 @@ import { createTempFile } from '../../../../helpers/tempfile-helpers';
 import { LocalStorageService } from '../../../../../src/local-storage/providers/local-storage.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Local-Storage / Get File (e2e)', () => {
   let app: INestApplication;
@@ -34,6 +35,9 @@ describe('Local-Storage / Get File (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/local-storage/:location', () => {

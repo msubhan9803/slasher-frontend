@@ -15,6 +15,7 @@ import {
   NotificationReadStatus,
 } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Patch Notifications Mark As Read(e2e)', () => {
   let app: INestApplication;
@@ -49,6 +50,9 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());

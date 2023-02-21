@@ -13,6 +13,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { Friend, FriendDocument } from '../../../../../src/schemas/friend/friend.schema';
 import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Decline Or Cancel Friend Request (e2e)', () => {
   let app: INestApplication;
@@ -48,6 +49,9 @@ describe('Decline Or Cancel Friend Request (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());

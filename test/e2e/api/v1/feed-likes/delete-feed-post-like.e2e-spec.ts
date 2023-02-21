@@ -14,6 +14,7 @@ import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-p
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedLikesService } from '../../../../../src/feed-likes/providers/feed-likes.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Delete Feed Post Likes (e2e)', () => {
   let app: INestApplication;
@@ -49,6 +50,9 @@ describe('Delete Feed Post Likes (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/feed-likes/post/:feedPostId', () => {

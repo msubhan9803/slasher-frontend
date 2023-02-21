@@ -14,6 +14,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('GET /users/:id (e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('GET /users/:id (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/users/:idOrUserName', () => {
@@ -98,8 +102,8 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body.email).toBeUndefined();
         expect(response.body).toEqual({
           _id: activeUser.id,
-          firstName: 'First name 3',
-          userName: 'Username3',
+          firstName: 'First name 1',
+          userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
@@ -128,13 +132,13 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: otherUser.id,
-          firstName: 'First name 8',
-          userName: 'Username8',
+          firstName: 'First name 2',
+          userName: 'Username2',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: ProfileVisibility.Private,
-          email: 'User8@Example.com',
+          email: 'User2@Example.com',
         });
       });
     });
@@ -147,13 +151,13 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: activeUser.id,
-          firstName: 'First name 9',
-          userName: 'Username9',
+          firstName: 'First name 1',
+          userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
           profile_status: 0,
-          email: 'User9@Example.com',
+          email: 'User1@Example.com',
         });
       });
 
@@ -180,8 +184,8 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.body.email).toBeUndefined();
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          firstName: 'First name 13',
-          userName: 'Username13',
+          firstName: 'First name 1',
+          userName: 'Username1',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
@@ -197,8 +201,8 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          firstName: 'First name 16',
-          userName: 'Username16',
+          firstName: 'First name 2',
+          userName: 'Username2',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',
@@ -237,8 +241,8 @@ describe('GET /users/:id (e2e)', () => {
         expect(response.status).toEqual(HttpStatus.OK);
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-          firstName: 'First name 21',
-          userName: 'Username21',
+          firstName: 'First name 3',
+          userName: 'Username3',
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           coverPhoto: null,
           aboutMe: 'Hello. This is me.',

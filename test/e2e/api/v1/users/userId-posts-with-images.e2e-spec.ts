@@ -17,6 +17,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('UserId Posts With Images (e2e)', () => {
   let app: INestApplication;
@@ -51,6 +52,9 @@ describe('UserId Posts With Images (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(

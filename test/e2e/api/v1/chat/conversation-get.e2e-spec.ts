@@ -11,6 +11,7 @@ import { User } from '../../../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -46,6 +47,9 @@ describe('Conversation / (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());

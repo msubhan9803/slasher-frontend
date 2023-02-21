@@ -13,6 +13,7 @@ import {
 } from '../../schemas/rssFeedProvider/rssFeedProvider.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('RssFeedProvidersService', () => {
   let app: INestApplication;
@@ -39,6 +40,9 @@ describe('RssFeedProvidersService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     rssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });
 

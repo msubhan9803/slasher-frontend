@@ -13,6 +13,7 @@ import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users sign-in (e2e)', () => {
   let app: INestApplication;
@@ -48,6 +49,9 @@ describe('Users sign-in (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUserUnhashedPassword = 'TestPassword';
     activeUser = await usersService.create(

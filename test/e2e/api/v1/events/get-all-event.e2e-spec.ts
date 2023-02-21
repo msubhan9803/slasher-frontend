@@ -18,6 +18,7 @@ import { EventActiveStatus } from '../../../../../src/schemas/event/event.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Events all / (e2e)', () => {
   let app: INestApplication;
@@ -65,6 +66,9 @@ describe('Events all / (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
@@ -185,7 +189,7 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 19',
+            event_info: 'Event info organised by 7',
           },
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
@@ -197,7 +201,7 @@ describe('Events all / (e2e)', () => {
             state: 'California',
             address: null,
             country: 'USA',
-            event_info: 'Event info organised by 20',
+            event_info: 'Event info organised by 8',
           },
         ]);
         expect(response.status).toEqual(HttpStatus.OK);

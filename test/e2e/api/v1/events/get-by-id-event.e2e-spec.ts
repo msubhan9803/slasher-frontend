@@ -19,6 +19,7 @@ import { EventActiveStatus } from '../../../../../src/schemas/event/event.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Events / :id (e2e)', () => {
   let app: INestApplication;
@@ -55,6 +56,9 @@ describe('Events / :id (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
@@ -127,14 +131,14 @@ describe('Events / :id (e2e)', () => {
           endDate: '2022-10-19T00:00:00.000Z',
           event_type: {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            event_name: 'Event category 2',
+            event_name: 'Event category 1',
           },
           city: 'Los Angeles',
           state: 'California',
           address: null,
           country: 'USA',
           url: 'https://example.com',
-          event_info: 'Event info organised by 3',
+          event_info: 'Event info organised by 2',
         });
       });
 

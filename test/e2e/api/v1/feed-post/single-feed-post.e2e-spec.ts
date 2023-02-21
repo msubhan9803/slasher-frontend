@@ -22,6 +22,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -60,6 +61,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/feed-posts/:id', () => {
@@ -188,7 +195,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         rssfeedProviderId: {
           _id: rssFeedProvider._id.toString(),
           logo: null,
-          title: 'RssFeedProvider 5',
+          title: 'RssFeedProvider 2',
         },
         rssFeedId: null,
         images: [
@@ -206,7 +213,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         likeCount: 0,
         sharedList: 0,
         likes: [],
-        message: 'Message 4',
+        message: 'Message 1',
       });
     });
   });

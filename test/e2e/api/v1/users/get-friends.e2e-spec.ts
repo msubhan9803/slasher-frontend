@@ -16,6 +16,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Get All Friends (e2e)', () => {
   let app: INestApplication;
@@ -56,6 +57,10 @@ describe('Get All Friends (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Albert DARTH Skywalker' }));
     user2 = await usersService.create(userFactory.build({ userName: 'Abe Kenobi' }));
@@ -141,7 +146,7 @@ describe('Get All Friends (e2e)', () => {
             {
               _id: user5._id.toString(),
               userName: 'Darth Maul',
-              firstName: 'First name 12',
+              firstName: 'First name 6',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
           ],
@@ -166,19 +171,19 @@ describe('Get All Friends (e2e)', () => {
             {
               _id: user2._id.toString(),
               userName: 'Abe Kenobi',
-              firstName: 'First name 15',
+              firstName: 'First name 3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
               _id: user4._id.toString(),
               userName: 'Princess Leia',
-              firstName: 'First name 17',
+              firstName: 'First name 5',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
             {
               _id: activeUser.id,
               userName: 'Star Wars Fan',
-              firstName: 'First name 13',
+              firstName: 'First name 1',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
           ],
@@ -199,7 +204,7 @@ describe('Get All Friends (e2e)', () => {
             {
               _id: user2._id.toString(),
               userName: 'Abe Kenobi',
-              firstName: 'First name 21',
+              firstName: 'First name 3',
               profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
             },
           ],

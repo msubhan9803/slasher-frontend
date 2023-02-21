@@ -109,7 +109,7 @@ describe('FeedLikesService', () => {
   describe('#createFeedPostLike', () => {
     it('successfully creates a feed post likes.', async () => {
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.likes).toContainEqual(activeUser._id);
+      expect(feedPostData.likes).toContainEqual(activeUser.id);
       expect(feedPostData.likeCount).toBe(2);
     });
 

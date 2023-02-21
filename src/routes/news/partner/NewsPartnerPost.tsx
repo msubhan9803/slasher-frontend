@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import ReportModal from '../../../components/ui/ReportModal';
 import { feedPostDetail } from '../../../api/feed-posts';
 import { CommentValue, NewsPartnerPostProps, ReplyValue } from '../../../types';
@@ -27,7 +26,6 @@ function NewsPartnerPost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const navigate = useNavigate();
   const popoverOption = ['Report'];
-  const loginUserId = Cookies.get('userId');
   const [commentData, setCommentData] = useState<any>([]);
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
@@ -64,8 +62,7 @@ function NewsPartnerPost() {
         commentCount: res.data.commentCount,
         likeCount: res.data.likeCount,
         sharedList: res.data.sharedList,
-        likes: res.data.likes,
-        likeIcon: res.data.likes.includes(loginUserId),
+        likeIcon: res.data.likedByUser,
         rssfeedProviderId: res.data.rssfeedProviderId?._id,
       };
       setPostData([newsPost]);
@@ -74,7 +71,7 @@ function NewsPartnerPost() {
         setErrorMessage(error.response.data.message);
       },
     );
-  }, [loginUserId, navigate, postId, partnerId, queryCommentId]);
+  }, [navigate, postId, partnerId, queryCommentId]);
 
   useEffect(() => {
     if (postId) {
@@ -301,7 +298,7 @@ function NewsPartnerPost() {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likedByUser);
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -309,13 +306,10 @@ function NewsPartnerPost() {
           const unLikePostData = postData.map(
             (unLikePost: NewsPartnerPostProps) => {
               if (unLikePost._id === feedPostId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -333,7 +327,7 @@ function NewsPartnerPost() {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }

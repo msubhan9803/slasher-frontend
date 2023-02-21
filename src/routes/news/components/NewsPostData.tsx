@@ -56,8 +56,7 @@ function NewsPostData({ partnerId }: Props) {
             images: data.images,
             userName: data.rssfeedProviderId?.title,
             rssFeedProviderLogo: data.rssfeedProviderId?.logo,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
+            likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             rssfeedProviderId: data.rssfeedProviderId._id,
@@ -108,8 +107,7 @@ function NewsPostData({ partnerId }: Props) {
         images: data.images,
         userName: data.rssfeedProviderId?.title,
         rssFeedProviderLogo: data.rssfeedProviderId?.logo,
-        likes: data.likes,
-        likeIcon: data.likes.includes(loginUserId),
+        likeIcon: data.likedByUser,
         likeCount: data.likeCount,
         commentCount: data.commentCount,
         rssfeedProviderId: data.rssfeedProviderId._id,
@@ -120,7 +118,7 @@ function NewsPostData({ partnerId }: Props) {
 
   const onLikeClick = (likeId: string) => {
     const checkLike = postData.some((post: any) => post.id === likeId
-      && post.likes?.includes(loginUserId!));
+      && post.likedByUser);
 
     if (checkLike) {
       unlikeFeedPost(likeId).then((res) => {
@@ -128,13 +126,10 @@ function NewsPostData({ partnerId }: Props) {
           const unLikePostData = postData.map(
             (unLikePost: NewsPartnerPostProps) => {
               if (unLikePost._id === likeId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -152,7 +147,7 @@ function NewsPostData({ partnerId }: Props) {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }

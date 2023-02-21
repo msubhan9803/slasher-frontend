@@ -87,8 +87,7 @@ function ProfilePosts({ user }: Props) {
               userName: data.userId.userName,
               profileImage: data.userId.profilePic,
               userId: data.userId._id,
-              likes: data.likes,
-              likeIcon: data.likes.includes(loginUserId),
+              likeIcon: data.likedByUser,
               likeCount: data.likeCount,
               commentCount: data.commentCount,
             }
@@ -151,8 +150,7 @@ function ProfilePosts({ user }: Props) {
           userName: data.userId.userName,
           profileImage: data.userId.profilePic,
           userId: data.userId.userId,
-          likes: data.likes,
-          likeIcon: data.likes.includes(loginUserId),
+          likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
         }));
@@ -178,7 +176,7 @@ function ProfilePosts({ user }: Props) {
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likedByUser);
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -186,13 +184,10 @@ function ProfilePosts({ user }: Props) {
           const unLikePostData = posts.map(
             (unLikePost: Post) => {
               if (unLikePost._id === feedPostId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -210,7 +205,7 @@ function ProfilePosts({ user }: Props) {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }

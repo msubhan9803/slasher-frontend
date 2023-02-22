@@ -26,6 +26,7 @@ import FormatImageVideoList from '../../../utils/vido-utils';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const postCreaterPopoverOptions = ['Delete', 'Report', 'Block user'];
 
 interface Props {
   user: User
@@ -570,6 +571,7 @@ function ProfilePostDetail({ user }: Props) {
         popoverOptions={loginUserPopoverOptions}
         onPopoverClick={handlePopoverOption}
         otherUserPopoverOptions={otherUserPopoverOptions}
+        postCreaterPopoverOptions={postCreaterPopoverOptions}
         isCommentSection
         commentsData={commentData}
         removeComment={removeComment}

@@ -14,8 +14,8 @@ import CustomInputGroup from '../../components/ui/CustomInputGroup';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 import { signIn } from '../../api/users';
 import { setSignInCookies } from '../../utils/session-utils';
-import slasherLogo from '../../images/slasher-logo-medium.png';
-import signInImageMobile from '../../images/sign-in-background-mobile.jpg';
+import slasherLogo from '../../images/slasher-beta-logo-medium.png';
+import signInImageMobile from '../../images/sign-in-background-beta-mobile.jpg';
 import { LG_MEDIA_BREAKPOINT } from '../../constants';
 
 interface UserCredentials {
@@ -88,8 +88,8 @@ function SignIn() {
       <Col sm={12} lg={6}>
         <div className="h-100 w-100 d-flex align-items-center">
           <div className="d-flex w-100 h-100 justify-content-center align-items-center">
-            <StyledMobileSlasherLogo src={signInImageMobile} className="w-100 d-lg-none" />
-            <StyledDesktopSlasherLogo src={slasherLogo} className="p-4 d-none d-lg-block" />
+            <StyledMobileSlasherLogo src={signInImageMobile} alt="Slasher logo" className="w-100 d-lg-none" />
+            <StyledDesktopSlasherLogo src={slasherLogo} alt="Slasher logo" className="p-4 d-none d-lg-block" />
           </div>
         </div>
       </Col>

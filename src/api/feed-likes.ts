@@ -7,7 +7,7 @@ export async function likeFeedPost(feedPostId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-likes/post/${feedPostId}`, {}, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-likes/post/${feedPostId}`, {}, { headers });
 }
 
 export async function unlikeFeedPost(feedPostId: string) {
@@ -15,7 +15,7 @@ export async function unlikeFeedPost(feedPostId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-likes/post/${feedPostId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-likes/post/${feedPostId}`, { headers });
 }
 
 export async function likeFeedComment(feedCommentId: string) {
@@ -23,7 +23,7 @@ export async function likeFeedComment(feedCommentId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-likes/comment/${feedCommentId}`, {}, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-likes/comment/${feedCommentId}`, {}, { headers });
 }
 
 export async function unlikeFeedComment(feedCommentId: string) {
@@ -31,7 +31,7 @@ export async function unlikeFeedComment(feedCommentId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-likes/comment/${feedCommentId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-likes/comment/${feedCommentId}`, { headers });
 }
 
 export async function likeFeedReply(feedCommentId: string) {
@@ -39,7 +39,7 @@ export async function likeFeedReply(feedCommentId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.post(`${apiUrl}/feed-likes/reply/${feedCommentId}`, {}, { headers });
+  return axios.post(`${apiUrl}/api/v1/feed-likes/reply/${feedCommentId}`, {}, { headers });
 }
 
 export async function unlikeFeedReply(feedCommentId: string) {
@@ -47,5 +47,5 @@ export async function unlikeFeedReply(feedCommentId: string) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.delete(`${apiUrl}/feed-likes/reply/${feedCommentId}`, { headers });
+  return axios.delete(`${apiUrl}/api/v1/feed-likes/reply/${feedCommentId}`, { headers });
 }

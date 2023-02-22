@@ -21,22 +21,31 @@ interface Props {
 }
 function ProfileAbout({ user }: Props) {
   const [isEdit, setEdit] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>(user?.aboutMe || '');
+  const [aboutMeText, setAboutMeText] = useState<string>(user?.aboutMe || '');
   const [charCount, setCharCount] = useState<number>(0);
   const loginUserId = useAppSelector((state) => state.user.user.id);
   const [ProgressButton, setProgressButtonStatus] = useProgressButton();
 
   const handleMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCharCount(e.target.value.length);
-    setMessage(e.target.value);
+    setAboutMeText(e.target.value);
   };
   const handleUserAbout = (id: string) => {
-    updateUserAbout(id, message).then((res) => {
-      setMessage(res.data.aboutMe);
+    updateUserAbout(id, aboutMeText).then((res) => {
+      setAboutMeText(res.data.aboutMe);
       setProgressButtonStatus('loading');
       setEdit(!isEdit);
     });
   };
+
+  const renderAboutMeText = (text: string) => {
+    if (text && text.length > 0) {
+      return text;
+    }
+
+    return <span className="text-light">This user has not added an &quot;About me&quot; section yet.</span>;
+  };
+
   return (
     <div>
       <ProfileHeader tabKey="about" user={user} />
@@ -61,7 +70,7 @@ function ProfileAbout({ user }: Props) {
                     maxLength={1000}
                     rows={10}
                     as="textarea"
-                    value={message}
+                    value={aboutMeText}
                     onChange={handleMessageChange}
                     placeholder="Write here..."
                     style={{ resize: 'none' }}
@@ -94,7 +103,7 @@ function ProfileAbout({ user }: Props) {
           )
           : (
             <CustomDiv>
-              {message}
+              {renderAboutMeText(aboutMeText)}
             </CustomDiv>
           )}
       </div>

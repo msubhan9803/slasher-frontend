@@ -14,9 +14,10 @@ import { incrementUnreadNotificationCount, setUserInitialData, handleUpdatedUnre
 import { useAppDispatch, useAppSelector } from '../../../../redux/hooks';
 import { signOut } from '../../../../utils/session-utils';
 import { SocketContext } from '../../../../context/socket';
-import { LG_MEDIA_BREAKPOINT, analyticsId } from '../../../../constants';
+import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../constants';
 import LoadingIndicator from '../../../ui/LoadingIndicator';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
+import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
 
 interface Props {
   children: React.ReactNode;
@@ -116,6 +117,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   }
   return (
     <div className="page-wrapper full">
+      <SkipToMainContent />
       <AuthenticatedPageHeader
         userName={userData.user.userName}
         onToggleClick={showOffcanvasSidebar}
@@ -132,7 +134,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
                 </LeftSidebarWrapper>
               </div>
             )}
-          <main className="px-lg-2 flex-grow-1 min-width-0">
+          <main id={MAIN_CONTENT_ID} className="px-lg-2 flex-grow-1 min-width-0">
             {children}
             <ScrollRestoration
               getKey={(location: any) => location.pathname}

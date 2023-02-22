@@ -122,7 +122,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
       expect(response.body.message).toContain('Not found.');
     });
 
-    it('when feed reply id and login user id is not match than expected response', async () => {
+    it('when feed reply userId and login user id is not match than expected response', async () => {
       const feedReply1 = await feedCommentsService.createFeedReply(
         feedRepliesFactory.build(
           {
@@ -136,6 +136,42 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/feed-comments/replies/${feedReply1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toContain('Permission denied.');
+    });
+
+    it('when feed post userId and login user id is not match than expected response', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user0._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost1.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      const feedReply2 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments1.id,
+            message: 'Hello Reply Test Message 2',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/feed-comments/replies/${feedReply2._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send()
         .expect(HttpStatus.FORBIDDEN);

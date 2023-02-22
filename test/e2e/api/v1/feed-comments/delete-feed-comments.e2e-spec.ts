@@ -110,12 +110,38 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
       expect(response.body.message).toContain('Not found.');
     });
 
-    it('when feed comment id and login user id is not match than expected response', async () => {
+    it('when feed comment userId and login user id is not match than expected response', async () => {
       const feedComments1 = await feedCommentsService.createFeedComment(
         feedCommentsFactory.build(
           {
             userId: user0._id,
             feedPostId: feedPost.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toContain('Permission denied.');
+    });
+
+    it('when feed post userId and login user id is not match than expected response', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user0._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost1.id,
             message: sampleFeedCommentsDeleteObject.message,
             images: sampleFeedCommentsDeleteObject.images,
           },

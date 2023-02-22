@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import { useLocation, useParams } from 'react-router-dom';
@@ -138,7 +138,7 @@ function ProfilePosts({ user }: Props) {
         .then((res) => setMentionList(res.data));
     }
   };
-  const callLatestFeedPost = () => {
+  const callLatestFeedPost = useCallback(() => {
     if (user) {
       getProfilePosts(user._id).then((res) => {
         const newPosts = res.data.map((data: any) => ({
@@ -157,7 +157,7 @@ function ProfilePosts({ user }: Props) {
         setPosts(newPosts);
       });
     }
-  };
+  }, [user]);
   const onUpdatePost = (message: string) => {
     updateFeedPost(postId, message).then(() => {
       setShowReportModal(false);
@@ -173,10 +173,13 @@ function ProfilePosts({ user }: Props) {
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+  useEffect(() => {
+    callLatestFeedPost();
+  }, [callLatestFeedPost]);
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likedByUser);
+      && post.likeIcon);
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -262,7 +265,7 @@ function ProfilePosts({ user }: Props) {
       <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
       <InfiniteScroll
         pageStart={0}
-        initialLoad
+        initialLoad={false}
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
       >

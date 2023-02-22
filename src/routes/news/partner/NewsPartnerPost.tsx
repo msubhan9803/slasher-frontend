@@ -298,8 +298,7 @@ function NewsPartnerPost() {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likedByUser);
-
+      && post.likeIcon);
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
         if (res.status === 200) {

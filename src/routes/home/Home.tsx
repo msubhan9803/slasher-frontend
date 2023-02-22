@@ -197,6 +197,9 @@ function Home() {
     });
   };
 
+  useEffect(() => {
+    callLatestFeedPost();
+  }, []);
   const onUpdatePost = (message: string) => {
     updateFeedPost(postId, message).then(() => {
       setShow(false);
@@ -216,7 +219,7 @@ function Home() {
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likedByUser);
+      && post.likeIcon);
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
         if (res.status === 200) {
@@ -306,7 +309,7 @@ function Home() {
         <InfiniteScroll
           threshold={2000}
           pageStart={0}
-          initialLoad
+          initialLoad={false}
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
         >

@@ -32,7 +32,9 @@ function BasicBooksIndex() {
         setErrorMessage(error.response.data.message);
         setLoadingPosts(false);
       });
-    } else setLoadingPosts(false);
+    } else {
+      setLoadingPosts(false)
+    };
   }, [dispatch]);
 
   return (

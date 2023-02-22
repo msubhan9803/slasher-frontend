@@ -28,7 +28,9 @@ function BasicArtistsIndex() {
         setErrorMessage(error.response.data.message);
         setLoadingPosts(false);
       });
-    } else setLoadingPosts(false);
+    } else {
+      setLoadingPosts(false)
+    };
   }, [dispatch]);
   return (
     <ContentSidbarWrapper>

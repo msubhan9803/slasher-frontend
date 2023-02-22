@@ -28,7 +28,9 @@ function BasicPodcastsIndex() {
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-    } else setLoadingPosts(false);
+    } else {
+      setLoadingPosts(false)
+    };
   }, [dispatch]);
 
   return (

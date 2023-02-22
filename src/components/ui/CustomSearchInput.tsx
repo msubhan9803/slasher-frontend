@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormControl, InputGroup } from 'react-bootstrap';
@@ -28,7 +28,10 @@ const StyledSearchInput = styled(InputGroup)`
 `;
 
 function CustomSearchInput({ label, setSearch, search }: SearchProps) {
-  const [searchValue, setSearchValue] = useState<string>(search);
+  const [searchValue, setSearchValue] = useState<string>('');
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
   const handleSearch = (e: any) => {
     if (e.keyCode === 13 || e.type === 'click') {
       setSearch(searchValue);

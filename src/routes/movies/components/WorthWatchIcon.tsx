@@ -4,16 +4,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 
 interface LikeProps {
-  isLike?: boolean
+  isLike?: boolean;
+  width?: string;
+  height?: string;
 }
 interface DislikeProps {
   isDislike?: boolean
+  width?: string;
+  height?: string;
 }
 
-const StyledDislikeIcon = styled.div <DislikeProps>`
+export const StyledDislikeIcon = styled.div <DislikeProps>`
   color: #FF1800;
-  width: 1.875rem;
-  height: 1.875rem;
+  width: ${(props) => (props.width ? props.width : '1.875rem')};
+  height: ${(props) => (props.width ? props.height : '1.875rem')};
   transform: rotateY(180deg);
   ${(props) => (props.isDislike ? ' border: 1px solid #FF1800' : ' border: 1px solid #3A3B46')};
   FontAwesomeIcon {
@@ -27,8 +31,8 @@ const StyledDislikeIcon = styled.div <DislikeProps>`
 `;
 export const StyledLikeIcon = styled.div <LikeProps>`
   color: #00FF0A;
-  width: 1.875rem;
-  height: 1.875rem;
+  width: ${(props) => (props.width ? props.width : '1.875rem')};
+  height: ${(props) => (props.width ? props.height : '1.875rem')};
   ${(props) => (props.isLike ? ' border: 1px solid #00FF0A' : ' border: 1px solid #3A3B46')};
   svg {
     margin-left: 0.125rem;

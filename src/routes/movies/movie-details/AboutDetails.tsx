@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { Col, Row } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
 import RoundButton from '../../../components/ui/RoundButton';
-import WorthWatchIcon, { StyledLikeIcon } from '../components/WorthWatchIcon';
+import WorthWatchIcon from '../components/WorthWatchIcon';
 import MoviesModal from '../components/MoviesModal';
 import {
   AdditionalMovieData, Country, MovieReleaseResults, ReleaseDate,
@@ -15,6 +14,8 @@ import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import CustomWortItText from '../../../components/ui/CustomWortItText';
+import CustomRatingText from '../../../components/ui/CustomRatingText';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -64,10 +65,6 @@ const AboutMovieDetails = styled.div`
     }
   }
 
-`;
-const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
-  width: 0.995rem;
-  height: 0.997rem;
 `;
 const StyledInitial = styled.p`
   padding: 0.34rem 0.68rem;
@@ -155,11 +152,14 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
                 <div className="d-flex justify-content-between d-md-block align-items-center">
                   <p className="fs-3 fw-bold text-md-center m-md-0 mb-0">User rating</p>
                   <div className="d-flex mt-md-3 justify-content-md-center">
-                    <FontAwesomeIcon icon={solid('star')} size="xs" className="star m-md-0" />
-                    <div className="d-flex align-items-center m-md-0 ">
-                      <p className="fw-bold m-0 mx-2">3.3/5</p>
-                      <p className="m-0 text-light">(99k)</p>
-                    </div>
+                    <CustomRatingText
+                      rating={3.3}
+                      icon={solid('star')}
+                      ratingType="star"
+                      customWidth="1.638rem"
+                      customHeight="1.563rem"
+                      ratingCount="(99k)"
+                    />
                   </div>
                   <BorderButton
                     buttonClass="mx-md-auto rate-btn bg-black py-2 mt-md-4 justify-content-md-center"
@@ -179,12 +179,13 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               <Col xs={6} md={5} className="p-0">
                 <StyledVerticalBorder className="mt-4 mt-md-0">
                   <p className="fs-3 fw-bold text-center">Worth watching?</p>
-                  <div className="mt-2 d-flex justify-content-center">
-                    <StyledLikeIcon className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
-                      <StyleWatchWorthIcon icon={regular('thumbs-up')} />
-                    </StyledLikeIcon>
-                    <p className="fs-3 fw-bold m-0 align-self-center" style={{ color: '#00FF0A' }}>Worth it!</p>
-                  </div>
+                  <CustomWortItText
+                    divClass="mt-2"
+                    textClass="fs-3"
+                    customIconWidth="16px"
+                    customIconHeight="16px"
+                    worthIt
+                  />
                   <div className="mt-3">
                     <WorthWatchIcon />
                   </div>
@@ -193,11 +194,14 @@ function AboutDetails({ aboutMovieDetail }: AboutMovieData) {
               <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
                 <p className="fs-3 fw-bold text-center">Gore factor</p>
                 <div className="mt-2 d-flex justify-content-center">
-                  <FontAwesomeIcon icon={solid('burst')} size="xs" className="burst" />
-                  <div className="d-flex align-items-center">
-                    <p className="fw-bold m-0 mx-2">3.3/5</p>
-                    <p className="m-0 text-light">(99k)</p>
-                  </div>
+                  <CustomRatingText
+                    rating={3.3}
+                    icon={solid('burst')}
+                    ratingType="burst"
+                    customWidth="1.638rem"
+                    customHeight="1.563rem"
+                    ratingCount="(99k)"
+                  />
                 </div>
                 <div className="mt-4 d-flex justify-content-center">
                   <BorderButton

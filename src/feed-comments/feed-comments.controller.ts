@@ -168,7 +168,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedComment.feedPostId.toString(), true);
-    if (feedComment.userId.toString() !== user.id || (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
@@ -302,7 +302,7 @@ export class FeedCommentsController {
     }
 
     const feedPost = await this.feedPostsService.findById(feedReply.feedPostId.toString(), true);
-    if (feedReply.userId.toString() !== user.id || (feedPost.userId as unknown as User)._id.toString() !== user.id) {
+    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);

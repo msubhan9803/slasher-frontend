@@ -24,6 +24,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
   let activeUserAuthToken: string;
   let activeUser: User;
   let user0: User;
+  let user1: User;
   let configService: ConfigService;
   let feedPost: FeedPostDocument;
   let feedPostsService: FeedPostsService;
@@ -71,6 +72,7 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
+      user1 = await usersService.create(userFactory.build());
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
@@ -122,60 +124,98 @@ describe('Feed-Reply / Reply Delete File (e2e)', () => {
       expect(response.body.message).toContain('Not found.');
     });
 
-    it('when feed reply userId and login user id is not match than expected response', async () => {
-      const feedReply1 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: user0._id,
-            feedCommentId: feedComments.id,
-            message: 'Hello Reply Test Message 2',
-            images: sampleFeedCommentsObject.images,
-          },
-        ),
-      );
+    it('when feed reply userId and login userId is not match but '
+      + 'feed post userId and login userId is match than expected response', async () => {
+        const feedReply1 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user0._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/feed-comments/replies/${feedReply1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
+      });
 
-      const response = await request(app.getHttpServer())
-        .delete(`/api/v1/feed-comments/replies/${feedReply1._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send()
-        .expect(HttpStatus.FORBIDDEN);
-      expect(response.body.message).toContain('Permission denied.');
-    });
+    it('when feed post userId and login userId is not match but '
+      + 'feed reply userId and login userId is match than expected response', async () => {
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user0._id,
+            },
+          ),
+        );
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost1.id,
+              message: sampleFeedCommentsObject.message,
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/feed-comments/replies/${feedReply2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.OK);
+        expect(response.body).toEqual({ success: true });
+      });
 
-    it('when feed post userId and login user id is not match than expected response', async () => {
-      const feedPost1 = await feedPostsService.create(
-        feedPostFactory.build(
-          {
-            userId: user0._id,
-          },
-        ),
-      );
-      const feedComments1 = await feedCommentsService.createFeedComment(
-        feedCommentsFactory.build(
-          {
-            userId: activeUser._id,
-            feedPostId: feedPost1.id,
-            message: sampleFeedCommentsObject.message,
-            images: sampleFeedCommentsObject.images,
-          },
-        ),
-      );
-      const feedReply2 = await feedCommentsService.createFeedReply(
-        feedRepliesFactory.build(
-          {
-            userId: activeUser._id,
-            feedCommentId: feedComments1.id,
-            message: 'Hello Reply Test Message 2',
-            images: sampleFeedCommentsObject.images,
-          },
-        ),
-      );
-      const response = await request(app.getHttpServer())
-        .delete(`/api/v1/feed-comments/replies/${feedReply2._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' })
-        .send()
-        .expect(HttpStatus.FORBIDDEN);
-      expect(response.body.message).toContain('Permission denied.');
-    });
+      it('when feed post userId and login userId is not match but '
+      + 'feed reply userId and login userId is not match than expected response', async () => {
+        const feedPost1 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              userId: user0._id,
+            },
+          ),
+        );
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost1.id,
+              message: sampleFeedCommentsObject.message,
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const feedReply2 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: user1._id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Reply Test Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/feed-comments/replies/${feedReply2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send()
+          .expect(HttpStatus.FORBIDDEN);
+        expect(response.body.message).toContain('Permission denied.');
+      });
   });
 });

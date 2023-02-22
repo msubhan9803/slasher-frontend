@@ -25,7 +25,15 @@ export const RouteURL = (
   navigate: any,
   searchParams: any,
 ) => {
-  if (search.length === 0 && key.length === 0 && sortVal && !searchParams.get('q') && !searchParams.get('startsWith')?.toLowerCase()) {
-    navigate(`/app/movies/${tab}?sort=${searchParams.get('sort') || sortVal}`);
+  if (!searchParams.get('sort')) {
+    if (search.length === 0 && key.length === 0 && sortVal && !searchParams.get('q') && !searchParams.get('startsWith')?.toLowerCase()) {
+      navigate(`/app/movies/${tab}?sort=${searchParams.get('sort') || sortVal}`);
+    } else if (search.length > 0 && key.length > 0 && sortVal) {
+      navigate(`/app/movies/${tab}?q=${search}&startsWith=${key}&sort=${sortVal}`);
+    } else if (search.length > 0 && sortVal) {
+      navigate(`/app/movies/${tab}?q=${search}&sort=${sortVal}`);
+    } else if (key.length > 0 && sortVal) {
+      navigate(`/app/movies/${tab}?startsWith=${key}&sort=${sortVal}`);
+    }
   }
 };

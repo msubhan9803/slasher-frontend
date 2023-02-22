@@ -38,7 +38,7 @@ function FilterModal({
   const generateAlphabet = () => {
     const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97).toUpperCase());
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
-    setKeyboard([...number, ...alphabet, '#']);
+    setKeyboard([...number, ...alphabet]);
   };
   useEffect(() => { generateAlphabet(); }, []);
   const handleCloseKeys = () => {
@@ -83,7 +83,7 @@ function FilterModal({
         <RoundButton
           variant="primary"
           type="submit"
-          className="w-100 fs-3 "
+          className="w-100 fs-3"
           onClick={onClickApplyFilter}
         >
           Apply filter

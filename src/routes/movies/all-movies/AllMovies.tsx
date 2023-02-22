@@ -17,7 +17,7 @@ import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { RouteURL, UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
-  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(true);
   const [showKeys, setShowKeys] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
@@ -31,9 +31,9 @@ function AllMovies() {
   );
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [search, setSearch] = useState(scrollPosition.searchValue);
-  const [key, setKey] = useState(scrollPosition.selectedKey);
-  const [sortVal, setSortVal] = useState(scrollPosition.sortValue);
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [key, setKey] = useState(searchParams.get('startsWith')?.toLowerCase() || '');
+  const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
 
   useEffect(() => {
@@ -52,16 +52,17 @@ function AllMovies() {
     setCallNavigate(false);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [callNavigate]);
+
   useEffect(() => {
-    if (scrollPosition.searchValue !== search || scrollPosition.sortValue !== sortVal) {
-      setFilteredMovies([]);
-      setRequestAdditionalPosts(true);
-    } else if (!scrollPosition.data.length && search.length === 0) {
+    if (callNavigate
+      || (!scrollPosition.data.length && search.length === 0)
+      || (scrollPosition.position === 0 && (search || key.length))
+    ) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal]);
+  }, [search, sortVal, key, callNavigate]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -113,7 +114,7 @@ function AllMovies() {
     if (sortValue) { setSortVal(sortValue); }
   };
   useEffect(() => {
-    if (key && key.length > 0 && scrollPosition.selectedKey !== key) {
+    if (key && key.length > 0 && scrollPosition.position === 0) {
       getMoviesByFirstName(key.toLowerCase())
         .then((res) => {
           getMovies(search, sortVal, res.data._id)
@@ -142,6 +143,13 @@ function AllMovies() {
     getMovies(search, sortVal)
       .then((result: any) => {
         setFilteredMovies(result.data);
+        const positionData = {
+          pathname: '',
+          position: 0,
+          data: [],
+          positionElementId: '',
+        };
+        dispatch(setScrollPosition(positionData));
       });
   };
 
@@ -151,9 +159,6 @@ function AllMovies() {
       position: window.pageYOffset,
       data: filteredMovies,
       positionElementId: id,
-      searchValue: search,
-      sortValue: sortVal,
-      selectedKey: key,
     };
     dispatch(setScrollPosition(positionData));
   };
@@ -180,7 +185,7 @@ function AllMovies() {
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               Starts with
               {' '}
-              {key}
+              {key.toUpperCase()}
               {' '}
               <FontAwesomeIcon icon={solid('x')} size="sm" />
             </RoundButton>

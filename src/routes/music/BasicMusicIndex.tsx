@@ -17,21 +17,18 @@ function BasicMusicIndex() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const dispatch = useDispatch();
   useEffect(() => {
-    setLoadingPosts(true);
-    getMusic().then((res: any) => {
-      if (res) {
+    if (!music?.music?.length) {
+      setLoadingPosts(true);
+      getMusic().then((res: any) => {
         if (res) {
           dispatch(setMusicInitialData(res.data));
+          setLoadingPosts(false);
         }
-      }
-    }).catch((error) => {
-      setErrorMessage(error.response.data.message);
-      setLoadingPosts(false);
-    }).finally(
-      () => {
+      }).catch((error) => {
+        setErrorMessage(error.response.data.message);
         setLoadingPosts(false);
-      },
-    );
+      });
+    } else setLoadingPosts(false);
   }, [dispatch]);
 
   return (
@@ -39,9 +36,9 @@ function BasicMusicIndex() {
       <ContentPageWrapper>
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
           )}
           <div className="m-md-2">
             <CustomHeader>Music</CustomHeader>

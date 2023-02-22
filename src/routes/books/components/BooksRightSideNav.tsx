@@ -6,7 +6,7 @@ import RecentMessages from '../../../components/layout/right-sidebar-wrapper/com
 import AdvertisementBox from '../../../components/layout/right-sidebar-wrapper/components/AdvertisementBox';
 import RoundButtonLink from '../../../components/ui/RoundButtonLink';
 
-function BooksRigthSideNav() {
+function BooksRightSideNav() {
   const params = useParams();
   return (
     <>
@@ -19,4 +19,4 @@ function BooksRigthSideNav() {
   );
 }
 
-export default BooksRigthSideNav;
+export default BooksRightSideNav;

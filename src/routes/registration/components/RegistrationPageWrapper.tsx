@@ -31,4 +31,5 @@ function RegistrationPageWrapper({ children, activeStep }: Props) {
     </>
   );
 }
+
 export default RegistrationPageWrapper;

@@ -85,20 +85,20 @@ function App() {
       <Route>
         <Route path="/" element={<Navigate to={DEFAULT_INDEX_REDIRECT} replace />} />
         {
-                    Object.entries(routes).map(
-                      ([routePath, opts]) => (
-                        <Route
-                          key={routePath}
-                          path={routePath}
-                          element={(
-                            <opts.wrapper {...(opts.wrapperProps)}>
-                              <opts.component />
-                            </opts.wrapper>
-                                )}
-                        />
-                      ),
-                    )
-                }
+          Object.entries(routes).map(
+            ([routePath, opts]) => (
+              <Route
+                key={routePath}
+                path={routePath}
+                element={(
+                  <opts.wrapper {...(opts.wrapperProps)}>
+                    <opts.component />
+                  </opts.wrapper>
+                )}
+              />
+            ),
+          )
+        }
         <Route path="*" element={<UnauthenticatedPageWrapper><NotFound /></UnauthenticatedPageWrapper>} />
       </Route>,
     ),

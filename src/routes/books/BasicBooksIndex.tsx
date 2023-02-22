@@ -4,7 +4,7 @@ import {
   ContentPageWrapper,
   ContentSidbarWrapper,
 } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import BooksRigthSideNav from './components/BooksRigthSideNav';
+import BooksRightSideNav from './components/BooksRightSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import BasicBooksIndexList from './BasicBooksIndexList';
 import { getBooks } from '../../api/books';
@@ -21,48 +21,44 @@ function BasicBooksIndex() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setLoadingPosts(true);
-    getBooks().then((res: any) => {
-      if (res) {
+    if (!books?.books?.length) {
+      setLoadingPosts(true);
+      getBooks().then((res: any) => {
         if (res) {
           dispatch(setBooksInitialData(res.data));
+          setLoadingPosts(false);
         }
-      }
-    }).catch((error) => {
-      setErrorMessage(error.response.data.message);
-      setLoadingPosts(false);
-    }).finally(
-      () => {
+      }).catch((error) => {
+        setErrorMessage(error.response.data.message);
         setLoadingPosts(false);
-      },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      });
+    } else setLoadingPosts(false);
+  }, [dispatch]);
 
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
         <div className="bg-dark bg-mobile-transparent rounded-3 px-lg-4 pt-lg-4 pb-lg-2">
           {errorMessage && errorMessage.length > 0 && (
-          <div className="mt-3 text-start">
-            <ErrorMessageList errorMessages={errorMessage} className="m-0" />
-          </div>
+            <div className="mt-3 text-start">
+              <ErrorMessageList errorMessages={errorMessage} className="m-0" />
+            </div>
           )}
           <div className="m-md-2">
             <CustomHeader>Books</CustomHeader>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && books?.books?.length > 0 && (
-            <BasicBooksIndexList books={books && books?.books} />
+              <BasicBooksIndexList books={books && books?.books} />
             )}
             {!loadingPosts && books?.books?.length === 0 && <TableRow>No Data Found</TableRow>}
           </div>
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <BooksRigthSideNav />
+        <BooksRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );
-}
+};
 
 export default BasicBooksIndex;

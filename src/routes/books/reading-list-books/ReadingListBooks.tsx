@@ -5,7 +5,7 @@ import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import BooksHeader from '../BooksHeader';
 import { BooksProps } from '../components/BookProps';
 import { readingListBooks } from '../components/booksList';
-import BooksRigthSideNav from '../components/BooksRigthSideNav';
+import BooksRightSideNav from '../components/BooksRightSideNav';
 
 function ReadingListBooks() {
   const [showKeys, setShowKeys] = useState(false);
@@ -44,7 +44,7 @@ function ReadingListBooks() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <BooksRigthSideNav />
+        <BooksRightSideNav />
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );

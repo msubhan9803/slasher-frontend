@@ -3,10 +3,9 @@ import styled from 'styled-components';
 export const CustomTable = styled.div`
   padding-bottom: 1em;
   height: calc(100vh - 125px);
-  overflow-y: hidden;
   position: sticky;
   top: 125px;
-  overflow-x: hidden;
+  overflow-y: scroll;
   padding-right: 1rem;
 `;
 

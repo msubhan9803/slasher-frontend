@@ -220,7 +220,8 @@ export class MoviesService {
       movieFindAllQuery.name = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
     if (sortNameStartsWith) {
-      movieFindAllQuery.sort_name = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+      movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
+      movieFindAllQuery.sort_name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
     }
 
     let sortMoviesByNameAndReleaseDate: any;

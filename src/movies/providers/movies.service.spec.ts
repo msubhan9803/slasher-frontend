@@ -436,13 +436,17 @@ describe('MoviesService', () => {
 
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
+        const name = ['Alive', 'Again alive', 'Afield', 'Audition', 'Aghost'];
         const rating = [1, 1.5, 2, 2.5, 3];
+        const movieDBId = [2901, 2902, 2903, 2904, 2905];
         for (let i = 0; i < 5; i += 1) {
           await moviesService.create(
             moviesFactory.build(
               {
                 status: MovieActiveStatus.Active,
                 rating: rating[i],
+                name: name[i],
+                movieDBId: movieDBId[i],
               },
             ),
           );
@@ -468,6 +472,14 @@ describe('MoviesService', () => {
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'rating');
         const secondResults = await moviesService.findAll(limit, true, 'rating', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by name and startsWith returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.findAll(limit, true, 'name');
+        const secondResults = await moviesService.findAll(limit, true, 'name', firstResults[limit - 1].id, null, null, 'a');
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });

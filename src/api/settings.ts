@@ -7,7 +7,7 @@ export async function getAccountNotification() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/settings/notifications`, { headers });
+  return axios.get(`${apiUrl}/api/v1/settings/notifications`, { headers });
 }
 
 export async function updateAccountNotification(reqBody: any) {
@@ -15,5 +15,5 @@ export async function updateAccountNotification(reqBody: any) {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/settings/notifications`, reqBody, { headers });
+  return axios.patch(`${apiUrl}/api/v1/settings/notifications`, reqBody, { headers });
 }

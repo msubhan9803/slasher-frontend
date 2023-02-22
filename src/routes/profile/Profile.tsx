@@ -11,7 +11,7 @@ import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
 import ProfileFriendRequest from './ProfileFriends/ProfileFriendRequest/ProfileFriendRequest';
 import { getUser } from '../../api/users';
-import { User } from '../../types';
+import { ProfileVisibility, User } from '../../types';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { useAppSelector } from '../../redux/hooks';
 import NotFound from '../../components/NotFound';
@@ -19,6 +19,8 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
+import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
 
 function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
@@ -55,6 +57,20 @@ function Profile() {
 
   if (!user) {
     return <LoadingIndicator />;
+  }
+
+  if (!isSelfProfile && user.profile_status !== ProfileVisibility.Public) {
+    return (
+      <ContentSidbarWrapper>
+        <ContentPageWrapper>
+          <ProfileLimitedView user={user} />
+        </ContentPageWrapper>
+
+        <RightSidebarWrapper>
+          <RightSidebarAdOnly />
+        </RightSidebarWrapper>
+      </ContentSidbarWrapper>
+    );
   }
 
   return (

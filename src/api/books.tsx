@@ -7,5 +7,5 @@ export async function getBooks() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/books`, { headers });
+  return axios.get(`${apiUrl}/api/books`, { headers });
 }

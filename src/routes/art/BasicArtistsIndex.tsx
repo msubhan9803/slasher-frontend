@@ -16,6 +16,7 @@ function BasicArtistsIndex() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const arts = useAppSelector<any>((state) => state.arts);
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (!arts?.arts?.length) {
       setLoadingPosts(true);
@@ -29,9 +30,10 @@ function BasicArtistsIndex() {
         setLoadingPosts(false);
       });
     } else {
-      setLoadingPosts(false)
-    };
-  }, [dispatch]);
+      setLoadingPosts(false);
+    }
+  }, [dispatch, arts?.arts?.length]);
+
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>

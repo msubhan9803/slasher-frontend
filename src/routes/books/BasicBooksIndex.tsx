@@ -33,9 +33,9 @@ function BasicBooksIndex() {
         setLoadingPosts(false);
       });
     } else {
-      setLoadingPosts(false)
-    };
-  }, [dispatch]);
+      setLoadingPosts(false);
+    }
+  }, [dispatch, books?.books?.length]);
 
   return (
     <ContentSidbarWrapper>
@@ -61,6 +61,6 @@ function BasicBooksIndex() {
       </RightSidebarWrapper>
     </ContentSidbarWrapper>
   );
-};
+}
 
 export default BasicBooksIndex;

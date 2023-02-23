@@ -29,9 +29,9 @@ function BasicPodcastsIndex() {
         setErrorMessage(error.response.data.message);
       });
     } else {
-      setLoadingPosts(false)
-    };
-  }, [dispatch]);
+      setLoadingPosts(false);
+    }
+  }, [dispatch, podcasts?.podcasts?.length]);
 
   return (
     <ContentSidbarWrapper>

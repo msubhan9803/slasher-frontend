@@ -29,9 +29,9 @@ function BasicMusicIndex() {
         setLoadingPosts(false);
       });
     } else {
-      setLoadingPosts(false)
-    };
-  }, [dispatch]);
+      setLoadingPosts(false);
+    }
+  }, [dispatch, music?.music?.length]);
 
   return (
     <ContentSidbarWrapper>

@@ -5,7 +5,6 @@ import {
 import ProfileAbout from './ProfileAbout/ProfileAbout';
 import ProfileFriends from './ProfileFriends/ProfileFriends';
 import ProfilePhotos from './ProfilePhotos/ProfilePhotos';
-import ProfilePostDetail from './ProfilePostDetail/ProfilePostDetail';
 import ProfilePosts from './ProfilePosts/ProfilePosts';
 import ProfileWatchList from './ProfileWatchList/ProfileWatchList';
 import ProfileEdit from './ProfileEdit/ProfileEdit';
@@ -19,8 +18,9 @@ import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authe
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import RightSidebarViewer from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarViewer';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
-import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
+import PostDetail from '../../components/ui/post/PostDetail';
 import ProfileLimitedView from './ProfileLimitedView/ProfileLimitedView';
+import RightSidebarAdOnly from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarAdOnly';
 
 function Profile() {
   const loginUserData = useAppSelector((state) => state.user.user);
@@ -79,7 +79,7 @@ function Profile() {
         <Routes>
           <Route path="/" element={<Navigate to="posts" replace />} />
           <Route path="/posts" element={<ProfilePosts user={user} />} />
-          <Route path="/posts/:postId" element={<ProfilePostDetail user={user} />} />
+          <Route path="/posts/:postId" element={<PostDetail user={user} />} />
           <Route path="/friends" element={<ProfileFriends user={user} />} />
           <Route path="/friends/request" element={<ProfileFriendRequest user={user} />} />
           <Route path="/about" element={<ProfileAbout user={user} />} />

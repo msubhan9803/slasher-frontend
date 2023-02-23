@@ -67,8 +67,7 @@ function CommentInput({
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
       setEditMessage(regexMessgafe);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [message]);
+  }, [message, commentID, isReply, commentReplyID]);
 
   useEffect(() => {
     if (editMessage) {
@@ -82,10 +81,9 @@ function CommentInput({
               id, value, format: mentionString,
             };
           });
-        setFormatMention(formatMention.concat(finalFormatMentionList));
+        setFormatMention((prevMentions) => prevMentions.concat(finalFormatMentionList));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editMessage]);
   const onUpdatePost = (msg: string) => {
     const imageArr = isReply ? replyImageArray : imageArray;

@@ -43,11 +43,11 @@ function ProfileWatchList({ user }: Props) {
   const [lastMovieId, setLastMovieId] = useState('');
 
   useEffect(() => {
-    RouteURL('watched-list', search, key, sortVal, navigate, searchParams);
+    RouteURL(search, key, sortVal, navigate, searchParams);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [search, key]);
   useEffect(() => {
-    UIRouteURL('watched-list', search, key, sortVal, navigate, callNavigate);
+    UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [callNavigate]);
@@ -172,6 +172,7 @@ function ProfileWatchList({ user }: Props) {
           setShowKeys={setShowKeys}
           setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
           search={search}
+          showMovieTab={false}
           sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
             setSortVal(e.target.value);
             setCallNavigate(true);

@@ -40,11 +40,11 @@ function WatchedListMovies() {
   const userId = Cookies.get('userId');
 
   useEffect(() => {
-    RouteURL('watched-list', search, key, sortVal, navigate, searchParams);
+    RouteURL(search, key, sortVal, navigate, searchParams);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [search, key]);
   useEffect(() => {
-    UIRouteURL('watched-list', search, key, sortVal, navigate, callNavigate);
+    UIRouteURL(search, key, sortVal, navigate, callNavigate);
     setCallNavigate(false);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [callNavigate]);

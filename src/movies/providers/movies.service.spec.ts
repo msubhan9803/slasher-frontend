@@ -72,7 +72,7 @@ describe('MoviesService', () => {
 
   describe('#create', () => {
     it('successfully creates a movie', async () => {
-      expect(await moviesService.findById(movie.id, false)).toBeTruthy();
+      expect(await moviesService.findByIdMovieUserStatus(movie.id, false)).toBeTruthy();
     });
   });
 
@@ -83,7 +83,7 @@ describe('MoviesService', () => {
         countryOfOrigin: 'USA',
       };
       const updatedMovie = await moviesService.update(movie.id, movieData);
-      const reloadedMovie = await moviesService.findById(updatedMovie.id, false);
+      const reloadedMovie = await moviesService.findByIdMovieUserStatus(updatedMovie.id, false);
       expect(reloadedMovie.name).toEqual(movieData.name);
       expect(reloadedMovie.countryOfOrigin).toEqual(movieData.countryOfOrigin);
       expect(reloadedMovie.contentRating).toEqual(movie.contentRating);
@@ -92,7 +92,7 @@ describe('MoviesService', () => {
 
   describe('#findById', () => {
     it('finds the expected movie details', async () => {
-      const movieDetails = await moviesService.findById(movie.id, false);
+      const movieDetails = await moviesService.findByIdMovieUserStatus(movie.id, false);
       expect(movieDetails.name).toEqual(movie.name);
     });
 
@@ -102,7 +102,7 @@ describe('MoviesService', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const movieDetails = await moviesService.findById(movieData.id, true);
+      const movieDetails = await moviesService.findByIdMovieUserStatus(movieData.id, true);
       expect(movieDetails.name).toEqual(movieData.name);
     });
   });

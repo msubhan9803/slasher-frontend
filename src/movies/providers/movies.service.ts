@@ -15,6 +15,8 @@ import { MovieDbDto } from '../dto/movie-db.dto';
 import { ReturnMovieDb } from '../dto/cron-job-response.dto';
 import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
+import { CreateOrUpdateRatingDto } from '../dto/create-or-update-rating-dto';
 
 export interface Cast {
   'adult': boolean,
@@ -128,6 +130,7 @@ export interface MovieDbData {
 export class MoviesService {
   constructor(
     @InjectModel(Movie.name) private moviesModel: Model<MovieDocument>,
+    @InjectModel(MovieUserStatus.name) private movieUserStatusModel: Model<MovieUserStatus>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) { }
@@ -149,6 +152,25 @@ export class MoviesService {
       moviesFindQuery.status = MovieActiveStatus.Active;
     }
     return this.moviesModel.findOne(moviesFindQuery).exec();
+  }
+
+  async findMovieUserStatusByMovieId(movieId: string): Promise<Partial<MovieUserStatus> | null> {
+    return this.movieUserStatusModel.findOne({ movieId: new mongoose.Types.ObjectId(movieId) });
+  }
+
+  async createOrUpdateRating(movieId: string, rating: number) {
+    // Create/update a document in `MovieUserStatus`
+    const movieUserStatus = await this.movieUserStatusModel.updateOne(
+      { movieId },
+      { $set: { rating } },
+      { upsert: true, new: true },
+    );
+    // TODO: Update the score of `rating` in `Movie` document db with matching `movieDBId`
+    // await this.moviesModel.updateOne(
+    //   { movieDBId: movieId },
+    //   { $set: }
+    // )
+    return movieUserStatus;
   }
 
   async findFirstBySortName(sortNameStartsWith: string, activeOnly: boolean): Promise<MovieDocument> {

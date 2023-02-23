@@ -1,7 +1,9 @@
+/* eslint-disable max-len */
 import {
-  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query,
+  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Patch, Req, Body, Put,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 import mongoose from 'mongoose';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
@@ -12,6 +14,8 @@ import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
+import { getUserFromRequest } from '../utils/request-utils';
+import { CreateOrUpdateRatingDto } from './dto/create-or-update-rating-dto';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -49,6 +53,20 @@ export class MoviesController {
     }
     return pick(movieData, ['movieDBId']);
   }
+  // TODO: Remove below comment when creating a PR:
+  // Update above controller route so that movie response should look like that:
+  // {
+  //   movieDbId: ...,
+  //   rating: ...,
+  //   goreFactorRating: ...,
+  //   worthWatching: ...,
+  //  >>> >>> `userData` for the currently logged in user
+  //   userData: {
+  //     rating: ...,
+  //     goreFactorRating: ...,
+  //     worthWatching: ...,
+  //   }
+  // }
 
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {
@@ -85,4 +103,35 @@ export class MoviesController {
     }
     return movieDbData;
   }
+
+  // TODO-SAHIL: Make all three routes
+  // PUT /movies/:id/rating
+  // PUT /movies/:id/gore-factor
+  // PUT /movies/:id/worth-watching
+
+  @Put(':id/rating')
+  async updateStarRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateRatingDto: CreateOrUpdateRatingDto,
+  ) {
+      const user = getUserFromRequest(request);
+
+      // TODO-SAHIL: Your controller proposal checks for user permission and existence, good to refactor that check into a shared method in the controller class.
+      const movieData = await this.moviesService.findById(params.id, true);
+      if (!movieData) {
+        throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+      }
+      const movieUserStatus = await this.moviesService.findMovieUserStatusByMovieId(params.id);
+      if (movieUserStatus && movieUserStatus?.userId !== user.id) {
+        throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
+      }
+      this.moviesService.createOrUpdateRating(params.id, createOrUpdateRatingDto.rating);
+    }
+
+  // DELETE /movies/:id/rating
+
+  // DELETE /movies/:id/gore-factor
+
+  // DELETE /movies/:id/worth-watching
 }

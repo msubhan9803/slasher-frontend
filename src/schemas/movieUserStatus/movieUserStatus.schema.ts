@@ -3,7 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import {
   MovieUserStatusBuy, MovieUserStatusFavorites,
   MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
-  MovieUserStatusRatingStatus, MovieUserStatusStatus,
+  MovieUserStatusRatingStatus, MovieUserStatusStatus, WorthWatchingStatus,
 } from './movieUserStatus.enums';
 
 @Schema({ timestamps: true })
@@ -55,6 +55,15 @@ export class MovieUserStatus {
 
   @Prop({ default: 0 })
   rating: number;
+
+  @Prop({ default: 0 })
+  goreFactorRating: number;
+
+  @Prop({
+    default: 0,
+    enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
+  })
+  worthWatching: number;
 
   @Prop({
     default: MovieUserStatusRatingStatus.NotAvailable,

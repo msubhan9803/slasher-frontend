@@ -112,78 +112,75 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
       expect(response.body.message).toContain('Not found.');
     });
 
-    it('when feed comment userId and login userId is not match but '
-      + 'feed post userId and login userId is match than expected response', async () => {
-        const feedComments1 = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build(
-            {
-              userId: user0._id,
-              feedPostId: feedPost.id,
-              message: sampleFeedCommentsDeleteObject.message,
-              images: sampleFeedCommentsDeleteObject.images,
-            },
-          ),
-        );
-        const response = await request(app.getHttpServer())
-          .delete(`/api/v1/feed-comments/${feedComments1._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.OK);
-        expect(response.body).toEqual({ success: true });
-      });
+    it('succeeds when post creator attempts to delete a comment on the post', async () => {
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user0._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
+    });
 
-    it('when feed post userId and login userId is not match but '
-      + 'feed comment userId and login userId is match than expected response', async () => {
-        const feedPost1 = await feedPostsService.create(
-          feedPostFactory.build(
-            {
-              userId: user0._id,
-            },
-          ),
-        );
-        const feedComments1 = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build(
-            {
-              userId: activeUser._id,
-              feedPostId: feedPost1.id,
-              message: sampleFeedCommentsDeleteObject.message,
-              images: sampleFeedCommentsDeleteObject.images,
-            },
-          ),
-        );
-        const response = await request(app.getHttpServer())
-          .delete(`/api/v1/feed-comments/${feedComments1._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.OK);
-        expect(response.body).toEqual({ success: true });
-      });
+    it('succeeds when a comment creator (who is not the post creator) attempts to delete their own comment', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user0._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost1.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
+    });
 
-    it('when feed post userId and login userId is not match but '
-      + 'feed comment userId and login userId is not match than expected response', async () => {
-        const feedPost1 = await feedPostsService.create(
-          feedPostFactory.build(
-            {
-              userId: user0._id,
-            },
-          ),
-        );
-        const feedComments1 = await feedCommentsService.createFeedComment(
-          feedCommentsFactory.build(
-            {
-              userId: user1._id,
-              feedPostId: feedPost1.id,
-              message: sampleFeedCommentsDeleteObject.message,
-              images: sampleFeedCommentsDeleteObject.images,
-            },
-          ),
-        );
-        const response = await request(app.getHttpServer())
-          .delete(`/api/v1/feed-comments/${feedComments1._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send()
-          .expect(HttpStatus.FORBIDDEN);
-        expect(response.body.message).toContain('Permission denied.');
-      });
+    it('fails when a user who is not the post creator tries to delete a comment created by a different user', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: user0._id,
+          },
+        ),
+      );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: user1._id,
+            feedPostId: feedPost1.id,
+            message: sampleFeedCommentsDeleteObject.message,
+            images: sampleFeedCommentsDeleteObject.images,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/feed-comments/${feedComments1._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send()
+        .expect(HttpStatus.FORBIDDEN);
+      expect(response.body.message).toContain('Permission denied.');
+    });
   });
 });

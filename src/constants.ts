@@ -1,5 +1,6 @@
 export const SIMPLE_MONGODB_ID_REGEX = /^[a-f\d]{24}$/i;
 export const MAXIMUM_IMAGE_UPLOAD_SIZE = 10 * 1_000_000; // 10 MB
+export const UPLOAD_PARAM_NAME_FOR_FILES = 'files';
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_POST = 10;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT = 10;
 export const MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT = 4;

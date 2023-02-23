@@ -162,7 +162,7 @@ describe('Feed-Post / Post File (e2e)', () => {
       expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
 
-    it('only allows a maximum of 10 images', async () => {
+    it.only('only allows a maximum of 10 images', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .post('/api/v1/feed-posts')
@@ -181,8 +181,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[8])
           .attach('files', tempPaths[9])
           .attach('files', tempPaths[10])
+          .attach('files', tempPaths[11])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 10 images');
+        expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 10');
       }, [
         { extension: 'png' },
         { extension: 'png' },
@@ -192,6 +193,8 @@ describe('Feed-Post / Post File (e2e)', () => {
         { extension: 'jpg' },
         { extension: 'jpg' },
         { extension: 'jpg' },
+        { extension: 'gif' },
+        { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },

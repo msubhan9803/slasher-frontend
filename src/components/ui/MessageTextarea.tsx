@@ -1,7 +1,30 @@
 import React, { createRef, useEffect } from 'react';
 import Mentions from 'rc-mentions';
 import { OptionProps } from 'rc-mentions/lib/Option';
+import styled from 'styled-components';
 import UserCircleImage from './UserCircleImage';
+
+interface SytledMentionProps {
+  iscommentinput: string;
+}
+
+const StyledMention = styled(Mentions) <SytledMentionProps>`
+  ${(props) => (props.iscommentinput
+    ? `&.form-control{
+        overflow: unset !important;
+        border: 1px solid #3A3B46 !important;
+        border-radius: 1.875rem !important;
+        border-bottom-right-radius: 0rem !important;
+        border-top-right-radius: 0rem !important;
+        border-right: 0 !important;
+        textarea {
+          background: transparent !important;
+      }
+    }`
+    : '')
+}
+
+`;
 
 export interface MentionListProps {
   id: string;
@@ -22,6 +45,10 @@ interface MentionProps {
   setFormatMentionList: (val: FormatMentionListProps[]) => void;
   handleSearch: (val: string) => void;
   defaultValue?: string;
+  id?: string;
+  className?: string;
+  isCommentInput?: string;
+  setIsReply?: (value: boolean) => void;
 }
 
 function MessageTextarea({
@@ -33,10 +60,13 @@ function MessageTextarea({
   formatMentionList,
   setFormatMentionList,
   defaultValue,
+  id,
+  className,
+  isCommentInput,
+  setIsReply,
 }: MentionProps) {
   const { Option } = Mentions;
   const optionRef = createRef<HTMLInputElement>();
-
   const handleMessage = (e: string) => {
     setMessageContent(e);
   };
@@ -58,18 +88,24 @@ function MessageTextarea({
       setFormatMentionList([...formatMentionList, addFormatObject]);
     }
   };
+
   return (
-    <Mentions
+    <StyledMention
+      iscommentinput={isCommentInput!}
+      id={id}
+      className={isCommentInput ? className : ''}
+      autoSize={{ minRows: rows, maxRows: isCommentInput ? 4 : rows }}
       rows={rows}
       onChange={(e) => handleMessage(e)}
       placeholder={placeholder}
       onSearch={handleSearch}
       onSelect={handleSelect}
-      defaultValue={defaultValue || ''}
+      onFocus={() => isCommentInput && setIsReply && setIsReply!(false)}
+      value={defaultValue || ''}
       notFoundContent="Type to search for a username"
       aria-label="post"
     >
-      {mentionLists.map((mentionList: MentionListProps) => (
+      {mentionLists?.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>
@@ -82,11 +118,15 @@ function MessageTextarea({
           </div>
         </Option>
       ))}
-    </Mentions>
+    </StyledMention>
   );
 }
 MessageTextarea.defaultProps = {
   placeholder: 'Type something...',
-  defaultValue: null,
+  defaultValue: '',
+  id: '',
+  className: '',
+  isCommentInput: undefined,
+  setIsReply: undefined,
 };
 export default MessageTextarea;

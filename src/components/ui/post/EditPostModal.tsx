@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { FormatMentionProps } from '../../routes/posts/create-post/CreatePost';
-import { decryptMessage } from '../../utils/text-utils';
-import ModalContainer from './CustomModal';
-import MessageTextarea, { MentionListProps } from './MessageTextarea';
-import RoundButton from './RoundButton';
+import { FormatMentionProps } from '../../../routes/posts/create-post/CreatePost';
+import MessageTextarea, { MentionListProps } from '../MessageTextarea';
+import RoundButton from '../RoundButton';
+import ModalContainer from '../CustomModal';
+import { decryptMessage } from '../../../utils/text-utils';
 
 interface Props {
   show: boolean;
@@ -27,17 +27,20 @@ function EditPostModal({
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   useEffect(() => {
     if (postContent) {
-      const mentionStringList = postContent.match(/##LINK_ID##[a-z0-9@_.-]+##LINK_END##/g);
-      const finalFormatMentionList = Array.from(new Set(mentionStringList))
-        .map((mentionString: string) => {
-          const id = mentionString.match(/([a-f\d]{24})/g)![0];
-          const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
-          return {
-            id, value, format: mentionString,
-          };
-        });
-      setFormatMention(finalFormatMentionList);
+      const mentionStringList = postContent.match(/##LINK_ID##[a-zA-Z0-9@_.-]+##LINK_END##/g);
+      if (mentionStringList) {
+        const finalFormatMentionList = Array.from(new Set(mentionStringList))
+          .map((mentionString: string) => {
+            const id = mentionString.match(/([a-f\d]{24})/g)![0];
+            const value = mentionString.match(/(@[a-zA-Z0-9_.-]+)/g)![0].replace('@', '');
+            return {
+              id, value, format: mentionString,
+            };
+          });
+        setFormatMention(formatMention.concat(finalFormatMentionList));
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postContent]);
   const closeModal = () => {
     setShow(false);

@@ -6,7 +6,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
-import { getMovies, getMoviesByFirstName } from '../../../api/movies';
+import { getMovies } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
@@ -77,6 +77,7 @@ function AllMovies() {
         getMovies(
           search,
           sortVal,
+          key.toLowerCase(),
           filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
         )
           .then((res) => {
@@ -103,9 +104,10 @@ function AllMovies() {
           );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     requestAdditionalPosts, loadingPosts, search, sortVal,
-    filteredMovies, scrollPosition, dispatch,
+    filteredMovies, scrollPosition, dispatch, isKeyMoviesReady,
   ]);
 
   const applyFilter = (keyValue: string, sortValue?: string) => {
@@ -113,19 +115,7 @@ function AllMovies() {
     setKey(keyValue.toLowerCase());
     if (sortValue) { setSortVal(sortValue); }
   };
-  useEffect(() => {
-    if (key && key.length > 0 && scrollPosition.position === 0) {
-      getMoviesByFirstName(key.toLowerCase())
-        .then((res) => {
-          getMovies(search, sortVal, res.data._id)
-            .then((result) => {
-              setFilteredMovies(result.data);
-              setKeyMoviesReady(true);
-            });
-        });
-    }
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [key]);
+
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -140,7 +130,7 @@ function AllMovies() {
     setKey('');
     setCallNavigate(true);
     setKeyMoviesReady(false);
-    getMovies(search, sortVal)
+    getMovies(search, sortVal, '')
       .then((result: any) => {
         setFilteredMovies(result.data);
         const positionData = {

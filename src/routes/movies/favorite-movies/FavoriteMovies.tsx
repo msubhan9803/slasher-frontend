@@ -34,28 +34,40 @@ function FavoriteMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
-  const [search, setSearch] = useState<string>(scrollPosition.searchValue);
-  const [lastMovieId, setLastMovieId] = useState('');
+  const [search, setSearch] = useState<string>(searchParams.get('q') || '');
+  const [lastMovieId, setLastMovieId] = useState(
+    ((scrollPosition.pathname === location.pathname) && (scrollPosition.data.length > 0))
+      /* eslint-disable no-unsafe-optional-chaining */
+      ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
+      : '',
+  );
   const [callNavigate, setCallNavigate] = useState<boolean>(false);
   const userId = Cookies.get('userId');
-  useEffect(() => {
-    RouteURL(search, key, sortVal, navigate, searchParams);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [search, key]);
-  useEffect(() => {
-    UIRouteURL(search, key, sortVal, navigate, callNavigate);
-    setCallNavigate(false);
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [callNavigate]);
+  // debugger
   useEffect(() => {
     setSearch(searchParams.get('q') || '');
     setKey(searchParams.get('startsWith')?.toLowerCase() || '');
     setSortVal(searchParams.get('sort') || 'name');
   }, [searchParams]);
   useEffect(() => {
+    RouteURL(search, key, sortVal, navigate, searchParams);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [search, key, sortVal]);
+  useEffect(() => {
+    UIRouteURL(search, key, sortVal, navigate, callNavigate);
+    setCallNavigate(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [callNavigate]);
+  useEffect(() => {
     if (callNavigate
-      || (!scrollPosition.data.length && search.length === 0)
-      || (scrollPosition.position === 0 && (search || key.length))
+      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
+      || ((scrollPosition?.sortValue !== sortVal)
+        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
+          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
+          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
+        && sortVal)
+      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
+      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
     ) {
       setFilteredMovies([]);
       setLastMovieId('');
@@ -103,7 +115,9 @@ function FavoriteMovies() {
               position: 0,
               data: [],
               id: '',
+              sortValue: '',
               searchValue: '',
+              keyValue: '',
             };
             dispatch(setScrollPosition(positionData));
           }).catch(
@@ -151,13 +165,15 @@ function FavoriteMovies() {
     }
   };
 
-  const persistScrollPosition = () => {
+  const persistScrollPosition = (id?: string) => {
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: filteredMovies,
-      id: '',
+      positionElementId: id,
+      sortValue: sortVal,
       searchValue: search,
+      keyValue: key,
     };
     dispatch(setScrollPosition(positionData));
   };

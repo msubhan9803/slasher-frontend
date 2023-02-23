@@ -17,7 +17,7 @@ import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
 import { RouteURL, UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
-  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
@@ -60,20 +60,23 @@ function AllMovies() {
   }, [callNavigate]);
   useEffect(() => {
     if (callNavigate
-      || (scrollPosition?.position === 0 && (search.length > 0 || key.length > 0))
+      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
       || ((scrollPosition?.sortValue !== sortVal)
-        && search.length === 0
-        && key.length === 0
+        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
+          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
+          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
         && sortVal)
+      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
+      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
     ) {
       setFilteredMovies([]);
       setLastMovieId('');
-      setRequestAdditionalPosts(true);
+      setRequestAdditionalMovies(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, sortVal, key, callNavigate]);
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalMovies && !loadingPosts) {
       if (scrollPosition === null
         || scrollPosition?.position === 0
         || filteredMovies.length >= scrollPosition?.data?.length
@@ -107,6 +110,8 @@ function AllMovies() {
               data: [],
               positionElementId: '',
               sortValue: '',
+              searchValue: '',
+              keyValue: '',
             };
             dispatch(setScrollPosition(positionData));
           }).catch(
@@ -115,13 +120,13 @@ function AllMovies() {
               setErrorMessage(error.response.data.message);
             },
           ).finally(
-            () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+            () => { setRequestAdditionalMovies(false); setLoadingPosts(false); },
           );
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    requestAdditionalPosts, loadingPosts, search, sortVal, lastMovieId,
+    requestAdditionalMovies, loadingPosts, search, sortVal, lastMovieId,
     filteredMovies, scrollPosition, dispatch, isKeyMoviesReady,
   ]);
 
@@ -156,10 +161,12 @@ function AllMovies() {
   const persistScrollPosition = (id?: string) => {
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: filteredMovies,
       positionElementId: id,
       sortValue: sortVal,
+      searchValue: search,
+      keyValue: key,
     };
     dispatch(setScrollPosition(positionData));
   };
@@ -199,7 +206,7 @@ function AllMovies() {
             threshold={2000}
             pageStart={0}
             initialLoad
-            loadMore={() => { setRequestAdditionalPosts(true); }}
+            loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
           >
             <PosterCardList

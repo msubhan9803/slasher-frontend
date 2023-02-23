@@ -92,14 +92,14 @@ function CommentInput({
     if (isReply) {
       addUpdateReply!({
         replyMessage: msg,
-        commentId: commentID,
+        commentId: dataId,
         imageArr,
         commentReplyID,
       });
     } else {
       addUpdateComment!({
         commentMessage: msg,
-        commentId: commentID,
+        commentId: dataId,
         imageArr,
       });
     }

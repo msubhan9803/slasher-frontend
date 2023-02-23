@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from '../ui/CustomModal';
@@ -8,10 +8,10 @@ import SortData from './SortData';
 interface FilterDialogProps {
   showKeys: boolean;
   setShowKeys: (val: boolean) => void;
-  selectedKey?: (e: string) => void;
-  applyFilter?: () => void;
+  selectedKey?: string;
+  applyFilter?: (keyValue: string, sortValue?: string) => void;
   sortoptions?: OptionsProps[];
-  onSelectSort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
+  sortVal?: string
 }
 interface OptionsProps {
   value: string;
@@ -22,36 +22,36 @@ const KeyboardButtons = styled(Button)`
   height: 2.5rem;
 `;
 function FilterModal({
-  showKeys, setShowKeys, selectedKey, applyFilter, sortoptions, onSelectSort,
+  showKeys, setShowKeys, selectedKey, applyFilter, sortoptions, sortVal,
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
+  const [selectedSortValue, seSelectedSortValue] = useState<string>('');
+
+  useEffect(() => {
+    setKey(selectedKey!.toUpperCase());
+  }, [selectedKey]);
+  useEffect(() => {
+    seSelectedSortValue(sortVal!);
+  }, [sortVal]);
+
   const generateAlphabet = () => {
     const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97).toUpperCase());
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
-    setKeyboard([...number, ...alphabet, '#']);
+    setKeyboard([...number, ...alphabet]);
   };
   useEffect(() => { generateAlphabet(); }, []);
   const handleCloseKeys = () => {
     setShowKeys(false);
   };
 
-  const keyValue = useCallback(() => {
-    if (selectedKey && key !== '') {
-      selectedKey(key);
-    }
-  }, [key, selectedKey]);
-
   const onClickApplyFilter = () => {
     if (applyFilter) {
-      applyFilter();
+      applyFilter(key, selectedSortValue);
       handleCloseKeys();
     }
   };
 
-  useEffect(() => {
-    keyValue();
-  }, [keyValue]);
   return (
     <CustomModal
       show={showKeys}
@@ -66,7 +66,7 @@ function FilterModal({
       <Modal.Body className="pb-5">
         <div className="d-lg-none mb-4">
           <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-          <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
+          <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
         </div>
         <h2 className="fs-3 mb-3 text-center">Title starts with:</h2>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
@@ -83,7 +83,7 @@ function FilterModal({
         <RoundButton
           variant="primary"
           type="submit"
-          className="w-100 fs-3 "
+          className="w-100 fs-3"
           onClick={onClickApplyFilter}
         >
           Apply filter
@@ -97,7 +97,7 @@ FilterModal.defaultProps = {
   selectedKey: null,
   applyFilter: null,
   sortoptions: null,
-  onSelectSort: undefined,
+  sortVal: 'name',
 };
 
 export default FilterModal;

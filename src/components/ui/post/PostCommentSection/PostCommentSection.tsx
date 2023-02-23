@@ -199,7 +199,6 @@ function PostCommentSection({
     if (!isReply) {
       setReplyImageArray([]);
       setSelectedReplyId('');
-      setSelectedReplyCommentId('');
     }
     setUploadPost([]);
     setImageArray([]);
@@ -221,7 +220,6 @@ function PostCommentSection({
     }
     setUploadPost([]);
     setSelectedReplyId('');
-    setSelectedReplyCommentId('');
     setReplyUserName('');
   };
 

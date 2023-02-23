@@ -7,25 +7,26 @@ import styled from 'styled-components';
 interface FilterProps {
   showKeys: boolean;
   setShowKeys: (val: boolean) => void;
+  key?: string
 }
 
 const StyledFilterIcon = styled(FontAwesomeIcon)`
   width: 1.602rem;
   height: 1.25rem;
 `;
-function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
+function FilterOptions({ showKeys, setShowKeys, key }: FilterProps) {
   return (
     <>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`fs-3 bg-transparent border-0 d-none d-lg-inline shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`fs-3 bg-transparent border-0 d-none d-lg-inline shadow-none ${showKeys || key !== '' ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />
       </Button>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`py-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`py-3 bg-transparent border-0 d-lg-none shadow-none ${showKeys || key !== '' ? 'text-primary' : 'text-white'}`}
       >
         <span className="fs-3">Sort/Filter</span>
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" size="lg" />
@@ -33,5 +34,9 @@ function FilterOptions({ showKeys, setShowKeys }: FilterProps) {
     </>
   );
 }
+
+FilterOptions.defaultProps = {
+  key: '',
+};
 
 export default FilterOptions;

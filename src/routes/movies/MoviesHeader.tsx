@@ -15,8 +15,9 @@ interface MovisHeaderProps {
   setSearch: React.Dispatch<string>;
   search: string;
   sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
-  selectedKey?(e: string): void;
-  applyFilter?(): void;
+  selectedKey?: string;
+  applyFilter?(keyValue: string, sortValue?: string): void;
+  sortVal?: string;
 }
 
 const tabs = [
@@ -35,7 +36,8 @@ const sortoptions = [
   { value: 'rating', label: 'User Rating' },
 ];
 function MoviesHeader({
-  tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey, applyFilter,
+  tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey,
+  applyFilter, sortVal,
 }: MovisHeaderProps) {
   return (
     <>
@@ -45,10 +47,10 @@ function MoviesHeader({
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
         </Col>
         <Col md={4} className="text-center">
-          <FilterOptions setShowKeys={setShowKeys} showKeys={showKeys} />
+          <FilterOptions key={selectedKey} setShowKeys={setShowKeys} showKeys={showKeys} />
         </Col>
         <Col md={4} className="d-none d-lg-block">
-          <SortData onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
+          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
         </Col>
         <Col md={4} className="order-first order-md-last">
           <RoundButton className="py-2 d-lg-none w-100">Add your movie</RoundButton>
@@ -62,7 +64,7 @@ function MoviesHeader({
             selectedKey={selectedKey}
             applyFilter={applyFilter}
             sortoptions={sortoptions}
-            onSelectSort={sort}
+            sortVal={sortVal}
           />
         )}
     </>
@@ -71,8 +73,9 @@ function MoviesHeader({
 
 MoviesHeader.defaultProps = {
   sort: undefined,
-  selectedKey: null,
+  selectedKey: '',
   applyFilter: null,
+  sortVal: 'name',
 };
 
 export default MoviesHeader;

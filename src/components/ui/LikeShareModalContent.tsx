@@ -4,7 +4,7 @@ import React, {
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
 import UserCircleImage from './UserCircleImage';
-import { FriendRequestReaction, User } from '../../types';
+import { FriendRequestReaction } from '../../types';
 import { getLikeUsersForPost } from '../../api/feed-posts';
 import FriendActionButtons from './Friend/FriendActionButtons';
 import { friendship } from '../../api/friends';
@@ -27,7 +27,7 @@ type PostLike = {
 
 type FriendType = { from: string, to: string, reaction: FriendRequestReaction } | null;
 
-function FriendAction({ postLike, user }: { postLike: PostLike, user: User }) {
+function FriendAction({ postLike }: { postLike: PostLike }) {
   const [friendshipStatus, setFriendshipStatus] = useState<any>();
   const [friendStatus, setFriendStatus] = useState<FriendRequestReaction | null>(
     postLike.friendship
@@ -40,16 +40,16 @@ function FriendAction({ postLike, user }: { postLike: PostLike, user: User }) {
 
   useEffect(() => {
     /* eslint no-underscore-dangle: 0 */
-    friendship(user._id).then((res) => {
+    friendship(postLike._id).then((res) => {
       setFriendData(res.data);
       setFriendStatus(res.data.reaction);
     });
-  }, [user, friendshipStatus]);
+  }, [friendshipStatus, postLike._id]);
 
   return (
     <FriendActionButtons
       friendStatus={friendStatus}
-      user={user}
+      user={({ _id: postLike._id } as any)}
       friendData={friendData}
       setFriendshipStatus={setFriendshipStatus}
       showOnlyAddAndSend
@@ -72,7 +72,7 @@ function PostLikes({ postLikesList } : PostLikesProp) {
             </p>
             <SmallText className="text-light mb-0">{postLike.userName}</SmallText>
           </div>
-          <FriendAction postLike={postLike} user={({ _id: postLike._id } as any)} />
+          <FriendAction postLike={postLike} />
         </div>
       ))}
     </div>

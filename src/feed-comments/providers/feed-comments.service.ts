@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Image } from '../../schemas/shared/image.schema';
 import { FeedComment, FeedCommentDocument } from '../../schemas/feedComment/feedComment.schema';
 import { FeedCommentDeletionState, FeedCommentStatus } from '../../schemas/feedComment/feedComment.enums';
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
@@ -20,14 +19,9 @@ export class FeedCommentsService {
     private feedPostService: FeedPostsService,
   ) { }
 
-  async createFeedComment(parentFeedPostId: string, userId: string, message: string, images: Image[]): Promise<FeedComment> {
-    const insertFeedComments = await this.feedCommentModel.create({
-      feedPostId: parentFeedPostId,
-      userId,
-      message,
-      images,
-    });
-    await this.feedPostService.incrementCommentCount(parentFeedPostId);
+  async createFeedComment(feedCommentData: Partial<FeedComment>): Promise<FeedCommentDocument> {
+    const insertFeedComments = await this.feedCommentModel.create(feedCommentData);
+    await this.feedPostService.incrementCommentCount(insertFeedComments.feedPostId.toString());
 
     return insertFeedComments;
   }
@@ -46,18 +40,14 @@ export class FeedCommentsService {
     await this.feedPostService.decrementCommentCount(getFeedPostData.feedPostId.toString());
   }
 
-  async createFeedReply(parentFeedCommentId: string, userId: string, message: string, images: Image[]): Promise<FeedReply> {
-    const feedComment = await this.findFeedComment(parentFeedCommentId);
+  async createFeedReply(feedReplyData: Partial<FeedReply>): Promise<FeedReplyDocument> {
+    const feedComment = await this.findFeedComment(feedReplyData.feedCommentId.toString());
     if (!feedComment) {
-      throw new Error(`Comment with id ${parentFeedCommentId} not found`);
+      throw new Error(`Comment with id ${feedReplyData.feedCommentId.toString()} not found`);
     }
-    const feedReply = await this.feedReplyModel.create({
-      feedCommentId: parentFeedCommentId,
-      userId,
-      message,
-      images,
-      feedPostId: feedComment.feedPostId,
-    });
+    // eslint-disable-next-line no-param-reassign
+    feedReplyData.feedPostId = feedComment.feedPostId;
+    const feedReply = await this.feedReplyModel.create(feedReplyData);
     // TODO: Uncomment the code below later on.  Right now, the old API only increments post comment
     // count when a FeedComment is added/removed, but not when a FeedReply is added/removed. So for
     // now, to ensure compatibility, we will do the same.

@@ -13,7 +13,7 @@ import { UsersService } from '../users/providers/users.service';
 import { FeedCommentsService } from '../feed-comments/providers/feed-comments.service';
 import { ChatService } from '../chat/providers/chat.service';
 
-@Controller('reports')
+@Controller({ path: 'reports', version: ['1'] })
 export class ReportsController {
   constructor(
     private readonly reportAndUnreportService: ReportAndUnreportService,
@@ -43,7 +43,7 @@ export class ReportsController {
           reasonOfReport: createReportDto.reason,
         };
         await this.reportAndUnreportService.create(reportAndUnreportObj);
-        await this.chatService.deletePrivateDirectMessageConversations(user._id, createReportDto.targetId);
+        await this.chatService.deletePrivateDirectMessageConversations(user.id, createReportDto.targetId);
         break;
       }
       case 'post': {

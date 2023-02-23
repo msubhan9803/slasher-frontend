@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { UserSettingNotificationStatus } from './userSetting.enums';
 import { UserSettingUnusedFields } from './userSetting.unused-fields';
 
@@ -100,4 +100,4 @@ export class UserSetting extends UserSettingUnusedFields {
 
 export const UserSettingSchema = SchemaFactory.createForClass(UserSetting);
 
-export type UserSettingDocument = UserSetting & Document;
+export type UserSettingDocument = HydratedDocument<UserSetting>;

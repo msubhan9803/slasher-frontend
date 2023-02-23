@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { RssFeed } from '../rssFeed/rssFeed.schema';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
@@ -104,4 +104,7 @@ FeedPostSchema.index(
    createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,
   },
 );
-export type FeedPostDocument = FeedPost & Document;
+
+export type FeedPostDocument = HydratedDocument<FeedPost>;
+
+// export type FeedPostDocument = FeedPost & Document;

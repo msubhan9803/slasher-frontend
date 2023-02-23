@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { ReportReaction } from './reportAndUnreport.enums';
 import { ReportAndUnreportUnusedFields } from './reportAndUnreport.unused-fields';
@@ -53,4 +53,4 @@ export class ReportAndUnreport extends ReportAndUnreportUnusedFields {
 
 export const ReportAndUnreportSchema = SchemaFactory.createForClass(ReportAndUnreport);
 
-export type ReportAndUnreportDocument = ReportAndUnreport & Document;
+export type ReportAndUnreportDocument = HydratedDocument<ReportAndUnreport>;

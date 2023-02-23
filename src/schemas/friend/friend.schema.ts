@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { FriendRequestReaction } from './friend.enums';
 import { FriendUnusedFields } from './friend.unused-fields';
@@ -80,4 +80,5 @@ FriendSchema.index(
     from: 1, to: 1, reaction: 1,
   },
 );
-export type FriendDocument = Friend & Document;
+
+export type FriendDocument = HydratedDocument<Friend>;

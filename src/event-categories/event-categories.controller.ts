@@ -4,7 +4,7 @@ import {
 import { pick } from '../utils/object-utils';
 import { EventCategoriesService } from './providers/event-categories.service';
 
-@Controller('event-categories')
+@Controller({ path: 'event-categories', version: ['1'] })
 export class EventCategoriesController {
   constructor(
     private readonly eventCategoriesService: EventCategoriesService,

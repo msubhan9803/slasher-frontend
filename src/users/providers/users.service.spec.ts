@@ -15,6 +15,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -35,6 +36,7 @@ describe('UsersService', () => {
     blocksService = moduleRef.get<BlocksService>(BlocksService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -58,7 +60,7 @@ describe('UsersService', () => {
       );
       userData.verification_token = uuidv4();
       const user = await usersService.create(userData);
-      expect(await usersService.findById(user._id)).toBeTruthy();
+      expect(await usersService.findById(user.id)).toBeTruthy();
     });
   });
 
@@ -278,7 +280,7 @@ describe('UsersService', () => {
         userName: 'test1_user',
       };
       const updatedUser = await usersService.update(user._id, userData);
-      const reloadedUser = await usersService.findById(updatedUser._id);
+      const reloadedUser = await usersService.findById(updatedUser.id);
       expect(reloadedUser.firstName).toEqual(userData.firstName);
       expect(reloadedUser.userName).toEqual(userData.userName);
       expect(reloadedUser.email).toEqual(user.email);

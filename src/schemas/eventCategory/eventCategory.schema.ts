@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { EventCategoryDeletionState, EventCategoryStatus } from './eventCategory.enums';
 import { EventCategoryUnusedFields } from './eventCategory.unused-fields';
 
@@ -57,4 +57,5 @@ EventCategorySchema.index(
     is_deleted: 1, status: 1, _id: 1,
   },
 );
-export type EventCategoryDocument = EventCategory & Document;
+
+export type EventCategoryDocument = HydratedDocument<EventCategory>;

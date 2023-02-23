@@ -19,7 +19,7 @@ import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -28,7 +28,7 @@ import { SendMessageInConversationDto } from './dto/send-message-in-conversation
 import { ChatGateway } from './providers/chat.gateway';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('chat')
+@Controller({ path: 'chat', version: ['1'] })
 export class ChatController {
   constructor(
     @InjectQueue('message-count-update') private messageCountUpdateQueue: Queue,
@@ -81,14 +81,14 @@ export class ChatController {
     const user = getUserFromRequest(request);
     const block = await this.blocksService.blockExistsBetweenUsers(user.id, createOrFindConversationQueryDto.userId);
     if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
     }
-    const areFriends = await this.friendsService.areFriends(user._id, createOrFindConversationQueryDto.userId);
+    const areFriends = await this.friendsService.areFriends(user.id, createOrFindConversationQueryDto.userId);
     if (!areFriends) {
-      throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.UNAUTHORIZED);
     }
     const chat = await this.chatService.createOrFindPrivateDirectMessageConversationByParticipants([
-      user._id,
+      user.id,
       new mongoose.Types.ObjectId(createOrFindConversationQueryDto.userId),
     ]);
     const pickConversationFields = ['_id', 'participants'];
@@ -103,7 +103,7 @@ export class ChatController {
   ) {
     const user = getUserFromRequest(request);
     const matchList = await this.chatService.findMatchList(param.matchListId, true);
-    if (!matchList) throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+    if (!matchList) { throw new HttpException('Not found', HttpStatus.NOT_FOUND); }
 
     const matchUserIds = (matchList.participants as unknown as User[]).filter(
       (participantUser) => participantUser._id.toString() === user.id,
@@ -120,7 +120,7 @@ export class ChatController {
   @TransformImageUrls('$.messages[*].image')
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
-    FilesInterceptor('files', 11, {
+    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -152,7 +152,7 @@ export class ChatController {
 
     const toUserId = matchList.participants.find((userId) => (userId as any)._id.toString() !== user.id);
 
-    const areFriends = await this.friendsService.areFriends(user._id, toUserId.id);
+    const areFriends = await this.friendsService.areFriends(user.id, toUserId.id);
     if (!areFriends) {
       throw new HttpException('You are not friends with the given user.', HttpStatus.UNAUTHORIZED);
     }

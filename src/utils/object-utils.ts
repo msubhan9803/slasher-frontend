@@ -14,7 +14,7 @@ export const pick = (obj: object, properties: string[]) => {
 export const pickDefinedKeys = (obj: object, properties: string[]) => {
   const newObj = {};
   properties.forEach((property) => {
-    if (typeof obj[property] !== 'undefined') newObj[property] = obj[property];
-   });
+    if (typeof obj[property] !== 'undefined') { newObj[property] = obj[property]; }
+  });
   return newObj;
 };

@@ -19,7 +19,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { RssFeedProviderFollowNotificationsEnabled } from '../schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 import { pick } from '../utils/object-utils';
 
-@Controller('rss-feed-providers')
+@Controller({ path: 'rss-feed-providers', version: ['1'] })
 export class RssFeedProvidersController {
   constructor(
     private readonly rssFeedProvidersService: RssFeedProvidersService,
@@ -75,7 +75,7 @@ export class RssFeedProvidersController {
     }
 
     const feedPosts = await this.feedPostsService.findAllByRssFeedProvider(
-      rssFeedProvider._id,
+      rssFeedProvider.id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,

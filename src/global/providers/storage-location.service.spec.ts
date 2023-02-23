@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../app.module';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { StorageLocationService } from './storage-location.service';
 
 describe('StorageLocationService', () => {
@@ -15,6 +16,7 @@ describe('StorageLocationService', () => {
     storageLocationService = moduleRef.get<StorageLocationService>(StorageLocationService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

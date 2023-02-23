@@ -37,7 +37,7 @@ describe('image-utils', () => {
       });
 
       it('generates the expected path', () => {
-        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${apiUrl}/local-storage${relativeImagePath}`);
+        expect(relativeToFullImagePath(config, relativeImagePath)).toBe(`${apiUrl}/api/v1/local-storage${relativeImagePath}`);
       });
 
       it('generates the expected placeholder image url for the special noUser value', () => {

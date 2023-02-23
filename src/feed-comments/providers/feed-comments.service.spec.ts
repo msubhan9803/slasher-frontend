@@ -16,6 +16,9 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { feedPostFactory } from '../../../test/factories/feed-post.factory';
 import { FeedCommentDeletionState } from '../../schemas/feedComment/feedComment.enums';
 import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums';
+import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
+import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -52,6 +55,7 @@ describe('FeedCommentsService', () => {
     feedReplyModel = moduleRef.get<Model<FeedReplyDocument>>(getModelToken(FeedReply.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -69,31 +73,35 @@ describe('FeedCommentsService', () => {
     feedPost = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser._id,
+          userId: activeUser.id,
         },
       ),
     );
     feedPost1 = await feedPostsService.create(
       feedPostFactory.build(
         {
-          userId: activeUser._id,
+          userId: activeUser.id,
         },
       ),
     );
-    feedComments = await feedCommentsService
-      .createFeedComment(
-        feedPost.id,
-        activeUser.id,
-        sampleFeedCommentsObject.message,
-        sampleFeedCommentsObject.images,
-      );
-    feedReply = await feedCommentsService
-      .createFeedReply(
-        feedComments.id,
-        activeUser.id,
-        sampleFeedCommentsObject.message,
-        sampleFeedCommentsObject.images,
-      );
+    feedComments = await feedCommentsService.createFeedComment(
+      feedCommentsFactory.build(
+        {
+          userId: activeUser._id,
+          feedPostId: feedPost.id,
+        },
+      ),
+    );
+    feedReply = await feedCommentsService.createFeedReply(
+      feedRepliesFactory.build(
+        {
+          userId: activeUser._id,
+          feedCommentId: feedComments.id,
+          message: sampleFeedCommentsObject.message,
+          images: sampleFeedCommentsObject.images,
+        },
+      ),
+    );
   });
 
   it('should be defined', () => {
@@ -102,13 +110,15 @@ describe('FeedCommentsService', () => {
 
   describe('#createFeedComment', () => {
     it('successfully creates a feed comments.', async () => {
-      const feedCommentData = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedCommentData = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: 'Hello Test Message',
+          },
+        ),
+      );
       expect(feedCommentData.message).toBe('Hello Test Message');
       const feedPostsData = await feedPostsService.findById(feedPost.id, false);
       expect(feedPostsData.commentCount).toBe(2);
@@ -134,25 +144,33 @@ describe('FeedCommentsService', () => {
 
   describe('#createFeedReply', () => {
     it('successfully creates a feed replies.', async () => {
-      const feedReplyData = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedReplyData = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
+
       expect(feedReplyData.feedCommentId).toEqual(feedComments._id);
     });
 
     it('when feed comment id is not found', async () => {
       const feedCommentId = '634fc8986a5897b88a2d971b';
-      await expect(feedCommentsService
-        .createFeedReply(
-          feedCommentId,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        )).rejects.toThrow(`Comment with id ${feedCommentId} not found`);
+
+      await expect(feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: (feedCommentId) as any,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      )).rejects.toThrow(`Comment with id ${feedCommentId} not found`);
     });
   });
 
@@ -176,36 +194,44 @@ describe('FeedCommentsService', () => {
   describe('#findFeedCommentsWithReplies', () => {
     it('finds the expected comments and delete the details', async () => {
       const messages = ['Hello Test Reply Message 1', 'Hello Test Reply Message 2', 'Hello Test Reply Message 3'];
-      const feedComments1 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
-      const feedComments2 = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser._id.toString(),
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedComments1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser.id,
+            feedPostId: feedPost.id,
+          },
+        ),
+      );
+      const feedComments2 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser.id,
+            feedPostId: feedPost.id,
+          },
+        ),
+      );
       for (let i = 0; i < 3; i += 1) {
-        await feedCommentsService
-          .createFeedReply(
-            feedComments1._id.toString(),
-            activeUser._id.toString(),
-            messages[i],
-            sampleFeedCommentsObject.images,
-          );
-      }
-      await feedCommentsService
-        .createFeedReply(
-          feedComments2._id.toString(),
-          activeUser._id.toString(),
-          'Hello Test Reply Message 4',
-          sampleFeedCommentsObject.images,
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser.id,
+              feedCommentId: feedComments1.id,
+              message: messages[i],
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
         );
+      }
+      await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser.id,
+            feedCommentId: feedComments2.id,
+            message: 'Hello Test Reply Message 4',
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
       const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, 20, 'newestFirst');
       expect(feedCommentsWithReplies).toHaveLength(3);
     });
@@ -213,7 +239,7 @@ describe('FeedCommentsService', () => {
     it('when add identifylikesforuser than expected response', async () => {
       const feedComments1 = await feedCommentsModel.create({
         feedPostId: feedPost1.id,
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         message: sampleFeedCommentsObject.message,
         images: sampleFeedCommentsObject.images,
         likes: [
@@ -221,49 +247,49 @@ describe('FeedCommentsService', () => {
           '637b39e078b0104f975821bd',
           '637b39e078b0104f975821be',
           '637b39e078b0104f97582121',
-          activeUser._id.toString(),
+          activeUser.id,
         ],
       });
       const feedComments2 = await feedCommentsModel.create({
         feedPostId: feedPost1.id,
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         message: sampleFeedCommentsObject.message,
         images: sampleFeedCommentsObject.images,
         likes: [
           '637b39e078b0104f975821bf',
           '637b39e078b0104f975821bg',
           '637b39e078b0104f975821bh',
-          activeUser._id.toString(),
+          activeUser.id,
         ],
       });
 
       for (let i = 0; i < 2; i += 1) {
         await feedReplyModel.create({
           feedCommentId: feedComments1._id.toString(),
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           message: 'Hello Test Reply Message 1',
           images: sampleFeedCommentsObject.images,
           likes: [
             '63772b35611dc46e8fb42102',
-            activeUser._id.toString(),
+            activeUser.id,
           ],
         });
       }
       await feedReplyModel.create({
         feedCommentId: feedComments2._id.toString(),
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         message: 'Hello Test Reply Message 4',
         images: sampleFeedCommentsObject.images,
         likes: [
           '63772b35611dc46e8fb44455',
           '63772b35611dc46e8fb45566',
-          activeUser._id.toString(),
+          activeUser.id,
         ],
       });
 
       await feedReplyModel.create({
         feedCommentId: feedComments2._id.toString(),
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         message: 'Hello Test Reply Message 5',
         images: sampleFeedCommentsObject.images,
         likes: [
@@ -277,12 +303,12 @@ describe('FeedCommentsService', () => {
         feedCommentId:
           { $in: [feedComments1._id.toString(), feedComments2._id.toString()] },
       });
-      const userData = await usersService.findById(activeUser._id.toString());
+      const userData = await usersService.findById(activeUser.id);
       const feedCommentsWithReplies = await feedCommentsService.findFeedCommentsWithReplies(
         feedPost1.id,
         20,
         'newestFirst',
-        activeUser._id.toString(),
+        activeUser.id,
       );
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
@@ -291,12 +317,12 @@ describe('FeedCommentsService', () => {
           .filter((replyId) => replyId.feedCommentId === feedCommentAndReply[i]._id)
           .map((replyId) => {// eslint-disable-line
             // eslint-disable-next-line no-param-reassign
-            replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
+            replyId.likedByUser = replyId.likes.includes(activeUser.id);
             // eslint-disable-next-line no-param-reassign
             replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
             return replyId;
           });
-        feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser._id.toString());
+        feedCommentAndReply[i].likedByUser = feedCommentAndReply[i].likes.includes(activeUser.id);
         feedCommentAndReply[i].userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
         feedCommentAndReply[i].replies = filterReply;
       }
@@ -307,55 +333,78 @@ describe('FeedCommentsService', () => {
 
     describe('when `before` argument is supplied', () => {
       it('get expected first and second sets of paginated results', async () => {
-        const feedComments1 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 1',
-            sampleFeedCommentsObject.images,
-          );
-        const feedComments2 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 2',
-            sampleFeedCommentsObject.images,
-          );
-        const feedComments3 = await feedCommentsService
-          .createFeedComment(
-            feedPost.id,
-            activeUser._id.toString(),
-            'Hello Test Message 3',
-            sampleFeedCommentsObject.images,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments1._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 1',
-            sampleFeedCommentsObject.images,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments2._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 2',
-            sampleFeedCommentsObject.images,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments3._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 3',
-            sampleFeedCommentsObject.images,
-          );
-        await feedCommentsService
-          .createFeedReply(
-            feedComments3._id.toString(),
-            activeUser._id.toString(),
-            'Hello Test Reply Message 4',
-            sampleFeedCommentsObject.images,
-          );
+        const feedComments1 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser.id,
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 1',
+            },
+          ),
+        );
+        const feedComments2 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser.id,
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 2',
+            },
+          ),
+        );
+        const feedComments3 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser.id,
+              feedPostId: feedPost.id,
+              message: 'Hello Test Message 3',
+            },
+          ),
+        );
+
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser.id,
+              feedCommentId: feedComments1.id,
+              message: 'Hello Test Reply Message 1',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser.id,
+              feedCommentId: feedComments2.id,
+              message: 'Hello Test Reply Message 2',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser.id,
+              feedCommentId: feedComments3.id,
+              message: 'Hello Test Reply Message 3',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+
+        await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser.id,
+              feedCommentId: feedComments3.id,
+              message: 'Hello Test Reply Message 4',
+              images: sampleFeedCommentsObject.images,
+            },
+          ),
+        );
+
         const limit = 3;
         const firstResults = await feedCommentsService.findFeedCommentsWithReplies(feedPost.id, limit, 'newestFirst');
         expect(firstResults).toHaveLength(3);
@@ -373,13 +422,15 @@ describe('FeedCommentsService', () => {
 
   describe('#findFeedComment', () => {
     it('successfully find single feed comment.', async () => {
-      const feedCommentData = await feedCommentsService
-        .createFeedComment(
-          feedPost.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedCommentData = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser.id,
+            feedPostId: feedPost.id,
+            message: 'Hello Test Message 3',
+          },
+        ),
+      );
       const feedCommentDetails = await feedCommentsService.findFeedComment(feedCommentData._id.toString());
       expect(feedCommentDetails.id).toEqual(feedCommentData._id.toString());
     });
@@ -392,13 +443,16 @@ describe('FeedCommentsService', () => {
 
   describe('#findFeedReply', () => {
     it('successfully find single feed replies.', async () => {
-      const feedReplyData = await feedCommentsService
-        .createFeedReply(
-          feedComments.id,
-          activeUser.id,
-          sampleFeedCommentsObject.message,
-          sampleFeedCommentsObject.images,
-        );
+      const feedReplyData = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: sampleFeedCommentsObject.message,
+            images: sampleFeedCommentsObject.images,
+          },
+        ),
+      );
       const feedReplyDetails = await feedCommentsService.findFeedReply(feedReplyData._id.toString());
       expect(feedReplyDetails.id).toEqual(feedReplyData._id.toString());
     });
@@ -416,13 +470,13 @@ describe('FeedCommentsService', () => {
       feedPost2 = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
       feedComments1 = await feedCommentsModel.create({
         feedPostId: feedPost2.id,
-        userId: activeUser._id.toString(),
+        userId: activeUser.id,
         message: sampleFeedCommentsObject.message,
         images: sampleFeedCommentsObject.images,
         likes: [
@@ -430,18 +484,18 @@ describe('FeedCommentsService', () => {
           '637b39e078b0104f975821bd',
           '637b39e078b0104f975821be',
           '637b39e078b0104f97582121',
-          activeUser._id.toString(),
+          activeUser.id,
         ],
       });
       for (let i = 0; i < 2; i += 1) {
         await feedReplyModel.create({
           feedCommentId: feedComments1._id.toString(),
-          userId: activeUser._id.toString(),
+          userId: activeUser.id,
           message: 'Hello Test Reply Message 1',
           images: sampleFeedCommentsObject.images,
           likes: [
             '63772b35611dc46e8fb42102',
-            activeUser._id.toString(),
+            activeUser.id,
           ],
         });
       }
@@ -453,17 +507,17 @@ describe('FeedCommentsService', () => {
       const getFeedReplyData = await feedReplyModel.find({
         feedCommentId: feedComments1._id.toString(),
       });
-      const userData = await usersService.findById(activeUser._id.toString());
+      const userData = await usersService.findById(activeUser.id);
       const feedCommentAndReply = JSON.parse(JSON.stringify(getFeedPostData));
       const replyData = JSON.parse(JSON.stringify(getFeedReplyData));
       const filterReply = replyData.map((replyId) => {
         // eslint-disable-next-line no-param-reassign
-        replyId.likedByUser = replyId.likes.includes(activeUser._id.toString());
+        replyId.likedByUser = replyId.likes.includes(activeUser.id);
         // eslint-disable-next-line no-param-reassign
         replyId.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
         return replyId;
       });
-      feedCommentAndReply.likedByUser = feedCommentAndReply.likes.includes(activeUser._id.toString());
+      feedCommentAndReply.likedByUser = feedCommentAndReply.likes.includes(activeUser.id);
       feedCommentAndReply.userId = { _id: userData._id.toString(), profilePic: userData.profilePic, userName: userData.userName };
       feedCommentAndReply.replies = filterReply;
       expect(feedCommentAndReplyDetails).toEqual(feedCommentAndReply);

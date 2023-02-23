@@ -6,6 +6,7 @@ import { ReadStream } from 'fs';
 import { AppModule } from '../../app.module';
 import { createTempFile } from '../../../test/helpers/tempfile-helpers';
 import { S3StorageService } from './s3-storage.service';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('S3StorageService', () => {
   let app: INestApplication;
@@ -20,6 +21,7 @@ describe('S3StorageService', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

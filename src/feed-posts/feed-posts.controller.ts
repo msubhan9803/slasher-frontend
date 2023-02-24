@@ -144,6 +144,7 @@ export class FeedPostsController {
     );
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch(':id')
   @UseInterceptors(
     FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {
@@ -160,6 +161,20 @@ export class FeedPostsController {
     @Body() updateFeedPostsDto: UpdateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    if (!files.length && updateFeedPostsDto.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (files.length > 10) {
+      throw new HttpException(
+        'Only allow a maximum of 10 images',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
@@ -175,13 +190,6 @@ export class FeedPostsController {
     if (!feedPost.images.length && feedPost.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. This post has no images, so a message is required.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (files.length > 10) {
-      throw new HttpException(
-        'Only allow a maximum of 10 images',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -229,6 +237,8 @@ export class FeedPostsController {
     return {
       _id: updatedFeedPost.id,
       message: updatedFeedPost.message,
+      userId: updatedFeedPost.userId,
+      images: updatedFeedPost.images,
     };
   }
 

@@ -80,6 +80,17 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello all test user upload your feed post',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
       });
       expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
@@ -94,7 +105,8 @@ describe('Update Feed Post (e2e)', () => {
       );
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPostDetails._id}`)
-        .auth(activeUserAuthToken, { type: 'bearer' });
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', 'hello test user');
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body.message).toBe('You can only edit a post that you created.');
     });
@@ -103,7 +115,8 @@ describe('Update Feed Post (e2e)', () => {
       const feedPostDetails = '634fc8d86a5897b88a2d9753';
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPostDetails}`)
-        .auth(activeUserAuthToken, { type: 'bearer' });
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', 'hello test user');
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
     });
@@ -163,6 +176,21 @@ describe('Update Feed Post (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
         });
         expect(feedPostDetails.images).toHaveLength(3);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -184,6 +212,25 @@ describe('Update Feed Post (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
         });
         expect(feedPostDetails.images).toHaveLength(4);
       }, [{ extension: 'png' }, { extension: 'png' }]);
@@ -203,6 +250,13 @@ describe('Update Feed Post (e2e)', () => {
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello test user',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
       });
       expect(feedPostDetails.images).toHaveLength(1);
     });
@@ -244,6 +298,15 @@ describe('Update Feed Post (e2e)', () => {
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('responds expected response when neither message nor file are present in request', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .field('message', '')
+        .expect(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
   });
 

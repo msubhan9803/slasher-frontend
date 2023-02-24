@@ -10,24 +10,25 @@ import 'swiper/swiper-bundle.css';
 import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import PostFooter from './PostFooter';
-import { CommentValue, Post, ReplyValue } from '../../../types';
-import LikeShareModal from '../LikeShareModal';
+import { CommentValue, Post, ReplyValue } from '../../../../types';
+import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
-import CustomSwiper from '../CustomSwiper';
+import CustomSwiper from '../../CustomSwiper';
 import 'linkify-plugin-mention';
-import { PopoverClickProps } from '../CustomPopover';
-import PubWiseAd from '../PubWiseAd';
+import { PopoverClickProps } from '../../CustomPopover';
+import PubWiseAd from '../../PubWiseAd';
 import {
   decryptMessage,
   cleanExternalHtmlContent,
   escapeHtmlSpecialCharacters,
   newLineToBr,
-} from '../../../utils/text-utils';
-import LoadingIndicator from '../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { useAppSelector } from '../../../redux/hooks';
-import { MD_MEDIA_BREAKPOINT } from '../../../constants';
+} from '../../../../utils/text-utils';
+import LoadingIndicator from '../../LoadingIndicator';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { useAppSelector } from '../../../../redux/hooks';
+import { MentionListProps } from '../../MessageTextarea';
+import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -60,7 +61,9 @@ interface Props {
   updateState?: boolean;
   setUpdateState?: (value: boolean) => void;
   onSelect?: (value: string) => void;
-  groupHomePosts?: boolean;
+  handleSearch?: (val: string) => void;
+  mentionList?: MentionListProps[];
+  postType?: string;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -82,7 +85,7 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  groupHomePosts,
+  handleSearch, mentionList, postType,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -130,7 +133,7 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId && !groupHomePosts) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group') {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -216,7 +219,6 @@ function PostFeed({
       </h1>
     </>
   );
-
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -236,11 +238,11 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
-                  groupHomePosts={groupHomePosts}
+                  postType={postType}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
-                {groupHomePosts && renderGroupPostContent(post)}
+                {postType === 'group' && renderGroupPostContent(post)}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
@@ -270,7 +272,7 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
-                      groupHomePosts={groupHomePosts}
+                      postType={postType}
                     />
                   </Col>
                 </Row>
@@ -308,6 +310,8 @@ function PostFeed({
                       addUpdateComment={addUpdateComment}
                       updateState={updateState}
                       setUpdateState={setUpdateState}
+                      handleSearch={handleSearch}
+                      mentionList={mentionList}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -316,7 +320,7 @@ function PostFeed({
               )
             }
           </div>
-          <hr className="post-separator" />
+          {!detailPage && <hr className="post-separator" />}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
@@ -366,6 +370,8 @@ PostFeed.defaultProps = {
   updateState: false,
   setUpdateState: undefined,
   onSelect: undefined,
-  groupHomePosts: false,
+  handleSearch: undefined,
+  mentionList: null,
+  postType: '',
 };
 export default PostFeed;

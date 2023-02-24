@@ -16,7 +16,7 @@ interface GroupsHeaderProps {
   setSearch: React.Dispatch<string>;
   search: string;
   sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
-  selectedKey?(e: string): void;
+  selectedKey?: string;
   applyFilter?(): void;
   groupHomePosts?: boolean;
   key?: string;
@@ -81,7 +81,6 @@ function SocialGroupsHeader({
             selectedKey={selectedKey}
             applyFilter={applyFilter}
             sortoptions={sortoptions}
-            onSelectSort={sort}
             groupHomePosts={groupHomePosts}
           />
         )

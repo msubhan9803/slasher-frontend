@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
 import CustomModal from '../ui/CustomModal';
@@ -8,10 +8,10 @@ import SortData from './SortData';
 interface FilterDialogProps {
   showKeys: boolean;
   setShowKeys: (val: boolean) => void;
-  selectedKey?: (e: string) => void;
-  applyFilter?: () => void;
+  selectedKey?: string;
+  applyFilter?: (keyValue: string, sortValue?: string) => void;
   sortoptions?: OptionsProps[];
-  onSelectSort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
+  sortVal?: string
   groupHomePosts?: boolean;
 }
 interface OptionsProps {
@@ -24,14 +24,23 @@ const KeyboardButtons = styled(Button)`
 `;
 function FilterModal({
   showKeys, setShowKeys, selectedKey, applyFilter, sortoptions,
-  onSelectSort, groupHomePosts,
+  sortVal, groupHomePosts,
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
+  const [selectedSortValue, seSelectedSortValue] = useState<string>('');
+
+  useEffect(() => {
+    setKey(selectedKey!.toUpperCase());
+  }, [selectedKey]);
+  useEffect(() => {
+    seSelectedSortValue(sortVal!);
+  }, [sortVal]);
+
   const generateAlphabet = () => {
     const alphabet = [...Array(26)].map((_, i) => String.fromCharCode(i + 97).toUpperCase());
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
-    setKeyboard([...number, ...alphabet, '#']);
+    setKeyboard([...number, ...alphabet]);
   };
   const generateGroupsType = () => {
     const groupsType = ['Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
@@ -49,22 +58,13 @@ function FilterModal({
     setShowKeys(false);
   };
 
-  const keyValue = useCallback(() => {
-    if (selectedKey && key !== '') {
-      selectedKey(key);
-    }
-  }, [key, selectedKey]);
-
   const onClickApplyFilter = () => {
     if (applyFilter) {
-      applyFilter();
+      applyFilter(key, selectedSortValue);
       handleCloseKeys();
     }
   };
 
-  useEffect(() => {
-    keyValue();
-  }, [keyValue]);
   return (
     <CustomModal
       show={showKeys}
@@ -80,7 +80,7 @@ function FilterModal({
         {!groupHomePosts && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-            <SortData onSelectSort={onSelectSort} sortoptions={sortoptions} title="Sort: " type="sort" />
+            <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
           </div>
         )}
         <h2 className={`fs-3 mb-3 ${groupHomePosts ? 'text-primary' : ''} text-center `}>{groupHomePosts ? 'Filters' : 'Title starts with:'}</h2>
@@ -90,7 +90,7 @@ function FilterModal({
               ? (
                 <Button
                   key={keys}
-                  onClick={() => { selectedKey!(keys); handleCloseKeys(); }}
+                  onClick={() => { handleCloseKeys(); }}
                   className={`py-2 px-3 text-white fs-3 border shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}
@@ -108,14 +108,14 @@ function FilterModal({
           ))}
         </div>
         {!groupHomePosts && (
-        <RoundButton
-          variant="primary"
-          type="submit"
-          className="w-100 fs-3 "
-          onClick={onClickApplyFilter}
-        >
-          Apply filter
-        </RoundButton>
+          <RoundButton
+            variant="primary"
+            type="submit"
+            className="w-100 fs-3"
+            onClick={onClickApplyFilter}
+          >
+            Apply filter
+          </RoundButton>
         )}
       </Modal.Body>
     </CustomModal>
@@ -123,10 +123,10 @@ function FilterModal({
 }
 
 FilterModal.defaultProps = {
-  selectedKey: null,
+  selectedKey: '',
   applyFilter: null,
   sortoptions: null,
-  onSelectSort: undefined,
+  sortVal: 'name',
   groupHomePosts: false,
 };
 

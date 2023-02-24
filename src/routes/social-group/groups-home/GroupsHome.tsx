@@ -2,13 +2,13 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
 import RoundButton from '../../../components/ui/RoundButton';
 import SocialGroupsHeader from '../SocialGroupsHeader';
 import { homePost } from '../GroupsData';
 import {
   LG_MEDIA_BREAKPOINT, MD_MEDIA_BREAKPOINT, XL_MEDIA_BREAKPOINT,
 } from '../../../constants';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 
 const popoverOptions = ['Hide post', 'Report post'];
 const smallScreenGroupHomPopoverOptions = ['Follow post', 'Unsaved post', 'Hide post', 'Report post'];
@@ -54,7 +54,7 @@ function GroupsHome() {
         setSearch={setSearch}
         search={search}
         sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
+        selectedKey={key}
         applyFilter={applyFilter}
         groupHomePosts
         key={key}
@@ -99,7 +99,7 @@ function GroupsHome() {
       <div className="mt-3">
         <PostFeed
           postFeedData={posts}
-          groupHomePosts
+          postType="group"
           popoverOptions={options!}
           isCommentSection={false}
           onPopoverClick={handlePopoverOption}

@@ -61,7 +61,6 @@ function CreatePost() {
   const paramsGroupId = searchParams.get('groupId');
   const [selectedPostType, setSelectedPostType] = useState<string>('');
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
-
   const navigate = useNavigate();
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +162,7 @@ function CreatePost() {
                 style={{ paddingRight: '150px' }}
               />
               <CharactersCounter
-                counterClass="float-end fs-4"
+                counterClass="float-end fs-4 position-absolute"
                 charCount={charCount}
                 totalChar={150}
                 right="10px"
@@ -180,6 +179,7 @@ function CreatePost() {
               setMessageContent={setPostContent}
               formatMentionList={formatMention}
               setFormatMentionList={setFormatMention}
+              defaultValue={postContent}
             />
           </div>
           {paramsType === 'group-post' && (

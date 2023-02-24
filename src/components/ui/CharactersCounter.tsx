@@ -39,7 +39,7 @@ function CharactersCounter({
       right={right}
       top={top}
       bottom={bottom}
-      className={`${counterClass} position-absolute`}
+      className={`${counterClass}`}
     >
       {`${charCount}/${totalChar} characters`}
     </CustomSpan>

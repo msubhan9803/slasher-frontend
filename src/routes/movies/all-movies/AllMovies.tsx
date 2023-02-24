@@ -1,8 +1,9 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
 import { getMovies, getMoviesByFirstName } from '../../../api/movies';
@@ -13,15 +14,14 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { RouteURL, UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
-  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(true);
   const [showKeys, setShowKeys] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [key, setKey] = useState<string>('');
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
@@ -29,18 +29,40 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
-  const [search, setSearch] = useState<string>(scrollPosition.searchValue);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [key, setKey] = useState(searchParams.get('startsWith')?.toLowerCase() || '');
+  const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
+  const [callNavigate, setCallNavigate] = useState<boolean>(false);
 
   useEffect(() => {
-    if (scrollPosition.searchValue !== search) {
-      setFilteredMovies([]);
-      setRequestAdditionalPosts(true);
-    } else if (!scrollPosition.data.length && !search) {
+    setSearch(searchParams.get('q') || '');
+    setKey(searchParams.get('startsWith')?.toLowerCase() || '');
+    setSortVal(searchParams.get('sort') || 'name');
+  }, [searchParams]);
+
+  useEffect(() => {
+    RouteURL('all', search, key, sortVal, navigate, searchParams);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [search, key]);
+
+  useEffect(() => {
+    UIRouteURL('all', search, key, sortVal, navigate, callNavigate);
+    setCallNavigate(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [callNavigate]);
+
+  useEffect(() => {
+    if (callNavigate
+      || (!scrollPosition.data.length && search.length === 0)
+      || (scrollPosition.position === 0 && (search || key.length))
+    ) {
       setFilteredMovies([]);
       setRequestAdditionalPosts(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal]);
+  }, [search, sortVal, key, callNavigate]);
 
   useEffect(() => {
     if (requestAdditionalPosts && !loadingPosts) {
@@ -67,7 +89,7 @@ function AllMovies() {
               pathname: '',
               position: 0,
               data: [],
-              id: '',
+              positionElementId: '',
               searchValue: '',
             };
             dispatch(setScrollPosition(positionData));
@@ -86,16 +108,24 @@ function AllMovies() {
     filteredMovies, scrollPosition, dispatch,
   ]);
 
-  const applyFilter = () => {
-    getMoviesByFirstName(key.toLowerCase())
-      .then((res) => {
-        getMovies(search, sortVal, res.data._id)
-          .then((result) => {
-            setFilteredMovies(result.data);
-            setKeyMoviesReady(true);
-          });
-      });
+  const applyFilter = (keyValue: string, sortValue?: string) => {
+    setCallNavigate(true);
+    setKey(keyValue.toLowerCase());
+    if (sortValue) { setSortVal(sortValue); }
   };
+  useEffect(() => {
+    if (key && key.length > 0 && scrollPosition.position === 0) {
+      getMoviesByFirstName(key.toLowerCase())
+        .then((res) => {
+          getMovies(search, sortVal, res.data._id)
+            .then((result) => {
+              setFilteredMovies(result.data);
+              setKeyMoviesReady(true);
+            });
+        });
+    }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [key]);
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -108,42 +138,54 @@ function AllMovies() {
 
   const clearKeyHandler = () => {
     setKey('');
+    setCallNavigate(true);
     setKeyMoviesReady(false);
     getMovies(search, sortVal)
       .then((result: any) => {
         setFilteredMovies(result.data);
+        const positionData = {
+          pathname: '',
+          position: 0,
+          data: [],
+          positionElementId: '',
+        };
+        dispatch(setScrollPosition(positionData));
       });
   };
 
-  const persistScrollPosition = () => {
+  const persistScrollPosition = (id?: string) => {
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,
       data: filteredMovies,
-      id: '',
-      searchValue: search,
+      positionElementId: id,
     };
     dispatch(setScrollPosition(positionData));
   };
+
   return (
     <div>
       <MoviesHeader
         tabKey="all"
         showKeys={showKeys}
         setShowKeys={setShowKeys}
-        setSearch={setSearch}
+        setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          setSortVal(e.target.value);
+          setCallNavigate(true);
+        }}
+        selectedKey={key}
         applyFilter={applyFilter}
+        sortVal={sortVal}
       />
-      {key !== '' && isKeyMoviesReady
+      {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
         && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               Starts with
               {' '}
-              {key}
+              {key.toUpperCase()}
               {' '}
               <FontAwesomeIcon icon={solid('x')} size="sm" />
             </RoundButton>

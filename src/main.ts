@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as selfsigned from 'selfsigned';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
 import { AppModule } from './app.module';
+import { configureAppPrefixAndVersioning } from './utils/app-setup-utils';
 
 async function bootstrap() {
   let httpsOptions;
@@ -23,6 +24,7 @@ async function bootstrap() {
     // TODO: Consider a variable logging policy later on, based on NODE_ENV
     // logger: process.env.NODE_ENV === 'development' ? ['log', 'error', 'warn', 'debug', 'verbose'] : ['error', 'warn'],
   });
+  configureAppPrefixAndVersioning(app);
   const config = app.get(ConfigService);
   const port = config.get<number>('PORT', 4000);
 

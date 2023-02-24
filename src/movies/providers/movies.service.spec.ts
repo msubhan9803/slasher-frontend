@@ -21,6 +21,7 @@ import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 const mockHttpService = () => ({
 });
@@ -48,6 +49,7 @@ describe('MoviesService', () => {
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
     httpService = await app.get<HttpService>(HttpService);
   });
@@ -70,7 +72,7 @@ describe('MoviesService', () => {
 
   describe('#create', () => {
     it('successfully creates a movie', async () => {
-      expect(await moviesService.findById(movie._id, false)).toBeTruthy();
+      expect(await moviesService.findById(movie.id, false)).toBeTruthy();
     });
   });
 
@@ -80,8 +82,8 @@ describe('MoviesService', () => {
         name: 'movie 3',
         countryOfOrigin: 'USA',
       };
-      const updatedMovie = await moviesService.update(movie._id, movieData);
-      const reloadedMovie = await moviesService.findById(updatedMovie._id, false);
+      const updatedMovie = await moviesService.update(movie.id, movieData);
+      const reloadedMovie = await moviesService.findById(updatedMovie.id, false);
       expect(reloadedMovie.name).toEqual(movieData.name);
       expect(reloadedMovie.countryOfOrigin).toEqual(movieData.countryOfOrigin);
       expect(reloadedMovie.contentRating).toEqual(movie.contentRating);
@@ -90,7 +92,7 @@ describe('MoviesService', () => {
 
   describe('#findById', () => {
     it('finds the expected movie details', async () => {
-      const movieDetails = await moviesService.findById(movie._id, false);
+      const movieDetails = await moviesService.findById(movie.id, false);
       expect(movieDetails.name).toEqual(movie.name);
     });
 
@@ -100,7 +102,7 @@ describe('MoviesService', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const movieDetails = await moviesService.findById(movieData._id, true);
+      const movieDetails = await moviesService.findById(movieData.id, true);
       expect(movieDetails.name).toEqual(movieData.name);
     });
   });
@@ -326,7 +328,7 @@ describe('MoviesService', () => {
         ),
       );
       const limit = 5;
-      const moviesList = await moviesService.findAll(limit, true, 'name', movieData._id, 'c');
+      const moviesList = await moviesService.findAll(limit, true, 'name', movieData.id, 'c');
       expect(moviesList).toHaveLength(1);
     });
 

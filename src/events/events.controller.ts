@@ -16,7 +16,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -25,7 +25,7 @@ import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('events')
+@Controller({ path: 'events', version: ['1'] })
 export class EventsController {
   constructor(
     private readonly eventService: EventService,
@@ -37,10 +37,10 @@ export class EventsController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE, // size in bytes, 20MB
+        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
       },
     }),
   )

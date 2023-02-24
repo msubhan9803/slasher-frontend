@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { MatchListRoomCategory, MatchListRoomType, MatchListStatus } from './matchList.enums';
 import { MatchListUnusedFields } from './matchList.unused-fields';
@@ -58,7 +58,7 @@ export class MatchList extends MatchListUnusedFields {
 }
 
 export const MatchListSchema = SchemaFactory.createForClass(MatchList);
-export type MatchListDocument = MatchList & Document;
+export type MatchListDocument = HydratedDocument<MatchList>;
 
 // Index for ChatService#getConversations and ChatService#createOrFindPrivateDirectMessageConversationByParticipants
 MatchListSchema.index({

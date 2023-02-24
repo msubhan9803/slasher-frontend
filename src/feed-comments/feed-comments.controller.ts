@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
@@ -35,7 +35,7 @@ import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 
-@Controller('feed-comments')
+@Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
   constructor(
     private readonly feedPostsService: FeedPostsService,
@@ -49,9 +49,10 @@ export class FeedCommentsController {
     private readonly friendsService: FriendsService,
   ) { }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
-    FilesInterceptor('images', 5, {
+    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -63,7 +64,14 @@ export class FeedCommentsController {
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId, true);
+    if (!files.length && createFeedCommentsDto.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId.toString(), true);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -76,16 +84,24 @@ export class FeedCommentsController {
     }
 
     const user = getUserFromRequest(request);
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
-    }
-    if ((post.userId as any).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (post.userId as unknown as User)._id.toString());
+    if (
+      !post.rssfeedProviderId
+      && user.id !== (post.userId as unknown as User)._id.toString()
+      && (post.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (post.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
+    if (!post.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (post.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -97,15 +113,14 @@ export class FeedCommentsController {
       images.push({ image_path: storageLocation });
     }
 
-    const comment = await this.feedCommentsService.createFeedComment(
-      createFeedCommentsDto.feedPostId,
-      user.id,
-      createFeedCommentsDto.message,
-      images,
-    );
+    const feedComment = new FeedComment(createFeedCommentsDto);
+    feedComment.images = images;
+    feedComment.userId = user._id;
+    const comment = await this.feedCommentsService.createFeedComment(feedComment);
 
-    await this.sendFeedCommentCreationNotifications(user, comment, post);
-
+    if (!post.rssfeedProviderId) {
+      await this.sendFeedCommentCreationNotifications(user, comment, post);
+    }
     return {
       _id: comment._id,
       feedPostId: comment.feedPostId,
@@ -115,6 +130,7 @@ export class FeedCommentsController {
     };
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch(':feedCommentId')
   async updateFeedComment(
     @Req() request: Request,
@@ -151,16 +167,18 @@ export class FeedCommentsController {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedComment.userId.toString() !== user.id) {
+    const feedPost = await this.feedPostsService.findById(feedComment.feedPostId.toString(), true);
+    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
     return { success: true };
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Post('replies')
   @UseInterceptors(
-    FilesInterceptor('images', 5, {
+    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
       fileFilter: defaultFileInterceptorFileFilter,
       limits: {
         fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
@@ -172,6 +190,13 @@ export class FeedCommentsController {
     @Body() createFeedReplyDto: CreateFeedReplyDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    if (!files.length && createFeedReplyDto.message === '') {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     if (files.length > 4) {
       throw new HttpException(
         'Only allow a maximum of 4 images',
@@ -179,7 +204,7 @@ export class FeedCommentsController {
       );
     }
     const user = getUserFromRequest(request);
-    const comment = await this.feedCommentsService.findFeedComment(createFeedReplyDto.feedCommentId);
+    const comment = await this.feedCommentsService.findFeedComment(createFeedReplyDto.feedCommentId.toString());
     if (!comment) {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
@@ -187,20 +212,29 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block (post owner).', HttpStatus.BAD_REQUEST);
-    }
     const blockData = await this.blocksService.blockExistsBetweenUsers(user.id, comment.userId.toString());
     if (blockData) {
-      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Request failed due to user block (comment owner).', HttpStatus.FORBIDDEN);
     }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
-      if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block (post owner).', HttpStatus.FORBIDDEN);
       }
     }
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     const images = [];
     for (const file of files) {
       const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
@@ -211,15 +245,15 @@ export class FeedCommentsController {
       }
       images.push({ image_path: storageLocation });
     }
-    const reply = await this.feedCommentsService.createFeedReply(
-      createFeedReplyDto.feedCommentId,
-      user.id,
-      createFeedReplyDto.message,
-      images,
-    );
 
-    await this.sendFeedReplyCreationNotifications(user, reply);
-
+    const feedReply = new FeedReply(createFeedReplyDto);
+    feedReply.images = images;
+    feedReply.userId = user._id;
+    feedReply.feedPostId = comment.feedPostId;
+    const reply = await this.feedCommentsService.createFeedReply(feedReply);
+    if (!feedPost.rssfeedProviderId) {
+      await this.sendFeedReplyCreationNotifications(user, reply);
+    }
     return {
       _id: reply._id,
       feedCommentId: reply.feedCommentId,
@@ -230,6 +264,7 @@ export class FeedCommentsController {
     };
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch('replies/:feedReplyId')
   async updateFeedReply(
     @Req() request: Request,
@@ -266,7 +301,8 @@ export class FeedCommentsController {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedReply.userId.toString() !== user.id) {
+    const feedPost = await this.feedPostsService.findById(feedReply.feedPostId.toString(), true);
+    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);
@@ -289,16 +325,25 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
-    }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
       }
     }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
     const allFeedCommentsWithReplies = await this.feedCommentsService.findFeedCommentsWithReplies(
       query.feedPostId,
       query.limit,
@@ -353,14 +398,22 @@ export class FeedCommentsController {
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-    const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
-    if (block) {
-      throw new HttpException('Request failed due to user block.', HttpStatus.BAD_REQUEST);
-    }
-    if ((feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public) {
-      const areFriends = await this.friendsService.areFriends(user._id, (feedPost.userId as unknown as User)._id.toString());
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as unknown as User)._id.toString()
+      && (feedPost.userId as unknown as User).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as unknown as User)._id.toString());
       if (!areFriends) {
-        throw new HttpException('You are not friends with this user.', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers(user.id, (feedPost.userId as unknown as User)._id.toString());
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
       }
     }
     const commentAndReplies = JSON.parse(JSON.stringify(feedCommentWithReplies));
@@ -416,7 +469,7 @@ export class FeedCommentsController {
           userId: mentionedUserId as any,
           feedPostId: { _id: comment.feedPostId.toString() } as unknown as FeedPost,
           feedCommentId: { _id: comment._id.toString() } as unknown as FeedComment,
-          senderId: commentCreatorUser._id.toString(),
+          senderId: commentCreatorUser.id,
           notifyType: NotificationType.UserMentionedYouInAComment_MentionedYouInACommentReply_LikedYourReply_RepliedOnYourPost,
           notificationMsg: 'mentioned you in a comment',
         });

@@ -19,11 +19,16 @@ import { FriendsService } from '../../friends/providers/friends.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { RssFeedService } from '../../rss-feed/providers/rss-feed.service';
 import { rssFeedFactory } from '../../../test/factories/rss-feed.factory';
+import { FeedLikesService } from '../../feed-likes/providers/feed-likes.service';
+import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
+import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('FeedPostsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let feedPostsService: FeedPostsService;
+  let feedLikesService: FeedLikesService;
   let feedPostModel: Model<FeedPostDocument>;
   let usersService: UsersService;
   let rssFeedProviderFollowsService: RssFeedProviderFollowsService;
@@ -33,6 +38,7 @@ describe('FeedPostsService', () => {
   let rssFeedProvider: RssFeedProvider;
   let rssFeedService: RssFeedService;
   let user0: UserDocument;
+  let blocksModel: Model<BlockAndUnblockDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,8 +52,11 @@ describe('FeedPostsService', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
     friendsService = moduleRef.get<FriendsService>(FriendsService);
     rssFeedService = moduleRef.get<RssFeedService>(RssFeedService);
+    feedLikesService = moduleRef.get<FeedLikesService>(FeedLikesService);
+    blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -74,11 +83,11 @@ describe('FeedPostsService', () => {
   describe('#create', () => {
     it('successfully creates a feed post that is associated with a user', async () => {
       const feedPostData = feedPostFactory.build({
-        userId: activeUser._id,
+        userId: activeUser.id,
       });
       const feedPost = await feedPostsService.create(feedPostData);
-      const reloadedFeedPost = await feedPostsService.findById(feedPost._id, false);
-      expect((reloadedFeedPost.userId as unknown as User)._id).toEqual(activeUser._id);
+      const reloadedFeedPost = await feedPostsService.findById(feedPost.id, false);
+      expect((reloadedFeedPost.userId as unknown as User)._id.toString()).toEqual(activeUser.id);
     });
 
     it('successfully creates a feed post that is associated with an rss feed provider, '
@@ -104,27 +113,34 @@ describe('FeedPostsService', () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build(
           {
-            userId: activeUser._id,
-            rssFeedId: rssFeed._id,
+            userId: activeUser.id,
+            rssFeedId: rssFeed.id,
+            likes: [activeUser._id, user0._id],
           },
         ),
       );
     });
     it('finds the expected feed post details', async () => {
-      const feedPostDetails = await feedPostsService.findById(feedPost._id, false);
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
       expect((feedPostDetails.rssFeedId as any).content).toBe('<p>this is rss <b>feed</b> <span>test<span> </p>');
       expect(feedPostDetails.message).toEqual(feedPost.message);
+      expect(feedPostDetails.likeCount).toBe(2);
     });
 
     it('finds the expected feed post details that has not deleted and active status', async () => {
       const feedPostData = await feedPostsService.create(
         feedPostFactory.build({
           status: FeedPostStatus.Active,
-          userId: activeUser._id,
+          userId: activeUser.id,
         }),
       );
-      const feedPostDetails = await feedPostsService.findById(feedPostData._id, true);
+      const feedPostDetails = await feedPostsService.findById(feedPostData.id, true);
       expect(feedPostDetails.message).toEqual(feedPostData.message);
+    });
+
+    it("populates the profile_status field on the post's returned userId object", async () => {
+      const feedPostDetails = await feedPostsService.findById(feedPost.id, false);
+      expect((feedPostDetails.userId as unknown as User).profile_status).toEqual(activeUser.profile_status);
     });
   });
 
@@ -133,12 +149,13 @@ describe('FeedPostsService', () => {
       for (let i = 0; i < 10; i += 1) {
         await feedPostsService.create(
           feedPostFactory.build({
-            userId: activeUser._id,
+            userId: activeUser.id,
+            likes: [activeUser._id, user0._id],
           }),
         );
         await feedPostsService.create(
           feedPostFactory.build({
-            userId: activeUser._id,
+            userId: activeUser.id,
             is_deleted: FeedPostDeletionState.Deleted,
             status: FeedPostStatus.Inactive,
           }),
@@ -148,21 +165,22 @@ describe('FeedPostsService', () => {
 
     it('when earlier than post id is exist and active only is true then it returns the expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
-        userId: activeUser._id,
+        userId: activeUser.id,
         status: FeedPostStatus.Active,
         is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true, feedPost._id);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true, feedPost.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
+        expect(feedPostData[i].likeCount).toBe(2);
       }
       expect(feedPostData).toHaveLength(10);
       expect(feedPostData).not.toContain(feedPost.createdAt);
     });
 
     it('when earlier than post id is does not exist and active only is false then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -170,7 +188,7 @@ describe('FeedPostsService', () => {
     });
 
     it('when earlier than post id is does not exist but active only is true then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, true);
+      const feedPost = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, true);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -179,10 +197,10 @@ describe('FeedPostsService', () => {
 
     it('when earlier than post id does exist but active only is false then it returns the expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
-        userId: activeUser._id,
+        userId: activeUser.id,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllByUser((activeUser._id).toString(), 20, false, feedPost._id);
+      const feedPostData = await feedPostsService.findAllByUser((activeUser.id).toString(), 20, false, feedPost.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
       }
@@ -190,8 +208,8 @@ describe('FeedPostsService', () => {
     });
     it('returns the first and second sets of paginated results', async () => {
       const limit = 6;
-      const firstResults = await feedPostsService.findAllByUser((activeUser._id).toString(), limit, true);
-      const secondResults = await feedPostsService.findAllByUser((activeUser._id).toString(), limit, true, firstResults[limit - 1].id);
+      const firstResults = await feedPostsService.findAllByUser((activeUser.id).toString(), limit, true);
+      const secondResults = await feedPostsService.findAllByUser((activeUser.id).toString(), limit, true, firstResults[limit - 1].id);
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
     });
@@ -202,12 +220,12 @@ describe('FeedPostsService', () => {
     beforeEach(async () => {
       feedPost = await feedPostsService.create(
         feedPostFactory.build({
-          userId: activeUser._id,
+          userId: activeUser.id,
         }),
       );
     });
     it('finds the expected feed post and update the details, and also updates the lastUpdateAt time', async () => {
-      const postBeforeUpdate = await feedPostsService.findById(feedPost._id, false);
+      const postBeforeUpdate = await feedPostsService.findById(feedPost.id, false);
       const feedPostData = {
         message: 'Test message',
         images: [
@@ -219,8 +237,8 @@ describe('FeedPostsService', () => {
           },
         ],
       };
-      const updatedPost = await feedPostsService.update(feedPost._id, feedPostData);
-      const reloadedPost = await feedPostsService.findById(feedPost._id, false);
+      const updatedPost = await feedPostsService.update(feedPost.id, feedPostData);
+      const reloadedPost = await feedPostsService.findById(feedPost.id, false);
       expect(updatedPost.updatedAt).toEqual(reloadedPost.updatedAt);
       expect(reloadedPost.message).toEqual(feedPostData.message);
       expect(reloadedPost.images.map((el) => el.image_path)).toEqual(feedPostData.images.map((el) => el.image_path));
@@ -255,20 +273,20 @@ describe('FeedPostsService', () => {
               // Active post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  userId: user._id,
+                  userId: user.id,
                 }),
               ),
               // Inactive post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  userId: user._id,
+                  userId: user.id,
                   status: FeedPostStatus.Inactive,
                 }),
               ),
               // Deleted post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  userId: user._id,
+                  userId: user.id,
                   is_deleted: FeedPostDeletionState.Deleted,
                 }),
               ),
@@ -283,10 +301,10 @@ describe('FeedPostsService', () => {
 
         // Create follow relationships for some of the rssFeedProviders
         await rssFeedProviderFollowsService.create(
-          { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow1._id },
+          { userId: activeUser.id, rssfeedProviderId: rssFeedProviderToFollow1.id },
         );
         await rssFeedProviderFollowsService.create(
-          { userId: activeUser._id, rssfeedProviderId: rssFeedProviderToFollow2._id },
+          { userId: activeUser.id, rssfeedProviderId: rssFeedProviderToFollow2.id },
         );
 
         // Create some posts by all of the rss feed providers (follow ones and non-follow one)
@@ -296,23 +314,23 @@ describe('FeedPostsService', () => {
               // Active post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  rssfeedProviderId: rssFeedProv._id,
-                  userId: rssFeedProv._id,
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
                 }),
               ),
               // Inactive post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  rssfeedProviderId: rssFeedProv._id,
-                  userId: rssFeedProv._id,
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
                   status: FeedPostStatus.Inactive,
                 }),
               ),
               // Deleted post
               await feedPostsService.create(
                 feedPostFactory.build({
-                  rssfeedProviderId: rssFeedProv._id,
-                  userId: rssFeedProv._id,
+                  rssfeedProviderId: rssFeedProv.id,
+                  userId: rssFeedProv.id,
                   is_deleted: FeedPostDeletionState.Deleted,
                 }),
               ),
@@ -322,7 +340,7 @@ describe('FeedPostsService', () => {
       });
 
       it('finds the expected set of feed posts for user, ordered in the correct order', async () => {
-        const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), 100);
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(activeUser.id, 100);
 
         // We expect 10 posts total because:
         // - The active user has 2 active posts = (2 posts)
@@ -339,17 +357,29 @@ describe('FeedPostsService', () => {
 
       it('returns the first and second sets of paginated results', async () => {
         const limit = 6;
-        const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit);
+        const firstResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
         for (let index = 1; index < firstResults.length; index += 1) {
           expect(firstResults[index].lastUpdateAt < firstResults[index - 1].lastUpdateAt).toBe(true);
         }
         expect(firstResults).toHaveLength(6);
         // eslint-disable-next-line max-len
-        const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser._id.toString(), limit, firstResults[limit - 1]._id);
+        const secondResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit, firstResults[limit - 1].id);
         for (let index = 1; index < secondResults.length; index += 1) {
           expect(secondResults[index].lastUpdateAt < secondResults[index - 1].lastUpdateAt).toBe(true);
         }
         expect(secondResults).toHaveLength(4);
+      });
+
+      it('returns the expected likeCount', async () => {
+        const userData = await usersService.create(userFactory.build());
+        await feedPostsService.create(
+          feedPostFactory.build({
+            userId: userData.id,
+            likes: [userData._id],
+          }),
+        );
+        const feedPosts = await feedPostsService.findMainFeedPostsForUser(userData.id, 10);
+        expect(feedPosts[0].likeCount).toBe(1);
       });
     });
 
@@ -363,20 +393,20 @@ describe('FeedPostsService', () => {
         // Created post is associated with the `userFriend1`
         feedPost1 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
         feedPost2 = await feedPostsService.create(feedPostFactory.build({ userId: userFriend1.id }));
-        // feedPost = await feedPostsService.findById(feedPost1._id, false);
+        // feedPost = await feedPostsService.findById(feedPost1.id, false);
       });
       it('does not include a hidden post in the returned results', async () => {
         const limit = 6;
         // Before hiding, verify that post is returend in the `activeUser` feed
         const beforeResults = await feedPostsService.findMainFeedPostsForUser(activeUser.id, limit);
         expect(beforeResults).toHaveLength(2);
-        expect(beforeResults[0]._id.toString()).toBe(feedPost2._id.toString());
-        expect(beforeResults[1]._id.toString()).toBe(feedPost1._id.toString());
+        expect(beforeResults[0].id.toString()).toBe(feedPost2.id.toString());
+        expect(beforeResults[1].id.toString()).toBe(feedPost1.id.toString());
 
         // Hide feedPost1 for `activeUser`
-        await feedPostsService.hidePost(feedPost1._id, activeUser.id);
+        await feedPostsService.hidePost(feedPost1.id, activeUser.id);
         // Verify that user is added to `hideUsers` field of the `feedPost` (refetching updated `feedPost`)
-        const reloadedFeedPost1 = await feedPostsService.findById(feedPost1._id, false);
+        const reloadedFeedPost1 = await feedPostsService.findById(feedPost1.id, false);
         expect(reloadedFeedPost1.hideUsers).toEqual([new mongoose.Types.ObjectId(activeUser.id)]);
 
         // Verify that the post is not returned after hiding, but that other posts still are
@@ -391,13 +421,13 @@ describe('FeedPostsService', () => {
       for (let i = 0; i < 10; i += 1) {
         await feedPostsService.create(
           feedPostFactory.build({
-            userId: activeUser._id,
+            userId: activeUser.id,
           }),
         );
 
         await feedPostsService.create(
           feedPostFactory.build({
-            userId: activeUser._id,
+            userId: activeUser.id,
             images: [],
           }),
         );
@@ -406,12 +436,12 @@ describe('FeedPostsService', () => {
 
     it('when earlier than post id is exist then it returns the expected response', async () => {
       const feedPostDetails = feedPostFactory.build({
-        userId: activeUser._id,
+        userId: activeUser.id,
         status: FeedPostStatus.Active,
         is_deleted: FeedPostDeletionState.NotDeleted,
       });
       const feedPost = await feedPostsService.create(feedPostDetails);
-      const feedPostData = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), 20, feedPost._id);
+      const feedPostData = await feedPostsService.findAllPostsWithImagesByUser((activeUser.id).toString(), 20, feedPost.id);
       for (let i = 1; i < feedPostData.length; i += 1) {
         expect(feedPostData[i].createdAt < feedPostData[i - 1].createdAt).toBe(true);
       }
@@ -420,7 +450,7 @@ describe('FeedPostsService', () => {
     });
 
     it('when earlier than post id is does not exist then it returns the expected response', async () => {
-      const feedPost = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), 10);
+      const feedPost = await feedPostsService.findAllPostsWithImagesByUser((activeUser.id).toString(), 10);
       for (let i = 1; i < feedPost.length; i += 1) {
         expect(feedPost[i].createdAt < feedPost[i - 1].createdAt).toBe(true);
       }
@@ -429,9 +459,9 @@ describe('FeedPostsService', () => {
 
     it('returns the first and second sets of paginated results', async () => {
       const limit = 6;
-      const firstResults = await feedPostsService.findAllPostsWithImagesByUser((activeUser._id).toString(), limit);
+      const firstResults = await feedPostsService.findAllPostsWithImagesByUser((activeUser.id).toString(), limit);
       const secondResults = await feedPostsService
-        .findAllPostsWithImagesByUser((activeUser._id).toString(), limit, firstResults[limit - 1].id);
+        .findAllPostsWithImagesByUser((activeUser.id).toString(), limit, firstResults[limit - 1].id);
       expect(firstResults).toHaveLength(6);
       expect(secondResults).toHaveLength(4);
     });
@@ -449,23 +479,24 @@ describe('FeedPostsService', () => {
           // Active post
           await feedPostsService.create(
             feedPostFactory.build({
-              rssfeedProviderId: rssFeedProviderToFollow1._id,
-              userId: rssFeedProviderToFollow1._id,
+              rssfeedProviderId: rssFeedProviderToFollow1.id,
+              userId: rssFeedProviderToFollow1.id,
+              likes: [activeUser._id, user0._id],
             }),
           ),
           // Inactive post
           await feedPostsService.create(
             feedPostFactory.build({
-              rssfeedProviderId: rssFeedProviderToFollow1._id,
-              userId: rssFeedProviderToFollow1._id,
+              rssfeedProviderId: rssFeedProviderToFollow1.id,
+              userId: rssFeedProviderToFollow1.id,
               status: FeedPostStatus.Inactive,
             }),
           ),
           // Deleted post
           await feedPostsService.create(
             feedPostFactory.build({
-              rssfeedProviderId: rssFeedProviderToFollow1._id,
-              userId: rssFeedProviderToFollow1._id,
+              rssfeedProviderId: rssFeedProviderToFollow1.id,
+              userId: rssFeedProviderToFollow1.id,
               is_deleted: FeedPostDeletionState.Deleted,
             }),
           ),
@@ -512,12 +543,19 @@ describe('FeedPostsService', () => {
         rssFeedProviderToFollow1.id,
         limit,
         false,
-        firstResults[limit - 1]._id,
+        firstResults[limit - 1].id,
       );
       for (let index = 1; index < secondResults.length; index += 1) {
         expect(secondResults[index].createdAt < secondResults[index - 1].createdAt).toBe(true);
       }
       expect(secondResults).toHaveLength(4);
+    });
+
+    it('returns the expected likeCount', async () => {
+      const feedPosts = await feedPostsService.findAllByRssFeedProvider(rssFeedProviderToFollow1.id, 10, true);
+      for (let i = 1; i < feedPosts.length; i += 1) {
+        expect(feedPosts[i].likeCount).toBe(2);
+      }
     });
   });
 
@@ -527,24 +565,91 @@ describe('FeedPostsService', () => {
       // Created post is associated with the `activeUser`
       const feedPostData = await feedPostsService.create(
         feedPostFactory.build({
-          userId: activeUser._id,
+          userId: activeUser.id,
         }),
       );
-      feedPost = await feedPostsService.findById(feedPostData._id, false);
+      feedPost = await feedPostsService.findById(feedPostData.id, false);
     });
 
     it('successfully add user to `hideUsers` field in the feed post', async () => {
-      await feedPostsService.hidePost(feedPost._id, user0.id);
-      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      await feedPostsService.hidePost(feedPost.id, user0.id);
+      const updatedFeedPost = await feedPostsService.findById(feedPost.id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
     });
 
     it('should not add user id to `hideUsers` field a second time if id *already* exists in the `hideUsers` array', async () => {
-      await feedPostsService.hidePost(feedPost._id, user0.id);
-      await feedPostsService.hidePost(feedPost._id, user0.id);
+      await feedPostsService.hidePost(feedPost.id, user0.id);
+      await feedPostsService.hidePost(feedPost.id, user0.id);
 
-      const updatedFeedPost = await feedPostsService.findById(feedPost._id, false);
+      const updatedFeedPost = await feedPostsService.findById(feedPost.id, false);
       expect(updatedFeedPost.hideUsers).toEqual([new mongoose.Types.ObjectId(user0.id)]);
+    });
+  });
+
+  describe('#getLikeUsersForPost', () => {
+    let feedPost: FeedPostDocument;
+    let user1;
+    let user2;
+
+    beforeEach(async () => {
+      feedPost = await feedPostsService.create(
+        feedPostFactory.build({ userId: activeUser._id }),
+      );
+      user1 = await usersService.create(userFactory.build({ userName: 'Covey' }));
+      user2 = await usersService.create(userFactory.build({ userName: 'Harry' }));
+
+      await friendsService.createFriendRequest(activeUser.id, user0.id);
+      await friendsService.acceptFriendRequest(activeUser.id, user0.id);
+
+      await feedLikesService.createFeedPostLike(feedPost.id, activeUser.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user0.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user1.id);
+      await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
+    });
+
+    it('successfully return list of like users', async () => {
+      const limit = 2;
+      const offset = 0;
+      const likeUsers1 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset);
+      expect(likeUsers1.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+
+      // Pagination
+      const newOffset = offset + limit;
+      const likeUsers2 = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, newOffset);
+      expect(likeUsers2.map((user) => user._id.toString())).toEqual(expect.arrayContaining([user1.id, user2.id]));
+    });
+
+    it('successfully return list of like users along with friendStatus', async () => {
+      const limit = 2;
+      const offset = 0;
+      const requestingContextUserId = user0.id;
+      const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+      expect(likeUsers.map((user) => user._id.toString())).toEqual(expect.arrayContaining([activeUser.id, user0.id]));
+      expect(likeUsers[0].friendship).toEqual({
+        reaction: 3,
+        from: new mongoose.Types.ObjectId(activeUser.id),
+        to: new mongoose.Types.ObjectId(user0.id),
+      });
+      expect(likeUsers[1].friendship).toBeNull();
+    });
+
+    describe('should not return users blocked by `requestingContextUser`', () => {
+      beforeEach(async () => {
+        await blocksModel.create({
+          from: activeUser.id,
+          to: user0.id,
+          reaction: BlockAndUnblockReaction.Block,
+        });
+      });
+      it('blocker user should not be returned', async () => {
+        // limit=10 so that all like users are returned
+        const limit = 10;
+        const offset = 0;
+        const requestingContextUserId = activeUser.id;
+        const likeUsers = await feedPostsService.getLikeUsersForPost(feedPost.id, limit, offset, requestingContextUserId);
+        const allLikeUsers = likeUsers.map((user) => user._id.toString());
+        expect(allLikeUsers).not.toContain(user0.id);
+      });
     });
   });
 });

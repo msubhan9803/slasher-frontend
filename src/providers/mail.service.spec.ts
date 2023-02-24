@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { clearDatabase } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
 import { ReportType } from '../types';
+import { configureAppPrefixAndVersioning } from '../utils/app-setup-utils';
 import { MailService } from './mail.service';
 
 describe('MailService', () => {
@@ -20,6 +21,7 @@ describe('MailService', () => {
     mailService = moduleRef.get<MailService>(MailService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 

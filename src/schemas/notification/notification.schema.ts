@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { NotificationDeletionStatus, NotificationReadStatus } from './notification.enums';
 import { NotificationUnusedFields } from './notification.unused-fields';
@@ -79,7 +79,8 @@ NotificationSchema.index(
     createdAt: 1,
   },
 );
-export type NotificationDocument = Notification & Document;
+
+export type NotificationDocument = HydratedDocument<Notification>;
 
 // Make sure that we have an index to support NotificationService#cleanupNotifications
 NotificationSchema.index({ createdAt: 1 });

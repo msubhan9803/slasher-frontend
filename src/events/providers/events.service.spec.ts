@@ -15,6 +15,7 @@ import { eventCategoryFactory } from '../../../test/factories/event-category.fac
 import { EventCategoryDocument } from '../../schemas/eventCategory/eventCategory.schema';
 import { EventActiveStatus } from '../../schemas/event/event.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('EventService', () => {
   let app: INestApplication;
@@ -49,6 +50,7 @@ describe('EventService', () => {
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -72,12 +74,12 @@ describe('EventService', () => {
     it('successfully creates a event', async () => {
       const eventData = eventsFactory.build(
         {
-          userId: userData._id,
-          event_type: eventCategoryData._id,
+          userId: userData.id,
+          event_type: eventCategoryData.id,
         },
       );
       const event = await eventService.create(eventData);
-      expect(await eventService.findById(event._id, false)).toBeTruthy();
+      expect(await eventService.findById(event.id, false)).toBeTruthy();
     });
   });
 
@@ -87,8 +89,8 @@ describe('EventService', () => {
       event = await eventService.create(
         eventsFactory.build(
           {
-            userId: userData._id,
-            event_type: eventCategoryData._id,
+            userId: userData.id,
+            event_type: eventCategoryData.id,
           },
         ),
       );
@@ -98,8 +100,8 @@ describe('EventService', () => {
         name: 'Event test 20',
         author: 'Event new author',
       };
-      const updatedEvent = await eventService.update(event._id, eventData);
-      const reloadedEvent = await eventService.findById(updatedEvent._id, false);
+      const updatedEvent = await eventService.update(event.id, eventData);
+      const reloadedEvent = await eventService.findById(updatedEvent.id, false);
       expect(reloadedEvent.name).toEqual(eventData.name);
       expect(reloadedEvent.author).toEqual(eventData.author);
       expect(reloadedEvent.city).toEqual(event.city);
@@ -112,19 +114,19 @@ describe('EventService', () => {
       event = await eventService.create(
         eventsFactory.build(
           {
-            userId: userData._id,
-            event_type: eventCategoryData._id,
+            userId: userData.id,
+            event_type: eventCategoryData.id,
           },
         ),
       );
     });
     it('finds the expected event details', async () => {
-      const eventDetails = await eventService.findById(event._id, false);
+      const eventDetails = await eventService.findById(event.id, false);
       expect(eventDetails.name).toEqual(event.name);
     });
 
     it('finds the expected event details with event category populate', async () => {
-      const eventDetails = await eventService.findById(event._id, false, 'event_type', 'event_name');
+      const eventDetails = await eventService.findById(event.id, false, 'event_type', 'event_name');
       const eventCategoryDetail = await eventCategoriesService.findById(event.event_type.toString(), true);
 
       expect(eventDetails.event_type._id).toEqual(eventCategoryDetail._id);
@@ -135,12 +137,12 @@ describe('EventService', () => {
       const activeEvent = await eventService.create(
         eventsFactory.build({
           status: EventActiveStatus.Active,
-          userId: userData._id,
-          event_type: eventCategoryData._id,
+          userId: userData.id,
+          event_type: eventCategoryData.id,
         }),
       );
 
-      const eventDetail = await eventService.findById(activeEvent._id, true);
+      const eventDetail = await eventService.findById(activeEvent.id, true);
       expect(eventDetail.name).toEqual(activeEvent.name);
     });
 
@@ -148,12 +150,12 @@ describe('EventService', () => {
       const activeEvent = await eventService.create(
         eventsFactory.build({
           status: EventActiveStatus.Active,
-          userId: userData._id,
-          event_type: eventCategoryData._id,
+          userId: userData.id,
+          event_type: eventCategoryData.id,
         }),
       );
 
-      const eventDetail = await eventService.findById(activeEvent._id, true, 'event_type', 'event_name');
+      const eventDetail = await eventService.findById(activeEvent.id, true, 'event_type', 'event_name');
       const eventCategoryDetail = await eventCategoriesService.findById(activeEvent.event_type.toString(), true);
 
       expect(eventDetail.event_type._id).toEqual(eventCategoryDetail._id);
@@ -169,8 +171,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Active,
@@ -182,8 +184,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Inactive,
@@ -195,8 +197,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Deactivated,
@@ -248,8 +250,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Active,
@@ -261,8 +263,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Inactive,
@@ -274,8 +276,8 @@ describe('EventService', () => {
         await eventService.create(
           eventsFactory.build(
             {
-              userId: userData._id,
-              event_type: eventCategoryData._id,
+              userId: userData.id,
+              event_type: eventCategoryData.id,
               startDate: eventDateRange.start,
               endDate: eventDateRange.end,
               status: EventActiveStatus.Deactivated,

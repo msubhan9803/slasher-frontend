@@ -9,6 +9,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { ReportAndUnreportService } from './report-and-unreports.service';
 import { ReportReaction } from '../../schemas/reportAndUnreport/reportAndUnreport.enums';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('ReportAndUnreportService', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('ReportAndUnreportService', () => {
     reportAndUnreportService = moduleRef.get<ReportAndUnreportService>(ReportAndUnreportService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -52,7 +54,7 @@ describe('ReportAndUnreportService', () => {
         to: user0._id,
         reaction: ReportReaction.Reported,
         reasonOfReport: 'this is test reason',
-      };
+      } as unknown;
       const report = await reportAndUnreportService.create(reportAndUnreportObj);
       expect(report).toMatchObject(reportAndUnreportObj);
     });

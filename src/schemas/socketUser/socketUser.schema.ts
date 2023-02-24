@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { User } from '../user/user.schema';
 import { SocketUserUnusedFields } from './socketUser.unused-fields';
 
@@ -42,4 +42,4 @@ export class SocketUser extends SocketUserUnusedFields {
 
 export const SocketUserSchema = SchemaFactory.createForClass(SocketUser);
 
-export type SocketUserDocument = SocketUser & Document;
+export type SocketUserDocument = HydratedDocument<SocketUser>;

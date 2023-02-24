@@ -10,6 +10,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { UserSettingDocument } from '../../schemas/userSetting/userSetting.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 
 describe('UserSettingsService', () => {
   let app: INestApplication;
@@ -27,6 +28,7 @@ describe('UserSettingsService', () => {
     userSettingsService = moduleRef.get<UserSettingsService>(UserSettingsService);
     usersService = moduleRef.get<UsersService>(UsersService);
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -60,7 +62,7 @@ describe('UserSettingsService', () => {
 
   describe('#findByUserId', () => {
     it('successfully get a user setting', async () => {
-      const getUserSetting = await userSettingsService.findByUserId(userData._id);
+      const getUserSetting = await userSettingsService.findByUserId(userData.id);
       expect(getUserSetting._id).toEqual(userSetting._id);
       expect(getUserSetting.userId).toEqual(userSetting.userId);
       expect(getUserSetting.message_board_new_post_on_thread).toEqual(userSetting.message_board_new_post_on_thread);
@@ -84,7 +86,7 @@ describe('UserSettingsService', () => {
       };
 
       await userSettingsService.update(userData._id.toString(), settingData);
-      const reloadedUserSetting = await userSettingsService.findByUserId(userData._id);
+      const reloadedUserSetting = await userSettingsService.findByUserId(userData.id);
       expect(reloadedUserSetting.friends_got_a_match).toEqual(settingData.friends_got_a_match);
       expect(reloadedUserSetting.friends_message_received).toEqual(settingData.friends_message_received);
       expect(reloadedUserSetting.message_board_like_your_post).toEqual(settingData.message_board_like_your_post);

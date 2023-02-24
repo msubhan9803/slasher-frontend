@@ -76,7 +76,7 @@ export class BlocksService {
   }
 
   async blockExistsBetweenUsers(userId1: string, userId2: string): Promise<boolean> {
-      const blockAndUnblock: any = await this.blocksModel
+    const blockAndUnblock: any = await this.blocksModel
       .findOne({
         $or: [
           { from: new mongoose.Types.ObjectId(userId1), to: new mongoose.Types.ObjectId(userId2) },
@@ -84,6 +84,6 @@ export class BlocksService {
         ],
       })
       .exec();
-      return !!blockAndUnblock;
+    return !!blockAndUnblock;
   }
 }

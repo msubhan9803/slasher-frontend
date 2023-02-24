@@ -51,7 +51,7 @@ function MovieCasts({ castList }: CastListProps) {
     <div className="bg-dark p-3 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Top billed cast</h1>
       <div className="d-flex align-items-center mt-3">
-        <StyledSlideButton className="prev bg-transparent border-0 shadow-none text-white" onClick={slideCastsLeft}>
+        <StyledSlideButton aria-label="chevron left icon" className="prev bg-transparent border-0 shadow-none text-white" onClick={slideCastsLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </StyledSlideButton>
         <StyledCast id="slideCasts" className="flex-nowrap w-100">
@@ -59,7 +59,7 @@ function MovieCasts({ castList }: CastListProps) {
             <Col key={cast.name} xs={6} sm={3} md={2} lg={3} xl={2}>
               <Card className="bg-transparent border-0">
                 <div className="casts-image">
-                  <Card.Img variant="top" src={cast.profile_path} className="w-100 h-100 rounded-3" />
+                  <Card.Img variant="top" src={cast.profile_path} alt="top cast" className="w-100 h-100 rounded-3" />
                 </div>
                 <Card.Body className="px-0 pb-0">
                   <Card.Title className="fs-3 m-0">
@@ -73,7 +73,7 @@ function MovieCasts({ castList }: CastListProps) {
             </Col>
           ))}
         </StyledCast>
-        <StyledSlideButton className="next bg-transparent border-0 shadow-none text-white" onClick={slideCastsRight}>
+        <StyledSlideButton aria-label="chevron right icon" className="next bg-transparent border-0 shadow-none text-white" onClick={slideCastsRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </StyledSlideButton>
       </div>

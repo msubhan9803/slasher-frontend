@@ -387,7 +387,7 @@ function PostCommentSection({
           onLikeClick(comment.id); setCommentReplyID(comment.id);
         }}
         popoverOptions={
-          checkPopover(comment.userId?._id)
+          checkPopover(comment.userId?._id || comment.userId?.id)
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
@@ -446,7 +446,7 @@ function PostCommentSection({
                     commentImg={data.commentImg}
                     onIconClick={() => onLikeClick(data.id)}
                     popoverOptions={
-                      checkPopover(data.userId?._id)
+                      checkPopover(data.userId?._id || data.userId?.id)
                     }
                     onPopoverClick={handlePopover}
                     content={data.commentMsg}

@@ -1,5 +1,5 @@
 import React from 'react';
-import PostcastPostFeed from '../../components/ui/PostFeed/PostcastPostFeed';
+import PostcastPostFeed from '../../components/ui/post/PostFeed/PostcastPostFeed';
 
 function PodcastEpisodes({ episodeData }: any) {
   return (

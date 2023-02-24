@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PostCommentSection from '../../../components/ui/PostCommentSection/PostCommentSection';
+import PostCommentSection from '../../../components/ui/post/PostCommentSection/PostCommentSection';
 
 const postData = [
 

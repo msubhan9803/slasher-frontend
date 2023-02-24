@@ -38,7 +38,6 @@ describe('MoviesService', () => {
   let movie: MovieDocument;
   let httpService: HttpService;
   let movieModel: Model<MovieDocument>;
-  let activeUserAuthToken: string;
   let activeUser: UserDocument;
   let usersService: UsersService;
   let user1: UserDocument;
@@ -71,9 +70,6 @@ describe('MoviesService', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
-    activeUserAuthToken = activeUser.generateNewJwtToken(
-      configService.get<string>('JWT_SECRET_KEY'),
-    );
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
 
     movie = await moviesService.create(

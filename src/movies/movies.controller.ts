@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import {
-  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Patch, Req, Body, Put, Delete,
+  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Req, Body, Put, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';

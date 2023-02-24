@@ -62,7 +62,7 @@ function PostCommentSection({
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
-  const queryReplyId = searchParams.get('replyCommentId');
+  const queryReplyId = searchParams.get('replyId');
   const [checkLoadMoreId, setCheckLoadMoreId] = useState<any[]>([]);
   const [replyIndex, setReplyIndex] = useState<number>(2);
   const [scrollId, setScrollId] = useState<string>('');
@@ -380,6 +380,18 @@ function PostCommentSection({
       />
     </div>
   );
+
+  useEffect(() => {
+    if (queryReplyId && commentData.length) {
+      commentData.map((comment: any) => {
+        if (queryCommentId === comment.id) {
+          comment.isReplyIndex = comment.commentReplySection.length;
+          return comment;
+        }
+        return comment;
+      });
+    }
+  }, [queryCommentId, queryReplyId, commentData]);
   return (
     <>
       <CommentInput

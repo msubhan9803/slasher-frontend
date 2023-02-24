@@ -7,8 +7,11 @@ import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { ArtistsService } from './artists.service';
 import { artistsFactory } from '../../../test/factories/artists.factory';
-import { ArtistDocument } from '../../schemas/artist/artist.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import {
+  ArtistStatus,
+  ArtistDeletionState,
+} from '../../schemas/artist/artist.enums';
 
 const mockHttpService = () => ({});
 
@@ -16,7 +19,6 @@ describe('artistsService', () => {
   let app: INestApplication;
   let connection: Connection;
   let artistsService: ArtistsService;
-  let artist: ArtistDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,7 +37,6 @@ describe('artistsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
-    artist = await artistsService.create(artistsFactory.build());
   });
 
   it('should be defined', () => {
@@ -43,9 +44,39 @@ describe('artistsService', () => {
   });
 
   describe('#findAll', () => {
-    it('finds the expected artists details', async () => {
-      const artistDetails = await artistsService.findAll();
-      expect(artistDetails.map((artistData) => artistData.name)).toEqual([artist.name]);
+    it('finds all the expected artists that are activated and not deleted', async () => {
+      await artistsService.create(
+        artistsFactory.build({
+          status: ArtistStatus.Active,
+          deleted: ArtistDeletionState.NotDeleted,
+          name: 'Ink & Splashes',
+        }),
+      );
+      await artistsService.create(
+        artistsFactory.build({
+          status: ArtistStatus.InActive,
+          deleted: ArtistDeletionState.NotDeleted,
+          name: 'Capture the Art',
+        }),
+      );
+      await artistsService.create(
+        artistsFactory.build({
+          status: ArtistStatus.Active,
+          deleted: ArtistDeletionState.Deleted,
+          name: 'The Canvas Life',
+        }),
+      );
+      await artistsService.create(
+        artistsFactory.build({
+          status: ArtistStatus.InActive,
+          deleted: ArtistDeletionState.Deleted,
+          name: 'The diffrent Artist',
+        }),
+      );
+
+      const activeArtists = await artistsService.findAll(true);
+      expect(activeArtists).toHaveLength(1);
+      expect(activeArtists[0].name).toBe('Ink & Splashes');
     });
   });
 });

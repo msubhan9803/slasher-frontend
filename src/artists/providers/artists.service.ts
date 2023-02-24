@@ -17,18 +17,16 @@ export class ArtistsService {
     return this.artistsModel.create(artistData);
   }
 
-  async findAll(): Promise<ArtistDocument[]> {
-    const artistFind: any = {
-      deleted: ArtistDeletionState.NotDeleted,
-      status: ArtistStatus.Active,
-    };
-
+  async findAll(activeOnly: boolean): Promise<ArtistDocument[]> {
+    const artistFindAllQuery: any = {};
+    if (activeOnly) {
+      artistFindAllQuery.deleted = ArtistDeletionState.NotDeleted;
+      artistFindAllQuery.status = ArtistStatus.Active;
+    }
     return this.artistsModel
-      .find(artistFind)
+      .find(artistFindAllQuery)
       .select('name')
-      .sort({
-        name: 1,
-      })
+      .sort({ name: 1 })
       .exec();
   }
 }

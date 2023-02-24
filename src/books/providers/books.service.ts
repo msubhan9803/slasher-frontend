@@ -8,21 +8,24 @@ import { BookStatus, BookDeletionState } from '../../schemas/book/book.enums';
 export class BooksService {
   constructor(
     @InjectModel(Book.name) private booksModel: Model<BookDocument>,
-  ) { }
+  ) {}
 
   async create(bookData: Partial<Book>): Promise<BookDocument> {
     return this.booksModel.create(bookData);
   }
 
-  async findAll(): Promise<BookDocument[]> {
-    const bookFind : any = {
-    deleted: BookDeletionState.NotDeleted,
-    status: BookStatus.Active,
-    };
+  async findAll(activeOnly: boolean): Promise<BookDocument[]> {
+    const booksFindAllQuery: any = {};
 
-   return this.booksModel.find(bookFind).select('name')
+    if (activeOnly) {
+      booksFindAllQuery.deleted = BookDeletionState.NotDeleted;
+      booksFindAllQuery.status = BookStatus.Active;
+    }
+    return this.booksModel
+      .find(booksFindAllQuery)
+      .select('name')
       .sort({
-         name: 1,
+        name: 1,
       })
       .exec();
   }

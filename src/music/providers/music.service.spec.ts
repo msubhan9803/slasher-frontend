@@ -7,8 +7,11 @@ import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { MusicService } from './music.service';
 import { musicFactory } from '../../../test/factories/music.factory';
-import { MusicDocument } from '../../schemas/music/music.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import {
+  MusicStatus,
+  MusicDeletionState,
+} from '../../schemas/music/music.enums';
 
 const mockHttpService = () => ({});
 
@@ -16,7 +19,6 @@ describe('MusicService', () => {
   let app: INestApplication;
   let connection: Connection;
   let musicService: MusicService;
-  let music: MusicDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,7 +38,6 @@ describe('MusicService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
-    music = await musicService.create(musicFactory.build());
   });
 
   it('should be defined', () => {
@@ -44,9 +45,39 @@ describe('MusicService', () => {
   });
 
   describe('#findAll', () => {
-    it('finds the expected music details', async () => {
-      const musicDetails = await musicService.findAll();
-      expect(musicDetails.map((musicData) => musicData.name)).toEqual([music.name]);
+    it('finds all the expected musics that are activated and not deleted', async () => {
+      await musicService.create(
+        musicFactory.build({
+          status: MusicStatus.Active,
+          deleted: MusicDeletionState.Deleted,
+          name: 'The Ballad of Sweeney Todd',
+        }),
+      );
+      await musicService.create(
+        musicFactory.build({
+          status: MusicStatus.Active,
+          deleted: MusicDeletionState.NotDeleted,
+          name: 'Addicted to Love',
+        }),
+      );
+      await musicService.create(
+        musicFactory.build({
+          status: MusicStatus.Active,
+          deleted: MusicDeletionState.Deleted,
+          name: 'Baby, Wont you please come home',
+        }),
+      );
+      await musicService.create(
+        musicFactory.build({
+          status: MusicStatus.InActive,
+          deleted: MusicDeletionState.NotDeleted,
+          name: 'The diffrent Music',
+        }),
+      );
+
+      const activeMusic = await musicService.findAll(true);
+      expect(activeMusic).toHaveLength(1);
+      expect(activeMusic[0].name).toBe('Addicted to Love');
     });
   });
 });

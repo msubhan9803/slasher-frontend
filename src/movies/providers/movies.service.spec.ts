@@ -22,6 +22,10 @@ import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { UserDocument } from '../../schemas/user/user.schema';
+import { UsersService } from '../../users/providers/users.service';
+import { userFactory } from '../../../test/factories/user.factory';
+import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 
 const mockHttpService = () => ({
 });
@@ -34,6 +38,10 @@ describe('MoviesService', () => {
   let movie: MovieDocument;
   let httpService: HttpService;
   let movieModel: Model<MovieDocument>;
+  let activeUserAuthToken: string;
+  let activeUser: UserDocument;
+  let usersService: UsersService;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -45,6 +53,7 @@ describe('MoviesService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    usersService = moduleRef.get<UsersService>(UsersService);
     httpService = moduleRef.get<HttpService>(HttpService);
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
 
@@ -61,6 +70,12 @@ describe('MoviesService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
+    activeUserAuthToken = activeUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+    user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+
     movie = await moviesService.create(
       moviesFactory.build(),
     );
@@ -72,7 +87,7 @@ describe('MoviesService', () => {
 
   describe('#create', () => {
     it('successfully creates a movie', async () => {
-      expect(await moviesService.findByIdMovieUserStatus(movie.id, false)).toBeTruthy();
+      expect(await moviesService.findById(movie.id, false)).toBeTruthy();
     });
   });
 
@@ -83,7 +98,7 @@ describe('MoviesService', () => {
         countryOfOrigin: 'USA',
       };
       const updatedMovie = await moviesService.update(movie.id, movieData);
-      const reloadedMovie = await moviesService.findByIdMovieUserStatus(updatedMovie.id, false);
+      const reloadedMovie = await moviesService.findById(updatedMovie.id, false);
       expect(reloadedMovie.name).toEqual(movieData.name);
       expect(reloadedMovie.countryOfOrigin).toEqual(movieData.countryOfOrigin);
       expect(reloadedMovie.contentRating).toEqual(movie.contentRating);
@@ -92,7 +107,7 @@ describe('MoviesService', () => {
 
   describe('#findById', () => {
     it('finds the expected movie details', async () => {
-      const movieDetails = await moviesService.findByIdMovieUserStatus(movie.id, false);
+      const movieDetails = await moviesService.findById(movie.id, false);
       expect(movieDetails.name).toEqual(movie.name);
     });
 
@@ -102,7 +117,7 @@ describe('MoviesService', () => {
           status: MovieActiveStatus.Active,
         }),
       );
-      const movieDetails = await moviesService.findByIdMovieUserStatus(movieData.id, true);
+      const movieDetails = await moviesService.findById(movieData.id, true);
       expect(movieDetails.name).toEqual(movieData.name);
     });
   });
@@ -748,6 +763,87 @@ describe('MoviesService', () => {
         },
       );
       expect(await moviesService.fetchMovieDbData(2907)).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
+    });
+  });
+
+  describe('#createOrUpdateRating', () => {
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const rating = 3;
+      const movieUserStatus = await moviesService.createOrUpdateRating(movie.id, rating, activeUser.id);
+      expect(movieUserStatus.rating).toBe(rating);
+
+      // Verify that rating is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.rating).toBe(rating);
+    });
+
+    it('verify that average of all `rating` of movierUserStatus is updated in movie', async () => {
+      const rating1 = 1;
+      const movieUserStatus1 = await moviesService.createOrUpdateRating(movie.id, rating1, activeUser.id);
+      expect(movieUserStatus1.rating).toBe(rating1);
+
+      const rating2 = 2;
+      const movieUserStatus2 = await moviesService.createOrUpdateRating(movie.id, rating2, user1.id);
+      expect(movieUserStatus2.rating).toBe(rating2);
+
+      // Verify that average rating is correctly updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      // Verify average `rating` is rounded to the nearest integer: Math.round((1+2)/2) = Math.round(1.5) = 2
+      expect(updatedMovie.rating).toBe(2);
+    });
+  });
+
+  describe('#createOrUpdateGoreFactorRating', () => {
+    it('create or update `goreFactorRating` in a movierUserStatus document', async () => {
+      const goreFactorRating = 3;
+      const movieUserStatus = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating, activeUser.id);
+      expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
+
+      // Verify that goreFactorRating is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.goreFactorRating).toBe(goreFactorRating);
+    });
+
+    it('verify that average of all `goreFactorRating` of movierUserStatus is updated in movie', async () => {
+      const goreFactorRating1 = 1;
+      const movieUserStatus1 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating1, activeUser.id);
+      expect(movieUserStatus1.goreFactorRating).toBe(goreFactorRating1);
+
+      const goreFactorRating2 = 2;
+      const movieUserStatus2 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating2, user1.id);
+      expect(movieUserStatus2.goreFactorRating).toBe(goreFactorRating2);
+
+      // Verify average `goreFactorRating` is rounded to the nearest integer: Math.round((1+2)/2) = Math.round(1.5) = 2
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.goreFactorRating).toBe(2);
+    });
+  });
+
+  describe('#createOrUpdateWorthWatching', () => {
+    it('create or update  a movierUserStatus document', async () => {
+      const worthWatching = WorthWatchingStatus.Up;
+      const movieUserStatus = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching, activeUser.id);
+      expect(movieUserStatus.worthWatching).toBe(worthWatching);
+
+      // Verify that WorthWatching is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
+    });
+
+    it('verify that average of all WorthWatching of movierUserStatus is updated in movie', async () => {
+      const worthWatching1 = WorthWatchingStatus.Down;
+      const movieUserStatus1 = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching1, activeUser.id);
+      expect(movieUserStatus1.worthWatching).toBe(worthWatching1);
+
+      const worthWatching2 = WorthWatchingStatus.Up;
+      const movieUserStatus2 = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching2, user1.id);
+      expect(movieUserStatus2.worthWatching).toBe(worthWatching2);
+
+      /** Verify average `WorthWatching` is rounded to the nearest integer
+       * i.e,, Math.round((1+2)/2) = Math.round(1.5) = 2 = WorthWatchingStatus.Up
+       */
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
     });
   });
 });

@@ -15,8 +15,8 @@ import { MovieDbDto } from '../dto/movie-db.dto';
 import { ReturnMovieDb } from '../dto/cron-job-response.dto';
 import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
-import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
-import { CreateOrUpdateRatingDto } from '../dto/create-or-update-rating-dto';
+import { MovieUserStatus } from '../../schemas/movieUserStatus/movieUserStatus.schema';
+import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 
 export interface Cast {
   'adult': boolean,
@@ -154,22 +154,75 @@ export class MoviesService {
     return this.moviesModel.findOne(moviesFindQuery).exec();
   }
 
-  async findMovieUserStatusByMovieId(movieId: string): Promise<Partial<MovieUserStatus> | null> {
-    return this.movieUserStatusModel.findOne({ movieId: new mongoose.Types.ObjectId(movieId) });
+  async createOrUpdateRating(movieId: string, rating: number, userId: string) {
+    // Create/update a MovieUserStatus document
+    await this.movieUserStatusModel.updateOne(
+      { movieId, userId },
+      { $set: { rating } },
+      { upsert: true },
+    );
+    const movieUserStatus = await this.movieUserStatusModel.findOne({ movieId, userId });
+    // Calculate average of all `movieUserStatuses` documents for a given `movieId` (ignore 0 rating)
+    const aggregate = await this.movieUserStatusModel.aggregate([
+      { $match: { movieId: new mongoose.Types.ObjectId(movieId), rating: { $ne: 0 } } },
+      { $group: { _id: 'movieId', averageRating: { $avg: '$rating' } } },
+    ]);
+    if (aggregate.length !== 0) {
+      const [{ averageRating }] = aggregate;
+      // Update the new average
+      await this.moviesModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(movieId) },
+        { rating: Math.round(averageRating) },
+      );
+    }
+    return movieUserStatus;
   }
 
-  async createOrUpdateRating(movieId: string, rating: number) {
-    // Create/update a document in `MovieUserStatus`
-    const movieUserStatus = await this.movieUserStatusModel.updateOne(
-      { movieId },
-      { $set: { rating } },
-      { upsert: true, new: true },
+  async createOrUpdateGoreFactorRating(movieId: string, goreFactorRating: number, userId: string) {
+    // Create/update a MovieUserStatus document
+    await this.movieUserStatusModel.updateOne(
+      { movieId, userId },
+      { $set: { goreFactorRating } },
+      { upsert: true },
     );
-    // TODO: Update the score of `rating` in `Movie` document db with matching `movieDBId`
-    // await this.moviesModel.updateOne(
-    //   { movieDBId: movieId },
-    //   { $set: }
-    // )
+    const movieUserStatus = await this.movieUserStatusModel.findOne({ movieId, userId });
+    // Calculate average of all `movieUserStatuses` documents for a given `movieId` (ignore 0 goreFactorRating)
+    const aggregate = await this.movieUserStatusModel.aggregate([
+      { $match: { movieId: new mongoose.Types.ObjectId(movieId), goreFactorRating: { $ne: 0 } } },
+      { $group: { _id: 'movieId', averageGoreFactorRating: { $avg: '$goreFactorRating' } } },
+    ]);
+    if (aggregate.length !== 0) {
+      const [{ averageGoreFactorRating }] = aggregate;
+      // Update the new average
+      await this.moviesModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(movieId) },
+        { goreFactorRating: Math.round(averageGoreFactorRating) },
+      );
+    }
+    return movieUserStatus;
+  }
+
+  async createOrUpdateWorthWatching(movieId: string, worthWatching: number, userId: string) {
+    // Create/update a MovieUserStatus document
+    await this.movieUserStatusModel.updateOne(
+      { movieId, userId },
+      { $set: { worthWatching } },
+      { upsert: true },
+    );
+    const movieUserStatus = await this.movieUserStatusModel.findOne({ movieId, userId });
+    // Calculate average of all `movieUserStatuses` documents for a given `movieId` (ignore 0 goreFactorRating)
+    const aggregate = await this.movieUserStatusModel.aggregate([
+      { $match: { movieId: new mongoose.Types.ObjectId(movieId), worthWatching: { $ne: WorthWatchingStatus.NoRating } } },
+      { $group: { _id: 'movieId', averageWorthWatching: { $avg: '$worthWatching' } } },
+    ]);
+    if (aggregate.length !== 0) {
+      const [{ averageWorthWatching }] = aggregate;
+      // Update the new average
+      await this.moviesModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(movieId) },
+        { worthWatching: Math.round(averageWorthWatching) },
+      );
+    }
     return movieUserStatus;
   }
 

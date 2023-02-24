@@ -1,0 +1,84 @@
+import * as request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import mongoose, { Connection } from 'mongoose';
+import { getConnectionToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
+import { AppModule } from '../../../../../src/app.module';
+import { UsersService } from '../../../../../src/users/providers/users.service';
+import { moviesFactory } from '../../../../factories/movies.factory';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { userFactory } from '../../../../factories/user.factory';
+import { UserDocument } from '../../../../../src/schemas/user/user.schema';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+
+describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
+  let app: INestApplication;
+  let connection: Connection;
+  let usersService: UsersService;
+  let activeUserAuthToken: string;
+  let activeUser: UserDocument;
+  let configService: ConfigService;
+  let moviesService: MoviesService;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    connection = moduleRef.get<Connection>(getConnectionToken());
+
+    usersService = moduleRef.get<UsersService>(UsersService);
+    moviesService = moduleRef.get<MoviesService>(MoviesService);
+    configService = moduleRef.get<ConfigService>(ConfigService);
+    app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    // Drop database so we start fresh before each test
+    await clearDatabase(connection);
+
+    activeUser = await usersService.create(userFactory.build());
+    activeUserAuthToken = activeUser.generateNewJwtToken(
+      configService.get<string>('JWT_SECRET_KEY'),
+    );
+  });
+
+  describe('DELETE /api/v1/movies/:id/rating', () => {
+    let movie;
+    beforeEach(async () => {
+      movie = await moviesService.create(
+        moviesFactory.build({
+          status: MovieActiveStatus.Active,
+          logo: null,
+        }),
+      );
+    });
+    it('delete a rating`', async () => {
+      const response = await request(app.getHttpServer())
+        .delete(`/api/v1/movies/${movie._id}/rating`)
+        .auth(activeUserAuthToken, { type: 'bearer' });
+      expect(response.status).toEqual(HttpStatus.OK);
+      expect(response.body).toEqual({ success: true });
+    });
+
+    describe('validations', () => {
+      it('movie does not exist', async () => {
+        const nonExistingId = new mongoose.Types.ObjectId();
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/movies/${nonExistingId}/rating`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({ rating: 3 });
+      expect(response.status).toEqual(HttpStatus.NOT_FOUND);
+      expect(response.body).toEqual({ message: 'Movie not found', statusCode: 404 });
+      });
+    });
+  });
+});

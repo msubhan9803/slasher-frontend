@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import {
-  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Patch, Req, Body, Put,
+  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Patch, Req, Body, Put, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -16,9 +16,18 @@ import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
 import { getUserFromRequest } from '../utils/request-utils';
 import { CreateOrUpdateRatingDto } from './dto/create-or-update-rating-dto';
+import { CreateOrUpdateGoreFactorRatingDto } from './dto/create-or-update-gore-factor-rating-dto';
+import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-watching-dto';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
+  async movieShouldExist(movieId: string) {
+    const movieData = await this.moviesService.findById(movieId, true);
+    if (!movieData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
   constructor(
     private readonly moviesService: MoviesService,
     private configService: ConfigService,
@@ -104,34 +113,84 @@ export class MoviesController {
     return movieDbData;
   }
 
-  // TODO-SAHIL: Make all three routes
-  // PUT /movies/:id/rating
-  // PUT /movies/:id/gore-factor
-  // PUT /movies/:id/worth-watching
-
   @Put(':id/rating')
-  async updateStarRating(
+  async createOrUpdateRating(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
     @Body() createOrUpdateRatingDto: CreateOrUpdateRatingDto,
   ) {
-      const user = getUserFromRequest(request);
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateRating(params.id, createOrUpdateRatingDto.rating, user.id);
+    return pick(movieUserStatus, [
+      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
+      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
+      'watched', 'worthWatching',
+    ]);
+  }
 
-      // TODO-SAHIL: Your controller proposal checks for user permission and existence, good to refactor that check into a shared method in the controller class.
-      const movieData = await this.moviesService.findById(params.id, true);
-      if (!movieData) {
-        throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
-      }
-      const movieUserStatus = await this.moviesService.findMovieUserStatusByMovieId(params.id);
-      if (movieUserStatus && movieUserStatus?.userId !== user.id) {
-        throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
-      }
-      this.moviesService.createOrUpdateRating(params.id, createOrUpdateRatingDto.rating);
-    }
+  @Put(':id/gore-factor')
+  async createOrUpdateGoreFactorRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateGoreFactorRatingDto: CreateOrUpdateGoreFactorRatingDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, createOrUpdateGoreFactorRatingDto.goreFactorRating, user.id);
+    return pick(movieUserStatus, [
+      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
+      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
+      'watched', 'worthWatching',
+    ]);
+  }
 
-  // DELETE /movies/:id/rating
+  @Put(':id/worth-watching')
+  async createOrUpdateWorthWatching(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateWorthWatchingDto: CreateOrUpdateWorthWatchingDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, createOrUpdateWorthWatchingDto.worthWatching, user.id);
+    return pick(movieUserStatus, [
+      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
+      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
+      'watched', 'worthWatching',
+    ]);
+  }
 
-  // DELETE /movies/:id/gore-factor
+  @Delete(':id/rating')
+  async deleteRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    this.moviesService.createOrUpdateRating(params.id, 0, user.id);
+    return { success: true };
+  }
 
-  // DELETE /movies/:id/worth-watching
+  @Delete(':id/gore-factor')
+  async deleteGoreFactorRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    this.moviesService.createOrUpdateGoreFactorRating(params.id, 0, user.id);
+    return { success: true };
+  }
+
+  @Delete(':id/worth-watching')
+  async deleteWorthWatching(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    this.moviesService.createOrUpdateWorthWatching(params.id, 0, user.id);
+    return { success: true };
+  }
 }

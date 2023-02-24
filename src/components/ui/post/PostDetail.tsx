@@ -293,7 +293,7 @@ function PostDetail({ user, postType }: Props) {
     }
   };
 
-  const getFeedPostDetail = (feedPostId: string) => {
+  const getFeedPostDetail = useCallback((feedPostId: string) => {
     feedPostDetail(feedPostId)
       .then((res) => {
         if (postType === 'news') {
@@ -347,14 +347,13 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  };
+  }, [loginUserId, navigate, partnerId, postId, postType, queryCommentId, user?.userName]);
 
   useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId]);
+  }, [postId, getFeedPostDetail]);
 
   const onUpdatePost = (message: string) => {
     if (postId) {

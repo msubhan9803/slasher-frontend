@@ -433,8 +433,8 @@ export class UsersController {
     query: SuggestUserNameQueryDto,
   ) {
     const user = getUserFromRequest(request);
+    // Note: We are allowing a user to look up their own username when getting user suggestions.
     const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
-    excludedUserIds.push(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 

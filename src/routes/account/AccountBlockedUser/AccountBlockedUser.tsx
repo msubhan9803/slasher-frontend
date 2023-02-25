@@ -90,6 +90,7 @@ function AccountBlockedUser() {
                         <div>
                           <UserCircleImage
                             src={blockUser.profilePic}
+                            alt="user picture"
                             className="me-2"
                           />
                         </div>

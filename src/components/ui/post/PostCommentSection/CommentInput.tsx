@@ -166,6 +166,7 @@ function CommentInput({
                   }}
                   multiple
                   ref={inputFile}
+                  aria-label="image"
                 />
               </InputGroup.Text>
             </StyledCommentInputGroup>

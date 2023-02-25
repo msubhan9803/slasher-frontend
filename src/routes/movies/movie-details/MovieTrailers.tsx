@@ -57,7 +57,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
     <div className="bg-dark p-3 pb-4 rounded-2 mt-3">
       <h1 className="h2 fw-bold">Trailers</h1>
       <div className="d-flex align-items-center mt-3">
-        <Button variant="link" className="prev shadow-none" onClick={slideTrailerLeft}>
+        <Button variant="link" aria-label="chevron left icon" className="prev shadow-none" onClick={slideTrailerLeft}>
           <FontAwesomeIcon icon={solid('chevron-left')} size="lg" />
         </Button>
         <StyledMovieTrailer
@@ -77,6 +77,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
                 </div>
                 <StyledYouTubeButton
                   variant="link"
+                  aria-label="youtube"
                   onClick={(e: React.MouseEvent) => {
                     e.preventDefault();
                     handleYoutubeDialog(trailer.key);
@@ -88,7 +89,7 @@ function MovieTrailers({ trailerList }: MovieTrailerList) {
             </Col>
           ))}
         </StyledMovieTrailer>
-        <Button variant="link" className="next shadow-none" onClick={slideTrailerRight}>
+        <Button aria-label="chevron right icon" variant="link" className="next shadow-none" onClick={slideTrailerRight}>
           <FontAwesomeIcon icon={solid('chevron-right')} size="lg" />
         </Button>
       </div>

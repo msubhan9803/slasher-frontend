@@ -28,6 +28,7 @@ import PostFeed from './PostFeed/PostFeed';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const postCreaterPopoverOptions = ['Delete', 'Report', 'Block user'];
 const newsPostPopoverOptions = ['Report'];
 
 interface Props {
@@ -582,6 +583,7 @@ function PostDetail({ user, postType }: Props) {
         popoverOptions={loginUserPopoverOptions}
         onPopoverClick={handlePopoverOption}
         otherUserPopoverOptions={otherUserPopoverOptions}
+        postCreaterPopoverOptions={postCreaterPopoverOptions}
         isCommentSection
         commentsData={commentData}
         removeComment={removeComment}

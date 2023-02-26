@@ -22,6 +22,7 @@ const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
 `;
 
 function PostCommentSection({
+  postCreator,
   commentSectionData,
   popoverOption,
   removeComment,
@@ -31,6 +32,7 @@ function PostCommentSection({
   commentReplyID,
   loginUserId,
   otherUserPopoverOptions,
+  postCreaterPopoverOptions,
   isEdit,
   setIsEdit,
   onLikeClick,
@@ -68,6 +70,15 @@ function PostCommentSection({
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
+
+  const checkPopover = (id: string) => {
+    if (id === loginUserId) {
+      return popoverOption;
+    } if (postCreator === loginUserId) {
+      return postCreaterPopoverOptions;
+    }
+    return otherUserPopoverOptions;
+  };
 
   const handleSeeCompleteList = useCallback((
     commentReplyId: string,
@@ -362,8 +373,7 @@ function PostCommentSection({
           onLikeClick(comment.id); setCommentReplyID(comment.id);
         }}
         popoverOptions={
-          comment.userId?._id && loginUserId !== comment?.userId._id
-            ? otherUserPopoverOptions! : popoverOption
+          checkPopover(comment.userId?._id || comment.userId?.id)
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
@@ -423,8 +433,9 @@ function PostCommentSection({
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
                     onIconClick={() => onLikeClick(data.id)}
-                    popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
-                      ? otherUserPopoverOptions! : popoverOption}
+                    popoverOptions={
+                      checkPopover(data.userId?._id || data.userId?.id)
+                    }
                     onPopoverClick={handlePopover}
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}

@@ -187,8 +187,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[8])
           .attach('files', tempPaths[9])
           .attach('files', tempPaths[10])
+          .attach('files', tempPaths[11])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 10 images');
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
       }, [
         { extension: 'png' },
         { extension: 'png' },
@@ -198,6 +199,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         { extension: 'jpg' },
         { extension: 'jpg' },
         { extension: 'jpg' },
+        { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },

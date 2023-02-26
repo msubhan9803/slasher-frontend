@@ -202,8 +202,9 @@ describe('Send Message In Conversation / (e2e)', () => {
             .attach('files', tempPath[8])
             .attach('files', tempPath[9])
             .attach('files', tempPath[10])
+            .attach('files', tempPath[11])
             .expect(HttpStatus.BAD_REQUEST);
-          expect(response.body).toEqual({ statusCode: 400, message: 'Only allow a maximum of 10 images' });
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
         }, [
           { extension: 'png' },
           { extension: 'png' },

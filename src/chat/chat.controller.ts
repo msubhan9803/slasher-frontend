@@ -4,7 +4,6 @@ import {
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { getUserFromRequest } from '../utils/request-utils';
@@ -19,7 +18,10 @@ import { MarkConversationReadDto } from './dto/mark-conversation-read.dto';
 import { User } from '../schemas/user/user.schema';
 import { FriendsService } from '../friends/providers/friends.service';
 import { BlocksService } from '../blocks/providers/blocks.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, UNREAD_MESSAGE_NOTIFICATION_DELAY } from '../constants';
+import {
+  MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT,
+  UNREAD_MESSAGE_NOTIFICATION_DELAY, UPLOAD_PARAM_NAME_FOR_FILES,
+} from '../constants';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -27,6 +29,7 @@ import { SendMessageInConversationParamsDto } from './dto/send-message-in-conver
 import { SendMessageInConversationDto } from './dto/send-message-in-conversation-dto';
 import { ChatGateway } from './providers/chat.gateway';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
 @Controller({ path: 'chat', version: ['1'] })
 export class ChatController {
@@ -120,11 +123,9 @@ export class ChatController {
   @TransformImageUrls('$.messages[*].image')
   @Post('conversation/:matchListId/message')
   @UseInterceptors(
-    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_CHAT, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async sendMessageInConversation(
@@ -133,12 +134,6 @@ export class ChatController {
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: SendMessageInConversationParamsDto,
     @Body() messageDto: SendMessageInConversationDto,
   ) {
-    if (files.length > 10) {
-      throw new HttpException(
-        'Only allow a maximum of 10 images',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const matchList = await this.chatService.findMatchList(params.matchListId, false);
     if (!matchList) {
       throw new HttpException('Conversation not found', HttpStatus.NOT_FOUND);

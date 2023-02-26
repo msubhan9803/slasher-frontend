@@ -238,9 +238,18 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .attach('images', tempPaths[4])
+          .attach('images', tempPaths[5])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 4 images');
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
+      }, [
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+      ]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

@@ -809,9 +809,10 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[2])
             .attach('files', tempPath[3])
             .attach('files', tempPath[4])
+            .attach('files', tempPath[5])
             .expect(HttpStatus.BAD_REQUEST);
 
-          expect(response.body.message).toContain('Only allow a maximum of 4 images');
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }, { extension: 'jpeg' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

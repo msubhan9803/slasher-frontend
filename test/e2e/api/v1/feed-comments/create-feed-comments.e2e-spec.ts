@@ -211,16 +211,24 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .attach('images', tempPaths[4])
+          .attach('images', tempPaths[5])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 4 images');
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
+      }, [
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+      ]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
@@ -240,7 +248,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .attach('images', tempPaths[1])
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
-      }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+      }, [{ extension: 'png' },
+       { extension: 'jpg', size: 1024 * 1024 * 21 }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

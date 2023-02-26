@@ -57,7 +57,6 @@ function PostDetail({ user, postType }: Props) {
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
-  const loginUserId = useAppSelector((state) => state.user.user.id);
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
@@ -319,8 +318,7 @@ function PostDetail({ user, postType }: Props) {
             commentCount: res.data.commentCount,
             likeCount: res.data.likeCount,
             sharedList: res.data.sharedList,
-            likes: res.data.likes,
-            likeIcon: res.data.likes.includes(loginUserId),
+            likeIcon: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
         } else {
@@ -336,8 +334,7 @@ function PostDetail({ user, postType }: Props) {
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
-            likes: res.data.likes,
-            likeIcon: res.data.likes.includes(loginUserId!),
+            likeIcon: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           };
@@ -348,7 +345,7 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  }, [loginUserId, navigate, partnerId, postId, postType, queryCommentId, user?.userName]);
+  }, [navigate, partnerId, postId, postType, queryCommentId, user]);
 
   useEffect(() => {
     if (postId) {
@@ -380,7 +377,7 @@ function PostDetail({ user, postType }: Props) {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likedByUser);
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -388,13 +385,10 @@ function PostDetail({ user, postType }: Props) {
           const unLikePostData = postData.map(
             (unLikePost: any) => { // NewsPartnerPostProps || Post type check
               if (unLikePost._id === feedPostId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId!,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -412,7 +406,7 @@ function PostDetail({ user, postType }: Props) {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }

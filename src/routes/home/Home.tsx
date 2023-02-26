@@ -105,8 +105,7 @@ function Home() {
                 userName: data.userId.userName,
                 profileImage: data.userId.profilePic,
                 userId: data.userId._id,
-                likes: data.likes,
-                likeIcon: data.likes.includes(loginUserId),
+                likeIcon: data.likedByUser,
                 likeCount: data.likeCount,
                 commentCount: data.commentCount,
               };
@@ -120,8 +119,7 @@ function Home() {
               images: FormatImageVideoList(data.images, data.message),
               userName: data.rssfeedProviderId?.title,
               profileImage: data.rssfeedProviderId?.logo,
-              likes: data.likes,
-              likeIcon: data.likes.includes(loginUserId),
+              likeIcon: data.likedByUser,
               likeCount: data.likeCount,
               commentCount: data.commentCount,
               rssfeedProviderId: data.rssfeedProviderId._id,
@@ -160,7 +158,6 @@ function Home() {
       }
     </p>
   );
-
   const callLatestFeedPost = () => {
     getHomeFeedPosts().then((res) => {
       const newPosts = res.data.map((data: any) => {
@@ -176,8 +173,7 @@ function Home() {
             userName: data.userId.userName,
             profileImage: data.userId.profilePic,
             userId: data.userId._id,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
+            likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
           };
@@ -191,8 +187,7 @@ function Home() {
           images: FormatImageVideoList(data.images, data.message),
           userName: data.rssfeedProviderId?.title,
           profileImage: data.rssfeedProviderId?.logo,
-          likes: data.likes,
-          likeIcon: data.likes.includes(loginUserId),
+          likeIcon: data.likedByUser,
           likeCount: data.likeCount,
           commentCount: data.commentCount,
           rssfeedProviderId: data.rssfeedProviderId._id,
@@ -202,6 +197,9 @@ function Home() {
     });
   };
 
+  useEffect(() => {
+    callLatestFeedPost();
+  }, []);
   const onUpdatePost = (message: string) => {
     updateFeedPost(postId, message).then(() => {
       setShow(false);
@@ -221,21 +219,17 @@ function Home() {
 
   const onLikeClick = (feedPostId: string) => {
     const checkLike = posts.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
-
+      && post.likeIcon);
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
         if (res.status === 200) {
           const unLikePostData = posts.map(
             (unLikePost: Post) => {
               if (unLikePost._id === feedPostId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -253,7 +247,7 @@ function Home() {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }
@@ -315,7 +309,7 @@ function Home() {
         <InfiniteScroll
           threshold={2000}
           pageStart={0}
-          initialLoad
+          initialLoad={false}
           loadMore={() => { setRequestAdditionalPosts(true); }}
           hasMore={!noMoreData}
         >

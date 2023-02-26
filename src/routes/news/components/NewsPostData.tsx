@@ -9,7 +9,7 @@ import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import ReportModal from '../../../components/ui/ReportModal';
 import { reportData } from '../../../api/report';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';

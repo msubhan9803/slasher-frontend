@@ -45,7 +45,6 @@ function CreatePost() {
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
-
   const navigate = useNavigate();
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
@@ -128,6 +127,7 @@ function CreatePost() {
               setMessageContent={setPostContent}
               formatMentionList={formatMention}
               setFormatMentionList={setFormatMention}
+              defaultValue={postContent}
             />
           </div>
           <input

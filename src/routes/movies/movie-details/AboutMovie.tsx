@@ -52,10 +52,10 @@ const MovieIconList = [
     label: 'Favorite', key: 'favorite', icon: solid('heart'), iconColor: '#8F00FF', width: '1.354rem', height: '1.185rem', addMovie: false,
   },
   {
-    label: 'Watch', key: 'watch', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
+    label: 'Watched', key: 'watched', icon: solid('check'), iconColor: '#32D74B', width: '1.354rem', height: '0.968rem', addMovie: false,
   },
   {
-    label: 'Watchlist', key: 'watched', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
+    label: 'Watchlist', key: 'watch', icon: solid('list-check'), iconColor: '#FF8A00', width: '1.404rem', height: '1.185rem', addMovie: false,
   },
   {
     label: 'Buy', key: 'buy', icon: solid('bag-shopping'), iconColor: '#FF1800', width: '1.029rem', height: '1.185rem', addMovie: false,
@@ -153,33 +153,30 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
           </Col>
         </Row>
-        {enableDevFeatures
-          && (
-            <Row>
-              <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
-                <div className="d-none d-xl-block mt-3">
-                  <p className="fs-5">Your lists</p>
-                  <div className="mt-2 d-flex justify-content-between">
-                    {movieIconListData.map((iconList: MovieIconProps) => (
-                      <CustomGroupIcons
-                        key={iconList.key}
-                        label={iconList.label}
-                        icon={iconList.icon}
-                        iconColor={iconList.iconColor}
-                        width={iconList.width}
-                        height={iconList.height}
-                        addData={iconList.addMovie}
-                        onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div className="p-3 d-none d-xl-block">
-                  <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
-                </div>
-              </Col>
-            </Row>
-          )}
+        <Row>
+          <Col xs={6} sm={5} md={4} lg={6} xl={5} className="text-center">
+            <div className="d-none d-xl-block mt-3">
+              <p className="fs-5">Your lists</p>
+              <div className="mt-2 d-flex justify-content-between">
+                {movieIconListData.map((iconList: MovieIconProps) => (
+                  <CustomGroupIcons
+                    key={iconList.key}
+                    label={iconList.label}
+                    icon={iconList.icon}
+                    iconColor={iconList.iconColor}
+                    width={iconList.width}
+                    height={iconList.height}
+                    addData={iconList.addMovie}
+                    onClickIcon={() => handleMovieAddRemove(iconList.key, iconList.addMovie)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="p-3 d-none d-xl-block">
+              <RoundButton variant="black" className="w-100 fs-3">Add to list</RoundButton>
+            </div>
+          </Col>
+        </Row>
         {enableDevFeatures
           && (
             <Row className="d-xl-none justify-content-center mt-3">

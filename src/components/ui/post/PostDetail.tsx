@@ -106,12 +106,12 @@ function PostDetail({ user, postType }: Props) {
   }, [commentData, postId]);
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments) {
+    if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments, feedComments]);
+  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments]);
 
   const callLatestFeedComments = () => {
     getFeedComments(postId!).then((res) => {

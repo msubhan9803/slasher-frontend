@@ -18,6 +18,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { CreateOrUpdateRatingDto } from './dto/create-or-update-rating-dto';
 import { CreateOrUpdateGoreFactorRatingDto } from './dto/create-or-update-gore-factor-rating-dto';
 import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-watching-dto';
+import { addDecimalWhenNeeded } from '../utils/number.utils';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -62,8 +63,12 @@ export class MoviesController {
     if (movieData.logo === null) {
       movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
+    const movie = movieData.toObject();
     return pick({
-      ...movieData.toObject(),
+      ...movie,
+      rating: addDecimalWhenNeeded(movie.rating),
+      goreFactorRating: addDecimalWhenNeeded(movie.goreFactorRating),
+      worthWatching: movie.worthWatching,
       userData: movieUserStatus,
     }, ['movieDBId', 'rating', 'goreFactorRating', 'worthWatching', 'userData']);
   }

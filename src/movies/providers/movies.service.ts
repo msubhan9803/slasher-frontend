@@ -17,6 +17,7 @@ import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { MovieUserStatus } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import { addDecimalWhenNeeded } from '../../utils/number.utils';
 
 export interface Cast {
   'adult': boolean,
@@ -172,7 +173,7 @@ export class MoviesService {
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { rating: averageRating },
+        { rating: addDecimalWhenNeeded(averageRating) },
       );
     }
     return movieUserStatus;
@@ -196,7 +197,7 @@ export class MoviesService {
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { goreFactorRating: averageGoreFactorRating },
+        { goreFactorRating: addDecimalWhenNeeded(averageGoreFactorRating) },
       );
     }
     return movieUserStatus;

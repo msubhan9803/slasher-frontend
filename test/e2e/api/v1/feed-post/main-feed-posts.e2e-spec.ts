@@ -104,6 +104,7 @@ describe('Feed-Post / Main Feed Posts (e2e)', () => {
         createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
         updatedAt: DateTime.fromISO('2022-10-22T00:00:00Z').toJSDate(),
         lastUpdateAt: DateTime.fromISO('2022-10-20T00:00:00Z').toJSDate(),
+        likes: [activeUser.id, user1._id.toString()],
       }),
     );
     await feedPostsService.create(

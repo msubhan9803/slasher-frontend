@@ -154,7 +154,7 @@ describe('Report And Unreport (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send(reportAndUnreportObject);
       const feedPostData = await feedPostsService.findById(feedPost.id, false);
-      expect(feedPostData.id.toString()).toEqual(reportAndUnreportObject.targetId);
+      expect(feedPostData._id.toString()).toEqual(reportAndUnreportObject.targetId);
       expect(mailService.sendReportNotificationEmail).toHaveBeenCalledWith(
         reportAndUnreportObject.reportType,
         activeUser.userName,

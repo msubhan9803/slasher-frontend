@@ -97,6 +97,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
             userId: activeUser._id,
             rssFeedId: rssFeed._id,
             createdAt: DateTime.fromISO('2022-10-17T00:00:00Z').toJSDate(),
+            likes: [activeUser._id, user1._id],
           },
         ),
       );
@@ -129,9 +130,9 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
           profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
         },
         commentCount: 0,
-        likeCount: 0,
+        likeCount: 2,
         sharedList: 0,
-        likes: [],
+        likedByUser: true,
         message: expect.any(String),
       });
     });
@@ -212,7 +213,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         commentCount: 0,
         likeCount: 0,
         sharedList: 0,
-        likes: [],
+        likedByUser: false,
         message: 'Message 1',
       });
     });

@@ -64,11 +64,13 @@ export class RssFeedProvidersController {
   @TransformImageUrls('$[*].images[*].image_path', '$[*].rssfeedProviderId.logo')
   @Get(':id/posts')
   async findFeedPostsForProvider(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamRssFeedProviderIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindFeedPostsForProviderQueryDto,
   ) {
+    const user = getUserFromRequest(request);
     const rssFeedProvider = await this.rssFeedProvidersService.findById(param.id, true);
     if (!rssFeedProvider) {
       throw new HttpException('RssFeedProvider not found', HttpStatus.NOT_FOUND);
@@ -79,9 +81,10 @@ export class RssFeedProvidersController {
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      user.id,
     );
     return feedPosts.map((feedPost) => pick(feedPost, [
-      '_id', 'createdAt', 'commentCount', 'images', 'lastUpdateAt', 'likeCount', 'likes', 'message',
+      '_id', 'createdAt', 'commentCount', 'images', 'lastUpdateAt', 'likeCount', 'likedByUser', 'message',
       'movieId', 'rssFeedId', 'rssfeedProviderId', 'userId',
     ]));
   }

@@ -25,6 +25,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
   let usersService: UsersService;
   let activeUserAuthToken: string;
   let activeUser: User;
+  let user1: User;
   let configService: ConfigService;
   let feedPostsService: FeedPostsService;
   let rssFeedProviderData: RssFeedProvider;
@@ -57,6 +58,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
     activeUser = await usersService.create(userFactory.build());
+    user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
@@ -92,6 +94,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
         rssfeedProviderId: rssFeedProviderData._id,
         createdAt: firstFeedPostsDates.createdAt,
         lastUpdateAt: firstFeedPostsDates.lastUpdateAt,
+        likes: [activeUser._id, user1._id],
       }),
     );
   });
@@ -123,8 +126,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
           ],
           createdAt: firstFeedPostsDates.createdAt.toISOString(),
           lastUpdateAt: firstFeedPostsDates.lastUpdateAt.toISOString(),
-          likeCount: 0,
-          likes: [],
+          likeCount: 2,
+          likedByUser: true,
           message: 'Message 1',
           movieId: null,
           rssFeedId: null,
@@ -187,8 +190,8 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
                 image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
               },
             ],
-            likeCount: 0,
-            likes: [],
+            likeCount: 2,
+            likedByUser: true,
             message: 'Message 3',
             movieId: null,
             rssFeedId: null,
@@ -215,7 +218,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               },
             ],
             likeCount: 0,
-            likes: [],
+            likedByUser: false,
             message: 'Message 4',
             movieId: null,
             rssFeedId: null,
@@ -242,7 +245,7 @@ describe('rssFeedProviders /:id/posts (e2e)', () => {
               },
             ],
             likeCount: 0,
-            likes: [],
+            likedByUser: false,
             message: 'Message 5',
             movieId: null,
             rssFeedId: null,

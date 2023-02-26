@@ -168,6 +168,16 @@ export class MoviesService {
       { $match: { movieId: new mongoose.Types.ObjectId(movieId), rating: { $ne: 0 } } },
       { $group: { _id: 'movieId', averageRating: { $avg: '$rating' } } },
     ]);
+    console.log('movieid', movieId);
+    console.time('yo');
+    const m1 = await this.movieUserStatusModel.count({ movieId, rating: { $ne: 0 } });
+    // eslint-disable-next-line max-len
+    const m2 = await this.movieUserStatusModel.count({ movieId, goreFactorRating: { $ne: 0 } }); // this doesn't work as expected: (ID: 5da97a0c553c7c2750a19049)
+    const m3Up = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+    const m3Down = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Down } });
+    console.timeEnd('yo');
+    console.log('m3:', m1, m2, m3Up, m3Down);
+
     if (aggregate.length !== 0) {
       const [{ averageRating }] = aggregate;
       // Update the new average

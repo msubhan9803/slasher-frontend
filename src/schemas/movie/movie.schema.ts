@@ -44,13 +44,25 @@ export class Movie extends MovieUnusedFields {
   rating: number;
 
   @Prop({ default: 0 })
+  ratingUsersCount: number;
+
+  @Prop({ default: 0 })
   goreFactorRating: number;
+
+  @Prop({ default: 0 })
+  goreFactorRatingUsersCount: number;
 
   @Prop({
     default: 0,
     enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
   })
   worthWatching: number;
+
+  @Prop({ default: 0 })
+  worthWatchingUpUsersCount: number;
+
+  @Prop({ default: 0 })
+  worthWatchingDownUsersCount: number;
 
   @Prop({ default: null, trim: true })
   sortRating: string;

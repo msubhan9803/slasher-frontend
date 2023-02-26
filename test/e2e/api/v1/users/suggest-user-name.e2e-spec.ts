@@ -47,6 +47,8 @@ describe('Suggested user name (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();

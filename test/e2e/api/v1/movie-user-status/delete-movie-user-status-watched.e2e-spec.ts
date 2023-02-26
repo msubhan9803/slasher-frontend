@@ -4,17 +4,20 @@ import { INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { AppModule } from '../../../src/app.module';
-import { UsersService } from '../../../src/users/providers/users.service';
-import { userFactory } from '../../factories/user.factory';
-import { User } from '../../../src/schemas/user/user.schema';
-import { clearDatabase } from '../../helpers/mongo-helpers';
-import { MoviesService } from '../../../src/movies/providers/movies.service';
-import { moviesFactory } from '../../factories/movies.factory';
-import { MovieActiveStatus } from '../../../src/schemas/movie/movie.enums';
-import { MovieUserStatus, MovieUserStatusDocument } from '../../../src/schemas/movieUserStatus/movieUserStatus.schema';
+import { AppModule } from '../../../../../src/app.module';
+import { UsersService } from '../../../../../src/users/providers/users.service';
+import { userFactory } from '../../../../factories/user.factory';
+import { User } from '../../../../../src/schemas/user/user.schema';
+import { clearDatabase } from '../../../../helpers/mongo-helpers';
+import { MoviesService } from '../../../../../src/movies/providers/movies.service';
+import { moviesFactory } from '../../../../factories/movies.factory';
+import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
+import { MovieUserStatusService } from '../../../../../src/movie-user-status/providers/movie-user-status.service';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
+import { MovieUserStatusWatched } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
-describe('Find Movie User Status (e2e)', () => {
+describe('Delete Movie User Status Watched (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
@@ -22,6 +25,7 @@ describe('Find Movie User Status (e2e)', () => {
   let activeUser: User;
   let configService: ConfigService;
   let moviesService: MoviesService;
+  let movieUserStatusService: MovieUserStatusService;
   let movieUserStatusModel: Model<MovieUserStatusDocument>;
 
   beforeAll(async () => {
@@ -32,6 +36,7 @@ describe('Find Movie User Status (e2e)', () => {
     usersService = moduleRef.get<UsersService>(UsersService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     moviesService = moduleRef.get<MoviesService>(MoviesService);
+    movieUserStatusService = moduleRef.get<MovieUserStatusService>(MovieUserStatusService);
     movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
 
     app = moduleRef.createNestApplication();
@@ -46,6 +51,9 @@ describe('Find Movie User Status (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -61,40 +69,41 @@ describe('Find Movie User Status (e2e)', () => {
       name: 'movie user status1',
       userId: activeUser._id,
       movieId: movie._id,
-      favourite: 1,
-      watched: 1,
+      favourite: 0,
+      watched: 0,
       watch: 0,
-      buy: 1,
+      buy: 0,
     });
   });
 
-  describe('GET /movies/:movieId/lists', () => {
-    it('successfully find a add movie user status', async () => {
+  describe('DELETE /movies/:movieId/lists/watched', () => {
+    it('successfully creates a add movie user status watched', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/movies/${movie.id}/lists`)
+        .delete(`/movies/${movie.id}/lists/watched`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
-        expect(response.body).toEqual({
- favorite: 1, watch: 0, watched: 1, buy: 1,
-});
+      expect(response.body).toEqual({ success: true });
+      const movieUserStatus = await movieUserStatusService.findMovieUserStatus(activeUser._id.toString(), movie._id.toString());
+      expect(movieUserStatus.watched).toBe(MovieUserStatusWatched.NotWatched);
     });
 
-    it('when movie user status data is not exists than expected response', async () => {
+    it('returns the expected response when the movie id is not found', async () => {
       const movieId = '6337f478980180f44e64487c';
       const response = await request(app.getHttpServer())
-        .get(`/movies/${movieId}/lists`)
+        .delete(`/movies/${movieId}/lists/watched`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual({
- favorite: 0, watch: 0, watched: 0, buy: 0,
-});
+        message: 'Movie not found',
+        statusCode: 404,
+      });
     });
 
     describe('Validation', () => {
       it('movieId must be a mongodb id', async () => {
         const movieId = '634912b22c2f4*5e0e62285';
         const response = await request(app.getHttpServer())
-          .get(`/movies/${movieId}/lists`)
+          .delete(`/movies/${movieId}/lists/watched`)
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body).toEqual({

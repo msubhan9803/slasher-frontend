@@ -16,6 +16,7 @@ import { MoviesService } from '../../../../../src/movies/providers/movies.servic
 import { MovieUserStatus, MovieUserStatusDocument } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.schema';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Watch List Movies (e2e)', () => {
   let app: INestApplication;
@@ -54,6 +55,9 @@ describe('Watch List Movies (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Abe Kenobi' }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -136,6 +140,10 @@ describe('Watch List Movies (e2e)', () => {
   });
 
   describe('Get /api/v1/users/:userId/watch-list', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get(`/api/v1/users/${activeUser.id}/watch-list`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('User all the watch movies list', () => {
       it('get all the user watch movies list', async () => {
         const limit = 5;

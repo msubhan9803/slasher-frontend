@@ -19,6 +19,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Watched List Movies (e2e)', () => {
   let app: INestApplication;
@@ -59,6 +60,9 @@ describe('Watched List Movies (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Abe Kenobi' }));
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -141,6 +145,10 @@ describe('Watched List Movies (e2e)', () => {
   });
 
   describe('Get /api/v1/users/:userId/watched-list', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get(`/api/v1/users/${activeUser.id}/watched-list`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('User all the watched movies list', () => {
       it('get all the user watched movies list', async () => {
         const limit = 5;

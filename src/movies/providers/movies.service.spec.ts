@@ -26,6 +26,7 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
 
 const mockHttpService = () => ({
 });
@@ -784,8 +785,7 @@ describe('MoviesService', () => {
 
       // Verify that average rating is correctly updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
-      // Verify average `rating` is rounded to the nearest integer: Math.round((1+2)/2) = Math.round(1.5) = 2
-      expect(updatedMovie.rating).toBe(2);
+      expect(updatedMovie.rating).toBe(1.5);
     });
   });
 
@@ -809,9 +809,9 @@ describe('MoviesService', () => {
       const movieUserStatus2 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating2, user1.id);
       expect(movieUserStatus2.goreFactorRating).toBe(goreFactorRating2);
 
-      // Verify average `goreFactorRating` is rounded to the nearest integer: Math.round((1+2)/2) = Math.round(1.5) = 2
+      // Verify average `goreFactorRating` is correctly updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
-      expect(updatedMovie.goreFactorRating).toBe(2);
+      expect(updatedMovie.goreFactorRating).toBe(1.5);
     });
   });
 
@@ -840,6 +840,23 @@ describe('MoviesService', () => {
        */
       const updatedMovie = await moviesService.findById(movie.id, false);
       expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
+    });
+  });
+
+  describe('#getUserMovieStatusRatings', () => {
+    const rating = 3;
+    const goreFactorRating = 4;
+    const worthWatching = WorthWatchingStatus.Up;
+    beforeEach(async () => {
+      await moviesService.createOrUpdateRating(movie.id, rating, activeUser.id);
+      await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating, activeUser.id);
+      await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching, activeUser.id);
+    });
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const movieUserStatus = await moviesService.getUserMovieStatusRatings(movie.id, activeUser.id);
+      expect(movieUserStatus.rating).toBe(rating);
+      expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
+      expect(movieUserStatus.worthWatching).toBe(worthWatching);
     });
   });
 });

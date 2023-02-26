@@ -172,7 +172,7 @@ export class MoviesService {
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { rating: Math.round(averageRating) },
+        { rating: averageRating },
       );
     }
     return movieUserStatus;
@@ -196,9 +196,16 @@ export class MoviesService {
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { goreFactorRating: Math.round(averageGoreFactorRating) },
+        { goreFactorRating: averageGoreFactorRating },
       );
     }
+    return movieUserStatus;
+  }
+
+  async getUserMovieStatusRatings(movieId: string, userId: string) {
+    const movieUserStatus = await this.movieUserStatusModel.findOne({ movieId, userId }).select({
+      rating: 1, goreFactorRating: 1, worthWatching: 1,
+    });
     return movieUserStatus;
   }
 

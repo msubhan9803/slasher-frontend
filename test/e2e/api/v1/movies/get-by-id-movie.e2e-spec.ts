@@ -13,6 +13,8 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
+import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 
 describe('GET Movie (e2e)', () => {
   let app: INestApplication;
@@ -22,6 +24,7 @@ describe('GET Movie (e2e)', () => {
   let activeUser: UserDocument;
   let configService: ConfigService;
   let moviesService: MoviesService;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -52,10 +55,11 @@ describe('GET Movie (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+      user1 = await usersService.create(userFactory.build());
     });
 
     describe('Find a user by id', () => {
-      it('returns the expected user', async () => {
+      it('returns the expected movie details with no `MovieUserStatus` records (expected `userData: null` value)', async () => {
         const movie = await moviesService.create(
           moviesFactory.build({
             status: MovieActiveStatus.Active,
@@ -67,7 +71,68 @@ describe('GET Movie (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.status).toEqual(HttpStatus.OK);
-        expect(response.body).toEqual({ movieDBId: movie.movieDBId });
+        expect(response.body).toEqual({
+          movieDBId: 123456,
+          rating: 0,
+          goreFactorRating: 0,
+          userData: null,
+          worthWatching: 0,
+        });
+      });
+
+      describe('returns the expected movie details having some `MovieUserStatus` records', () => {
+        let movie;
+        let expectedRating;
+        let expectedGoreFactor;
+        let expectedWorthWatching;
+        let activeUserMovieStatusRating;
+        beforeEach(async () => {
+          movie = await moviesService.create(
+            moviesFactory.build({
+              status: MovieActiveStatus.Active,
+              logo: null,
+            }),
+          );
+          // activeUser
+          const myRating = 3;
+          const myGoreFactor = 4;
+          const myWorthWatching = WorthWatchingStatus.Up;
+          await moviesService.createOrUpdateRating(movie.id, myRating, activeUser.id);
+          await moviesService.createOrUpdateGoreFactorRating(movie.id, myGoreFactor, activeUser.id);
+          await moviesService.createOrUpdateWorthWatching(movie.id, myWorthWatching, activeUser.id);
+          activeUserMovieStatusRating = await moviesService.getUserMovieStatusRatings(movie.id, activeUser.id);
+          // user1
+          const user1Rating = 1;
+          const user1GoreFactor = 1;
+          const user1WorthWatching = WorthWatchingStatus.Down;
+          await moviesService.createOrUpdateRating(movie.id, user1Rating, user1.id);
+          await moviesService.createOrUpdateGoreFactorRating(movie.id, user1GoreFactor, user1.id);
+          await moviesService.createOrUpdateWorthWatching(movie.id, user1WorthWatching, user1.id);
+
+          expectedRating = (myRating + user1Rating) / 2;
+          expectedGoreFactor = (myGoreFactor + user1GoreFactor) / 2;
+          expectedWorthWatching = Math.round((myWorthWatching + user1WorthWatching) / 2);
+        });
+
+        it('verify all fields are updated given `movie`', async () => {
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/movies/${movie._id}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
+          expect(response.status).toEqual(HttpStatus.OK);
+          expect(response.body).toEqual({
+            movieDBId: 123456,
+            rating: expectedRating,
+            goreFactorRating: expectedGoreFactor,
+            worthWatching: expectedWorthWatching,
+            userData: {
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+              rating: activeUserMovieStatusRating.rating,
+              goreFactorRating: activeUserMovieStatusRating.goreFactorRating,
+              worthWatching: activeUserMovieStatusRating.worthWatching,
+            },
+          });
+        });
       });
 
       it('returns the expected response when the user is not found', async () => {

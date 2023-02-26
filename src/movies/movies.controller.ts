@@ -52,30 +52,21 @@ export class MoviesController {
   }
 
   @Get(':id')
-  async findOne(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
+  async findOne(@Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
     const movieData = await this.moviesService.findById(params.id, true);
     if (!movieData) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
     if (movieData.logo === null) {
       movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-    return pick(movieData, ['movieDBId']);
+    return pick({
+      ...movieData.toObject(),
+      userData: movieUserStatus,
+    }, ['movieDBId', 'rating', 'goreFactorRating', 'worthWatching', 'userData']);
   }
-  // TODO: Remove below comment when creating a PR:
-  // Update above controller route so that movie response should look like that:
-  // {
-  //   movieDbId: ...,
-  //   rating: ...,
-  //   goreFactorRating: ...,
-  //   worthWatching: ...,
-  //  >>> >>> `userData` for the currently logged in user
-  //   userData: {
-  //     rating: ...,
-  //     goreFactorRating: ...,
-  //     worthWatching: ...,
-  //   }
-  // }
 
   @Get()
   async findAll(@Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: FindAllMoviesDto) {

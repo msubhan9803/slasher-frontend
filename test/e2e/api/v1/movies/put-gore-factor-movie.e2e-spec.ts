@@ -130,8 +130,8 @@ describe('Movie / Create/Update `goreFactor` for `MovierUserStatus` (e2e)', () =
       });
       it('should expect goreFactorRating to be average of two users', async () => {
         const updatedMovie = await moviesService.findById(movie.id, false);
-        // goreFactorRating of movie should be 2 because Math.round((1+2)/2) = Math.round(1.5) = 2
-        expect(updatedMovie.goreFactorRating).toBe(2);
+        // goreFactorRating of movie should be 1.5
+        expect(updatedMovie.goreFactorRating).toBe(1.5);
       });
     });
 

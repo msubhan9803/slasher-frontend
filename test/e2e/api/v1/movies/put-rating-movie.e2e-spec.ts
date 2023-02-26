@@ -130,8 +130,8 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
       });
       it('should expect rating to be average of two users', async () => {
         const updatedMovie = await moviesService.findById(movie.id, false);
-        // Rating of movie should be 2 because Math.round((1+2)/2) = Math.round(1.5) = 2
-        expect(updatedMovie.rating).toBe(2);
+        // Rating of movie should be 1.5
+        expect(updatedMovie.rating).toBe(1.5);
       });
     });
 

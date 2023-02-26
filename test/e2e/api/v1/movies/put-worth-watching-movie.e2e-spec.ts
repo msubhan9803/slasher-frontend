@@ -96,7 +96,7 @@ describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', (
       });
     });
 
-    describe('should update average worthWatching in the movie (case 1)`', () => {
+    describe('should update average worthWatching in the movie (case 1: UP + UP)`', () => {
       beforeEach(async () => {
         // Create a `worthWatching` by `activeUser`
         await request(app.getHttpServer())
@@ -117,7 +117,7 @@ describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', (
       });
     });
 
-    describe('should update average worthWatching (case 2 - decimal case) in the movie`', () => {
+    describe('should update average worthWatching (case 2: DOWN + UP) in the movie`', () => {
       beforeEach(async () => {
         // Create a `worthWatching` by `activeUser`
         await request(app.getHttpServer())
@@ -138,7 +138,7 @@ describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', (
       });
     });
 
-    describe('should update average worthWatching (case 3) in the movie`', () => {
+    describe('should update average worthWatching (case 3: DOWN + DOWN ) in the movie`', () => {
       beforeEach(async () => {
         // Create a `worthWatching` by `activeUser`
         await request(app.getHttpServer())

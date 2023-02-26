@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ReportModal from '../../../components/ui/ReportModal';
 import SearchHeader from '../SearchHeader';
 import { posts } from '../SearchResult';

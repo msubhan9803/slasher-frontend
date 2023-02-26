@@ -3,7 +3,7 @@ import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Image } from 'react-bootstrap';
 import styled from 'styled-components';
-import RoundButton from './RoundButton';
+import RoundButton from '../RoundButton';
 
 const CommentProfileImage = styled(Image)`
   height:2.5rem;

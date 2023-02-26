@@ -252,3 +252,28 @@ export async function updateUserAbout(
   };
   return axios.patch(`${apiUrl}/api/v1/users/${id}`, { aboutMe }, { headers });
 }
+
+export async function getUserMoviesList(
+  name: string,
+  search: string,
+  userId: string,
+  sortVal: string,
+  key: string,
+  lastRetrievedMovieId?: string | null,
+) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  let queryParameter = `?limit=10&sortBy=${sortVal}`;
+  if (lastRetrievedMovieId) {
+    queryParameter += `&after=${lastRetrievedMovieId}`;
+  }
+  if (search) {
+    queryParameter += `&nameContains=${search}`;
+  }
+  if (key) {
+    queryParameter += `&startsWith=${key}`;
+  }
+  return axios.get(`${apiUrl}/api/v1/users/${userId}/${name}${queryParameter}`, { headers });
+}

@@ -126,7 +126,7 @@ function PostDetail({ user, postType }: Props) {
       feedPostId: '',
       images: [],
       message: '',
-      userId: userData.user,
+      userId: { ...userData.user, _id: userData.user.id },
       replies: [],
       createdAt: new Date().toISOString(),
     };
@@ -143,7 +143,7 @@ function PostDetail({ user, postType }: Props) {
             feedPostId: res.data.feedPostId,
             images: res.data.images,
             message: comment.commentMessage,
-            userId: userData.user,
+            userId: { ...userData.user, _id: userData.user.id },
             replies: [],
             createdAt: new Date().toISOString(),
           };
@@ -175,7 +175,7 @@ function PostDetail({ user, postType }: Props) {
             feedPostId: res.data.feedPostId,
             images: res.data.images,
             message: comment.commentMessage,
-            userId: userData.user,
+            userId: { ...userData.user, _id: userData.user.id },
             replies: [],
             createdAt: new Date().toISOString(),
           };
@@ -200,7 +200,7 @@ function PostDetail({ user, postType }: Props) {
       feedCommentId: '',
       images: [],
       message: '',
-      userId: userData.user,
+      userId: { ...userData.user, _id: userData.user.id },
       createdAt: new Date().toISOString(),
     };
 
@@ -217,7 +217,7 @@ function PostDetail({ user, postType }: Props) {
               replyValueData = {
                 ...staticReplies[index],
                 message: res.data.message,
-                userId: userData.user,
+                userId: { ...userData.user, _id: userData.user.id },
               };
               if (staticReplies[index]._id === res.data._id) {
                 staticReplies[index] = { ...res.data, ...replyValueData };
@@ -246,7 +246,7 @@ function PostDetail({ user, postType }: Props) {
           feedCommentId: res.data.feedCommentId,
           images: res.data.images,
           message: reply.replyMessage,
-          userId: userData.user,
+          userId: { ...userData.user, _id: userData.user.id },
           createdAt: new Date().toISOString(),
           new: true,
         };

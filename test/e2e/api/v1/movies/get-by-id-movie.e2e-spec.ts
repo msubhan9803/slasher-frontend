@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -13,6 +13,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('GET Movie (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +45,9 @@ describe('GET Movie (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/movies/:id', () => {
@@ -52,6 +56,11 @@ describe('GET Movie (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+    });
+
+    it('requires authentication', async () => {
+      const movieId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/movies/${movieId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Find a user by id', () => {

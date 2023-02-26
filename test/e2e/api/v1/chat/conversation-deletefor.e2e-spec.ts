@@ -12,6 +12,7 @@ import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -51,6 +52,9 @@ describe('Conversation / (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
@@ -62,6 +66,11 @@ describe('Conversation / (e2e)', () => {
     message3 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('DELETE /api/v1/chat/conversation/:matchListId', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/chat/conversation/${matchId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully add userId to deletefor field of all messages of the conversation (matchListId)', () => {
       it('success response on delete converstaion messages call', async () => {
         const matchListId = message1.matchId.toString();

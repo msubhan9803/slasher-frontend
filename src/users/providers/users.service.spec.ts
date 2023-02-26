@@ -16,6 +16,7 @@ import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndU
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('UsersService', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('UsersService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {

@@ -19,6 +19,7 @@ import { FeedReplyDeletionState } from '../../schemas/feedReply/feedReply.enums'
 import { feedCommentsFactory } from '../../../test/factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../test/factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('FeedCommentsService', () => {
   let app: INestApplication;
@@ -69,6 +70,9 @@ describe('FeedCommentsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     feedPost = await feedPostsService.create(
       feedPostFactory.build(

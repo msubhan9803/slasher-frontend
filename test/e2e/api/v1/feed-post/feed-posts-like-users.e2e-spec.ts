@@ -23,6 +23,7 @@ import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers
 import { userFactory } from '../../../../factories/user.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Feed Post Like Users (e2e)', () => {
   let app: INestApplication;
@@ -71,6 +72,9 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -111,7 +115,13 @@ describe('Feed-Post / Feed Post Like Users (e2e)', () => {
     await feedLikesService.createFeedPostLike(feedPost.id, user2.id);
   });
 
-  describe('Find Feed Post Like Users', () => {
+  // Find Feed Post Like Users
+  describe('GET /api/v1/feed-posts/:feedPostId/likes', () => {
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/feed-posts/${feedPostId}/likes`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response', async () => {
       const limit = 5;
       const response = await request(app.getHttpServer())

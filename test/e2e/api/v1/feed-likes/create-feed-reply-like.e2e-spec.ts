@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -19,6 +19,7 @@ import { FeedComment } from '../../../../../src/schemas/feedComment/feedComment.
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Create Feed Reply Like (e2e)', () => {
   let app: INestApplication;
@@ -67,6 +68,9 @@ describe('Create Feed Reply Like (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/feed-likes/reply/:feedReplyId', () => {
@@ -106,6 +110,11 @@ describe('Create Feed Reply Like (e2e)', () => {
           },
         ),
       );
+    });
+
+    it('requires authentication', async () => {
+      const feedReplyId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/feed-likes/reply/${feedReplyId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully creates a feed reply like, and sends the expected notification', async () => {

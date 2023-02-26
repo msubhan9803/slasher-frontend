@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -12,6 +12,7 @@ import { FeedPostsService } from '../../../../../src/feed-posts/providers/feed-p
 import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Delete Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +45,9 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/feed-posts/:id', () => {
@@ -54,6 +58,12 @@ describe('Feed-Post / Delete Feed Post (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/feed-posts/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response if feed post is deleted', async () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(

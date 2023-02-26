@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -10,6 +10,7 @@ import { userFactory } from '../../../../factories/user.factory';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / Delete Profile image (e2e)', () => {
   let app: INestApplication;
@@ -39,6 +40,9 @@ describe('Users / Delete Profile image (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/users/profile-image', () => {
@@ -48,6 +52,11 @@ describe('Users / Delete Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/users/profile-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('when file delete successful than expected response', async () => {
       const response = await request(app.getHttpServer())
         .delete('/api/v1/users/profile-image')

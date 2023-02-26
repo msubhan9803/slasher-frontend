@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { DateTime } from 'luxon';
@@ -22,6 +22,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   let app: INestApplication;
@@ -60,6 +61,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('GET /api/v1/feed-posts/:id', () => {
@@ -77,6 +84,12 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         content: '<p>this is rss <b>feed</b> <span>test<span> </p>',
       }));
     });
+
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/feed-posts/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('returns the expected feed post response', async () => {
       const feedPost = await feedPostsService.create(
         feedPostFactory.build(
@@ -183,7 +196,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         rssfeedProviderId: {
           _id: rssFeedProvider._id.toString(),
           logo: null,
-          title: 'RssFeedProvider 5',
+          title: 'RssFeedProvider 2',
         },
         rssFeedId: null,
         images: [
@@ -201,7 +214,7 @@ describe('Feed-Post / Single Feed Post Details (e2e)', () => {
         likeCount: 0,
         sharedList: 0,
         likedByUser: false,
-        message: 'Message 4',
+        message: 'Message 1',
       });
     });
   });

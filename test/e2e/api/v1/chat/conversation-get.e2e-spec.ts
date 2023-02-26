@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -11,6 +11,7 @@ import { User } from '../../../../../src/schemas/user/user.schema';
 import { ChatService } from '../../../../../src/chat/providers/chat.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('Conversation / (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
@@ -57,6 +61,11 @@ describe('Conversation / (e2e)', () => {
     message2 = await chatService.sendPrivateDirectMessage(user0._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /api/v1/chat/conversation/:matchListId', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/chat/conversation/${matchId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully gets the match list data', () => {
       it('gets the expected match list details', async () => {
         const matchListId = message1.matchId._id;

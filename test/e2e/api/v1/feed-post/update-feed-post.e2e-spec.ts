@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -14,6 +14,7 @@ import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.s
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Update Feed Post (e2e)', () => {
   let app: INestApplication;
@@ -51,6 +52,9 @@ describe('Update Feed Post (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -66,6 +70,11 @@ describe('Update Feed Post (e2e)', () => {
   });
 
   describe('PATCH /api/v1/feed-posts/:id', () => {
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/feed-posts/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('successfully update feed post details, and updates the lastUpdateAt time', async () => {
       const postBeforeUpdate = await feedPostsService.findById(feedPost.id, true);
       const response = await request(app.getHttpServer())

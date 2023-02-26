@@ -13,6 +13,7 @@ import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndU
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { ActiveStatus } from '../../schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('SearchService', () => {
   let app: INestApplication;
@@ -46,6 +47,9 @@ describe('SearchService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     user0 = await usersService.create(userFactory.build({ userName: 'Count Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Count Michael' }));

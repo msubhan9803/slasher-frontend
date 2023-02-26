@@ -1,8 +1,8 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
 import { userFactory } from '../../../../factories/user.factory';
@@ -12,6 +12,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { FriendRequestReaction } from '../../../../../src/schemas/friend/friend.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Get Friendship (e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('Get Friendship (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());
@@ -60,6 +64,11 @@ describe('Get Friendship (e2e)', () => {
   });
 
   describe('GET /api/v1/friends/friendship', () => {
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(`/api/v1/friends/friendship?userId=${userId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get friendship data', () => {
       it('returns the expected friend info for two users with a pending friend record', async () => {
         const userId = user1.id;

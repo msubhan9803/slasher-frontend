@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -15,6 +15,7 @@ import { feedPostFactory } from '../../../../factories/feed-post.factory';
 import { FeedCommentsService } from '../../../../../src/feed-comments/providers/feed-comments.service';
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Comments / Comments Delete (e2e)', () => {
   let app: INestApplication;
@@ -63,6 +64,9 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('DELETE /api/v1/feed-comments/:feedCommentId', () => {
@@ -91,6 +95,11 @@ describe('Feed-Comments / Comments Delete (e2e)', () => {
           },
         ),
       );
+    });
+
+    it('requires authentication', async () => {
+      const feedCommentId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/feed-comments/${feedCommentId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully delete feed comments', async () => {

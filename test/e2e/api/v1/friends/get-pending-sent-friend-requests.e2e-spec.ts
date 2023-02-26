@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -11,6 +11,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { FriendsService } from '../../../../../src/friends/providers/friends.service';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Get Friends (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,10 @@ describe('Get Friends (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());
@@ -59,6 +64,10 @@ describe('Get Friends (e2e)', () => {
   });
 
   describe('GET /api/v1/friends/requests/sent', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/friends/requests/sent').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get Pending Sent Friends Request', () => {
       it('find all pending request', async () => {
         const limit = 5;

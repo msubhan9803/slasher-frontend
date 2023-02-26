@@ -31,6 +31,7 @@ import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
 import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
+import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
 import { AppController } from './app/app.controller';
 
 @Module({
@@ -73,6 +74,7 @@ import { AppController } from './app/app.controller';
     FeedLikesModule,
     ReportsModule,
     QueuedJobsModule,
+    MovieUserStatusModule,
   ],
   controllers: [AppController],
   providers: [

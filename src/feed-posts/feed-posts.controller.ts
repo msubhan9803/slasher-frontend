@@ -141,11 +141,9 @@ export class FeedPostsController {
   @TransformImageUrls('$.images[*].image_path')
   @Patch(':id')
   @UseInterceptors(
-    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async update(

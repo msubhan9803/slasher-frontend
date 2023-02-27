@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_IMAGES } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_FILES, UPLOAD_PARAM_NAME_FOR_IMAGES } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
@@ -124,11 +124,9 @@ async createFeedComment(
   @TransformImageUrls('$.images[*].image_path')
   @Patch(':feedCommentId')
   @UseInterceptors(
-    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async updateFeedComment(
@@ -297,11 +295,9 @@ async createFeedComment(
   @TransformImageUrls('$.images[*].image_path')
   @Patch('replies/:feedReplyId')
   @UseInterceptors(
-    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async updateFeedReply(

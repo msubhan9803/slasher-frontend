@@ -3,13 +3,13 @@ import React, {
   ChangeEvent, useRef, useState,
 } from 'react';
 import {
-  Col, Form, Row,
+  Alert, Button, Col, Form, Row,
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
 import { createPost } from '../../../api/feed-posts';
@@ -21,6 +21,8 @@ import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/au
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import ImagesContainer from '../../../components/ui/ImagesContainer';
 import ErrorMessageList from '../../../components/ui/ErrorMessageList';
+import CharactersCounter from '../../../components/ui/CharactersCounter';
+import { StyledBorder } from '../../../components/ui/StyledBorder';
 
 export interface MentionProps {
   id: string;
@@ -36,6 +38,13 @@ const AddPhotosButton = styled(RoundButton)`
   background-color: #1F1F1F !important;
 `;
 
+const postType: string[] = [
+  'Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
+  'News', 'Event', 'Cosplay', 'My work', 'Collaboration', 'For sale', 'Want to buy',
+];
+const PostTypeBUtton = styled(Button)`
+  border : 0.125rem solid #383838
+`;
 function CreatePost() {
   const inputFile = useRef<HTMLInputElement>(null);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
@@ -45,6 +54,14 @@ function CreatePost() {
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
+  const [charCount, setCharCount] = useState<number>(0);
+  const [titleContent, setTitleContent] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const paramsType = searchParams.get('type');
+  const paramsGroupId = searchParams.get('groupId');
+  const [selectedPostType, setSelectedPostType] = useState<string>('');
+  const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>) => {
@@ -93,7 +110,18 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    createPost(postContentWithMentionReplacements, imageArray)
+    if (paramsType === 'group-post') {
+      const groupPostData = {
+        title: titleContent,
+        message: postContentWithMentionReplacements,
+        images: imageArray,
+        type: selectedPostType,
+        spoiler: containSpoiler,
+        groupId: paramsGroupId,
+      };
+      return groupPostData;
+    }
+    return createPost(postContentWithMentionReplacements, imageArray)
       .then(() => {
         setErrorMessage([]);
         navigate(`/${Cookies.get('userName')}/posts`);
@@ -105,6 +133,7 @@ function CreatePost() {
   return (
     <ContentSidbarWrapper>
       <ContentPageWrapper>
+        {(paramsType === 'group-post' && !paramsGroupId) && <Alert variant="danger">Group id missing from URL</Alert>}
         <Row className="d-md-none bg-dark">
           <Col xs="auto" className="ms-2"><FontAwesomeIcon role="button" icon={solid('arrow-left')} size="lg" /></Col>
           <Col><h1 className="h2 text-center">Create Post</h1></Col>
@@ -118,10 +147,34 @@ function CreatePost() {
               </h2>
             </div>
           </Form.Group>
-          <div className="mt-3">
+          {paramsType === 'group-post' && (
+            <div>
+              <Form.Control
+                maxLength={1000}
+                rows={1}
+                as="textarea"
+                value={titleContent}
+                onChange={(e) => {
+                  setTitleContent(e.target.value);
+                  setCharCount(e.target.value.length);
+                }}
+                placeholder="Title"
+                className="bg-black"
+                aria-label="Title"
+              />
+              <CharactersCounter
+                counterClass="float-end fs-4"
+                charCount={charCount}
+                totalChar={150}
+                marginTop="-2rem"
+                marginRight=".5rem"
+              />
+            </div>
+          )}
+          <div className={`mt-3 ${paramsType === 'group-post' ? 'form-control p-0 bg-black' : ''}`}>
             <MessageTextarea
               rows={10}
-              placeholder="Create a post"
+              placeholder={`${paramsType === 'group-post' ? 'Post' : 'Create a post'}`}
               handleSearch={handleSearch}
               mentionLists={mentionList}
               setMessageContent={setPostContent}
@@ -130,6 +183,43 @@ function CreatePost() {
               defaultValue={postContent}
             />
           </div>
+          {paramsType === 'group-post' && (
+            <>
+              <div className="my-4">
+                <h2 className="h3 fw-bold">
+                  Post type&nbsp;
+                  <span className="text-light fw-normal">
+                    (Optional)
+                  </span>
+                </h2>
+                {postType.map((type: string) => (
+                  <PostTypeBUtton
+                    key={`${type}-1`}
+                    as="input"
+                    type="button"
+                    value={type}
+                    className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill py-2 px-3 m-1`}
+                    onClick={() => setSelectedPostType(type)}
+                  />
+                ))}
+              </div>
+              <StyledBorder />
+              <div className="my-4">
+                <h2 className="h3 fw-bold">Contains spoilers</h2>
+                <label htmlFor="spoiler" className="d-flex text-light">
+                  <input
+                    id="spoiler"
+                    type="checkbox"
+                    checked={containSpoiler}
+                    onChange={() => setContainSpoiler(!containSpoiler)}
+                    className="me-2"
+                  />
+                  Check this box if this post contains any spoilers.
+                </label>
+              </div>
+              <StyledBorder />
+            </>
+          )}
           <input
             type="file"
             name="post"

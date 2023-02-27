@@ -64,6 +64,7 @@ interface Props {
   onSelect?: (value: string) => void;
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  groupHomePosts?: boolean;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -87,6 +88,7 @@ function PostFeed({
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
   handleSearch, mentionList,
+  groupHomePosts,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -134,7 +136,7 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId && !groupHomePosts) {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -204,6 +206,22 @@ function PostFeed({
       });
     }
   }, [postData, scrollPosition, location.pathname]);
+  const renderGroupPostContent = (posts: any) => (
+    <>
+      <p>
+        Posted in&nbsp;
+        <span className="text-primary">
+          {posts.postedIn}
+        </span>
+      </p>
+      <span className="my-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#383838' }}>
+        {posts.type}
+      </span>
+      <h1 className="h2 my-3">
+        {posts.contentHeading}
+      </h1>
+    </>
+  );
 
   return (
     <StyledPostFeed>
@@ -224,9 +242,11 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  groupHomePosts={groupHomePosts}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
+                {groupHomePosts && renderGroupPostContent(post)}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
@@ -256,6 +276,7 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
+                      groupHomePosts={groupHomePosts}
                     />
                   </Col>
                 </Row>
@@ -358,5 +379,6 @@ PostFeed.defaultProps = {
   onSelect: undefined,
   handleSearch: undefined,
   mentionList: null,
+  groupHomePosts: false,
 };
 export default PostFeed;

@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DateTime } from 'luxon';
-import { Col, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import { HashLink } from 'react-router-hash-link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
-import UserCircleImage from '../../UserCircleImage';
 import { scrollToTop } from '../../../../utils/scrollFunctions';
+import UserCircleImage from '../../UserCircleImage';
 import ShareLinkButton from '../../ShareLinkButton';
+import BorderButton from '../../BorderButton';
 
 interface PostHeaderProps {
   userName: string;
@@ -19,12 +23,28 @@ interface PostHeaderProps {
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
+  groupHomePosts?: boolean;
 }
+
+interface StyledSavedProps {
+  saved: boolean;
+}
+
+const StyledSaveButton = styled(Button) <StyledSavedProps>`
+  width: 85px;
+  height: 28px;
+  svg {
+    ${(props) => (props.saved ? 'color: #FFC700' : '')};
+  }
+`;
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect,
+  content, userId, rssfeedProviderId, onSelect, groupHomePosts,
 }: PostHeaderProps) {
+  const [notificationOn, setNotificationOn] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [bgColor, setBgColor] = useState<boolean>(false);
   return (
     <Row className="justify-content-between">
       <Col xs="auto">
@@ -88,9 +108,32 @@ function PostHeader({
       </Col>
       <Col xs="auto" className="d-block">
         <div className="d-flex align-items-center">
-          <div className="d-md-none d-lg-block d-xl-none me-2">
-            <ShareLinkButton />
-          </div>
+          {groupHomePosts && (
+            <div className="d-flex align-items-center">
+              <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => setNotificationOn(!notificationOn)}>
+                <FontAwesomeIcon size="lg" className={`${notificationOn ? 'me-0' : 'me-1'} `} icon={notificationOn ? regular('bell-slash') : regular('bell')} />
+              </Button>
+              <div className="d-none d-md-flex d-lg-none d-xl-flex align-items-center">
+                <BorderButton
+                  customButtonCss="width: 125px;"
+                  buttonClass={`${bgColor ? 'text-black' : 'text-white'} py-2`}
+                  variant="sm"
+                  toggleBgColor={bgColor}
+                  handleClick={() => setBgColor(!bgColor)}
+                  toggleButton
+                />
+                <StyledSaveButton aria-label="save button" saved={saved} size="sm" className="mx-2 pe-2 d-flex align-items-center" variant="link" onClick={() => setSaved(!saved)}>
+                  <FontAwesomeIcon size="lg" icon={saved ? solid('bookmark') : regular('bookmark')} />
+                  <p className="m-0 ms-2 fs-3">{saved ? 'Unsave' : 'Save'}</p>
+                </StyledSaveButton>
+              </div>
+            </div>
+          )}
+          {!groupHomePosts && (
+            <div className="d-md-none d-lg-block d-xl-none me-2">
+              <ShareLinkButton />
+            </div>
+          )}
           <CustomPopover
             popoverOptions={popoverOptions!}
             onPopoverClick={onPopoverClick!}
@@ -112,6 +155,7 @@ PostHeader.defaultProps = {
   onPopoverClick: undefined,
   popoverOptions: null,
   onSelect: undefined,
+  groupHomePosts: false,
 };
 
 export default PostHeader;

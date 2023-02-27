@@ -58,9 +58,9 @@ function FilterModal({
     setShowKeys(false);
   };
 
-  const onClickApplyFilter = () => {
+  const onClickApplyFilter = (keyVal?: string) => {
     if (applyFilter) {
-      applyFilter(key, selectedSortValue);
+      applyFilter(groupHomePosts! ? keyVal! : key, selectedSortValue);
       handleCloseKeys();
     }
   };
@@ -90,7 +90,7 @@ function FilterModal({
               ? (
                 <Button
                   key={keys}
-                  onClick={() => { setKey(keys); handleCloseKeys(); }}
+                  onClick={() => { onClickApplyFilter(keys); }}
                   className={`py-2 px-3 text-white fs-3 border shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
                 >
                   {keys}

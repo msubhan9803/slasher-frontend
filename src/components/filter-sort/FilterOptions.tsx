@@ -23,7 +23,7 @@ function FilterOptions({
     <>
       <Button
         onClick={() => setShowKeys(!showKeys)}
-        className={`${buttonClass} fs-3 bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} shadow-none ${showKeys ? 'text-primary' : 'text-white'}`}
+        className={`${buttonClass} fs-3 bg-transparent border-0 ${!showSort ? 'd-none d-lg-inline' : 'd-inline'} shadow-none ${showKeys || key !== '' ? 'text-primary' : 'text-white'}`}
       >
         Filter
         <StyledFilterIcon icon={solid('arrow-down-wide-short')} className="ms-2" />

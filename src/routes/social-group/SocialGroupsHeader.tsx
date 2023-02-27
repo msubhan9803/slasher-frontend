@@ -11,20 +11,21 @@ import TabLinks from '../../components/ui/Tabs/TabLinks';
 
 interface GroupsHeaderProps {
   tabKey: string;
-  showKeys: boolean;
-  setShowKeys: React.Dispatch<React.SetStateAction<boolean>>;
+  showKeys?: boolean;
+  setShowKeys?: React.Dispatch<React.SetStateAction<boolean>>;
   setSearch: React.Dispatch<string>;
   search: string;
   sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
-  selectedKey?(e: string): void;
-  applyFilter?(): void;
+  selectedKey?: string;
+  applyFilter?(keyValue: string, sortValue?: string): void;
   groupHomePosts?: boolean;
-  key?: string;
   clearKeyHandler?(): void;
+  noFilter?: boolean;
+  sortVal?: string;
 }
 const tabs = [
   { value: 'home', label: 'Groups home' },
-  { value: 'groups-list', label: 'Groups list' },
+  { value: 'all', label: 'Groups list' },
   { value: 'my-groups', label: 'My groups' },
   { value: 'watch-list', label: 'Watch list' },
   { value: 'saved', label: 'Saved' },
@@ -37,31 +38,40 @@ const sortoptions = [
 
 function SocialGroupsHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort,
-  selectedKey, applyFilter, groupHomePosts, key, clearKeyHandler,
+  selectedKey, applyFilter, groupHomePosts, clearKeyHandler,
+  noFilter, sortVal,
 }: GroupsHeaderProps) {
   return (
     <>
       <TabLinks tabLink={tabs} toLink="/app/groups" selectedTab={tabKey} />
-      <Row className="mt-3 mb-md-3 align-items-center">
-        <Col xs={groupHomePosts ? 6 : 12} md={4} className="mt-3 my-md-0 order-md-second order-md-first">
+      <Row className="mt-3 mb-md-3 align-items-center justify-content-between">
+        <Col xs={noFilter || groupHomePosts ? 6 : 12} md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
         </Col>
-        <Col md={4} className="text-center d-none d-md-inline">
-          <FilterOptions buttonClass={`${key !== '' ? 'text-primary' : 'text-white'}`} setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
+        {!noFilter && (
+          <Col md={4} className="text-center d-none d-md-inline">
+            <FilterOptions
+              buttonClass={`${selectedKey !== '' ? 'text-primary' : 'text-white'}`}
+              setShowKeys={setShowKeys!}
+              showKeys={showKeys!}
+              showSort={groupHomePosts}
+              key={selectedKey}
+            />
+          </Col>
+        )}
+        <Col xs={noFilter || groupHomePosts ? 6 : 12} md={4} className={`${noFilter || groupHomePosts ? 'mt-3 mt-md-0 d-block order-second order-md-third' : 'd-none d-lg-block'}`}>
+          <SortData sortVal={sortVal} onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
         </Col>
-        <Col xs={groupHomePosts ? 6 : 12} md={4} className={`${groupHomePosts ? 'mt-3 mt-md-0 d-block order-second order-md-third' : 'd-none d-lg-block'}`}>
-          <SortData onSelectSort={sort} sortoptions={sortoptions} title="Sort: " className="rounded-5" type="sort" />
-        </Col>
-        {groupHomePosts && (
+        {!noFilter && groupHomePosts && (
           <Col className="text-center d-md-none my-3">
             <span className="d-flex align-items-center justify-content-center">
-              <FilterOptions buttonClass={`${key !== '' ? 'text-primary' : 'text-white'} d-flex align-items-center`} setShowKeys={setShowKeys} showKeys={showKeys} showSort={groupHomePosts} />
-              {key !== ''
+              <FilterOptions buttonClass={`${selectedKey !== '' ? 'text-primary' : 'text-white'} d-flex align-items-center`} setShowKeys={setShowKeys!} showKeys={showKeys!} showSort={groupHomePosts} />
+              {selectedKey !== ''
                 && (
                   <div className="d-flex justify-content-center">
                     <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
                       {' '}
-                      {key}
+                      {selectedKey}
                       {' '}
                       <FontAwesomeIcon icon={solid('x')} size="sm" />
                     </RoundButton>
@@ -77,12 +87,12 @@ function SocialGroupsHeader({
         && (
           <FilterModal
             showKeys={showKeys}
-            setShowKeys={setShowKeys}
+            setShowKeys={setShowKeys!}
             selectedKey={selectedKey}
             applyFilter={applyFilter}
             sortoptions={sortoptions}
-            onSelectSort={sort}
             groupHomePosts={groupHomePosts}
+            sortVal={sortVal}
           />
         )
       }
@@ -92,11 +102,14 @@ function SocialGroupsHeader({
 
 SocialGroupsHeader.defaultProps = {
   sort: undefined,
+  setShowKeys: undefined,
+  showKeys: false,
   selectedKey: null,
   applyFilter: null,
   groupHomePosts: false,
-  key: '',
   clearKeyHandler: undefined,
+  noFilter: false,
+  sortVal: '',
 };
 
 export default SocialGroupsHeader;

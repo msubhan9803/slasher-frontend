@@ -42,17 +42,20 @@ function GroupsHome() {
   const handleResponsivePopoverOptions = () => {
     if (smallScreen) {
       return smallScreenGroupHomPopoverOptions;
-    } else if (mediumScreen) {
+    } if (mediumScreen) {
       return popoverOptions;
-    } else if (largeScreen) {
+    } if (largeScreen) {
       return smallScreenGroupHomPopoverOptions;
-    } else if (xLargeScreen) {
+    } if (xLargeScreen) {
       return popoverOptions;
     }
     return popoverOptions;
   };
   const options = handleResponsivePopoverOptions();
-  const applyFilter = () => sortVal && key;
+  const applyFilter = (keyValue: string, sortValue?: string) => {
+    setKey(keyValue.toLowerCase());
+    if (sortValue) { setSortVal(sortValue); }
+  };
   const handlePopoverOption = () => null;
   const clearKeyHandler = () => {
     setKey('');
@@ -66,11 +69,11 @@ function GroupsHome() {
         setSearch={setSearch}
         search={search}
         sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
+        selectedKey={key}
         applyFilter={applyFilter}
         groupHomePosts
-        key={key}
         clearKeyHandler={clearKeyHandler}
+        sortVal={sortVal}
       />
       {key !== ''
         && (

@@ -153,13 +153,6 @@ export class FeedPostsController {
     @Body() updateFeedPostsDto: UpdateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files.length && updateFeedPostsDto.message === '') {
-      throw new HttpException(
-        'Posts must have a message or at least one image. No message or image received.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
@@ -177,6 +170,15 @@ export class FeedPostsController {
         'Posts must have a message or at least one image. This post has no images, so a message is required.',
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    if (updateFeedPostsDto.imagesToDelete && updateFeedPostsDto.imagesToDelete.length) {
+      if (!files.length && updateFeedPostsDto.message === '' && feedPost.images.length === updateFeedPostsDto.imagesToDelete.length) {
+        throw new HttpException(
+          'Posts must have a message or at least one image. No message or image received.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
 
     let currentPostImages;

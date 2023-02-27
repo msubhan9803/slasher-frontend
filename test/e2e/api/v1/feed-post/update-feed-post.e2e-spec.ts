@@ -309,11 +309,14 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('responds expected response when neither message nor file are present in request', async () => {
+    it('responds expected response when neither message nor file are present in request'
+    + 'and db images length or body imagesToDelete length is same', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('message', '')
+        .field('imagesToDelete', (feedPost.images[0] as any).id)
+        .field('imagesToDelete', (feedPost.images[1] as any).id)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });

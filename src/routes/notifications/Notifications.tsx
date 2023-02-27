@@ -66,10 +66,17 @@ function Notifications() {
   }, [requestAdditionalPosts, loadingPosts, scrollPosition, notificationData, dispatch]);
 
   const persistScrollPosition = (id: string) => {
+    const updateNotification = notificationData.map((notify: any) => {
+      if (notify._id === id) {
+        return { ...notify, isRead: 1 };
+      }
+      return notify;
+    });
+
     const positionData = {
       pathname: location.pathname,
       position: window.pageYOffset,
-      data: notificationData,
+      data: updateNotification,
       positionElementId: id,
     };
     dispatch(setScrollPosition(positionData));

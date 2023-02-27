@@ -204,7 +204,6 @@ function PostFeed({
       });
     }
   }, [postData, scrollPosition, location.pathname]);
-
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -224,6 +223,7 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postImages={post.images}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">

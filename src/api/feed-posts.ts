@@ -36,12 +36,28 @@ export async function createPost(message: string, file: any) {
   return axios.post(`${apiUrl}/api/v1/feed-posts`, formData, { headers });
 }
 
-export async function updateFeedPost(postId: string, message: string) {
+export async function updateFeedPost(
+  postId: string,
+  message: string,
+  file: string[],
+  imagesToDelete: string[] | undefined,
+) {
   const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  for (let i = 0; i < file.length; i += 1) {
+    formData.append('files', file[i]);
+  }
+  formData.append('message', message);
+  if (imagesToDelete) {
+    for (let i = 0; i < imagesToDelete.length; i += 1) {
+      formData.append('imagesToDelete', imagesToDelete[i]);
+    }
+  }
   const headers = {
+    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  return axios.patch(`${apiUrl}/api/v1/feed-posts/${postId}`, { message }, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-posts/${postId}`, formData, { headers });
 }
 
 export async function deleteFeedPost(postId: string) {

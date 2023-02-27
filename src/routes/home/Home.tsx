@@ -11,8 +11,6 @@ import {
   deleteFeedPost, getHomeFeedPosts, hideFeedPost, updateFeedPost,
 } from '../../api/feed-posts';
 import { Post } from '../../types';
-import { MentionProps } from '../posts/create-post/CreatePost';
-import { getSuggestUserName } from '../../api/users';
 import { PopoverClickProps } from '../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../api/feed-likes';
 import { createBlockUser } from '../../api/blocks';
@@ -36,8 +34,9 @@ function Home() {
   const [show, setShow] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
   const [dropDownValue, setDropDownValue] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string[]>();
-  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
+  const [postImages, setPostImages] = useState<string[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [postId, setPostId] = useState<string>('');
   const [postUserId, setPostUserId] = useState<string>('');
@@ -63,6 +62,10 @@ function Home() {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
     }
+    if (popoverClickProps.postImages) {
+      setDeleteImageIds([]);
+      setPostImages(popoverClickProps.postImages);
+    }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
     }
@@ -71,14 +74,6 @@ function Home() {
     }
     setShow(true);
     setDropDownValue(value);
-  };
-
-  const handleSearch = (text: string) => {
-    setMentionList([]);
-    if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
-    }
   };
 
   useEffect(() => {
@@ -200,11 +195,17 @@ function Home() {
   useEffect(() => {
     callLatestFeedPost();
   }, []);
-  const onUpdatePost = (message: string) => {
-    updateFeedPost(postId, message).then(() => {
-      setShow(false);
-      callLatestFeedPost();
-    });
+
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+    updateFeedPost(postId, message, images, imageDelete)
+      .then(() => {
+        setErrorMessage([]);
+        setShow(false);
+        callLatestFeedPost();
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+      });
   };
 
   const deletePostClick = () => {
@@ -350,12 +351,15 @@ function Home() {
           && (
             <EditPostModal
               show={show}
+              errorMessage={errorMessage}
               setShow={setShow}
-              handleSearch={handleSearch}
-              mentionList={mentionList}
               setPostContent={setPostContent}
               postContent={postContent}
               onUpdatePost={onUpdatePost}
+              postImages={postImages}
+              setPostImages={setPostImages}
+              deleteImageIds={deleteImageIds}
+              setDeleteImageIds={setDeleteImageIds}
             />
           )
         }

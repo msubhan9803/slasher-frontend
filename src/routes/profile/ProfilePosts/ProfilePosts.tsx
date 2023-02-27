@@ -7,9 +7,8 @@ import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import ProfileHeader from '../ProfileHeader';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
 import ReportModal from '../../../components/ui/ReportModal';
-import { getProfilePosts, getSuggestUserName } from '../../../api/users';
+import { getProfilePosts } from '../../../api/users';
 import { User, Post } from '../../../types';
-import { MentionProps } from '../../posts/create-post/CreatePost';
 import { deleteFeedPost, updateFeedPost } from '../../../api/feed-posts';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
 import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
@@ -35,9 +34,11 @@ function ProfilePosts({ user }: Props) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
   const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [editModalErrorMessage, setEditModalErrorMessage] = useState<string[]>([]);
+  const [deleteImageIds, setDeleteImageIds] = useState<any>([]);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
   const [postId, setPostId] = useState<string>('');
   const loginUserData = useAppSelector((state) => state.user.user);
   const [postUserId, setPostUserId] = useState<string>('');
@@ -53,6 +54,10 @@ function ProfilePosts({ user }: Props) {
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
     if (popoverClickProps.content) {
       setPostContent(popoverClickProps.content);
+    }
+    if (popoverClickProps.postImages) {
+      setDeleteImageIds([]);
+      setPostImages(popoverClickProps.postImages);
     }
     if (popoverClickProps.id) {
       setPostId(popoverClickProps.id);
@@ -131,13 +136,6 @@ function ProfilePosts({ user }: Props) {
     </p>
   );
 
-  const handleSearch = (text: string) => {
-    setMentionList([]);
-    if (text) {
-      getSuggestUserName(text)
-        .then((res) => setMentionList(res.data));
-    }
-  };
   const callLatestFeedPost = useCallback(() => {
     if (user) {
       getProfilePosts(user._id).then((res) => {
@@ -158,11 +156,16 @@ function ProfilePosts({ user }: Props) {
       });
     }
   }, [user]);
-  const onUpdatePost = (message: string) => {
-    updateFeedPost(postId, message).then(() => {
-      setShowReportModal(false);
-      callLatestFeedPost();
-    });
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
+    updateFeedPost(postId, message, images, imageDelete)
+      .then(() => {
+        setShowReportModal(false);
+        setEditModalErrorMessage([]);
+        callLatestFeedPost();
+      })
+      .catch((error) => {
+        setEditModalErrorMessage(error.response.data.message);
+      });
   };
   const deletePostClick = () => {
     deleteFeedPost(postId)
@@ -170,9 +173,11 @@ function ProfilePosts({ user }: Props) {
         setShowReportModal(false);
         callLatestFeedPost();
       })
+
       /* eslint-disable no-console */
       .catch((error) => console.error(error));
   };
+
   useEffect(() => {
     callLatestFeedPost();
   }, [callLatestFeedPost]);
@@ -303,7 +308,21 @@ function ProfilePosts({ user }: Props) {
             handleReport={reportProfilePost}
           />
         )}
-      {dropDownValue === 'Edit' && <EditPostModal show={showReportModal} setShow={setShowReportModal} handleSearch={handleSearch} mentionList={mentionList} setPostContent={setPostContent} postContent={postContent} onUpdatePost={onUpdatePost} />}
+      {dropDownValue === 'Edit'
+        && (
+          <EditPostModal
+            show={showReportModal}
+            errorMessage={editModalErrorMessage}
+            setShow={setShowReportModal}
+            setPostContent={setPostContent}
+            postContent={postContent}
+            onUpdatePost={onUpdatePost}
+            postImages={postImages}
+            setPostImages={setPostImages}
+            deleteImageIds={deleteImageIds}
+            setDeleteImageIds={setDeleteImageIds}
+          />
+        )}
     </div>
   );
 }

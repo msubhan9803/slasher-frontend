@@ -75,7 +75,13 @@ function MessageTextarea({
       setMessageContent(defaultValue);
     }
   }, [defaultValue, setMessageContent]);
+  useEffect(() => {
+    if (formatMentionList) {
+      setFormatMentionList(formatMentionList);
+    }
+  }, [formatMentionList, setFormatMentionList]);
   const handleSelect = (option: OptionProps) => {
+    setFormatMentionList(formatMentionList);
     const mentionString = `##LINK_ID##${option.key}@${option.value}##LINK_END##`;
     const addFormatObject = {
       id: option.key,
@@ -105,7 +111,7 @@ function MessageTextarea({
       notFoundContent="Type to search for a username"
       aria-label="post"
     >
-      {mentionLists?.map((mentionList: MentionListProps) => (
+      {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>
           <div ref={optionRef} className="list--hover soft-half pointer">
             <div>

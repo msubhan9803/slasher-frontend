@@ -19,11 +19,12 @@ interface PostHeaderProps {
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
+  postImages?: string[];
 }
 
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect,
+  content, userId, rssfeedProviderId, onSelect, postImages,
 }: PostHeaderProps) {
   return (
     <Row className="justify-content-between">
@@ -97,6 +98,7 @@ function PostHeader({
             content={content}
             id={id}
             userId={userId}
+            postImages={postImages}
           />
         </div>
       </Col>
@@ -112,6 +114,7 @@ PostHeader.defaultProps = {
   onPopoverClick: undefined,
   popoverOptions: null,
   onSelect: undefined,
+  postImages: [],
 };
 
 export default PostHeader;

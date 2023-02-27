@@ -40,7 +40,7 @@ function PostDetail({ user, postType }: Props) {
   const { userName, postId, partnerId } = useParams<string>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [errorMessage, setErrorMessage] = useState<string[]>();
+  const [errorMessage, setErrorMessage] = useState<string[]>([]);
   const [postData, setPostData] = useState<Post[]>([]);
   const [show, setShow] = useState(false);
   const [dropDownValue, setDropDownValue] = useState('');
@@ -53,6 +53,7 @@ function PostDetail({ user, postType }: Props) {
   const [noMoreData, setNoMoreData] = useState<boolean>(false);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [postContent, setPostContent] = useState<string>('');
+  const [postImages, setPostImages] = useState<string[]>([]);
   const [popoverClick, setPopoverClick] = useState<PopoverClickProps>();
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
@@ -61,6 +62,9 @@ function PostDetail({ user, postType }: Props) {
   const [updateState, setUpdateState] = useState(false);
 
   const handlePopoverOption = (value: string, popoverClickProps: PopoverClickProps) => {
+    if (popoverClickProps.postImages) {
+      setPostImages(popoverClickProps.postImages);
+    }
     setShow(true);
     setDropDownValue(value);
     setPopoverClick(popoverClickProps);
@@ -353,12 +357,17 @@ function PostDetail({ user, postType }: Props) {
     }
   }, [postId, getFeedPostDetail]);
 
-  const onUpdatePost = (message: string) => {
+  const onUpdatePost = (message: string, images: string[], imageDelete: string[] | undefined) => {
     if (postId) {
-      updateFeedPost(postId, message).then(() => {
-        setShow(false);
-        getFeedPostDetail(postId);
-      });
+      updateFeedPost(postId, message, images, imageDelete)
+        .then(() => {
+          setErrorMessage([]);
+          setShow(false);
+          getFeedPostDetail(postId);
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+        });
     } else {
       setShow(false);
     }
@@ -554,7 +563,7 @@ function PostDetail({ user, postType }: Props) {
     if (queryCommentId) {
       getSingleComment();
     }
-  }, [queryCommentId, queryReplyId, getSingleComment]);
+  }, [queryCommentId, getSingleComment]);
 
   const loadNewerComment = () => {
     feedComments(true);
@@ -619,12 +628,13 @@ function PostDetail({ user, postType }: Props) {
         && (
           <EditPostModal
             show={show}
+            errorMessage={errorMessage}
             setShow={setShow}
-            handleSearch={handleSearch}
-            mentionList={mentionList}
             setPostContent={setPostContent}
             postContent={postContent}
             onUpdatePost={onUpdatePost}
+            postImages={postImages}
+            setPostImages={setPostImages}
           />
         )}
     </div>

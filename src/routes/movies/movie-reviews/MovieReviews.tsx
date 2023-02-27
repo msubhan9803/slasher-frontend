@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { useSearchParams } from 'react-router-dom';
 import CustomCreatePost from '../../../components/ui/CustomCreatePost';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import CreatePost from '../../posts/create-post/CreatePost';
 
 export const reviewPost = [

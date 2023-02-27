@@ -1,11 +1,12 @@
+/* eslint-disable max-lines */
 import React, { useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import PosterCardList from '../../../components/ui/Poster/PosterCardList';
 import MoviesHeader from '../MoviesHeader';
-import { getMovies, getMoviesByFirstName } from '../../../api/movies';
+import { getMovies } from '../../../api/movies';
 import { MoviesProps } from '../components/MovieProps';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { ALL_MOVIES_DIV_ID } from '../../../utils/pubwise-ad-units';
@@ -13,15 +14,14 @@ import ErrorMessageList from '../../../components/ui/ErrorMessageList';
 import RoundButton from '../../../components/ui/RoundButton';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
+import { RouteURL, UIRouteURL } from '../RouteURL';
 
 function AllMovies() {
-  const [requestAdditionalPosts, setRequestAdditionalPosts] = useState<boolean>(false);
+  const [requestAdditionalMovies, setRequestAdditionalMovies] = useState<boolean>(false);
   const [showKeys, setShowKeys] = useState(false);
   const [noMoreData, setNoMoreData] = useState<Boolean>(false);
-  const [key, setKey] = useState<string>('');
   const [isKeyMoviesReady, setKeyMoviesReady] = useState<boolean>(false);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(false);
-  const [sortVal, setSortVal] = useState<string>('name');
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
@@ -29,21 +29,54 @@ function AllMovies() {
   const [filteredMovies, setFilteredMovies] = useState<MoviesProps[]>(
     scrollPosition.pathname === location.pathname ? scrollPosition?.data : [],
   );
-  const [search, setSearch] = useState<string>(scrollPosition.searchValue);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get('q') || '');
+  const [key, setKey] = useState(searchParams.get('startsWith')?.toLowerCase() || '');
+  const [sortVal, setSortVal] = useState(searchParams.get('sort') || 'name');
+  const [callNavigate, setCallNavigate] = useState<boolean>(false);
+  const [lastMovieId, setLastMovieId] = useState(
+    ((scrollPosition.pathname === location.pathname) && (scrollPosition.data.length > 0))
+      /* eslint-disable no-unsafe-optional-chaining */
+      ? (scrollPosition?.data[scrollPosition?.data.length - 1]?._id)
+      : '',
+  );
 
   useEffect(() => {
-    if (scrollPosition.searchValue !== search) {
+    setSearch(searchParams.get('q') || '');
+    setKey(searchParams.get('startsWith')?.toLowerCase() || '');
+    setSortVal(searchParams.get('sort') || 'name');
+  }, [searchParams]);
+
+  useEffect(() => {
+    RouteURL(search, key, sortVal, navigate, searchParams);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [search, key, sortVal]);
+
+  useEffect(() => {
+    UIRouteURL(search, key, sortVal, navigate, callNavigate);
+    setCallNavigate(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [callNavigate]);
+  useEffect(() => {
+    if (callNavigate
+      || (scrollPosition?.position === 0 && (search.length === 0 || key.length === 0))
+      || ((scrollPosition?.sortValue !== sortVal)
+        && ((scrollPosition?.searchValue === '' && scrollPosition?.keyValue === '')
+          || (scrollPosition?.searchValue !== search && scrollPosition?.keyValue !== key)
+          || (search.length === 0 || key.length === 0) || (search.length > 0 || key.length > 0))
+        && sortVal)
+      || (search === '' && key === '' && sortVal === 'name' && scrollPosition.position === 0)
+      || ((scrollPosition?.searchValue !== search || scrollPosition?.keyValue !== key) && sortVal === 'name')
+    ) {
       setFilteredMovies([]);
-      setRequestAdditionalPosts(true);
-    } else if (!scrollPosition.data.length && !search) {
-      setFilteredMovies([]);
-      setRequestAdditionalPosts(true);
+      setLastMovieId('');
+      setRequestAdditionalMovies(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, sortVal]);
-
+  }, [search, sortVal, key, callNavigate]);
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingPosts) {
+    if (requestAdditionalMovies && !loadingPosts) {
       if (scrollPosition === null
         || scrollPosition?.position === 0
         || filteredMovies.length >= scrollPosition?.data?.length
@@ -55,20 +88,30 @@ function AllMovies() {
         getMovies(
           search,
           sortVal,
-          filteredMovies.length > 0 ? filteredMovies[filteredMovies.length - 1]._id : undefined,
+          key.toLowerCase(),
+          lastMovieId.length > 0 ? lastMovieId : undefined,
         )
           .then((res) => {
-            setFilteredMovies((prev: MoviesProps[]) => [
-              ...prev,
-              ...res.data,
-            ]);
-            if (res.data.length === 0) { setNoMoreData(true); }
+            if (lastMovieId) {
+              setFilteredMovies((prev: MoviesProps[]) => [
+                ...prev,
+                ...res.data,
+              ]);
+            } else { setFilteredMovies(res.data); }
+            if (res.data.length === 0) {
+              setNoMoreData(true);
+              setLastMovieId('');
+            } else {
+              setLastMovieId(res.data[res.data.length - 1]._id);
+            }
             const positionData = {
               pathname: '',
               position: 0,
               data: [],
-              id: '',
+              positionElementId: '',
+              sortValue: '',
               searchValue: '',
+              keyValue: '',
             };
             dispatch(setScrollPosition(positionData));
           }).catch(
@@ -77,25 +120,22 @@ function AllMovies() {
               setErrorMessage(error.response.data.message);
             },
           ).finally(
-            () => { setRequestAdditionalPosts(false); setLoadingPosts(false); },
+            () => { setRequestAdditionalMovies(false); setLoadingPosts(false); },
           );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    requestAdditionalPosts, loadingPosts, search, sortVal,
-    filteredMovies, scrollPosition, dispatch,
+    requestAdditionalMovies, loadingPosts, search, sortVal, lastMovieId,
+    filteredMovies, scrollPosition, dispatch, isKeyMoviesReady,
   ]);
 
-  const applyFilter = () => {
-    getMoviesByFirstName(key.toLowerCase())
-      .then((res) => {
-        getMovies(search, sortVal, res.data._id)
-          .then((result) => {
-            setFilteredMovies(result.data);
-            setKeyMoviesReady(true);
-          });
-      });
+  const applyFilter = (keyValue: string, sortValue?: string) => {
+    setCallNavigate(true);
+    setKey(keyValue.toLowerCase());
+    if (sortValue) { setSortVal(sortValue); }
   };
+
   const renderNoMoreDataMessage = () => (
     <p className="text-center">
       {
@@ -108,42 +148,52 @@ function AllMovies() {
 
   const clearKeyHandler = () => {
     setKey('');
+    setCallNavigate(true);
     setKeyMoviesReady(false);
-    getMovies(search, sortVal)
+    setLastMovieId('');
+    setFilteredMovies([]);
+    getMovies(search, sortVal, '')
       .then((result: any) => {
         setFilteredMovies(result.data);
       });
   };
 
-  const persistScrollPosition = () => {
+  const persistScrollPosition = (id?: string) => {
     const positionData = {
       pathname: location.pathname,
-      position: window.pageYOffset,
+      position: window.pageYOffset === 0 ? 1 : window.pageYOffset,
       data: filteredMovies,
-      id: '',
+      positionElementId: id,
+      sortValue: sortVal,
       searchValue: search,
+      keyValue: key,
     };
     dispatch(setScrollPosition(positionData));
   };
+
   return (
     <div>
       <MoviesHeader
         tabKey="all"
         showKeys={showKeys}
         setShowKeys={setShowKeys}
-        setSearch={setSearch}
+        setSearch={(query: string) => { setSearch(query); setCallNavigate(true); }}
         search={search}
-        sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
-        selectedKey={(keyValue: string) => setKey(keyValue)}
+        sort={(e: React.ChangeEvent<HTMLSelectElement>) => {
+          setSortVal(e.target.value);
+          setCallNavigate(true);
+        }}
+        selectedKey={key}
         applyFilter={applyFilter}
+        sortVal={sortVal}
       />
-      {key !== '' && isKeyMoviesReady
+      {key !== '' && (isKeyMoviesReady || scrollPosition.data.length <= filteredMovies.length)
         && (
           <div className="w-100 d-flex justify-content-center mb-3">
             <RoundButton size="sm" variant="filter" className="px-3" onClick={clearKeyHandler}>
               Starts with
               {' '}
-              {key}
+              {key.toUpperCase()}
               {' '}
               <FontAwesomeIcon icon={solid('x')} size="sm" />
             </RoundButton>
@@ -156,7 +206,7 @@ function AllMovies() {
             threshold={2000}
             pageStart={0}
             initialLoad
-            loadMore={() => { setRequestAdditionalPosts(true); }}
+            loadMore={() => { setRequestAdditionalMovies(true); }}
             hasMore={!noMoreData}
           >
             <PosterCardList

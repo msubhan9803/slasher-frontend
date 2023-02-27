@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Cookies from 'js-cookie';
 import { useLocation } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { likeFeedPost, unlikeFeedPost } from '../../../api/feed-likes';
 import ReportModal from '../../../components/ui/ReportModal';
 import { reportData } from '../../../api/report';
 import { PopoverClickProps } from '../../../components/ui/CustomPopover';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
 import { useAppSelector, useAppDispatch } from '../../../redux/hooks';
 import { setScrollPosition } from '../../../redux/slices/scrollPositionSlice';
@@ -56,8 +56,7 @@ function NewsPostData({ partnerId }: Props) {
             images: data.images,
             userName: data.rssfeedProviderId?.title,
             rssFeedProviderLogo: data.rssfeedProviderId?.logo,
-            likes: data.likes,
-            likeIcon: data.likes.includes(loginUserId),
+            likeIcon: data.likedByUser,
             likeCount: data.likeCount,
             commentCount: data.commentCount,
             rssfeedProviderId: data.rssfeedProviderId._id,
@@ -98,7 +97,7 @@ function NewsPostData({ partnerId }: Props) {
     </p>
   );
 
-  const callLatestFeedPost = () => {
+  const callLatestFeedPost = useCallback(() => {
     getRssFeedProviderPosts(partnerId).then((res) => {
       const newPosts = res.data.map((data: any) => ({
         _id: data._id,
@@ -108,33 +107,32 @@ function NewsPostData({ partnerId }: Props) {
         images: data.images,
         userName: data.rssfeedProviderId?.title,
         rssFeedProviderLogo: data.rssfeedProviderId?.logo,
-        likes: data.likes,
-        likeIcon: data.likes.includes(loginUserId),
+        likeIcon: data.likedByUser,
         likeCount: data.likeCount,
         commentCount: data.commentCount,
         rssfeedProviderId: data.rssfeedProviderId._id,
       }));
       setPostData(newPosts);
     });
-  };
+  }, [partnerId]);
+
+  useEffect(() => {
+    callLatestFeedPost();
+  }, [callLatestFeedPost]);
 
   const onLikeClick = (likeId: string) => {
     const checkLike = postData.some((post: any) => post.id === likeId
-      && post.likes?.includes(loginUserId!));
-
+      && post.likeIcon);
     if (checkLike) {
       unlikeFeedPost(likeId).then((res) => {
         if (res.status === 200) {
           const unLikePostData = postData.map(
             (unLikePost: NewsPartnerPostProps) => {
               if (unLikePost._id === likeId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -152,7 +150,7 @@ function NewsPostData({ partnerId }: Props) {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }
@@ -198,7 +196,7 @@ function NewsPostData({ partnerId }: Props) {
     <>
       <InfiniteScroll
         pageStart={0}
-        initialLoad
+        initialLoad={false}
         loadMore={() => { setRequestAdditionalPosts(true); }}
         hasMore={!noMoreData}
       >

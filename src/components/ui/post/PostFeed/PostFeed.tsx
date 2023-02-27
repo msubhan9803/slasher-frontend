@@ -11,27 +11,25 @@ import Cookies from 'js-cookie';
 import InfiniteScroll from 'react-infinite-scroller';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import PostFooter from './PostFooter';
-import { CommentValue, Post, ReplyValue } from '../../../types';
-import LikeShareModal from '../LikeShareModal';
+import { CommentValue, Post, ReplyValue } from '../../../../types';
+import LikeShareModal from '../../LikeShareModal';
 import PostCommentSection from '../PostCommentSection/PostCommentSection';
 import PostHeader from './PostHeader';
-import CustomSwiper from '../CustomSwiper';
+import CustomSwiper from '../../CustomSwiper';
 import 'linkify-plugin-mention';
-import { PopoverClickProps } from '../CustomPopover';
-import PubWiseAd from '../PubWiseAd';
+import { PopoverClickProps } from '../../CustomPopover';
+import PubWiseAd from '../../PubWiseAd';
+import { MentionListProps } from '../../MessageTextarea';
+import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import RoundButton from '../../RoundButton';
+import { useAppSelector } from '../../../../redux/hooks';
+import CustomRatingText from '../../CustomRatingText';
+import CustomWortItText from '../../CustomWortItText';
 import {
-  decryptMessage,
-  cleanExternalHtmlContent,
-  escapeHtmlSpecialCharacters,
-  newLineToBr,
-} from '../../../utils/text-utils';
-import LoadingIndicator from '../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../utils/pubwise-ad-units';
-import { useAppSelector } from '../../../redux/hooks';
-import { MD_MEDIA_BREAKPOINT } from '../../../constants';
-import CustomRatingText from '../CustomRatingText';
-import CustomWortItText from '../CustomWortItText';
-import RoundButton from '../RoundButton';
+  cleanExternalHtmlContent, decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
+} from '../../../../utils/text-utils';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -48,6 +46,7 @@ interface Props {
   commentID?: string;
   commentReplyID?: string;
   otherUserPopoverOptions?: string[];
+  postCreaterPopoverOptions?: string[];
   setIsEdit?: (value: boolean) => void;
   setRequestAdditionalPosts?: (value: boolean) => void;
   noMoreData?: boolean;
@@ -65,6 +64,8 @@ interface Props {
   setUpdateState?: (value: boolean) => void;
   onSelect?: (value: string) => void;
   postType?: string,
+  handleSearch?: (val: string) => void;
+  mentionList?: MentionListProps[];
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -86,11 +87,12 @@ const StyleSpoilerButton = styled(RoundButton)`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
-  commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
+  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions, setIsEdit,
+  setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  postType,
+  postType, handleSearch, mentionList,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -334,6 +336,7 @@ function PostFeed({
                     hasMore={!noMoreData}
                   >
                     <PostCommentSection
+                      postCreator={postData[0].userId}
                       commentSectionData={commentsData}
                       popoverOption={popoverOptions}
                       removeComment={removeComment}
@@ -343,6 +346,7 @@ function PostFeed({
                       commentReplyID={commentReplyID}
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
+                      postCreaterPopoverOptions={postCreaterPopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
@@ -352,6 +356,8 @@ function PostFeed({
                       addUpdateComment={addUpdateComment}
                       updateState={updateState}
                       setUpdateState={setUpdateState}
+                      handleSearch={handleSearch}
+                      mentionList={mentionList}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -360,7 +366,7 @@ function PostFeed({
               )
             }
           </div>
-          <hr className="post-separator" />
+          {!detailPage && <hr className="post-separator" />}
           {(i + 1) % 3 === 0 && pubWiseAdDivId && (
             <>
               <PubWiseAd className="text-center" id={pubWiseAdDivId} autoSequencer />
@@ -394,6 +400,7 @@ PostFeed.defaultProps = {
   commentID: '',
   commentReplyID: '',
   otherUserPopoverOptions: [],
+  postCreaterPopoverOptions: [],
   setIsEdit: undefined,
   isEdit: false,
   setRequestAdditionalPosts: undefined,
@@ -411,5 +418,7 @@ PostFeed.defaultProps = {
   setUpdateState: undefined,
   onSelect: undefined,
   postType: '',
+  handleSearch: undefined,
+  mentionList: null,
 };
 export default PostFeed;

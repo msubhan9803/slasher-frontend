@@ -62,7 +62,7 @@ function Chat({
 }: ChatProps) {
   return (
     <StyledChatContainer height={imageArray && imageArray.length ? 1 : 0}>
-      <Card className="bg-dark bg-mobile-transparent rounded-3 border-0">
+      <Card className="bg-black bg-mobile-transparent rounded-3 border-0">
         <Card.Header className="d-flex justify-content-between position-relative border-bottom border-opacity-25 border-secondary px-0 px-lg-3 py-lg-4">
           <ChatUserStatus userData={userData} />
           <ChatOptions userData={userData} />

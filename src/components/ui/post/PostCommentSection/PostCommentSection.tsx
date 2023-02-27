@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, {
-  SyntheticEvent, useEffect, useRef, useState, ChangeEvent, useCallback,
+  useEffect, useRef, useState, ChangeEvent, useCallback,
 } from 'react';
 import {
   Button, Col, Row,
@@ -9,19 +9,20 @@ import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import CommentSection from './CommentSection';
-import ReportModal from '../ReportModal';
-import { FeedComments } from '../../../types';
-import EditCommentModal from '../editCommentModal';
-import { PopoverClickProps } from '../CustomPopover';
-import { createBlockUser } from '../../../api/blocks';
-import { reportData } from '../../../api/report';
 import CommentInput from './CommentInput';
+import { FeedComments } from '../../../../types';
+import { PopoverClickProps } from '../../CustomPopover';
+import { createBlockUser } from '../../../../api/blocks';
+import { reportData } from '../../../../api/report';
+import ReportModal from '../../ReportModal';
+import EditCommentModal from '../../editCommentModal';
 
 const LoadMoreCommentsWrapper = styled.div.attrs({ className: 'text-center' })`
   margin: -1rem 0 1rem;
 `;
 
 function PostCommentSection({
+  postCreator,
   commentSectionData,
   popoverOption,
   removeComment,
@@ -31,6 +32,7 @@ function PostCommentSection({
   commentReplyID,
   loginUserId,
   otherUserPopoverOptions,
+  postCreaterPopoverOptions,
   isEdit,
   setIsEdit,
   onLikeClick,
@@ -40,12 +42,12 @@ function PostCommentSection({
   addUpdateComment,
   updateState,
   setUpdateState,
+  handleSearch,
+  mentionList,
 }: any) {
   const [commentData, setCommentData] = useState<FeedComments[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [dropDownValue, setDropDownValue] = useState<string>('');
-  const commentRef = useRef<any>();
-  const replyRef = useRef<any>();
   const inputFile = useRef<HTMLInputElement>(null);
   const tabsRef = useRef<any>();
   const replyInputFile = useRef<HTMLInputElement>(null);
@@ -57,30 +59,26 @@ function PostCommentSection({
   const [isReply, setIsReply] = useState<boolean>(false);
   const [selectedReplyCommentId, setSelectedReplyCommentId] = useState<string>('');
   const [replyUserName, setReplyUserName] = useState<string>('');
+  const [selectedReplyUserID, setSelectedReplyUserID] = useState<string>('');
   const [editContent, setEditContent] = useState<string>();
   const userData = useSelector((state: any) => state.user);
   const [commentReplyUserId, setCommentReplyUserId] = useState<string>('');
   const [searchParams] = useSearchParams();
   const queryCommentId = searchParams.get('commentId');
-  const queryReplyId = searchParams.get('replyCommentId');
+  const queryReplyId = searchParams.get('replyId');
   const [checkLoadMoreId, setCheckLoadMoreId] = useState<any[]>([]);
   const [replyIndex, setReplyIndex] = useState<number>(2);
   const [scrollId, setScrollId] = useState<string>('');
   const [selectedReplyId, setSelectedReplyId] = useState<string | null>('');
   const [updatedReply, setUpdatedReply] = useState<boolean>(false);
-  const onChangeHandler = (e: SyntheticEvent, inputId?: string) => {
-    const target = e.target as HTMLTextAreaElement;
-    if (inputId) {
-      replyRef.current.style.height = '36px';
-      replyRef.current.style.height = `${target.scrollHeight}px`;
-      replyRef.current.style.maxHeight = '100px';
-      setReplyMessage(target.value);
-    } else {
-      commentRef.current.style.height = '36px';
-      commentRef.current.style.height = `${target.scrollHeight}px`;
-      commentRef.current.style.maxHeight = '100px';
-      setMessage(target.value);
+
+  const checkPopover = (id: string) => {
+    if (id === loginUserId) {
+      return popoverOption;
+    } if (postCreator === loginUserId) {
+      return postCreaterPopoverOptions;
     }
+    return otherUserPopoverOptions;
   };
 
   const handleSeeCompleteList = useCallback((
@@ -89,12 +87,14 @@ function PostCommentSection({
     selectedReply?: string | null,
     scrollReplyId?: string,
     replyCommentIndex?: number,
+    userId?: string,
   ) => {
     setScrollId(scrollReplyId!);
     if (replyCommentIndex! >= 0) {
       setSelectedReplyId(selectedReply || null);
       setSelectedReplyCommentId(commentReplyId);
       setReplyUserName(replyName);
+      setSelectedReplyUserID(userId!);
       setCheckLoadMoreId([]);
       const updatedCommentData: FeedComments[] = [];
       commentData.map((comment: any) => {
@@ -192,40 +192,35 @@ function PostCommentSection({
       };
       feedCommentData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    commentSectionData, updateState, checkLoadMoreId,
-    commentReplyID, setUpdateState,
+    commentSectionData, updateState, checkLoadMoreId, commentReplyID,
+    setUpdateState, commentData, updatedReply,
   ]);
 
   useEffect(() => {
     setReplyMessage('');
-    if (isReply && replyUserName) {
-      const mentionString = `@${replyUserName} `;
+    if (isReply && selectedReplyUserID !== loginUserId) {
+      const mentionString = `@${replyUserName}`;
       setReplyMessage(mentionString);
     }
-  }, [replyUserName, isReply, selectedReplyCommentId]);
+  }, [replyUserName, isReply, selectedReplyCommentId, loginUserId, selectedReplyUserID]);
+
+  useEffect(() => {
+    if (!isReply) {
+      setReplyImageArray([]);
+      setSelectedReplyId('');
+    }
+    setUploadPost([]);
+    setImageArray([]);
+  }, [isReply]);
 
   const sendComment = (commentId?: string) => {
     const imageArr = commentId ? replyImageArray : imageArray;
-    if (commentId === undefined) {
-      commentRef.current.style.height = '36px';
-      addUpdateComment({
-        commentMessage: message,
-        commentId,
-        imageArr,
-      });
+    if (!commentId) {
       setMessage('');
       setImageArray([]);
     } else {
-      replyRef.current.style.height = '36px';
       const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${selectedReplyCommentId}@${replyUserName}##LINK_END##`);
-      addUpdateReply({
-        replyMessage: mentionReplyString,
-        commentId,
-        imageArr,
-        commentReplyID,
-      });
       if (mentionReplyString || imageArr.length) {
         setIsReply(false);
       }
@@ -233,6 +228,7 @@ function PostCommentSection({
       setReplyImageArray([]);
       setUpdatedReply(true);
     }
+    setUploadPost([]);
     setSelectedReplyId('');
     setReplyUserName('');
   };
@@ -273,14 +269,17 @@ function PostCommentSection({
     }
   };
 
-  const handleFileChange = (postImage: ChangeEvent<HTMLInputElement>, replyUserId?: string) => {
+  const handleFileChange = (
+    postImage: ChangeEvent<HTMLInputElement>,
+    selectedReplyUserId?: string,
+  ) => {
     if (!postImage.target) {
       return;
     }
-    const fileName = replyUserId ? 'reply' : 'post';
+    const fileName = selectedReplyUserId ? 'reply' : 'post';
     if (postImage.target.name === fileName && postImage.target && postImage.target.files) {
       const uploadedPostList = [...uploadPost];
-      const imageArrayList = replyUserId ? [...replyImageArray] : [...imageArray];
+      const imageArrayList = selectedReplyUserId ? [...replyImageArray] : [...imageArray];
       const fileList = postImage.target.files;
       for (let list = 0; list < fileList.length; list += 1) {
         if (uploadedPostList.length < 4) {
@@ -290,7 +289,7 @@ function PostCommentSection({
         }
       }
       setUploadPost(uploadedPostList);
-      if (replyUserId) {
+      if (selectedReplyUserId) {
         setReplyImageArray(imageArrayList);
       } else {
         setImageArray(imageArrayList);
@@ -298,11 +297,16 @@ function PostCommentSection({
     }
   };
 
-  const handleRemoveFile = (postImage: File, replyUserId?: string) => {
-    const images = replyUserId ? replyImageArray : imageArray;
+  const handleRemoveFile = (postImage: File, selectedReplyUserId?: string) => {
+    const images = selectedReplyUserId ? replyImageArray : imageArray;
     const removePostImage = images.filter((image: File) => image !== postImage);
-    setImageArray(removePostImage);
-    setReplyImageArray(removePostImage);
+    const findImageIndex = images.findIndex((image: File) => image === postImage);
+    uploadPost.splice(findImageIndex, 1);
+    if (selectedReplyUserId) {
+      setReplyImageArray(removePostImage);
+    } else {
+      setImageArray(removePostImage);
+    }
   };
 
   const handleShowMoreComments = (loadId: string) => {
@@ -375,8 +379,7 @@ function PostCommentSection({
           onLikeClick(comment.id); setCommentReplyID(comment.id);
         }}
         popoverOptions={
-          comment.userId?._id && loginUserId !== comment?.userId._id
-            ? otherUserPopoverOptions! : popoverOption
+          checkPopover(comment.userId?._id || comment.userId?.id)
         }
         onPopoverClick={handleReplyPopover}
         feedCommentId={comment.feedCommentId}
@@ -393,19 +396,33 @@ function PostCommentSection({
     </div>
   );
 
+  useEffect(() => {
+    if (queryReplyId && commentData.length) {
+      commentData.map((comment: any) => {
+        if (queryCommentId === comment.id) {
+          comment.isReplyIndex = comment.commentReplySection.length;
+          return comment;
+        }
+        return comment;
+      });
+    }
+  }, [queryCommentId, queryReplyId, commentData]);
   return (
     <>
       <CommentInput
         userData={userData}
-        inputRef={commentRef}
         message={message}
         setIsReply={setIsReply}
-        onChangeHandler={onChangeHandler}
         inputFile={inputFile}
         handleFileChange={handleFileChange}
         sendComment={sendComment}
         imageArray={imageArray}
         handleRemoveFile={handleRemoveFile}
+        handleSearch={handleSearch}
+        mentionList={mentionList}
+        addUpdateComment={addUpdateComment}
+        commentID={selectedReplyCommentId}
+        checkCommnt="comments"
       />
       {commentData && commentData.length > 0 && queryCommentId && previousCommentsAvailable
         && (
@@ -434,8 +451,9 @@ function PostCommentSection({
                     commentMsg={data.commentMsg}
                     commentImg={data.commentImg}
                     onIconClick={() => onLikeClick(data.id)}
-                    popoverOptions={data.userId?._id && loginUserId !== data.userId?._id
-                      ? otherUserPopoverOptions! : popoverOption}
+                    popoverOptions={
+                      checkPopover(data.userId?._id || data.userId?.id)
+                    }
                     onPopoverClick={handlePopover}
                     content={data.commentMsg}
                     handleSeeCompleteList={handleSeeCompleteList}
@@ -536,15 +554,20 @@ function PostCommentSection({
                           <div id={scrollId} ref={tabsRef}>
                             <CommentInput
                               userData={userData}
-                              inputRef={replyRef}
                               message={replyMessage}
-                              onChangeHandler={onChangeHandler}
                               inputFile={replyInputFile}
                               handleFileChange={handleFileChange}
                               sendComment={sendComment}
                               imageArray={replyImageArray}
                               handleRemoveFile={handleRemoveFile}
                               dataId={data.id}
+                              handleSearch={handleSearch}
+                              mentionList={mentionList}
+                              isReply
+                              replyImageArray={replyImageArray}
+                              addUpdateReply={addUpdateReply}
+                              commentID={selectedReplyCommentId}
+                              commentReplyID={selectedReplyId!}
                             />
                           </div>
                         )
@@ -578,6 +601,8 @@ function PostCommentSection({
             isReply={!commentID}
             addUpdateComment={addUpdateComment}
             addUpdateReply={addUpdateReply}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
           />
         )
       }

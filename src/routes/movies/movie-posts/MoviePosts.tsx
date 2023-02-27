@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PostFeed from '../../../components/ui/PostFeed/PostFeed';
-import CreatePostInput from '../../../components/ui/CreatePostInput';
+import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
+import CreatePostInput from '../../../components/ui/post/CreatePostInput';
 import postImage from '../../../images/movie-post.jpg';
 import ReportModal from '../../../components/ui/ReportModal';
 

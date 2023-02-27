@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { MovieData, WorthWatchingStatus } from '../../../types';
-import { createOrUpdateWorthWatching, getMoviesById } from '../../../api/movies';
+import { createOrUpdateWorthWatching } from '../../../api/movies';
+import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
   isLike?: boolean
@@ -14,14 +15,6 @@ interface DislikeProps {
   isDislike?: boolean
 }
 
-type WorthWatchUpdate = {
-  worthWatching: number,
-  worthWatchingUpUsersCount: number,
-  worthWatchingDownUsersCount: number,
-  userData: {
-    worthWatching: number,
-  },
-};
 export const StyledDislikeIcon = styled.div <DislikeProps>`
   color: #FF1800;
   width: 1.875rem;
@@ -66,32 +59,15 @@ function WorthWatchIcon({ movieData, setMovieData }: Props) {
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }
     createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
-      const data = res.data as WorthWatchUpdate;
-      const {
-        worthWatching, worthWatchingUpUsersCount, worthWatchingDownUsersCount, userData,
-      } = data;
-
-      setMovieData((prevMovieData) => {
-        if (!prevMovieData) { return prevMovieData; }
-        return ({
-          ...prevMovieData,
-          worthWatching,
-          worthWatchingUpUsersCount,
-          worthWatchingDownUsersCount,
-          userData: {
-            ...prevMovieData.userData!,
-            worthWatching: userData.worthWatching,
-          },
-        });
-      });
+      updateMovieUserData(res.data, 'worthWatching', setMovieData);
       setLike(true); setDisLike(false);
     });
   }, [params, setMovieData]);
 
   const handleThumbsDown = useCallback(() => {
     if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then(() => {
-      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
+      updateMovieUserData(res.data, 'worthWatching', setMovieData);
       setLike(false); setDisLike(true);
     });
   }, [params.id, setMovieData]);

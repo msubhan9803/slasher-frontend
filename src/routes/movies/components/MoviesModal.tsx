@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Modal } from 'react-bootstrap';
@@ -11,21 +11,8 @@ import IconRegularGore from '../../../images/icon-regular-gore.png';
 import IconRedSolidGore from '../../../images/icon-red-solid-gore.png';
 import { createOrUpdateGoreFactor, createOrUpdateRating } from '../../../api/movies';
 import { MovieData } from '../../../types';
+import { updateMovieUserData } from './updateMovieDataUtils';
 
-type RatingUpdate = {
-  rating: number,
-  ratingUsersCount: number,
-  userData: {
-    rating: number
-  }
-};
-type GoreRatingUpdate = {
-  goreFactorRating: number,
-  goreFactorRatingUsersCount: number,
-  userData: {
-    goreFactorRating: number,
-  }
-};
 interface MovieDetaisProps {
   show: boolean;
   setShow: (value: boolean) => void;
@@ -66,46 +53,19 @@ function MoviesModal({
     setRating(0);
   };
 
-  const updateMovieUserData = useCallback((update: any) => {
-    if (!update || !rateType) { return; }
-    setMovieData?.((prevMovieData) => {
-      if (!prevMovieData) { return prevMovieData; }
-      if (rateType === 'rating') {
-        // eslint-disable-next-line
-        const { rating, ratingUsersCount, userData } = update as RatingUpdate;
-        return ({
-          ...prevMovieData,
-          rating,
-          ratingUsersCount,
-          userData: { ...prevMovieData.userData!, rating: userData.rating },
-        });
-      }
-      if (rateType === 'goreFactorRating') {
-        // eslint-disable-next-line
-        const { goreFactorRating, goreFactorRatingUsersCount, userData } = update as GoreRatingUpdate;
-        return ({
-          ...prevMovieData,
-          goreFactorRating,
-          goreFactorRatingUsersCount,
-          userData: { ...prevMovieData.userData!, goreFactorRating: userData.goreFactorRating },
-        });
-      }
-      // return previous state data in case no `rateType` values match
-      return prevMovieData;
-    });
-  }, [rateType, setMovieData]);
-
   const handleRatingSubmit = () => {
-    if (!params.id) { return; }
+    if (!params.id || !rateType || !setMovieData) { return; }
+
     createOrUpdateRating(params.id, rating + 1).then((res) => {
-      updateMovieUserData(res.data);
+      updateMovieUserData(res.data, rateType, setMovieData);
       closeModal();
     });
   };
   const handleGoreFactorSubmit = () => {
-    if (!params.id) { return; }
+    if (!params.id || !rateType || !setMovieData) { return; }
+
     createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
-      updateMovieUserData(res.data);
+      updateMovieUserData(res.data, rateType, setMovieData);
       closeModal();
     });
   };

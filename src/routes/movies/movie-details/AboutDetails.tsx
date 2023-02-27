@@ -5,6 +5,7 @@ import { Col, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import { DateTime } from 'luxon';
+import { useParams } from 'react-router-dom';
 import RoundButton from '../../../components/ui/RoundButton';
 import WorthWatchIcon, { StyledDislikeIcon, StyledLikeIcon } from '../components/WorthWatchIcon';
 import MoviesModal from '../components/MoviesModal';
@@ -16,6 +17,8 @@ import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 import { formatNumberForRating } from '../../../utils/number.utils';
+import { deleteGoreFactor, deleteRating, deleteWorthWatching } from '../../../api/movies';
+import { updateMovieUserData } from '../components/updateMovieDataUtils';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -80,6 +83,8 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const [showRating, setShowRating] = useState(false);
   const [showGoreRating, setShowGoreRating] = useState(false);
   const [showShareLinks, setShowShareLinks] = useState(false);
+  const params = useParams();
+
   const toHoursAndMinutes = (totalMinutes: number) => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -103,6 +108,8 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   const handleShowShareLinks = () => setShowShareLinks(true);
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
+  const hasWorthWatching = movieData.userData !== null
+    && movieData.userData?.worthWatching !== WorthWatchingStatus.NoRating;
   return (
     <AboutMovieDetails className="text-xl-start pt-4">
       <Row className="justify-content-center mt-2 mt-xl-0">
@@ -185,6 +192,24 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     handleClick={() => setShowRating(true)}
                   />
                 </div>
+                {/* Remove Button - rating */}
+                {hasRating
+                  && (
+                  <div className="mt-2 mt-md-4 d-flex justify-content-center">
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                      variant="lg"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Remove"
+                      handleClick={() => {
+                        if (!params.id) { return; }
+                        deleteRating(params.id)
+                          .then((res) => updateMovieUserData(res.data, 'rating', setMovieData));
+                      }}
+                    />
+                  </div>
+                  )}
                 <div className="d-flex justify-content-center my-3 d-md-none ">
                   <RoundButton className="w-100 fs-3 fw-bold">Write a review</RoundButton>
                 </div>
@@ -220,6 +245,24 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                   <div className="mt-3">
                     <WorthWatchIcon movieData={movieData} setMovieData={setMovieData} />
                   </div>
+                  {/* Remove Button - Worth Watch */}
+                  {hasWorthWatching
+                  && (
+                  <div className="mt-4 d-flex justify-content-center">
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                      variant="lg"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Remove"
+                      handleClick={() => {
+                        if (!params.id) { return; }
+                        deleteWorthWatching(params.id)
+                          .then((res) => updateMovieUserData(res.data, 'worthWatching', setMovieData));
+                      }}
+                    />
+                  </div>
+                  )}
                 </StyledVerticalBorder>
               </Col>
               <Col xs={6} md={3} className="p-0 mt-4 mt-md-0">
@@ -254,6 +297,24 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                     handleClick={() => setShowGoreRating(true)}
                   />
                 </div>
+                {/* Remove Button - Gore Factor */}
+                {hasGoreFactor
+                  && (
+                  <div className="mt-4 d-flex justify-content-center">
+                    <BorderButton
+                      buttonClass="d-flex rate-btn bg-black py-2 d-flex"
+                      variant="lg"
+                      iconClass="me-2"
+                      iconSize="sm"
+                      lable="Remove"
+                      handleClick={() => {
+                        if (!params.id) { return; }
+                        deleteGoreFactor(params.id)
+                          .then((res) => updateMovieUserData(res.data, 'goreFactorRating', setMovieData));
+                      }}
+                    />
+                  </div>
+                  )}
               </Col>
               <div className="d-none d-md-flex justify-content-center mt-3">
                 <RoundButton className="w-50 fs-3 fw-bold">Write a review</RoundButton>

@@ -66,3 +66,27 @@ export async function createOrUpdateWorthWatching(id: string, worthWatching: num
 
   return axios.put(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { worthWatching }, { headers });
 }
+export async function deleteRating(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/rating`, { headers });
+}
+export async function deleteGoreFactor(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/gore-factor`, { headers });
+}
+export async function deleteWorthWatching(id: string) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.delete(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { headers });
+}

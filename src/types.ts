@@ -269,7 +269,6 @@ export interface MovieData {
   worthWatchingDownUsersCount: number;
   // ratings by logged-in user
   userData: null | {
-    _id: string
     rating:number;
     goreFactorRating: number;
     worthWatching: number;

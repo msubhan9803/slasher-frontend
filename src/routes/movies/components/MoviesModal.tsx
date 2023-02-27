@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useCallback, useState } from 'react';
-import { light, regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
@@ -9,9 +9,23 @@ import ModalContainer from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
 import IconRegularGore from '../../../images/icon-regular-gore.png';
 import IconRedSolidGore from '../../../images/icon-red-solid-gore.png';
-import { createOrUpdateGoreFactor, createOrUpdateRating, getMoviesById } from '../../../api/movies';
+import { createOrUpdateGoreFactor, createOrUpdateRating } from '../../../api/movies';
 import { MovieData } from '../../../types';
 
+type RatingUpdate = {
+  rating: number,
+  ratingUsersCount: number,
+  userData: {
+    rating: number
+  }
+};
+type GoreRatingUpdate = {
+  goreFactorRating: number,
+  goreFactorRatingUsersCount: number,
+  userData: {
+    goreFactorRating: number,
+  }
+};
 interface MovieDetaisProps {
   show: boolean;
   setShow: (value: boolean) => void;
@@ -52,44 +66,46 @@ function MoviesModal({
     setRating(0);
   };
 
-  const setNewMovieUserData = useCallback((newMovieUserStatusData: MovieData['userData']) => {
-    if (!newMovieUserStatusData) { return; }
+  const updateMovieUserData = useCallback((update: any) => {
+    if (!update || !rateType) { return; }
     setMovieData?.((prevMovieData) => {
       if (!prevMovieData) { return prevMovieData; }
-      const {
-        // eslint-disable-next-line @typescript-eslint/naming-convention
+      if (rateType === 'rating') {
         // eslint-disable-next-line
-        _id, rating, goreFactorRating, worthWatching } = newMovieUserStatusData;
-      return ({
-        ...prevMovieData,
-        userData: {
-          _id, rating, goreFactorRating, worthWatching,
-        },
-      });
+        const { rating, ratingUsersCount, userData } = update as RatingUpdate;
+        return ({
+          ...prevMovieData,
+          rating,
+          ratingUsersCount,
+          userData: { ...prevMovieData.userData!, rating: userData.rating },
+        });
+      }
+      if (rateType === 'goreFactorRating') {
+        // eslint-disable-next-line
+        const { goreFactorRating, goreFactorRatingUsersCount, userData } = update as GoreRatingUpdate;
+        return ({
+          ...prevMovieData,
+          goreFactorRating,
+          goreFactorRatingUsersCount,
+          userData: { ...prevMovieData.userData!, goreFactorRating: userData.goreFactorRating },
+        });
+      }
+      // return previous state data in case no `rateType` values match
+      return prevMovieData;
     });
-  }, [setMovieData]);
+  }, [rateType, setMovieData]);
 
   const handleRatingSubmit = () => {
     if (!params.id) { return; }
     createOrUpdateRating(params.id, rating + 1).then((res) => {
-      // TODO_NEED_OPINION: Opinion, should we?
-      // (This is kind of optimistic (actually *not*) update that we update the user's rating first)
-      setNewMovieUserData(res.data);
-      // Opinion, should we?
-      // This is update for overall updates for the movie, after user's rating
-      // i.e, global rating, goreFactor and worthWatching )
-      // Opinion? Also since we're resetting the `movieData` the first update is redundant
-      // so should we remove first or keep?
-      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+      updateMovieUserData(res.data);
       closeModal();
     });
   };
   const handleGoreFactorSubmit = () => {
     if (!params.id) { return; }
     createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
-      setNewMovieUserData(res.data);
-      // TODO_NEED_OPINION: Same opinion needed here (as in `handleRatingSubmit`)
-      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+      updateMovieUserData(res.data);
       closeModal();
     });
   };

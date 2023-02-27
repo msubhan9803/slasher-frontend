@@ -14,6 +14,14 @@ interface DislikeProps {
   isDislike?: boolean
 }
 
+type WorthWatchUpdate = {
+  worthWatching: number,
+  worthWatchingUpUsersCount: number,
+  worthWatchingDownUsersCount: number,
+  userData: {
+    worthWatching: number,
+  },
+};
 export const StyledDislikeIcon = styled.div <DislikeProps>`
   color: #FF1800;
   width: 1.875rem;
@@ -51,15 +59,31 @@ type Props = {
   movieData: MovieData;
   setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
 };
-// TODO-NOW: For bakend we would need to send the count of worthWatching to display the number i.e., `Up` and `Down` counts.
 function WorthWatchIcon({ movieData, setMovieData }: Props) {
   const [liked, setLike] = useState<boolean>(movieData.userData?.worthWatching === WorthWatchingStatus.Up);
   const [disLiked, setDisLike] = useState<boolean>(movieData.userData?.worthWatching === WorthWatchingStatus.Down);
   const params = useParams();
   const handleThumbsUp = useCallback(() => {
     if (!params?.id) { return; }
-    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then(() => {
-      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
+      const data = res.data as WorthWatchUpdate;
+      const {
+        worthWatching, worthWatchingUpUsersCount, worthWatchingDownUsersCount, userData,
+      } = data;
+
+      setMovieData((prevMovieData) => {
+        if (!prevMovieData) { return prevMovieData; }
+        return ({
+          ...prevMovieData,
+          worthWatching,
+          worthWatchingUpUsersCount,
+          worthWatchingDownUsersCount,
+          userData: {
+            ...prevMovieData.userData!,
+            worthWatching: userData.worthWatching,
+          },
+        });
+      });
       setLike(true); setDisLike(false);
     });
   }, [params, setMovieData]);

@@ -102,7 +102,6 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
   };
   const handleShowShareLinks = () => setShowShareLinks(true);
   const hasRating = movieData.userData !== null && movieData.userData?.rating !== 0;
-  Object.assign(window, { movieData });
   const hasGoreFactor = movieData.userData !== null && movieData.userData?.goreFactorRating !== 0;
   return (
     <AboutMovieDetails className="text-xl-start pt-4">

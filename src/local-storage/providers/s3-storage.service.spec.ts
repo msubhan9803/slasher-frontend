@@ -29,8 +29,6 @@ describe('S3StorageService', () => {
   });
 
   beforeEach(() => {
-    jest.resetAllMocks();
-
     s3HeadRequest404Error = new Error();
     (s3HeadRequest404Error as any).$metadata = { httpStatusCode: 404 };
   });

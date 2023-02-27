@@ -5,12 +5,8 @@ import PlayMovie from './PlayMovie';
 import RoundButton from '../../../components/ui/RoundButton';
 import AboutMovie from './AboutMovie';
 import { getMoviesById, getMoviesDataById } from '../../../api/movies';
-import { AdditionalMovieData } from '../../../types';
+import { AdditionalMovieData, MovieData } from '../../../types';
 import LoadingIndicator from '../../../components/ui/LoadingIndicator';
-
-interface MovieData {
-  movieDBId: number;
-}
 
 function MovieDetails() {
   const params = useParams();
@@ -44,7 +40,11 @@ function MovieDetails() {
           }
           />
         )}
-        <AboutMovie aboutMovieData={additionalMovieData as AdditionalMovieData} />
+        <AboutMovie
+          movieData={movieData}
+          setMovieData={setMovieData}
+          aboutMovieData={additionalMovieData as AdditionalMovieData}
+        />
       </Container>
     </div>
   );

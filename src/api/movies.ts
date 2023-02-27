@@ -42,3 +42,27 @@ export async function getMoviesDataById(movieDBId: number) {
 
   return axios.get(`${apiUrl}/api/v1/movies/movieDbData/${movieDBId}`, { headers });
 }
+export async function createOrUpdateRating(id: string, rating: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/rating`, { rating }, { headers });
+}
+export async function createOrUpdateGoreFactor(id: string, goreFactorRating: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/gore-factor`, { goreFactorRating }, { headers });
+}
+export async function createOrUpdateWorthWatching(id: string, worthWatching: number) {
+  const token = Cookies.get('sessionToken');
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  return axios.put(`${apiUrl}/api/v1/movies/${id}/worth-watching`, { worthWatching }, { headers });
+}

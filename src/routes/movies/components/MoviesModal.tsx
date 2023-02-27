@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+/* eslint-disable max-lines */
+import React, { useCallback, useEffect, useState } from 'react';
+import { light, regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Modal } from 'react-bootstrap';
 import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
 import ModalContainer from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
+import IconRegularGore from '../../../images/icon-regular-gore.png';
+import IconRedSolidGore from '../../../images/icon-red-solid-gore.png';
+import { createOrUpdateGoreFactor, createOrUpdateRating, getMoviesById } from '../../../api/movies';
+import { MovieData } from '../../../types';
 
 interface MovieDetaisProps {
   show: boolean;
   setShow: (value: boolean) => void;
-  ButtonType?: string;
+  ButtonType?: 'rating' | 'goreFactorRating' | 'deactivate';
+  movieData?: MovieData;
+  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>
+  rateType?: 'rating' | 'goreFactorRating';
 }
 const RatingStar = styled.div`
   .fa-star {
@@ -20,15 +29,70 @@ const RatingStar = styled.div`
     color: #FF8A00;
   }
 `;
-function MoviesModal({ show, setShow, ButtonType }: MovieDetaisProps) {
+const RatingGore = styled.div`
+  img {
+    width: 2rem;
+    aspect-ratio: 1;
+  }
+`;
+function MoviesModal({
+  show, setShow, ButtonType, movieData, setMovieData, rateType,
+}: MovieDetaisProps) {
   const [deactivate, setDeactivate] = useState(false);
-  const closeModal = () => {
-    setShow(false);
-  };
   const closeDeactivateModal = () => {
     setDeactivate(false);
   };
-  const [rating, setRating] = useState(0);
+  const initialRating = rateType ? movieData?.userData?.[rateType] ?? 0 : 0;
+  // We're using `intialRating` as 1 less than actual value to work for `start`/`goreIcon` component
+  const [rating, setRating] = useState<number>(initialRating === 0 ? 0 : (initialRating - 1));
+  const params = useParams();
+  const closeModal = () => {
+    setShow(false);
+    // Reset rating on modal close event
+    setRating(0);
+  };
+
+  const setNewMovieUserData = useCallback((newMovieUserStatusData: MovieData['userData']) => {
+    if (!newMovieUserStatusData) { return; }
+    setMovieData?.((prevMovieData) => {
+      if (!prevMovieData) { return prevMovieData; }
+      const {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        // eslint-disable-next-line
+        _id, rating, goreFactorRating, worthWatching } = newMovieUserStatusData;
+      return ({
+        ...prevMovieData,
+        userData: {
+          _id, rating, goreFactorRating, worthWatching,
+        },
+      });
+    });
+  }, [setMovieData]);
+
+  const handleRatingSubmit = () => {
+    if (!params.id) { return; }
+    createOrUpdateRating(params.id, rating + 1).then((res) => {
+      // TODO_NEED_OPINION: Opinion, should we?
+      // (This is kind of optimistic (actually *not*) update that we update the user's rating first)
+      setNewMovieUserData(res.data);
+      // Opinion, should we?
+      // This is update for overall updates for the movie, after user's rating
+      // i.e, global rating, goreFactor and worthWatching )
+      // Opinion? Also since we're resetting the `movieData` the first update is redundant
+      // so should we remove first or keep?
+      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+      closeModal();
+    });
+  };
+  const handleGoreFactorSubmit = () => {
+    if (!params.id) { return; }
+    createOrUpdateGoreFactor(params.id, rating + 1).then((res) => {
+      setNewMovieUserData(res.data);
+      // TODO_NEED_OPINION: Same opinion needed here (as in `handleRatingSubmit`)
+      getMoviesById(params.id!).then((res2) => setMovieData?.(res2.data as any));
+      closeModal();
+    });
+  };
   return (
     <>
       {deactivate && (
@@ -83,11 +147,10 @@ function MoviesModal({ show, setShow, ButtonType }: MovieDetaisProps) {
                 </RoundButton>
               </Modal.Body>
             )}
-            {ButtonType === 'rate' && (
+            {ButtonType === 'rating' && (
               <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
                 <div className="px-5">
                   <h1 className="text-primary h2">Rate this movie</h1>
-                  <p className="h5 px-4">The Curse of La Patasola</p>
                 </div>
                 <RatingStar className="star-rating my-3">
                   {[...Array(5)].map((star, index) => (
@@ -106,7 +169,34 @@ function MoviesModal({ show, setShow, ButtonType }: MovieDetaisProps) {
                     </Button>
                   ))}
                 </RatingStar>
-                <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-primary fw-bold">
+                <RoundButton onClick={handleRatingSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
+                  Submit
+                </RoundButton>
+              </Modal.Body>
+            )}
+            {ButtonType === 'goreFactorRating' && (
+              <Modal.Body className="d-flex flex-column align-items-center text-center pb-5">
+                <div className="px-5">
+                  <h1 className="text-primary h2">How gory is this?</h1>
+                </div>
+                <RatingGore className="star-rating my-3">
+                  {[...Array(5)].map((star, index) => (
+                    <Button
+                      variant="link"
+                      type="button"
+                      key={star}
+                      className="px-2 bg-transparent"
+                      onClick={() => setRating(index)}
+                    >
+                      {index <= rating ? (
+                        <img src={IconRedSolidGore} alt="burst icon" />
+                      ) : (
+                        <img src={IconRegularGore} alt="burst icon" />
+                      )}
+                    </Button>
+                  ))}
+                </RatingGore>
+                <RoundButton onClick={handleGoreFactorSubmit} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
                 </RoundButton>
               </Modal.Body>
@@ -120,6 +210,9 @@ function MoviesModal({ show, setShow, ButtonType }: MovieDetaisProps) {
 
 MoviesModal.defaultProps = {
   ButtonType: '',
+  setMovieData: () => {},
+  rateType: '',
+  movieData: {},
 };
 
 export default MoviesModal;

@@ -65,10 +65,6 @@ const LikesButton = styled.div`
     background-color: #383838;
   }
 `;
-const CommentBox = styled.div`
-  // background-color: #101010;
-  word-break: break-word;
-`;
 const Likes = styled.div`
   right:.063rem;
 `;
@@ -115,8 +111,8 @@ function CommentSection({
         </HashLink>
       </div>
       <div className="w-100">
-        <CommentBox
-          className={`ms-3 ms-md-0 pt-3 px-3 pb-4 bg-dark rounded position-relative ${active ? 'border border-primary' : ''}`}
+        <div
+          className={`text-break ms-3 ms-md-0 pt-3 px-3 pb-4 bg-dark rounded position-relative ${active ? 'border border-primary' : ''}`}
           ref={active ? highlightRef : null}
         >
           <div className="d-flex justify-content-between">
@@ -180,7 +176,7 @@ function CommentSection({
               </Likes>
             )
           }
-        </CommentBox>
+        </div>
         <div className="mb-3 ms-md-1 ms-4">
           <div className="p-0 d-flex me-2" aria-hidden="true">
             {

@@ -24,6 +24,7 @@ export interface Post {
   likeCount: number;
   sharedList: number;
   likeIcon: boolean;
+  likedByUser: boolean;
   likes?: string[];
   hashTag?: string[];
   userId?: string
@@ -52,6 +53,7 @@ export interface NewsPartnerPostProps {
   likeCount: number;
   sharedList: number;
   hashTag: string[];
+  likedByUser: boolean;
   commentSection: boolean;
   likeIcon: boolean;
   likes: string[];

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button, Col, Form, Row,
 } from 'react-bootstrap';
-import styled from 'styled-components';
+import linkifyHtml from 'linkify-html';
 import ProfileHeader from '../ProfileHeader';
 import RoundButton from '../../../components/ui/RoundButton';
 import { User } from '../../../types';
@@ -12,10 +12,8 @@ import { useAppSelector } from '../../../redux/hooks';
 import CharactersCounter from '../../../components/ui/CharactersCounter';
 import { updateUserAbout } from '../../../api/users';
 import useProgressButton from '../../../components/ui/ProgressButton';
+import { decryptMessage, escapeHtmlSpecialCharacters, newLineToBr } from '../../../utils/text-utils';
 
-const CustomDiv = styled.div`
-  white-space: pre;
-`;
 interface Props {
   user: User
 }
@@ -31,19 +29,29 @@ function ProfileAbout({ user }: Props) {
     setAboutMeText(e.target.value);
   };
   const handleUserAbout = (id: string) => {
+    setProgressButtonStatus('loading');
     updateUserAbout(id, aboutMeText).then((res) => {
       setAboutMeText(res.data.aboutMe);
-      setProgressButtonStatus('loading');
+      setProgressButtonStatus('success');
       setEdit(!isEdit);
+    }).catch(() => {
+      setProgressButtonStatus('failure');
     });
   };
 
   const renderAboutMeText = (text: string) => {
     if (text && text.length > 0) {
-      return text;
+      const safeAboutMeText = newLineToBr(
+        linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(text))),
+      );
+
+      return (
+        // eslint-disable-next-line react/no-danger
+        <div className="text-break" dangerouslySetInnerHTML={{ __html: safeAboutMeText }} />
+      );
     }
 
-    return <span className="text-light">This user has not added an &quot;About me&quot; section yet.</span>;
+    return <div className="text-light">This user has not added an &quot;About me&quot; section yet.</div>;
   };
 
   return (
@@ -102,9 +110,9 @@ function ProfileAbout({ user }: Props) {
             </div>
           )
           : (
-            <CustomDiv>
+            <>
               {renderAboutMeText(aboutMeText)}
-            </CustomDiv>
+            </>
           )}
       </div>
     </div>

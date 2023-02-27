@@ -37,10 +37,9 @@ function EditPostModal({
               id, value, format: mentionString,
             };
           });
-        setFormatMention(formatMention.concat(finalFormatMentionList));
+        setFormatMention((prevMentions) => prevMentions.concat(finalFormatMentionList));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postContent]);
   const closeModal = () => {
     setShow(false);

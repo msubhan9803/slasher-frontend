@@ -45,6 +45,7 @@ interface Props {
   commentID?: string;
   commentReplyID?: string;
   otherUserPopoverOptions?: string[];
+  postCreaterPopoverOptions?: string[];
   setIsEdit?: (value: boolean) => void;
   setRequestAdditionalPosts?: (value: boolean) => void;
   noMoreData?: boolean;
@@ -80,7 +81,8 @@ const StyledPostFeed = styled.div`
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
-  commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
+  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions, setIsEdit,
+  setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
@@ -273,6 +275,7 @@ function PostFeed({
                     hasMore={!noMoreData}
                   >
                     <PostCommentSection
+                      postCreator={postData[0].userId}
                       commentSectionData={commentsData}
                       popoverOption={popoverOptions}
                       removeComment={removeComment}
@@ -282,6 +285,7 @@ function PostFeed({
                       commentReplyID={commentReplyID}
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
+                      postCreaterPopoverOptions={postCreaterPopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
@@ -335,6 +339,7 @@ PostFeed.defaultProps = {
   commentID: '',
   commentReplyID: '',
   otherUserPopoverOptions: [],
+  postCreaterPopoverOptions: [],
   setIsEdit: undefined,
   isEdit: false,
   setRequestAdditionalPosts: undefined,

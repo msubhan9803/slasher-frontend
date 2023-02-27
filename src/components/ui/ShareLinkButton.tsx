@@ -15,7 +15,7 @@ function ShareLinkButton({ text }: Props) {
   return (
     <>
       <CustomDropDown>
-        <Dropdown.Toggle onClick={handleShowShareLinks} className="cursor-pointer bg-transparent p-0 text-white">
+        <Dropdown.Toggle aria-label="share" onClick={handleShowShareLinks} className="cursor-pointer bg-transparent p-0 text-white">
           <FontAwesomeIcon icon={solid('share-nodes')} size="lg" className="me-2" />
           {text && <span className="fs-3">Share</span>}
         </Dropdown.Toggle>

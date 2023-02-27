@@ -24,11 +24,12 @@ import {
   escapeHtmlSpecialCharacters,
   newLineToBr,
 } from '../../../../utils/text-utils';
-import LoadingIndicator from '../../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
-import { useAppSelector } from '../../../../redux/hooks';
 import { MentionListProps } from '../../MessageTextarea';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import RoundButton from '../../RoundButton';
+import { useAppSelector } from '../../../../redux/hooks';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -78,7 +79,10 @@ const StyledPostFeed = styled.div`
       }
     }
 `;
-
+const StyleSpoilerButton = styled(RoundButton)`
+  width: 150px;
+  height: 42px;
+`;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
@@ -157,33 +161,50 @@ function PostFeed({
       showReadMoreLink = true;
     }
     return (
-      <div>
-        {/* eslint-disable-next-line react/no-danger */}
-        <div dangerouslySetInnerHTML={
-          {
-            __html: escapeHtml
-              ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-              : cleanExternalHtmlContent(content),
-          }
-        }
-        />
-        {post.hashTag?.map((hashtag: string) => (
-          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-            #
-            {hashtag}
-          </span>
-        ))}
-        {!detailPage
-          && showReadMoreLink
-          && (
-            <>
-              {' '}
-              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
-                ...read more
-              </Link>
-            </>
-          )}
-      </div>
+      post.containsSpoilers
+        ? (
+          <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
+            <h2 className="text-primary fw-bold">Warning</h2>
+            <p className="fs-3">Contains spoilers</p>
+            <StyleSpoilerButton variant="filter" className="fs-5">
+              Click to view
+            </StyleSpoilerButton>
+          </div>
+        )
+        : (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div dangerouslySetInnerHTML={
+              {
+                __html: escapeHtml
+                  ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                  : cleanExternalHtmlContent(content),
+              }
+            }
+            />
+            {
+              post.hashTag?.map((hashtag: string) => (
+                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                  #
+                  {hashtag}
+                </span>
+              ))
+            }
+            {
+              !detailPage
+              && showReadMoreLink
+              && (
+                <>
+                  {' '}
+                  <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                    ...read more
+                  </Link>
+                </>
+              )
+            }
+          </div>
+        )
+
     );
   };
 
@@ -275,7 +296,6 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
-                      groupHomePosts={groupHomePosts}
                     />
                   </Col>
                 </Row>

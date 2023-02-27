@@ -4,6 +4,7 @@ import { ContentSidbarWrapper, ContentPageWrapper } from '../../components/layou
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import GroupsList from './groups-all/GroupsList';
+import GroupsDetail from './groups-detail/GroupsDetail';
 import GroupsHome from './groups-home/GroupsHome';
 
 function SocialGroups() {
@@ -13,6 +14,7 @@ function SocialGroups() {
         <Routes>
           <Route path="home" element={<GroupsHome />} />
           <Route path="all" element={<GroupsList />} />
+          <Route path=":groupId" element={<GroupsDetail />} />
           <Route path="*" element={<Navigate to="home" replace />} />
         </Routes>
       </ContentPageWrapper>

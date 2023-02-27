@@ -24,7 +24,7 @@
     "test:e2e-gateway": "jest --config ./test/jest-e2e-gateway-config.json --runInBand"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.171.0",
+    "@aws-sdk/client-s3": "^3.279.0",
     "@nestjs/axios": "^1.0.1",
     "@nestjs/bull": "^0.6.2",
     "@nestjs/common": "^9.2.1",

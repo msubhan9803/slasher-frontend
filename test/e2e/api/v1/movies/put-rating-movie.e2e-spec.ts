@@ -13,7 +13,6 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 
 describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let app: INestApplication;
@@ -76,22 +75,11 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
         .send({ rating: 3 });
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        buy: 0,
-        createdAt: expect.any(String),
-        deleted: 0,
-        favourite: 0,
-        goreFactorRating: 0,
-        movieId: movie.id,
-        name: null,
         rating: 3,
-        ratingStatus: 0,
-        status: 1,
-        updatedAt: expect.any(String),
-        userId: activeUser.id,
-        watch: 0,
-        watched: 0,
-        worthWatching: 0,
+        ratingUsersCount: 1,
+        userData: {
+          rating: 3,
+        },
       });
     });
 
@@ -144,6 +132,25 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
           .send({ rating: 3 });
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body).toEqual({ message: 'Movie not found', statusCode: 404 });
+      });
+
+      it('rating should be defined in payload', async () => {
+        const response = await request(app.getHttpServer())
+          .put(`/api/v1/movies/${movie.id}/rating`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send({});
+        expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'rating should not be null or undefined',
+            'rating must be an integer number',
+            'rating must not be less than 1',
+            'rating must not be greater than 5',
+            'rating must be a number conforming to the specified constraints',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('should not accept values below 1', async () => {

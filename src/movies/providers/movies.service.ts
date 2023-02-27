@@ -168,7 +168,9 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageRating: { $avg: '$rating' }, count: { $sum: 1 } } },
     ]);
 
-    let returnValue = {};
+    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
+    // assign default values for simplistic usage in client side
+    let returnValue: ReturnType = { rating: 0, ratingUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageRating, count }] = aggregate;
     // Update the new average
@@ -195,7 +197,9 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageGoreFactorRating: { $avg: '$goreFactorRating' }, count: { $sum: 1 } } },
     ]);
 
-    let returnValue = {};
+    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
+    // assign default values for simplistic usage in client side
+    let returnValue: ReturnType = { goreFactorRating: 0, goreFactorRatingUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageGoreFactorRating, count }] = aggregate;
       // Update the new average
@@ -229,7 +233,9 @@ export class MoviesService {
       { $group: { _id: 'movieId', averageWorthWatching: { $avg: '$worthWatching' } } },
     ]);
 
-    let returnValue = {};
+    type ReturnType = Partial<Movie & { userData: MovieUserStatus }>;
+    // assign default values for simplistic usage in client side
+    let returnValue: ReturnType = { worthWatching: 0, worthWatchingUpUsersCount: 0, worthWatchingDownUsersCount: 0 };
     if (aggregate.length !== 0) {
       const [{ averageWorthWatching }] = aggregate;
       const worthWatchingUpUsersCount = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });

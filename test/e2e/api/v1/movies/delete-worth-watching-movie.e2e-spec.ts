@@ -13,6 +13,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
 
 describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let app: INestApplication;
@@ -22,6 +23,7 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let activeUser: UserDocument;
   let configService: ConfigService;
   let moviesService: MoviesService;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -49,6 +51,7 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+    user1 = await usersService.create(userFactory.build());
   });
 
   describe('DELETE /api/v1/movies/:id/worth-watching', () => {
@@ -66,7 +69,34 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
         .delete(`/api/v1/movies/${movie._id}/worth-watching`)
         .auth(activeUserAuthToken, { type: 'bearer' });
       expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({
+        worthWatching: 0,
+        worthWatchingDownUsersCount: 0,
+        worthWatchingUpUsersCount: 0,
+        userData: { worthWatching: 0 },
+       });
+    });
+
+    describe('delete should return correct average `worthWatching` value when other worthWatching exist', () => {
+      const avgWorthWatchingByOtherUsers = WorthWatchingStatus.Up;
+      beforeEach(async () => {
+        // create some MovieUserStatus records having worthWatching non-zero values
+        await moviesService.createOrUpdateWorthWatching(movie.id, WorthWatchingStatus.Down, activeUser.id);
+        await moviesService.createOrUpdateWorthWatching(movie.id, avgWorthWatchingByOtherUsers, user1.id);
+      });
+
+      it('delete a worthWatching`', async () => {
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/movies/${movie._id}/worth-watching`)
+          .auth(activeUserAuthToken, { type: 'bearer' });
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          worthWatching: avgWorthWatchingByOtherUsers,
+          worthWatchingDownUsersCount: 0,
+          worthWatchingUpUsersCount: 1, // because one user has voted for `up`
+          userData: { worthWatching: 0 },
+         });
+      });
     });
 
     describe('validations', () => {

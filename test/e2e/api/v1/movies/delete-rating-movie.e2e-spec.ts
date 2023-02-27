@@ -22,6 +22,7 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let activeUser: UserDocument;
   let configService: ConfigService;
   let moviesService: MoviesService;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -49,6 +50,7 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
+    user1 = await usersService.create(userFactory.build());
   });
 
   describe('DELETE /api/v1/movies/:id/rating', () => {
@@ -66,7 +68,34 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
         .delete(`/api/v1/movies/${movie._id}/rating`)
         .auth(activeUserAuthToken, { type: 'bearer' });
       expect(response.status).toEqual(HttpStatus.OK);
-      expect(response.body).toEqual({ success: true });
+      expect(response.body).toEqual({
+        rating: 0,
+        ratingUsersCount: 0,
+        userData: {
+          rating: 0,
+        },
+      });
+    });
+
+    describe('delete should return correct average `goreFactor` value when other goreFactor exist', () => {
+      const avgratingByOtherUsers = 3;
+      beforeEach(async () => {
+        // create some MovieUserStatus records having rating non-zero values
+        await moviesService.createOrUpdateRating(movie.id, 5, activeUser.id);
+        await moviesService.createOrUpdateRating(movie.id, avgratingByOtherUsers, user1.id);
+      });
+
+      it('delete a rating`', async () => {
+        const response = await request(app.getHttpServer())
+          .delete(`/api/v1/movies/${movie._id}/rating`)
+          .auth(activeUserAuthToken, { type: 'bearer' });
+        expect(response.status).toEqual(HttpStatus.OK);
+        expect(response.body).toEqual({
+          rating: avgratingByOtherUsers,
+          ratingUsersCount: 1, // because one user has voted
+          userData: { rating: 0 },
+         });
+      });
     });
 
     describe('validations', () => {

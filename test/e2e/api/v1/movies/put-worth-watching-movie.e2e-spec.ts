@@ -77,22 +77,12 @@ describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', (
         .send({ worthWatching: WorthWatchingStatus.Up });
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body).toEqual({
-        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-        buy: 0,
-        createdAt: expect.any(String),
-        deleted: 0,
-        favourite: 0,
-        goreFactorRating: 0,
-        movieId: movie.id,
-        name: null,
-        rating: 0,
-        ratingStatus: 0,
-        status: 1,
-        updatedAt: expect.any(String),
-        userId: activeUser.id,
-        watch: 0,
-        watched: 0,
         worthWatching: WorthWatchingStatus.Up,
+        worthWatchingUpUsersCount: 1,
+        worthWatchingDownUsersCount: 0,
+        userData: {
+          worthWatching: 2,
+        },
       });
     });
 
@@ -168,6 +158,25 @@ describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', (
           .send({ worthWatching: WorthWatchingStatus.Up });
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body).toEqual({ message: 'Movie not found', statusCode: 404 });
+      });
+
+      it('worthWatching should be defined in payload', async () => {
+        const response = await request(app.getHttpServer())
+          .put(`/api/v1/movies/${movie.id}/worth-watching`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(response.body).toEqual({
+          error: 'Bad Request',
+          message: [
+            'worthWatching should not be null or undefined',
+            'worthWatching must be an integer number',
+            'worthWatching must not be less than 1',
+            'worthWatching must not be greater than 2',
+            'worthWatching must be a number conforming to the specified constraints',
+          ],
+          statusCode: 400,
+        });
       });
 
       it('should not accept values below 1', async () => {

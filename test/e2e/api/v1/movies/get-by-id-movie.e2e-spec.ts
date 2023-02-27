@@ -58,7 +58,7 @@ describe('GET Movie (e2e)', () => {
       user1 = await usersService.create(userFactory.build());
     });
 
-    describe('Find a user by id', () => {
+    describe('Find a movie by id', () => {
       it('returns the expected movie details with no `MovieUserStatus` records (expected `userData: null` value)', async () => {
         const movie = await moviesService.create(
           moviesFactory.build({
@@ -77,6 +77,10 @@ describe('GET Movie (e2e)', () => {
           goreFactorRating: 0,
           userData: null,
           worthWatching: 0,
+          goreFactorRatingUsersCount: 0,
+          ratingUsersCount: 0,
+          worthWatchingDownUsersCount: 0,
+          worthWatchingUpUsersCount: 0,
         });
       });
 
@@ -125,6 +129,10 @@ describe('GET Movie (e2e)', () => {
             rating: expectedRating,
             goreFactorRating: expectedGoreFactor,
             worthWatching: expectedWorthWatching,
+            goreFactorRatingUsersCount: 2,
+            ratingUsersCount: 2,
+            worthWatchingDownUsersCount: 1,
+            worthWatchingUpUsersCount: 1,
             userData: {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               rating: activeUserMovieStatusRating.rating,
@@ -135,7 +143,7 @@ describe('GET Movie (e2e)', () => {
         });
       });
 
-      it('returns the expected response when the user is not found', async () => {
+      it('returns the expected response when the movie is not found', async () => {
         const nonExistentMovieId = '5d1df8ebe9a186319c225cd6';
         const response = await request(app.getHttpServer())
           .get(`/api/v1/movies/${nonExistentMovieId}`)

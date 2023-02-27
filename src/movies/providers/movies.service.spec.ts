@@ -26,7 +26,6 @@ import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
 import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../constants';
 
 const mockHttpService = () => ({
 });

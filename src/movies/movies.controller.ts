@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import {
   Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Req, Body, Put, Delete,
 } from '@nestjs/common';
@@ -18,7 +17,6 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { CreateOrUpdateRatingDto } from './dto/create-or-update-rating-dto';
 import { CreateOrUpdateGoreFactorRatingDto } from './dto/create-or-update-gore-factor-rating-dto';
 import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-watching-dto';
-import { addDecimalWhenNeeded } from '../utils/number.utils';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -54,23 +52,22 @@ export class MoviesController {
 
   @Get(':id')
   async findOne(@Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
-    const movieData = await this.moviesService.findById(params.id, true);
-    if (!movieData) {
+    const movie = await this.moviesService.findById(params.id, true);
+    if (!movie) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
     const user = getUserFromRequest(request);
     const movieUserStatus = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
-    if (movieData.logo === null) {
-      movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+    if (movie.logo === null) {
+      movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-    const movie = movieData.toObject();
     return pick({
       ...movie,
-      rating: addDecimalWhenNeeded(movie.rating),
-      goreFactorRating: addDecimalWhenNeeded(movie.goreFactorRating),
-      worthWatching: movie.worthWatching,
       userData: movieUserStatus,
-    }, ['movieDBId', 'rating', 'goreFactorRating', 'worthWatching', 'userData']);
+    }, [
+      'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
   }
 
   @Get()
@@ -133,6 +130,7 @@ export class MoviesController {
   ) {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
+    // eslint-disable-next-line max-len
     const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, createOrUpdateGoreFactorRatingDto.goreFactorRating, user.id);
     return pick(movieUserStatus, [
       '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
@@ -149,6 +147,7 @@ export class MoviesController {
   ) {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
+    // eslint-disable-next-line max-len
     const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, createOrUpdateWorthWatchingDto.worthWatching, user.id);
     return pick(movieUserStatus, [
       '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',

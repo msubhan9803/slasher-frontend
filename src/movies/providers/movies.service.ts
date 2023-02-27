@@ -17,7 +17,6 @@ import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
 import { MovieUserStatus } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
-import { addDecimalWhenNeeded } from '../../utils/number.utils';
 
 export interface Cast {
   'adult': boolean,
@@ -146,13 +145,14 @@ export class MoviesService {
       .exec();
   }
 
-  async findById(id: string, activeOnly: boolean): Promise<MovieDocument> {
+  async findById(id: string, activeOnly: boolean): Promise<Movie> {
     const moviesFindQuery: any = { _id: id };
     if (activeOnly) {
       moviesFindQuery.is_deleted = false;
       moviesFindQuery.status = MovieActiveStatus.Active;
     }
-    return this.moviesModel.findOne(moviesFindQuery).exec();
+    const movieData = await this.moviesModel.findOne(moviesFindQuery).exec();
+    return movieData ? movieData.toObject() : null;
   }
 
   async createOrUpdateRating(movieId: string, rating: number, userId: string) {
@@ -168,22 +168,14 @@ export class MoviesService {
       { $match: { movieId: new mongoose.Types.ObjectId(movieId), rating: { $ne: 0 } } },
       { $group: { _id: 'movieId', averageRating: { $avg: '$rating' } } },
     ]);
-    console.log('movieid', movieId);
-    console.time('yo');
-    const m1 = await this.movieUserStatusModel.count({ movieId, rating: { $ne: 0 } });
-    // eslint-disable-next-line max-len
-    const m2 = await this.movieUserStatusModel.count({ movieId, goreFactorRating: { $ne: 0 } }); // this doesn't work as expected: (ID: 5da97a0c553c7c2750a19049)
-    const m3Up = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });
-    const m3Down = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Down } });
-    console.timeEnd('yo');
-    console.log('m3:', m1, m2, m3Up, m3Down);
 
     if (aggregate.length !== 0) {
       const [{ averageRating }] = aggregate;
-      // Update the new average
+    const ratingUsersCount = await this.movieUserStatusModel.count({ movieId, rating: { $exists: true, $ne: 0 } });
+    // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { rating: addDecimalWhenNeeded(averageRating) },
+        { rating: averageRating.toFixed(1), ratingUsersCount },
       );
     }
     return movieUserStatus;
@@ -202,12 +194,14 @@ export class MoviesService {
       { $match: { movieId: new mongoose.Types.ObjectId(movieId), goreFactorRating: { $ne: 0 } } },
       { $group: { _id: 'movieId', averageGoreFactorRating: { $avg: '$goreFactorRating' } } },
     ]);
+
     if (aggregate.length !== 0) {
       const [{ averageGoreFactorRating }] = aggregate;
+      const goreFactorRatingUsersCount = await this.movieUserStatusModel.count({ movieId, goreFactorRating: { $exists: true, $ne: 0 } });
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { goreFactorRating: addDecimalWhenNeeded(averageGoreFactorRating) },
+        { goreFactorRating: averageGoreFactorRating.toFixed(1), goreFactorRatingUsersCount },
       );
     }
     return movieUserStatus;
@@ -235,10 +229,15 @@ export class MoviesService {
     ]);
     if (aggregate.length !== 0) {
       const [{ averageWorthWatching }] = aggregate;
+      const worthWatchingUpUsersCount = await this.movieUserStatusModel.count({ movieId, worthWatching: { $eq: WorthWatchingStatus.Up } });
+      const worthWatchingDownUsersCount = await this.movieUserStatusModel.count({
+        movieId,
+        worthWatching: { $eq: WorthWatchingStatus.Down },
+      });
       // Update the new average
       await this.moviesModel.updateOne(
         { _id: new mongoose.Types.ObjectId(movieId) },
-        { worthWatching: Math.round(averageWorthWatching) },
+        { worthWatching: Math.round(averageWorthWatching), worthWatchingUpUsersCount, worthWatchingDownUsersCount },
       );
     }
     return movieUserStatus;

@@ -15,6 +15,7 @@ import BorderButton from '../../../components/ui/BorderButton';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
+import { formatNumberForRating } from '../../../utils/number.utils';
 
 interface AboutMovieData {
   aboutMovieDetail: AdditionalMovieData
@@ -163,7 +164,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                         <FontAwesomeIcon icon={solid('star')} size="xs" className="star m-md-0" />
                         <div className="d-flex align-items-center m-md-0 ">
                           <p className="fw-bold m-0 mx-2">
-                            {movieData.rating}
+                            {formatNumberForRating(movieData.rating)}
                             /5
                           </p>
                           <p className="m-0 text-light">
@@ -232,7 +233,7 @@ function AboutDetails({ aboutMovieDetail, movieData, setMovieData }: AboutMovieD
                       <FontAwesomeIcon icon={solid('burst')} size="xs" className="burst" />
                       <div className="d-flex align-items-center">
                         <p className="fw-bold m-0 mx-2">
-                          {movieData.goreFactorRating}
+                          {formatNumberForRating(movieData.goreFactorRating)}
                           /5
                         </p>
                         <p className="m-0 text-light">

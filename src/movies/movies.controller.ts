@@ -56,14 +56,23 @@ export class MoviesController {
     if (!movie) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
+    // TODO: For now, we are always counting the number of users who have previously rated this movie.
+    // This is because the old API app does not update this count.  Once the old API is retired, we
+    // can instead just use the movie.ratingUsersCount field.
+    const ratingUsersCount = await this.moviesService.getRatingUsersCount(movie._id.toString());
+
     const user = getUserFromRequest(request);
     const movieUserStatus = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
     if (movie.logo === null) {
       movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
+    const filterUserData = pick(movieUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+
     return pick({
       ...movie,
-      userData: movieUserStatus,
+      // Intentionally overriding value of `ratingUsersCount` of `movie` by coputing on every request because of old-api.
+      ratingUsersCount,
+      userData: filterUserData,
     }, [
       'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
       'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
@@ -115,10 +124,9 @@ export class MoviesController {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
     const movieUserStatus = await this.moviesService.createOrUpdateRating(params.id, createOrUpdateRatingDto.rating, user.id);
-    return pick(movieUserStatus, [
-      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
-      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
-      'watched', 'worthWatching',
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['rating']) };
+    return pick(filterUserData, [
+      'rating', 'ratingUsersCount', 'userData',
     ]);
   }
 
@@ -132,10 +140,9 @@ export class MoviesController {
     const user = getUserFromRequest(request);
     // eslint-disable-next-line max-len
     const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, createOrUpdateGoreFactorRatingDto.goreFactorRating, user.id);
-    return pick(movieUserStatus, [
-      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
-      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
-      'watched', 'worthWatching',
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['goreFactorRating']) };
+    return pick(filterUserData, [
+      'goreFactorRating', 'goreFactorRatingUsersCount', 'userData',
     ]);
   }
 
@@ -149,10 +156,9 @@ export class MoviesController {
     const user = getUserFromRequest(request);
     // eslint-disable-next-line max-len
     const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, createOrUpdateWorthWatchingDto.worthWatching, user.id);
-    return pick(movieUserStatus, [
-      '_id', 'buy', 'createdAt', 'deleted', 'favourite', 'goreFactorRating', 'movieId',
-      'name', 'rating', 'ratingStatus', 'status', 'updatedAt', 'userId', 'watch',
-      'watched', 'worthWatching',
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['worthWatching']) };
+    return pick(filterUserData, [
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
     ]);
   }
 
@@ -163,8 +169,11 @@ export class MoviesController {
   ) {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
-    this.moviesService.createOrUpdateRating(params.id, 0, user.id);
-    return { success: true };
+    const movieUserStatus = await this.moviesService.createOrUpdateRating(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['rating']) };
+    return pick(filterUserData, [
+      'rating', 'ratingUsersCount', 'userData',
+    ]);
   }
 
   @Delete(':id/gore-factor')
@@ -174,8 +183,11 @@ export class MoviesController {
   ) {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
-    this.moviesService.createOrUpdateGoreFactorRating(params.id, 0, user.id);
-    return { success: true };
+    const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['goreFactorRating']) };
+    return pick(filterUserData, [
+      'goreFactorRating', 'goreFactorRatingUsersCount', 'userData',
+    ]);
   }
 
   @Delete(':id/worth-watching')
@@ -185,7 +197,11 @@ export class MoviesController {
   ) {
     await this.movieShouldExist(params.id);
     const user = getUserFromRequest(request);
-    this.moviesService.createOrUpdateWorthWatching(params.id, 0, user.id);
-    return { success: true };
+    // eslint-disable-next-line max-len
+    const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['worthWatching']) };
+    return pick(filterUserData, [
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
   }
 }

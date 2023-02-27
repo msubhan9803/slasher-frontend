@@ -160,13 +160,6 @@ export class FeedPostsController {
       );
     }
 
-    if (files.length > 10) {
-      throw new HttpException(
-        'Only allow a maximum of 10 images',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);

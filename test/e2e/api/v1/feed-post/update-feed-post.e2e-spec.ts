@@ -289,7 +289,7 @@ describe('Update Feed Post (e2e)', () => {
           .attach('files', tempPaths[9])
           .attach('files', tempPaths[10])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 10 images');
+        expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 10');
       }, [
         { extension: 'png' },
         { extension: 'png' },

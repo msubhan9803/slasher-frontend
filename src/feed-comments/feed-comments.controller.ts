@@ -2,14 +2,13 @@
 import {
   Controller, HttpStatus, Post, UseInterceptors, Body, UploadedFiles, HttpException, Param, Patch, Delete, Query, Get, ValidationPipe, Req,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_IMAGES } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
@@ -34,6 +33,7 @@ import { FriendsService } from '../friends/providers/friends.service';
 import { User, UserDocument } from '../schemas/user/user.schema';
 import { FeedReply } from '../schemas/feedReply/feedReply.schema';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
 @Controller({ path: 'feed-comments', version: ['1'] })
 export class FeedCommentsController {
@@ -51,15 +51,13 @@ export class FeedCommentsController {
 
   @TransformImageUrls('$.images[*].image_path')
   @Post()
-  @UseInterceptors(
-    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
-      fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
-    }),
-  )
-  async createFeedComment(
+@UseInterceptors(
+  ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+    fileFilter: defaultFileInterceptorFileFilter,
+    limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+  }),
+)
+async createFeedComment(
     @Req() request: Request,
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -74,13 +72,6 @@ export class FeedCommentsController {
     const post = await this.feedPostsService.findById(createFeedCommentsDto.feedPostId.toString(), true);
     if (!post) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-    }
-
-    if (files.length > 4) {
-      throw new HttpException(
-        'Only allow a maximum of 4 images',
-        HttpStatus.BAD_REQUEST,
-      );
     }
 
     const user = getUserFromRequest(request);
@@ -214,7 +205,8 @@ export class FeedCommentsController {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedComment.userId.toString() !== user.id) {
+    const feedPost = await this.feedPostsService.findById(feedComment.feedPostId.toString(), true);
+    if (feedComment.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedComment(params.feedCommentId);
@@ -224,11 +216,9 @@ export class FeedCommentsController {
   @TransformImageUrls('$.images[*].image_path')
   @Post('replies')
   @UseInterceptors(
-    FilesInterceptor('images', MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async createFeedReply(
@@ -243,12 +233,6 @@ export class FeedCommentsController {
       );
     }
 
-    if (files.length > 4) {
-      throw new HttpException(
-        'Only allow a maximum of 4 images',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const user = getUserFromRequest(request);
     const comment = await this.feedCommentsService.findFeedComment(createFeedReplyDto.feedCommentId.toString());
     if (!comment) {
@@ -389,7 +373,8 @@ export class FeedCommentsController {
       throw new HttpException('Not found.', HttpStatus.NOT_FOUND);
     }
 
-    if (feedReply.userId.toString() !== user.id) {
+    const feedPost = await this.feedPostsService.findById(feedReply.feedPostId.toString(), true);
+    if (feedReply.userId.toString() !== user.id && (feedPost.userId as unknown as User)._id.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
     await this.feedCommentsService.deleteFeedReply(params.feedReplyId);

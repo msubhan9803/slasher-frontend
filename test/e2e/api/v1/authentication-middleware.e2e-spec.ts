@@ -11,6 +11,7 @@ import { userFactory } from '../../../factories/user.factory';
 import { clearDatabase } from '../../../helpers/mongo-helpers';
 import { sleep } from '../../../../src/utils/timer-utils';
 import { configureAppPrefixAndVersioning } from '../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../helpers/factory-helpers.ts';
 
 describe('Authentication middleware tests', () => {
   let app: INestApplication;
@@ -39,6 +40,9 @@ describe('Authentication middleware tests', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('Any authenticated request', () => {

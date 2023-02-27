@@ -1,6 +1,7 @@
 import { Factory } from 'fishery';
 import { MovieType } from '../../src/schemas/movie/movie.enums';
 import { Movie } from '../../src/schemas/movie/movie.schema';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 const randomName = Math.random().toString(36).substring(2, 5);
 
@@ -16,3 +17,5 @@ export const moviesFactory = Factory.define<Partial<Movie>>(
     type: MovieType.MovieDb,
   }),
 );
+
+addFactoryToRewindList(moviesFactory);

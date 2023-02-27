@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -15,6 +15,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { RssFeedProviderFollowsService } from '../../../../../src/rss-feed-provider-follows/providers/rss-feed-provider-follows.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Enable Follow Notifications (e2e)', () => {
   let app: INestApplication;
@@ -50,6 +51,9 @@ describe('Enable Follow Notifications (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build({
       status: RssFeedProviderActiveStatus.Active,
@@ -66,6 +70,14 @@ describe('Enable Follow Notifications (e2e)', () => {
   });
 
   describe('PATCH /api/v1/rss-feed-providers/:id/follows/:userId/enable-notifications', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}/follows/${userId}/enable-notifications`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('enable notifications in rss feed providers follows details', () => {
       it('returns the expected response when notifications are enabled', async () => {
         const response = await request(app.getHttpServer())

@@ -16,6 +16,7 @@ import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnbl
 import { SuggestBlock, SuggestBlockDocument } from '../../../../../src/schemas/suggestBlock/suggestBlock.schema';
 import { SuggestBlockReaction } from '../../../../../src/schemas/suggestBlock/suggestBlock.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / delete account (e2e)', () => {
   let app: INestApplication;
@@ -56,6 +57,9 @@ describe('Users / delete account (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     user2 = await usersService.create(userFactory.build());
@@ -93,6 +97,10 @@ describe('Users / delete account (e2e)', () => {
   });
 
   describe('DELETE /api/v1/users/delete-account', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/users/delete-account').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('delete account request', () => {
       it('if activeUser delete account then it returns expected response', async () => {
         const userId = activeUser.id;

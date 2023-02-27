@@ -1,6 +1,7 @@
 import { Factory } from 'fishery';
 import { FeedReply } from '../../src/schemas/feedReply/feedReply.schema';
 import { imageFactory } from './image.factory';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const feedRepliesFactory = Factory.define<Partial<FeedReply>>(
   ({ sequence }) => new FeedReply({
@@ -8,3 +9,5 @@ export const feedRepliesFactory = Factory.define<Partial<FeedReply>>(
     images: imageFactory.buildList(2),
   }),
 );
+
+addFactoryToRewindList(feedRepliesFactory);

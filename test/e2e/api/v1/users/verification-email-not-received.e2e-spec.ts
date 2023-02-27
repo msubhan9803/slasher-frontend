@@ -11,6 +11,7 @@ import { MailService } from '../../../../../src/providers/mail.service';
 import { VerificationEmailNotReceivedDto } from '../../../../../src/users/dto/verification-email-not-recevied.dto';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / Verification Email Not Received (e2e)', () => {
   let app: INestApplication;
@@ -38,6 +39,9 @@ describe('Users / Verification Email Not Received (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/users/verification-email-not-received', () => {

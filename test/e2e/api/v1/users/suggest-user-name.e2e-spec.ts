@@ -1,26 +1,27 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
-import { User } from '../../../../../src/schemas/user/user.schema';
+import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.schema';
 import { relativeToFullImagePath } from '../../../../../src/utils/image-utils';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Suggested user name (e2e)', () => {
   let app: INestApplication;
   let connection: Connection;
   let usersService: UsersService;
   let activeUserAuthToken: string;
-  let activeUser: User;
+  let activeUser: UserDocument;
   let configService: ConfigService;
   let blocksModel: Model<BlockAndUnblockDocument>;
 
@@ -46,6 +47,12 @@ describe('Suggested user name (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build(
       { userName: 'test-user1' },
     ));
@@ -55,6 +62,10 @@ describe('Suggested user name (e2e)', () => {
   });
 
   describe('GET /api/v1/users/suggest-user-name', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/users/suggest-user-name').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Get all suggest user name', () => {
       let user1;
       let user2;
@@ -100,29 +111,35 @@ describe('Suggested user name (e2e)', () => {
           reaction: BlockAndUnblockReaction.Block,
         });
       });
-      it('returns suggestions when there are results that match the query', async () => {
-        const limit = 20;
-        const query = 'test';
-        const response = await request(app.getHttpServer())
-          .get(`/api/v1/users/suggest-user-name?query=${query}&limit=${limit}`)
-          .auth(activeUserAuthToken, { type: 'bearer' })
-          .send();
+      it('returns suggestions when there are results that match the query (and even includes the '
+        + "requesting user's username when the query matches)", async () => {
+          const limit = 20;
+          const query = 'test';
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/users/suggest-user-name?query=${query}&limit=${limit}`)
+            .auth(activeUserAuthToken, { type: 'bearer' })
+            .send();
 
-        const test1User = await usersService.findByUsername('test1');//, ['userName', 'id', 'profilePic']
-        const test2User = await usersService.findByUsername('test2');//, ['userName', 'id', 'profilePic']
-        expect(response.body).toEqual([
-          {
-            userName: test1User.userName,
-            id: test1User.id,
-            profilePic: relativeToFullImagePath(configService, test1User.profilePic),
-          },
-          {
-            userName: test2User.userName,
-            id: test2User.id,
-            profilePic: relativeToFullImagePath(configService, test2User.profilePic),
-          },
-        ]);
-      });
+          const test1User = await usersService.findByUsername('test1');//, ['userName', 'id', 'profilePic']
+          const test2User = await usersService.findByUsername('test2');//, ['userName', 'id', 'profilePic']
+          expect(response.body).toEqual([
+            {
+              userName: 'test-user1',
+              profilePic: relativeToFullImagePath(configService, activeUser.profilePic),
+              id: activeUser.id,
+            },
+            {
+              userName: test1User.userName,
+              id: test1User.id,
+              profilePic: relativeToFullImagePath(configService, test1User.profilePic),
+            },
+            {
+              userName: test2User.userName,
+              id: test2User.id,
+              profilePic: relativeToFullImagePath(configService, test2User.profilePic),
+            },
+          ]);
+        });
 
       it('when query is wrong than expected response', async () => {
         const limit = 5;

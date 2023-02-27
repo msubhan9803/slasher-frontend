@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -18,6 +18,7 @@ import { NotificationsService } from '../../../../../src/notifications/providers
 import { feedCommentsFactory } from '../../../../factories/feed-comments.factory';
 import { feedRepliesFactory } from '../../../../factories/feed-reply.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Comments/Replies Update File (e2e)', () => {
   let app: INestApplication;
@@ -67,6 +68,9 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('PATCH /api/v1/feed-comments/replies/:feedCommentId', () => {
@@ -107,6 +111,11 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           },
         ),
       );
+    });
+
+    it('requires authentication', async () => {
+      const feedReplyId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/feed-comments/replies/${feedReplyId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully update feed reply messages', async () => {

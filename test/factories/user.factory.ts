@@ -1,6 +1,7 @@
 import { Factory } from 'fishery';
 import { ActiveStatus } from '../../src/schemas/user/user.enums';
 import { User } from '../../src/schemas/user/user.schema';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 type UserTransientParams = {
   unhashedPassword: string;
@@ -25,3 +26,5 @@ export const userFactory = Factory.define<Partial<User>, UserTransientParams>(
     });
   },
 );
+
+addFactoryToRewindList(userFactory);

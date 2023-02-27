@@ -16,6 +16,7 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('All Movies (e2e)', () => {
   let app: INestApplication;
@@ -48,6 +49,9 @@ describe('All Movies (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -55,6 +59,10 @@ describe('All Movies (e2e)', () => {
   });
 
   describe('GET /api/v1/movies?limit=&sortBy=', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/movies').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('transforms the logo field into a full Movie DB URL', async () => {
       await moviesService.create(
         moviesFactory.build(
@@ -407,6 +415,85 @@ describe('All Movies (e2e)', () => {
       expect(response.body).toHaveLength(1);
     });
 
+    it('when the startsWith is exist than expected response', async () => {
+      const movie = await moviesService.create(
+        moviesFactory.build({
+          name: 'GrEaT MoVie #9',
+          status: MovieActiveStatus.Active,
+        }),
+      );
+      const sortNameStartsWith = 'great';
+      const limit = 3;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual([{
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        name: movie.name,
+        logo: 'http://localhost:4444/placeholders/movie_poster.png',
+        releaseDate: movie.releaseDate.toISOString(),
+        rating: 0,
+      }]);
+    });
+
+    it('when startsWith is not exist and nameContains is exist than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build({
+          name: 'alive',
+          status: MovieActiveStatus.Active,
+        }),
+      );
+      const nameContains = 'li';
+      const sortNameStartsWith = 'b';
+      const limit = 3;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual([]);
+    });
+
+    it('when startsWith is exist and nameContains is not exist than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build({
+          name: 'alive',
+          status: MovieActiveStatus.Active,
+        }),
+      );
+      const nameContains = 'rr';
+      const sortNameStartsWith = 'a';
+      const limit = 3;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual([]);
+    });
+
+    it('when startsWith and nameContains is exists than expected response', async () => {
+      const movie0 = await moviesService.create(
+        moviesFactory.build({
+          name: 'alive',
+          status: MovieActiveStatus.Active,
+        }),
+      );
+      const nameContains = 'li';
+      const sortNameStartsWith = 'a';
+      const limit = 3;
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&nameContains=${nameContains}&startsWith=${sortNameStartsWith}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .send();
+      expect(response.body).toEqual([{
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        name: movie0.name,
+        logo: 'http://localhost:4444/placeholders/movie_poster.png',
+        releaseDate: movie0.releaseDate.toISOString(),
+        rating: 0,
+      }]);
+    });
+
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
         const rating = [1, 2, 3, 4, 5];
@@ -517,6 +604,20 @@ describe('All Movies (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .send();
         expect(response.body.message).toContain('sortBy must be one of the following values: name, releaseDate, rating');
+      });
+
+      it('responds with error message when an invalid startsWith supplied', async () => {
+        const startsWith = '@qw$re';
+        const limit = 3;
+        const response = await request(app.getHttpServer())
+          .get(`/api/v1/movies?limit=${limit}&sortBy=${'name'}&startsWith=${startsWith}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .send();
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: ['startsWith must match /^[a-z0-9#]+$/ regular expression'],
+          error: 'Bad Request',
+        });
       });
     });
   });

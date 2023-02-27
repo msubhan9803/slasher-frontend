@@ -13,6 +13,7 @@ import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -52,6 +53,9 @@ describe('ChatService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build({ userName: 'Jack' }));
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));

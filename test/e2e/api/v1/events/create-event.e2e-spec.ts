@@ -17,6 +17,7 @@ import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Events create / (e2e)', () => {
   let app: INestApplication;
@@ -62,6 +63,9 @@ describe('Events create / (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     activeEventCategory = await eventCategoriesService.create(eventCategoryFactory.build());
@@ -812,9 +816,10 @@ describe('Events create / (e2e)', () => {
             .attach('files', tempPath[2])
             .attach('files', tempPath[3])
             .attach('files', tempPath[4])
+            .attach('files', tempPath[5])
             .expect(HttpStatus.BAD_REQUEST);
 
-          expect(response.body.message).toContain('Only allow a maximum of 4 images');
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
         }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'jpeg' }, { extension: 'jpeg' }]);
 
         // There should be no files in `UPLOAD_DIR` (other than one .keep file)

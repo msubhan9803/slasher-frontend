@@ -26,6 +26,7 @@ import { feedCommentsFactory } from '../../../../factories/feed-comments.factory
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Comments/Replies File (e2e)', () => {
   let app: INestApplication;
@@ -80,9 +81,16 @@ describe('Feed-Comments/Replies File (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/feed-comments/replies', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/feed-comments/replies').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     beforeEach(async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
 
@@ -236,9 +244,18 @@ describe('Feed-Comments/Replies File (e2e)', () => {
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .attach('images', tempPaths[4])
+          .attach('images', tempPaths[5])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 4 images');
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
+      }, [
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+      ]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

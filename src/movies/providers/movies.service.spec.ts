@@ -21,7 +21,11 @@ import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { UsersService } from '../../users/providers/users.service';
+import { userFactory } from '../../../test/factories/user.factory';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({
 });
@@ -34,6 +38,8 @@ describe('MoviesService', () => {
   let movie: MovieDocument;
   let httpService: HttpService;
   let movieModel: Model<MovieDocument>;
+  let usersService: UsersService;
+  let movieUserStatusModel: Model<MovieUserStatusDocument>;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -46,7 +52,9 @@ describe('MoviesService', () => {
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
     httpService = moduleRef.get<HttpService>(HttpService);
+    usersService = moduleRef.get<UsersService>(UsersService);
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
+    movieUserStatusModel = moduleRef.get<Model<MovieUserStatusDocument>>(getModelToken(MovieUserStatus.name));
 
     app = moduleRef.createNestApplication();
     configureAppPrefixAndVersioning(app);
@@ -61,6 +69,9 @@ describe('MoviesService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     movie = await moviesService.create(
       moviesFactory.build(),
     );
@@ -332,6 +343,52 @@ describe('MoviesService', () => {
       expect(moviesList).toHaveLength(1);
     });
 
+    it('when sort_name startsWith supplied than expected response', async () => {
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'alive',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'albeli',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'aquaman',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'blue-whel',
+          },
+        ),
+      );
+      await moviesService.create(
+        moviesFactory.build(
+          {
+            status: MovieActiveStatus.Active,
+            name: 'cat-die',
+          },
+        ),
+      );
+      const limit = 5;
+      const moviesList = await moviesService.findAll(limit, true, 'name', null, null, null, 'a');
+      expect(moviesList).toHaveLength(3);
+    });
+
     it('when movies is sort by rating than expected response', async () => {
       await moviesService.create(
         moviesFactory.build(
@@ -383,13 +440,17 @@ describe('MoviesService', () => {
 
     describe('when `after` argument is supplied', () => {
       beforeEach(async () => {
+        const name = ['Alive', 'Again alive', 'Afield', 'Audition', 'Aghost'];
         const rating = [1, 1.5, 2, 2.5, 3];
+        const movieDBId = [2901, 2902, 2903, 2904, 2905];
         for (let i = 0; i < 5; i += 1) {
           await moviesService.create(
             moviesFactory.build(
               {
                 status: MovieActiveStatus.Active,
                 rating: rating[i],
+                name: name[i],
+                movieDBId: movieDBId[i],
               },
             ),
           );
@@ -415,6 +476,14 @@ describe('MoviesService', () => {
         const limit = 3;
         const firstResults = await moviesService.findAll(limit, true, 'rating');
         const secondResults = await moviesService.findAll(limit, true, 'rating', firstResults[limit - 1].id);
+        expect(firstResults).toHaveLength(3);
+        expect(secondResults).toHaveLength(2);
+      });
+
+      it('sort by name and startsWith returns the first and second sets of paginated results', async () => {
+        const limit = 3;
+        const firstResults = await moviesService.findAll(limit, true, 'name');
+        const secondResults = await moviesService.findAll(limit, true, 'name', firstResults[limit - 1].id, null, null, 'a');
         expect(firstResults).toHaveLength(3);
         expect(secondResults).toHaveLength(2);
       });
@@ -748,6 +817,224 @@ describe('MoviesService', () => {
         },
       );
       expect(await moviesService.fetchMovieDbData(2907)).toEqual(movieDbId2907ExpectedFetchMovieDbDataReturnValue);
+    });
+  });
+
+  describe('#MoviesIdsForUser', () => {
+    let activeUser;
+    let movie1;
+    let movie2;
+    let movie3;
+    beforeEach(async () => {
+      movie1 = await moviesService.create(
+        moviesFactory.build({
+          status: MovieActiveStatus.Active,
+          deleted: MovieDeletionStatus.NotDeleted,
+          type: MovieType.MovieDb,
+          movieDBId: 662728,
+        }),
+      );
+      movie2 = await moviesService.create(
+        moviesFactory.build({
+          status: MovieActiveStatus.Active,
+          deleted: MovieDeletionStatus.NotDeleted,
+          type: MovieType.MovieDb,
+          movieDBId: 223344,
+        }),
+      );
+      movie3 = await moviesService.create(
+        moviesFactory.build({
+          status: MovieActiveStatus.Active,
+          deleted: MovieDeletionStatus.NotDeleted,
+          type: MovieType.MovieDb,
+          movieDBId: 33344,
+        }),
+      );
+      activeUser = await usersService.create(userFactory.build());
+    });
+
+    describe('#getWatchedListMovieIdsForUser', () => {
+      beforeEach(async () => {
+        await movieUserStatusModel.create({
+          name: 'movie user status1',
+          userId: activeUser._id,
+          movieId: movie1._id,
+          favourite: 0,
+          watched: 1,
+          watch: 0,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status2',
+          userId: activeUser._id,
+          movieId: movie2._id,
+          favourite: 0,
+          watched: 1,
+          watch: 0,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status3',
+          userId: activeUser._id,
+          movieId: movie3._id,
+          favourite: 0,
+          watched: 1,
+          watch: 0,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status4',
+          userId: activeUser._id,
+          movieId: movie._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+      });
+
+      it('find watched list movieids for users', async () => {
+        const movieIds = await moviesService.getWatchedListMovieIdsForUser(activeUser._id);
+        expect(movieIds).toEqual([movie1._id, movie2._id, movie3._id]);
+      });
+    });
+
+    describe('#getWatchListMovieIdsForUser', () => {
+      beforeEach(async () => {
+        await movieUserStatusModel.create({
+          name: 'movie user status1',
+          userId: activeUser._id,
+          movieId: movie1._id,
+          favourite: 0,
+          watched: 0,
+          watch: 1,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status2',
+          userId: activeUser._id,
+          movieId: movie2._id,
+          favourite: 0,
+          watched: 0,
+          watch: 1,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status3',
+          userId: activeUser._id,
+          movieId: movie3._id,
+          favourite: 0,
+          watched: 0,
+          watch: 1,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status4',
+          userId: activeUser._id,
+          movieId: movie._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+      });
+
+      it('find watch list movieids for users', async () => {
+        const movieIds = await moviesService.getWatchListMovieIdsForUser(activeUser._id);
+        expect(movieIds).toEqual([movie1._id, movie2._id, movie3._id]);
+      });
+    });
+
+    describe('#getBuyListMovieIdsForUser', () => {
+      beforeEach(async () => {
+        await movieUserStatusModel.create({
+          name: 'movie user status1',
+          userId: activeUser._id,
+          movieId: movie1._id,
+          favourite: 0,
+          watched: 0,
+          watch: 0,
+          buy: 1,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status2',
+          userId: activeUser._id,
+          movieId: movie2._id,
+          favourite: 0,
+          watched: 0,
+          watch: 0,
+          buy: 1,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status3',
+          userId: activeUser._id,
+          movieId: movie3._id,
+          favourite: 0,
+          watched: 0,
+          watch: 0,
+          buy: 1,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status4',
+          userId: activeUser._id,
+          movieId: movie._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+      });
+
+      it('find buy list movieids for users', async () => {
+        const movieIds = await moviesService.getBuyListMovieIdsForUser(activeUser._id);
+        expect(movieIds).toEqual([movie1._id, movie2._id, movie3._id]);
+      });
+    });
+
+    describe('#getFavoriteListMovieIdsForUser', () => {
+      beforeEach(async () => {
+        await movieUserStatusModel.create({
+          name: 'movie user status1',
+          userId: activeUser._id,
+          movieId: movie1._id,
+          favourite: 0,
+          watched: 0,
+          watch: 0,
+          buy: 1,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status2',
+          userId: activeUser._id,
+          movieId: movie2._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status3',
+          userId: activeUser._id,
+          movieId: movie3._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+        await movieUserStatusModel.create({
+          name: 'movie user status4',
+          userId: activeUser._id,
+          movieId: movie._id,
+          favourite: 1,
+          watched: 0,
+          watch: 0,
+          buy: 0,
+        });
+      });
+
+      it('find favorite list movieids for users', async () => {
+        const movieIds = await moviesService.getFavoriteListMovieIdsForUser(activeUser._id);
+        expect(movieIds).toEqual([movie2._id, movie3._id, movie._id]);
+      });
     });
   });
 });

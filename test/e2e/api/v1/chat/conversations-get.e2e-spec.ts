@@ -13,6 +13,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { Message, MessageDocument } from '../../../../../src/schemas/message/message.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Conversations all / (e2e)', () => {
   let app: INestApplication;
@@ -52,6 +53,9 @@ describe('Conversations all / (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build(
@@ -67,6 +71,10 @@ describe('Conversations all / (e2e)', () => {
     await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message 2.');
   });
   describe('GET /api/v1/chat/conversations', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/chat/conversations').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get all conversations', () => {
       it('get expected conversations that a user is part of', async () => {
         const limit = 10;

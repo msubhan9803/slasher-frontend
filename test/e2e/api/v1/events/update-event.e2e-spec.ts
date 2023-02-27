@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -18,6 +18,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { UserType } from '../../../../../src/schemas/user/user.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Events update / :id (e2e)', () => {
   let app: INestApplication;
@@ -63,6 +64,9 @@ describe('Events update / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     adminUser = await usersService.create(userFactory.build({ userType: UserType.Admin }));
     adminUserAuthToken = adminUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -80,6 +84,11 @@ describe('Events update / :id (e2e)', () => {
   });
 
   describe('PATCH /api/v1/events/:id', () => {
+    it('requires authentication', async () => {
+      const eventId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/events/${eventId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Non-admin users are not allowed to update event', () => {
       it('should fail to update the and returns the expected response', async () => {
         const response = await request(app.getHttpServer())

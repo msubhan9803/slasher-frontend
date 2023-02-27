@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -12,6 +12,7 @@ import { User, UserDocument } from '../../../../../src/schemas/user/user.schema'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / :id (e2e)', () => {
   let app: INestApplication;
@@ -51,6 +52,9 @@ describe('Users / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -61,6 +65,11 @@ describe('Users / :id (e2e)', () => {
     let postBody: UpdateUserDto;
     beforeEach(() => {
       postBody = { ...sampleUserUpdateObject };
+    });
+
+    it('requires authentication', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/users/${userId}`).expect(HttpStatus.UNAUTHORIZED);
     });
 
     describe('Successful update', () => {

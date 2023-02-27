@@ -1,6 +1,7 @@
 import { Factory } from 'fishery';
 import { DateTime } from 'luxon';
 import { Event } from '../../src/schemas/event/event.schema';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const eventsFactory = Factory.define<Partial<Event>>(
   ({ sequence }) => new Event({
@@ -19,3 +20,5 @@ export const eventsFactory = Factory.define<Partial<Event>>(
     ],
   }),
 );
+
+addFactoryToRewindList(eventsFactory);

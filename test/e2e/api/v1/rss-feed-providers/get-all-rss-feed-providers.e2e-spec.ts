@@ -14,6 +14,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('rssFeedProviders all (e2e)', () => {
   let app: INestApplication;
@@ -46,6 +47,9 @@ describe('rssFeedProviders all (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -65,6 +69,12 @@ describe('rssFeedProviders all (e2e)', () => {
   });
 
   describe('GET /api/v1/rss-feed-providers', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get(
+        '/api/v1/rss-feed-providers',
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get all rss feed providers data', () => {
       it('get all rss feed providers details', async () => {
         const limit = 3;
@@ -112,19 +122,19 @@ describe('rssFeedProviders all (e2e)', () => {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 12',
+              title: 'RssFeedProvider 10',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 14',
+              title: 'RssFeedProvider 2',
             },
             {
               _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               description: null,
               logo: null,
-              title: 'RssFeedProvider 16',
+              title: 'RssFeedProvider 4',
             },
           ]);
 

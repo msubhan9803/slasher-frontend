@@ -8,6 +8,7 @@ import { AppModule } from '../../../../../src/app.module';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { DisallowedUsernameService } from '../../../../../src/disallowedUsername/providers/disallowed-username.service';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -44,6 +45,9 @@ describe('Users / Register (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/users/register', () => {

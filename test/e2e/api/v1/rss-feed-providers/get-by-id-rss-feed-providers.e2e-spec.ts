@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -15,6 +15,7 @@ import { RssFeedProviderActiveStatus } from '../../../../../src/schemas/rssFeedP
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('rssFeedProviders / :id (e2e)', () => {
   let app: INestApplication;
@@ -48,6 +49,9 @@ describe('rssFeedProviders / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeRssFeedProvider = await rssFeedProvidersService.create(rssFeedProviderFactory.build({
       status: RssFeedProviderActiveStatus.Active,
@@ -58,6 +62,13 @@ describe('rssFeedProviders / :id (e2e)', () => {
   });
 
   describe('GET /api/v1/rss-feed-providers/:id', () => {
+    it('requires authentication', async () => {
+      const rssFeedProviderId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).get(
+        `/api/v1/rss-feed-providers/${rssFeedProviderId}`,
+      ).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful get rss feed providers data', () => {
       it('get the rss feed providers successful if parameter id value is exists', async () => {
         const response = await request(app.getHttpServer())

@@ -15,6 +15,7 @@ import {
   NotificationReadStatus,
 } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('All Mark As Read Notifications (e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('All Mark As Read Notifications (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -62,6 +66,10 @@ describe('All Mark As Read Notifications (e2e)', () => {
   });
 
   describe('PATCH /api/v1/notifications/mark-all-as-read', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).patch('/api/v1/notifications/mark-all-as-read').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('All Mark As Read Notifications', () => {
       it('finds all the expected isRead mark as read notifications details', async () => {
         const response = await request(app.getHttpServer())

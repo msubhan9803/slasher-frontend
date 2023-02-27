@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -14,6 +14,7 @@ import { FriendsService } from '../../../../../src/friends/providers/friends.ser
 import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Send Message In Conversation / (e2e)', () => {
   let app: INestApplication;
@@ -53,6 +54,9 @@ describe('Send Message In Conversation / (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
@@ -65,6 +69,11 @@ describe('Send Message In Conversation / (e2e)', () => {
     await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
   });
   describe('POST /api/v1/chat/conversation/:matchListId/message', () => {
+    it('requires authentication', async () => {
+      const matchId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/chat/conversation/${matchId}/message`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successfully send message', () => {
       it('gets the expected send image in conversations', async () => {
         await createTempFiles(async (tempPath) => {
@@ -193,8 +202,9 @@ describe('Send Message In Conversation / (e2e)', () => {
             .attach('files', tempPath[8])
             .attach('files', tempPath[9])
             .attach('files', tempPath[10])
+            .attach('files', tempPath[11])
             .expect(HttpStatus.BAD_REQUEST);
-          expect(response.body).toEqual({ statusCode: 400, message: 'Only allow a maximum of 10 images' });
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
         }, [
           { extension: 'png' },
           { extension: 'png' },

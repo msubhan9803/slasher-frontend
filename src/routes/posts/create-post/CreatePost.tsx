@@ -148,11 +148,10 @@ function CreatePost() {
             </div>
           </Form.Group>
           {paramsType === 'group-post' && (
-            <div>
+            <div className="position-relative">
               <Form.Control
-                maxLength={1000}
-                rows={1}
-                as="textarea"
+                maxLength={150}
+                type="text"
                 value={titleContent}
                 onChange={(e) => {
                   setTitleContent(e.target.value);
@@ -161,13 +160,14 @@ function CreatePost() {
                 placeholder="Title"
                 className="bg-black"
                 aria-label="Title"
+                style={{ paddingRight: '150px' }}
               />
               <CharactersCounter
-                counterClass="float-end fs-4"
+                counterClass="float-end fs-4 position-absolute"
                 charCount={charCount}
                 totalChar={150}
-                marginTop="-2rem"
-                marginRight=".5rem"
+                right="10px"
+                top="16px"
               />
             </div>
           )}

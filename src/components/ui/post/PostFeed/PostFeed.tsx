@@ -65,7 +65,7 @@ interface Props {
   onSelect?: (value: string) => void;
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
-  groupHomePosts?: boolean;
+  postType?: string;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -91,7 +91,7 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList, groupHomePosts,
+  handleSearch, mentionList, postType,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -139,7 +139,7 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId && !groupHomePosts) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -242,7 +242,6 @@ function PostFeed({
       </h1>
     </>
   );
-
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -262,11 +261,11 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
-                  groupHomePosts={groupHomePosts}
+                  postType={postType}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
-                {groupHomePosts && renderGroupPostContent(post)}
+                {postType === 'group-post' && renderGroupPostContent(post)}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
@@ -296,6 +295,7 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
+                      postType={postType}
                     />
                   </Col>
                 </Row>
@@ -398,6 +398,6 @@ PostFeed.defaultProps = {
   onSelect: undefined,
   handleSearch: undefined,
   mentionList: null,
-  groupHomePosts: false,
+  postType: '',
 };
 export default PostFeed;

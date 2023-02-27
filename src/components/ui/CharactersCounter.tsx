@@ -8,25 +8,38 @@ interface CharactersCounterProps {
   totalChar: number;
   marginTop?: string;
   marginRight?: string;
+  right?: string;
+  top?: string;
+  bottom?: string;
 }
 
 interface CustomSpanProps {
   marginTop: string;
   marginRight: string;
+  right: string;
+  top: string;
+  bottom: string;
 }
 const CustomSpan = styled(Form.Text) <CustomSpanProps>`
   margin-top: ${(props) => props.marginTop};
   margin-right: ${(props) => props.marginRight};
+  transform: translateY(-50%);
+  right: ${(props) => props.right};
+  top: ${(props) => props.top};
+  bottom: ${(props) => props.bottom};
 `;
 
 function CharactersCounter({
-  counterClass, charCount, totalChar, marginTop, marginRight,
+  counterClass, charCount, totalChar, marginTop, marginRight, bottom, top, right,
 }: CharactersCounterProps) {
   return (
     <CustomSpan
       marginTop={marginTop}
       marginRight={marginRight}
-      className={counterClass}
+      right={right}
+      top={top}
+      bottom={bottom}
+      className={`${counterClass}`}
     >
       {`${charCount}/${totalChar} characters`}
     </CustomSpan>
@@ -36,6 +49,9 @@ function CharactersCounter({
 CharactersCounter.defaultProps = {
   marginTop: '',
   marginRight: '',
+  right: undefined,
+  top: undefined,
+  bottom: undefined,
 };
 
 export default CharactersCounter;

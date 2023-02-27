@@ -1,6 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useEffect } from 'react';
 import PostFeed from '../../../components/ui/post/PostFeed/PostFeed';
 import RoundButton from '../../../components/ui/RoundButton';
 import SocialGroupsHeader from '../SocialGroupsHeader';
@@ -71,7 +71,7 @@ function GroupsHome() {
         sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
         selectedKey={key}
         applyFilter={applyFilter}
-        groupHomePosts
+        postType="group-post"
         clearKeyHandler={clearKeyHandler}
         sortVal={sortVal}
       />
@@ -114,7 +114,7 @@ function GroupsHome() {
       <div className="mt-3">
         <PostFeed
           postFeedData={posts}
-          groupHomePosts
+          postType="group"
           popoverOptions={options!}
           isCommentSection={false}
           onPopoverClick={handlePopoverOption}

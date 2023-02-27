@@ -64,7 +64,7 @@ function GroupsDetail() {
         sort={(e: React.ChangeEvent<HTMLSelectElement>) => setSortVal(e.target.value)}
         selectedKey={key}
         applyFilter={applyFilter}
-        groupHomePosts
+        postType="group-post"
         key={key}
         clearKeyHandler={clearKeyHandler}
         data={groupData}
@@ -85,7 +85,7 @@ function GroupsDetail() {
       <div className="mt-3">
         <PostFeed
           postFeedData={posts}
-          groupHomePosts
+          postType="group-post"
           popoverOptions={options!}
           isCommentSection={false}
           onPopoverClick={handlePopoverOption}

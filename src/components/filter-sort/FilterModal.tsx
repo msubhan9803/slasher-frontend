@@ -12,7 +12,7 @@ interface FilterDialogProps {
   applyFilter?: (keyValue: string, sortValue?: string) => void;
   sortoptions?: OptionsProps[];
   sortVal?: string
-  groupHomePosts?: boolean;
+  postType?: string;
 }
 interface OptionsProps {
   value: string;
@@ -24,7 +24,7 @@ const KeyboardButtons = styled(Button)`
 `;
 function FilterModal({
   showKeys, setShowKeys, selectedKey, applyFilter, sortoptions,
-  sortVal, groupHomePosts,
+  sortVal, postType,
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
@@ -48,19 +48,19 @@ function FilterModal({
     setKeyboard(groupsType);
   };
   useEffect(() => {
-    if (groupHomePosts) {
+    if (postType === 'group-post') {
       generateGroupsType();
     } else {
       generateAlphabet();
     }
-  }, [groupHomePosts]);
+  }, [postType]);
   const handleCloseKeys = () => {
     setShowKeys(false);
   };
 
   const onClickApplyFilter = (keyVal?: string) => {
     if (applyFilter) {
-      applyFilter(groupHomePosts! ? keyVal! : key, selectedSortValue);
+      applyFilter(postType !== 'group-post' ? keyVal! : key, selectedSortValue);
       handleCloseKeys();
     }
   };
@@ -73,20 +73,20 @@ function FilterModal({
       className="px-3 px-md-0"
       scrollable
     >
-      <Modal.Header className={`border-0 shadow-none m-0 ${groupHomePosts ? 'justify-content-end' : ''}`} closeButton>
-        {!groupHomePosts && <Modal.Title className="fs-2">Filter Options</Modal.Title>}
+      <Modal.Header className={`border-0 shadow-none m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
+        {postType !== 'group-post' && <Modal.Title className="fs-2">Filter Options</Modal.Title>}
       </Modal.Header>
       <Modal.Body className="pb-5">
-        {!groupHomePosts && (
+        {postType !== 'group-post' && (
           <div className="d-lg-none mb-4">
             <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
             <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
           </div>
         )}
-        <h2 className={`fs-3 mb-3 ${groupHomePosts ? 'text-primary' : ''} text-center `}>{groupHomePosts ? 'Filters' : 'Title starts with:'}</h2>
+        <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
           {keyboard.map((keys) => (
-            groupHomePosts
+            postType === 'group-post'
               ? (
                 <Button
                   key={keys}
@@ -107,7 +107,7 @@ function FilterModal({
               )
           ))}
         </div>
-        {!groupHomePosts && (
+        {postType !== 'group-post' && (
           <RoundButton
             variant="primary"
             type="submit"
@@ -123,11 +123,11 @@ function FilterModal({
 }
 
 FilterModal.defaultProps = {
-  selectedKey: null,
+  selectedKey: '',
   applyFilter: null,
   sortoptions: null,
   sortVal: 'name',
-  groupHomePosts: false,
+  postType: '',
 };
 
 export default FilterModal;

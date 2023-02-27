@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { DateTime } from 'luxon';
 import { Button, Col, Row } from 'react-bootstrap';
 import { HashLink } from 'react-router-hash-link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import CustomPopover, { PopoverClickProps } from '../../CustomPopover';
 import { scrollToTop } from '../../../../utils/scrollFunctions';
@@ -23,13 +23,11 @@ interface PostHeaderProps {
   userId?: string;
   rssfeedProviderId?: string;
   onSelect?: (value: string) => void;
-  groupHomePosts?: boolean;
+  postType?: string;
 }
-
 interface StyledSavedProps {
   saved: boolean;
 }
-
 const StyledSaveButton = styled(Button) <StyledSavedProps>`
   width: 85px;
   height: 28px;
@@ -37,10 +35,9 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
     ${(props) => (props.saved ? 'color: #FFC700' : '')};
   }
 `;
-
 function PostHeader({
   id, userName, postDate, profileImage, popoverOptions, onPopoverClick, detailPage,
-  content, userId, rssfeedProviderId, onSelect, groupHomePosts,
+  content, userId, rssfeedProviderId, onSelect, postType,
 }: PostHeaderProps) {
   const [notificationOn, setNotificationOn] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -108,7 +105,7 @@ function PostHeader({
       </Col>
       <Col xs="auto" className="d-block">
         <div className="d-flex align-items-center">
-          {groupHomePosts && (
+          {postType === 'group-post' && (
             <div className="d-flex align-items-center">
               <Button aria-label="notificatio bell" size="sm" className="me-2 pe-2" variant="link" onClick={() => setNotificationOn(!notificationOn)}>
                 <FontAwesomeIcon size="lg" className={`${notificationOn ? 'me-0' : 'me-1'} `} icon={notificationOn ? regular('bell-slash') : regular('bell')} />
@@ -129,7 +126,7 @@ function PostHeader({
               </div>
             </div>
           )}
-          {!groupHomePosts && (
+          {postType !== 'group-post' && (
             <div className="d-md-none d-lg-block d-xl-none me-2">
               <ShareLinkButton />
             </div>
@@ -155,7 +152,7 @@ PostHeader.defaultProps = {
   onPopoverClick: undefined,
   popoverOptions: null,
   onSelect: undefined,
-  groupHomePosts: false,
+  postType: '',
 };
 
 export default PostHeader;

@@ -1062,11 +1062,11 @@ describe('MoviesService', () => {
     it('verify that average of all `rating` of movierUserStatus is updated in movie', async () => {
       const rating1 = 1;
       const movieUserStatus1 = await moviesService.createOrUpdateRating(movie.id, rating1, activeUser.id);
-      expect(movieUserStatus1.rating).toBe(rating1);
+      expect(movieUserStatus1.userData.rating).toBe(rating1);
 
       const rating2 = 2;
       const movieUserStatus2 = await moviesService.createOrUpdateRating(movie.id, rating2, user1.id);
-      expect(movieUserStatus2.rating).toBe(rating2);
+      expect(movieUserStatus2.userData.rating).toBe(rating2);
 
       // Verify that average rating is correctly updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
@@ -1088,11 +1088,11 @@ describe('MoviesService', () => {
     it('verify that average of all `goreFactorRating` of movierUserStatus is updated in movie', async () => {
       const goreFactorRating1 = 1;
       const movieUserStatus1 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating1, activeUser.id);
-      expect(movieUserStatus1.goreFactorRating).toBe(goreFactorRating1);
+      expect(movieUserStatus1.userData.goreFactorRating).toBe(goreFactorRating1);
 
       const goreFactorRating2 = 2;
       const movieUserStatus2 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating2, user1.id);
-      expect(movieUserStatus2.goreFactorRating).toBe(goreFactorRating2);
+      expect(movieUserStatus2.userData.goreFactorRating).toBe(goreFactorRating2);
 
       // Verify average `goreFactorRating` is correctly updated in movie
       const updatedMovie = await moviesService.findById(movie.id, false);
@@ -1142,6 +1142,18 @@ describe('MoviesService', () => {
       expect(movieUserStatus.rating).toBe(rating);
       expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
       expect(movieUserStatus.worthWatching).toBe(worthWatching);
+    });
+  });
+
+  describe('#getRatingUsersCount', () => {
+    beforeEach(async () => {
+      // create rating by two users
+      await moviesService.createOrUpdateRating(movie.id, 4, activeUser.id);
+      await moviesService.createOrUpdateRating(movie.id, 5, user1.id);
+    });
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const ratingUsersCount = await moviesService.getRatingUsersCount(movie.id);
+      expect(ratingUsersCount).toBe(2);
     });
   });
 });

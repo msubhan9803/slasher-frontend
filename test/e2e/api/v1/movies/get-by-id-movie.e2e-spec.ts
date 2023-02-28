@@ -14,7 +14,6 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('GET Movie (e2e)', () => {
@@ -84,7 +83,11 @@ describe('GET Movie (e2e)', () => {
           movieDBId: 123456,
           rating: 0,
           goreFactorRating: 0,
-          userData: null,
+          userData: {
+            goreFactorRating: 0,
+            rating: 0,
+            worthWatching: 0,
+          },
           worthWatching: 0,
           goreFactorRatingUsersCount: 0,
           ratingUsersCount: 0,
@@ -143,7 +146,6 @@ describe('GET Movie (e2e)', () => {
             worthWatchingDownUsersCount: 1,
             worthWatchingUpUsersCount: 1,
             userData: {
-              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               rating: activeUserMovieStatusRating.rating,
               goreFactorRating: activeUserMovieStatusRating.goreFactorRating,
               worthWatching: activeUserMovieStatusRating.worthWatching,

@@ -14,6 +14,7 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -64,6 +68,12 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
         }),
       );
     });
+
+    it('requires authentication', async () => {
+      const movieId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/movies/${movieId}/worth-watching`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('delete a worthWatching`', async () => {
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/movies/${movie._id}/worth-watching`)

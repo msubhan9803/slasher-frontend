@@ -21,6 +21,7 @@ import { CreateOrUpdateGoreFactorRatingDto } from './dto/create-or-update-gore-f
 import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-watching-dto';
 import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
+import { MovieUserStatus } from '../schemas/movieUserStatus/movieUserStatus.schema';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
@@ -67,17 +68,24 @@ export class MoviesController {
     const ratingUsersCount = await this.moviesService.getRatingUsersCount(movie._id.toString());
 
     const user = getUserFromRequest(request);
-    const movieUserStatus = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
     if (movie.logo === null) {
       movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-    const filterUserData = pick(movieUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+    type UserData = Partial<MovieUserStatus>;
+    // assign default values for simplistic usage in client side
+    let userData: UserData = { rating: 0, goreFactorRating: 0, worthWatching: 0 };
+
+    let movieUserStatus: any = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
+    if (movieUserStatus) {
+      movieUserStatus = pick(movieUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+      userData = { ...userData, ...movieUserStatus };
+    }
 
     return pick({
       ...movie,
       // Intentionally overriding value of `ratingUsersCount` of `movie` by coputing on every request because of old-api.
       ratingUsersCount,
-      userData: filterUserData,
+      userData,
     }, [
       'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
       'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',

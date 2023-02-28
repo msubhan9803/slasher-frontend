@@ -257,7 +257,6 @@ export class MoviesService {
     return { ...returnValue, userData: movieUserStatus };
   }
 
-  // TODO-SAHIL-NOW: Write a service test for this
   async getRatingUsersCount(movieId: string) {
     return this.movieUserStatusModel.count({ movieId, rating: { $exists: true, $ne: 0 } });
   }

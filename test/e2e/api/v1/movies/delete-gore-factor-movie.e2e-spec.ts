@@ -13,6 +13,7 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
   let app: INestApplication;
@@ -46,6 +47,9 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -63,6 +67,12 @@ describe('Movie / Create/Update `rating` for `MovierUserStatus` (e2e)', () => {
         }),
       );
     });
+
+    it('requires authentication', async () => {
+      const movieId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).delete(`/api/v1/movies/${movieId}/gore-factor`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('delete a goreFactor`', async () => {
       const response = await request(app.getHttpServer())
         .delete(`/api/v1/movies/${movie._id}/gore-factor`)

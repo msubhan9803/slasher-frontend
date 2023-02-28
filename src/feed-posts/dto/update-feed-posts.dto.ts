@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsOptional, MaxLength,
 } from 'class-validator';
@@ -8,5 +9,6 @@ export class UpdateFeedPostsDto {
   message?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (Array.isArray(value) ? value : Array(value)))
   imagesToDelete?: string[];
 }

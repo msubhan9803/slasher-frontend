@@ -144,7 +144,6 @@ function PostCommentSection({
         const comments = commentSectionData.map((comment: FeedComments) => {
           const commentReplies = comment.replies.map((replies: any) => {
             const feeedCommentReplies: any = {
-              /* eslint no-underscore-dangle: 0 */
               id: replies._id,
               profilePic: replies.userId?.profilePic,
               name: replies.userId?.userName,
@@ -161,7 +160,7 @@ function PostCommentSection({
             return feeedCommentReplies;
           });
           const feedComment: any = {
-            /* eslint no-underscore-dangle: 0 */
+
             id: comment._id,
             profilePic: comment.userId?.profilePic,
             name: comment.userId?.userName,

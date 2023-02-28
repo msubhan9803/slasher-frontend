@@ -23,7 +23,6 @@ function RecentMessages() {
         {recentMessages && recentMessages.length > 0
           && recentMessages.map((recentMessageDetail: RecentMessage) => (
             <UserMessageSidebarListItem
-              /* eslint no-underscore-dangle: 0 */
               key={recentMessageDetail._id}
               userName={recentMessageDetail.participants
                 .find((participant) => participant._id !== userId)!.userName}

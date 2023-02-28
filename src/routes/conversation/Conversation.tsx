@@ -43,7 +43,6 @@ function Conversation() {
       const newConversationUserId = searchParams.get('userId');
       if (newConversationUserId) {
         createOrFindConversation(newConversationUserId).then((res) => {
-          // eslint-disable-next-line no-underscore-dangle
           navigate(location.pathname.replace('/new', `/${res.data._id}`), { replace: true });
         }).catch((e) => { throw e; });
       } else {
@@ -54,16 +53,13 @@ function Conversation() {
 
   const onChatMessageReceivedHandler = useCallback((payload: any) => {
     const chatreceivedObj = {
-      // eslint-disable-next-line no-underscore-dangle
       id: payload.message.fromId,
       message: payload.message.message,
       time: DateTime.now().toISO().toString(),
       participant: 'other',
       image: payload.message.image ?? null,
     };
-    // eslint-disable-next-line no-underscore-dangle
     if (payload.message.matchId === conversationId) {
-      // eslint-disable-next-line no-underscore-dangle
       socket?.emit('messageRead', { messageId: payload.message._id });
       setMessageList((prev: any) => [
         ...prev,
@@ -93,7 +89,7 @@ function Conversation() {
         setIsLoading(false);
 
         setMessageList([]);
-        // eslint-disable-next-line no-underscore-dangle, max-len
+        // eslint-disable-next-line max-len
         const userDetail = res.data.participants.find((participant: any) => participant._id !== userId);
         setChatUser(userDetail);
         setRequestAdditionalPosts(true);
@@ -123,7 +119,6 @@ function Conversation() {
             setMessageList((prev: any) => [
               ...prev,
               {
-                // eslint-disable-next-line no-underscore-dangle
                 id: sentMessage._id,
                 message: sentMessage.message,
                 time: sentMessage.createdAt,
@@ -142,13 +137,11 @@ function Conversation() {
           },
         );
     } else {
-      // eslint-disable-next-line no-underscore-dangle
       socket?.emit('chatMessage', { message, toUserId: chatUser?._id }, (chatMessageResponse: any) => {
         if (chatMessageResponse.success) {
           setMessageList((prev: any) => [
             ...prev,
             {
-              // eslint-disable-next-line no-underscore-dangle
               id: chatMessageResponse.message._id,
               message: chatMessageResponse.message.message,
               time: chatMessageResponse.message.createdAt,
@@ -176,7 +169,6 @@ function Conversation() {
 
           const newMessages = getMessagesResponse.map((newMessage: any) => {
             const finalData: any = {
-              // eslint-disable-next-line no-underscore-dangle
               id: newMessage._id,
               message: newMessage.message,
               time: newMessage.createdAt,

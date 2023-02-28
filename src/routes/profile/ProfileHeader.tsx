@@ -78,7 +78,6 @@ function ProfileHeader({ tabKey, user, showTabs }: Props) {
 
   useEffect(() => {
     if (user && !isSelfUserProfile) {
-      /* eslint no-underscore-dangle: 0 */
       friendship(user._id).then((res) => {
         setFriendData(res.data);
         setFriendStatus(res.data.reaction);

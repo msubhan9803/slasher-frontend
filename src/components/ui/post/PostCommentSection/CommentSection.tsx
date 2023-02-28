@@ -151,7 +151,6 @@ function CommentSection({
           />
           <div className="d-flex flex-wrap">
             {images && images.length > 0 && images.map((imageC: ImageList) => (
-              /* eslint no-underscore-dangle: 0 */
               <div key={imageC._id} className="me-3">
                 <UserCircleImage size="5.625rem" src={imageC.image_path} alt={`${imageC._id} picture`} className="mt-2 rounded" />
               </div>

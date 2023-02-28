@@ -278,7 +278,6 @@ function PostFeed({
                         imageId: imageData.videoKey ? imageData.videoKey : imageData._id,
                       }))
                     }
-                    /* eslint no-underscore-dangle: 0 */
                     initialSlide={post.images.findIndex((image: any) => image._id === queryParam)}
                     onSelect={onSelect}
                   />

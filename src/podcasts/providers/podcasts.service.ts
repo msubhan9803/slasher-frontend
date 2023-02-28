@@ -17,14 +17,15 @@ export class PodcastsService {
     return this.podcastsModel.create(podcastData);
   }
 
-  async findAll(): Promise<PodcastDocument[]> {
-    const podcastFind: any = {
-      deleted: PodcastDeletionState.NotDeleted,
-      status: PodcastStatus.Active,
-    };
+  async findAll(activeOnly: boolean): Promise<PodcastDocument[]> {
+    const podcastFindAllQuery: any = {};
+    if (activeOnly) {
+      podcastFindAllQuery.deleted = PodcastDeletionState.NotDeleted;
+      podcastFindAllQuery.status = PodcastStatus.Active;
+    }
 
     return this.podcastsModel
-      .find(podcastFind)
+      .find(podcastFindAllQuery)
       .select('name')
       .sort({
         name: 1,

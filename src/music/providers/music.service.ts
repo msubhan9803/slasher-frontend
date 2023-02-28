@@ -17,14 +17,15 @@ export class MusicService {
     return this.musicModel.create(musicData);
   }
 
-  async findAll(): Promise<MusicDocument[]> {
-    const musicFind: any = {
-      deleted: MusicDeletionState.NotDeleted,
-      status: MusicStatus.Active,
-    };
+  async findAll(activeOnly: boolean): Promise<MusicDocument[]> {
+    const musicFindAllQuery: any = {};
+    if (activeOnly) {
+      musicFindAllQuery.deleted = MusicDeletionState.NotDeleted;
+      musicFindAllQuery.status = MusicStatus.Active;
+    }
 
     return this.musicModel
-      .find(musicFind)
+      .find(musicFindAllQuery)
       .select('name')
       .sort({
         name: 1,

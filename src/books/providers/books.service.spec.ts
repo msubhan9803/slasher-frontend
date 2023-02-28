@@ -7,8 +7,8 @@ import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { BooksService } from './books.service';
 import { booksFactory } from '../../../test/factories/books.factory';
-import { BookDocument } from '../../schemas/book/book.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { BookStatus, BookDeletionState } from '../../schemas/book/book.enums';
 
 const mockHttpService = () => ({});
 
@@ -16,7 +16,6 @@ describe('BooksService', () => {
   let app: INestApplication;
   let connection: Connection;
   let booksService: BooksService;
-  let book: BookDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -36,7 +35,6 @@ describe('BooksService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
-    book = await booksService.create(booksFactory.build());
   });
 
   it('should be defined', () => {
@@ -44,9 +42,39 @@ describe('BooksService', () => {
   });
 
   describe('#findAll', () => {
-    it('finds the expected book details', async () => {
-      const bookDetails = await booksService.findAll();
-      expect(bookDetails.map((bookData) => bookData.name)).toEqual([book.name]);
+    it('finds all the expected Books that are activated and not deleted', async () => {
+      await booksService.create(
+        booksFactory.build({
+          status: BookStatus.InActive,
+          deleted: BookDeletionState.NotDeleted,
+          name: 'Oh, Whistle, And I will Come To You, My Lad',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookStatus.Active,
+          deleted: BookDeletionState.NotDeleted,
+          name: 'The Vampire Chronicles',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookStatus.Active,
+          deleted: BookDeletionState.Deleted,
+          name: 'Young Goodman Brown',
+        }),
+      );
+      await booksService.create(
+        booksFactory.build({
+          status: BookStatus.InActive,
+          deleted: BookDeletionState.Deleted,
+          name: 'The diffrent Book',
+        }),
+      );
+
+      const activeBooks = await booksService.findAll(true);
+      expect(activeBooks).toHaveLength(1);
+      expect(activeBooks[0].name).toBe('The Vampire Chronicles');
     });
   });
 });

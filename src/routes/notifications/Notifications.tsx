@@ -1,6 +1,8 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-len */
-import React, { useEffect, useState } from 'react';
+import React, {
+  useEffect, useState, useContext, useCallback,
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Link, useLocation } from 'react-router-dom';
 import { DateTime } from 'luxon';
@@ -14,6 +16,7 @@ import NotificationsRIghtSideNav from './NotificationsRIghtSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { useAppSelector, useAppDispatch } from '../../redux/hooks';
 import { setScrollPosition } from '../../redux/slices/scrollPositionSlice';
+import { SocketContext } from '../../context/socket';
 
 function Notifications() {
   const popoverOption = ['Settings'];
@@ -23,6 +26,7 @@ function Notifications() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const dispatch = useAppDispatch();
+  const socket = useContext(SocketContext);
   const location = useLocation();
   const [notificationData, setNotificationData] = useState<Notification[]>(
     scrollPosition.pathname === location.pathname
@@ -170,6 +174,39 @@ function Notifications() {
 
     return elementsToRender;
   };
+
+  const onNotificationReceivedHandler = useCallback((payload: any) => {
+    const notification = {
+      // eslint-disable-next-line no-underscore-dangle
+      _id: payload.notification._id,
+      createdAt: payload.notification.createdAt,
+      isRead: payload.notification.isRead,
+      notificationMsg: payload.notification.notificationMsg,
+      senderId: payload.notification.senderId,
+      feedPostId: payload.notification.feedPostId,
+      feedCommentId: payload.notification.feedCommentId,
+      feedReplyId: payload.notification.feedReplyId,
+      userId: payload.notification.userId,
+      rssFeedProviderId: payload.notification.rssFeedProviderId,
+      rssFeedId: payload.notification.rssFeedId,
+      notifyType: payload.notification.notifyType,
+    };
+
+    setNotificationData((prev: any) => [
+      notification,
+      ...prev,
+    ]);
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('notificationReceived', onNotificationReceivedHandler);
+      return () => {
+        socket.off('notificationReceived', onNotificationReceivedHandler);
+      };
+    }
+    return () => { };
+  }, [onNotificationReceivedHandler, socket]);
 
   return (
     <ContentSidbarWrapper>

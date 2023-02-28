@@ -270,7 +270,7 @@ export interface MovieData {
   worthWatchingUpUsersCount: number;
   worthWatchingDownUsersCount: number;
   // ratings by logged-in user
-  userData: null | {
+  userData: {
     rating:number;
     goreFactorRating: number;
     worthWatching: number;

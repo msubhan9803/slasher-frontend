@@ -177,7 +177,6 @@ function Notifications() {
 
   const onNotificationReceivedHandler = useCallback((payload: any) => {
     const notification = {
-      // eslint-disable-next-line no-underscore-dangle
       _id: payload.notification._id,
       createdAt: payload.notification.createdAt,
       isRead: payload.notification.isRead,

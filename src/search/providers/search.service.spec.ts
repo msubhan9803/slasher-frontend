@@ -12,6 +12,8 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../schemas/blockAnd
 import { BlockAndUnblockReaction } from '../../schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { ActiveStatus } from '../../schemas/user/user.enums';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('SearchService', () => {
   let app: INestApplication;
@@ -34,6 +36,7 @@ describe('SearchService', () => {
     blocksModel = moduleRef.get<Model<BlockAndUnblockDocument>>(getModelToken(BlockAndUnblock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -44,6 +47,9 @@ describe('SearchService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     user0 = await usersService.create(userFactory.build({ userName: 'Count Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Count Michael' }));
@@ -73,15 +79,15 @@ describe('SearchService', () => {
 
   describe('#findUsers', () => {
     it('returns the expected users', async () => {
-      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      excludedUserIds.push(user0._id);
+      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0.id);
+      excludedUserIds.push(user0.id);
       const users = await searchService.findUsers('Count', 5, 0, excludedUserIds);
       expect(users).toHaveLength(2);
     });
 
     it('returns the expected response for applied limit and offset', async () => {
-      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0._id);
-      excludedUserIds.push(user0._id);
+      const excludedUserIds = await blocksService.getBlockedUserIdsBySender(user0.id);
+      excludedUserIds.push(user0.id);
       const users = await searchService.findUsers('Count', 1, 1, excludedUserIds);
       expect(users).toHaveLength(1);
     });

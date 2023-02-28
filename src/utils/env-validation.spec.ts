@@ -5,7 +5,9 @@ import { Test } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { clearDatabase } from '../../test/helpers/mongo-helpers';
 import { AppModule } from '../app.module';
+import { configureAppPrefixAndVersioning } from './app-setup-utils';
 import { validateEnv } from './env-validation';
+import { rewindAllFactories } from '../../test/helpers/factory-helpers.ts';
 
 describe('Env validation for ConfigService', () => {
   let app: INestApplication;
@@ -22,6 +24,7 @@ describe('Env validation for ConfigService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -32,6 +35,9 @@ describe('Env validation for ConfigService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('#validateEnv', () => {

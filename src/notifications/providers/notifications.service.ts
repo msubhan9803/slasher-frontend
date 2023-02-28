@@ -18,7 +18,7 @@ export class NotificationsService {
     const newNotification = await this.notificationModel.create(notification);
     // TODO: Eventually move this to a background job (probably using a NestJS Queue: https://docs.nestjs.com/techniques/queues)
     // This can be processed in the background instead of adding a small delay to each notification creation.
-    await this.processNotification(newNotification._id);
+    await this.processNotification(newNotification.id);
     return newNotification;
   }
 

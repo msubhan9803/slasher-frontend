@@ -8,7 +8,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { UpdateNoticationSettingDto } from './dto/update-notification-setting.dto';
 import { UserSettingsService } from './providers/user-settings.service';
 
-@Controller('settings')
+@Controller({ path: 'settings', version: ['1'] })
 export class SettingsController {
   constructor(
     private readonly userSettingsService: UserSettingsService,
@@ -17,7 +17,7 @@ export class SettingsController {
   @Get('notifications')
   async getNotificationSettings(@Req() request: Request) {
     const user = getUserFromRequest(request);
-    const userSetting = await this.userSettingsService.findByUserId(user._id);
+    const userSetting = await this.userSettingsService.findByUserId(user.id);
     if (!userSetting) {
       throw new HttpException('User setting not found', HttpStatus.NOT_FOUND);
     }
@@ -39,7 +39,7 @@ export class SettingsController {
     @Body() updateNoticationSettingDto: UpdateNoticationSettingDto,
   ) {
     const user = getUserFromRequest(request);
-    const userSetting = await this.userSettingsService.update(user._id, updateNoticationSettingDto);
+    const userSetting = await this.userSettingsService.update(user.id, updateNoticationSettingDto);
     return pick(userSetting, ['_id', 'app_tutorial', 'dating_got_a_match',
       'dating_message_received', 'event_reminder', 'event_suggested',
       'feed_comment_on_post', 'feed_mention_on_post_comment_reply',

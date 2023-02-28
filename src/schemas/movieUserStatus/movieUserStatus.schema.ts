@@ -1,9 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { Movie } from '../movie/movie.schema';
+import { User } from '../user/user.schema';
 import {
- MovieUserStatusBuy, MovieUserStatusFavorites, MovieUserStatusRating,
- MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
- MovieUserStatusRatingStatus, MovieUserStatusStatus,
+  MovieUserStatusBuy, MovieUserStatusFavorites,
+  MovieUserStatusWatch, MovieUserStatusWatched, MovieUserStatusDeletionStatus,
+  MovieUserStatusRatingStatus, MovieUserStatusStatus,
 } from './movieUserStatus.enums';
 
 @Schema({ timestamps: true })
@@ -23,16 +25,16 @@ export class MovieUserStatus {
   @Prop({ default: null, trim: true })
   name: string;
 
-  @Prop({ default: null, ref: 'movies' })
+  @Prop({ default: null, ref: Movie.name, required: true })
   movieId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, ref: 'users' })
+  @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
   @Prop({
     default: MovieUserStatusFavorites.NotFavorite,
     enum: [MovieUserStatusFavorites.NotFavorite, MovieUserStatusFavorites.Favorite],
-   })
+  })
   favourite: MovieUserStatusFavorites;
 
   @Prop({
@@ -43,21 +45,18 @@ export class MovieUserStatus {
 
   @Prop({
     default: MovieUserStatusWatched.NotWatched,
-    enum: [MovieUserStatusWatch.NotWatch, MovieUserStatusWatch.Watch],
+    enum: [MovieUserStatusWatched.NotWatched, MovieUserStatusWatched.Watched],
   })
   watched: MovieUserStatusWatched;
 
   @Prop({
     default: MovieUserStatusBuy.NotBuy,
     enum: [MovieUserStatusBuy.NotBuy, MovieUserStatusBuy.Buy],
-   })
+  })
   buy: MovieUserStatusBuy;
 
-  @Prop({
-    default: MovieUserStatusRating.Free,
-    enum: [MovieUserStatusRating.Free, MovieUserStatusRating.MovieDB],
-   })
-  rating: MovieUserStatusRating;
+  @Prop({ default: 0 })
+  rating: number;
 
   @Prop({
     default: MovieUserStatusRatingStatus.NotAvailable,
@@ -74,7 +73,7 @@ export class MovieUserStatus {
   @Prop({
     default: MovieUserStatusDeletionStatus.NotDeleted,
     enum: [MovieUserStatusDeletionStatus.NotDeleted, MovieUserStatusDeletionStatus.Deleted],
-   })
+  })
   deleted: MovieUserStatusDeletionStatus;
 
   /***********
@@ -93,7 +92,7 @@ export class MovieUserStatus {
 
 export const MovieUserStatusSchema = SchemaFactory.createForClass(MovieUserStatus);
 
-export type MovieUserStatusDocument = MovieUserStatus & Document;
+export type MovieUserStatusDocument = HydratedDocument<MovieUserStatus>;
 
 MovieUserStatusSchema.index({ movieId: 1, userId: 1 });
 MovieUserStatusSchema.index({ favourite: 1, userId: 1 });

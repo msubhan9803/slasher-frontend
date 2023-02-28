@@ -18,6 +18,8 @@ import { FeedPostDocument } from '../../schemas/feedPost/feedPost.schema';
 
 import { notificationFactory } from '../../../test/factories/notification.factory';
 import { Notification, NotificationDocument } from '../../schemas/notification/notification.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('NotificationsService', () => {
   let app: INestApplication;
@@ -41,6 +43,7 @@ describe('NotificationsService', () => {
     notificationModel = moduleRef.get<Model<NotificationDocument>>(getModelToken(Notification.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -51,6 +54,9 @@ describe('NotificationsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
@@ -117,7 +123,7 @@ describe('NotificationsService', () => {
       notification = await notificationsService.create(
         notificationFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -134,7 +140,7 @@ describe('NotificationsService', () => {
       notification = await notificationsService.create(
         notificationFactory.build(
           {
-            userId: activeUser._id,
+            userId: activeUser.id,
           },
         ),
       );
@@ -144,7 +150,7 @@ describe('NotificationsService', () => {
         notificationMsg: 'notification test message',
       };
       const updatedNotification = await notificationsService.update(notification._id, notificationData);
-      const reloadedNotification = await notificationsService.findById(updatedNotification._id);
+      const reloadedNotification = await notificationsService.findById(updatedNotification.id);
       expect(reloadedNotification.notificationMsg).toEqual(notificationData.notificationMsg);
     });
   });

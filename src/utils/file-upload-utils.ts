@@ -22,7 +22,7 @@ export function defaultFileInterceptorFileFilter(req, file, callback) {
 export function deleteMulterFiles(files: string[], logger?: Logger) {
   files.forEach((path) => {
     const fileDoesNotExist = !existsSync(path);
-    if (fileDoesNotExist) return;
+    if (fileDoesNotExist) { return; }
 
     try {
       unlinkSync(path);

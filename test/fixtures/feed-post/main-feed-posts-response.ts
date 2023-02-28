@@ -12,11 +12,11 @@ export default [
     },
     images: [
       {
-        image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
       {
-        image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
     ],
@@ -26,8 +26,8 @@ export default [
       profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
     },
     commentCount: 0,
-    likeCount: 0,
-    likes: [],
+    likeCount: 2,
+    likedByUser: true,
     lastUpdateAt: '2022-10-20T00:00:00.000Z',
   },
   {
@@ -41,11 +41,11 @@ export default [
     },
     images: [
       {
-        image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
       {
-        image_path: 'http://localhost:4444/local-storage/feed/feed_sample1.jpg',
+        image_path: 'http://localhost:4444/api/v1/local-storage/feed/feed_sample1.jpg',
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
       },
     ],
@@ -56,7 +56,7 @@ export default [
     },
     commentCount: 0,
     likeCount: 0,
-    likes: [],
+    likedByUser: false,
     lastUpdateAt: '2022-10-19T00:00:00.000Z',
   },
 ];

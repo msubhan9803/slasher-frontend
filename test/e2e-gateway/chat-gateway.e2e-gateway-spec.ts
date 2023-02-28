@@ -19,6 +19,7 @@ import { Message, MessageDocument } from '../../src/schemas/message/message.sche
 import { SIMPLE_MONGODB_ID_REGEX } from '../../src/constants';
 import { FriendsService } from '../../src/friends/providers/friends.service';
 import { ChatGateway } from '../../src/chat/providers/chat.gateway';
+import { rewindAllFactories } from '../helpers/factory-helpers.ts';
 
 describe('Chat Gateway (e2e)', () => {
   let app: INestApplication;
@@ -72,6 +73,9 @@ describe('Chat Gateway (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -107,8 +111,8 @@ describe('Chat Gateway (e2e)', () => {
   describe('#chatMessage', () => {
     describe('when target user is a friend', () => {
       beforeEach(async () => {
-        await friendsService.createFriendRequest(activeUser._id.toString(), user1._id.toString());
-        await friendsService.acceptFriendRequest(activeUser._id.toString(), user1._id.toString());
+        await friendsService.createFriendRequest(activeUser.id, user1._id.toString());
+        await friendsService.acceptFriendRequest(activeUser.id, user1._id.toString());
       });
 
       it('should send chatMessage and return the expected socket response', async () => {
@@ -152,7 +156,7 @@ describe('Chat Gateway (e2e)', () => {
               createdAt: expect.any(String),
               matchId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
               relationId: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-              fromId: activeUser._id.toString(),
+              fromId: activeUser.id,
               senderId: user1._id.toString(),
               messageType: 0,
               image: null,
@@ -236,7 +240,7 @@ describe('Chat Gateway (e2e)', () => {
         client.emit('chatMessage', payload, (data) => {
           expect(data).toEqual({
             success: false,
-            errorMessage: 'You are not friends with this user.',
+            errorMessage: 'You must be friends with this user to perform this action.',
           });
           resolve();
         });
@@ -256,16 +260,16 @@ describe('Chat Gateway (e2e)', () => {
 
     beforeEach(async () => {
       // user1 messages
-      message0 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
-      message1 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
+      message0 = await chatService.sendPrivateDirectMessage(activeUser._id.toString(), user1._id.toString(), 'Hi, test message.');
+      message1 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, there!');
       matchList = await matchListModel.findOne({
         participants: activeUser._id,
       });
 
       // user2 messages
-      message2 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test!');
-      message3 = await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test2!');
-      await chatService.sendPrivateDirectMessage(user2._id, activeUser._id, 'Hi, Test3!');
+      message2 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test!');
+      message3 = await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test2!');
+      await chatService.sendPrivateDirectMessage(user2._id.toString(), activeUser._id.toString(), 'Hi, Test3!');
     });
 
     describe('successful responses', () => {
@@ -302,7 +306,7 @@ describe('Chat Gateway (e2e)', () => {
             senderId: activeUser.id,
             deletefor: [],
             messageType: 0,
-            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
             created: expect.any(String),
             urls: [],
             __v: 0,
@@ -321,7 +325,7 @@ describe('Chat Gateway (e2e)', () => {
             senderId: user1.id,
             deletefor: [],
             messageType: 0,
-            image: 'http://localhost:4444/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
+            image: 'http://localhost:4444/api/v1/local-storage//chat/chat_768212f2-7b77-4903-8e5d-2ddce62361b8.jpg',
             created: expect.any(String),
             urls: [],
             __v: 0,
@@ -450,7 +454,7 @@ describe('Chat Gateway (e2e)', () => {
   describe('#markMessageAsRead', () => {
     let message;
     beforeEach(async () => {
-      message = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, test message.');
+      message = await chatService.sendPrivateDirectMessage(user1.id, activeUser.id, 'Hi, test message.');
     });
 
     describe('successful responses', () => {
@@ -513,7 +517,7 @@ describe('Chat Gateway (e2e)', () => {
       });
 
       it('returns the expected error message when user tries to mark message as read but message was not sent TO that user', async () => {
-        const message1 = await chatService.sendPrivateDirectMessage(activeUser._id, user1._id, 'Hi, test message.');
+        const message1 = await chatService.sendPrivateDirectMessage(activeUser.id, user1.id, 'Hi, test message.');
         const client = io(baseAddress, { auth: { token: activeUserAuthToken }, transports: ['websocket'] });
         await waitForAuthSuccessMessage(client);
 
@@ -539,7 +543,7 @@ describe('Chat Gateway (e2e)', () => {
     let matchList;
 
     beforeEach(async () => {
-      message0 = await chatService.sendPrivateDirectMessage(user1._id, activeUser._id, 'Hi, there!');
+      message0 = await chatService.sendPrivateDirectMessage(user1._id.toString(), activeUser._id.toString(), 'Hi, there!');
       matchList = await matchListModel.findOne({
         participants: activeUser._id,
       });
@@ -554,7 +558,7 @@ describe('Chat Gateway (e2e)', () => {
       await waitForAuthSuccessMessage(receiverClient);
 
       const message = [message0];
-      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser.id);
+      const toUserId = matchList.participants.find((userId) => userId.toString() !== activeUser._id.toString());
 
       await chatGateway.emitMessageForConversation(message, toUserId);
 

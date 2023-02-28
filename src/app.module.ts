@@ -6,7 +6,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
 import { join } from 'path';
-import { AppController } from './app.controller';
 import { UsersModule } from './users/users.module';
 import { JwtAuthenticationMiddleware } from './app/middleware/jwt-authentication.middleware';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -36,6 +35,8 @@ import { FeedLikesModule } from './feed-likes/feed-likes.module';
 import { ReportsModule } from './reports/reports.module';
 import { QueuedJobsModule } from './global/queued-jobs.module';
 import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload-cleanup.interceptor';
+import { MovieUserStatusModule } from './movie-user-status/movie.user.status.module';
+import { AppController } from './app/app.controller';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { MulterUploadCleanupInterceptor } from './app/interceptors/multer-upload
     FeedLikesModule,
     ReportsModule,
     QueuedJobsModule,
+    MovieUserStatusModule,
   ],
   controllers: [AppController],
   providers: [
@@ -103,19 +105,24 @@ export class AppModule {
     consumer
       .apply(JwtAuthenticationMiddleware)
       .exclude(
+        // Reminder: Paths below are exact matches (not "starts with")
         '/',
-        '/placeholders/(.*)', // the /placeholders endpoint is only used in development environments
-        '/local-storage/(.*)', // the /local-storage endpoint is only used in development environments
-        '/users/activate-account',
-        '/users/check-user-name',
-        '/users/validate-registration-fields',
-        '/users/forgot-password',
-        '/users/register',
-        '/users/reset-password',
-        '/users/sign-in',
-        '/users/validate-password-reset-token',
-        '/users/check-email',
-        '/users/verification-email-not-received',
+        '/api',
+        '/api/v1',
+        '/api/v1/remote-constants',
+        '/health-check',
+        '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
+        '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments
+        '/api/v1/users/activate-account',
+        '/api/v1/users/check-user-name',
+        '/api/v1/users/validate-registration-fields',
+        '/api/v1/users/forgot-password',
+        '/api/v1/users/register',
+        '/api/v1/users/reset-password',
+        '/api/v1/users/sign-in',
+        '/api/v1/users/validate-password-reset-token',
+        '/api/v1/users/check-email',
+        '/api/v1/users/verification-email-not-received',
       )
       .forRoutes('*');
   }

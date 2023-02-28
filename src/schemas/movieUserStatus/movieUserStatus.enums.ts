@@ -18,11 +18,6 @@ export enum MovieUserStatusBuy {
   Buy = 1,
 }
 
-export enum MovieUserStatusRating {
-  Free = 0,
-  MovieDB = 1,
-}
-
 export enum MovieUserStatusRatingStatus {
   NotAvailable = 0,
   Available = 1,

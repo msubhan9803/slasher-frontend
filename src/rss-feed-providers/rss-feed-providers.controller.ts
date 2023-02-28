@@ -19,7 +19,7 @@ import { getUserFromRequest } from '../utils/request-utils';
 import { RssFeedProviderFollowNotificationsEnabled } from '../schemas/rssFeedProviderFollow/rssFeedProviderFollow.enums';
 import { pick } from '../utils/object-utils';
 
-@Controller('rss-feed-providers')
+@Controller({ path: 'rss-feed-providers', version: ['1'] })
 export class RssFeedProvidersController {
   constructor(
     private readonly rssFeedProvidersService: RssFeedProvidersService,
@@ -64,24 +64,27 @@ export class RssFeedProvidersController {
   @TransformImageUrls('$[*].images[*].image_path', '$[*].rssfeedProviderId.logo')
   @Get(':id/posts')
   async findFeedPostsForProvider(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamRssFeedProviderIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: FindFeedPostsForProviderQueryDto,
   ) {
+    const user = getUserFromRequest(request);
     const rssFeedProvider = await this.rssFeedProvidersService.findById(param.id, true);
     if (!rssFeedProvider) {
       throw new HttpException('RssFeedProvider not found', HttpStatus.NOT_FOUND);
     }
 
     const feedPosts = await this.feedPostsService.findAllByRssFeedProvider(
-      rssFeedProvider._id,
+      rssFeedProvider.id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
+      user.id,
     );
     return feedPosts.map((feedPost) => pick(feedPost, [
-      '_id', 'createdAt', 'commentCount', 'images', 'lastUpdateAt', 'likeCount', 'likes', 'message',
+      '_id', 'createdAt', 'commentCount', 'images', 'lastUpdateAt', 'likeCount', 'likedByUser', 'message',
       'movieId', 'rssFeedId', 'rssfeedProviderId', 'userId',
     ]));
   }

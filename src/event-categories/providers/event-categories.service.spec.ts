@@ -8,6 +8,8 @@ import { AppModule } from '../../app.module';
 import { EventCategoriesService } from './event-categories.service';
 import { EventCategoryDeletionState, EventCategoryStatus } from '../../schemas/eventCategory/eventCategory.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('EventCategoriesService', () => {
   let app: INestApplication;
@@ -22,6 +24,7 @@ describe('EventCategoriesService', () => {
     eventCategoriesService = moduleRef.get<EventCategoriesService>(EventCategoriesService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -32,6 +35,9 @@ describe('EventCategoriesService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {
@@ -42,7 +48,7 @@ describe('EventCategoriesService', () => {
     it('successfully creates a event category', async () => {
       const eventCategoryData = eventCategoryFactory.build();
       const eventCategory = await eventCategoriesService.create(eventCategoryData);
-      expect(await eventCategoriesService.findById(eventCategory._id, false)).toBeTruthy();
+      expect(await eventCategoriesService.findById(eventCategory.id, false)).toBeTruthy();
     });
   });
 
@@ -58,8 +64,8 @@ describe('EventCategoriesService', () => {
         event_name: 'Event test 20',
         status: EventCategoryStatus.Inactive,
       };
-      const updatedEvent = await eventCategoriesService.update(event._id, eventData);
-      const reloadedEvent = await eventCategoriesService.findById(updatedEvent._id, false);
+      const updatedEvent = await eventCategoriesService.update(event.id, eventData);
+      const reloadedEvent = await eventCategoriesService.findById(updatedEvent.id, false);
       expect(reloadedEvent.event_name).toEqual(eventData.event_name);
       expect(reloadedEvent.status).toEqual(eventData.status);
       expect(reloadedEvent.is_deleted).toEqual(event.is_deleted);
@@ -74,7 +80,7 @@ describe('EventCategoriesService', () => {
       );
     });
     it('finds the expected event category details', async () => {
-      const eventCategoryDetail = await eventCategoriesService.findById(eventCategory._id, false);
+      const eventCategoryDetail = await eventCategoriesService.findById(eventCategory.id, false);
       expect(eventCategoryDetail.event_name).toEqual(eventCategory.event_name);
     });
 
@@ -86,7 +92,7 @@ describe('EventCategoriesService', () => {
         }),
       );
 
-      const eventCategoryDetail = await eventCategoriesService.findById(deletedEventCategory._id, true);
+      const eventCategoryDetail = await eventCategoriesService.findById(deletedEventCategory.id, true);
       expect(eventCategoryDetail).toBeNull();
     });
   });

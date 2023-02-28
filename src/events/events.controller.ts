@@ -3,7 +3,6 @@ import {
   Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Query, Req, UploadedFiles, UseInterceptors, ValidationPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -16,7 +15,7 @@ import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils'
 import { ValidateEventIdDto } from './dto/validate-event-id.dto';
 import { pick } from '../utils/object-utils';
 import { ValidateAllEventDto } from './dto/validate-all-event.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT, UPLOAD_PARAM_NAME_FOR_FILES } from '../constants';
 import { ValidateAllEventCountsDto } from './dto/validate-all-event-counts.dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { StorageLocationService } from '../global/providers/storage-location.service';
@@ -24,8 +23,9 @@ import { CreateEventDto } from './dto/create-event-dto';
 import { UserType } from '../schemas/user/user.enums';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
-@Controller('events')
+@Controller({ path: 'events', version: ['1'] })
 export class EventsController {
   constructor(
     private readonly eventService: EventService,
@@ -37,11 +37,9 @@ export class EventsController {
 
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_EVENT, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE, // size in bytes, 20MB
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async createEvent(
@@ -50,13 +48,6 @@ export class EventsController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const user = getUserFromRequest(request);
-
-    if (files.length > 4) {
-      throw new HttpException(
-        'Only allow a maximum of 4 images',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
 
     const images = [];
     for (const file of files) {

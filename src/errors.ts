@@ -11,3 +11,5 @@ export class SlasherError extends Error {
 
 export class WaitForTimeoutError extends SlasherError { }
 export class NotFoundError extends SlasherError { }
+export class InvalidPathError extends SlasherError { }
+export class S3FileExistsError extends SlasherError { }

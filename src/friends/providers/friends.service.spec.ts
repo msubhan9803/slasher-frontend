@@ -14,6 +14,8 @@ import { SuggestBlock, SuggestBlockDocument } from '../../schemas/suggestBlock/s
 import { SuggestBlockReaction } from '../../schemas/suggestBlock/suggestBlock.enums';
 import { BlocksService } from '../../blocks/providers/blocks.service';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('FriendsService', () => {
   let app: INestApplication;
@@ -40,6 +42,7 @@ describe('FriendsService', () => {
     suggestBlockModel = moduleRef.get<Model<SuggestBlockDocument>>(getModelToken(SuggestBlock.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -50,6 +53,9 @@ describe('FriendsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
@@ -102,6 +108,35 @@ describe('FriendsService', () => {
       expect(
         await friendsService.findFriendship(user0.id, user2.id),
       ).toBeNull();
+    });
+  });
+
+  describe('#findFriendshipBulk', () => {
+    beforeEach(async () => {
+      // create a pending friend request for `user1`
+      await friendsService.createFriendRequest(user0.id, user1.id);
+      // accept friend request for `user2`
+      await friendsService.createFriendRequest(user2.id, user0.id);
+      await friendsService.acceptFriendRequest(user2.id, user0.id);
+    });
+
+    it('returns the expected friend records for `requestingContextUserId` associated with given array of `userIds`', async () => {
+      const requestingContextUserId = user0.id;
+      const users = [user1._id, user2.id, user3.id];
+      const bulkFriendRecords = await friendsService.findFriendshipBulk(requestingContextUserId, users);
+      // NOTE: There is no friend request record for `user3` and thus not record should be returned
+      expect(bulkFriendRecords).toMatchObject({
+        [user1.id]: {
+          reaction: FriendRequestReaction.Pending,
+          from: user0._id,
+          to: user1._id,
+        },
+        [user2.id]: {
+          reaction: FriendRequestReaction.Accepted,
+          from: user2._id,
+          to: user0._id,
+        },
+      });
     });
   });
 

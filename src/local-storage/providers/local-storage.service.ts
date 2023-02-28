@@ -4,6 +4,7 @@ import {
   constants, copyFileSync, existsSync, mkdirSync,
 } from 'fs';
 import { join, dirname, resolve } from 'path';
+import { InvalidPathError } from '../../errors';
 
 @Injectable()
 export class LocalStorageService {
@@ -38,7 +39,7 @@ export class LocalStorageService {
       || location.includes('/../')
       || !resolve(`${localStoragePath}${location}`).toString().startsWith(resolve(localStoragePath).toString())
     ) {
-      throw Error('Invalid path');
+      throw new InvalidPathError('Invalid path');
     }
 
     if (existsSync(`${localStoragePath}${location}`)) {

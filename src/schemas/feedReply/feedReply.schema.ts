@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { FeedComment } from '../feedComment/feedComment.schema';
 import { FeedPost } from '../feedPost/feedPost.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
@@ -23,7 +23,7 @@ export class FeedReply extends FeedReplyUnusedFields {
   @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ default: null, required: true })
+  @Prop({ default: null })
   message: string;
 
   @Prop({ type: [ImageSchema] })
@@ -68,4 +68,4 @@ export class FeedReply extends FeedReplyUnusedFields {
 
 export const FeedReplySchema = SchemaFactory.createForClass(FeedReply);
 
-export type FeedReplyDocument = FeedReply & Document;
+export type FeedReplyDocument = HydratedDocument<FeedReply>;

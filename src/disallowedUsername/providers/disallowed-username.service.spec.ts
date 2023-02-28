@@ -6,6 +6,8 @@ import { AppModule } from '../../app.module';
 import { DisallowedUsernameService } from './disallowed-username.service';
 import { DisallowedUsername, DisallowedUsernameDocument } from '../../schemas/disallowedUsername/disallowedUsername.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('DisallowedUsernameService', () => {
   let app: INestApplication;
@@ -21,6 +23,7 @@ describe('DisallowedUsernameService', () => {
     disallowedUsernameService = moduleRef.get<DisallowedUsernameService>(DisallowedUsernameService);
     disallowedUsernameModel = moduleRef.get<Model<DisallowedUsernameDocument>>(getModelToken(DisallowedUsername.name));
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -31,6 +34,9 @@ describe('DisallowedUsernameService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {
@@ -70,7 +76,7 @@ describe('DisallowedUsernameService', () => {
       const disallowedUsername = await disallowedUsernameService.create({
         username: 'testuser',
       });
-      await disallowedUsernameService.delete(disallowedUsername._id);
+      await disallowedUsernameService.delete(disallowedUsername.id);
       const disallowedUsernameDetails = await disallowedUsernameModel.findById(disallowedUsername._id);
       expect(disallowedUsernameDetails).toBeNull();
     });

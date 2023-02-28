@@ -12,6 +12,8 @@ import { MatchList, MatchListDocument } from '../../schemas/matchList/matchList.
 import { Message, MessageDocument } from '../../schemas/message/message.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { Chat, ChatDocument } from '../../schemas/chat/chat.schema';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('ChatService', () => {
   let app: INestApplication;
@@ -40,6 +42,7 @@ describe('ChatService', () => {
     chatModel = moduleRef.get<Model<ChatDocument>>(getModelToken(Chat.name));
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -50,6 +53,9 @@ describe('ChatService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build({ userName: 'Jack' }));
     user0 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));
@@ -66,7 +72,7 @@ describe('ChatService', () => {
   describe('#sendPrivateDirectMessage', () => {
     let message: Message;
     beforeEach(async () => {
-      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
     });
 
     it('successfully sends a message from one user to another user', async () => {
@@ -78,7 +84,7 @@ describe('ChatService', () => {
     it('successfully sends an image message', async () => {
       const testMessage = 'Hi, test message.';
       const image = 'noUser.jpg';
-      const message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, testMessage, image);
+      const message1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, testMessage, image);
       const messageData = await messageModel.findById(message1._id);
 
       expect(messageData.message).toBe('Image');
@@ -164,18 +170,18 @@ describe('ChatService', () => {
     let m3;
     beforeEach(async () => {
       // User 1 sends a message and receives a message. Received message is unread.
-      const message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      const message1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
       message1.isRead = true;
       await message1.save();
-      messageLatest1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'This is a reply');
+      messageLatest1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'This is a reply');
 
       // User 1 sends two messages. Both sent messages are unread.
-      m2 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is a new message');
-      m3 = await chatService.sendPrivateDirectMessage(user1._id, user2._id, 'This is another new message');
+      m2 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is a new message');
+      m3 = await chatService.sendPrivateDirectMessage(user1.id, user2.id, 'This is another new message');
     });
 
     it('successfully returns a list of convesations for a user', async () => {
-      const conversations = await chatService.getConversations(user1._id, 5);
+      const conversations = await chatService.getConversations(user1.id, 5);
 
       expect(conversations).toHaveLength(2);
 
@@ -195,7 +201,7 @@ describe('ChatService', () => {
       await messageModel.updateOne({ _id: m2._id }, { $set: { deletefor: [user1._id] } });
       await messageModel.updateOne({ _id: m3._id }, { $set: { deletefor: [user1._id] } });
 
-      const conversations = await chatService.getConversations(user1._id, 5);
+      const conversations = await chatService.getConversations(user1.id, 5);
 
       // Note: The second conversation should not be returned since all messages for second conversation
       // are set in `deletefor` this user
@@ -208,7 +214,7 @@ describe('ChatService', () => {
     });
 
     it('applies the given limit', async () => {
-      const conversations = await chatService.getConversations(user1._id, 1);
+      const conversations = await chatService.getConversations(user1.id, 1);
 
       expect(conversations).toHaveLength(1);
       expect(conversations[0].latestMessage).toBe('This is another new message');
@@ -218,7 +224,7 @@ describe('ChatService', () => {
       const matchList = await matchListModel.findOne({
         participants: user2._id,
       });
-      const conversations = await chatService.getConversations(user1._id, 5, matchList.id);
+      const conversations = await chatService.getConversations(user1.id, 5, matchList.id);
       expect(conversations).toHaveLength(1);
       expect(conversations[0].latestMessage).toBe('This is a reply');
     });
@@ -247,9 +253,9 @@ describe('ChatService', () => {
     let matchList;
 
     beforeEach(async () => {
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-      message1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
-      await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Hi, Test!');
+      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+      message1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      await chatService.sendPrivateDirectMessage(user2.id, user0.id, 'Hi, Test!');
       matchList = await matchListModel.findOne({
         participants: user1._id,
       });
@@ -257,7 +263,7 @@ describe('ChatService', () => {
 
     it('successfully returns some messages that are part of a conversation', async () => {
       const limit = 5;
-      const messages = await chatService.getMessages(matchList._id, user0._id, limit);
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit);
 
       expect(messages).toHaveLength(2);
     });
@@ -265,7 +271,7 @@ describe('ChatService', () => {
     it('Should not return the deleted messages', async () => {
       const limit = 5;
       await messageModel.updateOne({ _id: message1._id }, { $set: { deleted: true } });
-      const messages = await chatService.getMessages(matchList._id, user0._id, limit);
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit);
 
       expect(messages).toHaveLength(1);
       expect(messages[0].message).toBe('Hi, test message.');
@@ -273,7 +279,7 @@ describe('ChatService', () => {
 
     it('successfully returns messages when before specified', async () => {
       const limit = 5;
-      const messages = await chatService.getMessages(matchList._id, user0._id, limit, message1._id.toString());
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit, message1._id.toString());
 
       expect(messages).toHaveLength(1);
     });
@@ -281,7 +287,7 @@ describe('ChatService', () => {
     it('should not return message deleted for a single user (using `deletefor` field)', async () => {
       const limit = 5;
       await messageModel.updateOne({ _id: message1._id }, { $set: { deletefor: [user0._id] } });
-      const messages = await chatService.getMessages(matchList._id, user0._id, limit);
+      const messages = await chatService.getMessages(matchList._id, user0.id, limit);
 
       expect(messages).toHaveLength(1);
     });
@@ -290,8 +296,8 @@ describe('ChatService', () => {
   describe('#findMatchList', () => {
     let matchList;
     beforeEach(async () => {
-      matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
-      matchList = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      matchList = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      matchList = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
     });
     it('get match list details', async () => {
       const matchListDetails = await chatService.findMatchList(matchList.matchId._id, true);
@@ -310,12 +316,12 @@ describe('ChatService', () => {
     let msgLatest;
 
     beforeEach(async () => {
-      const firstMessage = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 1');
+      const firstMessage = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Send 1');
       firstMessage.isRead = true;
       firstMessage.save();
-      await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Reply 1');
-      await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 2');
-      msgLatest = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Send 3');
+      await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Reply 1');
+      await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Send 2');
+      msgLatest = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Send 3');
     });
 
     it('returns the expected count', async () => {
@@ -335,10 +341,10 @@ describe('ChatService', () => {
     let m4;
 
     beforeEach(async () => {
-      m1 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 1');
-      m2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Send 2');
-      m3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Send 3');
-      m4 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Reply 1');
+      m1 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Send 1');
+      m2 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Send 2');
+      m3 = await chatService.sendPrivateDirectMessage(user2.id, user0.id, 'Send 3');
+      m4 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Reply 1');
     });
 
     it('all messages should be marked as read which are sent from a user to target user', async () => {
@@ -359,7 +365,7 @@ describe('ChatService', () => {
   describe('#findByMessageId', () => {
     let message;
     beforeEach(async () => {
-      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
     });
 
     it('when message is exists than expected response', async () => {
@@ -376,7 +382,7 @@ describe('ChatService', () => {
   describe('#markMessageAsRead', () => {
     let message;
     beforeEach(async () => {
-      message = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
+      message = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
     });
     it('finds the expected message and update the details', async () => {
       const updatedMesage = await chatService.markMessageAsRead(message._id);
@@ -391,16 +397,16 @@ describe('ChatService', () => {
     let matchList;
 
     beforeEach(async () => {
-      message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-      message2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
-      message3 = await chatService.sendPrivateDirectMessage(user2._id, user0._id, 'Hi, Test!');
+      message1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+      message2 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
+      message3 = await chatService.sendPrivateDirectMessage(user2.id, user0.id, 'Hi, Test!');
       matchList = await matchListModel.findOne({
         participants: user1._id,
       });
     });
 
     it('works as expected', async () => {
-      await chatService.deletePrivateDirectMessageConversations(user0._id, user1._id);
+      await chatService.deletePrivateDirectMessageConversations(user0.id, user1.id);
 
       // Check messages
       const messageData1 = await messageModel.findById(message1._id);
@@ -428,8 +434,8 @@ describe('ChatService', () => {
     let matchList;
 
     beforeEach(async () => {
-      message1 = await chatService.sendPrivateDirectMessage(user0._id, user1._id, 'Hi, test message.');
-      message2 = await chatService.sendPrivateDirectMessage(user1._id, user0._id, 'Hi, there!');
+      message1 = await chatService.sendPrivateDirectMessage(user0.id, user1.id, 'Hi, test message.');
+      message2 = await chatService.sendPrivateDirectMessage(user1.id, user0.id, 'Hi, there!');
       matchList = await matchListModel.findOne({
         participants: user1._id,
       });

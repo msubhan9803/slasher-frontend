@@ -38,7 +38,7 @@ import { CheckUserNameQueryDto } from './dto/check-user-name-query.dto';
 import { CheckEmailQueryDto } from './dto/check-email-query.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { getUserFromRequest } from '../utils/request-utils';
-import { ActiveStatus } from '../schemas/user/user.enums';
+import { ActiveStatus, ProfileVisibility } from '../schemas/user/user.enums';
 import { VerificationEmailNotReceivedDto } from './dto/verification-email-not-recevied.dto';
 import { UpdateUserDto } from './dto/update-user-data.dto';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
@@ -64,8 +64,11 @@ import { NotificationsService } from '../notifications/providers/notifications.s
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { RegisterUser } from '../types';
 import { DisallowedUsernameService } from '../disallowedUsername/providers/disallowed-username.service';
+import { MoviesService } from '../movies/providers/movies.service';
+import { FindAllMoviesDto } from '../movies/dto/find-all-movies.dto';
+import { relativeToFullImagePath } from '../utils/image-utils';
 
-@Controller('users')
+@Controller({ path: 'users', version: ['1'] })
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -83,6 +86,8 @@ export class UsersController {
     private readonly rssFeedProvidersService: RssFeedProvidersService,
     private readonly notificationsService: NotificationsService,
     private readonly disallowedUsernameService: DisallowedUsernameService,
+    private readonly moviesService: MoviesService,
+    private configService: ConfigService,
   ) { }
 
   @Post('sign-in')
@@ -203,7 +208,6 @@ export class UsersController {
   @Get('validate-registration-fields')
   async validateRegistrationFields(@Query() inputQuery) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
-
     if (Object.keys(inputQuery).length === 0) {
       throw new HttpException(
         'You must provide at least one field for validation.',
@@ -229,14 +233,14 @@ export class UsersController {
 
     if (requestedFields.includes('userName') && !invalidFields.includes('userName')) {
       const exists = await this.usersService.userNameExists(query.userName);
-      if (exists) requestedErrorsList.unshift('Username is already associated with an existing user.');
+      if (exists) { requestedErrorsList.unshift('Username is already associated with an existing user.'); }
 
       const disallowedUsername = await this.disallowedUsernameService.findUserName(query.userName);
-      if (disallowedUsername) requestedErrorsList.unshift('Username is not available.');
+      if (disallowedUsername) { requestedErrorsList.unshift('Username is not available.'); }
     }
     if (requestedFields.includes('email') && !invalidFields.includes('email')) {
       const exists = await this.usersService.emailExists(query.email);
-      if (exists) requestedErrorsList.unshift('Email address is already associated with an existing user.');
+      if (exists) { requestedErrorsList.unshift('Email address is already associated with an existing user.'); }
     }
 
     return requestedErrorsList;
@@ -246,7 +250,19 @@ export class UsersController {
   async register(@Body() userRegisterDto: UserRegisterDto, @Ip() ip) {
     await sleep(500); // throttle so this endpoint is less likely to be abused
 
-    if (await this.disallowedUsernameService.findUserName(userRegisterDto.userName)) {
+    // TODO: Move values below into the database instead of hard-coding here
+    const hardCodedDisallowedUsernames = [
+      'app',
+      'pages',
+      'admin',
+      'go',
+      'slasher.tv',
+    ];
+
+    if (
+      hardCodedDisallowedUsernames.includes(userRegisterDto.userName)
+      || await this.disallowedUsernameService.findUserName(userRegisterDto.userName)
+    ) {
       throw new HttpException(
         'Username is not available',
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -399,11 +415,11 @@ export class UsersController {
     // look into caching some initial-data items later on (and then building appropriate
     // cache invalidation mechanisms).
     const user: UserDocument = getUserFromRequest(request);
-    const recentMessages: any = await this.chatService.getConversations(user._id, 3);
-    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user._id, 3);
-    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user._id);
-    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user._id);
-    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user._id);
+    const recentMessages: any = await this.chatService.getConversations(user.id, 3);
+    const receivedFriendRequestsData = await this.friendsService.getReceivedFriendRequests(user.id, 3);
+    const friendRequestCount = await this.friendsService.getReceivedFriendRequestCount(user.id);
+    const unreadNotificationCount = await this.notificationsService.getUnreadNotificationCount(user.id);
+    const unreadMessageCount = await this.chatService.getUnreadDirectPrivateMessageCount(user.id);
     return {
       user: pick(user, ['id', 'userName', 'profilePic']),
       recentMessages,
@@ -422,8 +438,8 @@ export class UsersController {
     query: SuggestUserNameQueryDto,
   ) {
     const user = getUserFromRequest(request);
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
-    excludedUserIds.push(user._id);
+    // Note: We are allowing a user to look up their own username when getting user suggestions.
+    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
     return this.usersService.suggestUserName(query.query, query.limit, true, excludedUserIds);
   }
 
@@ -449,7 +465,7 @@ export class UsersController {
     const pickFields = ['_id', 'firstName', 'userName', 'profilePic', 'coverPhoto', 'aboutMe', 'profile_status'];
 
     // expose email to loggged in user only, when logged in user requests own user record
-    if (loggedInUser.id === user.id) pickFields.push('email');
+    if (loggedInUser.id === user.id) { pickFields.push('email'); }
 
     return pick(user, pickFields);
   }
@@ -482,14 +498,17 @@ export class UsersController {
       throw new HttpException('You are not allowed to do this action', HttpStatus.FORBIDDEN);
     }
 
-    if (updateUserDto.userName !== user.userName && await this.usersService.userNameExists(updateUserDto.userName)) {
+    if (updateUserDto.userName
+      && updateUserDto.userName !== user.userName
+      && await this.usersService.userNameExists(updateUserDto.userName)
+    ) {
       throw new HttpException(
         'Username is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
 
-    if (updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
+    if (updateUserDto.email && updateUserDto.email !== user.email && await this.usersService.emailExists(updateUserDto.email)) {
       throw new HttpException(
         'Email address is already associated with an existing user.',
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -503,7 +522,8 @@ export class UsersController {
     };
   }
 
-  @Post('upload-profile-image')
+  @TransformImageUrls('$.profilePic')
+  @Post('profile-image')
   @UseInterceptors(FileInterceptor(
     'file',
     {
@@ -532,48 +552,72 @@ export class UsersController {
     user.profilePic = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { profilePic: user.profilePic };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts')
   async allFeedPosts(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: AllFeedPostQueryDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     const feedPosts = await this.feedPostsService.findAllByUser(
-      user._id,
+      user.id,
       query.limit,
       true,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
     return feedPosts.map(
-      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likes', 'likeCount', 'commentCount']),
+      (post) => pick(post, ['_id', 'message', 'images', 'userId', 'createdAt', 'likedByUser', 'likeCount', 'commentCount']),
     );
   }
 
   @TransformImageUrls('$.friends[*].profilePic')
   @Get(':userId/friends')
   async getFriends(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: GetFriendsDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     return this.friendsService.getFriends(user.id, query.limit, query.offset, query.userNameContains);
   }
 
-  @Post('upload-cover-image')
+  @TransformImageUrls('$.coverPhoto')
+  @Post('cover-image')
   @UseInterceptors(FileInterceptor(
     'file',
     {
@@ -602,23 +646,36 @@ export class UsersController {
     user.coverPhoto = storageLocation;
     await user.save();
 
-    return { success: true };
+    return { coverPhoto: user.coverPhoto };
   }
 
   @TransformImageUrls('$[*].images[*].image_path', '$[*].userId.profilePic')
   @Get(':userId/posts-with-images')
   async allFeedPostsWithImages(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: ParamUserIdDto,
     @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     query: AllFeedPostQueryDto,
   ) {
+    const loggedInUser = getUserFromRequest(request);
     const user = await this.usersService.findById(param.userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     const feedPosts = await this.feedPostsService.findAllPostsWithImagesByUser(
-      user._id,
+      user.id,
       query.limit,
       query.before ? new mongoose.Types.ObjectId(query.before) : undefined,
     );
@@ -667,5 +724,191 @@ export class UsersController {
     return {
       success: true,
     };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('profile-image')
+  async deleteProfileImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.profilePic = 'noUser.jpg';
+    await user.save();
+    return { profilePic: user.profilePic };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  @TransformImageUrls('$.profilePic')
+  @Delete('cover-image')
+  async deleteCoverImage(
+    @Req() request: Request,
+  ) {
+    const user = getUserFromRequest(request);
+    // TODO: Would be good to delete old image before replacing it (if previous value exists), to save storage space.
+    user.coverPhoto = null;
+    await user.save();
+    return { coverPhoto: user.coverPhoto };
+  }
+
+  @Get(':userId/watched-list')
+  async watchedListMovies(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const loggedInUser = getUserFromRequest(request);
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (loggedInUser.id !== user.id && user.profile_status !== ProfileVisibility.Public) {
+      const areFriends = await this.friendsService.areFriends(loggedInUser.id, user.id);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+    const block = await this.blocksService.blockExistsBetweenUsers(loggedInUser.id, user.id);
+    if (block) {
+      throw new HttpException('Request failed due to user block.', HttpStatus.NOT_FOUND);
+    }
+    const watchedMovieIds = await this.moviesService.getWatchedListMovieIdsForUser(param.userId);
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      watchedMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/watch-list')
+  async watchListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const watchMovieIds = await this.moviesService.getWatchListMovieIdsForUser(param.userId);
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      watchMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/buy-list')
+  async buyListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const buyMovieIds = await this.moviesService.getBuyListMovieIdsForUser(param.userId);
+
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      buyMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
+  }
+
+  @Get(':userId/favorite-list')
+  async favoriteListMovies(
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: ParamUserIdDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    query: FindAllMoviesDto,
+  ) {
+    const user = await this.usersService.findById(param.userId);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    const favoriteMovieIds = await this.moviesService.getFavoriteListMovieIdsForUser(param.userId);
+
+    const movies = await this.moviesService.findAll(
+      query.limit,
+      true,
+      query.sortBy,
+      query.after ? new mongoose.Types.ObjectId(query.after) : undefined,
+      query.nameContains,
+      favoriteMovieIds as unknown as mongoose.Types.ObjectId[],
+      query.startsWith,
+    );
+    movies.forEach((movie) => {
+      if (movie.logo?.length > 1) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = `https://image.tmdb.org/t/p/w220_and_h330_face${movie.logo}`;
+      }
+      if (movie.logo === null) {
+        // eslint-disable-next-line no-param-reassign
+        movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+      }
+    });
+    return movies.map(
+      (movie) => pick(movie, ['_id', 'name', 'logo', 'releaseDate', 'rating']),
+    );
   }
 }

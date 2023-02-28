@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { MatchList } from '../matchList/matchList.schema';
 import { Relation } from '../relation/relation.schema';
 import { User } from '../user/user.schema';
@@ -92,4 +92,5 @@ MessageSchema.index(
     matchId: 1, deletefor: 1,
   },
 );
-export type MessageDocument = Message & Document;
+
+export type MessageDocument = HydratedDocument<Message>;

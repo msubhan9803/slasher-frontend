@@ -1,8 +1,8 @@
+/* eslint-disable max-lines */
 import {
   Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
@@ -14,18 +14,24 @@ import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE } from '../constants';
+import {
+  MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
+} from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
 import { NotificationsService } from '../notifications/providers/notifications.service';
-import { NotificationsGateway } from '../notifications/providers/notifications.gateway';
 import { StorageLocationService } from '../global/providers/storage-location.service';
 import { extractUserMentionIdsFromMessage } from '../utils/text-utils';
 import { pick } from '../utils/object-utils';
+import { ProfileVisibility } from '../schemas/user/user.enums';
+import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
+import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
+import { FriendsService } from '../friends/providers/friends.service';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
-@Controller('feed-posts')
+@Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
   constructor(
     private readonly feedPostsService: FeedPostsService,
@@ -34,16 +40,16 @@ export class FeedPostsController {
     private readonly s3StorageService: S3StorageService,
     private readonly storageLocationService: StorageLocationService,
     private readonly notificationsService: NotificationsService,
-    private readonly notificationsGateway: NotificationsGateway,
+    private readonly blocksService: BlocksService,
+    private readonly friendsService: FriendsService,
   ) { }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', 5, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async createFeedPost(
@@ -54,12 +60,6 @@ export class FeedPostsController {
     if (!files.length && createOrUpdateFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (files.length > 4) {
-      throw new HttpException(
-        'Only allow a maximum of 4 images',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -85,7 +85,7 @@ export class FeedPostsController {
     for (const mentionedUserId of mentionedUserIds) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: createFeedPost._id,
+        feedPostId: createFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
@@ -103,16 +103,36 @@ export class FeedPostsController {
   @TransformImageUrls('$.userId.profilePic', '$.rssfeedProviderId.logo', '$.images[*].image_path')
   @Get(':id')
   async singleFeedPostDetails(
+    @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
   ) {
-    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true, user.id);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
+
+    if (
+      !feedPost.rssfeedProviderId
+      && user.id !== (feedPost.userId as any)._id.toString()
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, (feedPost.userId as any)._id.toString());
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (!feedPost.rssfeedProviderId) {
+      const block = await this.blocksService.blockExistsBetweenUsers((feedPost.userId as any)._id, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
     return pick(
       feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
         'message'],
     );
   }
@@ -153,7 +173,7 @@ export class FeedPostsController {
     for (const mentionedUserId of newMentionedUserIds) {
       await this.notificationsService.create({
         userId: new mongoose.Types.ObjectId(mentionedUserId) as any,
-        feedPostId: updatedFeedPost._id,
+        feedPostId: updatedFeedPost.id,
         senderId: user._id,
         notifyType: NotificationType.UserMentionedYouInPost,
         notificationMsg: 'mentioned you in a post',
@@ -185,7 +205,9 @@ export class FeedPostsController {
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
-        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser'],
       ),
     );
   }
@@ -235,7 +257,48 @@ export class FeedPostsController {
         HttpStatus.FORBIDDEN,
       );
     }
-    await this.feedPostsService.hidePost(param.id, user._id);
+    await this.feedPostsService.hidePost(param.id, user.id);
     return { success: true };
+  }
+
+  @Get(':id/likes')
+  async getLikeUsersForPost(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
+    param: SingleFeedPostsDto,
+    @Query(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) query: LikesLimitOffSetDto,
+  ) {
+    const user = getUserFromRequest(request);
+    const feedPost = await this.feedPostsService.findById(param.id, true);
+    if (!feedPost) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    }
+
+    const feedPostUser = feedPost.rssfeedProviderId ? null : (feedPost.userId as any)._id.toString();
+    if (
+      feedPostUser
+      && user.id !== feedPostUser
+      && (feedPost.userId as any).profile_status !== ProfileVisibility.Public
+    ) {
+      const areFriends = await this.friendsService.areFriends(user.id, feedPostUser);
+      if (!areFriends) {
+        throw new HttpException('You must be friends with this user to perform this action.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (feedPostUser) {
+      const block = await this.blocksService.blockExistsBetweenUsers(feedPostUser, user.id);
+      if (block) {
+        throw new HttpException('Request failed due to user block.', HttpStatus.FORBIDDEN);
+      }
+    }
+
+    const feedLikeUsers = await this.feedPostsService.getLikeUsersForPost(
+      param.id,
+      query.limit,
+      query.offset,
+      user._id.toString(),
+    );
+    return feedLikeUsers;
   }
 }

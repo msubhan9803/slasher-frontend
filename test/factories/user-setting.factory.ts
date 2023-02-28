@@ -1,5 +1,6 @@
 import { Factory } from 'fishery';
 import { UserSetting } from '../../src/schemas/userSetting/userSetting.schema';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const userSettingFactory = Factory.define<Partial<UserSetting>>(
   () => new UserSetting({
@@ -16,3 +17,5 @@ export const userSettingFactory = Factory.define<Partial<UserSetting>>(
     feed_comment_on_post: 1,
   }),
 );
+
+addFactoryToRewindList(userSettingFactory);

@@ -11,6 +11,8 @@ import { RssFeedProvidersService } from '../../rss-feed-providers/providers/rss-
 import { rssFeedProviderFactory } from '../../../test/factories/rss-feed-providers.factory';
 import { RssFeedProviderDocument } from '../../schemas/rssFeedProvider/rssFeedProvider.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
+import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('RssFeedService', () => {
   let app: INestApplication;
@@ -28,6 +30,7 @@ describe('RssFeedService', () => {
     rssFeedProvidersService = moduleRef.get<RssFeedProvidersService>(RssFeedProvidersService);
 
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -38,6 +41,9 @@ describe('RssFeedService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     rssFeedProviderData = await rssFeedProvidersService.create(rssFeedProviderFactory.build());
   });
@@ -52,7 +58,7 @@ describe('RssFeedService', () => {
         rssfeedProviderId: rssFeedProviderData._id,
       });
       const rssFeed = await rssFeedService.create(rssFeedData);
-      expect(await rssFeedService.findById(rssFeed._id, false)).toBeTruthy();
+      expect(await rssFeedService.findById(rssFeed.id, false)).toBeTruthy();
     });
   });
 
@@ -70,7 +76,7 @@ describe('RssFeedService', () => {
         title: 'Test1 Rss Feed',
       };
       const updatedRssFeed = await rssFeedService.update(rssFeed._id, rssFeedData);
-      const reloadedRssFeed = await rssFeedService.findById(updatedRssFeed._id, false);
+      const reloadedRssFeed = await rssFeedService.findById(updatedRssFeed.id, false);
       expect(reloadedRssFeed.title).toEqual(rssFeedData.title);
       expect(reloadedRssFeed.rssfeedProviderId).toEqual(rssFeed.rssfeedProviderId);
     });
@@ -89,7 +95,7 @@ describe('RssFeedService', () => {
       );
     });
     it('finds the expected rss feed details', async () => {
-      const rssFeedDetails = await rssFeedService.findById(rssFeed._id, false);
+      const rssFeedDetails = await rssFeedService.findById(rssFeed.id, false);
       expect(rssFeedDetails.title).toEqual(rssFeed.title);
     });
 
@@ -100,7 +106,7 @@ describe('RssFeedService', () => {
         }),
       );
 
-      const rssFeedDetail = await rssFeedService.findById(nonActiveRssFeed._id, true);
+      const rssFeedDetail = await rssFeedService.findById(nonActiveRssFeed.id, true);
       expect(rssFeedDetail.title).toEqual(nonActiveRssFeed.title);
     });
   });

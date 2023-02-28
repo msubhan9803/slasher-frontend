@@ -9,7 +9,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { FindUsersDto } from './dto/find-users-dto';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 
-@Controller('search')
+@Controller({ path: 'search', version: ['1'] })
 export class SearchController {
   constructor(
     private readonly searchService: SearchService,
@@ -32,8 +32,8 @@ export class SearchController {
       return [];
     }
     const user = getUserFromRequest(request);
-    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user._id);
-    excludedUserIds.push(user._id);
+    const excludedUserIds = await this.blocksService.getBlockedUserIdsBySender(user.id);
+    excludedUserIds.push(user.id);
     const findUsersData = await this.searchService.findUsers(query.query, adjustedLimit, query.offset, excludedUserIds);
     return findUsersData;
   }

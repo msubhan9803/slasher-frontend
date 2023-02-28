@@ -10,6 +10,7 @@ import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { ReportAndUnreportService } from './report-and-unreports.service';
 import { ReportReaction } from '../../schemas/reportAndUnreport/reportAndUnreport.enums';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('ReportAndUnreportService', () => {
   let app: INestApplication;
@@ -39,6 +40,9 @@ describe('ReportAndUnreportService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
   });

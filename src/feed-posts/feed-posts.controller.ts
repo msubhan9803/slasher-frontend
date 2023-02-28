@@ -3,7 +3,6 @@ import {
   Controller, HttpStatus, Post, Req, UseInterceptors, Body, UploadedFiles, HttpException, Param, Get, ValidationPipe, Patch, Query, Delete,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import mongoose from 'mongoose';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
@@ -15,7 +14,9 @@ import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
 import { MainFeedPostQueryDto } from './dto/main-feed-post-query.dto';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST } from '../constants';
+import {
+  MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, UPLOAD_PARAM_NAME_FOR_FILES,
+} from '../constants';
 import { TransformImageUrls } from '../app/decorators/transform-image-urls.decorator';
 import { FeedPostDeletionState } from '../schemas/feedPost/feedPost.enums';
 import { NotificationType } from '../schemas/notification/notification.enums';
@@ -28,6 +29,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
+import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
 export class FeedPostsController {
@@ -45,11 +47,9 @@ export class FeedPostsController {
   @TransformImageUrls('$.images[*].image_path')
   @Post()
   @UseInterceptors(
-    FilesInterceptor('files', MAX_ALLOWED_UPLOAD_FILES_FOR_POST + 1, {
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
       fileFilter: defaultFileInterceptorFileFilter,
-      limits: {
-        fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE,
-      },
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
     }),
   )
   async createFeedPost(
@@ -60,12 +60,6 @@ export class FeedPostsController {
     if (!files.length && createOrUpdateFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (files.length > 10) {
-      throw new HttpException(
-        'Only allow a maximum of 10 images',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -114,7 +108,7 @@ export class FeedPostsController {
     param: SingleFeedPostsDto,
   ) {
     const user = getUserFromRequest(request);
-    const feedPost = await this.feedPostsService.findById(param.id, true);
+    const feedPost = await this.feedPostsService.findById(param.id, true, user.id);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
@@ -138,7 +132,7 @@ export class FeedPostsController {
     }
     return pick(
       feedPost,
-      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likes',
+      ['_id', 'createdAt', 'rssfeedProviderId', 'rssFeedId', 'images', 'userId', 'commentCount', 'likeCount', 'sharedList', 'likedByUser',
         'message'],
     );
   }
@@ -211,7 +205,9 @@ export class FeedPostsController {
     return feedPosts.map(
       (feedPost) => pick(
         feedPost,
-        ['_id', 'message', 'createdAt', 'lastUpdateAt', 'rssfeedProviderId', 'images', 'userId', 'commentCount', 'likeCount', 'likes'],
+        ['_id', 'message', 'createdAt', 'lastUpdateAt',
+          'rssfeedProviderId', 'images', 'userId', 'commentCount',
+          'likeCount', 'likedByUser'],
       ),
     );
   }

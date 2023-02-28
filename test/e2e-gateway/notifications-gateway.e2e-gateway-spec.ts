@@ -16,6 +16,7 @@ import { FeedPostsService } from '../../src/feed-posts/providers/feed-posts.serv
 import { NotificationType } from '../../src/schemas/notification/notification.enums';
 import { NotificationsService } from '../../src/notifications/providers/notifications.service';
 import { FeedPostDocument } from '../../src/schemas/feedPost/feedPost.schema';
+import { rewindAllFactories } from '../helpers/factory-helpers.ts';
 
 describe('Notifications Gateway (e2e)', () => {
   let app: INestApplication;
@@ -59,6 +60,9 @@ describe('Notifications Gateway (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());

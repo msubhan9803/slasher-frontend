@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums'
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Movie / Find First By Sort Name (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,10 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -52,6 +57,10 @@ describe('Movie / Find First By Sort Name (e2e)', () => {
   });
 
   describe('GET /api/v1/movies/firstBySortName', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/movies/firstBySortName').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('responds with error message when an invalid startsWith supplied', async () => {
       const startsWith = '@qw$re';
       const response = await request(app.getHttpServer())

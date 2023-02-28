@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Connection, Model } from 'mongoose';
+import mongoose, { Connection, Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { AppModule } from '../../../../../src/app.module';
@@ -21,6 +21,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Create Feed Post Like (e2e)', () => {
   let app: INestApplication;
@@ -63,9 +64,12 @@ describe('Create Feed Post Like (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
-  describe('POST /api/v1/feed-Likes', () => {
+  describe('POST /api/v1/feed-likes/post/:feedPostId', () => {
     beforeEach(async () => {
       activeUser = await usersService.create(userFactory.build());
       user0 = await usersService.create(userFactory.build());
@@ -82,6 +86,11 @@ describe('Create Feed Post Like (e2e)', () => {
       await feedLikesService.createFeedPostLike(feedPost.id, user0._id.toString());
     });
 
+    it('requires authentication', async () => {
+      const feedPostId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).post(`/api/v1/feed-likes/post/${feedPostId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('successfully creates a feed post like, and sends the expected notification', async () => {
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
       const response = await request(app.getHttpServer())
@@ -95,16 +104,16 @@ describe('Create Feed Post Like (e2e)', () => {
       expect(reloadedFeedPost.likes).toHaveLength(2);
       expect(reloadedFeedPost.likeCount).toBe(2);
 
-      const feedPostDataObject = (reloadedFeedPost as any).toObject();
+      const feedPostDataObject = reloadedFeedPost.userId as unknown as User;
       expect(notificationsService.create).toHaveBeenCalledWith({
         feedPostId: { _id: reloadedFeedPost._id.toString() },
         senderId: activeUser._id,
         notifyType: NotificationType.UserLikedYourPost,
         notificationMsg: 'liked your post',
         userId: {
-          _id: feedPostDataObject.userId._id.toString(),
-          profilePic: feedPostDataObject.userId.profilePic,
-          userName: feedPostDataObject.userId.userName,
+          _id: feedPostDataObject._id.toString(),
+          profilePic: feedPostDataObject.profilePic,
+          userName: feedPostDataObject.userName,
         },
       });
     });

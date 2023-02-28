@@ -11,6 +11,7 @@ import { ChatService } from '../../chat/providers/chat.service';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { MessageCountUpdateConsumer } from './message-count-update.consumer';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('#message-count-update', () => {
   let app: INestApplication;
@@ -43,6 +44,9 @@ describe('#message-count-update', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
 
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build({ userName: 'Hannibal' }));

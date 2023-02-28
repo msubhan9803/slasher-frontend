@@ -1,7 +1,7 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import mongoose, { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from '../../../../../src/app.module';
@@ -15,6 +15,7 @@ import {
   NotificationReadStatus,
 } from '../../../../../src/schemas/notification/notification.enums';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Patch Notifications Mark As Read(e2e)', () => {
   let app: INestApplication;
@@ -50,6 +51,9 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user0 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -72,6 +76,11 @@ describe('Patch Notifications Mark As Read(e2e)', () => {
   });
 
   describe('PATCH /api/v1/notifications/:id/mark-as-read', () => {
+    it('requires authentication', async () => {
+      const notificationId = new mongoose.Types.ObjectId();
+      await request(app.getHttpServer()).patch(`/api/v1/notifications/${notificationId}/mark-as-read`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('mark as read notification', () => {
       it('successfully marks the notification as read and returns the expected response.', async () => {
         const response = await request(app.getHttpServer())

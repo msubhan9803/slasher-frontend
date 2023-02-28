@@ -14,6 +14,7 @@ import { validUuidV4Regex } from '../../../../helpers/regular-expressions';
 import { UserSettingsService } from '../../../../../src/settings/providers/user-settings.service';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / Register (e2e)', () => {
   let app: INestApplication;
@@ -57,6 +58,9 @@ describe('Users / Register (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/users/register', () => {

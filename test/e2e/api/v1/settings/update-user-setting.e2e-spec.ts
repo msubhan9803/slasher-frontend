@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -13,6 +13,7 @@ import { UserSettingsService } from '../../../../../src/settings/providers/user-
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('settings update / :id (e2e)', () => {
   let app: INestApplication;
@@ -53,6 +54,9 @@ describe('settings update / :id (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -64,6 +68,10 @@ describe('settings update / :id (e2e)', () => {
   });
 
   describe('PATCH /api/v1/settings/notifications', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).patch('/api/v1/settings/notifications').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Successful update', () => {
       it('update the user setting data successful and it returns the expected response', async () => {
         const response = await request(app.getHttpServer())

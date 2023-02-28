@@ -24,6 +24,7 @@ import { ProfileVisibility } from '../../../../../src/schemas/user/user.enums';
 import { RssFeedProvidersService } from '../../../../../src/rss-feed-providers/providers/rss-feed-providers.service';
 import { rssFeedProviderFactory } from '../../../../factories/rss-feed-providers.factory';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Comments / Comments File (e2e)', () => {
   let app: INestApplication;
@@ -63,6 +64,9 @@ describe('Feed-Comments / Comments File (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/feed-comments', () => {
@@ -73,6 +77,10 @@ describe('Feed-Comments / Comments File (e2e)', () => {
       );
       feedPost = await feedPostsService.create(feedPostFactory.build({ userId: activeUser._id }));
       jest.spyOn(notificationsService, 'create').mockImplementation(() => Promise.resolve(undefined));
+    });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/feed-comments').expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('returns the expected response upon successful request', async () => {
@@ -209,16 +217,24 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
-
           .field('feedPostId', feedPost._id.toString())
           .attach('images', tempPaths[0])
           .attach('images', tempPaths[1])
           .attach('images', tempPaths[2])
           .attach('images', tempPaths[3])
           .attach('images', tempPaths[4])
+          .attach('images', tempPaths[5])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 4 images');
-      }, [{ extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'png' }, { extension: 'png' }]);
+
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 4' });
+      }, [
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+      ]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
@@ -238,7 +254,8 @@ describe('Feed-Comments / Comments File (e2e)', () => {
           .attach('images', tempPaths[1])
           .expect(HttpStatus.PAYLOAD_TOO_LARGE);
         expect(response.body.message).toBe('File too large');
-      }, [{ extension: 'png' }, { extension: 'jpg', size: 1024 * 1024 * 21 }]);
+      }, [{ extension: 'png' },
+       { extension: 'jpg', size: 1024 * 1024 * 21 }]);
 
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));

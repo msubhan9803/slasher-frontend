@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
@@ -20,6 +20,7 @@ import moviedbid2907ApiConfigurationResponse from '../../../../fixtures/movie-db
 import moviedbid2907ApiCreditsResponse from '../../../../fixtures/movie-db/moviedbid-2907-api-credits-response';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({
 });
@@ -60,6 +61,9 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
@@ -72,6 +76,11 @@ describe('Movie / Fetch Movie Db Data (e2e)', () => {
   });
 
   describe('GET /api/v1/movies/movieDbData/:movieDBId', () => {
+    it('requires authentication', async () => {
+      const movieDBId = 2907;
+      await request(app.getHttpServer()).get(`/api/v1/movies/movieDbData/${movieDBId}`).expect(HttpStatus.UNAUTHORIZED);
+    });
+
     // eslint-disable-next-line arrow-body-style
     const createTmdbHttpServiceMockFunction = (setNullMoviePosterPath: boolean) => {
       return (url: any) => {

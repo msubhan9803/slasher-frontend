@@ -13,6 +13,7 @@ import { User } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -42,6 +43,9 @@ describe('Feed-Post / Post File (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/feed-posts', () => {
@@ -50,6 +54,10 @@ describe('Feed-Post / Post File (e2e)', () => {
       activeUserAuthToken = activeUser.generateNewJwtToken(
         configService.get<string>('JWT_SECRET_KEY'),
       );
+    });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/feed-posts').expect(HttpStatus.UNAUTHORIZED);
     });
 
     it('successfully creates feed posts with a message and files', async () => {
@@ -179,8 +187,9 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[8])
           .attach('files', tempPaths[9])
           .attach('files', tempPaths[10])
+          .attach('files', tempPaths[11])
           .expect(HttpStatus.BAD_REQUEST);
-        expect(response.body.message).toBe('Only allow a maximum of 10 images');
+          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
       }, [
         { extension: 'png' },
         { extension: 'png' },
@@ -190,6 +199,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         { extension: 'jpg' },
         { extension: 'jpg' },
         { extension: 'jpg' },
+        { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },
         { extension: 'gif' },

@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, PutObjectCommandInput } from '@aws-sdk/client-s3';
+import {
+  S3Client, HeadObjectCommand, HeadObjectCommandInput, PutObjectCommand, PutObjectCommandInput,
+} from '@aws-sdk/client-s3';
 import { createReadStream, existsSync } from 'fs';
 import { fileNameToMimeType } from '../../utils/mime-utils';
+import { S3FileExistsError } from '../../errors';
 
 @Injectable()
 export class S3StorageService {
@@ -22,10 +25,17 @@ export class S3StorageService {
    */
   async write(location: string, file: Express.Multer.File): Promise<void> {
     if (!existsSync(file.path)) { throw Error(`Uploaded file not found at upload path: ${file.path}`); }
+    const exists = await this.s3ObjectExists(location);
+    if (exists) {
+      throw new S3FileExistsError(
+        `Tried to perform S3 upload, but found unexpected existing object at bucket location: ${location}`,
+      );
+    }
+
     const readStream = createReadStream(file.path);
     await this.s3PutObject({
       Bucket: this.s3Bucket,
-      Key: `${location.replace(/^\//, '')}`,
+      Key: this.locationToS3Key(location),
       Body: readStream,
       ContentType: fileNameToMimeType(location),
     });
@@ -34,8 +44,32 @@ export class S3StorageService {
     });
   }
 
-  s3PutObject(input: PutObjectCommandInput) {
+  async s3PutObject(input: PutObjectCommandInput) {
     return this.s3Client.send(new PutObjectCommand(input));
+  }
+
+  async s3HeadRequestForObject(input: HeadObjectCommandInput) {
+    return this.s3Client.send(new HeadObjectCommand(input));
+  }
+
+  async s3ObjectExists(location: string): Promise<boolean> {
+    try {
+      await this.s3HeadRequestForObject({
+        Bucket: this.s3Bucket,
+        Key: this.locationToS3Key(location),
+      });
+    } catch (error) {
+      if (error.$metadata?.httpStatusCode === 404) {
+        return false;
+      }
+      throw error; // re-throw unexpected error
+    }
+    return true;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  locationToS3Key(location: string) {
+    return location.replace(/^\//, '');
   }
 
   private createS3Client() {

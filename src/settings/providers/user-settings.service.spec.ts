@@ -11,6 +11,7 @@ import { UsersService } from '../../users/providers/users.service';
 import { UserSettingDocument } from '../../schemas/userSetting/userSetting.schema';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 describe('UserSettingsService', () => {
   let app: INestApplication;
@@ -39,6 +40,9 @@ describe('UserSettingsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
     userData = await usersService.create(userFactory.build());
     userSetting = await userSettingsService.create(
       userSettingFactory.build(

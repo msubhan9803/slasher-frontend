@@ -20,6 +20,7 @@ import {
   RssFeedProviderFollowDocument, RssFeedProviderFollow,
 } from '../../../../../src/schemas/rssFeedProviderFollow/rssFeedProviderFollow.schema';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users activate account (e2e)', () => {
   let app: INestApplication;
@@ -50,6 +51,9 @@ describe('Users activate account (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/users/activate-account', () => {

@@ -12,6 +12,7 @@ import { createTempFile } from '../../../../helpers/tempfile-helpers';
 import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Users / Upload Profile image (e2e)', () => {
   let app: INestApplication;
@@ -41,6 +42,9 @@ describe('Users / Upload Profile image (e2e)', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   describe('POST /api/v1/users/profile-image', () => {
@@ -50,6 +54,11 @@ describe('Users / Upload Profile image (e2e)', () => {
         configService.get<string>('JWT_SECRET_KEY'),
       );
     });
+
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).post('/api/v1/users/profile-image').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     it('there should be no files in `UPLOAD_DIR` (other than one .keep file)', async () => {
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);

@@ -1,6 +1,6 @@
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Connection, Model } from 'mongoose';
 import { getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { ActiveStatus } from '../../../../../src/schemas/user/user.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Find Users(e2e)', () => {
   let app: INestApplication;
@@ -47,6 +48,9 @@ describe('Find Users(e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build({ userName: 'Count Rock' }));
     user1 = await usersService.create(userFactory.build({ userName: 'Jack' }));
     await usersService.create(userFactory.build({
@@ -73,6 +77,10 @@ describe('Find Users(e2e)', () => {
   });
 
   describe('GET /api/v1/search/users', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).get('/api/v1/search/users').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Find Users Details', () => {
       it('retrn the expected users', async () => {
         const query = 'Count';
@@ -111,7 +119,7 @@ describe('Find Users(e2e)', () => {
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
             userName: 'The Count',
-            firstName: 'First name 13',
+            firstName: 'First name 6',
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);

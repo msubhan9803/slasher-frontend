@@ -15,8 +15,11 @@ import { MovieDbDto } from '../dto/movie-db.dto';
 import { ReturnMovieDb } from '../dto/cron-job-response.dto';
 import { DiscoverMovieDto } from '../dto/discover-movie.dto';
 import { relativeToFullImagePath } from '../../utils/image-utils';
-import { MovieUserStatus } from '../../schemas/movieUserStatus/movieUserStatus.schema';
-import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
+import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
+import {
+  WorthWatchingStatus, MovieUserStatusBuy, MovieUserStatusFavorites,
+  MovieUserStatusWatch, MovieUserStatusWatched,
+} from '../../schemas/movieUserStatus/movieUserStatus.enums';
 
 export interface Cast {
   'adult': boolean,
@@ -294,11 +297,15 @@ export class MoviesService {
     sortBy: 'name' | 'releaseDate' | 'rating',
     after?: mongoose.Types.ObjectId,
     nameContains?: string,
-
+    movieIdsIn?: mongoose.Types.ObjectId[],
+    sortNameStartsWith?: string,
   ): Promise<MovieDocument[]> {
     const movieFindAllQuery: any = {
       type: MovieType.MovieDb,
     };
+    if (movieIdsIn) {
+      movieFindAllQuery._id = { $in: movieIdsIn };
+    }
     if (activeOnly) {
       movieFindAllQuery.deleted = MovieDeletionStatus.NotDeleted;
       movieFindAllQuery.status = MovieActiveStatus.Active;
@@ -318,6 +325,11 @@ export class MoviesService {
     if (nameContains) {
       movieFindAllQuery.name = new RegExp(escapeStringForRegex(nameContains), 'i');
     }
+    if (sortNameStartsWith) {
+      movieFindAllQuery.sort_name = movieFindAllQuery.sort_name || {};
+      movieFindAllQuery.sort_name.$regex = new RegExp(`^${escapeStringForRegex(sortNameStartsWith.toLowerCase())}`);
+    }
+
     let sortMoviesByNameAndReleaseDate: any;
     if (sortBy === 'name') {
       sortMoviesByNameAndReleaseDate = { sort_name: 1 };
@@ -344,10 +356,10 @@ export class MoviesService {
       const databaseMovieKeys = [];
       for await (
         const doc of this.moviesModel
-        .find()
-        .select('movieDBId')
-        .cursor()
-        ) {
+          .find()
+          .select('movieDBId')
+          .cursor()
+      ) {
         databaseMovieKeys.push(doc.movieDBId);
       }
 
@@ -361,7 +373,7 @@ export class MoviesService {
       for (const movieId of databaseMovieKeys) {
         const existing = moviesFromMovieDB.ids.find((id) => id === movieId);
         if (!existing) {
-        deletedRecordKeys.push(movieId);
+          deletedRecordKeys.push(movieId);
         }
       }
       await this.moviesModel.updateMany(({ movieDBId: { $in: deletedRecordKeys } }), { $set: { deleted: MovieDeletionStatus.Deleted } });
@@ -437,7 +449,7 @@ export class MoviesService {
           promisesArray.push(movieData.save());
         }
       } else {
-          insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
+        insertedMovieList.push(DiscoverMovieMapper.toDomain(movie));
       }
     }
 
@@ -533,5 +545,37 @@ export class MoviesService {
       video: expectedVideosValues,
       mainData: expectedMainData,
     };
+  }
+
+  async getWatchedListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
+    const watchedMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watched: MovieUserStatusWatched.Watched }, { movieId: 1, _id: 0 })
+      .exec();
+    const watchedMovieIdArray = watchedMovieIdByUser.map((movie) => movie.movieId);
+    return watchedMovieIdArray as unknown as MovieUserStatusDocument[];
+  }
+
+  async getWatchListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
+    const watchMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), watch: MovieUserStatusWatch.Watch }, { movieId: 1, _id: 0 })
+      .exec();
+    const watchMovieIdArray = watchMovieIdByUser.map((movie) => movie.movieId);
+    return watchMovieIdArray as unknown as MovieUserStatusDocument[];
+  }
+
+  async getBuyListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
+    const buyMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), buy: MovieUserStatusBuy.Buy }, { movieId: 1, _id: 0 })
+      .exec();
+    const buyMovieIdArray = buyMovieIdByUser.map((movie) => movie.movieId);
+    return buyMovieIdArray as unknown as MovieUserStatusDocument[];
+  }
+
+  async getFavoriteListMovieIdsForUser(userId: string): Promise<Partial<MovieUserStatusDocument[]>> {
+    const favoriteMovieIdByUser = await this.movieUserStatusModel
+      .find({ userId: new mongoose.Types.ObjectId(userId), favourite: MovieUserStatusFavorites.Favorite }, { movieId: 1, _id: 0 })
+      .exec();
+    const favoriteMovieIdArray = favoriteMovieIdByUser.map((movie) => movie.movieId);
+    return favoriteMovieIdArray as unknown as MovieUserStatusDocument[];
   }
 }

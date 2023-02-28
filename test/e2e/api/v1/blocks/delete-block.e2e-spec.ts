@@ -12,6 +12,7 @@ import { BlockAndUnblock, BlockAndUnblockDocument } from '../../../../../src/sch
 import { BlockAndUnblockReaction } from '../../../../../src/schemas/blockAndUnblock/blockAndUnblock.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Delete Block (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,9 @@ describe('Delete Block (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     user1 = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
@@ -58,6 +62,10 @@ describe('Delete Block (e2e)', () => {
   });
 
   describe('DELETE /api/v1/blocks', () => {
+    it('requires authentication', async () => {
+      await request(app.getHttpServer()).delete('/api/v1/blocks').expect(HttpStatus.UNAUTHORIZED);
+    });
+
     describe('Delete Block Request', () => {
       it('delete block successfully.', async () => {
         const userId = user1._id;

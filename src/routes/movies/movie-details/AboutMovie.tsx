@@ -28,6 +28,7 @@ import PubWiseAd from '../../../components/ui/PubWiseAd';
 import { enableDevFeatures } from '../../../utils/configEnvironment';
 import MovieReviews from '../movie-reviews/MovieReviews';
 import { addMovieUserStatus, deleteMovieUserStatus, getMoviesIdList } from '../../../api/movies';
+import MovieReviewDetails from '../movie-reviews/MovieReviewDetails';
 
 interface MovieIconProps {
   label: string;
@@ -254,6 +255,7 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
           )}
         />
         <Route path="reviews" element={<MovieReviews />} />
+        <Route path="reviews/:postId" element={<MovieReviewDetails />} />
         <Route path="posts" element={<MoviePosts />} />
         <Route path="edit" element={<MovieEdit />} />
       </Routes>

@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { MusicService } from './music.service';
@@ -12,6 +12,7 @@ import {
   MusicStatus,
   MusicDeletionState,
 } from '../../schemas/music/music.enums';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({});
 
@@ -38,10 +39,40 @@ describe('MusicService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {
     expect(musicService).toBeDefined();
+  });
+
+  describe('#create', () => {
+    it('should create music', async () => {
+      const sampleMusic = await musicService.create(
+        musicFactory.build({
+          status: MusicStatus.Active,
+          name: 'Addicted to Love',
+          deleted: MusicDeletionState.NotDeleted,
+        }),
+      );
+
+      const music = await musicService.create(sampleMusic);
+      expect(music.toObject()).toEqual({
+          _id: expect.any(mongoose.Types.ObjectId),
+          name: sampleMusic.name,
+          status: sampleMusic.status,
+          deleted: sampleMusic.deleted,
+          descriptions: null,
+          logo: null,
+          type: 0,
+          createdBy: null,
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          __v: 0,
+        });
+    });
   });
 
   describe('#findAll', () => {

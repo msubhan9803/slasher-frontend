@@ -4,6 +4,7 @@ import {
   MusicStatus,
   MusicDeletionState,
 } from '../../src/schemas/music/music.enums';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const musicFactory = Factory.define<Partial<Music>>(
   () => new Music({
@@ -12,3 +13,5 @@ export const musicFactory = Factory.define<Partial<Music>>(
       deleted: MusicDeletionState.NotDeleted,
     }),
 );
+
+addFactoryToRewindList(musicFactory);

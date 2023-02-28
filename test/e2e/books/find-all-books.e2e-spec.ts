@@ -17,6 +17,8 @@ import {
   BookDeletionState,
 } from '../../../src/schemas/book/book.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
+import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
 
 describe('Find All Books (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Find All Books (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     booksService = moduleRef.get<BooksService>(BooksService);
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -48,13 +51,16 @@ describe('Find All Books (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
 
-  describe('GET All Books', () => {
+  describe('GET /api/v1/books', () => {
     it('Find all Books with name sorting', async () => {
       await booksService.create(
         booksFactory.build({
@@ -78,7 +84,7 @@ describe('Find All Books (e2e)', () => {
         }),
       );
       const response = await request(app.getHttpServer())
-        .get('/books')
+        .get('/api/v1/books')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual([

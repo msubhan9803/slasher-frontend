@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { ArtistsService } from './artists.service';
@@ -12,6 +12,7 @@ import {
   ArtistStatus,
   ArtistDeletionState,
 } from '../../schemas/artist/artist.enums';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({});
 
@@ -37,10 +38,38 @@ describe('artistsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {
     expect(artistsService).toBeDefined();
+  });
+
+  describe('#create', () => {
+    it('should create artist', async () => {
+      const sampleArtist = artistsFactory.build({
+        status: ArtistStatus.InActive,
+        deleted: ArtistDeletionState.Deleted,
+        name: 'The diffrent Artist',
+      });
+
+      const artist = await artistsService.create(sampleArtist);
+      expect(artist.toObject()).toEqual({
+          _id: expect.any(mongoose.Types.ObjectId),
+          name: sampleArtist.name,
+          status: sampleArtist.status,
+          deleted: sampleArtist.deleted,
+          descriptions: null,
+          logo: null,
+          type: 0,
+          createdBy: null,
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          __v: 0,
+        });
+    });
   });
 
   describe('#findAll', () => {

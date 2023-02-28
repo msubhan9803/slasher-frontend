@@ -2,7 +2,7 @@
 import { INestApplication } from '@nestjs/common';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { Connection } from 'mongoose';
+import mongoose, { Connection } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import { AppModule } from '../../app.module';
 import { PodcastsService } from './podcasts.service';
@@ -12,6 +12,7 @@ import {
   PodcastStatus,
   PodcastDeletionState,
 } from '../../schemas/podcast/podcast.enums';
+import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({});
 
@@ -38,10 +39,38 @@ describe('PodcastsService', () => {
   beforeEach(async () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
+
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
   });
 
   it('should be defined', () => {
     expect(podcastService).toBeDefined();
+  });
+
+  describe('#create', () => {
+    it('should create artist', async () => {
+      const samplePodcast = podcastsFactory.build({
+        status: PodcastStatus.InActive,
+        deleted: PodcastDeletionState.Deleted,
+        name: 'Dark Diaries',
+      });
+
+      const artist = await podcastService.create(samplePodcast);
+      expect(artist.toObject()).toEqual({
+          _id: expect.any(mongoose.Types.ObjectId),
+          name: samplePodcast.name,
+          status: samplePodcast.status,
+          deleted: samplePodcast.deleted,
+          descriptions: null,
+          logo: null,
+          type: 0,
+          createdBy: null,
+          createdAt: expect.any(Date),
+          updatedAt: expect.any(Date),
+          __v: 0,
+        });
+    });
   });
 
   describe('#findAll', () => {

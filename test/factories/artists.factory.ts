@@ -4,6 +4,7 @@ import {
   ArtistStatus,
   ArtistDeletionState,
 } from '../../src/schemas/artist/artist.enums';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const artistsFactory = Factory.define<Partial<Artist>>(
   () => new Artist({
@@ -12,3 +13,5 @@ export const artistsFactory = Factory.define<Partial<Artist>>(
       deleted: ArtistDeletionState.NotDeleted,
     }),
 );
+
+addFactoryToRewindList(artistsFactory);

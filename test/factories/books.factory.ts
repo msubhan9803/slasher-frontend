@@ -4,6 +4,7 @@ import {
   BookStatus,
   BookDeletionState,
 } from '../../src/schemas/book/book.enums';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const booksFactory = Factory.define<Partial<Book>>(
   () => new Book({
@@ -12,3 +13,5 @@ export const booksFactory = Factory.define<Partial<Book>>(
       deleted: BookDeletionState.NotDeleted,
     }),
 );
+
+addFactoryToRewindList(booksFactory);

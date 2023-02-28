@@ -17,6 +17,8 @@ import {
   MusicDeletionState,
 } from '../../../src/schemas/music/music.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
+import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
 
 describe('Find All Music (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Find All Music (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     musicService = moduleRef.get<MusicService>(MusicService);
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -48,13 +51,16 @@ describe('Find All Music (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
 
-  describe('GET All Music', () => {
+  describe('GET /api/v1/music', () => {
     it('Find all Music with name sorting', async () => {
       await musicService.create(
         musicFactory.build({
@@ -78,7 +84,7 @@ describe('Find All Music (e2e)', () => {
         }),
       );
       const response = await request(app.getHttpServer())
-        .get('/music')
+        .get('/api/v1/music')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual([

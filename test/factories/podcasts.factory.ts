@@ -4,6 +4,7 @@ import {
   PodcastStatus,
   PodcastDeletionState,
 } from '../../src/schemas/podcast/podcast.enums';
+import { addFactoryToRewindList } from '../helpers/factory-helpers.ts';
 
 export const podcastsFactory = Factory.define<Partial<Podcast>>(
   () => new Podcast({
@@ -12,3 +13,5 @@ export const podcastsFactory = Factory.define<Partial<Podcast>>(
       deleted: PodcastDeletionState.NotDeleted,
     }),
 );
+
+addFactoryToRewindList(podcastsFactory);

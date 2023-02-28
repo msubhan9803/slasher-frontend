@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { pick } from '../utils/object-utils';
 import { MusicService } from './providers/music.service';
 
-@Controller('music')
+@Controller({ path: 'music', version: ['1'] })
 export class MusicController {
   constructor(private readonly musicService: MusicService) {}
 

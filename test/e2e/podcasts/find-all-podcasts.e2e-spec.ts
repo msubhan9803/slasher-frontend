@@ -17,6 +17,8 @@ import {
   PodcastDeletionState,
 } from '../../../src/schemas/podcast/podcast.enums';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../src/constants';
+import { configureAppPrefixAndVersioning } from '../../../src/utils/app-setup-utils';
+import { rewindAllFactories } from '../../helpers/factory-helpers.ts';
 
 describe('Find All Podcasts (e2e)', () => {
   let app: INestApplication;
@@ -37,6 +39,7 @@ describe('Find All Podcasts (e2e)', () => {
     configService = moduleRef.get<ConfigService>(ConfigService);
     podcastsService = moduleRef.get<PodcastsService>(PodcastsService);
     app = moduleRef.createNestApplication();
+    configureAppPrefixAndVersioning(app);
     await app.init();
   });
 
@@ -48,13 +51,16 @@ describe('Find All Podcasts (e2e)', () => {
     // Drop database so we start fresh before each test
     await clearDatabase(connection);
 
+    // Reset sequences so we start fresh before each test
+    rewindAllFactories();
+
     activeUser = await usersService.create(userFactory.build());
     activeUserAuthToken = activeUser.generateNewJwtToken(
       configService.get<string>('JWT_SECRET_KEY'),
     );
   });
 
-  describe('GET All Podcasts', () => {
+  describe('GET /api/v1/podcasts', () => {
     it('Find all Podcasts with name sorting', async () => {
       await podcastsService.create(
         podcastsFactory.build({
@@ -78,7 +84,7 @@ describe('Find All Podcasts (e2e)', () => {
         }),
       );
       const response = await request(app.getHttpServer())
-        .get('/podcasts')
+        .get('/api/v1/podcasts')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .send();
       expect(response.body).toEqual([

@@ -831,6 +831,7 @@ describe('MoviesService', () => {
   });
 
   describe('#MoviesIdsForUser', () => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     let activeUser;
     let movie1;
     let movie2;

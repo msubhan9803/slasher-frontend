@@ -9,7 +9,7 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
 import {
- MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_FILES, UPLOAD_PARAM_NAME_FOR_IMAGES,
+  MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_FILES, UPLOAD_PARAM_NAME_FOR_IMAGES,
 } from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
@@ -53,13 +53,13 @@ export class FeedCommentsController {
 
   @TransformImageUrls('$.images[*].image_path')
   @Post()
-@UseInterceptors(
-  ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
-    fileFilter: defaultFileInterceptorFileFilter,
-    limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-  }),
-)
-async createFeedComment(
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+    }),
+  )
+  async createFeedComment(
     @Req() request: Request,
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -147,13 +147,17 @@ async createFeedComment(
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
 
-    if (updateFeedCommentsDto.imagesToDelete && updateFeedCommentsDto.imagesToDelete.length) {
-      if (!files.length && updateFeedCommentsDto.message === '' && comment.images.length === updateFeedCommentsDto.imagesToDelete.length) {
-        throw new HttpException(
-          'Posts must have a message or at least one image. No message or image received.',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    // eslint-disable-next-line max-len
+    if ((updateFeedCommentsDto?.imagesToDelete?.length && !files.length && updateFeedCommentsDto.message === '' && comment?.images.length === updateFeedCommentsDto?.imagesToDelete.length) || (!comment?.images.length && !files.length && updateFeedCommentsDto.message === '')) {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // eslint-disable-next-line
+    if ((updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length - updateFeedCommentsDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
     }
 
     let currentCommentImages;
@@ -161,14 +165,9 @@ async createFeedComment(
       const commentImages = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
       if (commentImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
         // eslint-disable-next-line max-len
-        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
       }
       currentCommentImages = commentImages;
-    }
-
-    if (comment.images.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
-      // eslint-disable-next-line max-len
-      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
     }
 
     const images = [];
@@ -323,14 +322,17 @@ async createFeedComment(
     if (reply.userId.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
-
-    if (updateFeedReplyDto.imagesToDelete && updateFeedReplyDto.imagesToDelete.length) {
-      if (!files.length && updateFeedReplyDto.message === '' && reply.images.length === updateFeedReplyDto.imagesToDelete.length) {
-        throw new HttpException(
-          'Posts must have a message or at least one image. No message or image received.',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+    // eslint-disable-next-line max-len
+    if ((updateFeedReplyDto?.imagesToDelete?.length && !files.length && updateFeedReplyDto.message === '' && reply?.images.length === updateFeedReplyDto?.imagesToDelete.length) || (!reply?.images.length && !files.length && updateFeedReplyDto.message === '')) {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // eslint-disable-next-line
+    if ((updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length - updateFeedReplyDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
     }
 
     let currentReplyImages;
@@ -338,14 +340,9 @@ async createFeedComment(
       const replyImages = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
       if (replyImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
         // eslint-disable-next-line max-len
-        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
       }
       currentReplyImages = replyImages;
-    }
-
-    if (reply.images.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
-      // eslint-disable-next-line max-len
-      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
     }
 
     const images = [];

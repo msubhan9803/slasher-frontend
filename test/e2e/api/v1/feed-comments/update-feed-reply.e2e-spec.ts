@@ -253,7 +253,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .attach('files', tempPaths[3]);
         expect(response.body).toEqual({
           statusCode: 400,
-          message: 'Cannot include more than 4 images on a post.',
+          message: 'Cannot include more than 4 images on a reply.',
         });
       }, [
         { extension: 'png' }, { extension: 'png' }, { extension: 'png' },
@@ -452,7 +452,7 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .attach('files', tempPaths[1]);
         expect(response.body).toEqual({
           statusCode: 400,
-          message: 'Cannot include more than 4 images on a post.',
+          message: 'Cannot include more than 4 images on a reply.',
         });
       }, [
         { extension: 'png' }, { extension: 'png' },
@@ -462,6 +462,28 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       // There should be no files in `UPLOAD_DIR` (other than one .keep file)
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+      const feedReply2 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: [],
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-comments/replies/${feedReply2._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', '');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have a message or at least one image. No message or image received.',
+      });
     });
 
     describe('Validation', () => {

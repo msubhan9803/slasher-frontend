@@ -389,6 +389,26 @@ describe('Update Feed Post (e2e)', () => {
       const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
       expect(allFilesNames).toEqual(['.keep']);
     });
+
+    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+      const feedPost3 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            images: [],
+            userId: activeUser._id,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+      .patch(`/api/v1/feed-posts/${feedPost3._id}`)
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .set('Content-Type', 'multipart/form-data')
+      .field('message', '');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have a message or at least one image. No message or image received.',
+      });
+    });
   });
 
   describe('Validation', () => {

@@ -18,6 +18,8 @@ import { LG_MEDIA_BREAKPOINT, analyticsId, MAIN_CONTENT_ID } from '../../../../c
 import LoadingIndicator from '../../../ui/LoadingIndicator';
 import useGoogleAnalytics from '../../../../hooks/useGoogleAnalytics';
 import SkipToMainContent from '../../sidebar-nav/SkipToMainContent';
+import { setRemoteConstantsData } from '../../../../redux/slices/remoteConstantsSlice';
+import { fetchRemoteConstants } from '../../../../api/remote-constants';
 
 interface Props {
   children: React.ReactNode;
@@ -58,6 +60,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const userData = useAppSelector((state) => state.user);
+  const remoteConstantsData = useAppSelector((state) => state.remoteConstants);
   const { pathname } = useLocation();
   const socket = useContext(SocketContext);
   const token = Cookies.get('sessionToken');
@@ -77,6 +80,15 @@ function AuthenticatedPageWrapper({ children }: Props) {
       return;
     }
 
+    if (!remoteConstantsData.loaded) {
+      fetchRemoteConstants().then((res) => {
+        dispatch(setRemoteConstantsData(res.data));
+      }).catch(() => {
+        // eslint-disable-next-line no-console
+        console.log('An unexpected error occurred while loading remote constants');
+      });
+    }
+
     if (userData.user.userName === '') {
       userInitialData().then((res) => {
         dispatch(setUserInitialData(res.data));
@@ -86,7 +98,7 @@ function AuthenticatedPageWrapper({ children }: Props) {
         }
       });
     }
-  }, [dispatch, navigate, pathname, userData.user.userName, token]);
+  }, [dispatch, navigate, pathname, userData.user.userName, remoteConstantsData.loaded, token]);
 
   useCallback(() => {
     dispatch(setUserInitialData(userData));

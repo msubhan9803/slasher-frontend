@@ -16,6 +16,7 @@ import { EVENT_DETAIL_DIV_ID } from '../../../utils/pubwise-ad-units';
 import { StyledBorder } from '../../../components/ui/StyledBorder';
 import { LinearIcon } from '../../../components/ui/FavoriteLinearIcon';
 import ShareLinksModal from '../../../components/ui/ShareLinksModal';
+import { enableDevFeatures } from '../../../utils/configEnvironment';
 
 const EventBanner = styled.div`
   aspect-ratio : 1.78;
@@ -64,18 +65,20 @@ function EventDetails() {
             <span className="text-primary">{eventDetails?.event_type?.event_name}</span>
           </Col>
           <Col md={5} className="d-none d-md-block d-lg-none d-xl-block">
-            <LinearIcon role="button" uniqueId="favorite-lg" className="d-flex flex-column align-items-end">
-              <div className="favorite-icon align-items-center bg-white d-flex justify-content-center rounded-circle ">
-                <FontAwesomeIcon role="button" icon={solid('heart')} size="2x" />
-              </div>
-              <h1 className="h5 mt-2 mb-0">Favorite</h1>
-              <svg width="0" height="0">
-                <linearGradient id="favorite-lg" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#8F00FF', stopOpacity: '1' }} />
-                  <stop offset="100%" style={{ stopColor: '#8F00FF', stopOpacity: '0.6' }} />
-                </linearGradient>
-              </svg>
-            </LinearIcon>
+            {enableDevFeatures && (
+              <LinearIcon role="button" uniqueId="favorite-lg" className="d-flex flex-column align-items-end">
+                <div className="favorite-icon align-items-center bg-black d-flex justify-content-center rounded-circle ">
+                  <FontAwesomeIcon role="button" icon={solid('bookmark')} size="2x" />
+                </div>
+                <h1 className="h5 mt-2 mb-0">Favorite</h1>
+                <svg width="0" height="0">
+                  <linearGradient id="favorite-lg" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#FFC700', stopOpacity: '1' }} />
+                    <stop offset="100%" style={{ stopColor: '#FFC700', stopOpacity: '0.6' }} />
+                  </linearGradient>
+                </svg>
+              </LinearIcon>
+            )}
           </Col>
         </Row>
         <Row className="my-md-4 mt-2">
@@ -117,18 +120,20 @@ function EventDetails() {
             </RoundButton>
           </div>
           <div>
-            <LinearIcon role="button" uniqueId="favorite-sm" className="d-flex flex-column align-items-end">
-              <div className="favorite-icon align-items-center bg-white d-flex justify-content-center rounded-circle ">
-                <FontAwesomeIcon role="button" icon={solid('heart')} size="2x" />
-              </div>
-              <h1 className="h5 mt-2 mb-0">Favorite</h1>
-              <svg width="0" height="0">
-                <linearGradient id="favorite-sm" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: '#8F00FF', stopOpacity: '1' }} />
-                  <stop offset="100%" style={{ stopColor: '#8F00FF', stopOpacity: '0.6' }} />
-                </linearGradient>
-              </svg>
-            </LinearIcon>
+            {enableDevFeatures && (
+              <LinearIcon role="button" uniqueId="favorite-sm" className="d-flex flex-column align-items-end">
+                <div className="favorite-icon align-items-center bg-black d-flex justify-content-center rounded-circle ">
+                  <FontAwesomeIcon role="button" icon={solid('bookmark')} size="2x" />
+                </div>
+                <h1 className="h5 mt-2 mb-0">Favorite</h1>
+                <svg width="0" height="0">
+                  <linearGradient id="favorite-sm" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style={{ stopColor: '#FFC700', stopOpacity: '1' }} />
+                    <stop offset="100%" style={{ stopColor: '#FFC700', stopOpacity: '0.6' }} />
+                  </linearGradient>
+                </svg>
+              </LinearIcon>
+            )}
           </div>
         </div>
         <StyledBorder className="mt-3 mb-4" />

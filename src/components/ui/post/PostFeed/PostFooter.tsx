@@ -22,8 +22,8 @@ interface PostFooterProps {
   onSelect?: (value: string) => void
   likeCount?: string;
   commentCount?: string;
-  handleLikeModal?: (value: string, postId: string) => void;
   postType?: string;
+  handleLikeModal?: (value: string, postId: string) => void;
   setShowReviewDetail?: (value: boolean) => void;
 }
 const StyleDot = styled(FontAwesomeIcon)`
@@ -45,24 +45,23 @@ function PostFooter({
       <Row className="justify-content-start py-3">
         <Col
           xs={showRepost ? 4 : 6}
-          md={showRepost ? 3 : 4}
+          md={postType !== 'group-post' && showRepost ? 3 : 4}
           lg={showRepost ? 4 : 6}
-          xl={showRepost ? 3 : 4}
+          xl={postType !== 'group-post' && showRepost ? 3 : 4}
         >
           <div className="d-flex align-items-center">
             <Button className="p-0" variant="link" onClick={() => onLikeClick(postId)}>
               {likeIcon ? (
                 <LinearIcon uniqueId="like-button-footer">
                   <FontAwesomeIcon icon={solid('heart')} size="lg" className="me-2" />
-                  <span className={`fs-3 d-none d-md-inline ${showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Like</span>
+                  <span className={`fs-3 d-none d-md-inline ${postType !== 'group-post' && showRepost ? 'd-lg-none' : 'd-lg-inline'} d-xl-inline me-2`}>Like</span>
                 </LinearIcon>
-              )
-                : (
-                  <>
-                    <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
-                    <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
-                  </>
-                )}
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={regular('heart')} size="lg" className="me-2" />
+                  <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Like</span>
+                </>
+              )}
             </Button>
             <StyleDot icon={solid('circle')} size="xs" className="py-1 me-2" />
             <Button
@@ -75,10 +74,11 @@ function PostFooter({
         </Col>
         <Col
           xs={showRepost ? 4 : 6}
-          md={showRepost ? 3 : 4}
+          md={postType !== 'group-post' && showRepost ? 3 : 4}
           lg={showRepost ? 4 : 6}
-          xl={showRepost ? 3 : 4}
-          className={showRepost ? 'text-xl-start text-lg-center text-md-start text-center ' : 'text-xl-center text-lg-end text-md-center text-end'}
+          xl={postType !== 'group-post' && showRepost ? 3 : 4}
+          /* eslint-disable no-nested-ternary */
+          className={(postType !== 'group-post' && showRepost) ? 'text-xl-start text-lg-center text-md-start text-center ' : postType === 'group-post' ? 'text-center' : 'text-xl-center text-lg-end text-md-center text-end'}
         >
           <HashLink
             onClick={() => (postType === 'review' ? setShowReviewDetail!(true) : onSelect!(rssfeedProviderId || postId))}
@@ -94,7 +94,7 @@ function PostFooter({
             <span className="fs-3">{commentCount}</span>
           </HashLink>
         </Col>
-        {showRepost && (
+        {postType !== 'group-post' && showRepost && (
           <Col xs={4} className="text-xl-center text-lg-end text-md-center text-end">
             <FontAwesomeIcon icon={solid('repeat')} size="lg" className="me-2" />
             <span className="fs-3 d-none d-md-inline d-lg-none d-xl-inline me-2">Repost</span>
@@ -102,8 +102,8 @@ function PostFooter({
             <span className="fs-3">999k</span>
           </Col>
         )}
-        <Col xs={showRepost ? 2 : 4} className="text-end d-none d-md-inline d-lg-none d-xl-inline">
-          <ShareLinkButton text />
+        <Col xs={postType !== 'group-post' && showRepost ? 2 : 4} className={`text-end ${postType !== 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : 'd-inline'}`}>
+          <ShareLinkButton text textClass={postType === 'group-post' ? 'd-none d-md-inline d-lg-none d-xl-inline' : ''} />
         </Col>
         <svg width="0" height="0">
           <linearGradient id="like-button-footer" x1="100%" y1="0%" x2="0%" y2="100%">

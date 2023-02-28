@@ -12,6 +12,7 @@ interface FilterDialogProps {
   applyFilter?: (keyValue: string, sortValue?: string) => void;
   sortoptions?: OptionsProps[];
   sortVal?: string
+  postType?: string;
 }
 interface OptionsProps {
   value: string;
@@ -22,7 +23,8 @@ const KeyboardButtons = styled(Button)`
   height: 2.5rem;
 `;
 function FilterModal({
-  showKeys, setShowKeys, selectedKey, applyFilter, sortoptions, sortVal,
+  showKeys, setShowKeys, selectedKey, applyFilter, sortoptions,
+  sortVal, postType,
 }: FilterDialogProps) {
   const [keyboard, setKeyboard] = useState<string[]>([]);
   const [key, setKey] = useState<string>('');
@@ -40,14 +42,25 @@ function FilterModal({
     const number = [...Array(10)].map((_, i) => String.fromCharCode(i + 48));
     setKeyboard([...number, ...alphabet]);
   };
-  useEffect(() => { generateAlphabet(); }, []);
+  const generateGroupsType = () => {
+    const groupsType = ['Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
+      'News', 'Event', 'Gorefest', 'Cosplay', 'My work', 'Collaboration', 'For sale', 'Want to buy'];
+    setKeyboard(groupsType);
+  };
+  useEffect(() => {
+    if (postType === 'group-post') {
+      generateGroupsType();
+    } else {
+      generateAlphabet();
+    }
+  }, [postType]);
   const handleCloseKeys = () => {
     setShowKeys(false);
   };
 
-  const onClickApplyFilter = () => {
+  const onClickApplyFilter = (keyVal?: string) => {
     if (applyFilter) {
-      applyFilter(key, selectedSortValue);
+      applyFilter(postType !== 'group-post' ? keyVal! : key, selectedSortValue);
       handleCloseKeys();
     }
   };
@@ -60,44 +73,61 @@ function FilterModal({
       className="px-3 px-md-0"
       scrollable
     >
-      <Modal.Header className="border-0 shadow-none m-0" closeButton>
-        <Modal.Title className="fs-2">Filter Options</Modal.Title>
+      <Modal.Header className={`border-0 shadow-none m-0 ${postType === 'group-post' ? 'justify-content-end' : ''}`} closeButton>
+        {postType !== 'group-post' && <Modal.Title className="fs-2">Filter Options</Modal.Title>}
       </Modal.Header>
       <Modal.Body className="pb-5">
-        <div className="d-lg-none mb-4">
-          <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
-          <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
-        </div>
-        <h2 className="fs-3 mb-3 text-center">Title starts with:</h2>
+        {postType !== 'group-post' && (
+          <div className="d-lg-none mb-4">
+            <Modal.Title className="fs-3 mb-2">Sort</Modal.Title>
+            <SortData sortVal={selectedSortValue} onSelectSort={(e: React.ChangeEvent<HTMLSelectElement>) => seSelectedSortValue(e.target.value)} sortoptions={sortoptions} title="Sort: " type="sort" />
+          </div>
+        )}
+        <h2 className={`fs-3 mb-3 ${postType === 'group-post' ? 'text-primary' : ''} text-center `}>{postType === 'group-post' ? 'Filters' : 'Title starts with:'}</h2>
         <div className="align-items-center d-flex flex-wrap justify-content-center mb-4">
           {keyboard.map((keys) => (
-            <KeyboardButtons
-              key={keys}
-              onClick={() => setKey(keys)}
-              className={`text-white fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
-            >
-              {keys}
-            </KeyboardButtons>
+            postType === 'group-post'
+              ? (
+                <Button
+                  key={keys}
+                  onClick={() => { onClickApplyFilter(keys); }}
+                  className={`py-2 px-3 text-white fs-3 border shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-pill ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+                >
+                  {keys}
+                </Button>
+              )
+              : (
+                <KeyboardButtons
+                  key={keys}
+                  onClick={() => setKey(keys)}
+                  className={`text-white fs-3 border-0 shadow-none align-items-center d-flex fw-normal justify-content-center m-2 rounded-circle ${key !== keys ? 'bg-dark' : ' bg-primary'}`}
+                >
+                  {keys}
+                </KeyboardButtons>
+              )
           ))}
         </div>
-        <RoundButton
-          variant="primary"
-          type="submit"
-          className="w-100 fs-3"
-          onClick={onClickApplyFilter}
-        >
-          Apply filter
-        </RoundButton>
+        {postType !== 'group-post' && (
+          <RoundButton
+            variant="primary"
+            type="submit"
+            className="w-100 fs-3"
+            onClick={onClickApplyFilter}
+          >
+            Apply filter
+          </RoundButton>
+        )}
       </Modal.Body>
     </CustomModal>
   );
 }
 
 FilterModal.defaultProps = {
-  selectedKey: null,
+  selectedKey: '',
   applyFilter: null,
   sortoptions: null,
   sortVal: 'name',
+  postType: '',
 };
 
 export default FilterModal;

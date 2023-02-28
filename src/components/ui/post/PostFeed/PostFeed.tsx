@@ -25,14 +25,14 @@ import {
   escapeHtmlSpecialCharacters,
   newLineToBr,
 } from '../../../../utils/text-utils';
-import LoadingIndicator from '../../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
-import { useAppSelector } from '../../../../redux/hooks';
 import { MentionListProps } from '../../MessageTextarea';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
+import { useAppSelector } from '../../../../redux/hooks';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -144,7 +144,7 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -268,7 +268,22 @@ function PostFeed({
       });
     }
   }, [postData, scrollPosition, location.pathname]);
-
+  const renderGroupPostContent = (posts: any) => (
+    <>
+      <p>
+        Posted in&nbsp;
+        <span className="text-primary">
+          {posts.postedIn}
+        </span>
+      </p>
+      <span className="my-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#383838' }}>
+        {posts.type}
+      </span>
+      <h1 className="h2 my-3">
+        {posts.contentHeading}
+      </h1>
+    </>
+  );
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -288,10 +303,11 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postType={postType}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
-                {/* {postType === 'review' && rendePostContent(post)} */}
+                {postType === 'group-post' && renderGroupPostContent(post)}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper

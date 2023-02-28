@@ -19,10 +19,8 @@ function BasicMusicIndex() {
     if (!music?.music?.length) {
       setLoadingPosts(true);
       getMusic().then((res: any) => {
-        if (res) {
-          dispatch(setMusicInitialData(res.data));
-          setLoadingPosts(false);
-        }
+        dispatch(setMusicInitialData(res.data));
+        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
         setLoadingPosts(false);

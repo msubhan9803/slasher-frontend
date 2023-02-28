@@ -23,10 +23,8 @@ function BasicBooksIndex() {
     if (!books?.books?.length) {
       setLoadingPosts(true);
       getBooks().then((res: any) => {
-        if (res) {
-          dispatch(setBooksInitialData(res.data));
-          setLoadingPosts(false);
-        }
+        dispatch(setBooksInitialData(res.data));
+        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
         setLoadingPosts(false);

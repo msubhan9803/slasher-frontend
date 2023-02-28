@@ -13,17 +13,17 @@ interface RatingTextProps {
 }
 
 interface RatingIConProps {
-  ratingType: string;
+  ratingtype: string;
   width: string;
   height: string;
 }
 const StyledRatingIcon = styled(FontAwesomeIcon) <RatingIConProps>`
-  ${(props) => (props.ratingType === 'star' ? `
+  ${(props) => (props.ratingtype === 'star' ? `
     color: #FF8A00;
     width: ${props.width};
     height: ${props.height}
   ` : '')}
-  ${(props) => (props.ratingType === 'burst' ? `
+  ${(props) => (props.ratingtype === 'burst' ? `
     color: #FF1800;
     width: ${props.width};
     height: ${props.height}
@@ -35,7 +35,7 @@ function CustomRatingText({
 }: RatingTextProps) {
   return (
     <>
-      <StyledRatingIcon width={customWidth} height={customHeight} ratingType={ratingType} icon={icon} size="xs" />
+      <StyledRatingIcon width={customWidth} height={customHeight} ratingtype={ratingType} icon={icon} size="xs" />
       <div className="d-flex align-items-center m-md-0 ">
         <p className="fw-bold m-0 mx-2">
           {rating}

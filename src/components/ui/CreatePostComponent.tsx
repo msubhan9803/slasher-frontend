@@ -2,8 +2,11 @@
 import React, { ChangeEvent, useRef, useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Row, Col, Form } from 'react-bootstrap';
+import {
+  Row, Col, Form, Button,
+} from 'react-bootstrap';
 import styled from 'styled-components';
+import { useSearchParams } from 'react-router-dom';
 import { getSuggestUserName } from '../../api/users';
 import ErrorMessageList from './ErrorMessageList';
 import ImagesContainer from './ImagesContainer';
@@ -13,6 +16,7 @@ import CharactersCounter from './CharactersCounter';
 import RatingButtonGroups from './RatingButtonGroups';
 import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import CustomWortItText from './CustomWortItText';
+import { StyledBorder } from './StyledBorder';
 
 interface MentionProps {
   id: string;
@@ -46,21 +50,33 @@ interface Props {
   setGoreFactor?: (value: number) => void;
   liked?: boolean;
   setLike?: (value: boolean) => void;
+  selectedPostType?: string;
+  setSelectedPostType?: (value: string) => void;
 }
 
 const AddPhotosButton = styled(RoundButton)`
   background-color: #1F1F1F !important;
+`;
+const groupPostType: string[] = [
+  'Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
+  'News', 'Event', 'Cosplay', 'My work', 'Collaboration', 'For sale', 'Want to buy',
+];
+const PostTypeButton = styled(Button)`
+  border : 0.125rem solid #383838
 `;
 
 function CreatePostComponent({
   errorMessage, createUpdatePost, setPostMessageContent, imageArray, setImageArray,
   defaultValue, formatMention, setFormatMention, deleteImageIds, setDeleteImageIds,
   postType, titleContent, setTitleContent, containSpoiler, setContainSpoiler,
-  rating, setRating, goreFactor, setGoreFactor, liked, setLike,
+  rating, setRating, goreFactor, setGoreFactor, liked, setLike, selectedPostType,
+  setSelectedPostType,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
   const [mentionList, setMentionList] = useState<MentionProps[]>([]);
   const [uploadPost, setUploadPost] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+  const paramsType = searchParams.get('type');
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
@@ -98,6 +114,7 @@ function CreatePostComponent({
 
   return (
     <div className={postType === 'review' ? 'bg-dark mb-3 px-4 py-4 rounded-2' : ''}>
+
       {postType === 'review' && (
         <>
           <div className="d-block d-md-flex d-lg-block d-xl-flex align-items-center mb-4">
@@ -144,30 +161,32 @@ function CreatePostComponent({
             </div>
           </div>
           <h1 className="h3 mb-3">Write your review</h1>
-          <div className="position-relative">
-            <Form.Control
-              maxLength={150}
-              type="text"
-              value={titleContent}
-              onChange={(e) => {
-                setTitleContent!(e.target.value);
-              }}
-              placeholder={postType === 'review' ? 'Write a headline' : ''}
-              className="bg-black"
-              aria-label="Title"
-              style={{ paddingRight: '150px' }}
-            />
-            <CharactersCounter
-              counterClass="float-end fs-4 position-absolute"
-              charCount={titleContent!.length}
-              totalChar={150}
-              right="10px"
-              top="16px"
-            />
-          </div>
         </>
       )}
-      <div className={`mt-3 ${postType === 'review' ? 'form-control p-0 bg-black' : ''}`}>
+      {(postType === 'review' || paramsType === 'group-post') && (
+        <div className="position-relative">
+          <Form.Control
+            maxLength={150}
+            type="text"
+            value={titleContent}
+            onChange={(e) => {
+              setTitleContent!(e.target.value);
+            }}
+            placeholder={postType === 'review' ? 'Write a headline' : 'Title'}
+            className="bg-black"
+            aria-label="Title"
+            style={{ paddingRight: '150px' }}
+          />
+          <CharactersCounter
+            counterClass="float-end fs-4 position-absolute"
+            charCount={titleContent!.length}
+            totalChar={150}
+            right="10px"
+            top="16px"
+          />
+        </div>
+      )}
+      <div className={`mt-3 ${(postType === 'review' || paramsType === 'group-post') ? 'form-control p-0 bg-black' : ''}`}>
         <MessageTextarea
           rows={10}
           placeholder={postType === 'review' ? 'Write your review here' : 'Create a post'}
@@ -179,20 +198,46 @@ function CreatePostComponent({
           defaultValue={defaultValue}
         />
       </div>
-      {postType === 'review' && (
-        <div className="mt-4">
-          <h2 className="h3 fw-bold">Contains spoilers</h2>
-          <label htmlFor="spoiler" className="d-flex text-light">
-            <input
-              id="spoiler"
-              type="checkbox"
-              checked={containSpoiler}
-              onChange={() => setContainSpoiler!(!containSpoiler)}
-              className="me-2"
-            />
-            Check this box if this post contains any spoilers.
-          </label>
-        </div>
+      {paramsType === 'group-post' && (
+        <>
+          <div className="my-4">
+            <h2 className="h3 fw-bold">
+              Post type&nbsp;
+              <span className="text-light fw-normal">
+                (Optional)
+              </span>
+            </h2>
+            {groupPostType.map((type: string) => (
+              <PostTypeButton
+                key={`${type}-1`}
+                as="input"
+                type="button"
+                value={type}
+                className={`${type === selectedPostType ? 'bg-primary text-black' : 'bg-secondary text-white'} rounded-pill py-2 px-3 m-1`}
+                onClick={() => setSelectedPostType!(type)}
+              />
+            ))}
+          </div>
+          <StyledBorder />
+        </>
+      )}
+      {(postType === 'review' || paramsType === 'group-post') && (
+        <>
+          <div className={paramsType === 'group-post' ? 'my-4' : 'mt-4'}>
+            <h2 className="h3 fw-bold">Contains spoilers</h2>
+            <label htmlFor="spoiler" className="d-flex text-light">
+              <input
+                id="spoiler"
+                type="checkbox"
+                checked={containSpoiler}
+                onChange={() => setContainSpoiler!(!containSpoiler)}
+                className="me-2"
+              />
+              Check this box if this post contains any spoilers.
+            </label>
+          </div>
+          {paramsType === 'group-post' && <StyledBorder />}
+        </>
       )}
       <input
         type="file"
@@ -269,5 +314,7 @@ CreatePostComponent.defaultProps = {
   setGoreFactor: undefined,
   liked: false,
   setLike: undefined,
+  selectedPostType: '',
+  setSelectedPostType: undefined,
 };
 export default CreatePostComponent;

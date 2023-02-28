@@ -27,6 +27,7 @@ import AccountActivated from './routes/account-activated/AccountActivated';
 import usePubWiseAdSlots from './hooks/usePubWiseAdSlots';
 import { enableADs } from './constants';
 import SocialGroups from './routes/social-group/SocialGroups';
+import { enableDevFeatures } from './utils/configEnvironment';
 // import Books from './routes/books/Books';
 // import Shopping from './routes/shopping/Shopping';
 // import Places from './routes/places/Places';
@@ -48,7 +49,6 @@ const routes: Record<string, TopLevelRoute> = {
   'app/home': { wrapper: AuthenticatedPageWrapper, component: Home },
   ':userName/*': { wrapper: AuthenticatedPageWrapper, component: Profile },
   'app/search/*': { wrapper: AuthenticatedPageWrapper, component: Search },
-  'app/dating/*': { wrapper: AuthenticatedPageWrapper, component: Dating },
   'app/messages': { wrapper: AuthenticatedPageWrapper, component: Messages },
   'app/messages/conversation/:conversationId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
   'app/messages/conversation/user/:userId': { wrapper: AuthenticatedPageWrapper, component: Conversation },
@@ -58,11 +58,6 @@ const routes: Record<string, TopLevelRoute> = {
   'app/movies/*': { wrapper: AuthenticatedPageWrapper, component: Movies },
   'app/notifications': { wrapper: AuthenticatedPageWrapper, component: Notifications },
   'app/account/*': { wrapper: AuthenticatedPageWrapper, component: Account },
-  'app/groups/*': { wrapper: AuthenticatedPageWrapper, component: SocialGroups },
-  // 'podcasts/*': { wrapper: AuthenticatedPageWrapper, component: Podcasts },
-  // 'books/*': { wrapper: AuthenticatedPageWrapper, component: Books },
-  // 'shopping/*': { wrapper: AuthenticatedPageWrapper, component: Shopping },
-  // 'places/*': { wrapper: AuthenticatedPageWrapper, component: Places },
   'app/forgot-password': { wrapper: UnauthenticatedPageWrapper, component: ForgotPassword },
   'app/reset-password': { wrapper: UnauthenticatedPageWrapper, component: ResetPassword },
   'app/verification-email-not-received': { wrapper: UnauthenticatedPageWrapper, component: VerificationEmailNotReceived },
@@ -71,6 +66,15 @@ const routes: Record<string, TopLevelRoute> = {
   'app/account-activated': { wrapper: UnauthenticatedPageWrapper, component: AccountActivated },
   'app/sign-in': { wrapper: UnauthenticatedPageWrapper, component: SignIn, wrapperProps: { hideTopLogo: true } },
 };
+
+if (enableDevFeatures) {
+  routes['app/dating/*'] = { wrapper: AuthenticatedPageWrapper, component: Dating };
+  routes['app/groups/*'] = { wrapper: AuthenticatedPageWrapper, component: SocialGroups };
+  // routes['podcasts/*'] = { wrapper: AuthenticatedPageWrapper, component: Podcasts };
+  // routes['books/*'] = { wrapper: AuthenticatedPageWrapper, component: Books };
+  // routes['shopping/*'] = { wrapper: AuthenticatedPageWrapper, component: Shopping };
+  // routes['places/*'] = { wrapper: AuthenticatedPageWrapper, component: Places };
+}
 
 function App() {
   usePubWiseAdSlots(enableADs);

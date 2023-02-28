@@ -26,13 +26,13 @@ const sidebarMenuList: MenuType[] = [
     label: 'News & Reviews', icon: solid('newspaper'), iconColor: '#0094FF', to: '/app/news', id: 1,
   },
   {
-    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 2,
+    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 2,
   },
   {
-    label: 'Events', icon: solid('calendar-day'), iconColor: '#05FF00', to: '/app/events', id: 3,
+    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 3, comingSoon: true,
   },
   {
-    label: 'Places', icon: solid('location-dot'), iconColor: '#FFC700', to: '/app/places', id: 4, comingSoon: true,
+    label: 'Groups', icon: solid('user-group'), iconColor: '#E1B065', to: '/app/groups', id: 4, comingSoon: true,
   },
   {
     label: 'Dating', icon: solid('heart'), iconColor: '#FF0000', to: '/app/dating', id: 5, comingSoon: true,

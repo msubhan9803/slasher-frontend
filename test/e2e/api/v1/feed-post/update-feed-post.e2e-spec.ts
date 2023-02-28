@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
@@ -309,7 +310,7 @@ describe('Update Feed Post (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it.only('responds expected response when neither message nor file are present in request'
+    it('responds expected response when neither message nor file are present in request'
       + 'and db images length or body imagesToDelete length is same', async () => {
         const feedPost0 = await feedPostsService.create(
           feedPostFactory.build(
@@ -326,10 +327,68 @@ describe('Update Feed Post (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .field('message', '')
           .field('imagesToDelete', (feedPost.images[0] as any).id)
-        // .expect(HttpStatus.BAD_REQUEST);
-
+          .expect(HttpStatus.BAD_REQUEST);
         expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
       });
+
+    it('when post has a already 9 images and add more 2 images than expected response', async () => {
+      const feedPost2 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            images: [
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+            ],
+            userId: activeUser._id,
+          },
+        ),
+      );
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Cannot include more than 10 images on a post.',
+        });
+      }, [
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+      ]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
   });
 
   describe('Validation', () => {

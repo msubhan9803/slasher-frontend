@@ -147,6 +147,15 @@ async createFeedComment(
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
 
+    if (updateFeedCommentsDto.imagesToDelete && updateFeedCommentsDto.imagesToDelete.length) {
+      if (!files.length && updateFeedCommentsDto.message === '' && comment.images.length === updateFeedCommentsDto.imagesToDelete.length) {
+        throw new HttpException(
+          'Posts must have a message or at least one image. No message or image received.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     let currentCommentImages;
     if (updateFeedCommentsDto.imagesToDelete) {
       const commentImages = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
@@ -155,6 +164,11 @@ async createFeedComment(
         throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
       }
       currentCommentImages = commentImages;
+    }
+
+    if (comment.images.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
     }
 
     const images = [];
@@ -167,7 +181,6 @@ async createFeedComment(
       }
       images.push({ image_path: storageLocation });
     }
-
     if (files.length || updateFeedCommentsDto.imagesToDelete) {
       const feedCommentImages = images.concat(currentCommentImages);
       Object.assign(
@@ -311,6 +324,15 @@ async createFeedComment(
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
 
+    if (updateFeedReplyDto.imagesToDelete && updateFeedReplyDto.imagesToDelete.length) {
+      if (!files.length && updateFeedReplyDto.message === '' && reply.images.length === updateFeedReplyDto.imagesToDelete.length) {
+        throw new HttpException(
+          'Posts must have a message or at least one image. No message or image received.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     let currentReplyImages;
     if (updateFeedReplyDto.imagesToDelete) {
       const replyImages = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
@@ -319,6 +341,11 @@ async createFeedComment(
         throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
       }
       currentReplyImages = replyImages;
+    }
+
+    if (reply.images.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a post.`, HttpStatus.BAD_REQUEST);
     }
 
     const images = [];

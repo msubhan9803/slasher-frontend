@@ -281,7 +281,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when imagesToDelete id not exist and files is exist than expected response', async () => {
+    it('when imagesToDelete not exist and files is exist than expected response', async () => {
       await createTempFiles(async (tempPaths) => {
         const response = await request(app.getHttpServer())
           .patch(`/api/v1/feed-comments/${feedComment._id}`)
@@ -323,7 +323,7 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
-    it('when imagesToDelete id exist and files is not exist than expected response', async () => {
+    it('when imagesToDelete exist and files is not exist than expected response', async () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-comments/${feedComment._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
@@ -370,6 +370,74 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('responds expected response when neither message nor file are present in request'
+      + 'and db images length or body imagesToDelete length is same', async () => {
+        const feedComment0 = await feedCommentsService.createFeedComment(
+          feedCommentsFactory.build(
+            {
+              userId: activeUser._id,
+              feedPostId: feedPost.id,
+              message: sampleFeedCommentsObject.message,
+              images: [{
+                image_path: '/feed/feed_sample1.jpg',
+              }],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment0._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '')
+          .field('imagesToDelete', (feedComment0.images[0] as any).id)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      });
+
+    it('when comment has a already 4 images and add more 2 images than expected response', async () => {
+      const feedComment1 = await feedCommentsService.createFeedComment(
+        feedCommentsFactory.build(
+          {
+            userId: activeUser._id,
+            feedPostId: feedPost.id,
+            message: sampleFeedCommentsObject.message,
+            images: [
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+            ],
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/${feedComment1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Cannot include more than 4 images on a post.',
+        });
+      }, [
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+      ]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8002).join('z');
@@ -379,13 +447,6 @@ describe('Feed-Comments / Comments Update (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', message);
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
-      });
-
-      it('message should not be empty', async () => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/${feedComment._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' });
-        expect(response.body.message).toContain('message should not be empty');
       });
     });
   });

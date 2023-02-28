@@ -395,6 +395,75 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
       expect(allFilesNames).toEqual(['.keep']);
     });
 
+    it('responds expected response when neither message nor file are present in request'
+      + 'and db images length or body imagesToDelete length is same', async () => {
+        const feedReply0 = await feedCommentsService.createFeedReply(
+          feedRepliesFactory.build(
+            {
+              userId: activeUser._id,
+              feedCommentId: feedComments.id,
+              message: 'Hello Reply Test Message 1',
+              images: [{
+                image_path: '/feed/feed_sample1.jpg',
+              }],
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply0._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '')
+          .field('imagesToDelete', (feedReply0.images[0] as any).id)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      });
+
+    it('when reply has a already 4 images and add more 2 images than expected response', async () => {
+      const feedReply1 = await feedCommentsService.createFeedReply(
+        feedRepliesFactory.build(
+          {
+            userId: activeUser._id,
+            feedCommentId: feedComments.id,
+            message: 'Hello Reply Test Message 1',
+            images: [
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+            ],
+          },
+        ),
+      );
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-comments/replies/${feedReply1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Cannot include more than 4 images on a post.',
+        });
+      }, [
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+      ]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
     describe('Validation', () => {
       it('check message length validation', async () => {
         const message = new Array(8_002).join('z');
@@ -404,13 +473,6 @@ describe('Feed-Comments/Replies Update File (e2e)', () => {
           .set('Content-Type', 'multipart/form-data')
           .field('message', message);
         expect(response.body.message).toContain('message cannot be longer than 8,000 characters');
-      });
-
-      it('message should not be empty', async () => {
-        const response = await request(app.getHttpServer())
-          .patch(`/api/v1/feed-comments/replies/${feedReply._id}`)
-          .auth(activeUserAuthToken, { type: 'bearer' });
-        expect(response.body.message).toContain('message should not be empty');
       });
     });
   });

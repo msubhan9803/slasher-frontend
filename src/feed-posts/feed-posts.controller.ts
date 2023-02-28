@@ -181,6 +181,11 @@ export class FeedPostsController {
       }
     }
 
+    if (feedPost.images.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_POST} images on a post.`, HttpStatus.BAD_REQUEST);
+    }
+
     let currentPostImages;
     if (updateFeedPostsDto.imagesToDelete) {
       const postImages = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));

@@ -1,25 +1,14 @@
 import React, { useState } from 'react';
-import { regular, solid } from '@fortawesome/fontawesome-svg-core/import.macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Modal } from 'react-bootstrap';
-import styled from 'styled-components';
+import { Modal } from 'react-bootstrap';
 import ModalContainer from '../../../components/ui/CustomModal';
 import RoundButton from '../../../components/ui/RoundButton';
+import RatingButtonGroups from '../../../components/ui/RatingButtonGroups';
 
 interface BookDetaisProps {
   show: boolean;
   setShow: (value: boolean) => void;
   ButtonType?: string;
 }
-const RatingStar = styled.div`
-  .fa-star {
-    width: rem;
-    height: rem;
-  }
-  .rate {
-    color: #FF8A00;
-  }
-`;
 function BooksModal({
   show, setShow, ButtonType,
 }: BookDetaisProps) {
@@ -91,22 +80,11 @@ function BooksModal({
                   <h1 className="text-primary h2">Rate this movie</h1>
                   <p className="h5 px-4">The Curse of La Patasola</p>
                 </div>
-                <RatingStar className="star-rating my-3">
-                  {[...Array(5)].map((star, index) => (
-                    <Button
-                      type="button"
-                      key={star}
-                      className="px-2 bg-transparent border-0 shadow-none"
-                      onClick={() => setRating(index)}
-                    >
-                      {index <= rating ? (
-                        <FontAwesomeIcon icon={solid('star')} size="2x" className="rate" />
-                      ) : (
-                        <FontAwesomeIcon icon={regular('star')} size="2x" className="text-white" />
-                      )}
-                    </Button>
-                  ))}
-                </RatingStar>
+                <RatingButtonGroups
+                  rating={rating}
+                  setRating={setRating}
+                  size="2x"
+                />
                 <RoundButton onClick={closeModal} className="mt-3 w-100 border-0 bg-primary fw-bold">
                   Submit
                 </RoundButton>

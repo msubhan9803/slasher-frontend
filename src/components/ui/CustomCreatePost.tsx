@@ -21,10 +21,12 @@ const StyledRoundButtonLink = styled(RoundButtonLink)`
   border-radius: 6.25rem;
 `;
 
-function CustomCreatePost({ label, icon, iconClass, className, linkParams }: CreatePostProps) {
+function CustomCreatePost({
+  label, icon, iconClass, className, handleCreateInput, linkParams,
+}: CreatePostProps) {
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
   return (
-    <StyledRoundButtonLink to={`/app/posts/create${linkParams}`} variant="dark" className={`w-100 d-flex justify-content-between ${className}`}>
+    <StyledRoundButtonLink handleClick={handleCreateInput} to={handleCreateInput ? `${linkParams}` : `/app/posts/create${linkParams}`} variant="dark" className={`w-100 d-flex justify-content-between ${className}`}>
       <div>
         <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
         <span className="ms-2 text-light fs-5">{label}</span>
@@ -42,9 +44,6 @@ CustomCreatePost.defaultProps = {
   iconClass: 'text-white',
   className: '',
   handleCreateInput: undefined,
-};
-
-CustomCreatePost.defaultProps = {
   linkParams: '',
 };
 

@@ -19,17 +19,20 @@ import CustomSwiper from '../../CustomSwiper';
 import 'linkify-plugin-mention';
 import { PopoverClickProps } from '../../CustomPopover';
 import PubWiseAd from '../../PubWiseAd';
+import {
+  cleanExternalHtmlContent,
+  decryptMessage,
+  escapeHtmlSpecialCharacters,
+  newLineToBr,
+} from '../../../../utils/text-utils';
+import LoadingIndicator from '../../LoadingIndicator';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import { useAppSelector } from '../../../../redux/hooks';
 import { MentionListProps } from '../../MessageTextarea';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
 import RoundButton from '../../RoundButton';
-import { useAppSelector } from '../../../../redux/hooks';
 import CustomRatingText from '../../CustomRatingText';
 import CustomWortItText from '../../CustomWortItText';
-import {
-  cleanExternalHtmlContent, decryptMessage, escapeHtmlSpecialCharacters, newLineToBr,
-} from '../../../../utils/text-utils';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
-import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -66,6 +69,7 @@ interface Props {
   postType?: string,
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  setShowReviewDetail?: (value: boolean) => void;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -92,7 +96,7 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  postType, handleSearch, mentionList,
+  postType, handleSearch, mentionList, setShowReviewDetail,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -317,6 +321,8 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
+                      postType={postType}
+                      setShowReviewDetail={setShowReviewDetail}
                     />
                   </Col>
                 </Row>
@@ -420,5 +426,6 @@ PostFeed.defaultProps = {
   postType: '',
   handleSearch: undefined,
   mentionList: null,
+  setShowReviewDetail: undefined,
 };
 export default PostFeed;

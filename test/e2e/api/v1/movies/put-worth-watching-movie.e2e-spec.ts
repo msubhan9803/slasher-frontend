@@ -13,7 +13,6 @@ import { UserDocument } from '../../../../../src/schemas/user/user.schema';
 import { MovieActiveStatus } from '../../../../../src/schemas/movie/movie.enums';
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
-import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { WorthWatchingStatus } from '../../../../../src/schemas/movieUserStatus/movieUserStatus.enums';
 
 describe('Movie / Create/Update `worthWatching` for `MovierUserStatus` (e2e)', () => {

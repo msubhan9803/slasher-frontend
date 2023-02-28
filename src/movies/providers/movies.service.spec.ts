@@ -43,7 +43,6 @@ describe('MoviesService', () => {
   let usersService: UsersService;
   let movieUserStatusModel: Model<MovieUserStatusDocument>;
   let activeUser: UserDocument;
-  let usersService: UsersService;
   let user1: UserDocument;
 
   beforeAll(async () => {

@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useState } from 'react';
 import {
-  Alert, Button, Col, Form, Row,
+  Alert, Col, Form, Row,
 } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { solid } from '@fortawesome/fontawesome-svg-core/import.macro';
@@ -14,8 +14,6 @@ import { ContentPageWrapper, ContentSidbarWrapper } from '../../../components/la
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RightSidebarSelf from '../../../components/layout/right-sidebar-wrapper/right-sidebar-nav/RightSidebarSelf';
 import CreatePostComponent from '../../../components/ui/CreatePostComponent';
-import CharactersCounter from '../../../components/ui/CharactersCounter';
-import { StyledBorder } from '../../../components/ui/StyledBorder';
 
 export interface MentionProps {
   id: string;
@@ -27,30 +25,15 @@ export interface FormatMentionProps {
   value: string;
   format: string;
 }
-const AddPhotosButton = styled(RoundButton)`
-  background-color: #1F1F1F !important;
-`;
-
-const postType: string[] = [
-  'Review', 'Discussion', 'Help', 'Recommended', 'Opinions wanted', 'Hidden gem',
-  'News', 'Event', 'Cosplay', 'My work', 'Collaboration', 'For sale', 'Want to buy',
-];
-const PostTypeBUtton = styled(Button)`
-  border : 0.125rem solid #383838
-`;
 function CreatePost() {
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const [imageArray, setImageArray] = useState<any>([]);
   const [postContent, setPostContent] = useState<string>('');
   const [formatMention, setFormatMention] = useState<FormatMentionProps[]>([]);
   const loggedInUser = useAppSelector((state) => state.user.user);
-  const [charCount, setCharCount] = useState<number>(0);
-  const [titleContent, setTitleContent] = useState<string>('');
   const [searchParams] = useSearchParams();
   const paramsType = searchParams.get('type');
   const paramsGroupId = searchParams.get('groupId');
-  const [selectedPostType, setSelectedPostType] = useState<string>('');
-  const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const mentionReplacementMatchFunc = (match: string) => {
@@ -66,17 +49,17 @@ function CreatePost() {
   const addPost = () => {
     /* eslint no-useless-escape: 0 */
     const postContentWithMentionReplacements = (postContent.replace(/\@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
-    if (paramsType === 'group-post') {
-      const groupPostData = {
-        title: titleContent,
-        message: postContentWithMentionReplacements,
-        images: imageArray,
-        type: selectedPostType,
-        spoiler: containSpoiler,
-        groupId: paramsGroupId,
-      };
-      return groupPostData;
-    }
+    // if (paramsType === 'group-post') {
+    //   const groupPostData = {
+    //     title: titleContent,
+    //     message: postContentWithMentionReplacements,
+    //     images: imageArray,
+    //     type: selectedPostType,
+    //     spoiler: containSpoiler,
+    //     groupId: paramsGroupId,
+    //   };
+    //   return groupPostData;
+    // }
     return createPost(postContentWithMentionReplacements, imageArray)
       .then(() => {
         setErrorMessage([]);

@@ -7,5 +7,5 @@ export async function getMusic() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/music`, { headers });
+  return axios.get(`${apiUrl}/api/v1/music`, { headers });
 }

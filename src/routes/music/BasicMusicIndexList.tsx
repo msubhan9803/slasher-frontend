@@ -1,5 +1,4 @@
 import React from 'react';
-import { CustomTable, TableRow } from '../../components/ui/customTable';
 
 interface BasicMusicIndexProps {
   music: []
@@ -7,13 +6,13 @@ interface BasicMusicIndexProps {
 function BasicMusicIndexList({ music }: BasicMusicIndexProps) {
   return (
     <div>
-      <CustomTable>
+      <div>
         {music.map((item: any) => (
-          <TableRow key={item._id}>
+          <div className="py-3 fw-bold" key={item._id} style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
             {item.name}
-          </TableRow>
+          </div>
         ))}
-      </CustomTable>
+      </div>
     </div>
   );
 }

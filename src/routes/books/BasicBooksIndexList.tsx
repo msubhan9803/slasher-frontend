@@ -1,5 +1,4 @@
 import React from 'react';
-import { CustomTable, TableRow } from '../../components/ui/customTable';
 
 interface BasicBooksIndexProps {
   books: []
@@ -8,13 +7,13 @@ interface BasicBooksIndexProps {
 function BasicBooksIndexList({ books }: BasicBooksIndexProps) {
   return (
     <div>
-      <CustomTable>
+      <div>
         {books.map((book: any) => (
-          <TableRow key={book._id}>
+          <div className="py-3 fw-bold" key={book._id} style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
             {book.name}
-          </TableRow>
+          </div>
         ))}
-      </CustomTable>
+      </div>
     </div>
   );
 }

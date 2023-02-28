@@ -7,5 +7,5 @@ export async function getPodcasts() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/podcasts`, { headers });
+  return axios.get(`${apiUrl}/api/v1/podcasts`, { headers });
 }

@@ -12,7 +12,6 @@ import { setBooksInitialData } from '../../redux/slices/booksSlice';
 import { useAppSelector } from '../../redux/hooks';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { CustomHeader, TableRow } from '../../components/ui/customTable';
 
 function BasicBooksIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
@@ -46,13 +45,18 @@ function BasicBooksIndex() {
               <ErrorMessageList errorMessages={errorMessage} className="m-0" />
             </div>
           )}
-          <div className="m-md-2">
-            <CustomHeader>Books</CustomHeader>
+          <div className="m-2">
+            <h1 className="h2">Books</h1>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && books?.books?.length > 0 && (
               <BasicBooksIndexList books={books && books?.books} />
             )}
-            {!loadingPosts && books?.books?.length === 0 && <TableRow>No Data Found</TableRow>}
+            {!loadingPosts && books?.books?.length === 0
+              && (
+              <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
+                No Data Found
+              </div>
+              )}
           </div>
         </div>
       </ContentPageWrapper>

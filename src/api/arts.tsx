@@ -7,5 +7,5 @@ export async function getArts() {
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  return axios.get(`${apiUrl}/api/artists`, { headers });
+  return axios.get(`${apiUrl}/api/v1/artists`, { headers });
 }

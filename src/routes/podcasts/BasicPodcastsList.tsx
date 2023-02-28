@@ -1,5 +1,4 @@
 import React from 'react';
-import { CustomTable, TableRow } from '../../components/ui/customTable';
 
 interface BasicPodcastsIndexProps {
   podcasts: []
@@ -7,13 +6,13 @@ interface BasicPodcastsIndexProps {
 function BasicPodcastsList({ podcasts }: BasicPodcastsIndexProps) {
   return (
     <div>
-      <CustomTable>
+      <div>
         {podcasts.map((podcast: any) => (
-          <TableRow key={podcast._id}>
+          <div className="py-3 fw-bold" key={podcast._id} style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
             {podcast.name}
-          </TableRow>
+          </div>
         ))}
-      </CustomTable>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,6 @@ import { useAppSelector } from '../../redux/hooks';
 import { setArtsInitialData } from '../../redux/slices/artsSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { CustomHeader, TableRow } from '../../components/ui/customTable';
 
 function BasicArtistsIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
@@ -21,10 +20,8 @@ function BasicArtistsIndex() {
     if (!arts?.arts?.length) {
       setLoadingPosts(true);
       getArts().then((res: any) => {
-        if (res) {
-          dispatch(setArtsInitialData(res.data));
-          setLoadingPosts(false);
-        }
+        dispatch(setArtsInitialData(res.data));
+        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
         setLoadingPosts(false);
@@ -43,13 +40,19 @@ function BasicArtistsIndex() {
               <ErrorMessageList errorMessages={errorMessage} className="m-0" />
             </div>
           )}
-          <div className="m-md-2">
-            <CustomHeader>Arts</CustomHeader>
+          <div className="m-2">
+            <h1 className="h2">Arts</h1>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && arts?.arts?.length > 0 && (
               <BasicArtistsIndexList arts={arts && arts?.arts} />
             )}
-            {!loadingPosts && arts?.arts?.length === 0 && <TableRow>No Data Found</TableRow>}
+            {!loadingPosts && arts?.arts?.length === 0
+            && (
+            <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
+              No Data Found
+            </div>
+            )}
+
           </div>
         </div>
       </ContentPageWrapper>

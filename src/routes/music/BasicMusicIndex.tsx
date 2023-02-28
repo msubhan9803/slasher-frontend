@@ -9,10 +9,9 @@ import { setMusicInitialData } from '../../redux/slices/musicSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import { getMusic } from '../../api/music';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { CustomHeader, TableRow } from '../../components/ui/customTable';
 
 function BasicMusicIndex() {
-  const music = useAppSelector<any>((state) => state.music);
+  const music = useAppSelector<any>((state: any) => state.music);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string[]>();
   const dispatch = useDispatch();
@@ -42,13 +41,18 @@ function BasicMusicIndex() {
               <ErrorMessageList errorMessages={errorMessage} className="m-0" />
             </div>
           )}
-          <div className="m-md-2">
-            <CustomHeader>Music</CustomHeader>
+          <div className="m-2">
+            <h1 className="h2">Music</h1>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && music?.music?.length > 0 && (
               <BasicMusicIndexList music={music && music?.music} />
             )}
-            {!loadingPosts && music?.music?.length === 0 && <TableRow>No Data Found</TableRow>}
+            {!loadingPosts && music?.music?.length === 0
+              && (
+              <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
+                No Data Found
+              </div>
+              )}
           </div>
         </div>
       </ContentPageWrapper>

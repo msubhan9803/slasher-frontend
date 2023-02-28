@@ -9,7 +9,6 @@ import { setpodcastsInitialData } from '../../redux/slices/podcasts';
 import { getPodcasts } from '../../api/podcasts';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
-import { CustomHeader, TableRow } from '../../components/ui/customTable';
 
 function BasicPodcastsIndex() {
   const podcasts = useAppSelector<any>((state) => state.podcasts);
@@ -42,14 +41,19 @@ function BasicPodcastsIndex() {
               <ErrorMessageList errorMessages={errorMessage} className="m-0" />
             </div>
           )}
-          <div className="m-md-2">
-            <CustomHeader>Podcasts</CustomHeader>
+          <div className="m-2">
+            <h1 className="h2">Podcasts</h1>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && podcasts?.podcasts?.length > 0 && (
               <BasicPodcastsList podcasts={podcasts && podcasts?.podcasts} />
             )}
             {/* eslint-disable-next-line max-len */}
-            {!loadingPosts && podcasts?.podcasts?.length === 0 && <TableRow>No Data Found</TableRow>}
+            {!loadingPosts && podcasts?.podcasts?.length === 0
+              && (
+              <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
+                No Data Found
+              </div>
+              )}
           </div>
         </div>
       </ContentPageWrapper>

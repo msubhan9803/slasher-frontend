@@ -67,5 +67,5 @@ export async function getLikeUsersForPost(postId: string, page: number) {
   };
   const limit = 20;
   const queryParameter = `?limit=${limit}&offset=${page * limit}`;
-  return axios.get(`${apiUrl}/feed-posts/${postId}/likes${queryParameter}`, { headers });
+  return axios.get(`${apiUrl}/api/v1/feed-posts/${postId}/likes${queryParameter}`, { headers });
 }

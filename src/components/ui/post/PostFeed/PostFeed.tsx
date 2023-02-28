@@ -24,11 +24,12 @@ import {
   escapeHtmlSpecialCharacters,
   newLineToBr,
 } from '../../../../utils/text-utils';
-import LoadingIndicator from '../../LoadingIndicator';
-import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
-import { useAppSelector } from '../../../../redux/hooks';
 import { MentionListProps } from '../../MessageTextarea';
 import { MD_MEDIA_BREAKPOINT } from '../../../../constants';
+import RoundButton from '../../RoundButton';
+import { useAppSelector } from '../../../../redux/hooks';
+import { HOME_WEB_DIV_ID, NEWS_PARTNER_POSTS_DIV_ID } from '../../../../utils/pubwise-ad-units';
+import LoadingIndicator from '../../LoadingIndicator';
 
 const READ_MORE_TEXT_LIMIT = 300;
 
@@ -45,6 +46,7 @@ interface Props {
   commentID?: string;
   commentReplyID?: string;
   otherUserPopoverOptions?: string[];
+  postCreaterPopoverOptions?: string[];
   setIsEdit?: (value: boolean) => void;
   setRequestAdditionalPosts?: (value: boolean) => void;
   noMoreData?: boolean;
@@ -63,6 +65,7 @@ interface Props {
   onSelect?: (value: string) => void;
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  postType?: string;
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -76,15 +79,19 @@ const StyledPostFeed = styled.div`
       }
     }
 `;
-
+const StyleSpoilerButton = styled(RoundButton)`
+  width: 150px;
+  height: 42px;
+`;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
-  commentReplyID, otherUserPopoverOptions, setIsEdit, setRequestAdditionalPosts,
+  commentReplyID, otherUserPopoverOptions, postCreaterPopoverOptions, setIsEdit,
+  setRequestAdditionalPosts,
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList,
+  handleSearch, mentionList, postType,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -132,7 +139,7 @@ function PostFeed({
     if (postDetail && !postDetail.userId && newsPostPopoverOptions?.length) {
       return newsPostPopoverOptions;
     }
-    if (postDetail?.userId && loginUserId !== postDetail?.userId) {
+    if (postDetail?.userId && loginUserId !== postDetail?.userId && postType === 'group-post') {
       return otherUserPopoverOptions!;
     }
     return popoverOptions;
@@ -154,33 +161,50 @@ function PostFeed({
       showReadMoreLink = true;
     }
     return (
-      <div>
-        {/* eslint-disable-next-line react/no-danger */}
-        <div dangerouslySetInnerHTML={
-          {
-            __html: escapeHtml
-              ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
-              : cleanExternalHtmlContent(content),
-          }
-        }
-        />
-        {post.hashTag?.map((hashtag: string) => (
-          <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
-            #
-            {hashtag}
-          </span>
-        ))}
-        {!detailPage
-          && showReadMoreLink
-          && (
-            <>
-              {' '}
-              <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
-                ...read more
-              </Link>
-            </>
-          )}
-      </div>
+      post.containsSpoilers
+        ? (
+          <div className="d-flex flex-column align-items-center p-5" style={{ backgroundColor: '#1B1B1B' }}>
+            <h2 className="text-primary fw-bold">Warning</h2>
+            <p className="fs-3">Contains spoilers</p>
+            <StyleSpoilerButton variant="filter" className="fs-5">
+              Click to view
+            </StyleSpoilerButton>
+          </div>
+        )
+        : (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <div dangerouslySetInnerHTML={
+              {
+                __html: escapeHtml
+                  ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
+                  : cleanExternalHtmlContent(content),
+              }
+            }
+            />
+            {
+              post.hashTag?.map((hashtag: string) => (
+                <span role="button" key={hashtag} tabIndex={0} className="fs-4 text-primary me-1" aria-hidden="true">
+                  #
+                  {hashtag}
+                </span>
+              ))
+            }
+            {
+              !detailPage
+              && showReadMoreLink
+              && (
+                <>
+                  {' '}
+                  <Link to={generateReadMoreLink(post)} className="text-decoration-none text-primary">
+                    ...read more
+                  </Link>
+                </>
+              )
+            }
+          </div>
+        )
+
     );
   };
 
@@ -202,7 +226,22 @@ function PostFeed({
       });
     }
   }, [postData, scrollPosition, location.pathname]);
-
+  const renderGroupPostContent = (posts: any) => (
+    <>
+      <p>
+        Posted in&nbsp;
+        <span className="text-primary">
+          {posts.postedIn}
+        </span>
+      </p>
+      <span className="my-2 px-3 py-1 rounded-pill" style={{ backgroundColor: '#383838' }}>
+        {posts.type}
+      </span>
+      <h1 className="h2 my-3">
+        {posts.contentHeading}
+      </h1>
+    </>
+  );
   return (
     <StyledPostFeed>
       {postData.map((post: any, i) => (
@@ -222,9 +261,11 @@ function PostFeed({
                   userId={post.userId}
                   rssfeedProviderId={post.rssfeedProviderId}
                   onSelect={onSelect}
+                  postType={postType}
                 />
               </Card.Header>
               <Card.Body className="px-0 pt-3">
+                {postType === 'group-post' && renderGroupPostContent(post)}
                 {renderPostContent(post)}
                 {post?.images && (
                   <CustomSwiper
@@ -254,6 +295,7 @@ function PostFeed({
                       likeCount={post.likeCount}
                       commentCount={post.commentCount}
                       handleLikeModal={openDialogue}
+                      postType={postType}
                     />
                   </Col>
                 </Row>
@@ -273,6 +315,7 @@ function PostFeed({
                     hasMore={!noMoreData}
                   >
                     <PostCommentSection
+                      postCreator={postData[0].userId}
                       commentSectionData={commentsData}
                       popoverOption={popoverOptions}
                       removeComment={removeComment}
@@ -282,6 +325,7 @@ function PostFeed({
                       commentReplyID={commentReplyID}
                       loginUserId={loginUserId}
                       otherUserPopoverOptions={otherUserPopoverOptions}
+                      postCreaterPopoverOptions={postCreaterPopoverOptions}
                       setIsEdit={setIsEdit}
                       isEdit={isEdit}
                       onLikeClick={onLikeClick}
@@ -335,6 +379,7 @@ PostFeed.defaultProps = {
   commentID: '',
   commentReplyID: '',
   otherUserPopoverOptions: [],
+  postCreaterPopoverOptions: [],
   setIsEdit: undefined,
   isEdit: false,
   setRequestAdditionalPosts: undefined,
@@ -353,5 +398,6 @@ PostFeed.defaultProps = {
   onSelect: undefined,
   handleSearch: undefined,
   mentionList: null,
+  postType: '',
 };
 export default PostFeed;

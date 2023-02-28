@@ -28,6 +28,7 @@ import PostFeed from './PostFeed/PostFeed';
 
 const loginUserPopoverOptions = ['Edit', 'Delete'];
 const otherUserPopoverOptions = ['Report', 'Block user'];
+const postCreaterPopoverOptions = ['Delete', 'Report', 'Block user'];
 const newsPostPopoverOptions = ['Report'];
 
 interface Props {
@@ -56,7 +57,6 @@ function PostDetail({ user, postType }: Props) {
   const queryCommentId = searchParams.get('commentId');
   const queryReplyId = searchParams.get('replyId');
   const [previousCommentsAvailable, setPreviousCommentsAvailable] = useState(false);
-  const loginUserId = useAppSelector((state) => state.user.user.id);
   const userData = useAppSelector((state) => state.user);
   const [updateState, setUpdateState] = useState(false);
 
@@ -106,12 +106,12 @@ function PostDetail({ user, postType }: Props) {
   }, [commentData, postId]);
 
   useEffect(() => {
-    if (requestAdditionalPosts && !loadingComments) {
+    if (requestAdditionalPosts && !loadingComments && (commentData.length || !queryCommentId)) {
       setLoadingComments(true);
       setNoMoreData(false);
       feedComments();
     }
-  }, [requestAdditionalPosts, loadingComments, feedComments]);
+  }, [requestAdditionalPosts, loadingComments, commentData, queryCommentId, feedComments]);
 
   const callLatestFeedComments = () => {
     getFeedComments(postId!).then((res) => {
@@ -126,7 +126,7 @@ function PostDetail({ user, postType }: Props) {
       feedPostId: '',
       images: [],
       message: '',
-      userId: userData.user,
+      userId: { ...userData.user, _id: userData.user.id },
       replies: [],
       createdAt: new Date().toISOString(),
     };
@@ -143,7 +143,7 @@ function PostDetail({ user, postType }: Props) {
             feedPostId: res.data.feedPostId,
             images: res.data.images,
             message: comment.commentMessage,
-            userId: userData.user,
+            userId: { ...userData.user, _id: userData.user.id },
             replies: [],
             createdAt: new Date().toISOString(),
           };
@@ -175,7 +175,7 @@ function PostDetail({ user, postType }: Props) {
             feedPostId: res.data.feedPostId,
             images: res.data.images,
             message: comment.commentMessage,
-            userId: userData.user,
+            userId: { ...userData.user, _id: userData.user.id },
             replies: [],
             createdAt: new Date().toISOString(),
           };
@@ -200,7 +200,7 @@ function PostDetail({ user, postType }: Props) {
       feedCommentId: '',
       images: [],
       message: '',
-      userId: userData.user,
+      userId: { ...userData.user, _id: userData.user.id },
       createdAt: new Date().toISOString(),
     };
 
@@ -217,7 +217,7 @@ function PostDetail({ user, postType }: Props) {
               replyValueData = {
                 ...staticReplies[index],
                 message: res.data.message,
-                userId: userData.user,
+                userId: { ...userData.user, _id: userData.user.id },
               };
               if (staticReplies[index]._id === res.data._id) {
                 staticReplies[index] = { ...res.data, ...replyValueData };
@@ -246,7 +246,7 @@ function PostDetail({ user, postType }: Props) {
           feedCommentId: res.data.feedCommentId,
           images: res.data.images,
           message: reply.replyMessage,
-          userId: userData.user,
+          userId: { ...userData.user, _id: userData.user.id },
           createdAt: new Date().toISOString(),
           new: true,
         };
@@ -293,7 +293,7 @@ function PostDetail({ user, postType }: Props) {
     }
   };
 
-  const getFeedPostDetail = (feedPostId: string) => {
+  const getFeedPostDetail = useCallback((feedPostId: string) => {
     feedPostDetail(feedPostId)
       .then((res) => {
         if (postType === 'news') {
@@ -318,8 +318,7 @@ function PostDetail({ user, postType }: Props) {
             commentCount: res.data.commentCount,
             likeCount: res.data.likeCount,
             sharedList: res.data.sharedList,
-            likes: res.data.likes,
-            likeIcon: res.data.likes.includes(loginUserId),
+            likeIcon: res.data.likedByUser,
             rssfeedProviderId: res.data.rssfeedProviderId?._id,
           };
         } else {
@@ -335,8 +334,7 @@ function PostDetail({ user, postType }: Props) {
             userName: res.data.userId.userName,
             profileImage: res.data.userId.profilePic,
             userId: res.data.userId._id,
-            likes: res.data.likes,
-            likeIcon: res.data.likes.includes(loginUserId!),
+            likeIcon: res.data.likedByUser,
             likeCount: res.data.likeCount,
             commentCount: res.data.commentCount,
           };
@@ -347,14 +345,13 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => {
         setErrorMessage(error.response.data.message);
       });
-  };
+  }, [navigate, partnerId, postId, postType, queryCommentId, user]);
 
   useEffect(() => {
     if (postId) {
       getFeedPostDetail(postId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId]);
+  }, [postId, getFeedPostDetail]);
 
   const onUpdatePost = (message: string) => {
     if (postId) {
@@ -380,7 +377,7 @@ function PostDetail({ user, postType }: Props) {
 
   const onPostLikeClick = (feedPostId: string) => {
     const checkLike = postData.some((post) => post.id === feedPostId
-      && post.likes?.includes(loginUserId!));
+      && post.likedByUser);
 
     if (checkLike) {
       unlikeFeedPost(feedPostId).then((res) => {
@@ -388,13 +385,10 @@ function PostDetail({ user, postType }: Props) {
           const unLikePostData = postData.map(
             (unLikePost: any) => { // NewsPartnerPostProps || Post type check
               if (unLikePost._id === feedPostId) {
-                const removeUserLike = unLikePost.likes?.filter(
-                  (removeId: string) => removeId !== loginUserId!,
-                );
                 return {
                   ...unLikePost,
                   likeIcon: false,
-                  likes: removeUserLike,
+                  likedByUser: false,
                   likeCount: unLikePost.likeCount - 1,
                 };
               }
@@ -412,7 +406,7 @@ function PostDetail({ user, postType }: Props) {
               return {
                 ...likePost,
                 likeIcon: true,
-                likes: [...likePost.likes!, loginUserId!],
+                likedByUser: true,
                 likeCount: likePost.likeCount + 1,
               };
             }
@@ -583,6 +577,7 @@ function PostDetail({ user, postType }: Props) {
         popoverOptions={loginUserPopoverOptions}
         onPopoverClick={handlePopoverOption}
         otherUserPopoverOptions={otherUserPopoverOptions}
+        postCreaterPopoverOptions={postCreaterPopoverOptions}
         isCommentSection
         commentsData={commentData}
         removeComment={removeComment}

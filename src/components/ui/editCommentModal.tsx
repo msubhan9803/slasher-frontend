@@ -43,10 +43,9 @@ function EditCommentModal({
               id, value, format: mentionString,
             };
           });
-        setFormatMention(formatMention.concat(finalFormatMentionList));
+        setFormatMention((prevMentions) => prevMentions.concat(finalFormatMentionList));
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editContent]);
   const onUpdatePost = (msg: string) => {
     let mentionReplyString = '';

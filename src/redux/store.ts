@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import registrationReducer from './slices/registrationSlice';
 import suggestedFriendsReducer from './slices/suggestedFriendsSlice';
 import userReducer from './slices/userSlice';
+import remoteConstantsReducer from './slices/remoteConstantsSlice';
 import pubWiseReducer from './slices/pubWiseSlice';
 import booksReducer from './slices/booksSlice';
 import artsReducer from './slices/artsSlice';
@@ -12,6 +13,7 @@ import scrollPositionReducer from './slices/scrollPositionSlice';
 export const store = configureStore({
   reducer: {
     registration: registrationReducer,
+    remoteConstants: remoteConstantsReducer,
     user: userReducer,
     books: booksReducer,
     arts: artsReducer,

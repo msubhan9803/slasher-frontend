@@ -15,10 +15,14 @@ interface Props {
   className?: string;
 }
 
-function CustomCreatePost({ className }: Props) {
+interface Props {
+  linkParams?: string;
+}
+
+function CustomCreatePost({ className, linkParams }: Props) {
   const userProfilePic = useAppSelector((state) => state.user.user.profilePic);
   return (
-    <StyledRoundButtonLink to="/app/posts/create" variant="dark" className={`w-100 d-flex justify-content-between ${className}`}>
+    <StyledRoundButtonLink to={`/app/posts/create${linkParams}`} variant="dark" className={`w-100 d-flex justify-content-between ${className}`}>
       <div>
         <UserCircleImage size="2.5rem" src={userProfilePic} alt="user picture" />
         <span className="ms-2 text-light fs-5">Create a post</span>
@@ -32,6 +36,10 @@ function CustomCreatePost({ className }: Props) {
 
 CustomCreatePost.defaultProps = {
   className: '',
+};
+
+CustomCreatePost.defaultProps = {
+  linkParams: '',
 };
 
 export default CustomCreatePost;

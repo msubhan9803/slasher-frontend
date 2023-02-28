@@ -21,8 +21,8 @@ interface AboutMovieData {
 }
 const StyledVerticalBorder = styled.div`
   border-right: 1px solid #3A3B46;
-  @media(min-width: 767px) { 
-    border-left: 1px solid #3A3B46; 
+  @media(min-width: 767px) {
+    border-left: 1px solid #3A3B46;
   }
 `;
 const AboutMovieDetails = styled.div`

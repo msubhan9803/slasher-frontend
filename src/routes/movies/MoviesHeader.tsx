@@ -17,19 +17,20 @@ interface MovisHeaderProps {
   sort?(e: React.ChangeEvent<HTMLSelectElement>): void | undefined;
   selectedKey?: string;
   applyFilter?(keyValue: string, sortValue?: string): void;
+  showMovieTab?: boolean;
   sortVal?: string;
 }
 
 const tabs = [
   { value: 'all', label: 'All movies' },
-  { value: 'slasher-indie', label: 'Slasher Indie' },
+  { value: 'slasher-indie', label: 'Slasher Indie', devOnly: true },
   { value: 'favorites', label: 'Favorites list' },
   { value: 'watch-list', label: 'Watch list' },
   { value: 'watched-list', label: 'Watched list' },
   { value: 'buy-list', label: 'Buy list' },
-  { value: 'my-movies', label: 'My movies' },
+  { value: 'my-movies', label: 'My movies', devOnly: true },
 ];
-const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => t.label === 'All movies');
+const allTabs = enableDevFeatures ? tabs : tabs.filter((t) => !t.devOnly);
 const sortoptions = [
   { value: 'name', label: 'Alphabetical' },
   { value: 'releaseDate', label: 'Release Date' },
@@ -37,11 +38,12 @@ const sortoptions = [
 ];
 function MoviesHeader({
   tabKey, showKeys, setShowKeys, setSearch, search, sort, selectedKey,
-  applyFilter, sortVal,
+  applyFilter, showMovieTab, sortVal,
 }: MovisHeaderProps) {
   return (
     <>
-      <TabLinks tabLink={allTabs} toLink="/app/movies" selectedTab={tabKey} />
+      {showMovieTab
+        && <TabLinks tabLink={allTabs} toLink="/app/movies" selectedTab={tabKey} />}
       <Row className="mt-3 mb-md-3 align-items-center">
         <Col md={4} className="mt-3 my-md-0 order-md-second order-md-first">
           <CustomSearchInput label="Search..." setSearch={setSearch} search={search} />
@@ -75,6 +77,7 @@ MoviesHeader.defaultProps = {
   sort: undefined,
   selectedKey: '',
   applyFilter: null,
+  showMovieTab: true,
   sortVal: 'name',
 };
 

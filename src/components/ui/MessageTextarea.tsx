@@ -109,7 +109,7 @@ function MessageTextarea({
       onFocus={() => isCommentInput && setIsReply && setIsReply!(false)}
       value={defaultValue || ''}
       notFoundContent="Type to search for a username"
-      aria-label="post"
+      aria-label="message"
     >
       {mentionLists && mentionLists?.map((mentionList: MentionListProps) => (
         <Option value={mentionList.userName} key={mentionList.id} style={{ zIndex: '100' }}>

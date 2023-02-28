@@ -125,5 +125,4 @@ PostFooter.defaultProps = {
   postType: '',
   setShowReviewDetail: undefined,
 };
-
 export default PostFooter;

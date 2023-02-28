@@ -101,6 +101,7 @@ export class AppModule {
         '/',
         '/api',
         '/api/v1',
+        '/api/v1/remote-constants',
         '/health-check',
         '/placeholders/(.*)', // the placeholders endpoint is only used in development and test environments
         '/api/v1/local-storage/(.*)', // the local-storage endpoint is only used in development and test environments

@@ -6,7 +6,7 @@ export const configureAppPrefixAndVersioning = (app: INestApplication) => {
       // Reminder: Paths below are exact matches (not "starts with")
       '/',
       '/api',
-      '/api/v1',
+      '/api/(.*)', // don't prefix something with /api if it already starts with api
       '/health-check',
     ],
   });

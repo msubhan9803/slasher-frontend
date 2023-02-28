@@ -42,6 +42,15 @@ describe('App (e2e)', () => {
       .expect({ version: process.env.npm_package_version }));
   });
 
+  describe('GET /api/v1/remote-constants', () => {
+    it('returns the expected response', () => request(app.getHttpServer())
+      .get('/api/v1/remote-constants')
+      .expect(200)
+      .expect({
+        placeholderUrlNoImageAvailable: 'http://localhost:4444/placeholders/no_image_available.png',
+      }));
+  });
+
   describe('GET /health-check', () => {
     it('returns the expected response', () => request(app.getHttpServer())
       .get('/health-check')

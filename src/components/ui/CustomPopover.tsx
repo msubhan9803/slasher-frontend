@@ -15,7 +15,7 @@ interface Props {
   content?: string;
   id?: string;
   userId?: string;
-  postImages?: string[];
+  postImages?: string[] | undefined;
 }
 
 export interface PopoverClickProps {
@@ -23,7 +23,7 @@ export interface PopoverClickProps {
   id?: string,
   userId?: string,
   userName?: string,
-  postImages?: string[]
+  postImages?: string[] | undefined,
 }
 
 const StyledPopover = styled.div`

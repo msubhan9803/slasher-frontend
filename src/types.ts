@@ -246,10 +246,14 @@ export interface CommentValue {
   commentMessage: string,
   imageArr?: string[],
   commentId?: string,
+  images?: any,
+  deleteImage?: string[],
 }
 export interface ReplyValue {
   replyMessage: string,
   commentId?: string,
   imageArr?: string[],
   replyId?: string,
+  images?: any,
+  deleteImage?: string[],
 }

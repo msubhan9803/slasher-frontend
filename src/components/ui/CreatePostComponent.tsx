@@ -54,7 +54,7 @@ function CreatePostComponent({
 
   const handleRemoveFile = (postImage: any) => {
     const removePostImage = imageArray.filter((image: File) => image !== postImage);
-    setDeleteImageIds([...deleteImageIds, postImage._id]);
+    setDeleteImageIds([...deleteImageIds, postImage._id].filter(Boolean));
     setImageArray(removePostImage);
   };
 

@@ -64,6 +64,9 @@ interface Props {
   onSelect?: (value: string) => void;
   handleSearch?: (val: string) => void;
   mentionList?: MentionListProps[];
+  commentImages?: string[];
+  setCommentImages?: (val: any) => void;
+  commentError?: string[];
 }
 const StyledPostFeed = styled.div`
     .post-separator {
@@ -86,7 +89,7 @@ function PostFeed({
   noMoreData, isEdit, loadingPosts, onLikeClick, newsPostPopoverOptions,
   escapeHtml, loadNewerComment, previousCommentsAvailable, addUpdateReply,
   addUpdateComment, updateState, setUpdateState, isSinglePagePost, onSelect,
-  handleSearch, mentionList,
+  handleSearch, mentionList, commentImages, setCommentImages, commentError,
 }: Props) {
   const [postData, setPostData] = useState<Post[]>([]);
   const [openLikeShareModal, setOpenLikeShareModal] = useState<boolean>(false);
@@ -95,7 +98,7 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
-  const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
+  const scrollPosition: any = useAppSelector((state: any) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
   const generateReadMoreLink = (post: any) => {
     if (post.rssfeedProviderId) {
@@ -297,6 +300,9 @@ function PostFeed({
                       setUpdateState={setUpdateState}
                       handleSearch={handleSearch}
                       mentionList={mentionList}
+                      commentImages={commentImages}
+                      setCommentImages={setCommentImages}
+                      commentError={commentError}
                     />
                   </InfiniteScroll>
                   {loadingPosts && <LoadingIndicator />}
@@ -358,5 +364,8 @@ PostFeed.defaultProps = {
   onSelect: undefined,
   handleSearch: undefined,
   mentionList: null,
+  commentError: undefined,
+  commentImages: [],
+  setCommentImages: () => { },
 };
 export default PostFeed;

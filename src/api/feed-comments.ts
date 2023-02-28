@@ -80,32 +80,51 @@ export async function updateFeedComments(
   feedPostId: string,
   message: string,
   feedCommentId: string,
+  file: string[],
+  imagesToDelete: string[] | undefined,
 ) {
   const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  for (let i = 0; i < file.length; i += 1) {
+    formData.append('files', file[i]);
+  }
+  formData.append('message', message);
+  formData.append('feedPostId', feedPostId);
+  if (imagesToDelete) {
+    for (let i = 0; i < imagesToDelete.length; i += 1) {
+      formData.append('imagesToDelete', imagesToDelete[i]);
+    }
+  }
   const headers = {
+    'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${token}`,
   };
-  const reqBody = {
-    message,
-    feedPostId,
-  };
-  return axios.patch(`${apiUrl}/api/v1/feed-comments/${feedCommentId}`, reqBody, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-comments/${feedCommentId}`, formData, { headers });
 }
 
 export async function updateFeedCommentReply(
   feedPostId: string,
   message: string,
   feedReplyId: string,
+  file: string[],
+  imagesToDelete: string[] | undefined,
 ) {
   const token = Cookies.get('sessionToken');
+  const formData = new FormData();
+  for (let i = 0; i < file.length; i += 1) {
+    formData.append('files', file[i]);
+  }
+  formData.append('message', message);
+  formData.append('feedPostId', feedPostId);
+  if (imagesToDelete && imagesToDelete.length) {
+    for (let i = 0; i < imagesToDelete.length; i += 1) {
+      formData.append('imagesToDelete', imagesToDelete[i]);
+    }
+  }
   const headers = {
     Authorization: `Bearer ${token}`,
   };
-  const reqBody = {
-    message,
-    feedPostId,
-  };
-  return axios.patch(`${apiUrl}/api/v1/feed-comments/replies/${feedReplyId}`, reqBody, { headers });
+  return axios.patch(`${apiUrl}/api/v1/feed-comments/replies/${feedReplyId}`, formData, { headers });
 }
 
 export async function singleComment(commentId: string) {

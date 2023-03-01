@@ -14,12 +14,15 @@ import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/fee
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
+import NewsRightSideNav from '../../../routes/news/components/NewsRightSideNav';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
 } from '../../../types';
 import { decryptMessage } from '../../../utils/text-utils';
 import FormatImageVideoList from '../../../utils/vido-utils';
+import { ContentPageWrapper } from '../../layout/main-site-wrapper/authenticated/ContentWrapper';
+import RightSidebarWrapper from '../../layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import { PopoverClickProps } from '../CustomPopover';
 import ErrorMessageList from '../ErrorMessageList';
 import ReportModal from '../ReportModal';
@@ -569,41 +572,43 @@ function PostDetail({ user, postType }: Props) {
       .catch((error) => console.error(error));
   };
   return (
-    <div>
-      <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
-      <PostFeed
-        detailPage
-        postFeedData={postData}
-        popoverOptions={loginUserPopoverOptions}
-        onPopoverClick={handlePopoverOption}
-        otherUserPopoverOptions={otherUserPopoverOptions}
-        postCreaterPopoverOptions={postCreaterPopoverOptions}
-        isCommentSection
-        commentsData={commentData}
-        removeComment={removeComment}
-        setCommentID={setCommentID}
-        setCommentReplyID={setCommentReplyID}
-        commentID={commentID}
-        commentReplyID={commentReplyID}
-        isEdit={isEdit}
-        setIsEdit={setIsEdit}
-        setRequestAdditionalPosts={setRequestAdditionalPosts}
-        noMoreData={noMoreData}
-        loadingPosts={loadingComments}
-        onLikeClick={onLikeClick}
-        loadNewerComment={loadNewerComment}
-        previousCommentsAvailable={previousCommentsAvailable}
-        addUpdateReply={addUpdateReply}
-        addUpdateComment={addUpdateComment}
-        updateState={updateState}
-        setUpdateState={setUpdateState}
-        isSinglePagePost
-        newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
-        escapeHtml={postType === 'news' ? false : undefined}
-        handleSearch={handleSearch}
-        mentionList={mentionList}
-      />
-      {dropDownValue !== 'Edit'
+    <>
+      <ContentPageWrapper>
+        <div>
+          <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
+          <PostFeed
+            detailPage
+            postFeedData={postData}
+            popoverOptions={loginUserPopoverOptions}
+            onPopoverClick={handlePopoverOption}
+            otherUserPopoverOptions={otherUserPopoverOptions}
+            postCreaterPopoverOptions={postCreaterPopoverOptions}
+            isCommentSection
+            commentsData={commentData}
+            removeComment={removeComment}
+            setCommentID={setCommentID}
+            setCommentReplyID={setCommentReplyID}
+            commentID={commentID}
+            commentReplyID={commentReplyID}
+            isEdit={isEdit}
+            setIsEdit={setIsEdit}
+            setRequestAdditionalPosts={setRequestAdditionalPosts}
+            noMoreData={noMoreData}
+            loadingPosts={loadingComments}
+            onLikeClick={onLikeClick}
+            loadNewerComment={loadNewerComment}
+            previousCommentsAvailable={previousCommentsAvailable}
+            addUpdateReply={addUpdateReply}
+            addUpdateComment={addUpdateComment}
+            updateState={updateState}
+            setUpdateState={setUpdateState}
+            isSinglePagePost
+            newsPostPopoverOptions={postType === 'news' ? newsPostPopoverOptions : undefined}
+            escapeHtml={postType === 'news' ? false : undefined}
+            handleSearch={handleSearch}
+            mentionList={mentionList}
+          />
+          {dropDownValue !== 'Edit'
         && (
           <ReportModal
             deleteText="Are you sure you want to delete this post?"
@@ -615,7 +620,7 @@ function PostDetail({ user, postType }: Props) {
             onBlockYesClick={onBlockYesClick}
           />
         )}
-      {postType !== 'news' && dropDownValue === 'Edit'
+          {postType !== 'news' && dropDownValue === 'Edit'
         && (
           <EditPostModal
             show={show}
@@ -627,7 +632,13 @@ function PostDetail({ user, postType }: Props) {
             onUpdatePost={onUpdatePost}
           />
         )}
-    </div>
+        </div>
+      </ContentPageWrapper>
+
+      <RightSidebarWrapper>
+        <NewsRightSideNav />
+      </RightSidebarWrapper>
+    </>
   );
 }
 

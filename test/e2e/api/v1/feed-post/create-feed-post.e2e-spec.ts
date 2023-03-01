@@ -14,6 +14,7 @@ import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
+import { PostType } from '../../../../../src/schemas/feedPost/feedPost.enums';
 
 describe('Feed-Post / Post File (e2e)', () => {
   let app: INestApplication;
@@ -67,6 +68,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('message', 'hello test user')
+          .field('postType', PostType.User)
           .field('userId', activeUser._id.toString())
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
@@ -76,6 +78,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         expect(response.body).toEqual({
           _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
           message: 'hello test user',
+          postType: 1,
           userId: activeUser._id.toString(),
           images: [
             {
@@ -131,11 +134,13 @@ describe('Feed-Post / Post File (e2e)', () => {
         .auth(activeUserAuthToken, { type: 'bearer' })
         .set('Content-Type', 'multipart/form-data')
         .field('message', message)
+        .field('postType', PostType.User)
         .field('userId', activeUser._id.toString())
         .expect(HttpStatus.CREATED);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'This is a test message',
+        postType: 1,
         userId: activeUser._id.toString(),
         images: [],
       });
@@ -148,6 +153,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .auth(activeUserAuthToken, { type: 'bearer' })
           .set('Content-Type', 'multipart/form-data')
           .field('userId', activeUser._id.toString())
+          .field('postType', PostType.User)
           .attach('files', tempPaths[0])
           .attach('files', tempPaths[1])
           .expect(HttpStatus.CREATED);
@@ -164,6 +170,7 @@ describe('Feed-Post / Post File (e2e)', () => {
         .post('/api/v1/feed-posts')
         .auth(activeUserAuthToken, { type: 'bearer' })
         .field('message', '')
+        .field('postType', PostType.User)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
     });
@@ -189,7 +196,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .attach('files', tempPaths[10])
           .attach('files', tempPaths[11])
           .expect(HttpStatus.BAD_REQUEST);
-          expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
+        expect(response.body).toEqual({ statusCode: 400, message: 'Too many files uploaded. Maximum allowed: 10' });
       }, [
         { extension: 'png' },
         { extension: 'png' },

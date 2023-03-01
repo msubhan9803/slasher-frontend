@@ -4,7 +4,7 @@ import { RssFeed } from '../rssFeed/rssFeed.schema';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
 import { User } from '../user/user.schema';
-import { FeedPostDeletionState, FeedPostStatus } from './feedPost.enums';
+import { FeedPostDeletionState, FeedPostStatus, PostType } from './feedPost.enums';
 import { FeedPostUnusedFields } from './feedPost.unused-fields';
 
 @Schema({ timestamps: true })
@@ -73,6 +73,22 @@ export class FeedPost extends FeedPostUnusedFields {
   @Prop({ default: null, ref: RssFeed.name })
   rssFeedId: mongoose.Schema.Types.ObjectId;
 
+  @Prop({
+    enum: [
+      PostType.User,
+      PostType.News,
+      PostType.MovieReview,
+    ],
+    default: PostType.User,
+  })
+  postType: PostType;
+
+  @Prop({ default: null })
+  title: string;
+
+  @Prop({ default: false })
+  spoilers: boolean;
+
   /***********
    * Methods *
    ***********/
@@ -101,7 +117,7 @@ FeedPostSchema.index(
 );
 FeedPostSchema.index(
   {
-   createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,
+    createdAt: 1, is_deleted: 1, status: 1, rssfeedProviderId: 1,
   },
 );
 

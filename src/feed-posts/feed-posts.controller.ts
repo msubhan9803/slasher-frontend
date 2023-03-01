@@ -79,6 +79,7 @@ export class FeedPostsController {
     const feedPost = new FeedPost(createFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
+    feedPost.postType = createFeedPostsDto.postType;
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
@@ -98,6 +99,7 @@ export class FeedPostsController {
       message: createFeedPost.message,
       userId: createFeedPost.userId,
       images: createFeedPost.images,
+      postType: createFeedPostsDto.postType,
     };
   }
 

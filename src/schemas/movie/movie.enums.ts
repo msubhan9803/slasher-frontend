@@ -13,3 +13,9 @@ export enum MovieDeletionStatus {
   NotDeleted = 0,
   Deleted = 1,
 }
+
+export enum WorthWatchingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}

@@ -20,9 +20,9 @@ function BasicMusicIndex() {
       setLoadingPosts(true);
       getMusic().then((res: any) => {
         dispatch(setMusicInitialData(res.data));
-        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
+      }).finally(() => {
         setLoadingPosts(false);
       });
     } else {

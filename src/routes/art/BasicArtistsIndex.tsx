@@ -1,35 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { DateTime } from 'luxon';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import BasicArtistsIndexList from './BasicArtistsIndexList';
 import ArtsRightSideNav from './components/ArtsRigthSideNav';
 import { getArts } from '../../api/arts';
 import { useAppSelector } from '../../redux/hooks';
-import { setArtsInitialData } from '../../redux/slices/artsSlice';
+import { setArtsState } from '../../redux/slices/artsSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 function BasicArtistsIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const arts = useAppSelector<any>((state) => state.arts);
+  const { arts, lastRetrievalTime } = useAppSelector<any>((state) => state.arts);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!arts?.arts?.length) {
+    if (!lastRetrievalTime
+      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('seconds') > 10
+    ) {
       setLoadingPosts(true);
+      console.log('fetching and updating store.arts now!');
       getArts().then((res: any) => {
-        dispatch(setArtsInitialData(res.data));
-        setLoadingPosts(false);
+        dispatch(setArtsState({ arts: res.data, lastRetrievalTime: DateTime.now().toISO() }));
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
+      }).finally(() => {
         setLoadingPosts(false);
       });
     } else {
       setLoadingPosts(false);
     }
-  }, [dispatch, arts?.arts?.length]);
+  }, [dispatch, lastRetrievalTime]);
 
   return (
     <ContentSidbarWrapper>
@@ -43,10 +47,10 @@ function BasicArtistsIndex() {
           <div className="m-2">
             <h1 className="h2">Arts</h1>
             {loadingPosts && <LoadingIndicator />}
-            {!loadingPosts && arts?.arts?.length > 0 && (
-              <BasicArtistsIndexList arts={arts && arts?.arts} />
+            {!loadingPosts && arts?.length > 0 && (
+              <BasicArtistsIndexList arts={arts && arts} />
             )}
-            {!loadingPosts && arts?.arts?.length === 0
+            {!loadingPosts && arts?.length === 0
             && (
             <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
               No Data Found

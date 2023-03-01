@@ -21,9 +21,10 @@ function BasicPodcastsIndex() {
       setLoadingPosts(true);
       getPodcasts().then((res: any) => {
         dispatch(setpodcastsInitialData(res.data));
-        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
+      }).finally(() => {
+        setLoadingPosts(false);
       });
     } else {
       setLoadingPosts(false);

@@ -24,9 +24,9 @@ function BasicBooksIndex() {
       setLoadingPosts(true);
       getBooks().then((res: any) => {
         dispatch(setBooksInitialData(res.data));
-        setLoadingPosts(false);
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
+      }).finally(() => {
         setLoadingPosts(false);
       });
     } else {

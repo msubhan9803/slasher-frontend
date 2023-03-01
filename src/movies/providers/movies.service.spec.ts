@@ -26,8 +26,8 @@ import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
 import { UserDocument } from '../../schemas/user/user.schema';
 import { UsersService } from '../../users/providers/users.service';
 import { userFactory } from '../../../test/factories/user.factory';
-import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
+import { WorthWatchingStatus } from '../../types';
 
 const mockHttpService = () => ({
 });

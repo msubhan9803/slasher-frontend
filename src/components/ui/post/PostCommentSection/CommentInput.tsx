@@ -66,6 +66,8 @@ function CommentInput({
         ? `##LINK_ID##${commentReplyID}${message}##LINK_END## `
         : `##LINK_ID##${commentID}${message}##LINK_END## `;
       setEditMessage(regexMessgafe);
+    } else {
+      setEditMessage('');
     }
   }, [message, commentID, isReply, commentReplyID]);
 

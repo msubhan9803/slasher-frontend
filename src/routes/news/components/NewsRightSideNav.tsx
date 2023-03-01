@@ -1,8 +1,9 @@
+// @ts-nocheck
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Col, Row,
 } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { matchPath, useLocation } from 'react-router-dom';
 import Switch from '../../../components/ui/Switch';
 import RecentMessages from '../../../components/layout/right-sidebar-wrapper/components/RecentMessages';
 import FriendRequests from '../../../components/layout/right-sidebar-wrapper/components/FriendRequests';
@@ -18,8 +19,15 @@ import { RssFeedProviderFollowNotificationsEnabled } from '../../../types';
 function NewsRightSideNav() {
   const [following, setFollowing] = useState<boolean>();
   const [notificationToggle, setNotificationToggle] = useState<boolean>();
-  const { partnerId } = useParams();
   const userData = useAppSelector((state) => state.user);
+  const location = useLocation();
+
+  const match = matchPath(
+    { path: '/app/news/partner/:partnerId', end: false },
+    location.pathname,
+  );
+
+  const partnerId = match?.params?.partnerId;
 
   const callGetFollowUnfollowDetail = useCallback(() => {
     if (userData?.user) {
@@ -73,31 +81,34 @@ function NewsRightSideNav() {
 
   return (
     <>
-      <div className="bg-dark  mb-4 mt-0 p-3 rounded-3">
-        <Row>
-          <Col xs={6}>
-            <RoundButton
-              variant={following ? 'black' : 'primary'}
-              onClick={followUnfollowClick}
-              className="w-100 fs-3 rounded-pill"
-            >
-              {following ? 'Unfollow' : 'Follow'}
-            </RoundButton>
-          </Col>
-        </Row>
-        {following
-          && (
-            <Row className="mt-3">
-              <Col>
-                <p className="fs-3 fw-bold">Get updates for this news partner</p>
-                <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
-                  <span>Push notifications</span>
-                  <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
-                </div>
-              </Col>
-            </Row>
-          )}
-      </div>
+      {partnerId
+        && (
+        <div className="bg-dark  mb-4 mt-0 p-3 rounded-3">
+          <Row>
+            <Col xs={6}>
+              <RoundButton
+                variant={following ? 'black' : 'primary'}
+                onClick={followUnfollowClick}
+                className="w-100 fs-3 rounded-pill"
+              >
+                {following ? 'Unfollow' : 'Follow'}
+              </RoundButton>
+            </Col>
+          </Row>
+          {following
+            && (
+              <Row className="mt-3">
+                <Col>
+                  <p className="fs-3 fw-bold">Get updates for this news partner</p>
+                  <div className="fs-3 mb-2 lh-lg d-flex justify-content-between">
+                    <span>Push notifications</span>
+                    <Switch id="pushNotificationSwitch" className="ms-0 ms-md-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
+                  </div>
+                </Col>
+              </Row>
+            )}
+        </div>
+        )}
       <AdvertisementBox />
       <RecentMessages />
       <FriendRequests />

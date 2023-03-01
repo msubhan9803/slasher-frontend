@@ -1,26 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { DateTime } from 'luxon';
 import { ContentPageWrapper, ContentSidbarWrapper } from '../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import BasicPodcastsList from './BasicPodcastsList';
 import PodcastsSidebar from './components/PodcastsSidebar';
 import { useAppSelector } from '../../redux/hooks';
-import { setpodcastsInitialData } from '../../redux/slices/podcasts';
+import { setPodcasts } from '../../redux/slices/podcastsSlice';
 import { getPodcasts } from '../../api/podcasts';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
 function BasicPodcastsIndex() {
-  const podcasts = useAppSelector<any>((state) => state.podcasts);
+  const { podcasts, lastRetrievalTime } = useAppSelector<any>((state) => state.podcasts);
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string[]>();
 
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!podcasts.podcasts.length) {
+    if (!lastRetrievalTime
+      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
+    ) {
       setLoadingPosts(true);
       getPodcasts().then((res: any) => {
-        dispatch(setpodcastsInitialData(res.data));
+        dispatch(setPodcasts(res.data));
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
       }).finally(() => {
@@ -29,7 +32,7 @@ function BasicPodcastsIndex() {
     } else {
       setLoadingPosts(false);
     }
-  }, [dispatch, podcasts?.podcasts?.length]);
+  }, [dispatch, lastRetrievalTime]);
 
   return (
     <ContentSidbarWrapper>
@@ -43,11 +46,11 @@ function BasicPodcastsIndex() {
           <div className="m-2">
             <h1 className="h2">Podcasts</h1>
             {loadingPosts && <LoadingIndicator />}
-            {!loadingPosts && podcasts?.podcasts?.length > 0 && (
-              <BasicPodcastsList podcasts={podcasts && podcasts?.podcasts} />
+            {!loadingPosts && podcasts?.length > 0 && (
+              <BasicPodcastsList podcasts={podcasts} />
             )}
             {/* eslint-disable-next-line max-len */}
-            {!loadingPosts && podcasts?.podcasts?.length === 0
+            {!loadingPosts && podcasts?.length === 0
               && (
               <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
                 No Data Found

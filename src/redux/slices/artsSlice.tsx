@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { DateTime } from 'luxon';
 
 const initialState = {
   arts: [],
@@ -9,16 +10,16 @@ export const artsSlice = createSlice({
   name: 'arts',
   initialState,
   reducers: {
-    setArtsState: (state, action: PayloadAction<typeof initialState>) => ({
+    setArts: (state, action: PayloadAction<typeof initialState['arts']>) => ({
       ...state,
-      arts: action.payload.arts,
-      lastRetrievalTime: action.payload.lastRetrievalTime,
+      arts: action.payload,
+      lastRetrievalTime: DateTime.now().toISO(),
     }),
   },
 });
 
 export const {
-  setArtsState,
+  setArts,
 } = artsSlice.actions;
 
 export default artsSlice.reducer;

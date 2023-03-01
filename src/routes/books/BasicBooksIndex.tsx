@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { DateTime } from 'luxon';
 import {
   ContentPageWrapper,
   ContentSidbarWrapper,
@@ -8,7 +9,7 @@ import BooksRightSideNav from './components/BooksRightSideNav';
 import RightSidebarWrapper from '../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import BasicBooksIndexList from './BasicBooksIndexList';
 import { getBooks } from '../../api/books';
-import { setBooksInitialData } from '../../redux/slices/booksSlice';
+import { setBooks } from '../../redux/slices/booksSlice';
 import { useAppSelector } from '../../redux/hooks';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
@@ -16,14 +17,16 @@ import ErrorMessageList from '../../components/ui/ErrorMessageList';
 function BasicBooksIndex() {
   const [loadingPosts, setLoadingPosts] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string[]>();
-  const books = useAppSelector<any>((state) => state.books);
+  const { books, lastRetrievalTime } = useAppSelector<any>((state) => state.books);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!books?.books?.length) {
+    if (!lastRetrievalTime
+      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
+    ) {
       setLoadingPosts(true);
       getBooks().then((res: any) => {
-        dispatch(setBooksInitialData(res.data));
+        dispatch(setBooks(res.data));
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
       }).finally(() => {
@@ -32,7 +35,7 @@ function BasicBooksIndex() {
     } else {
       setLoadingPosts(false);
     }
-  }, [dispatch, books?.books?.length]);
+  }, [dispatch, lastRetrievalTime]);
 
   return (
     <ContentSidbarWrapper>
@@ -46,10 +49,10 @@ function BasicBooksIndex() {
           <div className="m-2">
             <h1 className="h2">Books</h1>
             {loadingPosts && <LoadingIndicator />}
-            {!loadingPosts && books?.books?.length > 0 && (
-              <BasicBooksIndexList books={books && books?.books} />
+            {!loadingPosts && books?.length > 0 && (
+              <BasicBooksIndexList books={books} />
             )}
-            {!loadingPosts && books?.books?.length === 0
+            {!loadingPosts && books?.length === 0
               && (
               <div className="py-3 fw-bold" style={{ borderBottom: '1px solid var(--stroke-and-line-separator-color)' }}>
                 No Data Found

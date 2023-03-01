@@ -7,7 +7,7 @@ import BasicArtistsIndexList from './BasicArtistsIndexList';
 import ArtsRightSideNav from './components/ArtsRigthSideNav';
 import { getArts } from '../../api/arts';
 import { useAppSelector } from '../../redux/hooks';
-import { setArtsState } from '../../redux/slices/artsSlice';
+import { setArts } from '../../redux/slices/artsSlice';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import ErrorMessageList from '../../components/ui/ErrorMessageList';
 
@@ -19,12 +19,11 @@ function BasicArtistsIndex() {
 
   useEffect(() => {
     if (!lastRetrievalTime
-      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('seconds') > 10
+      || DateTime.now().diff(DateTime.fromISO(lastRetrievalTime)).as('minutes') > 5
     ) {
       setLoadingPosts(true);
-      console.log('fetching and updating store.arts now!');
       getArts().then((res: any) => {
-        dispatch(setArtsState({ arts: res.data, lastRetrievalTime: DateTime.now().toISO() }));
+        dispatch(setArts(res.data));
       }).catch((error) => {
         setErrorMessage(error.response.data.message);
       }).finally(() => {
@@ -45,7 +44,7 @@ function BasicArtistsIndex() {
             </div>
           )}
           <div className="m-2">
-            <h1 className="h2">Arts</h1>
+            <h1 className="h2">Art</h1>
             {loadingPosts && <LoadingIndicator />}
             {!loadingPosts && arts?.length > 0 && (
               <BasicArtistsIndexList arts={arts && arts} />

@@ -2,24 +2,24 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { DateTime } from 'luxon';
 
 const initialState = {
-  books: [],
+  podcasts: [],
   lastRetrievalTime: null as null | string,
 };
 
-export const booksSlice = createSlice({
-  name: 'books',
+export const podcastsSlice = createSlice({
+  name: 'podcasts',
   initialState,
   reducers: {
-    setBooks: (state, action: PayloadAction<typeof initialState['books']>) => ({
+    setPodcasts: (state, action: PayloadAction<typeof initialState['podcasts']>) => ({
       ...state,
-      books: action.payload,
+      podcasts: action.payload,
       lastRetrievalTime: DateTime.now().toISO(),
     }),
   },
 });
 
 export const {
-  setBooks,
-} = booksSlice.actions;
+  setPodcasts,
+} = podcastsSlice.actions;
 
-export default booksSlice.reducer;
+export default podcastsSlice.reducer;

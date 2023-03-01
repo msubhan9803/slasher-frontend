@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { getRssFeedProviderDetail } from '../../../api/rss-feed-providers';
+import {
+  disableRssFeedProviderNotification, enableRssFeedProviderNotification,
+  followRssFeedProvider, getRssFeedProviderDetail, getRssFeedProviderFollowUnfollow,
+  unfollowRssFeedProvider,
+} from '../../../api/rss-feed-providers';
 import { ContentPageWrapper } from '../../../components/layout/main-site-wrapper/authenticated/ContentWrapper';
 import RightSidebarWrapper from '../../../components/layout/main-site-wrapper/authenticated/RightSidebarWrapper';
 import RoundButton from '../../../components/ui/RoundButton';
 import Switch from '../../../components/ui/Switch';
 import UserCircleImage from '../../../components/ui/UserCircleImage';
+import { useAppSelector } from '../../../redux/hooks';
+import { RssFeedProviderFollowNotificationsEnabled } from '../../../types';
 import NewsPostData from '../components/NewsPostData';
 import NewsRightSideNav from '../components/NewsRightSideNav';
 
@@ -23,7 +29,59 @@ const CustomButton = styled(RoundButton)`
 function NewsPartnerDetail() {
   const { partnerId } = useParams<string>();
   const [rssFeedProviderDetail, setRssFeedProviderDetail] = useState<any>();
-  const [following, setFollowing] = useState(true);
+  const [following, setFollowing] = useState<boolean>(false);
+  const [notificationToggle, setNotificationToggle] = useState<boolean>(false);
+  const userData = useAppSelector((state) => state.user);
+
+  const callGetFollowUnfollowDetail = useCallback(() => {
+    if (userData?.user) {
+      getRssFeedProviderFollowUnfollow(partnerId!, userData.user.id).then((res: any) => {
+        if (res.data) {
+          setFollowing(true);
+          if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.NotEnabled) {
+            setNotificationToggle(false);
+          } else if (res.data.notification === RssFeedProviderFollowNotificationsEnabled.Enabled) {
+            setNotificationToggle(true);
+          }
+        }
+      }).catch((error) => {
+        if (error.response.status === 404) {
+          setFollowing(false);
+          setNotificationToggle(false);
+        }
+      });
+    }
+  }, [partnerId, userData.user]);
+
+  useEffect(() => {
+    if (userData && userData.user) {
+      callGetFollowUnfollowDetail();
+    }
+  }, [partnerId, userData, callGetFollowUnfollowDetail]);
+
+  const followUnfollowClick = () => {
+    if (!following) {
+      followRssFeedProvider(partnerId!, userData.user.id).then(() => {
+        callGetFollowUnfollowDetail();
+      });
+    } else {
+      unfollowRssFeedProvider(partnerId!, userData.user.id).then(() => {
+        callGetFollowUnfollowDetail();
+      });
+    }
+  };
+
+  const onOffNotificationClick = () => {
+    if (!notificationToggle) {
+      enableRssFeedProviderNotification(partnerId!, userData.user.id).then(() => {
+        callGetFollowUnfollowDetail();
+      });
+    } else {
+      disableRssFeedProviderNotification(partnerId!, userData.user.id).then(() => {
+        callGetFollowUnfollowDetail();
+      });
+    }
+  };
 
   useEffect(() => {
     if (partnerId) {
@@ -55,16 +113,19 @@ function NewsPartnerDetail() {
                 <div className="mt-3 mb-4">
                   <CustomButton
                     variant={following ? 'black' : 'primary'}
-                    onClick={() => setFollowing(!following)}
+                    onClick={followUnfollowClick}
                     className="w-100 rounded-pill shadow-none"
                   >
                     {following ? 'Unfollow' : 'Follow'}
                   </CustomButton>
                 </div>
+                {following
+                && (
                 <div className="my-4 lh-lg d-flex justify-content-center">
                   <span>Push notifications</span>
-                  <Switch id="pushNotificationSwitches" className="ms-3" />
+                  <Switch id="pushNotificationSwitches" className="ms-3" onSwitchToggle={onOffNotificationClick} isChecked={notificationToggle} />
                 </div>
+                )}
               </Col>
             </Row>
           </div>
@@ -72,7 +133,12 @@ function NewsPartnerDetail() {
         </div>
       </ContentPageWrapper>
       <RightSidebarWrapper>
-        <NewsRightSideNav />
+        <NewsRightSideNav
+          onOffNotificationClick={onOffNotificationClick}
+          followUnfollowClick={followUnfollowClick}
+          following={following}
+          notificationToggle={notificationToggle}
+        />
       </RightSidebarWrapper>
     </>
   );

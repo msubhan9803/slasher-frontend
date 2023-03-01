@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { MovieActiveStatus, MovieDeletionStatus, MovieType } from './movie.enums';
+import {
+ MovieActiveStatus, MovieDeletionStatus, MovieType, WorthWatchingStatus,
+} from './movie.enums';
 import { MovieUnusedFields } from './movie.unused-fields';
 
 @Schema({ timestamps: true })
@@ -40,6 +42,27 @@ export class Movie extends MovieUnusedFields {
 
   @Prop({ default: 0 })
   rating: number;
+
+  @Prop({ default: 0 })
+  ratingUsersCount: number;
+
+  @Prop({ default: 0 })
+  goreFactorRating: number;
+
+  @Prop({ default: 0 })
+  goreFactorRatingUsersCount: number;
+
+  @Prop({
+    default: 0,
+    enum: [WorthWatchingStatus.NoRating, WorthWatchingStatus.Down, WorthWatchingStatus.Up],
+  })
+  worthWatching: number;
+
+  @Prop({ default: 0 })
+  worthWatchingUpUsersCount: number;
+
+  @Prop({ default: 0 })
+  worthWatchingDownUsersCount: number;
 
   @Prop({ default: null, trim: true })
   sortRating: string;

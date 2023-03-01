@@ -1,9 +1,11 @@
+/* eslint-disable max-lines */
 import {
-  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Req, Post, Delete,
+  Controller, Param, Get, ValidationPipe, HttpException, HttpStatus, Query, Req,
+  Body, Put, Delete, Post,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import mongoose from 'mongoose';
 import { Request } from 'express';
+import mongoose from 'mongoose';
 import { pick } from '../utils/object-utils';
 import { relativeToFullImagePath } from '../utils/image-utils';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -13,12 +15,23 @@ import { ReleaseYearDto } from './dto/release.year.dto';
 import { SortNameQueryDto } from './dto/sort.name.query.dto';
 import { ValidateMovieIdDto } from './dto/vaidate.movies.id.dto';
 import { MoviesService } from './providers/movies.service';
-import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { getUserFromRequest } from '../utils/request-utils';
+import { CreateOrUpdateRatingDto } from './dto/create-or-update-rating-dto';
+import { CreateOrUpdateGoreFactorRatingDto } from './dto/create-or-update-gore-factor-rating-dto';
+import { CreateOrUpdateWorthWatchingDto } from './dto/create-or-update-worth-watching-dto';
+import { MovieUserStatusService } from '../movie-user-status/providers/movie-user-status.service';
 import { MovieUserStatusIdDto } from '../movie-user-status/dto/movie-user-status-id.dto';
+import { MovieUserStatus } from '../schemas/movieUserStatus/movieUserStatus.schema';
 
 @Controller({ path: 'movies', version: ['1'] })
 export class MoviesController {
+  async movieShouldExist(movieId: string) {
+    const movieData = await this.moviesService.findById(movieId, true);
+    if (!movieData) {
+      throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
+    }
+  }
+
   constructor(
     private readonly moviesService: MoviesService,
     private readonly movieUserStatusService: MovieUserStatusService,
@@ -44,15 +57,39 @@ export class MoviesController {
   }
 
   @Get(':id')
-  async findOne(@Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
-    const movieData = await this.moviesService.findById(params.id, true);
-    if (!movieData) {
+  async findOne(@Req() request: Request, @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto) {
+    const movie = await this.moviesService.findById(params.id, true);
+    if (!movie) {
       throw new HttpException('Movie not found', HttpStatus.NOT_FOUND);
     }
-    if (movieData.logo === null) {
-      movieData.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
+    // TODO: For now, we are always counting the number of users who have previously rated this movie.
+    // This is because the old API app does not update this count.  Once the old API is retired, we
+    // can instead just use the movie.ratingUsersCount field.
+    const ratingUsersCount = await this.moviesService.getRatingUsersCount(movie._id.toString());
+
+    const user = getUserFromRequest(request);
+    if (movie.logo === null) {
+      movie.logo = relativeToFullImagePath(this.configService, '/placeholders/movie_poster.png');
     }
-    return pick(movieData, ['movieDBId']);
+    type UserData = Partial<MovieUserStatus>;
+    // assign default values for simplistic usage in client side
+    let userData: UserData = { rating: 0, goreFactorRating: 0, worthWatching: 0 };
+
+    let movieUserStatus: any = await this.moviesService.getUserMovieStatusRatings(params.id, user.id);
+    if (movieUserStatus) {
+      movieUserStatus = pick(movieUserStatus, ['rating', 'goreFactorRating', 'worthWatching']);
+      userData = { ...userData, ...movieUserStatus };
+    }
+
+    return pick({
+      ...movie,
+      // Intentionally overriding value of `ratingUsersCount` of `movie` by coputing on every request because of old-api.
+      ratingUsersCount,
+      userData,
+    }, [
+      'movieDBId', 'rating', 'ratingUsersCount', 'goreFactorRating', 'goreFactorRatingUsersCount',
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
   }
 
   @Get()
@@ -91,6 +128,96 @@ export class MoviesController {
       throw new HttpException('MovieDB movie not found', HttpStatus.NOT_FOUND);
     }
     return movieDbData;
+  }
+
+  @Put(':id/rating')
+  async createOrUpdateRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateRatingDto: CreateOrUpdateRatingDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateRating(params.id, createOrUpdateRatingDto.rating, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['rating']) };
+    return pick(filterUserData, [
+      'rating', 'ratingUsersCount', 'userData',
+    ]);
+  }
+
+  @Put(':id/gore-factor')
+  async createOrUpdateGoreFactorRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateGoreFactorRatingDto: CreateOrUpdateGoreFactorRatingDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    // eslint-disable-next-line max-len
+    const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, createOrUpdateGoreFactorRatingDto.goreFactorRating, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['goreFactorRating']) };
+    return pick(filterUserData, [
+      'goreFactorRating', 'goreFactorRatingUsersCount', 'userData',
+    ]);
+  }
+
+  @Put(':id/worth-watching')
+  async createOrUpdateWorthWatching(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+    @Body() createOrUpdateWorthWatchingDto: CreateOrUpdateWorthWatchingDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    // eslint-disable-next-line max-len
+    const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, createOrUpdateWorthWatchingDto.worthWatching, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['worthWatching']) };
+    return pick(filterUserData, [
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
+  }
+
+  @Delete(':id/rating')
+  async deleteRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateRating(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['rating']) };
+    return pick(filterUserData, [
+      'rating', 'ratingUsersCount', 'userData',
+    ]);
+  }
+
+  @Delete(':id/gore-factor')
+  async deleteGoreFactorRating(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    const movieUserStatus = await this.moviesService.createOrUpdateGoreFactorRating(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['goreFactorRating']) };
+    return pick(filterUserData, [
+      'goreFactorRating', 'goreFactorRatingUsersCount', 'userData',
+    ]);
+  }
+
+  @Delete(':id/worth-watching')
+  async deleteWorthWatching(
+    @Req() request: Request,
+    @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: ValidateMovieIdDto,
+  ) {
+    await this.movieShouldExist(params.id);
+    const user = getUserFromRequest(request);
+    // eslint-disable-next-line max-len
+    const movieUserStatus = await this.moviesService.createOrUpdateWorthWatching(params.id, 0, user.id);
+    const filterUserData = { ...movieUserStatus, userData: pick(movieUserStatus.userData, ['worthWatching']) };
+    return pick(filterUserData, [
+      'worthWatching', 'worthWatchingUpUsersCount', 'worthWatchingDownUsersCount', 'userData',
+    ]);
   }
 
   @Get(':movieId/lists')

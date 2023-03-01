@@ -21,10 +21,12 @@ import movieDbId2907ExpectedFetchMovieDbDataReturnValue from
   '../../../test/fixtures/movie-db/moviedbid-2907-expected-fetchMovieDbData-return-value';
 import { MovieActiveStatus, MovieDeletionStatus, MovieType } from '../../schemas/movie/movie.enums';
 import { clearDatabase } from '../../../test/helpers/mongo-helpers';
-import { UsersService } from '../../users/providers/users.service';
-import { userFactory } from '../../../test/factories/user.factory';
 import { MovieUserStatus, MovieUserStatusDocument } from '../../schemas/movieUserStatus/movieUserStatus.schema';
 import { configureAppPrefixAndVersioning } from '../../utils/app-setup-utils';
+import { UserDocument } from '../../schemas/user/user.schema';
+import { UsersService } from '../../users/providers/users.service';
+import { userFactory } from '../../../test/factories/user.factory';
+import { WorthWatchingStatus } from '../../schemas/movieUserStatus/movieUserStatus.enums';
 import { rewindAllFactories } from '../../../test/helpers/factory-helpers.ts';
 
 const mockHttpService = () => ({
@@ -40,6 +42,8 @@ describe('MoviesService', () => {
   let movieModel: Model<MovieDocument>;
   let usersService: UsersService;
   let movieUserStatusModel: Model<MovieUserStatusDocument>;
+  let activeUser: UserDocument;
+  let user1: UserDocument;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -51,6 +55,7 @@ describe('MoviesService', () => {
     connection = moduleRef.get<Connection>(getConnectionToken());
     moviesService = moduleRef.get<MoviesService>(MoviesService);
     configService = moduleRef.get<ConfigService>(ConfigService);
+    usersService = moduleRef.get<UsersService>(UsersService);
     httpService = moduleRef.get<HttpService>(HttpService);
     usersService = moduleRef.get<UsersService>(UsersService);
     movieModel = moduleRef.get<Model<MovieDocument>>(getModelToken(Movie.name));
@@ -72,6 +77,10 @@ describe('MoviesService', () => {
 
     // Reset sequences so we start fresh before each test
     rewindAllFactories();
+
+    activeUser = await usersService.create(userFactory.build({ userName: 'Star Wars Fan' }));
+    user1 = await usersService.create(userFactory.build({ userName: 'Michael' }));
+
     movie = await moviesService.create(
       moviesFactory.build(),
     );
@@ -821,6 +830,7 @@ describe('MoviesService', () => {
   });
 
   describe('#MoviesIdsForUser', () => {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     let activeUser;
     let movie1;
     let movie2;
@@ -1035,6 +1045,115 @@ describe('MoviesService', () => {
         const movieIds = await moviesService.getFavoriteListMovieIdsForUser(activeUser._id);
         expect(movieIds).toEqual([movie2._id, movie3._id, movie._id]);
       });
+    });
+  });
+
+  describe('#createOrUpdateRating', () => {
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const rating = 3;
+      const movieUserStatus = await moviesService.createOrUpdateRating(movie.id, rating, activeUser.id);
+      expect(movieUserStatus.rating).toBe(rating);
+
+      // Verify that rating is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.rating).toBe(rating);
+    });
+
+    it('verify that average of all `rating` of movierUserStatus is updated in movie', async () => {
+      const rating1 = 1;
+      const movieUserStatus1 = await moviesService.createOrUpdateRating(movie.id, rating1, activeUser.id);
+      expect(movieUserStatus1.userData.rating).toBe(rating1);
+
+      const rating2 = 2;
+      const movieUserStatus2 = await moviesService.createOrUpdateRating(movie.id, rating2, user1.id);
+      expect(movieUserStatus2.userData.rating).toBe(rating2);
+
+      // Verify that average rating is correctly updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.rating).toBe(1.5);
+    });
+  });
+
+  describe('#createOrUpdateGoreFactorRating', () => {
+    it('create or update `goreFactorRating` in a movierUserStatus document', async () => {
+      const goreFactorRating = 3;
+      const movieUserStatus = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating, activeUser.id);
+      expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
+
+      // Verify that goreFactorRating is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.goreFactorRating).toBe(goreFactorRating);
+    });
+
+    it('verify that average of all `goreFactorRating` of movierUserStatus is updated in movie', async () => {
+      const goreFactorRating1 = 1;
+      const movieUserStatus1 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating1, activeUser.id);
+      expect(movieUserStatus1.userData.goreFactorRating).toBe(goreFactorRating1);
+
+      const goreFactorRating2 = 2;
+      const movieUserStatus2 = await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating2, user1.id);
+      expect(movieUserStatus2.userData.goreFactorRating).toBe(goreFactorRating2);
+
+      // Verify average `goreFactorRating` is correctly updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.goreFactorRating).toBe(1.5);
+    });
+  });
+
+  describe('#createOrUpdateWorthWatching', () => {
+    it('create or update  a movierUserStatus document', async () => {
+      const worthWatching = WorthWatchingStatus.Up;
+      const movieUserStatus = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching, activeUser.id);
+      expect(movieUserStatus.worthWatching).toBe(worthWatching);
+
+      // Verify that WorthWatching is updated in movie
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
+    });
+
+    it('verify that average of all WorthWatching of movierUserStatus is updated in movie', async () => {
+      const worthWatching1 = WorthWatchingStatus.Down;
+      const movieUserStatus1 = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching1, activeUser.id);
+      expect(movieUserStatus1.worthWatching).toBe(worthWatching1);
+
+      const worthWatching2 = WorthWatchingStatus.Up;
+      const movieUserStatus2 = await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching2, user1.id);
+      expect(movieUserStatus2.worthWatching).toBe(worthWatching2);
+
+      /** Verify average `WorthWatching` is rounded to the nearest integer
+       * i.e,, Math.round((1+2)/2) = Math.round(1.5) = 2 = WorthWatchingStatus.Up
+       */
+      const updatedMovie = await moviesService.findById(movie.id, false);
+      expect(updatedMovie.worthWatching).toBe(WorthWatchingStatus.Up);
+    });
+  });
+
+  describe('#getUserMovieStatusRatings', () => {
+    const rating = 3;
+    const goreFactorRating = 4;
+    const worthWatching = WorthWatchingStatus.Up;
+    beforeEach(async () => {
+      await moviesService.createOrUpdateRating(movie.id, rating, activeUser.id);
+      await moviesService.createOrUpdateGoreFactorRating(movie.id, goreFactorRating, activeUser.id);
+      await moviesService.createOrUpdateWorthWatching(movie.id, worthWatching, activeUser.id);
+    });
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const movieUserStatus = await moviesService.getUserMovieStatusRatings(movie.id, activeUser.id);
+      expect(movieUserStatus.rating).toBe(rating);
+      expect(movieUserStatus.goreFactorRating).toBe(goreFactorRating);
+      expect(movieUserStatus.worthWatching).toBe(worthWatching);
+    });
+  });
+
+  describe('#getRatingUsersCount', () => {
+    beforeEach(async () => {
+      // create rating by two users
+      await moviesService.createOrUpdateRating(movie.id, 4, activeUser.id);
+      await moviesService.createOrUpdateRating(movie.id, 5, user1.id);
+    });
+    it('create or update `rating` in a movierUserStatus document', async () => {
+      const ratingUsersCount = await moviesService.getRatingUsersCount(movie.id);
+      expect(ratingUsersCount).toBe(2);
     });
   });
 });

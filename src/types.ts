@@ -253,3 +253,26 @@ export interface ReplyValue {
   imageArr?: string[],
   replyId?: string,
 }
+export enum WorthWatchingStatus {
+  NoRating = 0,
+  Down = 1,
+  Up = 2,
+}
+export interface MovieData {
+  movieDBId : number;
+  // ratings
+  rating: number;
+  goreFactorRating : number;
+  worthWatching: number;
+  // number of users who rated for `rating`, `goreFactorRating` and `worthWatching`
+  ratingUsersCount: number;
+  goreFactorRatingUsersCount: number;
+  worthWatchingUpUsersCount: number;
+  worthWatchingDownUsersCount: number;
+  // ratings by logged-in user
+  userData: {
+    rating:number;
+    goreFactorRating: number;
+    worthWatching: number;
+  }
+}

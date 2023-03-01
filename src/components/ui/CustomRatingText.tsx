@@ -2,6 +2,7 @@ import React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
+import { formatNumberForRating } from '../../utils/number.utils';
 
 interface RatingTextProps {
   rating: number;
@@ -38,7 +39,7 @@ function CustomRatingText({
       <StyledRatingIcon width={customWidth} height={customHeight} ratingtype={ratingType} icon={icon} size="xs" />
       <div className="d-flex align-items-center m-md-0 ">
         <p className="fw-bold m-0 mx-2">
-          {rating}
+          {formatNumberForRating(rating)}
           /
           <span className="fw-normal">
             5

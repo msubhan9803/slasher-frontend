@@ -18,7 +18,7 @@ import MovieCasts from './MovieCasts';
 import MovieTrailers from './MovieTrailers';
 import MovieEdit from '../movie-edit/MovieEdit';
 import MoviePosts from '../movie-posts/MoviePosts';
-import { AdditionalMovieData } from '../../../types';
+import { AdditionalMovieData, MovieData } from '../../../types';
 import RoundButton from '../../../components/ui/RoundButton';
 import BorderButton from '../../../components/ui/BorderButton';
 import CustomGroupIcons from '../../../components/ui/CustomGroupIcons';
@@ -42,6 +42,8 @@ interface MovieIconProps {
 }
 interface AboutMovieData {
   aboutMovieData: AdditionalMovieData
+  movieData: MovieData
+  setMovieData: React.Dispatch<React.SetStateAction<MovieData | undefined>>
 }
 const StyledMoviePoster = styled.div`
   aspect-ratio: 0.67;
@@ -79,7 +81,7 @@ const tabsForViewer = tabsForAllViews;
 
 const filterEnableDevFeatures = (t: OptionType) => (enableDevFeatures ? true : (!t.devOnly));
 
-function AboutMovie({ aboutMovieData }: AboutMovieData) {
+function AboutMovie({ aboutMovieData, movieData, setMovieData }: AboutMovieData) {
   const [searchParams] = useSearchParams();
   const [movieIdList, setMovieIdList] = useState();
   const selfView = searchParams.get('view') === 'self';
@@ -155,7 +157,11 @@ function AboutMovie({ aboutMovieData }: AboutMovieData) {
             </StyledMoviePoster>
           </Col>
           <Col xl={7}>
-            <AboutDetails aboutMovieDetail={aboutMovieData as AdditionalMovieData} />
+            <AboutDetails
+              movieData={movieData}
+              setMovieData={setMovieData}
+              aboutMovieDetail={aboutMovieData as AdditionalMovieData}
+            />
           </Col>
         </Row>
         <Row>

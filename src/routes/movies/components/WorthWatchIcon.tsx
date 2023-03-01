@@ -1,7 +1,12 @@
-import React from 'react';
+/* eslint-disable max-len */
+import React, { useCallback, useState } from 'react';
 import { regular } from '@fortawesome/fontawesome-svg-core/import.macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
+import { MovieData, WorthWatchingStatus } from '../../../types';
+import { createOrUpdateWorthWatching } from '../../../api/movies';
+import { updateMovieUserData } from './updateMovieDataUtils';
 
 interface LikeProps {
   isLike?: boolean;
@@ -11,7 +16,7 @@ interface LikeProps {
   iconheight?: string;
 }
 interface DislikeProps {
-  isDislike?: boolean
+  isDislike?: boolean;
   width?: string;
   height?: string;
   iconwidth?: string;
@@ -41,7 +46,7 @@ export const StyledLikeIcon = styled.div <LikeProps>`
   svg {
     margin-left: 0.125rem;
     margin-top: -1px;
-  }
+  } 
   FontAwesomeIcon {
     width: ${(props) => (props.width ? props.iconwidth : '')};
     height: ${(props) => (props.width ? props.iconheight : '')};
@@ -55,43 +60,56 @@ const StyleWatchWorthIcon = styled(FontAwesomeIcon)`
   width: 0.995rem;
   height: 0.997rem;
 `;
-function WorthWatchIcon({
-  onlyButton, liked, setLike, height, width, iconWidth, iconHeight, className,
-}: any) {
+type Props = {
+  movieData?: MovieData;
+  setMovieData?: React.Dispatch<React.SetStateAction<MovieData | undefined>>;
+};
+function WorthWatchIcon({ movieData, setMovieData }: Props) {
+  const [liked, setLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Up);
+  const [disLiked, setDisLike] = useState<boolean>(movieData!.userData?.worthWatching === WorthWatchingStatus.Down);
+  const params = useParams();
+  const handleThumbsUp = useCallback(() => {
+    if (!params?.id) { return; }
+    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Up).then((res) => {
+      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+      setLike(true); setDisLike(false);
+    });
+  }, [params, setMovieData]);
+
+  const handleThumbsDown = useCallback(() => {
+    if (!params?.id) { return; }
+    createOrUpdateWorthWatching(params.id, WorthWatchingStatus.Down).then((res) => {
+      updateMovieUserData(res.data, 'worthWatching', setMovieData!);
+      setLike(false); setDisLike(true);
+    });
+  }, [params.id, setMovieData]);
   return (
     <div className="mx-1 d-flex align-items-center justify-content-around">
-      <div className={`${className || ' mt-2'} d-flex justify-content-center`}>
-        <StyledLikeIcon
-          iconwidth={iconWidth}
-          iconheight={iconHeight}
-          width={width}
-          height={height}
-          isLike={liked}
-          role="button"
-          onClick={() => { setLike(true); }}
-          className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle"
-        >
+      <div className="mt-2 d-flex justify-content-center ">
+        <StyledLikeIcon isLike={liked} role="button" onClick={handleThumbsUp} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-up')} />
         </StyledLikeIcon>
-        {!onlyButton && <p className="m-0 fs-3 text-light">(99k)</p>}
+        <p className="m-0 fs-3 text-light">
+          (
+          {movieData!.worthWatchingUpUsersCount ? movieData!.worthWatchingUpUsersCount : 0}
+          )
+        </p>
       </div>
-      <div className={`${className || ' mt-2'} d-flex justify-content-center`}>
-        <StyledDislikeIcon
-          iconwidth={iconWidth}
-          iconheight={iconHeight}
-          width={width}
-          height={height}
-          isDislike={!liked}
-          role="button"
-          onClick={() => { setLike(false); }}
-          className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle"
-        >
+      <div className="mt-2 d-flex justify-content-center ">
+        <StyledDislikeIcon isDislike={disLiked} role="button" onClick={handleThumbsDown} className="d-flex justify-content-center align-items-center shadow-none bg-transparent me-2 rounded-circle">
           <StyleWatchWorthIcon icon={regular('thumbs-down')} />
         </StyledDislikeIcon>
-        {!onlyButton && <p className="m-0 fs-3 text-light">(99k)</p>}
+        <p className="m-0 fs-3 text-light">
+          (
+          {movieData!.worthWatchingDownUsersCount ? movieData!.worthWatchingDownUsersCount : 0}
+          )
+        </p>
       </div>
     </div>
   );
 }
-
+WorthWatchIcon.defaultProps = {
+  movieData: null,
+  setMovieData: undefined,
+};
 export default WorthWatchIcon;

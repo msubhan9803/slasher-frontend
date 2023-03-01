@@ -14,7 +14,6 @@ import MessageTextarea from './MessageTextarea';
 import RoundButton from './RoundButton';
 import CharactersCounter from './CharactersCounter';
 import RatingButtonGroups from './RatingButtonGroups';
-import WorthWatchIcon from '../../routes/movies/components/WorthWatchIcon';
 import CustomWortItText from './CustomWortItText';
 import { StyledBorder } from './StyledBorder';
 
@@ -49,7 +48,6 @@ interface Props {
   goreFactor?: number;
   setGoreFactor?: (value: number) => void;
   liked?: boolean;
-  setLike?: (value: boolean) => void;
   selectedPostType?: string;
   setSelectedPostType?: (value: string) => void;
 }
@@ -69,7 +67,7 @@ function CreatePostComponent({
   errorMessage, createUpdatePost, setPostMessageContent, imageArray, setImageArray,
   defaultValue, formatMention, setFormatMention, deleteImageIds, setDeleteImageIds,
   postType, titleContent, setTitleContent, containSpoiler, setContainSpoiler,
-  rating, setRating, goreFactor, setGoreFactor, liked, setLike, selectedPostType,
+  rating, setRating, goreFactor, setGoreFactor, liked, selectedPostType,
   setSelectedPostType,
 }: Props) {
   const inputFile = useRef<HTMLInputElement>(null);
@@ -138,16 +136,8 @@ function CreatePostComponent({
             <div>
               <Form.Label className="fw-bold h3">Worth watching?</Form.Label>
               <div className="d-flex align-items-center">
-                <WorthWatchIcon
-                  onlyButton
-                  liked={liked}
-                  setLike={setLike}
-                  width="42px"
-                  height="42px"
-                  iconWidth="22.4px"
-                  iconHeight="22.4px"
-                  className="m-0"
-                />
+                {/* // un-comment below codewhen api integrated */}
+                {/* <WorthWatchIcon /> */}
                 <CustomWortItText
                   divClass="align-items-center py-2 px-3 bg-black rounded-pill"
                   textClass="fs-4"
@@ -313,7 +303,6 @@ CreatePostComponent.defaultProps = {
   goreFactor: 0,
   setGoreFactor: undefined,
   liked: false,
-  setLike: undefined,
   selectedPostType: '',
   setSelectedPostType: undefined,
 };

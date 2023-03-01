@@ -17,7 +17,7 @@ function MovieReviews() {
   const [containSpoiler, setContainSpoiler] = useState<boolean>(false);
   const [rating, setRating] = useState(0);
   const [goreFactor, setGoreFactor] = useState(0);
-  const [liked, setLike] = useState<boolean>(true);
+  const liked = true;
   const handlePopoverOption = (value: string) => value;
   const handleCreateInput = () => {
     setShowReviewForm(true);
@@ -66,7 +66,6 @@ function MovieReviews() {
               goreFactor={goreFactor}
               setGoreFactor={setGoreFactor}
               liked={liked}
-              setLike={setLike}
             />
           ) : (
             <CustomCreatePost

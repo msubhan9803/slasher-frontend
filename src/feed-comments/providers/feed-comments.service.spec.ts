@@ -131,10 +131,21 @@ describe('FeedCommentsService', () => {
 
   describe('#updateFeedComment', () => {
     it('finds the expected comments and update the details', async () => {
-      const message1 = 'Hello Test Message 2';
-      const updatedComment = await feedCommentsService.updateFeedComment(feedComments._id.toString(), message1);
+      const feedCommentsJson = {
+        message: 'Hello Test Message 2',
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+          },
+        ],
+      };
+      const updatedComment = await feedCommentsService.updateFeedComment(feedComments._id.toString(), feedCommentsJson);
       const feedCommentData = await feedCommentsModel.findById(updatedComment._id);
-      expect(feedCommentData.message).toEqual(message1);
+      expect(feedCommentData.message).toEqual(feedCommentsJson.message);
+      expect(feedCommentData.images.map((el) => el.image_path)).toEqual(feedCommentsJson.images.map((el) => el.image_path));
     });
   });
 
@@ -180,10 +191,21 @@ describe('FeedCommentsService', () => {
 
   describe('#updateFeedReply', () => {
     it('finds the expected replies and update the details', async () => {
-      const message = 'Hello Test Reply Message 2';
-      const updatedReply = await feedCommentsService.updateFeedReply(feedReply.id, message);
+      const feedReplyJson = {
+        message: 'Hello Test Message 2',
+        images: [
+          {
+            image_path: 'https://picsum.photos/id/237/200/300',
+          },
+          {
+            image_path: 'https://picsum.photos/seed/picsum/200/300',
+          },
+        ],
+      };
+      const updatedReply = await feedCommentsService.updateFeedReply(feedReply.id, feedReplyJson);
       const feedReplyData = await feedReplyModel.findById(updatedReply._id);
-      expect(feedReplyData.message).toEqual(message);
+      expect(feedReplyData.message).toEqual(feedReplyJson.message);
+      expect(feedReplyData.images.map((el) => el.image_path)).toEqual(feedReplyJson.images.map((el) => el.image_path));
     });
   });
 

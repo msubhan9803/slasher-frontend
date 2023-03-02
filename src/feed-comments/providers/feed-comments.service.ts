@@ -26,9 +26,9 @@ export class FeedCommentsService {
     return insertFeedComments;
   }
 
-  async updateFeedComment(feedCommentId: string, message: string): Promise<FeedComment> {
+  async updateFeedComment(feedCommentId: string, feedCommentData: Partial<FeedComment>): Promise<FeedComment> {
     return this.feedCommentModel
-      .findOneAndUpdate({ _id: feedCommentId }, { $set: { message } }, { new: true })
+      .findOneAndUpdate({ _id: feedCommentId }, feedCommentData, { new: true })
       .exec();
   }
 
@@ -56,9 +56,9 @@ export class FeedCommentsService {
     return feedReply;
   }
 
-  async updateFeedReply(feedReplyId: string, message: string): Promise<FeedReply> {
+  async updateFeedReply(feedReplyId: string, feedReplyData: Partial<FeedReply>): Promise<FeedReply> {
     return this.feedReplyModel
-      .findOneAndUpdate({ _id: feedReplyId }, { $set: { message } }, { new: true })
+      .findOneAndUpdate({ _id: feedReplyId }, feedReplyData, { new: true })
       .exec();
   }
 

@@ -9,7 +9,8 @@ import { S3StorageService } from '../local-storage/providers/s3-storage.service'
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { getUserFromRequest } from '../utils/request-utils';
 import { FeedPostsService } from './providers/feed-posts.service';
-import { CreateOrUpdateFeedPostsDto } from './dto/create-or-update-feed-post.dto';
+import { CreateFeedPostsDto } from './dto/create-feed-post.dto';
+import { UpdateFeedPostsDto } from './dto/update-feed-posts.dto';
 import { FeedPost } from '../schemas/feedPost/feedPost.schema';
 import { SingleFeedPostsDto } from './dto/find-single-feed-post.dto';
 import { defaultQueryDtoValidationPipeOptions } from '../utils/validation-utils';
@@ -54,10 +55,10 @@ export class FeedPostsController {
   )
   async createFeedPost(
     @Req() request: Request,
-    @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
+    @Body() createFeedPostsDto: CreateFeedPostsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    if (!files.length && createOrUpdateFeedPostsDto.message === '') {
+    if (!files.length && createFeedPostsDto.message === '') {
       throw new HttpException(
         'Posts must have a message or at least one image. No message or image received.',
         HttpStatus.BAD_REQUEST,
@@ -75,7 +76,7 @@ export class FeedPostsController {
       images.push({ image_path: storageLocation });
     }
 
-    const feedPost = new FeedPost(createOrUpdateFeedPostsDto);
+    const feedPost = new FeedPost(createFeedPostsDto);
     feedPost.images = images;
     feedPost.userId = user._id;
     const createFeedPost = await this.feedPostsService.create(feedPost);
@@ -137,18 +138,25 @@ export class FeedPostsController {
     );
   }
 
+  @TransformImageUrls('$.images[*].image_path')
   @Patch(':id')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_POST, {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+    }),
+  )
   async update(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions))
     param: SingleFeedPostsDto,
-    @Body() createOrUpdateFeedPostsDto: CreateOrUpdateFeedPostsDto,
+    @Body() updateFeedPostsDto: UpdateFeedPostsDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const feedPost = await this.feedPostsService.findById(param.id, true);
     if (!feedPost) {
       throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
-
     const user = getUserFromRequest(request);
     if ((feedPost.userId as any)._id.toString() !== user._id.toString()) {
       throw new HttpException(
@@ -163,10 +171,46 @@ export class FeedPostsController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    // eslint-disable-next-line max-len
+    if ((updateFeedPostsDto?.imagesToDelete?.length && !files?.length && updateFeedPostsDto.message === '' && feedPost?.images.length === updateFeedPostsDto?.imagesToDelete.length) || (!feedPost?.images.length && !files?.length && updateFeedPostsDto.message === '')) {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // eslint-disable-next-line
+    if ((updateFeedPostsDto?.imagesToDelete?.length && feedPost?.images?.length - updateFeedPostsDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_POST || (!updateFeedPostsDto?.imagesToDelete?.length && feedPost?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_POST} images on a post.`, HttpStatus.BAD_REQUEST);
+    }
 
+    let currentPostImages;
+    if (updateFeedPostsDto.imagesToDelete) {
+      const postImages = feedPost.images.filter((image) => !updateFeedPostsDto.imagesToDelete.includes((image as any)._id.toString()));
+      if (postImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_POST) {
+        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_POST} images on a post.`, HttpStatus.BAD_REQUEST);
+      }
+      currentPostImages = postImages;
+    }
+    const images = [];
+    for (const file of files) {
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
+      images.push({ image_path: storageLocation });
+    }
+
+    if (files.length || updateFeedPostsDto.imagesToDelete) {
+      const feedPostImages = images.concat(currentPostImages);
+      Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
+    }
+
+    const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(feedPost.message);
-    const updatedFeedPost = await this.feedPostsService.update(param.id, createOrUpdateFeedPostsDto);
-    const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(createOrUpdateFeedPostsDto?.message);
+    const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updateFeedPostsDto?.message);
 
     // Create notifications if any NEW users were mentioned after the edit
     const newMentionedUserIds = mentionedUserIdsAfterUpdate.filter((x) => !mentionedUserIdsBeforeUpdate.includes(x));
@@ -183,6 +227,8 @@ export class FeedPostsController {
     return {
       _id: updatedFeedPost.id,
       message: updatedFeedPost.message,
+      userId: updatedFeedPost.userId,
+      images: updatedFeedPost.images,
     };
   }
 

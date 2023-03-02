@@ -1,9 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, MaxLength } from 'class-validator';
+import {
+  IsOptional, MaxLength,
+} from 'class-validator';
 
-export class UpdateFeedCommentsDto {
+export class UpdateFeedPostsDto {
   @IsOptional()
-  @MaxLength(8000, { message: 'message cannot be longer than 8,000 characters' })
+  @MaxLength(20000, { message: 'message cannot be longer than 20,000 characters' })
   message?: string;
 
   @IsOptional()

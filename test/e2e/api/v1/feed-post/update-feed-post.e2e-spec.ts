@@ -1,9 +1,11 @@
+/* eslint-disable max-lines */
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { INestApplication, HttpStatus } from '@nestjs/common';
 import mongoose, { Connection } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { getConnectionToken } from '@nestjs/mongoose';
+import { readdirSync } from 'fs';
 import { AppModule } from '../../../../../src/app.module';
 import { UsersService } from '../../../../../src/users/providers/users.service';
 import { userFactory } from '../../../../factories/user.factory';
@@ -14,6 +16,7 @@ import { FeedPostDocument } from '../../../../../src/schemas/feedPost/feedPost.s
 import { clearDatabase } from '../../../../helpers/mongo-helpers';
 import { SIMPLE_MONGODB_ID_REGEX } from '../../../../../src/constants';
 import { configureAppPrefixAndVersioning } from '../../../../../src/utils/app-setup-utils';
+import { createTempFiles } from '../../../../helpers/tempfile-helpers';
 import { rewindAllFactories } from '../../../../helpers/factory-helpers.ts';
 
 describe('Update Feed Post (e2e)', () => {
@@ -80,12 +83,24 @@ describe('Update Feed Post (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedPostObject);
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', sampleFeedPostObject.message);
       const feedPostDetails = await feedPostsService.findById(response.body._id, true);
       expect(response.status).toEqual(HttpStatus.OK);
       expect(response.body).toEqual({
         _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
         message: 'hello all test user upload your feed post',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
       });
       expect(feedPostDetails.lastUpdateAt > postBeforeUpdate.lastUpdateAt).toBe(true);
     });
@@ -101,7 +116,7 @@ describe('Update Feed Post (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPostDetails._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .field('message', 'hello test user');
       expect(response.status).toEqual(HttpStatus.FORBIDDEN);
       expect(response.body.message).toBe('You can only edit a post that you created.');
     });
@@ -111,19 +126,299 @@ describe('Update Feed Post (e2e)', () => {
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPostDetails}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send();
+        .field('message', 'hello test user');
       expect(response.status).toEqual(HttpStatus.NOT_FOUND);
       expect(response.body.message).toBe('Post not found');
+    });
+
+    it('when imagesToDelete is exist than check files length, return the expected response', async () => {
+      const feedPost1 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            userId: activeUser._id,
+          },
+        ),
+      );
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost1._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('imagesToDelete', (feedPost1.images[0] as any).id)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3])
+          .attach('files', tempPaths[4])
+          .attach('files', tempPaths[5])
+          .attach('files', tempPaths[6])
+          .attach('files', tempPaths[7])
+          .attach('files', tempPaths[8])
+          .attach('files', tempPaths[9]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Cannot include more than 10 images on a post.',
+        });
+      }, [
+        { extension: 'png' }, { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'jpg' }, { extension: 'jpg' },
+        { extension: 'jpg' }, { extension: 'jpg' }, { extension: 'gif' },
+        { extension: 'gif' },
+      ]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imagesToDelete and files is exist than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .field('imagesToDelete', (feedPost.images[0] as any).id)
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        const feedPostDetails = await feedPostsService.findById(response.body._id, true);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        expect(feedPostDetails.images).toHaveLength(3);
+      }, [{ extension: 'png' }, { extension: 'png' }]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imagesToDelete id not exist and files is exist than expected response', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        const feedPostDetails = await feedPostsService.findById(response.body._id, true);
+        expect(response.body).toEqual({
+          _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          message: 'hello test user',
+          userId: activeUser._id.toString(),
+          images: [
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+            {
+              image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+              _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+            },
+          ],
+        });
+        expect(feedPostDetails.images).toHaveLength(4);
+      }, [{ extension: 'png' }, { extension: 'png' }]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('when imagesToDelete id exist and files is not exist than expected response', async () => {
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/feed-posts/${feedPost._id}`)
+        .auth(activeUserAuthToken, { type: 'bearer' })
+        .set('Content-Type', 'multipart/form-data')
+        .field('imagesToDelete', (feedPost.images[0] as any).id)
+        .field('message', 'hello test user');
+      const feedPostDetails = await feedPostsService.findById(response.body._id, true);
+      expect(response.body).toEqual({
+        _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+        message: 'hello test user',
+        userId: activeUser._id.toString(),
+        images: [
+          {
+            image_path: expect.stringMatching(/\/feed\/feed_.+\.png|jpe?g/),
+            _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
+          },
+        ],
+      });
+      expect(feedPostDetails.images).toHaveLength(1);
+    });
+
+    it('only allows a maximum of 10 images', async () => {
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .field('message', 'hello test user')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1])
+          .attach('files', tempPaths[2])
+          .attach('files', tempPaths[3])
+          .attach('files', tempPaths[4])
+          .attach('files', tempPaths[5])
+          .attach('files', tempPaths[6])
+          .attach('files', tempPaths[7])
+          .attach('files', tempPaths[8])
+          .attach('files', tempPaths[9])
+          .attach('files', tempPaths[10])
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('Too many files uploaded. Maximum allowed: 10');
+      }, [
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'png' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'jpg' },
+        { extension: 'gif' },
+        { extension: 'gif' },
+        { extension: 'gif' },
+      ]);
+
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('responds expected response when neither message nor file are present in request'
+      + 'and db images length or body imagesToDelete length is same', async () => {
+        const feedPost0 = await feedPostsService.create(
+          feedPostFactory.build(
+            {
+              images: [{
+                image_path: '/feed/feed_sample1.jpg',
+              }],
+              userId: activeUser._id,
+            },
+          ),
+        );
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost0._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .field('message', '')
+          .field('imagesToDelete', (feedPost.images[0] as any).id)
+          .expect(HttpStatus.BAD_REQUEST);
+        expect(response.body.message).toBe('Posts must have a message or at least one image. No message or image received.');
+      });
+
+    it('when post has a already 9 images and add more 2 images than expected response', async () => {
+      const feedPost2 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            images: [
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/id/237/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+              {
+                image_path: 'https://picsum.photos/seed/picsum/200/300',
+              },
+            ],
+            userId: activeUser._id,
+          },
+        ),
+      );
+
+      await createTempFiles(async (tempPaths) => {
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/feed-posts/${feedPost2._id}`)
+          .auth(activeUserAuthToken, { type: 'bearer' })
+          .set('Content-Type', 'multipart/form-data')
+          .attach('files', tempPaths[0])
+          .attach('files', tempPaths[1]);
+        expect(response.body).toEqual({
+          statusCode: 400,
+          message: 'Cannot include more than 10 images on a post.',
+        });
+      }, [
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+        { extension: 'png' }, { extension: 'png' },
+      ]);
+      // There should be no files in `UPLOAD_DIR` (other than one .keep file)
+      const allFilesNames = readdirSync(configService.get<string>('UPLOAD_DIR'));
+      expect(allFilesNames).toEqual(['.keep']);
+    });
+
+    it('check message has a black string or files or imagesToDelete is not exists', async () => {
+      const feedPost3 = await feedPostsService.create(
+        feedPostFactory.build(
+          {
+            images: [],
+            userId: activeUser._id,
+          },
+        ),
+      );
+      const response = await request(app.getHttpServer())
+      .patch(`/api/v1/feed-posts/${feedPost3._id}`)
+      .auth(activeUserAuthToken, { type: 'bearer' })
+      .set('Content-Type', 'multipart/form-data')
+      .field('message', '');
+      expect(response.body).toEqual({
+        statusCode: 400,
+        message: 'Posts must have a message or at least one image. No message or image received.',
+      });
     });
   });
 
   describe('Validation', () => {
     it('check message length validation', async () => {
-      sampleFeedPostObject.message = new Array(20_002).join('z');
+      const message = new Array(20_002).join('z');
       const response = await request(app.getHttpServer())
         .patch(`/api/v1/feed-posts/${feedPost._id}`)
         .auth(activeUserAuthToken, { type: 'bearer' })
-        .send(sampleFeedPostObject);
+        .set('Content-Type', 'multipart/form-data')
+        .field('message', message);
       expect(response.body.message).toContain('message cannot be longer than 20,000 characters');
     });
   });

@@ -8,7 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { S3StorageService } from '../local-storage/providers/s3-storage.service';
 import { LocalStorageService } from '../local-storage/providers/local-storage.service';
 import { FeedCommentsService } from './providers/feed-comments.service';
-import { MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_IMAGES } from '../constants';
+import {
+  MAXIMUM_IMAGE_UPLOAD_SIZE, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, UPLOAD_PARAM_NAME_FOR_FILES, UPLOAD_PARAM_NAME_FOR_IMAGES,
+} from '../constants';
 import { CreateFeedCommentsDto } from './dto/create-feed-comments.dto';
 import { UpdateFeedCommentsDto } from './dto/update-feed-comments.dto';
 import { CreateFeedReplyDto } from './dto/create-feed-reply.dto';
@@ -51,13 +53,13 @@ export class FeedCommentsController {
 
   @TransformImageUrls('$.images[*].image_path')
   @Post()
-@UseInterceptors(
-  ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
-    fileFilter: defaultFileInterceptorFileFilter,
-    limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
-  }),
-)
-async createFeedComment(
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_IMAGES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+    }),
+  )
+  async createFeedComment(
     @Req() request: Request,
     @Body() createFeedCommentsDto: CreateFeedCommentsDto,
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -123,10 +125,17 @@ async createFeedComment(
 
   @TransformImageUrls('$.images[*].image_path')
   @Patch(':feedCommentId')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+    }),
+  )
   async updateFeedComment(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedCommentsIdDto,
     @Body() updateFeedCommentsDto: UpdateFeedCommentsDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const user = getUserFromRequest(request);
     const comment = await this.feedCommentsService.findFeedComment(params.feedCommentId);
@@ -138,8 +147,51 @@ async createFeedComment(
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
 
+    // eslint-disable-next-line max-len
+    if ((updateFeedCommentsDto?.imagesToDelete?.length && !files.length && updateFeedCommentsDto.message === '' && comment?.images.length === updateFeedCommentsDto?.imagesToDelete.length) || (!comment?.images.length && !files.length && updateFeedCommentsDto.message === '')) {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // eslint-disable-next-line
+    if ((updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length - updateFeedCommentsDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedCommentsDto?.imagesToDelete?.length && comment?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
+    }
+
+    let currentCommentImages;
+    if (updateFeedCommentsDto.imagesToDelete) {
+      const commentImages = comment.images.filter((image) => !updateFeedCommentsDto.imagesToDelete.includes((image as any)._id.toString()));
+      if (commentImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+        // eslint-disable-next-line max-len
+        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a comment.`, HttpStatus.BAD_REQUEST);
+      }
+      currentCommentImages = commentImages;
+    }
+
+    const images = [];
+    for (const file of files) {
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
+      images.push({ image_path: storageLocation });
+    }
+    if (files.length || updateFeedCommentsDto.imagesToDelete) {
+      const feedCommentImages = images.concat(currentCommentImages);
+      Object.assign(
+        updateFeedCommentsDto,
+        {
+          images: updateFeedCommentsDto.imagesToDelete ? feedCommentImages : images.concat(comment.images),
+        },
+      );
+    }
+
+    const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(comment.message);
-    const updatedComment = await this.feedCommentsService.updateFeedComment(params.feedCommentId, updateFeedCommentsDto.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedComment?.message);
 
     await this.sendFeedCommentUpdateNotifications(user, updatedComment, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);
@@ -249,10 +301,17 @@ async createFeedComment(
 
   @TransformImageUrls('$.images[*].image_path')
   @Patch('replies/:feedReplyId')
+  @UseInterceptors(
+    ...generateFileUploadInterceptors(UPLOAD_PARAM_NAME_FOR_FILES, MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT, {
+      fileFilter: defaultFileInterceptorFileFilter,
+      limits: { fileSize: MAXIMUM_IMAGE_UPLOAD_SIZE },
+    }),
+  )
   async updateFeedReply(
     @Req() request: Request,
     @Param(new ValidationPipe(defaultQueryDtoValidationPipeOptions)) params: FeedReplyIdDto,
     @Body() updateFeedReplyDto: UpdateFeedReplyDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const user = getUserFromRequest(request);
     const reply = await this.feedCommentsService.findFeedReply(params.feedReplyId);
@@ -263,9 +322,47 @@ async createFeedComment(
     if (reply.userId.toString() !== user.id) {
       throw new HttpException('Permission denied.', HttpStatus.FORBIDDEN);
     }
+    // eslint-disable-next-line max-len
+    if ((updateFeedReplyDto?.imagesToDelete?.length && !files.length && updateFeedReplyDto.message === '' && reply?.images.length === updateFeedReplyDto?.imagesToDelete.length) || (!reply?.images.length && !files.length && updateFeedReplyDto.message === '')) {
+      throw new HttpException(
+        'Posts must have a message or at least one image. No message or image received.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // eslint-disable-next-line
+    if ((updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length - updateFeedReplyDto?.imagesToDelete?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT || (!updateFeedReplyDto?.imagesToDelete?.length && reply?.images?.length + files?.length) > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+      // eslint-disable-next-line max-len
+      throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
+    }
 
+    let currentReplyImages;
+    if (updateFeedReplyDto.imagesToDelete) {
+      const replyImages = reply.images.filter((image) => !updateFeedReplyDto.imagesToDelete.includes((image as any)._id.toString()));
+      if (replyImages.length + files.length > MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT) {
+        // eslint-disable-next-line max-len
+        throw new HttpException(`Cannot include more than ${MAX_ALLOWED_UPLOAD_FILES_FOR_COMMENT} images on a reply.`, HttpStatus.BAD_REQUEST);
+      }
+      currentReplyImages = replyImages;
+    }
+
+    const images = [];
+    for (const file of files) {
+      const storageLocation = this.storageLocationService.generateNewStorageLocationFor('feed', file.filename);
+      if (this.config.get<string>('FILE_STORAGE') === 's3') {
+        await this.s3StorageService.write(storageLocation, file);
+      } else {
+        this.localStorageService.write(storageLocation, file);
+      }
+      images.push({ image_path: storageLocation });
+    }
+
+    if (files.length || updateFeedReplyDto.imagesToDelete) {
+      const feedCommentImages = images.concat(currentReplyImages);
+      Object.assign(updateFeedReplyDto, { images: updateFeedReplyDto.imagesToDelete ? feedCommentImages : images.concat(reply.images) });
+    }
+
+    const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto);
     const mentionedUserIdsBeforeUpdate = extractUserMentionIdsFromMessage(reply.message);
-    const updatedReply = await this.feedCommentsService.updateFeedReply(params.feedReplyId, updateFeedReplyDto.message);
     const mentionedUserIdsAfterUpdate = extractUserMentionIdsFromMessage(updatedReply?.message);
 
     await this.sendFeedReplyUpdateNotifications(user, updatedReply, mentionedUserIdsBeforeUpdate, mentionedUserIdsAfterUpdate);

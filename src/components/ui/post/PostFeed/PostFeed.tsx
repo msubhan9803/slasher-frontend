@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Card, Col, Row,
 } from 'react-bootstrap';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import {
+  Link, useLocation, useNavigate, useSearchParams,
+} from 'react-router-dom';
 import styled from 'styled-components';
 import linkifyHtml from 'linkify-html';
 import 'swiper/swiper-bundle.css';
@@ -83,6 +85,11 @@ const StyleSpoilerButton = styled(RoundButton)`
   width: 150px;
   height: 42px;
 `;
+
+const StyledContentContainer = styled.div`
+  max-width: max-content;
+  cursor: pointer;
+`;
 function PostFeed({
   postFeedData, popoverOptions, isCommentSection, onPopoverClick, detailPage,
   commentsData, removeComment, setCommentID, setCommentReplyID, commentID,
@@ -100,6 +107,7 @@ function PostFeed({
   const queryParam = searchParams.get('imageId');
   const loginUserId = Cookies.get('userId');
   const location = useLocation();
+  const navigate = useNavigate();
   const scrollPosition: any = useAppSelector((state) => state.scrollPosition);
   const [clickedPostId, setClickedPostId] = useState('');
   const generateReadMoreLink = (post: any) => {
@@ -133,6 +141,14 @@ function PostFeed({
       return `/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}?imageId=${imageId}`;
     }
     return `/${post.userName}/posts/${post.id}?imageId=${imageId}`;
+  };
+
+  const onPostContentClick = (post: any) => {
+    if (post.rssfeedProviderId) {
+      navigate(`/app/news/partner/${post.rssfeedProviderId}/posts/${post.id}`);
+    } else {
+      navigate(`/${post.userName}/posts/${post.id}`);
+    }
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -174,13 +190,15 @@ function PostFeed({
         : (
           <div>
             {/* eslint-disable-next-line react/no-danger */}
-            <div dangerouslySetInnerHTML={
+            <StyledContentContainer
+              dangerouslySetInnerHTML={
               {
                 __html: escapeHtml
                   ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
                   : cleanExternalHtmlContent(content),
               }
             }
+              onClick={() => onPostContentClick(post)}
             />
             {
               post.hashTag?.map((hashtag: string) => (

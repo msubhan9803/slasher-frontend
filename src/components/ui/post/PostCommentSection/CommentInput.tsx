@@ -10,9 +10,7 @@ import {
 } from 'react-bootstrap';
 import styled from 'styled-components';
 import UserCircleImage from '../../UserCircleImage';
-import PubWiseAd from '../../PubWiseAd';
 import ImagesContainer from '../../ImagesContainer';
-import { NEWS_PARTNER_DETAILS_DIV_ID } from '../../../../utils/pubwise-ad-units';
 import { decryptMessage } from '../../../../utils/text-utils';
 import MessageTextarea from '../../MessageTextarea';
 import { FormatMentionProps } from '../../../../routes/posts/create-post/CreatePost';
@@ -121,7 +119,6 @@ function CommentInput({
 
   return (
     <Form>
-      <PubWiseAd className="text-center mb-3" id={NEWS_PARTNER_DETAILS_DIV_ID} autoSequencer />
       <Row className="ps-3 pt-2 order-last order-sm-0">
         <Col xs="auto" className="pe-0">
           <UserCircleImage src={userData.user.profilePic} alt="user picture" className="me-3 bg-secondary" />

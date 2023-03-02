@@ -154,6 +154,7 @@ function PostFeed({
     } else {
       navigate(`/${post.userName}/posts/${post.id}`);
     }
+    onSelect!(post.id);
   };
 
   const showPopoverOption = (postDetail: any) => {
@@ -232,14 +233,14 @@ function PostFeed({
             <span>
               {/* eslint-disable-next-line react/no-danger */}
               <StyledContentContainer
-              dangerouslySetInnerHTML={
+                dangerouslySetInnerHTML={
                 {
                   __html: escapeHtml && !post?.spoiler
                     ? newLineToBr(linkifyHtml(decryptMessage(escapeHtmlSpecialCharacters(content))))
                     : cleanExternalHtmlContent(content),
                 }
               }
-              onClick={() => onPostContentClick(post)}
+                onClick={() => onPostContentClick(post)}
               />
               {
                 post.hashTag?.map((hashtag: string) => (

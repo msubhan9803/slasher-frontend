@@ -673,7 +673,7 @@ function PostDetail({ user, postType }: Props) {
               handleSearch={handleSearch}
               mentionList={mentionList}
               postType={postType}
-      />
+            />
             {dropDownValue !== 'Edit'
             && (
               <ReportModal

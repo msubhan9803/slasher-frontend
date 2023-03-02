@@ -215,15 +215,11 @@ function PostCommentSection({
   }, [isReply]);
 
   const sendComment = (commentId?: string) => {
-    const imageArr = commentId ? replyImageArray : imageArray;
     if (!commentId) {
       setMessage('');
       setImageArray([]);
     } else {
-      const mentionReplyString = replyMessage.replace(`@${replyUserName}`, `##LINK_ID##${selectedReplyCommentId}@${replyUserName}##LINK_END##`);
-      if (mentionReplyString || imageArr.length) {
-        setIsReply(false);
-      }
+      setIsReply(false);
       setReplyMessage('');
       setReplyImageArray([]);
       setUpdatedReply(true);

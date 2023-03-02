@@ -49,12 +49,15 @@ function EditPostModal({
       const finalString: any = formatMention.find(
         (matchMention: FormatMentionProps) => match.includes(matchMention.value),
       );
-      return finalString.format;
+      if (finalString) {
+        return finalString.format;
+      }
+      return match;
     }
     return undefined;
   };
   const handleMessage = () => {
-    const postContentWithMentionReplacements = (postContent.replace(/@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
+    const postContentWithMentionReplacements = (postContent.replace(/(?<!\S)@[a-zA-Z0-9_.-]+/g, mentionReplacementMatchFunc));
     onUpdatePost(postContentWithMentionReplacements);
   };
   return (

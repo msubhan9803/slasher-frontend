@@ -14,6 +14,7 @@ import { deleteFeedPost, feedPostDetail, updateFeedPost } from '../../../api/fee
 import { reportData } from '../../../api/report';
 import { getSuggestUserName } from '../../../api/users';
 import { useAppSelector } from '../../../redux/hooks';
+import { reviewComments, reviewPost } from '../../../routes/movies/movie-reviews/review-data';
 import { MentionProps } from '../../../routes/posts/create-post/CreatePost';
 import {
   CommentValue, FeedComments, Post, User,
@@ -642,13 +643,13 @@ function PostDetail({ user, postType }: Props) {
             <ErrorMessageList errorMessages={errorMessage} divClass="mt-3 text-start" className="m-0" />
             <PostFeed
               detailPage
-              postFeedData={postData}
+              postFeedData={postType === 'review' ? [reviewPost[0]] : postData}
               popoverOptions={loginUserPopoverOptions}
               onPopoverClick={handlePopoverOption}
               otherUserPopoverOptions={otherUserPopoverOptions}
               postCreaterPopoverOptions={postCreaterPopoverOptions}
               isCommentSection
-              commentsData={commentData}
+              commentsData={postType === 'review' ? reviewComments : commentData}
               removeComment={removeComment}
               setCommentID={setCommentID}
               setCommentReplyID={setCommentReplyID}
@@ -671,7 +672,8 @@ function PostDetail({ user, postType }: Props) {
               escapeHtml={postType === 'news' ? false : undefined}
               handleSearch={handleSearch}
               mentionList={mentionList}
-            />
+              postType={postType}
+      />
             {dropDownValue !== 'Edit'
             && (
               <ReportModal

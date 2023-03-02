@@ -14,15 +14,15 @@ interface CharactersCounterProps {
 }
 
 interface CustomSpanProps {
-  marginTop: string;
-  marginRight: string;
+  margintop: string;
+  marginright: string;
   right: string;
   top: string;
   bottom: string;
 }
 const CustomSpan = styled(Form.Text) <CustomSpanProps>`
-  margin-top: ${(props) => props.marginTop};
-  margin-right: ${(props) => props.marginRight};
+  margin-top: ${(props) => props.margintop};
+  margin-right: ${(props) => props.marginright};
   transform: translateY(-50%);
   right: ${(props) => props.right};
   top: ${(props) => props.top};
@@ -34,8 +34,8 @@ function CharactersCounter({
 }: CharactersCounterProps) {
   return (
     <CustomSpan
-      marginTop={marginTop}
-      marginRight={marginRight}
+      margintop={marginTop}
+      marginright={marginRight}
       right={right}
       top={top}
       bottom={bottom}

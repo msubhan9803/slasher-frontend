@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 
 const StyledWorth = styled.div`
-  color: #00FF0A;
+  color: var(--bs-success);
   div {
     width: 2.5rem;
     height: 2.5rem;

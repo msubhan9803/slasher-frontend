@@ -26,11 +26,9 @@ function ShoppingInformation({
           className="fs-4"
         />
         <CharactersCounter
-          counterClass="float-end fs-4"
+          counterClass="float-end fs-4 me-2"
           charCount={charCount}
           totalChar={113}
-          marginTop="-1.77rem"
-          marginRight=".7rem"
         />
       </Form.Group>
       <Row>

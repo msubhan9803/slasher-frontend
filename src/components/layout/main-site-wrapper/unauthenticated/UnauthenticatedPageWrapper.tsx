@@ -24,7 +24,7 @@ const StyledMain = styled.main<StyledMainProps>`
   flex: 1;
 
   ${(props: StyledMainProps) => props.hideTopLogo && `
-    background-color: #000;
+    background-color: var(--bs-black);
     @media (min-width: ${LG_MEDIA_BREAKPOINT}) {
       background-image: url(${signInImage});
       background-size: cover;

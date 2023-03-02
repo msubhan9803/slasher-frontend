@@ -32,7 +32,7 @@ const StyledSaveButton = styled(Button) <StyledSavedProps>`
   width: 85px;
   height: 28px;
   svg {
-    ${(props) => (props.saved ? 'color: #FFC700' : '')};
+    ${(props) => (props.saved ? 'color: var(--bs-yellow)' : '')};
   }
 `;
 function PostHeader({

@@ -30,7 +30,7 @@ const StyledRating = styled.div`
   margin-top: -2.5rem;
   svg {
     margin-bottom: 0.066rem;
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 0.847rem;
     height: 0.808rem;
   }

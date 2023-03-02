@@ -10,12 +10,12 @@ interface PackageProps {
 
 const StyledPackages = styled(Button) <PackageProps>`
   &.package-1 {
-    border: ${(data) => (data.btnborder === 'month' ? '1px solid #FF1800' : '1px solid #3A3B46')};
+    border: ${(data) => (data.btnborder === 'month' ? '1px solid var(--bs-primary)' : '1px solid #3A3B46')};
     width: 7.534rem;
     height: 7.934rem;
   }
   &.package-2 {
-    border: ${(data) => (data.btnborder === 'fullMonth' ? '1px solid #FF1800' : '1px solid #3A3B46')};
+    border: ${(data) => (data.btnborder === 'fullMonth' ? '1px solid var(--bs-primary)' : '1px solid #3A3B46')};
     width: 7.534rem;
     height: 9.267rem;
     .best-deal {

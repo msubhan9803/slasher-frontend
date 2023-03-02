@@ -20,19 +20,19 @@ const PosterCardStyle = styled(Card)`
     }
   }
   .fa-star {
-    color: #FF8A00;
+    color: var(--bs-orange);
     width: 0.847rem;
     height: 0.808rem;
   }
   .fa-thumbs-up {
-    color: #00FF0A;
+    color: var(--bs-success);
     background-color: #1F1F1F;
     border: 1px solid #3A3B46;
     width: 0.847rem;
     height: 0.808rem;
   }
   .fa-thumbs-down {
-    color: #FF1800;
+    color: var(--bs-primary);
     background-color: #1F1F1F;
     border: 1px solid #3A3B46;
     transform: rotateY(180deg);

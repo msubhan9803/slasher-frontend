@@ -7,7 +7,7 @@ const CustomTabs = styled(CustomScrollbar)`
   .nav-link {
     padding-bottom: 1rem !important;
     border: none;
-    color: #ffffff;
+    color: var(--bs-link-color);
     width: max-content;
     &:hover {
       border-color: transparent;

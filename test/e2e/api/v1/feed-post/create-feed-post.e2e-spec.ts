@@ -303,6 +303,7 @@ describe('Feed-Post / Post File (e2e)', () => {
           .field('message', 'this new post')
           .field('postType', PostType.User)
           .field('userId', activeUser._id.toString())
+          .field('movieId', movie._id.toString())
           .field('moviePostFields[title]', 'this movie title')
           .field('moviePostFields[spoilers]', true)
           .attach('files', tempPaths[0])

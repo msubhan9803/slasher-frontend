@@ -82,14 +82,10 @@ export class FeedPostsController {
     feedPost.images = images;
     feedPost.userId = user._id;
     feedPost.postType = createFeedPostsDto.postType;
-    if (createFeedPostsDto.movieId) {
-      feedPost.movieId = createFeedPostsDto.movieId;
-    }
-    if (createFeedPostsDto.moviePostFields) {
+
+    if (createFeedPostsDto.movieId && createFeedPostsDto.moviePostFields) {
       feedPost.title = createFeedPostsDto.moviePostFields.title;
       feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
-    }
-    if (createFeedPostsDto.movieId && createFeedPostsDto.moviePostFields) {
       const rating = createFeedPostsDto.moviePostFields.rating ? createFeedPostsDto.moviePostFields.rating : 0;
       // eslint-disable-next-line max-len
       const goreFactorRating = createFeedPostsDto.moviePostFields.goreFactorRating ? createFeedPostsDto.moviePostFields.goreFactorRating : 0;

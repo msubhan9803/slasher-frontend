@@ -4,10 +4,12 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional, Max, MaxLength, Min, ValidateNested,
 } from 'class-validator';
+import mongoose from 'mongoose';
 import { PostType } from '../../schemas/feedPost/feedPost.enums';
 import { WorthWatchingStatus } from '../../schemas/movie/movie.enums';
 
@@ -59,4 +61,8 @@ export class CreateFeedPostsDto {
   @Type(() => MoviePostDto)
   @ValidateNested()
   moviePostFields: MoviePostDto;
+
+  @IsOptional()
+  @IsMongoId()
+  movieId: mongoose.Schema.Types.ObjectId;
 }

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Movie } from '../movie/movie.schema';
 import { RssFeed } from '../rssFeed/rssFeed.schema';
 import { RssFeedProvider } from '../rssFeedProvider/rssFeedProvider.schema';
 import { Image, ImageSchema } from '../shared/image.schema';
@@ -23,6 +24,9 @@ export class FeedPost extends FeedPostUnusedFields {
 
   @Prop({ default: null, ref: User.name, required: true })
   userId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ default: null, ref: Movie.name })
+  movieId: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: null })
   message: string;

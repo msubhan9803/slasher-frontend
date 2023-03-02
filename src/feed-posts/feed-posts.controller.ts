@@ -30,6 +30,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { defaultFileInterceptorFileFilter } from '../utils/file-upload-utils';
 import { LikesLimitOffSetDto } from './dto/likes-limit-offset-query.dto';
 import { FriendsService } from '../friends/providers/friends.service';
+import { MoviesService } from '../movies/providers/movies.service';
 import { generateFileUploadInterceptors } from '../app/interceptors/file-upload-interceptors';
 
 @Controller({ path: 'feed-posts', version: ['1'] })
@@ -43,6 +44,7 @@ export class FeedPostsController {
     private readonly notificationsService: NotificationsService,
     private readonly blocksService: BlocksService,
     private readonly friendsService: FriendsService,
+    private readonly moviesService: MoviesService,
   ) { }
 
   @TransformImageUrls('$.images[*].image_path')
@@ -80,6 +82,24 @@ export class FeedPostsController {
     feedPost.images = images;
     feedPost.userId = user._id;
     feedPost.postType = createFeedPostsDto.postType;
+    if (createFeedPostsDto.movieId) {
+      feedPost.movieId = createFeedPostsDto.movieId;
+    }
+    if (createFeedPostsDto.moviePostFields) {
+      feedPost.title = createFeedPostsDto.moviePostFields.title;
+      feedPost.spoilers = createFeedPostsDto.moviePostFields.spoilers;
+    }
+    if (createFeedPostsDto.movieId && createFeedPostsDto.moviePostFields) {
+      const rating = createFeedPostsDto.moviePostFields.rating ? createFeedPostsDto.moviePostFields.rating : 0;
+      // eslint-disable-next-line max-len
+      const goreFactorRating = createFeedPostsDto.moviePostFields.goreFactorRating ? createFeedPostsDto.moviePostFields.goreFactorRating : 0;
+      const worthWatching = createFeedPostsDto.moviePostFields.worthWatching ? createFeedPostsDto.moviePostFields.worthWatching : 0;
+      await Promise.all([
+        await this.moviesService.createOrUpdateRating(createFeedPostsDto.movieId.toString(), rating, user.id),
+        await this.moviesService.createOrUpdateGoreFactorRating(createFeedPostsDto.movieId.toString(), goreFactorRating, user.id),
+        await this.moviesService.createOrUpdateWorthWatching(createFeedPostsDto.movieId.toString(), worthWatching, user.id),
+      ]);
+    }
     const createFeedPost = await this.feedPostsService.create(feedPost);
 
     // Create notifications if any users were mentioned
@@ -208,6 +228,23 @@ export class FeedPostsController {
     if (files.length || updateFeedPostsDto.imagesToDelete) {
       const feedPostImages = images.concat(currentPostImages);
       Object.assign(updateFeedPostsDto, { images: updateFeedPostsDto.imagesToDelete ? feedPostImages : images.concat(feedPost.images) });
+    }
+
+    if (feedPost.movieId && updateFeedPostsDto.moviePostFields) {
+      // eslint-disable-next-line no-param-reassign
+      (updateFeedPostsDto as unknown as FeedPost).title = updateFeedPostsDto.moviePostFields.title;
+      // eslint-disable-next-line no-param-reassign
+      (updateFeedPostsDto as unknown as FeedPost).spoilers = updateFeedPostsDto.moviePostFields.spoilers;
+      // eslint-disable-next-line max-len
+      const rating = updateFeedPostsDto.moviePostFields.rating ? updateFeedPostsDto.moviePostFields.rating : 0;
+      // eslint-disable-next-line max-len
+      const goreFactorRating = updateFeedPostsDto.moviePostFields.goreFactorRating ? updateFeedPostsDto.moviePostFields.goreFactorRating : 0;
+      const worthWatching = updateFeedPostsDto.moviePostFields.worthWatching ? updateFeedPostsDto.moviePostFields.worthWatching : 0;
+      await Promise.all([
+        await this.moviesService.createOrUpdateRating(feedPost.movieId.toString(), rating, user.id),
+        await this.moviesService.createOrUpdateGoreFactorRating(feedPost.movieId.toString(), goreFactorRating, user.id),
+        await this.moviesService.createOrUpdateWorthWatching(feedPost.movieId.toString(), worthWatching, user.id),
+      ]);
     }
 
     const updatedFeedPost = await this.feedPostsService.update(param.id, updateFeedPostsDto);

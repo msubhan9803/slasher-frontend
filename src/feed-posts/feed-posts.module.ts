@@ -12,6 +12,7 @@ import { BlocksService } from '../blocks/providers/blocks.service';
 import { BlockAndUnblock, BlockAndUnblockSchema } from '../schemas/blockAndUnblock/blockAndUnblock.schema';
 import { FriendsModule } from '../friends/friends.module';
 import { BlocksModule } from '../blocks/blocks.module';
+import { MoviesModule } from '../movies/movies.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BlocksModule } from '../blocks/blocks.module';
     RssFeedProviderFollowsModule,
     FriendsModule,
     BlocksModule,
+    MoviesModule,
   ],
   providers: [FeedPostsService, BlocksService, LocalStorageService, S3StorageService],
   exports: [FeedPostsService],

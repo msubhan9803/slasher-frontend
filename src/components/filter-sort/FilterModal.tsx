@@ -60,7 +60,7 @@ function FilterModal({
 
   const onClickApplyFilter = (keyVal?: string) => {
     if (applyFilter) {
-      applyFilter(postType !== 'group-post' ? keyVal! : key, selectedSortValue);
+      applyFilter(postType === 'group-post' ? keyVal! : key, selectedSortValue);
       handleCloseKeys();
     }
   };

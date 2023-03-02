@@ -135,8 +135,8 @@ describe('Find Users(e2e)', () => {
         expect(response.body).toEqual([
           {
             _id: expect.stringMatching(SIMPLE_MONGODB_ID_REGEX),
-            userName: 'Active user',
-            firstName: 'First name 1',
+            userName: activeUser.userName,
+            firstName: activeUser.firstName,
             profilePic: 'http://localhost:4444/placeholders/default_user_icon.png',
           },
         ]);
